@@ -1,0 +1,23 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtPartialResource",
+  "library-name": "MgmtPartialResource",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "head-as-boolean": true,
+  "skip-csproj-packagereference": true,
+  "RequestPathToResourceName": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}": "PartialVmss"
+  },
+  "OverrideOperationName": {
+    "PublicIPAddresses_ListVirtualMachineScaleSetPublicIPAddresses": "GetPublicIPAddresses"
+  },
+  "PartialResources": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}": "VirtualMachineScaleSet",
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}": "VirtualMachine"
+  }
+}

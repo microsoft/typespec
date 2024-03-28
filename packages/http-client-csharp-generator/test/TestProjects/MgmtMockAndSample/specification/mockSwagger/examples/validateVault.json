@@ -1,0 +1,27 @@
+{
+  "parameters": {
+    "resourceGroupName": "sample-resource-group",
+    "vaultName": "sample-vault",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "issues": [
+          {
+            "type": "type1",
+            "description": "Type 1 issue",
+            "sev": 1
+          },
+          {
+            "type": "type2",
+            "description": "Type 2 issue",
+            "sev": 0
+          }
+        ],
+        "result": "passed"
+      }
+    }
+  }
+}

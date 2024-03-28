@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIntLiteralAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetIntLiteralAsync.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response<IntLiteralProperty> response = await client.GetIntLiteralAsync();
+]]></code>
+This sample shows how to call GetIntLiteralAsync with all parameters.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response<IntLiteralProperty> response = await client.GetIntLiteralAsync();
+]]></code></example>
+    </member>
+    <member name="GetIntLiteral(CancellationToken)">
+      <example>
+This sample shows how to call GetIntLiteral.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response<IntLiteralProperty> response = client.GetIntLiteral();
+]]></code>
+This sample shows how to call GetIntLiteral with all parameters.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response<IntLiteralProperty> response = client.GetIntLiteral();
+]]></code></example>
+    </member>
+    <member name="GetIntLiteralAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIntLiteralAsync and parse the result.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response response = await client.GetIntLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetIntLiteralAsync with all parameters and parse the result.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response response = await client.GetIntLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntLiteral(RequestContext)">
+      <example>
+This sample shows how to call GetIntLiteral and parse the result.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response response = client.GetIntLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetIntLiteral with all parameters and parse the result.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+Response response = client.GetIntLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IntLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+IntLiteralProperty body = new IntLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+IntLiteralProperty body = new IntLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(IntLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+IntLiteralProperty body = new IntLiteralProperty();
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+IntLiteralProperty body = new IntLiteralProperty();
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 42,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 42,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 42,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+IntLiteral client = new ValueTypesClient().GetIntLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 42,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

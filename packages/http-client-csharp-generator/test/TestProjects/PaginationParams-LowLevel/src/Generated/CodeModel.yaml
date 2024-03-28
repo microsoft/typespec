@@ -1,0 +1,654 @@
+!CodeModel 
+info: !Info 
+  title: Various pagination parameter definitions
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_9
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_16
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_25
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PageSizeIntegerModelId
+          description: Resource ID.
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PageSizeIntegerModelName
+          description: Resource name.
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PageSizeIntegerModelType
+          description: Resource type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PageSizeIntegerModelListResultNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_11
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_15
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_6
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_5
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_1
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: Resource ID.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: Resource name.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: Resource type.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: PageSizeIntegerModel
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: PageSizeIntegerModelListResultValue
+                description: Array of PageSizeIntegerModel
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: PageSizeIntegerModelListResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_5
+  arrays:
+    - *ref_6
+globalParameters:
+  - !Parameter &ref_8
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_10
+    schema: *ref_7
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: PaginationParams
+    operations:
+      - !Operation 
+        operationId: PaginationParams_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_8
+          - !Parameter &ref_12
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Optional. Specified maximum number of total containers.
+                serializedName: top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_13
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Specified number of containers to skip.
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_14
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /authoring/analyze-text/projects
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_12
+          - *ref_13
+          - *ref_14
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PaginationParams_List2
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_8
+          - !Parameter &ref_17
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: limit
+                description: Optional. Specified maximum number of total containers.
+                serializedName: limit
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_18
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: offset
+                description: Optional. Specified number of containers to skip.
+                serializedName: offset
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_19
+            schema: *ref_16
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /authoring/analyze-language/projects
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_17
+          - *ref_18
+          - *ref_19
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List2
+            description: ''
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PaginationParams_List3
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_8
+          - !Parameter &ref_21
+            schema: *ref_20
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_22
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Optional. Specified maximum number of total containers.
+                serializedName: Top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_23
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Specified number of containers to skip.
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_24
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /authoring/analyze-lyrics/projects
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_21
+          - *ref_22
+          - *ref_23
+          - *ref_24
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List3
+            description: ''
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PaginationParams_List4
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_8
+          - !Parameter &ref_26
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Optional. Specified maximum number of total containers.
+                serializedName: top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_27
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Specified number of containers to skip.
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_28
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxcount
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: maxcount
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /authoring/analyze-song/projects
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_26
+          - *ref_27
+          - *ref_28
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List4
+            description: ''
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: PaginationParams
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - user_impersonation
+language: !Languages 
+  default:
+    name: VariousPaginationParameterDefinitions
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

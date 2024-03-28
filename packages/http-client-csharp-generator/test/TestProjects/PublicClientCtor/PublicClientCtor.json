@@ -1,0 +1,100 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Public Client Constructor",
+    "description": "Public Client Constructor",
+    "version": "1.0.0"
+  },
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "x-ms-parameterized-host": {
+    "hostTemplate": "{Endpoint}/publicclientctor/1.0.0",
+    "useSchemePrefix": false,
+    "parameters": [
+      {
+        "$ref": "#/parameters/Endpoint"
+      }
+    ]
+  },
+  "paths": {
+    "/op": {
+      "get": {
+        "operationId": "Operation",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          },
+          {
+            "$ref": "#/parameters/Param1"
+          },
+          {
+            "$ref": "#/parameters/Param2"
+          },
+          {
+            "$ref": "#/parameters/ApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      },
+      "description": "."
+    }
+  },
+  "parameters": {
+    "ApiVersion": {
+      "name": "api-version",
+      "in": "query",
+      "description": "The API version to be used with the HTTP request.",
+      "required": true,
+      "type": "string"
+    },
+    "Param1": {
+      "name": "Param1",
+      "in": "header",
+      "description": "Tesing Param1",
+      "type": "string",
+      "x-ms-client-default": "value1"
+    },
+    "Param2": {
+      "name": "Param2",
+      "in": "header",
+      "description": "Testing Param2",
+      "type": "string"
+    },
+    "Endpoint": {
+      "name": "Endpoint",
+      "description": "server parameter.",
+      "format": "url",
+      "x-ms-parameter-location": "client",
+      "required": true,
+      "type": "string",
+      "in": "path",
+      "x-ms-skip-url-encoding": true
+    }
+  }
+}

@@ -1,0 +1,344 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "AutoRest Parameter Flattening",
+    "description": "Resource Flattening for AutoRest",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/originalOperation": {
+      "patch": {
+        "operationId": "Operation",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pipeline",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "clientDiagnostics",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "required": true,
+            "in": "body",
+            "name" : "class",
+            "schema": {
+              "$ref": "#/definitions/class"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/struct"
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/conflictingLROOverloads": {
+      "post": {
+        "x-ms-long-running-operation": true,
+        "description": "Analyze body, that could be different media types.",
+        "operationId": "AnalyzeBody",
+        "consumes": [
+          "application/pdf",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "stringBody",
+            "in": "body",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Received correct format"
+          }
+        }
+      }
+    },
+    "/HttpMessage": {
+      "post": {
+        "description": "",
+        "operationId": "HttpMessage",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "httpMessage",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/HttpMessage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/HttpMessage"
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/Request": {
+      "post": {
+        "description": "",
+        "operationId": "Request",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/Request"
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/Response": {
+      "post": {
+        "description": "",
+        "operationId": "Response",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "response",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/Response"
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "struct": {
+      "type":  "object",
+      "allOf": [ { "$ref":  "#/definitions/class" } ],
+      "properties": {
+        "1": { "type": "string" }
+      }
+    },
+    "class": {
+      "type":  "object",
+      "properties": {
+        "abstract": { "type": "string" },
+        "add": { "type": "string" },
+        "alias": { "type": "string" },
+        "as": { "type": "string" },
+        "ascending": { "type": "string" },
+        "async": { "type": "string" },
+        "await": { "type": "string" },
+        "base": { "type": "string" },
+        "bool": { "type": "string" },
+        "break": { "type": "string" },
+        "by": { "type": "string" },
+        "byte": { "type": "string" },
+        "catch": { "type": "string" },
+        "char": { "type": "string" },
+        "checked": { "type": "string" },
+        "const": { "type": "string" },
+        "continue": { "type": "string" },
+        "class": { "type": "string" },
+        "decimal": { "type": "string" },
+        "default": { "type": "string" },
+        "delegate": { "type": "string" },
+        "descending": { "type": "string" },
+        "do": { "type": "string" },
+        "double": { "type": "string" },
+        "dynamic": { "type": "string" },
+        "else": { "type": "string" },
+        "enum": { "type": "string" },
+        "event": { "type": "string" },
+        "explicit": { "type": "string" },
+        "extern": { "type": "string" },
+        "false": { "type": "string" },
+        "finally": { "type": "string" },
+        "fixed": { "type": "string" },
+        "float": { "type": "string" },
+        "for": { "type": "string" },
+        "foreach": { "type": "string" },
+        "from": { "type": "string" },
+        "get": { "type": "string" },
+        "global": { "type": "string" },
+        "goto": { "type": "string" },
+        "group": { "type": "string" },
+        "if": { "type": "string" },
+        "implicit": { "type": "string" },
+        "in": { "type": "string" },
+        "int": { "type": "string" },
+        "interface": { "type": "string" },
+        "internal": { "type": "string" },
+        "into": { "type": "string" },
+        "is": { "type": "string" },
+        "join": { "type": "string" },
+        "let": { "type": "string" },
+        "lock": { "type": "string" },
+        "long": { "type": "string" },
+        "nameof": { "type": "string" },
+        "namespace": { "type": "string" },
+        "new": { "type": "string" },
+        "null": { "type": "string" },
+        "object": { "type": "string" },
+        "on": { "type": "string" },
+        "operator": { "type": "string" },
+        "orderby": { "type": "string" },
+        "out": { "type": "string" },
+        "override": { "type": "string" },
+        "params": { "type": "string" },
+        "partial": { "type": "string" },
+        "private": { "type": "string" },
+        "protected": { "type": "string" },
+        "public": { "type": "string" },
+        "readonly": { "type": "string" },
+        "ref": { "type": "string" },
+        "remove": { "type": "string" },
+        "return": { "type": "string" },
+        "sbyte": { "type": "string" },
+        "sealed": { "type": "string" },
+        "select": { "type": "string" },
+        "set": { "type": "string" },
+        "short": { "type": "string" },
+        "sizeof": { "type": "string" },
+        "stackalloc": { "type": "string" },
+        "static": { "type": "string" },
+        "string": { "type": "string" },
+        "struct": { "type": "string" },
+        "switch": { "type": "string" },
+        "this": { "type": "string" },
+        "throw": { "type": "string" },
+        "true": { "type": "string" },
+        "try": { "type": "string" },
+        "typeof": { "type": "string" },
+        "uint": { "type": "string" },
+        "ulong": { "type": "string" },
+        "unchecked": { "type": "string" },
+        "unmanaged": { "type": "string" },
+        "unsafe": { "type": "string" },
+        "ushort": { "type": "string" },
+        "using": { "type": "string" },
+        "value": { "type": "string" },
+        "var": { "type": "string" },
+        "virtual": { "type": "string" },
+        "void": { "type": "string" },
+        "volatile": { "type": "string" },
+        "when": { "type": "string" },
+        "where": { "type": "string" },
+        "while": { "type": "string" },
+        "yield": { "type": "string" },
+        "System": {
+          "type": "string",
+          "enum": [
+            "System",
+            "System.Text.Json"
+          ],
+          "x-ms-enum": {
+            "name": "SystemEnum",
+            "modelAsString": true
+          }
+        },
+        "ToString": { "type": "string" },
+        "Equals": { "type": "string" },
+        "GetHashCode": { "type": "string" }
+      }
+    },
+    "EnumValue": {
+      "type": "string",
+      "enum": [
+        "ItemValue1",
+        "Item",
+        "ItemValue2"
+      ],
+      "x-ms-enum": {
+        "name": "ItemValue",
+        "modelAsString": true
+      }
+    },
+    "HttpMessage": {
+      "type":  "object",
+      "properties": {
+        "property": { "type": "string" }
+      }
+    },
+    "Request": {
+      "type":  "object",
+      "properties": {
+        "property": { "type": "string" }
+      }
+    },
+    "Response": {
+      "type":  "object",
+      "properties": {
+        "property": { "type": "string" }
+      }
+    }
+  }
+}

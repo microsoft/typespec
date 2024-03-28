@@ -1,0 +1,258 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Various pagination parameter definitions",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/authoring/analyze-text/projects": {
+            "get": {
+                "tags": [
+                    "PageSizeIntegerModels"
+                ],
+                "operationId": "PaginationParams_List",
+                "parameters": [
+                    {
+                        "name": "top",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of total containers."
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified number of containers to skip."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/authoring/analyze-language/projects": {
+            "get": {
+                "tags": [
+                    "PageSizeInt64Models"
+                ],
+                "operationId": "PaginationParams_List2",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of total containers."
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified number of containers to skip."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/authoring/analyze-lyrics/projects": {
+            "get": {
+                "tags": [
+                    "PageSizeInt32Models"
+                ],
+                "operationId": "PaginationParams_List3",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "Top",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of total containers."
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified number of containers to skip."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/authoring/analyze-song/projects": {
+            "get": {
+                "tags": [
+                    "PageSizeNumericModels"
+                ],
+                "operationId": "PaginationParams_List4",
+                "parameters": [
+                    {
+                        "name": "top",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of total containers."
+                    },
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified number of containers to skip."
+                    },
+                    {
+                        "name": "maxcount",
+                        "in": "query",
+                        "type": "number",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModelListResult"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "PageSizeIntegerModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeIntegerModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeIntegerModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        }
+    },
+    "parameters": {
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

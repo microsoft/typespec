@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetProjectAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetProjectAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetProjectAsync("<projectName>");
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call GetProjectAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetProjectAsync("<projectName>");
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="GetProject(string,RequestContext)">
+      <example>
+This sample shows how to call GetProject and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetProject("<projectName>");
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call GetProject with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetProject("<projectName>");
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="GetProjectsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetProjectsAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetProjectsAsync())
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code>
+This sample shows how to call GetProjectsAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetProjectsAsync())
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("settings").ToString());
+    Console.WriteLine(result.GetProperty("multilingual").ToString());
+    Console.WriteLine(result.GetProperty("description").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetProjects(RequestContext)">
+      <example>
+This sample shows how to call GetProjects and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetProjects())
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code>
+This sample shows how to call GetProjects with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetProjects())
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("settings").ToString());
+    Console.WriteLine(result.GetProperty("multilingual").ToString());
+    Console.WriteLine(result.GetProperty("description").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="CreateOrUpdateAsync(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateOrUpdateAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    projectKind = "CustomSingleLabelClassification",
+    storageInputContainerName = "<storageInputContainerName>",
+    language = "<language>",
+});
+Operation<BinaryData> operation = await client.CreateOrUpdateAsync(WaitUntil.Completed, "<projectName>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call CreateOrUpdateAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    projectKind = "CustomSingleLabelClassification",
+    storageInputContainerName = "<storageInputContainerName>",
+    settings = new object(),
+    multilingual = true,
+    description = "<description>",
+    language = "<language>",
+});
+Operation<BinaryData> operation = await client.CreateOrUpdateAsync(WaitUntil.Completed, "<projectName>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateOrUpdate(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateOrUpdate and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    projectKind = "CustomSingleLabelClassification",
+    storageInputContainerName = "<storageInputContainerName>",
+    language = "<language>",
+});
+Operation<BinaryData> operation = client.CreateOrUpdate(WaitUntil.Completed, "<projectName>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call CreateOrUpdate with all parameters and request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    projectKind = "CustomSingleLabelClassification",
+    storageInputContainerName = "<storageInputContainerName>",
+    settings = new object(),
+    multilingual = true,
+    description = "<description>",
+    language = "<language>",
+});
+Operation<BinaryData> operation = client.CreateOrUpdate(WaitUntil.Completed, "<projectName>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteAsync(WaitUntil,string,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.DeleteAsync(WaitUntil.Completed, "<projectName>");
+]]></code>
+This sample shows how to call DeleteAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.DeleteAsync(WaitUntil.Completed, "<projectName>");
+]]></code></example>
+    </member>
+    <member name="Delete(WaitUntil,string,RequestContext)">
+      <example>
+This sample shows how to call Delete.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Delete(WaitUntil.Completed, "<projectName>");
+]]></code>
+This sample shows how to call Delete with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Delete(WaitUntil.Completed, "<projectName>");
+]]></code></example>
+    </member>
+    <member name="ExportAsync(WaitUntil,string,string,RequestContext)">
+      <example>
+This sample shows how to call ExportAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.ExportAsync(WaitUntil.Completed, "<projectName>", "<projectFileVersion>");
+]]></code>
+This sample shows how to call ExportAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.ExportAsync(WaitUntil.Completed, "<projectName>", "<projectFileVersion>");
+]]></code></example>
+    </member>
+    <member name="Export(WaitUntil,string,string,RequestContext)">
+      <example>
+This sample shows how to call Export.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Export(WaitUntil.Completed, "<projectName>", "<projectFileVersion>");
+]]></code>
+This sample shows how to call Export with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Export(WaitUntil.Completed, "<projectName>", "<projectFileVersion>");
+]]></code></example>
+    </member>
+    <member name="ImportxAsync(WaitUntil,string,RequestContext)">
+      <example>
+This sample shows how to call ImportxAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.ImportxAsync(WaitUntil.Completed, "<projectName>");
+]]></code>
+This sample shows how to call ImportxAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = await client.ImportxAsync(WaitUntil.Completed, "<projectName>");
+]]></code></example>
+    </member>
+    <member name="Importx(WaitUntil,string,RequestContext)">
+      <example>
+This sample shows how to call Importx.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Importx(WaitUntil.Completed, "<projectName>");
+]]></code>
+This sample shows how to call Importx with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Operation operation = client.Importx(WaitUntil.Completed, "<projectName>");
+]]></code></example>
+    </member>
+    <member name="TrainAsync(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call TrainAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    modelLabel = "<modelLabel>",
+});
+Operation operation = await client.TrainAsync(WaitUntil.Completed, "<projectName>", content);
+]]></code>
+This sample shows how to call TrainAsync with all parameters and request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    modelLabel = "<modelLabel>",
+});
+Operation operation = await client.TrainAsync(WaitUntil.Completed, "<projectName>", content);
+]]></code></example>
+    </member>
+    <member name="Train(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Train.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    modelLabel = "<modelLabel>",
+});
+Operation operation = client.Train(WaitUntil.Completed, "<projectName>", content);
+]]></code>
+This sample shows how to call Train with all parameters and request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new AuthoringTypeSpecClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    modelLabel = "<modelLabel>",
+});
+Operation operation = client.Train(WaitUntil.Completed, "<projectName>", content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

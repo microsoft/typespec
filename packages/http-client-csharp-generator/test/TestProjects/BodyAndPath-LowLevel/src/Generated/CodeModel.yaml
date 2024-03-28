@@ -1,0 +1,782 @@
+!CodeModel 
+info: !Info 
+  description: Some cool documentation.
+  title: Body and Path Client
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      precision: 32
+      language: !Languages 
+        default:
+          name: BodyParamInvalidIntName
+          description: Invalid int parameter.
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      language: !Languages 
+        default:
+          name: Post1ItemsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      language: !Languages 
+        default:
+          name: Get200ApplicationJsonItemsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      defaultValue: xyz
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_20
+      choices:
+        - !ChoiceValue 
+          value: latest
+          language:
+            default:
+              name: Latest
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: EnumName2
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_12
+      choices:
+        - !ChoiceValue 
+          value: application/json
+          language:
+            default:
+              name: ApplicationJson
+              description: Content Type 'application/json'
+        - !ChoiceValue 
+          value: application/octet-stream
+          language:
+            default:
+              name: ApplicationOctetStream
+              description: Content Type 'application/octet-stream'
+      type: sealed-choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ContentType
+          description: Content type for upload
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_19
+      choices:
+        - !ChoiceValue 
+          value: current
+          language:
+            default:
+              name: Current
+              description: ''
+        - !ChoiceValue 
+          value: default
+          language:
+            default:
+              name: Default
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: EnumName1
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_25
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  any:
+    - !AnySchema &ref_7
+      type: any
+      language: !Languages 
+        default:
+          name: any
+          description: Anything
+      protocol: !Protocols {}
+  binaries:
+    - !BinarySchema &ref_13
+      type: binary
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      language: !Languages 
+        default:
+          name: binary
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_29
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: invalid-int-name
+          language: !Languages 
+            default:
+              name: invalidIntName
+              description: Invalid int parameter.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: BodyParam
+          description: Body parameter.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - !ArraySchema &ref_11
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: ArrayOfPost1ItemsItem
+          description: Array of Post1ItemsItem
+      protocol: !Protocols {}
+    - !ArraySchema &ref_26
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: ArrayOfGet200ApplicationJsonItemsItem
+          description: An array of objects.
+      protocol: !Protocols {}
+    - !ArraySchema &ref_27
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: An array of objects.
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_5
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: create
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+          - !Parameter &ref_10
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: itemName
+                description: item name.
+                serializedName: itemName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_9
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_8
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bodyParameter
+                    description: body Parameter
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /{itemName}
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_9
+        signatureParameters:
+          - *ref_10
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Create
+            description: Resets products.
+            summary: Create products
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: createStream
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+          - !Parameter &ref_17
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: itemNameStream
+                description: item name.
+                serializedName: itemNameStream
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_18
+            schema: *ref_11
+            implementation: Method
+            language: !Languages 
+              default:
+                name: excluded
+                description: Excluded connection Ids.
+                serializedName: excluded
+            protocol: !Protocols 
+              http: !HttpParameter 
+                explode: true
+                in: query
+                style: form
+        requestMediaTypes:
+          application/json: !Request &ref_16
+            parameters:
+              - !Parameter &ref_14
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Upload file type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_15
+                schema: *ref_13
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: message
+                    description: The payload body.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: binary
+            signatureParameters:
+              - *ref_14
+              - *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpBinaryRequest 
+                path: /{itemNameStream}
+                method: post
+                binary: true
+                knownMediaType: binary
+                mediaTypes:
+                  - application/json
+                  - application/octet-stream
+                uri: '{$host}'
+          application/octet-stream: *ref_16
+        requests:
+          - *ref_16
+        signatureParameters:
+          - *ref_17
+          - *ref_18
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: CreateStream
+            description: Resets products.
+            summary: Create products
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: createEnum
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+          - !Parameter &ref_23
+            schema: *ref_19
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: enumName1
+                description: The first name
+                serializedName: enumName1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_24
+            schema: *ref_20
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: enumName2
+                description: The second name
+                serializedName: enumName2
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_22
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_21
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bodyParameter
+                    description: body Parameter
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_21
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /{enumName1}/{enumName2}
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_22
+        signatureParameters:
+          - *ref_23
+          - *ref_24
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: CreateEnum
+            description: Resets products.
+            summary: Create another product
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: list
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_25
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /list
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_26
+            language: !Languages 
+              default:
+                name: ''
+                description: An array of objects.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: List all.
+            summary: List
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: listItems
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_25
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /listItems
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_27
+            language: !Languages 
+              default:
+                name: ''
+                description: An array of products.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: ListItems
+            description: List all products.
+            summary: List products
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: update
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_5
+          - !Parameter &ref_32
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: item5
+                description: Expected to be the fifth parameter because it is an optional query parameter which goes after RequestContent.
+                serializedName: item5
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_33
+            schema: *ref_4
+            clientDefaultValue: value
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: value
+            language: !Languages 
+              default:
+                name: item1
+                description: 'Expected to be the sixth parameter because it is a query parameter and has a default value, so it is treated as optional despite ''required: true''. ''item1'' in the path isn''t a parameter, it is a static part of the path.'
+                serializedName: item1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_34
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: item2
+                description: Expected to be the second parameter because of its position in the path. 'item4' in the path isn't a parameter, it is a static part of the path.
+                serializedName: item2
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_35
+            schema: *ref_28
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: item3
+                description: Expected to be the first parameter because of its position in the path.
+                serializedName: item3
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_36
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: item4
+                description: Expected to be the third parameter because it is a required query parameter. 'item4' in the path isn't a parameter, it is a static part of the path.
+                serializedName: item4
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/json: !Request &ref_31
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_30
+                schema: *ref_29
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bodyParameter
+                    description: Body parameter, should be replaced with RequestContent.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_30
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /{item3}/item4/{item2}/item1
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_31
+        signatureParameters:
+          - *ref_32
+          - *ref_33
+          - *ref_34
+          - *ref_35
+          - *ref_36
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Update
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: BodyAndPathClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

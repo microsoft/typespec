@@ -1,0 +1,1235 @@
+{
+ "$id": "1",
+ "Name": "SpreadTypeSpec",
+ "Description": "This is a spread model or alias service.",
+ "ApiVersions": [
+  "2022-01-01-preview"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "QueryApiVersion",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "v2022_01_01_preview",
+     "Value": "2022-01-01-preview"
+    }
+   ],
+   "Namespace": "SpreadTypeSpec",
+   "Description": "",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "4",
+   "Kind": "Model",
+   "Name": "Thing",
+   "Namespace": "SpreadTypeSpec",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "5",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the Thing",
+     "Type": {
+      "$id": "6",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "7",
+     "Name": "age",
+     "SerializedName": "age",
+     "Description": "age of the Thing",
+     "Type": {
+      "$id": "8",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "9",
+   "Kind": "Model",
+   "Name": "SpreadAliasRequest",
+   "Namespace": "SpreadTypeSpec",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "10",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the Thing",
+     "Type": {
+      "$id": "11",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "12",
+     "Name": "age",
+     "SerializedName": "age",
+     "Description": "age of the Thing",
+     "Type": {
+      "$id": "13",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "14",
+   "Kind": "Model",
+   "Name": "SpreadMultiTargetAliasRequest",
+   "Namespace": "",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "15",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the Thing",
+     "Type": {
+      "$id": "16",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "17",
+     "Name": "age",
+     "SerializedName": "age",
+     "Description": "age of the Thing",
+     "Type": {
+      "$id": "18",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "19",
+   "Kind": "Model",
+   "Name": "SpreadAliasWithSpreadAliasRequest",
+   "Namespace": "",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "20",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the Thing",
+     "Type": {
+      "$id": "21",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "22",
+     "Name": "age",
+     "SerializedName": "age",
+     "Description": "age of the Thing",
+     "Type": {
+      "$id": "23",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "24",
+   "Kind": "Model",
+   "Name": "SpreadAliasWithOptionalPropsRequest",
+   "Namespace": "",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "25",
+     "Name": "name",
+     "SerializedName": "name",
+     "Description": "name of the Thing",
+     "Type": {
+      "$id": "26",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "27",
+     "Name": "color",
+     "SerializedName": "color",
+     "Description": "optional property of the Thing",
+     "Type": {
+      "$id": "28",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "29",
+     "Name": "age",
+     "SerializedName": "age",
+     "Description": "age of the Thing",
+     "Type": {
+      "$id": "30",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "31",
+     "Name": "items",
+     "SerializedName": "items",
+     "Description": "required array",
+     "Type": {
+      "$id": "32",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "33",
+       "Kind": "Primitive",
+       "Name": "Int32",
+       "IsNullable": false
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "34",
+     "Name": "elements",
+     "SerializedName": "elements",
+     "Description": "optional array",
+     "Type": {
+      "$id": "35",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "36",
+       "Kind": "Primitive",
+       "Name": "String",
+       "IsNullable": false
+      },
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "37",
+   "Kind": "Model",
+   "Name": "SpreadAliasWithCollectionsRequest",
+   "Namespace": "SpreadTypeSpec",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "38",
+     "Name": "requiredStringList",
+     "SerializedName": "requiredStringList",
+     "Description": "required list",
+     "Type": {
+      "$id": "39",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "40",
+       "Kind": "Primitive",
+       "Name": "String",
+       "IsNullable": false
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "41",
+     "Name": "optionalStringList",
+     "SerializedName": "optionalStringList",
+     "Description": "optional list",
+     "Type": {
+      "$id": "42",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "43",
+       "Kind": "Primitive",
+       "Name": "String",
+       "IsNullable": false
+      },
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "44",
+   "Name": "SpreadTypeSpecClient",
+   "Description": "This is a spread model or alias service.",
+   "Operations": [
+    {
+     "$id": "45",
+     "Name": "spreadModel",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread a model as body.",
+     "Parameters": [
+      {
+       "$id": "46",
+       "Name": "spreadUrl",
+       "NameInRequest": "spreadUrl",
+       "Type": {
+        "$id": "47",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "48",
+       "Name": "Thing",
+       "NameInRequest": "Thing",
+       "Type": {
+        "$ref": "4"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "49",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "50",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "51",
+        "Type": {
+         "$ref": "50"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "52",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "53",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "54",
+        "Type": {
+         "$ref": "53"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "55",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadModel",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "56",
+     "Name": "spreadAlias",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias as body.",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "57",
+       "Name": "SpreadAliasRequest",
+       "NameInRequest": "",
+       "Type": {
+        "$ref": "9"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Spread"
+      },
+      {
+       "$id": "58",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "59",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "60",
+        "Type": {
+         "$ref": "59"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "61",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "62",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "63",
+        "Type": {
+         "$ref": "62"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "64",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadAlias",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "65",
+     "Name": "spreadMultiTargetAlias",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias which has multiple target property as body.",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "66",
+       "Name": "id",
+       "NameInRequest": "id",
+       "Type": {
+        "$id": "67",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "68",
+       "Name": "top",
+       "NameInRequest": "top",
+       "Type": {
+        "$id": "69",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "70",
+       "Name": "SpreadMultiTargetAliasRequest",
+       "NameInRequest": "",
+       "Type": {
+        "$ref": "14"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Spread"
+      },
+      {
+       "$id": "71",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "72",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "73",
+        "Type": {
+         "$ref": "72"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "74",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "75",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "76",
+        "Type": {
+         "$ref": "75"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "77",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadMultiTargetAlias/{id}",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "78",
+     "Name": "spreadAliasWithModel",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias which contains a complex model property as body.",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "79",
+       "Name": "id",
+       "NameInRequest": "id",
+       "Type": {
+        "$id": "80",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "81",
+       "Name": "top",
+       "NameInRequest": "top",
+       "Type": {
+        "$id": "82",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "83",
+       "Name": "Thing",
+       "NameInRequest": "Thing",
+       "Type": {
+        "$ref": "4"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "84",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "85",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "86",
+        "Type": {
+         "$ref": "85"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "87",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "88",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "89",
+        "Type": {
+         "$ref": "88"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "90",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadAliasWithModel/{id}",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "91",
+     "Name": "spreadAliasWithSpreadAlias",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias with contains another alias property as body.",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "92",
+       "Name": "id",
+       "NameInRequest": "id",
+       "Type": {
+        "$id": "93",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "94",
+       "Name": "top",
+       "NameInRequest": "top",
+       "Type": {
+        "$id": "95",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "96",
+       "Name": "SpreadAliasWithSpreadAliasRequest",
+       "NameInRequest": "",
+       "Type": {
+        "$ref": "19"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Spread"
+      },
+      {
+       "$id": "97",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "98",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "99",
+        "Type": {
+         "$ref": "98"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "100",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "101",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "102",
+        "Type": {
+         "$ref": "101"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "103",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadAliasWithSpreadAlias/{id}",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "104",
+     "Name": "spreadAliasWithOptionalProps",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias with contains optional properties as body.",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "105",
+       "Name": "id",
+       "NameInRequest": "id",
+       "Type": {
+        "$id": "106",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "107",
+       "Name": "top",
+       "NameInRequest": "top",
+       "Type": {
+        "$id": "108",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "109",
+       "Name": "SpreadAliasWithOptionalPropsRequest",
+       "NameInRequest": "",
+       "Type": {
+        "$ref": "24"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Spread"
+      },
+      {
+       "$id": "110",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "111",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "112",
+        "Type": {
+         "$ref": "111"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "113",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "114",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "115",
+        "Type": {
+         "$ref": "114"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "116",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadAliasWithOptionalProps/{id}",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "117",
+     "Name": "spreadAliasWithCollections",
+     "ResourceName": "SpreadTypeSpec",
+     "Description": "spread an alias with required and optional collections",
+     "Parameters": [
+      {
+       "$ref": "46"
+      },
+      {
+       "$id": "118",
+       "Name": "SpreadAliasWithCollectionsRequest",
+       "NameInRequest": "",
+       "Type": {
+        "$ref": "37"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Spread"
+      },
+      {
+       "$id": "119",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "120",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "121",
+        "Type": {
+         "$ref": "120"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "122",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "123",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "124",
+        "Type": {
+         "$ref": "123"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "125",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{spreadUrl}",
+     "Path": "/spreadAliasWithCollections",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "126"
+   },
+   "Creatable": true
+  }
+ ]
+}

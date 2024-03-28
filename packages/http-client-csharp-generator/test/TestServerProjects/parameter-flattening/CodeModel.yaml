@@ -1,0 +1,167 @@
+!<!CodeModel> 
+schemas: !<!Schemas> 
+  objects:
+  - !<!ObjectSchema> &ref_5
+    type: object
+    apiVersions:
+    - !<!ApiVersion> 
+      version: 1.0.0
+    properties:
+    - !<!Property> 
+      schema: !<!DictionarySchema> &ref_0
+        type: dictionary
+        elementType: !<!StringSchema> &ref_1
+          type: string
+          apiVersions:
+          - !<!ApiVersion> 
+            version: 1.0.0
+          language: !<!Languages> 
+            default:
+              name: string
+              description: MISSING·SCHEMA-DESCRIPTION-STRING
+          protocol: !<!Protocols> {}
+        language: !<!Languages> 
+          default:
+            name: AvailabilitySetUpdateParameters-tags
+            description: A description about the set of tags.
+        protocol: !<!Protocols> {}
+      required: true
+      serializedName: tags
+      language: !<!Languages> 
+        default:
+          name: tags
+          description: A description about the set of tags.
+      protocol: !<!Protocols> {}
+    language: !<!Languages> 
+      default:
+        name: AvailabilitySetUpdateParameters
+        description: MISSING·SCHEMA-DESCRIPTION-OBJECTSCHEMA
+        namespace: Api100
+    protocol: !<!Protocols> {}
+  dictionaries:
+  - *ref_0
+  strings:
+  - !<!StringSchema> &ref_2
+    type: string
+    language: !<!Languages> 
+      default:
+        name: string
+        description: simple string
+    protocol: !<!Protocols> {}
+  - *ref_1
+  - !<!StringSchema> &ref_4
+    type: string
+    apiVersions:
+    - !<!ApiVersion> 
+      version: 1.0.0
+    maxLength: 80
+    language: !<!Languages> 
+      default:
+        name: string
+        description: MISSING·SCHEMA-DESCRIPTION-STRING
+    protocol: !<!Protocols> {}
+globalParameters:
+- !<!Parameter> &ref_3
+  schema: *ref_2
+  clientDefaultValue: 'http://localhost:3000'
+  implementation: Client
+  required: true
+  language: !<!Languages> 
+    default:
+      name: $host
+      description: server parameter
+  protocol: !<!Protocols> 
+    http: !<!HttpParameter> 
+      in: uri
+info: !<!Info> 
+  description: Resource Flattening for AutoRest
+  title: parameter-flattening
+operationGroups:
+- !<!OperationGroup> 
+  $key: AvailabilitySets
+  operations:
+  - !<!Operation> 
+    apiVersions:
+    - !<!ApiVersion> 
+      version: 1.0.0
+    request: !<!Request> 
+      parameters:
+      - *ref_3
+      - !<!Parameter> 
+        schema: *ref_1
+        implementation: Method
+        required: true
+        language: !<!Languages> 
+          default:
+            name: resourceGroupName
+            description: The name of the resource group.
+            serializedName: resourceGroupName
+        protocol: !<!Protocols> 
+          http: !<!HttpParameter> 
+            in: path
+      - !<!Parameter> 
+        schema: *ref_4
+        implementation: Method
+        required: true
+        language: !<!Languages> 
+          default:
+            name: availabilitySetName
+            description: The name of the storage availability set.
+            serializedName: availabilitySetName
+        protocol: !<!Protocols> 
+          http: !<!HttpParameter> 
+            in: path
+      - !<!Parameter> 
+        schema: *ref_5
+        implementation: Method
+        required: true
+        extensions:
+          x-ms-requestBody-name: tags
+        language: !<!Languages> 
+          default:
+            name: tags
+            description: The tags.
+        protocol: !<!Protocols> 
+          http: !<!HttpParameter> 
+            in: body
+            style: json
+      language: !<!Languages> 
+        default:
+          name: ''
+          description: ''
+      protocol: !<!Protocols> 
+        http: !<!HttpWithBodyRequest> 
+          path: '/parameterFlattening/{resourceGroupName}/{availabilitySetName}'
+          method: patch
+          knownMediaType: json
+          mediaTypes:
+          - application/json
+          uri: '{$host}'
+    responses:
+    - !<!Response> 
+      language: !<!Languages> 
+        default:
+          name: ''
+          description: ''
+      protocol: !<!Protocols> 
+        http: !<!HttpResponse> 
+          statusCodes:
+          - '200'
+    extensions:
+      x-ms-requestBody-index: 2
+    language: !<!Languages> 
+      default:
+        name: Update
+        description: Updates the tags for an availability set.
+    protocol: !<!Protocols> {}
+  language: !<!Languages> 
+    default:
+      name: AvailabilitySets
+      description: ''
+  protocol: !<!Protocols> {}
+language: !<!Languages> 
+  default:
+    name: ''
+    description: ''
+protocol: !<!Protocols> 
+  http: !<!HttpModel> {}

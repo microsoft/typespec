@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="ValidAsync(RequestContext)">
+      <example>
+This sample shows how to call ValidAsync.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = await client.ValidAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ValidAsync with all request content.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = await client.ValidAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Valid(RequestContext)">
+      <example>
+This sample shows how to call Valid.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = client.Valid();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Valid with all request content.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = client.Valid();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="InvalidAsync(RequestContext)">
+      <example>
+This sample shows how to call InvalidAsync.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = await client.InvalidAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call InvalidAsync with all request content.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = await client.InvalidAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Invalid(RequestContext)">
+      <example>
+This sample shows how to call Invalid.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = client.Invalid();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Invalid with all request content.
+<code><![CDATA[
+TokenCredential credential = new DefaultAzureCredential();
+OAuth2Client client = new OAuth2Client(credential);
+
+Response response = client.Invalid();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

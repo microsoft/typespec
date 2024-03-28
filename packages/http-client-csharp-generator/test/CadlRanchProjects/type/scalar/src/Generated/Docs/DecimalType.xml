@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="ResponseBodyAsync(CancellationToken)">
+      <example>
+This sample shows how to call ResponseBodyAsync.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response<decimal> response = await client.ResponseBodyAsync();
+]]></code>
+This sample shows how to call ResponseBodyAsync with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response<decimal> response = await client.ResponseBodyAsync();
+]]></code></example>
+    </member>
+    <member name="ResponseBody(CancellationToken)">
+      <example>
+This sample shows how to call ResponseBody.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response<decimal> response = client.ResponseBody();
+]]></code>
+This sample shows how to call ResponseBody with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response<decimal> response = client.ResponseBody();
+]]></code></example>
+    </member>
+    <member name="ResponseBodyAsync(RequestContext)">
+      <example>
+This sample shows how to call ResponseBodyAsync and parse the result.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.ResponseBodyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call ResponseBodyAsync with all parameters and parse the result.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.ResponseBodyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="ResponseBody(RequestContext)">
+      <example>
+This sample shows how to call ResponseBody and parse the result.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.ResponseBody(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call ResponseBody with all parameters and parse the result.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.ResponseBody(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="RequestBodyAsync(decimal,CancellationToken)">
+      <example>
+This sample shows how to call RequestBodyAsync.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.RequestBodyAsync((decimal)default);
+]]></code>
+This sample shows how to call RequestBodyAsync with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.RequestBodyAsync((decimal)default);
+]]></code></example>
+    </member>
+    <member name="RequestBody(decimal,CancellationToken)">
+      <example>
+This sample shows how to call RequestBody.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.RequestBody((decimal)default);
+]]></code>
+This sample shows how to call RequestBody with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.RequestBody((decimal)default);
+]]></code></example>
+    </member>
+    <member name="RequestBodyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RequestBodyAsync.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.RequestBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RequestBodyAsync with all request content.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.RequestBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RequestBody(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RequestBody.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.RequestBody(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RequestBody with all request content.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.RequestBody(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RequestParameterAsync(decimal,RequestContext)">
+      <example>
+This sample shows how to call RequestParameterAsync.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.RequestParameterAsync(default);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RequestParameterAsync with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = await client.RequestParameterAsync(default);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RequestParameter(decimal,RequestContext)">
+      <example>
+This sample shows how to call RequestParameter.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.RequestParameter(default);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RequestParameter with all parameters.
+<code><![CDATA[
+DecimalType client = new ScalarClient().GetDecimalTypeClient();
+
+Response response = client.RequestParameter(default);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,18 @@
+{
+  "parameters": {
+    "location": "aaaa",
+    "publisherName": "aa",
+    "api-version": "2022-03-01",
+    "subscriptionId": "{subscription-id}"
+  },
+  "responses": {
+    "200": {
+      "body": [
+        {
+          "name": "aaaaaaaaaaaaaaa",
+          "location": "aaaaaaaaaaaaa"
+        }
+      ]
+    }
+  }
+}

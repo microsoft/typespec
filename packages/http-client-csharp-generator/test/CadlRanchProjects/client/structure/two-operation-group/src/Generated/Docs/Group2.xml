@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="TwoAsync(RequestContext)">
+      <example>
+This sample shows how to call TwoAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.TwoAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call TwoAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.TwoAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Two(RequestContext)">
+      <example>
+This sample shows how to call Two.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Two();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Two with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Two();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FiveAsync(RequestContext)">
+      <example>
+This sample shows how to call FiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.FiveAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FiveAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.FiveAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Five(RequestContext)">
+      <example>
+This sample shows how to call Five.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Five();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Five with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Five();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="SixAsync(RequestContext)">
+      <example>
+This sample shows how to call SixAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.SixAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SixAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = await client.SixAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Six(RequestContext)">
+      <example>
+This sample shows how to call Six.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Six();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Six with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group2 client = new TwoOperationGroupClient(endpoint).GetGroup2Client("default");
+
+Response response = client.Six();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

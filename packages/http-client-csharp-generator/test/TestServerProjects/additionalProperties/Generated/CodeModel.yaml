@@ -1,0 +1,1221 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AdditionalPropertiesClient
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_6
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_8
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PetAPTrueId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_10
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_13
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PetAPObjectId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_16
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PetAPStringId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_18
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_22
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPStringId
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPTrueName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPObjectName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPStringName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPStringName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPStringOdataLocation
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_27
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_28
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_5
+      type: dictionary
+      elementType: !AnySchema &ref_1
+        type: any
+        language: !Languages 
+          default:
+            name: any
+            description: Anything
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: PetAPTrue
+          description: Dictionary of <any>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_12
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: PetAPObject
+          description: Dictionary of <any>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_15
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: PetAPString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_20
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesAdditionalProperties
+          description: Dictionary of <number>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_21
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_25
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPStringAdditionalProperties
+          description: Dictionary of <number>
+      protocol: !Protocols {}
+  any:
+    - *ref_1
+  objects:
+    - !ObjectSchema &ref_4
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_7
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            parents: !Relations 
+              all:
+                - *ref_4
+                - *ref_5
+              immediate:
+                - *ref_4
+            properties:
+              - !Property 
+                schema: *ref_6
+                serializedName: friendly
+                language: !Languages 
+                  default:
+                    name: friendly
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: CatAPTrue
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_7
+      parents: !Relations 
+        all:
+          - *ref_5
+        immediate:
+          - *ref_5
+      properties:
+        - !Property 
+          schema: *ref_8
+          required: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: PetAPTrue
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_31
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_10
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_7
+    - !ObjectSchema &ref_34
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      parents: !Relations 
+        all:
+          - *ref_12
+        immediate:
+          - *ref_12
+      properties:
+        - !Property 
+          schema: *ref_13
+          required: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_14
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: PetAPObject
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_37
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      parents: !Relations 
+        all:
+          - *ref_15
+        immediate:
+          - *ref_15
+      properties:
+        - !Property 
+          schema: *ref_16
+          required: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: PetAPString
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_40
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_18
+          required: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_20
+          required: false
+          serializedName: additionalProperties
+          language: !Languages 
+            default:
+              name: additionalProperties
+              description: Dictionary of <number>
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: PetAPInProperties
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_43
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      parents: !Relations 
+        all:
+          - *ref_21
+        immediate:
+          - *ref_21
+      properties:
+        - !Property 
+          schema: *ref_22
+          required: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_24
+          required: true
+          serializedName: '@odata.location'
+          language: !Languages 
+            default:
+              name: odataLocation
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          required: false
+          serializedName: additionalProperties
+          language: !Languages 
+            default:
+              name: additionalProperties
+              description: Dictionary of <number>
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: PetAPInPropertiesWithAPString
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_26
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Pets
+    operations:
+      - !Operation 
+        operationId: Pets_CreateAPTrue
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_30
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_29
+                schema: *ref_4
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_29
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/true
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_30
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: A Pet which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateAPTrue
+            description: Create a Pet which contains more properties than what is defined.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pets_CreateCatAPTrue
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_33
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_32
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_32
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/true-subclass
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_33
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: A CatAPTrue which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateCatAPTrue
+            description: Create a CatAPTrue which contains more properties than what is defined.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pets_CreateAPObject
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_36
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_35
+                schema: *ref_34
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/type/object
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_36
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: A Pet which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateAPObject
+            description: Create a Pet which contains more properties than what is defined.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pets_CreateAPString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_39
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_38
+                schema: *ref_37
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/type/string
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_39
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: A Pet which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateAPString
+            description: Create a Pet which contains more properties than what is defined.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pets_CreateAPInProperties
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_42
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_41
+                schema: *ref_40
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_41
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/in/properties
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_42
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_40
+            language: !Languages 
+              default:
+                name: ''
+                description: A Pet which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateAPInProperties
+            description: Create a Pet which contains more properties than what is defined.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pets_CreateAPInPropertiesWithAPString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_26
+        requestMediaTypes:
+          application/json: !Request &ref_45
+            parameters:
+              - !Parameter 
+                schema: *ref_27
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_44
+                schema: *ref_43
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: createParameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_28
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_44
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /additionalProperties/in/properties/with/additionalProperties/string
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_45
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_43
+            language: !Languages 
+              default:
+                name: ''
+                description: A Pet which contains more properties than what is defined.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateAPInPropertiesWithAPString
+            description: Create a Pet which contains more properties than what is defined.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Pets
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AdditionalPropertiesClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

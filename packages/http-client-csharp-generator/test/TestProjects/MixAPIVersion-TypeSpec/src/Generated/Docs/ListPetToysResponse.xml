@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetPetsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetPetsAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ListPetToysResponse client = new MixApiVersionClient(endpoint).GetListPetToysResponseClient(apiVersion: "2022-11-30-preview");
+
+await foreach (BinaryData item in client.GetPetsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("petId").ToString());
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetPetsAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ListPetToysResponse client = new MixApiVersionClient(endpoint).GetListPetToysResponseClient(apiVersion: "2022-11-30-preview");
+
+await foreach (BinaryData item in client.GetPetsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("petId").ToString());
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPets(RequestContext)">
+      <example>
+This sample shows how to call GetPets and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ListPetToysResponse client = new MixApiVersionClient(endpoint).GetListPetToysResponseClient(apiVersion: "2022-11-30-preview");
+
+foreach (BinaryData item in client.GetPets(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("petId").ToString());
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetPets with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ListPetToysResponse client = new MixApiVersionClient(endpoint).GetListPetToysResponseClient(apiVersion: "2022-11-30-preview");
+
+foreach (BinaryData item in client.GetPets(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("petId").ToString());
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

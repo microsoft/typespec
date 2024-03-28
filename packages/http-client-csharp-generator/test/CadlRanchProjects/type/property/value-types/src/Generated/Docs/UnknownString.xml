@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetUnknownStringAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknownStringAsync.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response<UnknownStringProperty> response = await client.GetUnknownStringAsync();
+]]></code>
+This sample shows how to call GetUnknownStringAsync with all parameters.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response<UnknownStringProperty> response = await client.GetUnknownStringAsync();
+]]></code></example>
+    </member>
+    <member name="GetUnknownString(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknownString.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response<UnknownStringProperty> response = client.GetUnknownString();
+]]></code>
+This sample shows how to call GetUnknownString with all parameters.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response<UnknownStringProperty> response = client.GetUnknownString();
+]]></code></example>
+    </member>
+    <member name="GetUnknownStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownStringAsync and parse the result.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response response = await client.GetUnknownStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetUnknownStringAsync with all parameters and parse the result.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response response = await client.GetUnknownStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetUnknownString(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownString and parse the result.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response response = client.GetUnknownString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetUnknownString with all parameters and parse the result.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+Response response = client.GetUnknownString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(UnknownStringProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+UnknownStringProperty body = new UnknownStringProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+UnknownStringProperty body = new UnknownStringProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(UnknownStringProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+UnknownStringProperty body = new UnknownStringProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+UnknownStringProperty body = new UnknownStringProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+UnknownString client = new ValueTypesClient().GetUnknownStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,1123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIntAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIntAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetIntAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetIntAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetIntAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="GetInt(RequestContext)">
+      <example>
+This sample shows how to call GetInt and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetInt(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetInt with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetInt(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="PutIntAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutIntAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutIntAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutIntAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 1234,
+    field2 = 1234,
+});
+Response response = await client.PutIntAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutInt(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutInt.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutInt(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutInt with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 1234,
+    field2 = 1234,
+});
+Response response = client.PutInt(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetLongAsync(RequestContext)">
+      <example>
+This sample shows how to call GetLongAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetLongAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetLongAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetLongAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="GetLong(RequestContext)">
+      <example>
+This sample shows how to call GetLong and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetLong(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetLong with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetLong(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="PutLongAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutLongAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutLongAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutLongAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 1234L,
+    field2 = 1234L,
+});
+Response response = await client.PutLongAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutLong(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutLong.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutLong(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutLong with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 1234L,
+    field2 = 1234L,
+});
+Response response = client.PutLong(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetFloatAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFloatAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetFloatAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetFloatAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetFloatAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloat(RequestContext)">
+      <example>
+This sample shows how to call GetFloat and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetFloat(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetFloat with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetFloat(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field2").ToString());
+]]></code></example>
+    </member>
+    <member name="PutFloatAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFloatAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutFloatAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFloatAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 123.45F,
+    field2 = 123.45F,
+});
+Response response = await client.PutFloatAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutFloat(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFloat.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutFloat(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFloat with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 123.45F,
+    field2 = 123.45F,
+});
+Response response = client.PutFloat(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDoubleAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDoubleAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDoubleAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDoubleAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDouble(RequestContext)">
+      <example>
+This sample shows how to call GetDouble and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDouble(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDouble with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDouble(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field1").ToString());
+Console.WriteLine(result.GetProperty("field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDoubleAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDoubleAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutDoubleAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDoubleAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 123.45,
+    field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose = 123.45,
+});
+Response response = await client.PutDoubleAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDouble(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDouble.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutDouble(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDouble with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field1 = 123.45,
+    field_56_zeros_after_the_dot_and_negative_zero_before_dot_and_this_is_a_long_field_name_on_purpose = 123.45,
+});
+Response response = client.PutDouble(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetBoolAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBoolAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetBoolAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetBoolAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetBoolAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field_true").ToString());
+Console.WriteLine(result.GetProperty("field_false").ToString());
+]]></code></example>
+    </member>
+    <member name="GetBool(RequestContext)">
+      <example>
+This sample shows how to call GetBool and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetBool(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetBool with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetBool(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field_true").ToString());
+Console.WriteLine(result.GetProperty("field_false").ToString());
+]]></code></example>
+    </member>
+    <member name="PutBoolAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBoolAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutBoolAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutBoolAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field_true = true,
+    field_false = true,
+});
+Response response = await client.PutBoolAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutBool(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBool.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutBool(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutBool with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field_true = true,
+    field_false = true,
+});
+Response response = client.PutBool(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("empty").ToString());
+Console.WriteLine(result.GetProperty("null").ToString());
+]]></code></example>
+    </member>
+    <member name="GetString(RequestContext)">
+      <example>
+This sample shows how to call GetString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("empty").ToString());
+Console.WriteLine(result.GetProperty("null").ToString());
+]]></code></example>
+    </member>
+    <member name="PutStringAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutStringAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutStringAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutStringAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new Dictionary<string, object>
+{
+    ["field"] = "<field>",
+    ["empty"] = "<empty>",
+    ["null"] = "<null>"
+});
+Response response = await client.PutStringAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutString(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutString.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutString(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutString with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new Dictionary<string, object>
+{
+    ["field"] = "<field>",
+    ["empty"] = "<empty>",
+    ["null"] = "<null>"
+});
+Response response = client.PutString(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDateAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDateAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("leap").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDate(RequestContext)">
+      <example>
+This sample shows how to call GetDate and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDate(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDate with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDate(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("leap").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutDateAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "2022-05-10",
+    leap = "2022-05-10",
+});
+Response response = await client.PutDateAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDate(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDate.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutDate(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDate with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "2022-05-10",
+    leap = "2022-05-10",
+});
+Response response = client.PutDate(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDateTimeAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateTimeAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDateTimeAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateTimeAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("now").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTime(RequestContext)">
+      <example>
+This sample shows how to call GetDateTime and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDateTime(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDateTime with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDateTime(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("now").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateTimeAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutDateTimeAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "2022-05-10T18:57:31.2311892Z",
+    now = "2022-05-10T18:57:31.2311892Z",
+});
+Response response = await client.PutDateTimeAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDateTime(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTime.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutDateTime(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTime with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "2022-05-10T18:57:31.2311892Z",
+    now = "2022-05-10T18:57:31.2311892Z",
+});
+Response response = client.PutDateTime(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDateTimeRfc1123Async(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeRfc1123Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateTimeRfc1123Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDateTimeRfc1123Async with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDateTimeRfc1123Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("now").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeRfc1123(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeRfc1123 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDateTimeRfc1123(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDateTimeRfc1123 with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDateTimeRfc1123(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+Console.WriteLine(result.GetProperty("now").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateTimeRfc1123Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeRfc1123Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutDateTimeRfc1123Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeRfc1123Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "Tue, 10 May 2022 18:57:31 GMT",
+    now = "Tue, 10 May 2022 18:57:31 GMT",
+});
+Response response = await client.PutDateTimeRfc1123Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDateTimeRfc1123(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeRfc1123.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutDateTimeRfc1123(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeRfc1123 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "Tue, 10 May 2022 18:57:31 GMT",
+    now = "Tue, 10 May 2022 18:57:31 GMT",
+});
+Response response = client.PutDateTimeRfc1123(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDurationAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDurationAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDurationAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDurationAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetDurationAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDuration(RequestContext)">
+      <example>
+This sample shows how to call GetDuration and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDuration(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetDuration with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetDuration(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDurationAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDurationAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutDurationAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDurationAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "PT1H23M45S",
+});
+Response response = await client.PutDurationAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDuration(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDuration.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutDuration(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDuration with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = "PT1H23M45S",
+});
+Response response = client.PutDuration(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetByteAsync(RequestContext)">
+      <example>
+This sample shows how to call GetByteAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetByteAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetByteAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = await client.GetByteAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+]]></code></example>
+    </member>
+    <member name="GetByte(RequestContext)">
+      <example>
+This sample shows how to call GetByte and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetByte(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetByte with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+Response response = client.GetByte(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("field").ToString());
+]]></code></example>
+    </member>
+    <member name="PutByteAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutByteAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutByteAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutByteAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = new object(),
+});
+Response response = await client.PutByteAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutByte(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutByte.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutByte(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutByte with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PrimitiveClient client = new PrimitiveClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    field = new object(),
+});
+Response response = client.PutByte(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

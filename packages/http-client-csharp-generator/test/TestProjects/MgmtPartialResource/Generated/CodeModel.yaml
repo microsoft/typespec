@@ -1,0 +1,1817 @@
+!CodeModel 
+info: !Info 
+  title: MgmtPartialResource
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_21
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: PublicIPAddressPropertiesFormatIdleTimeoutInMinutes
+          description: The idle timeout of the public IP address.
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PublicIPAddressPropertiesFormatIpAddress
+          description: The IP address associated with the public IP address resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PublicIPAddressPropertiesFormatResourceGuid
+          description: The resource GUID property of the public IP address resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PublicIPAddressEtag
+          description: A unique read-only string that changes whenever the resource is updated.
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PublicIPAddressZonesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PublicIPAddressListResultNextLink
+          description: The URL to get the next set of results.
+      protocol: !Protocols {}
+    - !StringSchema &ref_50
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      maxLength: 90
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ConfigurationProfileAssignmentPropertiesConfigurationProfile
+          description: The Automanage configurationProfile ARM Resource URI.
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ConfigurationProfileAssignmentPropertiesTargetId
+          description: The target VM resource URI
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ConfigurationProfileAssignmentPropertiesStatus
+          description: The status of onboarding, which only appears in the response.
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: TrackedResourceLocation
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_14
+      choices:
+        - !ChoiceValue 
+          value: Basic
+          language:
+            default:
+              name: Basic
+              description: ''
+        - !ChoiceValue 
+          value: Standard
+          language:
+            default:
+              name: Standard
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PublicIPAddressSkuName
+          description: Name of a public IP address SKU.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_15
+      choices:
+        - !ChoiceValue 
+          value: Regional
+          language:
+            default:
+              name: Regional
+              description: ''
+        - !ChoiceValue 
+          value: Global
+          language:
+            default:
+              name: Global
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PublicIPAddressSkuTier
+          description: Tier of a public IP address SKU.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_18
+      choices:
+        - !ChoiceValue 
+          value: Static
+          language:
+            default:
+              name: Static
+              description: ''
+        - !ChoiceValue 
+          value: Dynamic
+          language:
+            default:
+              name: Dynamic
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: IPAllocationMethod
+          description: IP address allocation method.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_19
+      choices:
+        - !ChoiceValue 
+          value: IPv4
+          language:
+            default:
+              name: IPv4
+              description: ''
+        - !ChoiceValue 
+          value: IPv6
+          language:
+            default:
+              name: IPv6
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: IPVersion
+          description: IP address version.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_23
+      choices:
+        - !ChoiceValue 
+          value: None
+          language:
+            default:
+              name: None
+              description: ''
+        - !ChoiceValue 
+          value: Prepare
+          language:
+            default:
+              name: Prepare
+              description: ''
+        - !ChoiceValue 
+          value: Commit
+          language:
+            default:
+              name: Commit
+              description: ''
+        - !ChoiceValue 
+          value: Abort
+          language:
+            default:
+              name: Abort
+              description: ''
+        - !ChoiceValue 
+          value: Committed
+          language:
+            default:
+              name: Committed
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PublicIPAddressMigrationPhase
+          description: Migration phase of Public IP Address.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_24
+      choices:
+        - !ChoiceValue 
+          value: Delete
+          language:
+            default:
+              name: Delete
+              description: ''
+        - !ChoiceValue 
+          value: Detach
+          language:
+            default:
+              name: Detach
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: DeleteOptions
+          description: Specify what happens to the public IP address when the VM using it is deleted
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_31
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_35
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_44
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_10
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: TrackedResourceTags
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_38
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_29
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_2
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_4
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    children: !Relations 
+                      all:
+                        - *ref_2
+                        - !ObjectSchema &ref_3
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - !ObjectSchema &ref_8
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                parents: !Relations 
+                                  all:
+                                    - *ref_3
+                                    - *ref_4
+                                  immediate:
+                                    - *ref_3
+                                properties:
+                                  - !Property 
+                                    schema: !ObjectSchema &ref_27
+                                      type: object
+                                      apiVersions:
+                                        - !ApiVersion 
+                                          version: '2020-06-01'
+                                      properties:
+                                        - !Property 
+                                          schema: *ref_5
+                                          serializedName: configurationProfile
+                                          language: !Languages 
+                                            default:
+                                              name: configurationProfile
+                                              description: The Automanage configurationProfile ARM Resource URI.
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_6
+                                          serializedName: targetId
+                                          language: !Languages 
+                                            default:
+                                              name: targetId
+                                              description: The target VM resource URI
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_7
+                                          readOnly: true
+                                          serializedName: status
+                                          language: !Languages 
+                                            default:
+                                              name: status
+                                              description: The status of onboarding, which only appears in the response.
+                                          protocol: !Protocols {}
+                                      serializationFormats:
+                                        - json
+                                      usage:
+                                        - output
+                                        - input
+                                      language: !Languages 
+                                        default:
+                                          name: ConfigurationProfileAssignmentProperties
+                                          description: Automanage configuration profile assignment properties.
+                                          namespace: ''
+                                      protocol: !Protocols {}
+                                    serializedName: properties
+                                    extensions:
+                                      x-ms-client-flatten: false
+                                    language: !Languages 
+                                      default:
+                                        name: properties
+                                        description: Properties of the configuration profile assignment.
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - input
+                                  - output
+                                language: !Languages 
+                                  default:
+                                    name: ConfigurationProfileAssignment
+                                    description: Configuration profile assignment is an association between a VM and automanage profile configuration.
+                                    namespace: ''
+                                protocol: !Protocols {}
+                            immediate:
+                              - *ref_8
+                          parents: !Relations 
+                            all:
+                              - *ref_4
+                            immediate:
+                              - *ref_4
+                          properties:
+                            - !Property 
+                              schema: *ref_9
+                              required: true
+                              serializedName: location
+                              language: !Languages 
+                                default:
+                                  name: location
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_10
+                              required: false
+                              serializedName: tags
+                              language: !Languages 
+                                default:
+                                  name: tags
+                                  description: Dictionary of <string>
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: TrackedResource
+                              description: ''
+                              namespace: ''
+                          protocol: !Protocols {}
+                        - *ref_8
+                      immediate:
+                        - *ref_2
+                        - *ref_3
+                    properties:
+                      - !Property 
+                        schema: *ref_11
+                        readOnly: true
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_12
+                        readOnly: true
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_13
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: Resource
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                immediate:
+                  - *ref_4
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_26
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_14
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: Name of a public IP address SKU.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_15
+                        serializedName: tier
+                        language: !Languages 
+                          default:
+                            name: tier
+                            description: Tier of a public IP address SKU.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: PublicIPAddressSku
+                        description: SKU of a public IP address.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  serializedName: sku
+                  language: !Languages 
+                    default:
+                      name: sku
+                      description: The public IP address SKU.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_16
+                  readOnly: true
+                  serializedName: etag
+                  language: !Languages 
+                    default:
+                      name: etag
+                      description: A unique read-only string that changes whenever the resource is updated.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ArraySchema &ref_28
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    elementType: *ref_17
+                    language: !Languages 
+                      default:
+                        name: PublicIPAddressZones
+                        description: A list of availability zones denoting the IP allocated for the resource needs to come from.
+                    protocol: !Protocols {}
+                  serializedName: zones
+                  language: !Languages 
+                    default:
+                      name: zones
+                      description: A list of availability zones denoting the IP allocated for the resource needs to come from.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_18
+                  flattenedNames:
+                    - properties
+                    - publicIPAllocationMethod
+                  serializedName: publicIPAllocationMethod
+                  language: !Languages 
+                    default:
+                      name: publicIPAllocationMethod
+                      description: The public IP address allocation method.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_19
+                  flattenedNames:
+                    - properties
+                    - publicIPAddressVersion
+                  serializedName: publicIPAddressVersion
+                  language: !Languages 
+                    default:
+                      name: publicIPAddressVersion
+                      description: The public IP address version.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_20
+                  flattenedNames:
+                    - properties
+                    - ipAddress
+                  serializedName: ipAddress
+                  language: !Languages 
+                    default:
+                      name: ipAddress
+                      description: The IP address associated with the public IP address resource.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_21
+                  flattenedNames:
+                    - properties
+                    - idleTimeoutInMinutes
+                  serializedName: idleTimeoutInMinutes
+                  language: !Languages 
+                    default:
+                      name: idleTimeoutInMinutes
+                      description: The idle timeout of the public IP address.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_22
+                  flattenedNames:
+                    - properties
+                    - resourceGuid
+                  readOnly: true
+                  serializedName: resourceGuid
+                  language: !Languages 
+                    default:
+                      name: resourceGuid
+                      description: The resource GUID property of the public IP address resource.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  flattenedNames:
+                    - properties
+                    - servicePublicIPAddress
+                  serializedName: servicePublicIPAddress
+                  language: !Languages 
+                    default:
+                      name: servicePublicIPAddress
+                      description: The service public IP address of the public IP address resource.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_23
+                  flattenedNames:
+                    - properties
+                    - migrationPhase
+                  serializedName: migrationPhase
+                  language: !Languages 
+                    default:
+                      name: migrationPhase
+                      description: Migration phase of Public IP Address.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  flattenedNames:
+                    - properties
+                    - linkedPublicIPAddress
+                  serializedName: linkedPublicIPAddress
+                  language: !Languages 
+                    default:
+                      name: linkedPublicIPAddress
+                      description: The linked public IP address of the public IP address resource.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_24
+                  flattenedNames:
+                    - properties
+                    - deleteOption
+                  serializedName: deleteOption
+                  language: !Languages 
+                    default:
+                      name: deleteOption
+                      description: Specify what happens to the public IP address when the VM using it is deleted
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              language: !Languages 
+                default:
+                  name: PublicIPAddress
+                  description: Public IP address resource.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: PublicIPAddressListResultValue
+                description: A list of public IP addresses that exists in a resource group.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: A list of public IP addresses that exists in a resource group.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The URL to get the next set of results.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: PublicIPAddressListResult
+          description: Response for ListPublicIpAddresses API service call.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_2
+    - *ref_26
+    - *ref_4
+    - *ref_8
+    - *ref_27
+    - *ref_3
+    - !ObjectSchema &ref_64
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_30
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_8
+            language: !Languages 
+              default:
+                name: ConfigurationProfileAssignmentListValue
+                description: Result of the list configuration profile assignment operation.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Result of the list configuration profile assignment operation.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ConfigurationProfileAssignmentList
+          description: The response of the list configuration profile assignment operation.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_28
+    - *ref_29
+    - *ref_30
+globalParameters:
+  - !Parameter &ref_33
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: ''
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_32
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_34
+    schema: *ref_31
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: PublicIPAddresses
+    operations:
+      - !Operation 
+        operationId: PublicIPAddresses_ListVirtualMachineScaleSetPublicIPAddresses
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_36
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_37
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: virtualMachineScaleSetName
+                description: The name of the virtual machine scale set.
+                serializedName: virtualMachineScaleSetName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_33
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/publicipaddresses
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_36
+          - *ref_37
+        responses:
+          - !SchemaResponse 
+            schema: *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: Request successful. The operation returns a list of PublicIPInterface resources.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListVirtualMachineScaleSetPublicIPAddresses
+            description: Gets information about all public IP addresses on a virtual machine scale set level.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PublicIPAddresses_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_39
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_40
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: publicIpAddressName
+                description: The name of the public IP address.
+                serializedName: publicIpAddressName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+          - *ref_33
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses/{publicIpAddressName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_39
+          - *ref_40
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Delete successful.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted and the operation will complete asynchronously.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '202'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Request successful. Resource does not exist.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        extensions:
+          x-ms-long-running-operation: true
+          x-ms-long-running-operation-options:
+            final-state-via: location
+        language: !Languages 
+          default:
+            name: Delete
+            description: Deletes the specified public IP address.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PublicIPAddresses_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_41
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_42
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: publicIpAddressName
+                description: The name of the public IP address.
+                serializedName: publicIpAddressName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+          - *ref_33
+          - !Parameter &ref_43
+            schema: *ref_1
+            implementation: Method
+            language: !Languages 
+              default:
+                name: expand
+                description: Expands referenced resources.
+                serializedName: $expand
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses/{publicIpAddressName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_41
+          - *ref_42
+          - *ref_43
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: Request successful. The operation returns the resulting PublicIPAddress resource.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets the specified public IP address in a specified resource group.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PublicIPAddresses_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_47
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_48
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: publicIpAddressName
+                description: The name of the public IP address.
+                serializedName: publicIpAddressName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+          - *ref_33
+        requestMediaTypes:
+          application/json: !Request &ref_46
+            parameters:
+              - !Parameter 
+                schema: *ref_44
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_45
+                schema: *ref_2
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the create or update public IP address operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_45
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses/{publicIpAddressName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_46
+        signatureParameters:
+          - *ref_47
+          - *ref_48
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: Update successful. The operation returns the resulting PublicIPAddress resource.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: Create successful. The operation returns the resulting PublicIPAddress resource.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        extensions:
+          x-ms-long-running-operation: true
+          x-ms-long-running-operation-options:
+            final-state-via: azure-async-operation
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Creates or updates a static or dynamic public IP address.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PublicIPAddresses_ListAll
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - *ref_34
+          - *ref_33
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Network/publicIPAddresses
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: Request successful. The operation returns a list of PublicIPAddress resources.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListAll
+            description: Gets all the public IP addresses in a subscription.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: PublicIPAddresses_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_49
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+          - *ref_33
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_49
+        responses:
+          - !SchemaResponse 
+            schema: *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: Request successful. The operation returns a list of PublicIPAddress resources.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: Gets all public IP addresses in a resource group.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: PublicIPAddresses
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ConfigurationProfileAssignments
+    operations:
+      - !Operation 
+        operationId: ConfigurationProfileAssignments_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_53
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: configurationProfileAssignmentName
+                description: Name of the configuration profile assignment. Only default is supported.
+                serializedName: configurationProfileAssignmentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_33
+          - !Parameter &ref_54
+            schema: *ref_50
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_55
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: vmName
+                description: The name of the virtual machine.
+                serializedName: vmName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_52
+            parameters:
+              - !Parameter 
+                schema: *ref_44
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_51
+                schema: *ref_8
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the create or update configuration profile assignment.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments/{configurationProfileAssignmentName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_52
+        signatureParameters:
+          - *ref_53
+          - *ref_54
+          - *ref_55
+        responses:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The configuration profile assignment for the VM was updated successfully.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Created. The Automanage configuration profile assignment for the VM was created successfully.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        extensions:
+          x-ms-long-running-operation: false
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Creates an association between a VM and Automanage configuration profile
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ConfigurationProfileAssignments_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_56
+            schema: *ref_50
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_57
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: configurationProfileAssignmentName
+                description: The configuration profile assignment name.
+                serializedName: configurationProfileAssignmentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_33
+          - !Parameter &ref_58
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: vmName
+                description: The name of the virtual machine.
+                serializedName: vmName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments/{configurationProfileAssignmentName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_56
+          - *ref_57
+          - *ref_58
+        responses:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The configuration profile assignment was returned successfully.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Get information about a configuration profile assignment
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ConfigurationProfileAssignments_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - !Parameter &ref_59
+            schema: *ref_50
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_60
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: configurationProfileAssignmentName
+                description: Name of the configuration profile assignment
+                serializedName: configurationProfileAssignmentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_33
+          - !Parameter &ref_61
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: vmName
+                description: The name of the virtual machine.
+                serializedName: vmName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments/{configurationProfileAssignmentName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_59
+          - *ref_60
+          - *ref_61
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        extensions:
+          x-ms-long-running-operation: false
+        language: !Languages 
+          default:
+            name: Delete
+            description: Delete a configuration profile assignment
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ConfigurationProfileAssignments_ListByVirtualMachines
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_32
+          - *ref_33
+          - !Parameter &ref_62
+            schema: *ref_50
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_63
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: vmName
+                description: The name of the virtual machine.
+                serializedName: vmName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_62
+          - *ref_63
+        responses:
+          - !SchemaResponse 
+            schema: *ref_64
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The list of configuration profile assignments were returned successfully.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: null
+        language: !Languages 
+          default:
+            name: ListByVirtualMachines
+            description: Get list of configuration profile assignments
+            paging:
+              nextLinkName: null
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ConfigurationProfileAssignments
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtPartialResource
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

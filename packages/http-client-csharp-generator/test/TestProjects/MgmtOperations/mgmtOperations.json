@@ -1,0 +1,1124 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ManagementOperations",
+        "description": "Management Operations",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}": {
+            "put": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_CreateOrUpdate",
+                "description": "Create or update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        },
+                        "description": "Parameters supplied to the Create Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Create an availability set.": {
+                        "$ref": "./examples/CreateAnAvailabilitySet.json"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Update",
+                "description": "Update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Delete",
+                "description": "Delete an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Get",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the participants.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}/sharedkey": {
+            "put": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_TestSetSharedKey",
+                "description": "Testing description.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ConnectionSharedKey"
+                        },
+                        "description": "Parameters supplied to the Begin Set Virtual Network Gateway connection Shared key operation throughNetwork resource provider."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns the resulting ConnectionSharedKey resource.",
+                        "schema": {
+                            "$ref": "#/definitions/ConnectionSharedKey"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}/availabilitySetChildren": {
+            "get": {
+                "tags": [
+                    "AvailabilitySetChild"
+                ],
+                "operationId": "availabilitySetChild_List",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetChildListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}/availabilitySetChildren/{availabilitySetChildName}": {
+            "get": {
+                "tags": [
+                    "AvailabilitySetChild"
+                ],
+                "operationId": "availabilitySetChild_Get",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "availabilitySetChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set child."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetChild"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "AvailabilitySetChild"
+                ],
+                "operationId": "AvailabilitySetChild_CreateOrUpdate",
+                "description": "Create or update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "availabilitySetChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set child."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetChild"
+                        },
+                        "description": "Parameters supplied to the Create Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetChild"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Create an availability set.": {
+                        "$ref": "./examples/CreateAnAvailabilitySet.json"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}/availabilitySetChildren/{availabilitySetChildName}/availabilitySetGrandChildren": {
+            "get": {
+                "tags": [
+                    "AvailabilitySetGrandChild"
+                ],
+                "operationId": "availabilitySetGrandChild_List",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "availabilitySetChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set child."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetGrandChildListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}/availabilitySetChildren/{availabilitySetChildName}/availabilitySetGrandChildren/{availabilitySetGrandChildName}": {
+            "get": {
+                "tags": [
+                    "AvailabilitySetGrandChild"
+                ],
+                "operationId": "availabilitySetGrandChild_Get",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "availabilitySetChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set child."
+                    },
+                    {
+                        "name": "availabilitySetGrandChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set grand child."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetGrandChild"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "AvailabilitySetGrandChild"
+                ],
+                "operationId": "availabilitySetGrandChild_CreateOrUpdate",
+                "description": "Create or update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "availabilitySetChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set child."
+                    },
+                    {
+                        "name": "availabilitySetGrandChildName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set grand child."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetGrandChild"
+                        },
+                        "description": "Parameters supplied to the Create Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetGrandChild"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Create an availability set.": {
+                        "$ref": "./examples/CreateAnAvailabilitySet.json"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets": {
+            "get": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_List",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the participants.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/patchAvailabilitySets": {
+            "patch": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_TestLROMethod",
+                "description": "Update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TestAvailabilitySet"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/unpatchableResources/{name}": {
+            "put": {
+                "tags": [
+                    "UnpatchableResources"
+                ],
+                "operationId": "UnpatchableResources_CreateOrUpdate",
+                "description": "Create or update an UnpatchableResource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the UnpatchableResource."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResource"
+                        },
+                        "description": "Parameters supplied to the Create UnpatchableResource operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResource"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "UnpatchableResources"
+                ],
+                "operationId": "UnpatchableResources_Update",
+                "description": "Update an UnpatchableResource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the UnpatchableResource."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResourceUpdate"
+                        },
+                        "description": "Parameters supplied to the Update UnpatchableResource operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResource"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "UnpatchableResources"
+                ],
+                "operationId": "UnpatchableResources_Delete",
+                "description": "Delete an UnpatchableResource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the UnpatchableResource."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "UnpatchableResources"
+                ],
+                "operationId": "UnpatchableResources_Get",
+                "description": "Retrieves information about an UnpatchableResource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the UnpatchableResource."
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the participants.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResource"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/unpatchableResources": {
+            "get": {
+                "tags": [
+                    "UnpatchableResources"
+                ],
+                "operationId": "UnpatchableResources_List",
+                "description": "Retrieves information about an UnpatchableResource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the participants.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UnpatchableResourceListResult"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AvailabilitySet": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set."
+        },
+        "AvailabilitySetChildListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailabilitySetChild"
+                    },
+                    "description": "The list of availability sets"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of AvailabilitySets. Call ListNext() with this URI to fetch the next page of AvailabilitySets."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "AvailabilitySetChild": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set."
+        },
+        "AvailabilitySetGrandChildListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailabilitySetGrandChild"
+                    },
+                    "description": "The list of availability sets"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of AvailabilitySets. Call ListNext() with this URI to fetch the next page of AvailabilitySets."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "AvailabilitySetGrandChild": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set."
+        },
+        "TestAvailabilitySet": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            }
+        },
+        "AvailabilitySetUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/AvailabilitySetProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Only tags may be updated."
+        },
+        "AvailabilitySetProperties": {
+            "properties": {
+                "platformUpdateDomainCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Update Domain count."
+                },
+                "platformFaultDomainCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Fault Domain count."
+                }
+            },
+            "description": "The instance view of a resource."
+        },
+        "AvailabilitySetListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailabilitySet"
+                    },
+                    "description": "The list of availability sets"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of AvailabilitySets. Call ListNext() with this URI to fetch the next page of AvailabilitySets."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "UpdateResource": {
+            "description": "The Update Resource model definition.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "ConnectionSharedKey": {
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "The virtual network connection shared key value."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "required": [
+                "value"
+            ],
+            "description": "Response for GetConnectionSharedKey API service call."
+        },
+        "UnpatchableResource": {
+            "properties": {
+                "foo": {
+                    "type": "string",
+                    "description": "specifies the foo"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set."
+        },
+        "UnpatchableResourceUpdate": {
+            "description": "The update content of unpatchable resource.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        },
+        "UnpatchableResourceListResult": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UnpatchableResource"
+                    }
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        }
+    }
+}

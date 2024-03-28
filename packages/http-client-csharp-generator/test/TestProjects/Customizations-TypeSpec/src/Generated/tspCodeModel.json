@@ -1,0 +1,1163 @@
+{
+ "$id": "1",
+ "Name": "CustomizationsInTsp",
+ "Description": "CADL project to test various types of models.",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "ExtensibleEnumWithOperator",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "Monday",
+     "Value": "Monday",
+     "Description": "Monday."
+    },
+    {
+     "$id": "4",
+     "Name": "Tuesday",
+     "Value": "Tuesday",
+     "Description": "Tuesday."
+    }
+   ],
+   "Namespace": "CustomizationsInTsp",
+   "Description": "Extensible enum to customize operator",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  },
+  {
+   "$id": "5",
+   "Kind": "Enum",
+   "Name": "EnumToRename",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "6",
+     "Name": "One",
+     "Value": "1"
+    },
+    {
+     "$id": "7",
+     "Name": "Two",
+     "Value": "2"
+    },
+    {
+     "$id": "8",
+     "Name": "Three",
+     "Value": "3"
+    }
+   ],
+   "Namespace": "CustomizationsInTsp",
+   "Description": "Renamed enum (original name: EnumToRename)",
+   "IsExtensible": false,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  },
+  {
+   "$id": "9",
+   "Kind": "Enum",
+   "Name": "EnumWithValueToRename",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "10",
+     "Name": "One",
+     "Value": "1"
+    },
+    {
+     "$id": "11",
+     "Name": "Two",
+     "Value": "2"
+    },
+    {
+     "$id": "12",
+     "Name": "ValueToRename",
+     "Value": "3"
+    }
+   ],
+   "Namespace": "CustomizationsInTsp",
+   "Description": "Enum with renamed value (original name: ValueToRename)",
+   "IsExtensible": false,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  },
+  {
+   "$id": "13",
+   "Kind": "Enum",
+   "Name": "EnumToBeMadeExtensible",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "14",
+     "Name": "ExOne",
+     "Value": "1"
+    },
+    {
+     "$id": "15",
+     "Name": "ExTwo",
+     "Value": "2"
+    },
+    {
+     "$id": "16",
+     "Name": "ExThree",
+     "Value": "3"
+    }
+   ],
+   "Namespace": "CustomizationsInTsp",
+   "Description": "Extensible enum",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  },
+  {
+   "$id": "17",
+   "Kind": "Enum",
+   "Name": "NormalEnum",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "18",
+     "Name": "A",
+     "Value": "a"
+    },
+    {
+     "$id": "19",
+     "Name": "B",
+     "Value": "b"
+    }
+   ],
+   "Namespace": "CustomizationsInTsp",
+   "Description": "A normal enum",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "20",
+   "Kind": "Model",
+   "Name": "RootModel",
+   "Namespace": "CustomizationsInTsp",
+   "Description": "Root RoundTrip model to reference all other types to ensure generation",
+   "IsNullable": false,
+   "Usage": "RoundTrip",
+   "Properties": [
+    {
+     "$id": "21",
+     "Name": "propertyExtensibleEnum",
+     "SerializedName": "propertyExtensibleEnum",
+     "Description": "ExtensibleEnumWithOperator",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "22",
+     "Name": "propertyModelToMakeInternal",
+     "SerializedName": "propertyModelToMakeInternal",
+     "Description": "ModelToMakeInternal",
+     "Type": {
+      "$id": "23",
+      "Kind": "Model",
+      "Name": "ModelToMakeInternal",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Public model made internal",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "Properties": [
+       {
+        "$id": "24",
+        "Name": "requiredInt",
+        "SerializedName": "requiredInt",
+        "Description": "Required int",
+        "Type": {
+         "$id": "25",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "26",
+     "Name": "propertyModelToRename",
+     "SerializedName": "propertyModelToRename",
+     "Description": "ModelToRename",
+     "Type": {
+      "$id": "27",
+      "Kind": "Model",
+      "Name": "ModelToRename",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Renamed model (original name: ModelToRename)",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "Properties": [
+       {
+        "$id": "28",
+        "Name": "requiredIntOnBase",
+        "SerializedName": "requiredIntOnBase",
+        "Description": "Required int",
+        "Type": {
+         "$id": "29",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "30",
+        "Name": "optionalInt",
+        "SerializedName": "optionalInt",
+        "Description": "Optional int",
+        "Type": {
+         "$id": "31",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "32",
+     "Name": "propertyModelToChangeNamespace",
+     "SerializedName": "propertyModelToChangeNamespace",
+     "Description": "ModelToChangeNamespace",
+     "Type": {
+      "$id": "33",
+      "Kind": "Model",
+      "Name": "ModelToChangeNamespace",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Model moved into custom namespace",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "Properties": [
+       {
+        "$id": "34",
+        "Name": "requiredInt",
+        "SerializedName": "requiredInt",
+        "Description": "Required int",
+        "Type": {
+         "$id": "35",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "36",
+     "Name": "propertyModelWithCustomizedProperties",
+     "SerializedName": "propertyModelWithCustomizedProperties",
+     "Description": "ModelWithCustomizedProperties",
+     "Type": {
+      "$id": "37",
+      "Kind": "Model",
+      "Name": "ModelWithCustomizedProperties",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Model with customized properties",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "Properties": [
+       {
+        "$id": "38",
+        "Name": "propertyToMakeInternal",
+        "SerializedName": "propertyToMakeInternal",
+        "Description": "Public property made internal",
+        "Type": {
+         "$id": "39",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "40",
+        "Name": "propertyToRename",
+        "SerializedName": "propertyToRename",
+        "Description": "Renamed property (original name: PropertyToRename)",
+        "Type": {
+         "$id": "41",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "42",
+        "Name": "propertyToMakeFloat",
+        "SerializedName": "propertyToMakeFloat",
+        "Description": "Property with type changed to float (original type: int)",
+        "Type": {
+         "$id": "43",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "44",
+        "Name": "propertyToMakeInt",
+        "SerializedName": "propertyToMakeInt",
+        "Description": "Property with type changed to int (original type: float)",
+        "Type": {
+         "$id": "45",
+         "Kind": "Primitive",
+         "Name": "Float32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "46",
+        "Name": "propertyToMakeDuration",
+        "SerializedName": "propertyToMakeDuration",
+        "Description": "Property with type changed to duration (original type: string)",
+        "Type": {
+         "$id": "47",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "48",
+        "Name": "propertyToMakeString",
+        "SerializedName": "propertyToMakeString",
+        "Description": "Property with type changed to string (original type: duration)",
+        "Type": {
+         "$id": "49",
+         "Kind": "Primitive",
+         "Name": "DurationISO8601",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "50",
+        "Name": "propertyToMakeJsonElement",
+        "SerializedName": "propertyToMakeJsonElement",
+        "Description": "Property with type changed to JsonElement (original type: string)",
+        "Type": {
+         "$id": "51",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "52",
+        "Name": "propertyToField",
+        "SerializedName": "propertyToField",
+        "Description": "Field that replaces property (original name: PropertyToField)",
+        "Type": {
+         "$id": "53",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "54",
+        "Name": "badListName",
+        "SerializedName": "badListName",
+        "Description": "Property renamed that is list",
+        "Type": {
+         "$id": "55",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "56",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "57",
+        "Name": "badDictionaryName",
+        "SerializedName": "badDictionaryName",
+        "Description": "Property renamed that is dictionary",
+        "Type": {
+         "$id": "58",
+         "Kind": "Dictionary",
+         "Name": "Dictionary",
+         "KeyType": {
+          "$id": "59",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "ValueType": {
+          "$id": "60",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "61",
+        "Name": "badListOfListName",
+        "SerializedName": "badListOfListName",
+        "Description": "Property renamed that is listoflist",
+        "Type": {
+         "$id": "62",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "63",
+          "Kind": "Array",
+          "Name": "Array",
+          "ElementType": {
+           "$id": "64",
+           "Kind": "Primitive",
+           "Name": "String",
+           "IsNullable": false
+          },
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "65",
+        "Name": "badListOfDictionaryName",
+        "SerializedName": "badListOfDictionaryName",
+        "Description": "Property renamed that is listofdictionary",
+        "Type": {
+         "$id": "66",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "67",
+          "Kind": "Dictionary",
+          "Name": "Dictionary",
+          "KeyType": {
+           "$id": "68",
+           "Kind": "Primitive",
+           "Name": "String",
+           "IsNullable": false
+          },
+          "ValueType": {
+           "$id": "69",
+           "Kind": "Primitive",
+           "Name": "String",
+           "IsNullable": false
+          },
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "70",
+        "Name": "vector",
+        "SerializedName": "vector",
+        "Description": "Property type changed to ReadOnlyMemory<float>",
+        "Type": {
+         "$id": "71",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "72",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "73",
+        "Name": "vectorOptional",
+        "SerializedName": "vectorOptional",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "74",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "75",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "76",
+        "Name": "vectorNullable",
+        "SerializedName": "vectorNullable",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "77",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "78",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": true
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "79",
+        "Name": "vectorOptionalNullable",
+        "SerializedName": "vectorOptionalNullable",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "80",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "81",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": true
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "82",
+        "Name": "vectorReadOnly",
+        "SerializedName": "vectorReadOnly",
+        "Description": "Property type changed to ReadOnlyMemory<float>",
+        "Type": {
+         "$id": "83",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "84",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": true
+       },
+       {
+        "$id": "85",
+        "Name": "vectorOptionalReadOnly",
+        "SerializedName": "vectorOptionalReadOnly",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "86",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "87",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": true
+       },
+       {
+        "$id": "88",
+        "Name": "vectorNullableReadOnly",
+        "SerializedName": "vectorNullableReadOnly",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "89",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "90",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": true
+        },
+        "IsRequired": true,
+        "IsReadOnly": true
+       },
+       {
+        "$id": "91",
+        "Name": "vectorOptionalNullableReadOnly",
+        "SerializedName": "vectorOptionalNullableReadOnly",
+        "Description": "Property type changed to ReadOnlyMemory<float>?",
+        "Type": {
+         "$id": "92",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$id": "93",
+          "Kind": "Primitive",
+          "Name": "Float32",
+          "IsNullable": false
+         },
+         "IsNullable": true
+        },
+        "IsRequired": false,
+        "IsReadOnly": true
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "94",
+     "Name": "propertyEnumToRename",
+     "SerializedName": "propertyEnumToRename",
+     "Description": "EnumToRename",
+     "Type": {
+      "$ref": "5"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "95",
+     "Name": "propertyEnumWithValueToRename",
+     "SerializedName": "propertyEnumWithValueToRename",
+     "Description": "EnumWithValueToRename",
+     "Type": {
+      "$ref": "9"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "96",
+     "Name": "propertyEnumToBeMadeExtensible",
+     "SerializedName": "propertyEnumToBeMadeExtensible",
+     "Description": "EnumToBeMadeExtensible",
+     "Type": {
+      "$ref": "13"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "97",
+     "Name": "propertyModelToAddAdditionalSerializableProperty",
+     "SerializedName": "propertyModelToAddAdditionalSerializableProperty",
+     "Description": "ModelToAddAdditionalSerializableProperty",
+     "Type": {
+      "$id": "98",
+      "Kind": "Model",
+      "Name": "ModelToAddAdditionalSerializableProperty",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Model to add additional serializable property",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "BaseModel": {
+       "$ref": "27"
+      },
+      "Properties": [
+       {
+        "$id": "99",
+        "Name": "requiredInt",
+        "SerializedName": "requiredInt",
+        "Description": "Required int",
+        "Type": {
+         "$id": "100",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "101",
+     "Name": "propertyToMoveToCustomization",
+     "SerializedName": "propertyToMoveToCustomization",
+     "Description": "Enum type property to move to customization code",
+     "Type": {
+      "$ref": "17"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "102",
+     "Name": "propertyModelStruct",
+     "SerializedName": "propertyModelStruct",
+     "Description": "ModelStruct",
+     "Type": {
+      "$id": "103",
+      "Kind": "Model",
+      "Name": "ModelStruct",
+      "Namespace": "CustomizationsInTsp",
+      "Description": "Model to make to a struct",
+      "IsNullable": false,
+      "Usage": "RoundTrip",
+      "Properties": [
+       {
+        "$id": "104",
+        "Name": "requiredInt",
+        "SerializedName": "requiredInt",
+        "Description": "Required int",
+        "Type": {
+         "$id": "105",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "106",
+        "Name": "optionalInt",
+        "SerializedName": "optionalInt",
+        "Description": "Optional int",
+        "Type": {
+         "$id": "107",
+         "Kind": "Primitive",
+         "Name": "Int32",
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "108",
+        "Name": "optionalString",
+        "SerializedName": "optionalString",
+        "Description": "Optional string",
+        "Type": {
+         "$id": "109",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "23"
+  },
+  {
+   "$ref": "27"
+  },
+  {
+   "$ref": "33"
+  },
+  {
+   "$ref": "37"
+  },
+  {
+   "$ref": "98"
+  },
+  {
+   "$ref": "103"
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "110",
+   "Name": "CustomizationsInTspClient",
+   "Description": "CADL project to test various types of models.",
+   "Operations": [
+    {
+     "$id": "111",
+     "Name": "roundTrip",
+     "ResourceName": "CustomizationsInTsp",
+     "Description": "RoundTrip operation to make RootModel round-trip",
+     "Parameters": [
+      {
+       "$id": "112",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "20"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "113",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "114",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "115",
+        "Type": {
+         "$ref": "114"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "116",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "117",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "118",
+        "Type": {
+         "$ref": "117"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "119",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "20"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "",
+     "Path": "/inputToRoundTrip",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "120",
+     "Name": "foo",
+     "ResourceName": "CustomizationsInTsp",
+     "Description": "Sample operation with request body of a renamed model",
+     "Parameters": [
+      {
+       "$id": "121",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "27"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "122",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "123",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "124",
+        "Type": {
+         "$ref": "123"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "125",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "126",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "127",
+        "Type": {
+         "$ref": "126"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "128",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "27"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "",
+     "Path": "/foo",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "129",
+     "Name": "bar",
+     "ResourceName": "CustomizationsInTsp",
+     "Description": "Sample operation with request body using a model parameter with a spread operator.",
+     "Parameters": [
+      {
+       "$id": "130",
+       "Name": "ModelToRename",
+       "NameInRequest": "ModelToRename",
+       "Description": "Renamed model (original name: ModelToRename)",
+       "Type": {
+        "$ref": "27"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "131",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "132",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "133",
+        "Type": {
+         "$ref": "132"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "134",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "135",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "136",
+        "Type": {
+         "$ref": "135"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "137",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "27"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "",
+     "Path": "/bar",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "138"
+   },
+   "Creatable": true
+  }
+ ]
+}

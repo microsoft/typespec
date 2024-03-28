@@ -1,0 +1,569 @@
+{
+ "$id": "1",
+ "Name": "Parameters.CollectionFormat",
+ "Description": "Test for collectionFormat.",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "CollectionFormatClient",
+   "Description": "",
+   "Operations": [],
+   "Protocol": {
+    "$id": "3"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "4",
+   "Name": "Query",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "5",
+     "Name": "multi",
+     "ResourceName": "Query",
+     "Parameters": [
+      {
+       "$id": "6",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "7",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "8",
+        "Type": {
+         "$id": "9",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "10",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "11",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "12",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": true,
+       "Kind": "Method"
+      },
+      {
+       "$id": "13",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "14",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "15",
+        "Type": {
+         "$ref": "14"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "16",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/query/multi",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "17",
+     "Name": "ssv",
+     "ResourceName": "Query",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "18",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "19",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "20",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": " "
+      },
+      {
+       "$id": "21",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "22",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "23",
+        "Type": {
+         "$ref": "22"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "24",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/query/ssv",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "25",
+     "Name": "tsv",
+     "ResourceName": "Query",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "26",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "27",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "28",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": "\t"
+      },
+      {
+       "$id": "29",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "31",
+        "Type": {
+         "$ref": "30"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "32",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/query/tsv",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "33",
+     "Name": "pipes",
+     "ResourceName": "Query",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "34",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "35",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "36",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": "|"
+      },
+      {
+       "$id": "37",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "38",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "39",
+        "Type": {
+         "$ref": "38"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "40",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/query/pipes",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "41",
+     "Name": "csv",
+     "ResourceName": "Query",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "42",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "43",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "44",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": ","
+      },
+      {
+       "$id": "45",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "46",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "47",
+        "Type": {
+         "$ref": "46"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "48",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/query/csv",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "49"
+   },
+   "Creatable": false,
+   "Parent": "CollectionFormatClient"
+  },
+  {
+   "$id": "50",
+   "Name": "Header",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "51",
+     "Name": "csv",
+     "ResourceName": "Header",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "52",
+       "Name": "colors",
+       "NameInRequest": "colors",
+       "Description": "Possible values for colors are [blue,red,green]",
+       "Type": {
+        "$id": "53",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "54",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": ","
+      },
+      {
+       "$id": "55",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "56",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "57",
+        "Type": {
+         "$ref": "56"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "58",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/parameters/collection-format/header/csv",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "59"
+   },
+   "Creatable": false,
+   "Parent": "CollectionFormatClient"
+  }
+ ]
+}

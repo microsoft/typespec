@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SayHiAsync(string,string,string,RequestContext)">
+      <example>
+This sample shows how to call SayHiAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+HelloDemo client = new FirstTestTypeSpecClient(endpoint).GetHelloClient().GetHelloDemoClient();
+
+Response response = await client.SayHiAsync("<headParameter>", "<queryParameter>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code>
+This sample shows how to call SayHiAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+HelloDemo client = new FirstTestTypeSpecClient(endpoint).GetHelloClient().GetHelloDemoClient();
+
+Response response = await client.SayHiAsync("<headParameter>", "<queryParameter>", "<optionalQuery>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("optionalNullableList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="SayHi(string,string,string,RequestContext)">
+      <example>
+This sample shows how to call SayHi and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+HelloDemo client = new FirstTestTypeSpecClient(endpoint).GetHelloClient().GetHelloDemoClient();
+
+Response response = client.SayHi("<headParameter>", "<queryParameter>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code>
+This sample shows how to call SayHi with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+HelloDemo client = new FirstTestTypeSpecClient(endpoint).GetHelloClient().GetHelloDemoClient();
+
+Response response = client.SayHi("<headParameter>", "<queryParameter>", "<optionalQuery>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("optionalNullableList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

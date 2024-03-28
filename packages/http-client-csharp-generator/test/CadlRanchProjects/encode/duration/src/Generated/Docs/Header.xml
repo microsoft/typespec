@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="DefaultAsync(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call DefaultAsync.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.DefaultAsync(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call DefaultAsync with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.DefaultAsync(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Default(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call Default.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Default(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Default with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Default(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Iso8601Async(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call Iso8601Async.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Iso8601Async(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Iso8601Async with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Iso8601Async(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Iso8601(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call Iso8601.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Iso8601(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Iso8601 with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Iso8601(XmlConvert.ToTimeSpan("PT1H23M45S"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Iso8601ArrayAsync(IEnumerable{TimeSpan},RequestContext)">
+      <example>
+This sample shows how to call Iso8601ArrayAsync.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Iso8601ArrayAsync(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Iso8601ArrayAsync with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Iso8601ArrayAsync(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Iso8601Array(IEnumerable{TimeSpan},RequestContext)">
+      <example>
+This sample shows how to call Iso8601Array.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Iso8601Array(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Iso8601Array with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Iso8601Array(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Int32SecondsAsync(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call Int32SecondsAsync.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Int32SecondsAsync(TimeSpan.FromSeconds(10));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Int32SecondsAsync with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.Int32SecondsAsync(TimeSpan.FromSeconds(10));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Int32Seconds(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call Int32Seconds.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Int32Seconds(TimeSpan.FromSeconds(10));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Int32Seconds with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.Int32Seconds(TimeSpan.FromSeconds(10));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FloatSecondsAsync(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call FloatSecondsAsync.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.FloatSecondsAsync(TimeSpan.FromSeconds(10F));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FloatSecondsAsync with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = await client.FloatSecondsAsync(TimeSpan.FromSeconds(10F));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FloatSeconds(TimeSpan,RequestContext)">
+      <example>
+This sample shows how to call FloatSeconds.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.FloatSeconds(TimeSpan.FromSeconds(10F));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FloatSeconds with all parameters.
+<code><![CDATA[
+Header client = new DurationClient().GetHeaderClient();
+
+Response response = client.FloatSeconds(TimeSpan.FromSeconds(10F));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

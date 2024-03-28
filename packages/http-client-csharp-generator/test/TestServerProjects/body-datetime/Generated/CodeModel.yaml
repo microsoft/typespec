@@ -1,0 +1,1925 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest DateTime Test Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_2
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_5
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '0001-01-01T00:00:00Z'
+      valueType: !DateTimeSchema &ref_1
+        type: date-time
+        format: date-time
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: DateTime
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Constant2
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '0001-01-01t00:00:00+14:00'
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '0001-01-01t00:00:00-14:00'
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant4
+          description: ''
+      protocol: !Protocols {}
+  dateTimes:
+    - *ref_1
+  objects:
+    - !ObjectSchema &ref_6
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_2
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_4
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: datetime
+    operations:
+      - !Operation 
+        operationId: datetime_getNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The null datetime value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getNull:
+              parameters: {}
+              responses:
+                '200':
+                  body: ''
+        language: !Languages 
+          default:
+            name: GetNull
+            description: Get null datetime value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getInvalid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/invalid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The invalid datetime value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetInvalid
+            description: Get invalid datetime value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getOverflow
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/overflow
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The overflow datetime value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetOverflow
+            description: Get overflow datetime value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getUnderflow
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/underflow
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The underflow datetime value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetUnderflow
+            description: Get underflow datetime value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putUtcMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_9
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_8
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/max/utc
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_9
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.999Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_putUtcMaxDateTime:
+              parameters:
+                datetimeBody: '9999-12-31T23:59:59.999Z'
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutUtcMaxDateTime
+            description: Put max datetime value 9999-12-31T23:59:59.999Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putUtcMaxDateTime7Digits
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_11
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_10
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_10
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/max/utc7ms
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_11
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.9999999Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutUtcMaxDateTime7Digits
+            description: This is against the recommendation that asks for 3 digits, but allow to test what happens in that scenario
+            summary: Put max datetime value 9999-12-31T23:59:59.9999999Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getUtcLowercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/utc/lowercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31t23:59:59.999z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getUtcLowercaseMaxDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: 9999-12-31t23:59:59.999z
+        language: !Languages 
+          default:
+            name: GetUtcLowercaseMaxDateTime
+            description: Get max datetime value 9999-12-31t23:59:59.999z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getUtcUppercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/utc/uppercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.999Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getUtcUppercaseMaxDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '9999-12-31T23:59:59.999Z'
+        language: !Languages 
+          default:
+            name: GetUtcUppercaseMaxDateTime
+            description: Get max datetime value 9999-12-31T23:59:59.999Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getUtcUppercaseMaxDateTime7Digits
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/utc7ms/uppercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.9999999Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetUtcUppercaseMaxDateTime7Digits
+            description: This is against the recommendation that asks for 3 digits, but allow to test what happens in that scenario
+            summary: Get max datetime value 9999-12-31T23:59:59.9999999Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putLocalPositiveOffsetMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_13
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_12
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/max/localpositiveoffset
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_13
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value with positive num offset 9999-12-31T23:59:59.999+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_putLocalPositiveOffsetMaxDateTime:
+              parameters:
+                datetimeBody: '9999-12-31T23:59:59.999+14:00'
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutLocalPositiveOffsetMaxDateTime
+            description: Put max datetime value with positive numoffset 9999-12-31t23:59:59.999+14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalPositiveOffsetLowercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/localpositiveoffset/lowercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31t23:59:59.999+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getLocalPositiveOffsetLowercaseMaxDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '9999-12-31t23:59:59.999+14:00'
+        language: !Languages 
+          default:
+            name: GetLocalPositiveOffsetLowercaseMaxDateTime
+            description: Get max datetime value with positive num offset 9999-12-31t23:59:59.999+14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalPositiveOffsetUppercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/localpositiveoffset/uppercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.999+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getLocalPositiveOffsetUppercaseMaxDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '9999-12-31T23:59:59.999+14:00'
+        language: !Languages 
+          default:
+            name: GetLocalPositiveOffsetUppercaseMaxDateTime
+            description: Get max datetime value with positive num offset 9999-12-31T23:59:59.999+14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putLocalNegativeOffsetMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_15
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_14
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/max/localnegativeoffset
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_15
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value with positive num offset 9999-12-31T23:59:59.999+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutLocalNegativeOffsetMaxDateTime
+            description: Put max datetime value with positive numoffset 9999-12-31t23:59:59.999-14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalNegativeOffsetUppercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/localnegativeoffset/uppercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31T23:59:59.999-14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLocalNegativeOffsetUppercaseMaxDateTime
+            description: Get max datetime value with positive num offset 9999-12-31T23:59:59.999-14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalNegativeOffsetLowercaseMaxDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/max/localnegativeoffset/lowercase
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The max datetime value 9999-12-31t23:59:59.999-14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLocalNegativeOffsetLowercaseMaxDateTime
+            description: Get max datetime value with positive num offset 9999-12-31t23:59:59.999-14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putUtcMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_16
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/min/utc
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_putUtcMinDateTime:
+              parameters:
+                datetimeBody: '0001-01-01T00:00:00Z'
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutUtcMinDateTime
+            description: Put min datetime value 0001-01-01T00:00:00Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getUtcMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/min/utc
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00Z
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getUtcMinDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '0001-01-01T00:00:00Z'
+        language: !Languages 
+          default:
+            name: GetUtcMinDateTime
+            description: Get min datetime value 0001-01-01T00:00:00Z
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putLocalPositiveOffsetMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_19
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_18
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/min/localpositiveoffset
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_19
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutLocalPositiveOffsetMinDateTime
+            description: Put min datetime value 0001-01-01T00:00:00+14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalPositiveOffsetMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/min/localpositiveoffset
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLocalPositiveOffsetMinDateTime
+            description: Get min datetime value 0001-01-01T00:00:00+14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_putLocalNegativeOffsetMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_21
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_20
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: datetimeBody
+                    description: datetime body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_20
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /datetime/min/localnegativeoffset
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_21
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00+14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_putLocalNegativeOffsetMinDateTime:
+              parameters:
+                datetimeBody: '0001-01-01T00:00:00-14:00'
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutLocalNegativeOffsetMinDateTime
+            description: Put min datetime value 0001-01-01T00:00:00-14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalNegativeOffsetMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/min/localnegativeoffset
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00-14:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getLocalNegativeOffsetMinDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '0001-01-01T00:00:00-14:00'
+        language: !Languages 
+          default:
+            name: GetLocalNegativeOffsetMinDateTime
+            description: Get min datetime value 0001-01-01T00:00:00-14:00
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: datetime_getLocalNoOffsetMinDateTime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_4
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /datetime/min/localnooffset
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The min datetime value 0001-01-01T00:00:00
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            datetime_getLocalNoOffsetMinDateTime:
+              parameters: {}
+              responses:
+                '200':
+                  body: '0001-01-01T00:00:00'
+        language: !Languages 
+          default:
+            name: GetLocalNoOffsetMinDateTime
+            description: Get min datetime value 0001-01-01T00:00:00
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Datetime
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestDateTimeTestService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

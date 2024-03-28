@@ -1,0 +1,2361 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Number Test Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_2
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 128
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 340282300000000000000
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant2
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 2.5976931e+101
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_14
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 99999999.99
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant4
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 99999999.99
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant5
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_16
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: -99999999.99
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant6
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: -99999999.99
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant7
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 2.5976931e+101
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant8
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_20
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 99999999.99
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant9
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 99999999.99
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant10
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_22
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: -99999999.99
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant11
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: -99999999.99
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant12
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 3.402823e-20
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant13
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 2.5976931e-101
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant14
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 2.5976931e-101
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant15
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_8
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_4
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_6
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: number
+    operations:
+      - !Operation 
+        operationId: number_getNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The null number value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getNull:
+              parameters: {}
+              responses:
+                '200':
+                  body: ''
+        language: !Languages 
+          default:
+            name: GetNull
+            description: Get null Number value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getInvalidFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/invalidfloat
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The invalid float number value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetInvalidFloat
+            description: Get invalid float Number value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getInvalidDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/invaliddouble
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The invalid double number value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetInvalidDouble
+            description: Get invalid double Number value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getInvalidDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/invaliddecimal
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: The invalid decimal number value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetInvalidDecimal
+            description: Get invalid decimal Number value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_11
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_10
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_10
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/float/3.402823e+20
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_11
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big float value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigFloat:
+              parameters:
+                numberBody: 340282300000000000000
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigFloat
+            description: Put big float value 3.402823e+20
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/float/3.402823e+20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: The big float value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigFloat:
+              parameters: {}
+              responses:
+                '200':
+                  body: 340282300000000000000
+        language: !Languages 
+          default:
+            name: GetBigFloat
+            description: Get big float value 3.402823e+20
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_13
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_12
+                schema: *ref_2
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/double/2.5976931e+101
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_13
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDouble:
+              parameters:
+                numberBody: 2.5976931e+101
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDouble
+            description: Put big double value 2.5976931e+101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/double/2.5976931e+101
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value 2.5976931e+101
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDouble:
+              parameters: {}
+              responses:
+                '200':
+                  body: 2.5976931e+101
+        language: !Languages 
+          default:
+            name: GetBigDouble
+            description: Get big double value 2.5976931e+101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDoublePositiveDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_15
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_14
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/double/99999999.99
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_15
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDoublePositiveDecimal:
+              parameters:
+                numberBody: 99999999.99
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDoublePositiveDecimal
+            description: Put big double value 99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDoublePositiveDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/double/99999999.99
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value 99999999.99
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDoublePositiveDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: 99999999.99
+        language: !Languages 
+          default:
+            name: GetBigDoublePositiveDecimal
+            description: Get big double value 99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDoubleNegativeDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/double/-99999999.99
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDoubleNegativeDecimal:
+              parameters:
+                numberBody: -99999999.99
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDoubleNegativeDecimal
+            description: Put big double value -99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDoubleNegativeDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/double/-99999999.99
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value -99999999.99
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDoubleNegativeDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: -99999999.99
+        language: !Languages 
+          default:
+            name: GetBigDoubleNegativeDecimal
+            description: Get big double value -99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_19
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_18
+                schema: *ref_3
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/decimal/2.5976931e+101
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_19
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDecimal:
+              parameters:
+                numberBody: 2.5976931e+101
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDecimal
+            description: Put big decimal value 2.5976931e+101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/decimal/2.5976931e+101
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value 2.5976931e+101
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: 2.5976931e+101
+        language: !Languages 
+          default:
+            name: GetBigDecimal
+            description: Get big decimal value 2.5976931e+101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDecimalPositiveDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_21
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_20
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/decimal/99999999.99
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_21
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDecimalPositiveDecimal:
+              parameters:
+                numberBody: 99999999.99
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDecimalPositiveDecimal
+            description: Put big decimal value 99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDecimalPositiveDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/decimal/99999999.99
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value 99999999.99
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDecimalPositiveDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: 99999999.99
+        language: !Languages 
+          default:
+            name: GetBigDecimalPositiveDecimal
+            description: Get big decimal value 99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putBigDecimalNegativeDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_23
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_22
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/big/decimal/-99999999.99
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_23
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putBigDecimalNegativeDecimal:
+              parameters:
+                numberBody: -99999999.99
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBigDecimalNegativeDecimal
+            description: Put big decimal value -99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getBigDecimalNegativeDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/big/decimal/-99999999.99
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: The big decimal value -99999999.99
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getBigDecimalNegativeDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: -99999999.99
+        language: !Languages 
+          default:
+            name: GetBigDecimalNegativeDecimal
+            description: Get big decimal value -99999999.99
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putSmallFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_25
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_24
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/small/float/3.402823e-20
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_25
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The small float value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putSmallFloat:
+              parameters:
+                numberBody: 3.402823e-20
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutSmallFloat
+            description: Put small float value 3.402823e-20
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getSmallFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/small/float/3.402823e-20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value 3.402823e-20
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getSmallFloat:
+              parameters: {}
+              responses:
+                '200':
+                  body: 3.402823e-20
+        language: !Languages 
+          default:
+            name: GetSmallFloat
+            description: Get big double value 3.402823e-20
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putSmallDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_27
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_26
+                schema: *ref_2
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_26
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/small/double/2.5976931e-101
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_27
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The small double value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putSmallDouble:
+              parameters:
+                numberBody: 2.5976931e-101
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutSmallDouble
+            description: Put small double value 2.5976931e-101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getSmallDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/small/double/2.5976931e-101
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: The big double value 2.5976931e-101
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getSmallDouble:
+              parameters: {}
+              responses:
+                '200':
+                  body: 2.5976931e-101
+        language: !Languages 
+          default:
+            name: GetSmallDouble
+            description: Get big double value 2.5976931e-101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_putSmallDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_29
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_28
+                schema: *ref_3
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: numberBody
+                    description: number body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_28
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /number/small/decimal/2.5976931e-101
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_29
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The small decimal value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_putSmallDecimal:
+              parameters:
+                numberBody: 2.5976931e-101
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutSmallDecimal
+            description: Put small decimal value 2.5976931e-101
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: number_getSmallDecimal
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /number/small/decimal/2.5976931e-101
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: The small decimal value 2.5976931e-101
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            number_getSmallDecimal:
+              parameters: {}
+              responses:
+                '200':
+                  body: 2.5976931e-101
+        language: !Languages 
+          default:
+            name: GetSmallDecimal
+            description: Get small decimal value 2.5976931e-101
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Number
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestNumberTestService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

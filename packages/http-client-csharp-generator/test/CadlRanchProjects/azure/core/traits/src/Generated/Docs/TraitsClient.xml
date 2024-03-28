@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SmokeTestAsync(int,string,RequestConditions,CancellationToken)">
+      <example>
+This sample shows how to call SmokeTestAsync.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response<User> response = await client.SmokeTestAsync(1234, "<foo>");
+]]></code>
+This sample shows how to call SmokeTestAsync with all parameters.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response<User> response = await client.SmokeTestAsync(1234, "<foo>", requestConditions: null);
+]]></code></example>
+    </member>
+    <member name="SmokeTest(int,string,RequestConditions,CancellationToken)">
+      <example>
+This sample shows how to call SmokeTest.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response<User> response = client.SmokeTest(1234, "<foo>");
+]]></code>
+This sample shows how to call SmokeTest with all parameters.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response<User> response = client.SmokeTest(1234, "<foo>", requestConditions: null);
+]]></code></example>
+    </member>
+    <member name="SmokeTestAsync(int,string,RequestConditions,RequestContext)">
+      <example>
+This sample shows how to call SmokeTestAsync and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response response = await client.SmokeTestAsync(1234, "<foo>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call SmokeTestAsync with all parameters and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response response = await client.SmokeTestAsync(1234, "<foo>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="SmokeTest(int,string,RequestConditions,RequestContext)">
+      <example>
+This sample shows how to call SmokeTest and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response response = client.SmokeTest(1234, "<foo>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call SmokeTest with all parameters and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+Response response = client.SmokeTest(1234, "<foo>", null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="RepeatableActionAsync(int,UserActionParam,CancellationToken)">
+      <example>
+This sample shows how to call RepeatableActionAsync.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+UserActionParam userActionParam = new UserActionParam("<userActionValue>");
+Response<UserActionResponse> response = await client.RepeatableActionAsync(1234, userActionParam);
+]]></code>
+This sample shows how to call RepeatableActionAsync with all parameters.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+UserActionParam userActionParam = new UserActionParam("<userActionValue>");
+Response<UserActionResponse> response = await client.RepeatableActionAsync(1234, userActionParam);
+]]></code></example>
+    </member>
+    <member name="RepeatableAction(int,UserActionParam,CancellationToken)">
+      <example>
+This sample shows how to call RepeatableAction.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+UserActionParam userActionParam = new UserActionParam("<userActionValue>");
+Response<UserActionResponse> response = client.RepeatableAction(1234, userActionParam);
+]]></code>
+This sample shows how to call RepeatableAction with all parameters.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+UserActionParam userActionParam = new UserActionParam("<userActionValue>");
+Response<UserActionResponse> response = client.RepeatableAction(1234, userActionParam);
+]]></code></example>
+    </member>
+    <member name="RepeatableActionAsync(int,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RepeatableActionAsync and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    userActionValue = "<userActionValue>",
+});
+Response response = await client.RepeatableActionAsync(1234, content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("userActionResult").ToString());
+]]></code>
+This sample shows how to call RepeatableActionAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    userActionValue = "<userActionValue>",
+});
+Response response = await client.RepeatableActionAsync(1234, content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("userActionResult").ToString());
+]]></code></example>
+    </member>
+    <member name="RepeatableAction(int,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RepeatableAction and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    userActionValue = "<userActionValue>",
+});
+Response response = client.RepeatableAction(1234, content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("userActionResult").ToString());
+]]></code>
+This sample shows how to call RepeatableAction with all parameters and request content and parse the result.
+<code><![CDATA[
+TraitsClient client = new TraitsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    userActionValue = "<userActionValue>",
+});
+Response response = client.RepeatableAction(1234, content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("userActionResult").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

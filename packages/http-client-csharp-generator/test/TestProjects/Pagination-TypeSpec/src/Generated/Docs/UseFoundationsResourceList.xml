@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetLedgerEntriesAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetLedgerEntriesAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+await foreach (LedgerEntry item in client.GetLedgerEntriesAsync())
+{
+}
+]]></code>
+This sample shows how to call GetLedgerEntriesAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+await foreach (LedgerEntry item in client.GetLedgerEntriesAsync())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetLedgerEntries(CancellationToken)">
+      <example>
+This sample shows how to call GetLedgerEntries.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+foreach (LedgerEntry item in client.GetLedgerEntries())
+{
+}
+]]></code>
+This sample shows how to call GetLedgerEntries with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+foreach (LedgerEntry item in client.GetLedgerEntries())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetLedgerEntriesAsync(RequestContext)">
+      <example>
+This sample shows how to call GetLedgerEntriesAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+await foreach (BinaryData item in client.GetLedgerEntriesAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code>
+This sample shows how to call GetLedgerEntriesAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+await foreach (BinaryData item in client.GetLedgerEntriesAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetLedgerEntries(RequestContext)">
+      <example>
+This sample shows how to call GetLedgerEntries and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+foreach (BinaryData item in client.GetLedgerEntries(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code>
+This sample shows how to call GetLedgerEntries with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+UseFoundationsResourceList client = new PaginationClient(endpoint, credential).GetUseFoundationsResourceListClient();
+
+foreach (BinaryData item in client.GetLedgerEntries(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

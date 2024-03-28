@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="HeadAsync(RequestContext)">
+      <example>
+This sample shows how to call HeadAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+AutorestSecurityKeyClient client = new AutorestSecurityKeyClient(credential);
+
+Response response = await client.HeadAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call HeadAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+AutorestSecurityKeyClient client = new AutorestSecurityKeyClient(credential);
+
+Response response = await client.HeadAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head(RequestContext)">
+      <example>
+This sample shows how to call Head.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+AutorestSecurityKeyClient client = new AutorestSecurityKeyClient(credential);
+
+Response response = client.Head();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+AutorestSecurityKeyClient client = new AutorestSecurityKeyClient(credential);
+
+Response response = client.Head();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

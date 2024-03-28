@@ -1,0 +1,12 @@
+{
+  "output-folder": ".",
+  "namespace": "Accessibility_LowLevel_NoAuth",
+  "library-name": "AccessibilityNoAuth",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "public-clients": true,
+  "skip-csproj-packagereference": true,
+  "generate-test-project": true
+}

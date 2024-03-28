@@ -1,0 +1,320 @@
+{
+ "$id": "1",
+ "Name": "Authentication.OAuth2",
+ "Description": "Illustrates clients generated with OAuth2 authentication.",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "OAuth2FlowType",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "authorizationCode",
+     "Value": "authorizationCode",
+     "Description": "authorization code flow"
+    },
+    {
+     "$id": "4",
+     "Name": "implicit",
+     "Value": "implicit",
+     "Description": "implcit flow"
+    },
+    {
+     "$id": "5",
+     "Name": "password",
+     "Value": "password",
+     "Description": "password flow"
+    },
+    {
+     "$id": "6",
+     "Name": "clientCredentials",
+     "Value": "clientCredentials",
+     "Description": "client credential flow"
+    }
+   ],
+   "Namespace": "TypeSpec.Http",
+   "Description": "Describes the OAuth2 flow type",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "7",
+   "Kind": "Enum",
+   "Name": "MyFlow_authorizationUrl",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "8",
+     "Name": "https://login.microsoftonline.com/common/oauth2/authorize",
+     "Value": "https://login.microsoftonline.com/common/oauth2/authorize",
+     "Description": "https://login.microsoftonline.com/common/oauth2/authorize"
+    }
+   ],
+   "Namespace": "Authentication.OAuth2",
+   "Description": "The MyFlow_authorizationUrl",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "9",
+   "Kind": "Model",
+   "Name": "InvalidAuth",
+   "Namespace": "Authentication.OAuth2",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "10",
+     "Name": "error",
+     "SerializedName": "error",
+     "Description": "",
+     "Type": {
+      "$id": "11",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "12",
+   "Kind": "Model",
+   "Name": "MyFlow",
+   "Namespace": "Authentication.OAuth2",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": [
+    {
+     "$id": "13",
+     "Name": "type",
+     "SerializedName": "type",
+     "Description": "",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "14",
+     "Name": "authorizationUrl",
+     "SerializedName": "authorizationUrl",
+     "Description": "",
+     "Type": {
+      "$id": "15",
+      "Kind": "Literal",
+      "Name": "Literal",
+      "LiteralValueType": {
+       "$ref": "7"
+      },
+      "Value": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "16",
+     "Name": "scopes",
+     "SerializedName": "scopes",
+     "Description": "",
+     "Type": {
+      "$id": "17",
+      "Kind": "Intrinsic",
+      "Name": "unknown",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "18",
+   "Name": "OAuth2Client",
+   "Description": "Illustrates clients generated with OAuth2 authentication.",
+   "Operations": [
+    {
+     "$id": "19",
+     "Name": "valid",
+     "ResourceName": "OAuth2",
+     "Description": "Check whether client is authenticated",
+     "Parameters": [
+      {
+       "$id": "20",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "21",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "22",
+        "Type": {
+         "$id": "23",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "24",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "25",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "26",
+        "Type": {
+         "$ref": "25"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "27",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/authentication/oauth2/valid",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "28",
+     "Name": "invalid",
+     "ResourceName": "OAuth2",
+     "Description": "Check whether client is authenticated. Will return an invalid bearer error.",
+     "Parameters": [
+      {
+       "$ref": "20"
+      },
+      {
+       "$id": "29",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "31",
+        "Type": {
+         "$ref": "30"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "32",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      },
+      {
+       "$id": "33",
+       "StatusCodes": [
+        403
+       ],
+       "BodyType": {
+        "$ref": "9"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": true,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/authentication/oauth2/invalid",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "34"
+   },
+   "Creatable": true
+  }
+ ],
+ "Auth": {
+  "$id": "35",
+  "OAuth2": {
+   "$id": "36",
+   "Scopes": [
+    "https://security.microsoft.com/.default"
+   ]
+  }
+ }
+}

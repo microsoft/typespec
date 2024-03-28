@@ -1,0 +1,23 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtCollectionParent",
+  "library-name": "ComputeManagementClient",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "skip-csproj-packagereference": true,
+  "RequestPathToParent": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/orders": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/locations/{location}/orders/{orderName}"
+  },
+  "OperationPositions": {
+    "ListOrderAtResourceGroupLevel": [
+      "collection"
+    ]
+  },
+  "OverrideOperationName": {
+    "ListOrderAtResourceGroupLevel": "GetAll"
+  }
+}

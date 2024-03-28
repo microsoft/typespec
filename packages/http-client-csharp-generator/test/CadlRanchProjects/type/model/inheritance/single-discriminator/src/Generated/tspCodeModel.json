@@ -1,0 +1,763 @@
+{
+ "$id": "1",
+ "Name": "Type.Model.Inheritance.SingleDiscriminator",
+ "Description": "Illustrates inheritance with single discriminator.",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [
+  {
+   "$id": "2",
+   "Kind": "Model",
+   "Name": "Bird",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "This is base model for polymorphic single level inheritance with a discriminator.",
+   "IsNullable": false,
+   "DiscriminatorPropertyName": "kind",
+   "Usage": "RoundTrip",
+   "Properties": [
+    {
+     "$id": "3",
+     "Name": "kind",
+     "SerializedName": "kind",
+     "Description": "",
+     "Type": {
+      "$id": "4",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": true
+    },
+    {
+     "$id": "5",
+     "Name": "wingspan",
+     "SerializedName": "wingspan",
+     "Description": "",
+     "Type": {
+      "$id": "6",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "7",
+   "Kind": "Model",
+   "Name": "Dinosaur",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.",
+   "IsNullable": false,
+   "DiscriminatorPropertyName": "kind",
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "8",
+     "Name": "kind",
+     "SerializedName": "kind",
+     "Description": "Discriminator",
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "Type": {
+      "$id": "9",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsDiscriminator": true
+    },
+    {
+     "$id": "10",
+     "Name": "size",
+     "SerializedName": "size",
+     "Description": "",
+     "Type": {
+      "$id": "11",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "12",
+   "Kind": "Model",
+   "Name": "SeaGull",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "The second level model in polymorphic single level inheritance.",
+   "IsNullable": false,
+   "DiscriminatorValue": "seagull",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "2"
+   },
+   "Properties": []
+  },
+  {
+   "$id": "13",
+   "Kind": "Model",
+   "Name": "Sparrow",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "The second level model in polymorphic single level inheritance.",
+   "IsNullable": false,
+   "DiscriminatorValue": "sparrow",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "2"
+   },
+   "Properties": []
+  },
+  {
+   "$id": "14",
+   "Kind": "Model",
+   "Name": "Goose",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "The second level model in polymorphic single level inheritance.",
+   "IsNullable": false,
+   "DiscriminatorValue": "goose",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "2"
+   },
+   "Properties": []
+  },
+  {
+   "$id": "15",
+   "Kind": "Model",
+   "Name": "Eagle",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "The second level model in polymorphic single levels inheritance which contains references to other polymorphic instances.",
+   "IsNullable": false,
+   "DiscriminatorValue": "eagle",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "2"
+   },
+   "Properties": [
+    {
+     "$id": "16",
+     "Name": "friends",
+     "SerializedName": "friends",
+     "Description": "",
+     "Type": {
+      "$id": "17",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$ref": "2"
+      },
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "18",
+     "Name": "hate",
+     "SerializedName": "hate",
+     "Description": "",
+     "Type": {
+      "$id": "19",
+      "Kind": "Dictionary",
+      "Name": "Dictionary",
+      "KeyType": {
+       "$id": "20",
+       "Kind": "Primitive",
+       "Name": "String",
+       "IsNullable": false
+      },
+      "ValueType": {
+       "$ref": "2"
+      },
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "21",
+     "Name": "partner",
+     "SerializedName": "partner",
+     "Description": "",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "22",
+   "Kind": "Model",
+   "Name": "TRex",
+   "Namespace": "Type.Model.Inheritance.SingleDiscriminator",
+   "Description": "The second level legacy model in polymorphic single level inheritance.",
+   "IsNullable": false,
+   "DiscriminatorValue": "t-rex",
+   "Usage": "Output",
+   "BaseModel": {
+    "$ref": "7"
+   },
+   "Properties": []
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "23",
+   "Name": "SingleDiscriminatorClient",
+   "Description": "Illustrates inheritance with single discriminator.",
+   "Operations": [
+    {
+     "$id": "24",
+     "Name": "getModel",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$id": "25",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "26",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "27",
+        "Type": {
+         "$id": "28",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "29",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "31",
+        "Type": {
+         "$ref": "30"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "32",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/model",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "33",
+     "Name": "putModel",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "34",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "35",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "36",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "37",
+        "Type": {
+         "$ref": "36"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "38",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "39",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "40",
+        "Type": {
+         "$ref": "39"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "41",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/model",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "42",
+     "Name": "getRecursiveModel",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "43",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "44",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "45",
+        "Type": {
+         "$ref": "44"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "46",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/recursivemodel",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "47",
+     "Name": "putRecursiveModel",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "48",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "49",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "50",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "51",
+        "Type": {
+         "$ref": "50"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "52",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "53",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "54",
+        "Type": {
+         "$ref": "53"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "55",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/recursivemodel",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "56",
+     "Name": "getMissingDiscriminator",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "57",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "58",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "59",
+        "Type": {
+         "$ref": "58"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "60",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/missingdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "61",
+     "Name": "getWrongDiscriminator",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "62",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "63",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "64",
+        "Type": {
+         "$ref": "63"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "65",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/wrongdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "66",
+     "Name": "getLegacyModel",
+     "ResourceName": "SingleDiscriminator",
+     "Parameters": [
+      {
+       "$ref": "25"
+      },
+      {
+       "$id": "67",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "68",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "69",
+        "Type": {
+         "$ref": "68"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "70",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "7"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/single-discriminator/legacy-model",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "71"
+   },
+   "Creatable": true
+  }
+ ]
+}

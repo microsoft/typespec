@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetStringAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetStringAsync.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response<string> response = await client.GetStringAsync();
+]]></code>
+This sample shows how to call GetStringAsync with all parameters.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response<string> response = await client.GetStringAsync();
+]]></code></example>
+    </member>
+    <member name="GetString(CancellationToken)">
+      <example>
+This sample shows how to call GetString.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response<string> response = client.GetString();
+]]></code>
+This sample shows how to call GetString with all parameters.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response<string> response = client.GetString();
+]]></code></example>
+    </member>
+    <member name="GetStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringAsync and parse the result.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = await client.GetStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetStringAsync with all parameters and parse the result.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = await client.GetStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetString(RequestContext)">
+      <example>
+This sample shows how to call GetString and parse the result.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = client.GetString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetString with all parameters and parse the result.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = client.GetString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(string,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = await client.PutAsync("<body>");
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = await client.PutAsync("<body>");
+]]></code></example>
+    </member>
+    <member name="Put(string,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = client.Put("<body>");
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+Response response = client.Put("<body>");
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+String client = new ScalarClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

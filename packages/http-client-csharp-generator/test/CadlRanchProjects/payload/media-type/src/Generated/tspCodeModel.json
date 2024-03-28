@@ -1,0 +1,412 @@
+{
+ "$id": "1",
+ "Name": "Payload.MediaType",
+ "Description": "Test the payload with different media types and different types of the payload itself.",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "MediaTypeClient",
+   "Description": "",
+   "Operations": [],
+   "Protocol": {
+    "$id": "3"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "4",
+   "Name": "StringBody",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "5",
+     "Name": "sendAsText",
+     "ResourceName": "StringBody",
+     "Parameters": [
+      {
+       "$id": "6",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "7",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "8",
+        "Type": {
+         "$id": "9",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "10",
+       "Name": "contentType",
+       "NameInRequest": "content-type",
+       "Type": {
+        "$id": "11",
+        "Kind": "Literal",
+        "Name": "Literal",
+        "LiteralValueType": {
+         "$id": "12",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "text/plain",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "DefaultValue": {
+        "$id": "13",
+        "Type": {
+         "$ref": "11"
+        },
+        "Value": "text/plain"
+       },
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "14",
+       "Name": "text",
+       "NameInRequest": "text",
+       "Type": {
+        "$id": "15",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "16",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "17",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "18",
+        "Type": {
+         "$ref": "17"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "19",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/payload/media-type/string-body/sendAsText",
+     "RequestMediaTypes": [
+      "text/plain"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "20",
+     "Name": "getAsText",
+     "ResourceName": "StringBody",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "21",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "22",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "23",
+        "Type": {
+         "$ref": "22"
+        },
+        "Value": "text/plain"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "24",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "25",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "text/plain"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/payload/media-type/string-body/getAsText",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "26",
+     "Name": "sendAsJson",
+     "ResourceName": "StringBody",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "27",
+       "Name": "contentType",
+       "NameInRequest": "content-type",
+       "Type": {
+        "$id": "28",
+        "Kind": "Literal",
+        "Name": "Literal",
+        "LiteralValueType": {
+         "$id": "29",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "application/json",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "DefaultValue": {
+        "$id": "30",
+        "Type": {
+         "$ref": "28"
+        },
+        "Value": "application/json"
+       },
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant"
+      },
+      {
+       "$id": "31",
+       "Name": "text",
+       "NameInRequest": "text",
+       "Type": {
+        "$id": "32",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "33",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "34",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "35",
+        "Type": {
+         "$ref": "34"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "36",
+       "StatusCodes": [
+        200
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/payload/media-type/string-body/sendAsJson",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "37",
+     "Name": "getAsJson",
+     "ResourceName": "StringBody",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$id": "38",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "39",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "40",
+        "Type": {
+         "$ref": "39"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "41",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "42",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/payload/media-type/string-body/getAsJson",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "43"
+   },
+   "Creatable": false,
+   "Parent": "MediaTypeClient"
+  }
+ ]
+}

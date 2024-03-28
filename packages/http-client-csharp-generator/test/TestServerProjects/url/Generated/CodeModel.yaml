@@ -1,0 +1,5807 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Url Test Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_1
+      type: boolean
+      language: !Languages 
+        default:
+          name: Bool
+          description: simple boolean
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_51
+      type: boolean
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_9
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_2
+      type: integer
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: integer
+      precision: 64
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: number
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_5
+      type: number
+      precision: 64
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_53
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_55
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_57
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_59
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Get0ItemsItem
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_31
+      choices:
+        - !ChoiceValue 
+          value: red color
+          language:
+            default:
+              name: RedColor
+              description: ''
+        - !ChoiceValue 
+          value: green color
+          language:
+            default:
+              name: GreenColor
+              description: ''
+        - !ChoiceValue 
+          value: blue color
+          language:
+            default:
+              name: BlueColor
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UriColor
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_14
+      type: constant
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant1
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_15
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_17
+      type: constant
+      value: !ConstantValue 
+        value: false
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_18
+      type: constant
+      value: !ConstantValue 
+        value: 1000000
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant4
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_19
+      type: constant
+      value: !ConstantValue 
+        value: -1000000
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant5
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_20
+      type: constant
+      value: !ConstantValue 
+        value: 10000000000
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant6
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_21
+      type: constant
+      value: !ConstantValue 
+        value: -10000000000
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: Constant7
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_22
+      type: constant
+      value: !ConstantValue 
+        value: 103400000000000000000
+      valueType: *ref_4
+      language: !Languages 
+        default:
+          name: Constant8
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_23
+      type: constant
+      value: !ConstantValue 
+        value: -1.034e-20
+      valueType: *ref_4
+      language: !Languages 
+        default:
+          name: Constant9
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_24
+      type: constant
+      value: !ConstantValue 
+        value: 9999999.999
+      valueType: *ref_5
+      language: !Languages 
+        default:
+          name: Constant10
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_25
+      type: constant
+      value: !ConstantValue 
+        value: -9999999.999
+      valueType: *ref_5
+      language: !Languages 
+        default:
+          name: Constant11
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_26
+      type: constant
+      value: !ConstantValue 
+        value: 啊齄丂狛狜隣郎隣兀﨩
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant12
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_27
+      type: constant
+      value: !ConstantValue 
+        value: begin!*'();:@ &=+$,/?#[]end
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant13
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_28
+      type: constant
+      value: !ConstantValue 
+        value: begin!*'();:@&=+$,end
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant14
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_29
+      type: constant
+      value: !ConstantValue 
+        value: ''
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant15
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_36
+      type: constant
+      value: !ConstantValue 
+        value: ''
+      valueType: !ByteArraySchema &ref_6
+        type: byte-array
+        format: byte
+        language: !Languages 
+          default:
+            name: ByteArray
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Constant16
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_39
+      type: constant
+      value: !ConstantValue 
+        value: '2012-01-01'
+      valueType: !DateSchema &ref_8
+        type: date
+        language: !Languages 
+          default:
+            name: Date
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Constant17
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_42
+      type: constant
+      value: !ConstantValue 
+        value: '2012-01-01T01:01:01Z'
+      valueType: !DateTimeSchema &ref_7
+        type: date-time
+        format: date-time
+        language: !Languages 
+          default:
+            name: DateTime
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Constant18
+          description: ''
+      protocol: !Protocols {}
+  byteArrays:
+    - !ByteArraySchema &ref_34
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - *ref_6
+    - !ByteArraySchema &ref_37
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_45
+      type: byte-array
+      format: base64url
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_64
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_66
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+  dateTimes:
+    - *ref_7
+    - !DateTimeSchema &ref_43
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: DateTime
+          description: ''
+      protocol: !Protocols {}
+  dates:
+    - *ref_8
+    - !DateSchema &ref_40
+      type: date
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Date
+          description: ''
+      protocol: !Protocols {}
+  unixtimes:
+    - !UnixTimeSchema &ref_49
+      type: unixtime
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Unixtime
+          description: date in seconds since 1970-01-01T00:00:00Z.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_16
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_9
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - !ArraySchema &ref_47
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_11
+      language: !Languages 
+        default:
+          name: ArrayOfGet0ItemsItem
+          description: Array of Get0ItemsItem
+      protocol: !Protocols {}
+    - !ArraySchema &ref_70
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_72
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_74
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_76
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_78
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_80
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_82
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_12
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_84
+    schema: *ref_12
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: GlobalStringPath
+        description: A string value 'globalItemStringPath' that appears in the path
+        serializedName: globalStringPath
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_85
+    schema: *ref_12
+    implementation: Client
+    extensions:
+      x-ms-priority: 1
+    language: !Languages 
+      default:
+        name: GlobalStringQuery
+        description: should contain value null
+        serializedName: globalStringQuery
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+  - !Parameter &ref_13
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: paths
+    operations:
+      - !Operation 
+        operationId: paths_getBooleanTrue
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_14
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: boolPath
+                description: true boolean value
+                serializedName: boolPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/bool/true/{boolPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the true boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanTrue
+            description: Get true Boolean value on path
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_getBooleanFalse
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_17
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: boolPath
+                description: false boolean value
+                serializedName: boolPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/bool/false/{boolPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the false Boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanFalse
+            description: Get false Boolean value on path
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_getIntOneMillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_18
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: intPath
+                description: '''1000000'' integer value'
+                serializedName: intPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/int/1000000/{intPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '1000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntOneMillion
+            description: Get '1000000' integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_getIntNegativeOneMillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_19
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: intPath
+                description: '''-1000000'' integer value'
+                serializedName: intPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/int/-1000000/{intPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-1000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntNegativeOneMillion
+            description: Get '-1000000' integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_getTenBillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_20
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: longPath
+                description: '''10000000000'' 64 bit integer value'
+                serializedName: longPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/long/10000000000/{longPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '10000000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetTenBillion
+            description: Get '10000000000' 64 bit integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_getNegativeTenBillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: longPath
+                description: '''-10000000000'' 64 bit integer value'
+                serializedName: longPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/long/-10000000000/{longPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-10000000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetNegativeTenBillion
+            description: Get '-10000000000' 64 bit integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_floatScientificPositive
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_22
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: floatPath
+                description: '''1.034E+20''numeric value'
+                serializedName: floatPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/float/1.034E+20/{floatPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '1.034E+20' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: FloatScientificPositive
+            description: Get '1.034E+20' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_floatScientificNegative
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_23
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: floatPath
+                description: '''-1.034E-20''numeric value'
+                serializedName: floatPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/float/-1.034E-20/{floatPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-1.034E-20' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: FloatScientificNegative
+            description: Get '-1.034E-20' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_doubleDecimalPositive
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_24
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: doublePath
+                description: '''9999999.999''numeric value'
+                serializedName: doublePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/double/9999999.999/{doublePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '9999999.999' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DoubleDecimalPositive
+            description: Get '9999999.999' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_doubleDecimalNegative
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: doublePath
+                description: '''-9999999.999''numeric value'
+                serializedName: doublePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/double/-9999999.999/{doublePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-9999999.999' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DoubleDecimalNegative
+            description: Get '-9999999.999' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_stringUnicode
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_26
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringPath
+                description: '''啊齄丂狛狜隣郎隣兀﨩''multi-byte string value'
+                serializedName: stringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/unicode/{stringPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '啊齄丂狛狜隣郎隣兀﨩' multi-byte string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringUnicode
+            description: Get '啊齄丂狛狜隣郎隣兀﨩' multi-byte string value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_stringUrlEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_27
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringPath
+                description: '''begin!*''();:@ &=+$,/?#[]end'' url encoded string value'
+                serializedName: stringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/begin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend/{stringPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'begin!*'();:@ &=+$,/?#[]end' url encoded string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringUrlEncoded
+            description: Get 'begin!*'();:@ &=+$,/?#[]end
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_stringUrlNonEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_28
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: stringPath
+                description: '''begin!*''();:@&=+$,end'' url encoded string value'
+                serializedName: stringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/begin!*'();:@&=+$,end/{stringPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'begin!*'();:@&=+$,end' url encoded string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringUrlNonEncoded
+            description: https://tools.ietf.org/html/rfc3986#appendix-A 'path' accept any 'pchar' not encoded
+            summary: Get 'begin!*'();:@&=+$,end
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_stringEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_29
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringPath
+                description: ''''' string value'
+                serializedName: stringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/empty/{stringPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '' string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringEmpty
+            description: Get ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_stringNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_30
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringPath
+                description: null string value
+                serializedName: stringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/null/{stringPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_30
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: You should not reach this, null should throw
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '400'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringNull
+            description: Get null (should throw)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_enumValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_32
+            schema: *ref_31
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: enumPath
+                description: send the value green
+                serializedName: enumPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/enum/green%20color/{enumPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_32
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'green color' in url encoded enum value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: EnumValid
+            description: Get using uri with 'green color' in path parameter
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_enumNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_33
+            schema: *ref_31
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: enumPath
+                description: send null should throw
+                serializedName: enumPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/null/{enumPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_33
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: You should not reach this, null should throw
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '400'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: EnumNull
+            description: Get null (should throw on the client before the request is sent on wire)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_byteMultiByte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_35
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: bytePath
+                description: '''啊齄丂狛狜隣郎隣兀﨩'' multibyte value as utf-8 encoded byte array'
+                serializedName: bytePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/byte/multibyte/{bytePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_35
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '啊齄丂狛狜隣郎隣兀﨩' multibyte value as utf-8 encoded byte array
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteMultiByte
+            description: Get '啊齄丂狛狜隣郎隣兀﨩' multibyte value as utf-8 encoded byte array
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_byteEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: bytePath
+                description: ''''' as byte array'
+                serializedName: bytePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/byte/empty/{bytePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '' as byte array
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteEmpty
+            description: Get '' as byte array
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_byteNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_38
+            schema: *ref_37
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: bytePath
+                description: null as byte array (should throw)
+                serializedName: bytePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/byte/null/{bytePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_38
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Failure - client-side code should throw at null path parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '400'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteNull
+            description: Get null as byte array (should throw)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_DateValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_39
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: datePath
+                description: '''2012-01-01'' as date'
+                serializedName: datePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/date/2012-01-01/{datePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '2012-01-01' as date
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateValid
+            description: Get '2012-01-01' as date
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_DateNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_41
+            schema: *ref_40
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: datePath
+                description: null as date (should throw)
+                serializedName: datePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/date/null/{datePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_41
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: This should never happen - client code should not accept this
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '400'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateNull
+            description: Get null as date - this should throw or be unusable on the client side, depending on date representation
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_DateTimeValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_42
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: dateTimePath
+                description: '''2012-01-01T01:01:01Z'' as date-time'
+                serializedName: dateTimePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/datetime/2012-01-01T01%3A01%3A01Z/{dateTimePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '2012-01-01T01:01:01Z' as date-time
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateTimeValid
+            description: Get '2012-01-01T01:01:01Z' as date-time
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_DateTimeNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_44
+            schema: *ref_43
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: dateTimePath
+                description: null as date-time
+                serializedName: dateTimePath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/datetime/null/{dateTimePath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_44
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: 'This should not occur: the test fails if you contact the server'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '400'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateTimeNull
+            description: Get null as date-time, should be disallowed or throw depending on representation of date-time
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_base64Url
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_46
+            schema: *ref_45
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: base64UrlPath
+                description: base64url encoded value
+                serializedName: base64UrlPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/string/bG9yZW0/{base64UrlPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_46
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'lorem' encoded value as 'bG9yZW0' (base64url)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Base64Url
+            description: Get 'lorem' encoded value as 'bG9yZW0' (base64url)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_ArrayCsvInPath
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_48
+            schema: *ref_47
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: arrayPath
+                description: an array of string ['ArrayPath1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the csv-array format
+                serializedName: arrayPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+                style: simple
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/array/ArrayPath1%2cbegin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend%2c%2c/{arrayPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_48
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received /paths/array/ArrayPath1,begin!*'();:@ &=+$,/?#[]end,,/ArrayPath1,begin!*'();:@ &=+$,/?#[]end,,
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayCsvInPath
+            description: Get an array of string ['ArrayPath1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the csv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: paths_unixTimeUrl
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_50
+            schema: *ref_49
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: unixTimeUrlPath
+                description: Unix time encoded value
+                serializedName: unixTimeUrlPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paths/int/1460505600/{unixTimeUrlPath}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_50
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received date 2016-04-13 encoded value as '1460505600' (Unix time)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: UnixTimeUrl
+            description: Get the date 2016-04-13 encoded value as '1460505600' (Unix time)
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Paths
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: queries
+    operations:
+      - !Operation 
+        operationId: queries_getBooleanTrue
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_14
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: boolQuery
+                description: true boolean value
+                serializedName: boolQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/bool/true
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the true boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanTrue
+            description: Get true Boolean value on path
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getBooleanFalse
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_17
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: boolQuery
+                description: false boolean value
+                serializedName: boolQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/bool/false
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the false Boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanFalse
+            description: Get false Boolean value on path
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getBooleanNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_52
+            schema: *ref_51
+            implementation: Method
+            language: !Languages 
+              default:
+                name: boolQuery
+                description: null boolean value
+                serializedName: boolQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/bool/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_52
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the null Boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanNull
+            description: Get null Boolean value on query (query string should be absent)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getIntOneMillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_18
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: intQuery
+                description: '''1000000'' integer value'
+                serializedName: intQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/int/1000000
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '1000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntOneMillion
+            description: Get '1000000' integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getIntNegativeOneMillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_19
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: intQuery
+                description: '''-1000000'' integer value'
+                serializedName: intQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/int/-1000000
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-1000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntNegativeOneMillion
+            description: Get '-1000000' integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getIntNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_54
+            schema: *ref_53
+            implementation: Method
+            language: !Languages 
+              default:
+                name: intQuery
+                description: null integer value
+                serializedName: intQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/int/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_54
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received null integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntNull
+            description: Get null integer value (no query parameter)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getTenBillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_20
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: longQuery
+                description: '''10000000000'' 64 bit integer value'
+                serializedName: longQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/long/10000000000
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '10000000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetTenBillion
+            description: Get '10000000000' 64 bit integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getNegativeTenBillion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: longQuery
+                description: '''-10000000000'' 64 bit integer value'
+                serializedName: longQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/long/-10000000000
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-10000000000' integer value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetNegativeTenBillion
+            description: Get '-10000000000' 64 bit integer value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_getLongNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_56
+            schema: *ref_55
+            implementation: Method
+            language: !Languages 
+              default:
+                name: longQuery
+                description: null 64 bit integer value
+                serializedName: longQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/long/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_56
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received null 64-bit integer value (no param in uri)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLongNull
+            description: Get 'null 64 bit integer value (no query param in uri)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_floatScientificPositive
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_22
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: floatQuery
+                description: '''1.034E+20''numeric value'
+                serializedName: floatQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/float/1.034E+20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '1.034E+20' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: FloatScientificPositive
+            description: Get '1.034E+20' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_floatScientificNegative
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_23
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: floatQuery
+                description: '''-1.034E-20''numeric value'
+                serializedName: floatQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/float/-1.034E-20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-1.034E-20' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: FloatScientificNegative
+            description: Get '-1.034E-20' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_floatNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_58
+            schema: *ref_57
+            implementation: Method
+            language: !Languages 
+              default:
+                name: floatQuery
+                description: null numeric value
+                serializedName: floatQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/float/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_58
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received null numeric value (no query parameter)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: FloatNull
+            description: Get null numeric value (no query parameter)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_doubleDecimalPositive
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_24
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: doubleQuery
+                description: '''9999999.999''numeric value'
+                serializedName: doubleQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/double/9999999.999
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '9999999.999' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DoubleDecimalPositive
+            description: Get '9999999.999' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_doubleDecimalNegative
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: doubleQuery
+                description: '''-9999999.999''numeric value'
+                serializedName: doubleQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/double/-9999999.999
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '-9999999.999' numeric value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DoubleDecimalNegative
+            description: Get '-9999999.999' numeric value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_doubleNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_60
+            schema: *ref_59
+            implementation: Method
+            language: !Languages 
+              default:
+                name: doubleQuery
+                description: null numeric value
+                serializedName: doubleQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/double/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_60
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received null numeric value (no query parameter)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DoubleNull
+            description: Get null numeric value (no query parameter)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_stringUnicode
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_26
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringQuery
+                description: '''啊齄丂狛狜隣郎隣兀﨩''multi-byte string value'
+                serializedName: stringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/string/unicode/
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '啊齄丂狛狜隣郎隣兀﨩' multi-byte string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringUnicode
+            description: Get '啊齄丂狛狜隣郎隣兀﨩' multi-byte string value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_stringUrlEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_27
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringQuery
+                description: '''begin!*''();:@ &=+$,/?#[]end'' url encoded string value'
+                serializedName: stringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/string/begin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'begin!*'();:@ &=+$,/?#[]end' url encoded string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringUrlEncoded
+            description: Get 'begin!*'();:@ &=+$,/?#[]end
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_stringEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_29
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: stringQuery
+                description: ''''' string value'
+                serializedName: stringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/string/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '' string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringEmpty
+            description: Get ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_stringNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_61
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: stringQuery
+                description: null string value
+                serializedName: stringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/string/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_61
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received null parameter (no query string in url)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: StringNull
+            description: Get null (no query parameter in url)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_enumValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_62
+            schema: *ref_31
+            implementation: Method
+            language: !Languages 
+              default:
+                name: enumQuery
+                description: '''green color'' enum value'
+                serializedName: enumQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/enum/green%20color
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_62
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received 'green color' string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: EnumValid
+            description: Get using uri with query parameter 'green color'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_enumNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_63
+            schema: *ref_31
+            implementation: Method
+            language: !Languages 
+              default:
+                name: enumQuery
+                description: null string value
+                serializedName: enumQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/enum/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_63
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received null parameter (no query string in url)
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: EnumNull
+            description: Get null (no query parameter in url)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_byteMultiByte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_65
+            schema: *ref_64
+            implementation: Method
+            language: !Languages 
+              default:
+                name: byteQuery
+                description: '''啊齄丂狛狜隣郎隣兀﨩'' multibyte value as utf-8 encoded byte array'
+                serializedName: byteQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/byte/multibyte
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_65
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '啊齄丂狛狜隣郎隣兀﨩' multibyte value as utf-8 encoded byte array
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteMultiByte
+            description: Get '啊齄丂狛狜隣郎隣兀﨩' multibyte value as utf-8 encoded byte array
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_byteEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: byteQuery
+                description: ''''' as byte array'
+                serializedName: byteQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/byte/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '' as byte array
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteEmpty
+            description: Get '' as byte array
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_byteNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_67
+            schema: *ref_66
+            implementation: Method
+            language: !Languages 
+              default:
+                name: byteQuery
+                description: null as byte array (no query parameters in uri)
+                serializedName: byteQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/byte/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_67
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters in uri
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ByteNull
+            description: Get null as byte array (no query parameters in uri)
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_DateValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_39
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: dateQuery
+                description: '''2012-01-01'' as date'
+                serializedName: dateQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/date/2012-01-01
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '2012-01-01' as date
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateValid
+            description: Get '2012-01-01' as date
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_DateNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_68
+            schema: *ref_40
+            implementation: Method
+            language: !Languages 
+              default:
+                name: dateQuery
+                description: null as date (no query parameters in uri)
+                serializedName: dateQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/date/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_68
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters in uri
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateNull
+            description: Get null as date - this should result in no query parameters in uri
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_DateTimeValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter 
+            schema: *ref_42
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: dateTimeQuery
+                description: '''2012-01-01T01:01:01Z'' as date-time'
+                serializedName: dateTimeQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/datetime/2012-01-01T01%3A01%3A01Z
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully Received '2012-01-01T01:01:01Z' as date-time
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateTimeValid
+            description: Get '2012-01-01T01:01:01Z' as date-time
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_DateTimeNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_69
+            schema: *ref_43
+            implementation: Method
+            language: !Languages 
+              default:
+                name: dateTimeQuery
+                description: null as date-time (no query parameters)
+                serializedName: dateTimeQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/datetime/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_69
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters in uri
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: DateTimeNull
+            description: Get null as date-time, should result in no query parameters in uri
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringCsvValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_71
+            schema: *ref_70
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the csv-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/csv/string/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_71
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received ?arrayQuery=ArrayQuery1%2cbegin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend%2c%2c
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringCsvValid
+            description: Get an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the csv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringCsvNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_73
+            schema: *ref_72
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: a null array of string using the csv-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/csv/string/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_73
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringCsvNull
+            description: Get a null array of string using the csv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringCsvEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_75
+            schema: *ref_74
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an empty array [] of string using the csv-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/csv/string/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_75
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringCsvEmpty
+            description: Get an empty array [] of string using the csv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringNoCollectionFormatEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_77
+            schema: *ref_76
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: Array-typed query parameter. Pass in ['hello', 'nihao', 'bonjour'].
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/none/string/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_77
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received default csv query parameters when no collection format is specified in the swagger
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringNoCollectionFormatEmpty
+            description: Array query has no defined collection format, should default to csv. Pass in ['hello', 'nihao', 'bonjour'] for the 'arrayQuery' parameter to the service
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringSsvValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_79
+            schema: *ref_78
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the ssv-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: spaceDelimited
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/ssv/string/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_79
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received ?arrayQuery=ArrayQuery1%20begin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend%20%20
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringSsvValid
+            description: Get an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the ssv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringTsvValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_81
+            schema: *ref_80
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the tsv-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: tabDelimited
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/tsv/string/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_81
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: "Successfully received ?arrayQuery=ArrayQuery1\tbegin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend\t\t"
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringTsvValid
+            description: Get an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the tsv-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringPipesValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_83
+            schema: *ref_82
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the pipes-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: pipeDelimited
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/pipes/string/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_83
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received ?arrayQuery=ArrayQuery1%|begin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend||
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ArrayStringPipesValid
+            description: Get an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the pipes-array format
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Queries
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: pathItems
+    operations:
+      - !Operation 
+        operationId: pathItems_getAllWithValues
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_86
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: pathItemStringPath
+                description: A string value 'pathItemStringPath' that appears in the path
+                serializedName: pathItemStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_87
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: pathItemStringQuery
+                description: A string value 'pathItemStringQuery' that appears as a query parameter
+                serializedName: pathItemStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_84
+          - *ref_85
+          - !Parameter &ref_88
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: localStringPath
+                description: should contain value 'localStringPath'
+                serializedName: localStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_89
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: localStringQuery
+                description: should contain value 'localStringQuery'
+                serializedName: localStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /pathitem/nullable/globalStringPath/{globalStringPath}/pathItemStringPath/{pathItemStringPath}/localStringPath/{localStringPath}/globalStringQuery/pathItemStringQuery/localStringQuery
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_86
+          - *ref_87
+          - *ref_88
+          - *ref_89
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received all query parameters in uri
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetAllWithValues
+            description: >-
+              send globalStringPath='globalStringPath', pathItemStringPath='pathItemStringPath', localStringPath='localStringPath', globalStringQuery='globalStringQuery', pathItemStringQuery='pathItemStringQuery',
+              localStringQuery='localStringQuery'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: pathItems_getGlobalQueryNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_90
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: pathItemStringPath
+                description: A string value 'pathItemStringPath' that appears in the path
+                serializedName: pathItemStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_91
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: pathItemStringQuery
+                description: A string value 'pathItemStringQuery' that appears as a query parameter
+                serializedName: pathItemStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_84
+          - *ref_85
+          - !Parameter &ref_92
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: localStringPath
+                description: should contain value 'localStringPath'
+                serializedName: localStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_93
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: localStringQuery
+                description: should contain value 'localStringQuery'
+                serializedName: localStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /pathitem/nullable/globalStringPath/{globalStringPath}/pathItemStringPath/{pathItemStringPath}/localStringPath/{localStringPath}/null/pathItemStringQuery/localStringQuery
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_90
+          - *ref_91
+          - *ref_92
+          - *ref_93
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received all query parameters but global
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetGlobalQueryNull
+            description: send globalStringPath='globalStringPath', pathItemStringPath='pathItemStringPath', localStringPath='localStringPath', globalStringQuery=null, pathItemStringQuery='pathItemStringQuery', localStringQuery='localStringQuery'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: pathItems_getGlobalAndLocalQueryNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_94
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: pathItemStringPath
+                description: A string value 'pathItemStringPath' that appears in the path
+                serializedName: pathItemStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_95
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: pathItemStringQuery
+                description: A string value 'pathItemStringQuery' that appears as a query parameter
+                serializedName: pathItemStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_84
+          - *ref_85
+          - !Parameter &ref_96
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: localStringPath
+                description: should contain value 'localStringPath'
+                serializedName: localStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_97
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: localStringQuery
+                description: should contain null value
+                serializedName: localStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /pathitem/nullable/globalStringPath/{globalStringPath}/pathItemStringPath/{pathItemStringPath}/localStringPath/{localStringPath}/null/pathItemStringQuery/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_94
+          - *ref_95
+          - *ref_96
+          - *ref_97
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received only the pathItemQuery query parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetGlobalAndLocalQueryNull
+            description: send globalStringPath=globalStringPath, pathItemStringPath='pathItemStringPath', localStringPath='localStringPath', globalStringQuery=null, pathItemStringQuery='pathItemStringQuery', localStringQuery=null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: pathItems_getLocalPathItemQueryNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_13
+          - !Parameter &ref_98
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: pathItemStringPath
+                description: A string value 'pathItemStringPath' that appears in the path
+                serializedName: pathItemStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_99
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: pathItemStringQuery
+                description: should contain value null
+                serializedName: pathItemStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_84
+          - *ref_85
+          - !Parameter &ref_100
+            schema: *ref_12
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: localStringPath
+                description: should contain value 'localStringPath'
+                serializedName: localStringPath
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_101
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: localStringQuery
+                description: should contain value null
+                serializedName: localStringQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /pathitem/nullable/globalStringPath/{globalStringPath}/pathItemStringPath/{pathItemStringPath}/localStringPath/{localStringPath}/globalStringQuery/null/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_98
+          - *ref_99
+          - *ref_100
+          - *ref_101
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received only global query parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLocalPathItemQueryNull
+            description: send globalStringPath='globalStringPath', pathItemStringPath='pathItemStringPath', localStringPath='localStringPath', globalStringQuery='globalStringQuery', pathItemStringQuery=null, localStringQuery=null
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: PathItems
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestUrlTestService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

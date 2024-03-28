@@ -1,0 +1,54 @@
+{
+  "parameters": {
+    "firewallPolicyName": "firewallPolicy",
+    "resourceGroupName": "rg1",
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "name": "ruleCollectionGroup1",
+            "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy/ruleCollectionGroups/ruleCollectionGroup1",
+            "etag": "W/\"72090554-7e3b-43f2-80ad-99a9020dcb11\"",
+            "properties": {
+              "provisioningState": "Succeeded",
+              "priority": 110,
+              "ruleCollections": [
+                {
+                  "name": "Example-Filter-Rule-Collection",
+                  "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                  "priority": 120,
+                  "action": {
+                    "type": "Deny"
+                  },
+                  "rules": [
+                    {
+                      "name": "network-rule-1",
+                      "ruleType": "NetworkRule",
+                      "description": "Network rule",
+                      "sourceIpGroups": [
+                        "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups1"
+                      ],
+                      "destinationIpGroups": [
+                        "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups2"
+                      ],
+                      "ipProtocols": [
+                        "TCP"
+                      ],
+                      "destinationPorts": [
+                        "*"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

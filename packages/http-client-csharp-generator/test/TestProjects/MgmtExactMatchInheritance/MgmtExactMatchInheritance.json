@@ -1,0 +1,895 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ExactMatchInheritance",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel1s/": {
+            "get": {
+                "tags": [
+                    "ExactMatchModel1s"
+                ],
+                "operationId": "ExactMatchModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel1s/{exactMatchModel1sName}": {
+            "put": {
+                "tags": [
+                    "ExactMatchModel1s"
+                ],
+                "operationId": "ExactMatchModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "exactMatchModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ExactMatchModel1s"
+                ],
+                "operationId": "ExactMatchModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "exactMatchModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel2s/{exactMatchModel2sName}": {
+            "put": {
+                "tags": [
+                    "ExactMatchModel2s"
+                ],
+                "operationId": "ExactMatchModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "exactMatchModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel3s/": {
+            "get": {
+                "tags": [
+                    "ExactMatchModel3s"
+                ],
+                "operationId": "ExactMatchModel3s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel3ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel3s/{exactMatchModel3sName}": {
+            "put": {
+                "tags": [
+                    "ExactMatchModel3s"
+                ],
+                "operationId": "ExactMatchModel3s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "exactMatchModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel3"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel3"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ExactMatchModel3s"
+                ],
+                "operationId": "ExactMatchModel3s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "exactMatchModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel3"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel4s/{exactMatchModel4sName}": {
+            "put": {
+                "tags": [
+                    "ExactMatchModel4s"
+                ],
+                "operationId": "ExactMatchModel4s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "exactMatchModel4sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel4"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel4"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel5s/": {
+            "get": {
+                "tags": [
+                    "ExactMatchModel5s"
+                ],
+                "operationId": "ExactMatchModel5s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel5ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel5s/{exactMatchModel5sName}": {
+            "put": {
+                "tags": [
+                    "ExactMatchModel5s"
+                ],
+                "operationId": "ExactMatchModel5s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "exactMatchModel5sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel5"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel5"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ExactMatchModel5s"
+                ],
+                "operationId": "ExactMatchModel5s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "exactMatchModel5sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ExactMatchModel5"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+      "ExactMatchModel1ListResult": {
+        "properties": {
+          "value": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ExactMatchModel1"
+            },
+            "description": "Gets the list of storage accounts and their properties."
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+            "readOnly": true
+          }
+        },
+        "description": "The response from the List Storage Accounts operation."
+      },
+      "ExactMatchModel1": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "string"
+          },
+          "supportingUris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type1": {
+            "type": "string",
+            "enum": [
+              "Microsoft.Foo/bar"
+            ],
+            "x-ms-enum": {
+              "name": "Type1",
+              "modelAsString": false,
+              "values": [
+                {
+                  "value": "Microsoft.Foo/bar"
+                }
+              ]
+            }
+          },
+          "type2": {
+            "type": "string",
+            "enum": [
+              "foo"
+            ],
+            "x-ms-enum": {
+              "name": "Type2",
+              "modelAsString": false,
+              "values": [
+                {
+                  "value": "foo"
+                }
+              ]
+            }
+          },
+          "type3": {
+            "type": "string"
+          },
+          "type4": {
+            "type": "string"
+          },
+          "type5": {
+            "type": "object",
+            "x-ms-format": "dfe-string"
+          },
+          "type6": {
+            "type": "object",
+            "x-ms-format": "dfe-float"
+          },
+          "type7": {
+            "type": "object",
+            "x-ms-format": "dfe-bool"
+          },
+          "type8": {
+            "type": "object",
+            "x-ms-format": "dfe-int"
+          },
+          "type9": {
+            "type": "object",
+            "x-ms-format": "dfe-object"
+          },
+          "type10": {
+            "type": "object",
+            "x-ms-format": "dfe-list-generic",
+            "x-ms-format-element-type": "SeparateClass"
+          },
+          "type11": {
+            "type": "object",
+            "x-ms-format": "dfe-list-string"
+          },
+          "type12": {
+            "type": "object",
+            "x-ms-format": "dfe-key-value-pairs"
+          },
+          "type13": {
+            "type": "object",
+            "x-ms-format": "dfe-list-generic",
+            "x-ms-format-element-type": "#/definitions/SeparateClass"
+          },
+          "type14": {
+            "type": "object",
+            "x-ms-format": "dfe-date-time"
+          },
+          "type15": {
+            "type": "object",
+            "x-ms-format": "dfe-duration"
+          },
+          "type16": {
+            "type": "object",
+            "x-ms-format": "dfe-uri"
+          },
+          "type17": {
+            "type": "object",
+            "$ref": "#/definitions/LinkedServiceReference"
+          },
+          "type18": {
+            "x-ms-discriminator-value": "SecureString",
+            "description": "Azure Data Factory secure string definition. The string value will be masked with asterisks '*' during Get or List API calls.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/definitions/SecretBase"
+              }
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Value of secure string."
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "type19": {
+            "x-ms-discriminator-value": "AzureKeyVaultSecret",
+            "description": "Azure Key Vault secret reference.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/definitions/SecretBase"
+              }
+            ],
+            "properties": {
+              "store": {
+                "description": "The Azure Key Vault linked service reference.",
+                "$ref": "#/definitions/LinkedServiceReference"
+              },
+              "secretName": {
+                "type": "object",
+                "x-ms-format": "dfe-string",
+                "description": "The name of the secret in Azure Key Vault. Type: string (or Expression with resultType string)."
+              },
+              "secretVersion": {
+                "type": "object",
+                "x-ms-format": "dfe-string",
+                "description": "The version of the secret in Azure Key Vault. The default value is the latest version of the secret. Type: string (or Expression with resultType string)."
+              }
+            },
+            "required": [
+              "store",
+              "secretName"
+            ]
+          },
+          "type20": {
+            "type": "object",
+            "x-ms-format": "dfe-key-object-value-pairs"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel6"
+          }
+        ]
+      },
+      "ExactMatchModel2": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel7"
+          }
+        ]
+      },
+      "ExactMatchModel3ListResult": {
+        "properties": {
+          "value": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ExactMatchModel3"
+            },
+            "description": "Gets the list of storage accounts and their properties."
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+            "readOnly": true
+          }
+        },
+        "description": "The response from the List Storage Accounts operation."
+      },
+      "ExactMatchModel3": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel8"
+          }
+        ]
+      },
+      "ExactMatchModel4": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel9"
+          }
+        ]
+      },
+      "ExactMatchModel5ListResult": {
+        "properties": {
+          "value": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/ExactMatchModel5"
+            },
+            "description": "Gets the list of storage accounts and their properties."
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+            "readOnly": true
+          }
+        },
+        "description": "The response from the List Storage Accounts operation."
+      },
+      "ExactMatchModel5": {
+        "type": "object",
+        "properties": {
+          "new": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel10"
+          }
+        ]
+      },
+      "ExactMatchModel6": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "readOnly": true,
+            "type": "string"
+          }
+        }
+      },
+      "ExactMatchModel7": {
+        "type": "object",
+        "properties": {
+          "iD": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ExactMatchModel8": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-ms-format": "arm-id"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bar": {
+            "type": "string"
+          }
+        }
+      },
+      "ExactMatchModel9": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ExactMatchModel10": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/ExactMatchModel11"
+          }
+        ]
+      },
+      "ExactMatchModel11": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "readOnly": true,
+            "type": "string"
+          }
+        }
+      },
+      "SeparateClass": {
+        "type": "object",
+        "properties": {
+          "StringProperty": {
+            "type": "string"
+          },
+          "ModelProperty": {
+            "$ref": "#/definitions/ExactMatchModel10"
+          }
+        }
+      },
+      "LinkedServiceReference": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Linked service reference type.",
+            "enum": [
+              "LinkedServiceReference"
+            ],
+            "x-ms-enum": {
+              "name": "ReferenceType",
+              "modelAsString": true
+            }
+          },
+          "referenceName": {
+            "type": "string",
+            "description": "Reference LinkedService name."
+          },
+          "parameters": {
+            "$ref": "#/definitions/ParameterValueSpecification",
+            "description": "Arguments for LinkedService."
+          }
+        },
+        "required": [
+          "type",
+          "referenceName"
+        ]
+      },
+      "SecretBase": {
+        "description": "The base definition of a secret type.",
+        "discriminator": "type",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of the secret."
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "ParameterValueSpecification": {
+        "description": "An object mapping parameter names to argument values.",
+        "type": "object",
+        "additionalProperties": {
+          "type": "object"
+        }
+      }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetBooleanLiteralAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetBooleanLiteralAsync.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response<BooleanLiteralProperty> response = await client.GetBooleanLiteralAsync();
+]]></code>
+This sample shows how to call GetBooleanLiteralAsync with all parameters.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response<BooleanLiteralProperty> response = await client.GetBooleanLiteralAsync();
+]]></code></example>
+    </member>
+    <member name="GetBooleanLiteral(CancellationToken)">
+      <example>
+This sample shows how to call GetBooleanLiteral.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response<BooleanLiteralProperty> response = client.GetBooleanLiteral();
+]]></code>
+This sample shows how to call GetBooleanLiteral with all parameters.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response<BooleanLiteralProperty> response = client.GetBooleanLiteral();
+]]></code></example>
+    </member>
+    <member name="GetBooleanLiteralAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanLiteralAsync and parse the result.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response response = await client.GetBooleanLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetBooleanLiteralAsync with all parameters and parse the result.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response response = await client.GetBooleanLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetBooleanLiteral(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanLiteral and parse the result.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response response = client.GetBooleanLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetBooleanLiteral with all parameters and parse the result.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+Response response = client.GetBooleanLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(BooleanLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+BooleanLiteralProperty body = new BooleanLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+BooleanLiteralProperty body = new BooleanLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(BooleanLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+BooleanLiteralProperty body = new BooleanLiteralProperty();
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+BooleanLiteralProperty body = new BooleanLiteralProperty();
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+BooleanLiteral client = new ValueTypesClient().GetBooleanLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,3945 @@
+!CodeModel 
+info: !Info 
+  description: To manage and control access to your resources, you can define customized policies and assign them at a scope.
+  title: PolicyClient
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_10
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: RecordSetPropertiesTTL
+          description: The TTL (time-to-live) of the records in the record set.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_16
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: MxRecordPreference
+          description: The preference value for this MX record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_20
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: SrvRecordPriority
+          description: The priority value for this SRV record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_21
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: SrvRecordWeight
+          description: The weight value for this SRV record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_22
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: SrvRecordPort
+          description: The port value for this SRV record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_28
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: SoaRecordSerialNumber
+          description: The serial number for this SOA record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_29
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: SoaRecordRefreshTime
+          description: The refresh value for this SOA record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_30
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: SoaRecordRetryTime
+          description: The retry time for this SOA record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_31
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: SoaRecordExpireTime
+          description: The expire time for this SOA record.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_32
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: SoaRecordMinimumTTL
+          description: The minimum value for this SOA record. By convention this is used to determine the negative caching duration.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_33
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: CaaRecordFlags
+          description: The flags for this CAA record as an integer between 0 and 255.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_122
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_61
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: ZonePropertiesMaxNumberOfRecordSets
+          description: The maximum number of record sets that can be created in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_62
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: ZonePropertiesMaxNumberOfRecordsPerRecordSet
+          description: The maximum number of records per record set that can be created in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_63
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: ZonePropertiesNumberOfRecordSets
+          description: The current number of record sets in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: MachineType
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_2
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: StorageType
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: MemoryType
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetId
+          description: The ID of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetName
+          description: The name of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetType
+          description: The type of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetEtag
+          description: The etag of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetPropertiesFqdn
+          description: Fully qualified domain name of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetPropertiesProvisioningState
+          description: provisioning State of the record set.
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: SubResourceId
+          description: Resource Id.
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ARecordIpv4Address
+          description: The IPv4 address of this A record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: AaaaRecordIpv6Address
+          description: The IPv6 address of this AAAA record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: MxRecordExchange
+          description: The domain name of the mail host for this MX record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: NsRecordNsdname
+          description: The name server name for this NS record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: PtrRecordPtrdname
+          description: The PTR target domain name for this PTR record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: SrvRecordTarget
+          description: The target domain name for this SRV record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: TxtRecordValueItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CnameRecordCname
+          description: The canonical name for this CNAME record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: SoaRecordHost
+          description: The domain name of the authoritative name server for this SOA record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: SoaRecordEmail
+          description: The email contact for this SOA record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CaaRecordTag
+          description: The tag for this CAA record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_35
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CaaRecordValue
+          description: The value for this CAA record.
+      protocol: !Protocols {}
+    - !StringSchema &ref_47
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CloudErrorBodyCode
+          description: An identifier for the error. Codes are invariant and are intended to be consumed programmatically.
+      protocol: !Protocols {}
+    - !StringSchema &ref_48
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CloudErrorBodyMessage
+          description: A message describing the error, intended to be suitable for display in a user interface.
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: CloudErrorBodyTarget
+          description: The target of the particular error. For example, the name of the property in error.
+      protocol: !Protocols {}
+    - !StringSchema &ref_52
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: RecordSetListResultNextLink
+          description: The continuation token for the next page of results.
+      protocol: !Protocols {}
+    - !StringSchema &ref_60
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ZoneEtag
+          description: The etag of the zone.
+      protocol: !Protocols {}
+    - !StringSchema &ref_64
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ZonePropertiesNameServersItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_54
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Resource ID.
+      protocol: !Protocols {}
+    - !StringSchema &ref_55
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: Resource name.
+      protocol: !Protocols {}
+    - !StringSchema &ref_56
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: Resource type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_57
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      extensions:
+        x-ms-mutability:
+          - read
+          - create
+      language: !Languages 
+        default:
+          name: ResourceLocation
+          description: Resource location.
+      protocol: !Protocols {}
+    - !StringSchema &ref_70
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      language: !Languages 
+        default:
+          name: ZoneListResultNextLink
+          description: The continuation token for the next page of results.
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_92
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: AAAA
+          language:
+            default:
+              name: Aaaa
+              description: ''
+        - !ChoiceValue 
+          value: CAA
+          language:
+            default:
+              name: CAA
+              description: ''
+        - !ChoiceValue 
+          value: CNAME
+          language:
+            default:
+              name: Cname
+              description: ''
+        - !ChoiceValue 
+          value: MX
+          language:
+            default:
+              name: MX
+              description: ''
+        - !ChoiceValue 
+          value: NS
+          language:
+            default:
+              name: NS
+              description: ''
+        - !ChoiceValue 
+          value: PTR
+          language:
+            default:
+              name: PTR
+              description: ''
+        - !ChoiceValue 
+          value: SOA
+          language:
+            default:
+              name: SOA
+              description: ''
+        - !ChoiceValue 
+          value: SRV
+          language:
+            default:
+              name: SRV
+              description: ''
+        - !ChoiceValue 
+          value: TXT
+          language:
+            default:
+              name: TXT
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RecordType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_65
+      choices:
+        - !ChoiceValue 
+          value: Public
+          language:
+            default:
+              name: Public
+              description: ''
+        - !ChoiceValue 
+          value: Private
+          language:
+            default:
+              name: Private
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      choiceType: *ref_0
+      defaultValue: Public
+      language: !Languages 
+        default:
+          name: ZoneType
+          description: The type of this DNS zone (Public or Private).
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_66
+      choices:
+        - !ChoiceValue 
+          value: 1
+          language:
+            default:
+              name: One
+              description: ''
+        - !ChoiceValue 
+          value: 2
+          language:
+            default:
+              name: Two
+              description: ''
+        - !ChoiceValue 
+          value: 4
+          language:
+            default:
+              name: Four
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      choiceType: *ref_1
+      language: !Languages 
+        default:
+          name: MachineType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_67
+      choices:
+        - !ChoiceValue 
+          value: 1
+          language:
+            default:
+              name: StandardLRS
+              description: Locally redundant storage
+        - !ChoiceValue 
+          value: 2
+          language:
+            default:
+              name: StandardZRS
+              description: Zone-redundant storage
+        - !ChoiceValue 
+          value: 3
+          language:
+            default:
+              name: StandardGRS
+              description: Geo-redundant storage
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      choiceType: *ref_2
+      language: !Languages 
+        default:
+          name: StorageType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_68
+      choices:
+        - !ChoiceValue 
+          value: -1
+          language:
+            default:
+              name: '1'
+              description: ''
+        - !ChoiceValue 
+          value: 2
+          language:
+            default:
+              name: Two
+              description: ''
+        - !ChoiceValue 
+          value: 4
+          language:
+            default:
+              name: Four
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      choiceType: *ref_3
+      language: !Languages 
+        default:
+          name: MemoryType
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_90
+      type: constant
+      value: !ConstantValue 
+        value: '2020-09-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200901
+          description: Api Version (2020-09-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_95
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_96
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_9
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: RecordSetPropertiesMetadata
+          description: The metadata attached to the record set.
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_58
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: ResourceTags
+          description: Resource tags.
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_69
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: ZoneUpdateTags
+          description: Resource tags.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_51
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: *ref_5
+          readOnly: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: The ID of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: The name of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          readOnly: true
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: The type of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_8
+          serializedName: etag
+          language: !Languages 
+            default:
+              name: etag
+              description: The etag of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          flattenedNames:
+            - properties
+            - metadata
+          serializedName: metadata
+          language: !Languages 
+            default:
+              name: metadata
+              description: The metadata attached to the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          flattenedNames:
+            - properties
+            - TTL
+          serializedName: TTL
+          language: !Languages 
+            default:
+              name: TTL
+              description: The TTL (time-to-live) of the records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          flattenedNames:
+            - properties
+            - fqdn
+          readOnly: true
+          serializedName: fqdn
+          language: !Languages 
+            default:
+              name: fqdn
+              description: Fully qualified domain name of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_12
+          flattenedNames:
+            - properties
+            - provisioningState
+          readOnly: true
+          serializedName: provisioningState
+          language: !Languages 
+            default:
+              name: provisioningState
+              description: provisioning State of the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_36
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            properties:
+              - !Property 
+                schema: *ref_13
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: Resource Id.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: SubResource
+                description: A reference to a another resource
+                namespace: ''
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - targetResource
+          serializedName: targetResource
+          language: !Languages 
+            default:
+              name: targetResource
+              description: A reference to an azure resource from where the dns resource value is taken.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_72
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_37
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_14
+                  serializedName: ipv4Address
+                  language: !Languages 
+                    default:
+                      name: ipv4Address
+                      description: The IPv4 address of this A record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: ARecord
+                  description: An A record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesARecords
+                description: The list of A records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - ARecords
+          serializedName: ARecords
+          language: !Languages 
+            default:
+              name: aRecords
+              description: The list of A records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_73
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_38
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_15
+                  serializedName: ipv6Address
+                  language: !Languages 
+                    default:
+                      name: ipv6Address
+                      description: The IPv6 address of this AAAA record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: AaaaRecord
+                  description: An AAAA record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesAaaaRecords
+                description: The list of AAAA records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - AAAARecords
+          serializedName: AAAARecords
+          language: !Languages 
+            default:
+              name: aaaaRecords
+              description: The list of AAAA records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_74
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_39
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_16
+                  serializedName: preference
+                  language: !Languages 
+                    default:
+                      name: preference
+                      description: The preference value for this MX record.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_17
+                  serializedName: exchange
+                  language: !Languages 
+                    default:
+                      name: exchange
+                      description: The domain name of the mail host for this MX record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: MxRecord
+                  description: An MX record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesMXRecords
+                description: The list of MX records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - MXRecords
+          serializedName: MXRecords
+          language: !Languages 
+            default:
+              name: mxRecords
+              description: The list of MX records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_75
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_40
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_18
+                  serializedName: nsdname
+                  language: !Languages 
+                    default:
+                      name: nsdname
+                      description: The name server name for this NS record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: NsRecord
+                  description: An NS record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesNSRecords
+                description: The list of NS records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - NSRecords
+          serializedName: NSRecords
+          language: !Languages 
+            default:
+              name: NsRecords
+              description: The list of NS records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_76
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_41
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_19
+                  serializedName: ptrdname
+                  language: !Languages 
+                    default:
+                      name: ptrdname
+                      description: The PTR target domain name for this PTR record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: PtrRecord
+                  description: A PTR record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesPTRRecords
+                description: The list of PTR records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - PTRRecords
+          serializedName: PTRRecords
+          language: !Languages 
+            default:
+              name: ptrRecords
+              description: The list of PTR records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_77
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_42
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_20
+                  serializedName: priority
+                  language: !Languages 
+                    default:
+                      name: priority
+                      description: The priority value for this SRV record.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_21
+                  serializedName: weight
+                  language: !Languages 
+                    default:
+                      name: weight
+                      description: The weight value for this SRV record.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_22
+                  serializedName: port
+                  language: !Languages 
+                    default:
+                      name: port
+                      description: The port value for this SRV record.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_23
+                  serializedName: target
+                  language: !Languages 
+                    default:
+                      name: target
+                      description: The target domain name for this SRV record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: SrvRecord
+                  description: An SRV record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesSRVRecords
+                description: The list of SRV records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - SRVRecords
+          serializedName: SRVRecords
+          language: !Languages 
+            default:
+              name: srvRecords
+              description: The list of SRV records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_79
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_43
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: !ArraySchema &ref_78
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-09-01'
+                    elementType: *ref_24
+                    language: !Languages 
+                      default:
+                        name: TxtRecordValue
+                        description: The text value of this TXT record.
+                    protocol: !Protocols {}
+                  serializedName: value
+                  language: !Languages 
+                    default:
+                      name: value
+                      description: The text value of this TXT record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: TxtRecord
+                  description: A TXT record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesTXTRecords
+                description: The list of TXT records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - TXTRecords
+          serializedName: TXTRecords
+          language: !Languages 
+            default:
+              name: txtRecords
+              description: The list of TXT records in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_44
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            properties:
+              - !Property 
+                schema: *ref_25
+                serializedName: cname
+                language: !Languages 
+                  default:
+                    name: cname
+                    description: The canonical name for this CNAME record.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: CnameRecord
+                description: A CNAME record.
+                namespace: ''
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - CNAMERecord
+          serializedName: CNAMERecord
+          language: !Languages 
+            default:
+              name: cnameRecord
+              description: The CNAME record in the  record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_45
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            properties:
+              - !Property 
+                schema: *ref_26
+                serializedName: host
+                language: !Languages 
+                  default:
+                    name: host
+                    description: The domain name of the authoritative name server for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_27
+                serializedName: email
+                language: !Languages 
+                  default:
+                    name: email
+                    description: The email contact for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_28
+                serializedName: serialNumber
+                language: !Languages 
+                  default:
+                    name: serialNumber
+                    description: The serial number for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_29
+                serializedName: refreshTime
+                language: !Languages 
+                  default:
+                    name: refreshTime
+                    description: The refresh value for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_30
+                serializedName: retryTime
+                language: !Languages 
+                  default:
+                    name: retryTime
+                    description: The retry time for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_31
+                serializedName: expireTime
+                language: !Languages 
+                  default:
+                    name: expireTime
+                    description: The expire time for this SOA record.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_32
+                serializedName: minimumTTL
+                language: !Languages 
+                  default:
+                    name: minimumTtl
+                    description: The minimum value for this SOA record. By convention this is used to determine the negative caching duration.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: SoaRecord
+                description: An SOA record.
+                namespace: ''
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - SOARecord
+          serializedName: SOARecord
+          language: !Languages 
+            default:
+              name: soaRecord
+              description: The SOA record in the record set.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_80
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_46
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: *ref_33
+                  serializedName: flags
+                  language: !Languages 
+                    default:
+                      name: flags
+                      description: The flags for this CAA record as an integer between 0 and 255.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_34
+                  serializedName: tag
+                  language: !Languages 
+                    default:
+                      name: tag
+                      description: The tag for this CAA record.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_35
+                  serializedName: value
+                  language: !Languages 
+                    default:
+                      name: value
+                      description: The value for this CAA record.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: CaaRecord
+                  description: A CAA record.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: RecordSetPropertiesCaaRecords
+                description: The list of CAA records in the record set.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - caaRecords
+          serializedName: caaRecords
+          language: !Languages 
+            default:
+              name: caaRecords
+              description: The list of CAA records in the record set.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      extensions:
+        x-ms-azure-resource: true
+      language: !Languages 
+        default:
+          name: RecordSet
+          description: Describes a DNS record set (a collection of DNS records with the same name and type).
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_36
+    - *ref_37
+    - *ref_38
+    - *ref_39
+    - *ref_40
+    - *ref_41
+    - *ref_42
+    - *ref_43
+    - *ref_44
+    - *ref_45
+    - *ref_46
+    - !ObjectSchema &ref_104
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_50
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            properties:
+              - !Property 
+                schema: *ref_47
+                serializedName: code
+                language: !Languages 
+                  default:
+                    name: code
+                    description: An identifier for the error. Codes are invariant and are intended to be consumed programmatically.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_48
+                serializedName: message
+                language: !Languages 
+                  default:
+                    name: message
+                    description: A message describing the error, intended to be suitable for display in a user interface.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_49
+                serializedName: target
+                language: !Languages 
+                  default:
+                    name: target
+                    description: The target of the particular error. For example, the name of the property in error.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_81
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-09-01'
+                  elementType: *ref_50
+                  language: !Languages 
+                    default:
+                      name: CloudErrorBodyDetails
+                      description: A list of additional details about the error.
+                  protocol: !Protocols {}
+                serializedName: details
+                language: !Languages 
+                  default:
+                    name: details
+                    description: A list of additional details about the error.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - exception
+            extensions:
+              x-ms-external: true
+            language: !Languages 
+              default:
+                name: CloudErrorBody
+                description: An error response from the service.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: error
+          language: !Languages 
+            default:
+              name: error
+              description: Cloud error body.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      extensions:
+        x-ms-external: true
+      language: !Languages 
+        default:
+          name: CloudError
+          description: An error response from the service.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_50
+    - !ObjectSchema &ref_128
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_82
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_51
+            language: !Languages 
+              default:
+                name: RecordSetListResultValue
+                description: Information about the record sets in the response.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Information about the record sets in the response.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_52
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The continuation token for the next page of results.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: RecordSetListResult
+          description: The response to a record set List operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_53
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_59
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            children: !Relations 
+              all:
+                - *ref_53
+              immediate:
+                - *ref_53
+            properties:
+              - !Property 
+                schema: *ref_54
+                readOnly: true
+                required: false
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: Resource ID.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_55
+                readOnly: true
+                required: false
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: Resource name.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_56
+                readOnly: true
+                required: false
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: Resource type.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_57
+                required: true
+                serializedName: location
+                extensions:
+                  x-ms-mutability:
+                    - read
+                    - create
+                language: !Languages 
+                  default:
+                    name: location
+                    description: Resource location.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_58
+                required: false
+                serializedName: tags
+                language: !Languages 
+                  default:
+                    name: tags
+                    description: Resource tags.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            extensions:
+              x-ms-azure-resource: true
+            language: !Languages 
+              default:
+                name: Resource
+                description: Common properties of an Azure Resource Manager resource
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_59
+      properties:
+        - !Property 
+          schema: *ref_60
+          serializedName: etag
+          language: !Languages 
+            default:
+              name: etag
+              description: The etag of the zone.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_61
+          flattenedNames:
+            - properties
+            - maxNumberOfRecordSets
+          readOnly: true
+          serializedName: maxNumberOfRecordSets
+          language: !Languages 
+            default:
+              name: maxNumberOfRecordSets
+              description: The maximum number of record sets that can be created in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_62
+          flattenedNames:
+            - properties
+            - maxNumberOfRecordsPerRecordSet
+          readOnly: true
+          serializedName: maxNumberOfRecordsPerRecordSet
+          language: !Languages 
+            default:
+              name: maxNumberOfRecordsPerRecordSet
+              description: The maximum number of records per record set that can be created in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_63
+          flattenedNames:
+            - properties
+            - numberOfRecordSets
+          readOnly: true
+          serializedName: numberOfRecordSets
+          language: !Languages 
+            default:
+              name: numberOfRecordSets
+              description: The current number of record sets in this DNS zone.  This is a read-only property and any attempt to set this value will be ignored.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_83
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_64
+            language: !Languages 
+              default:
+                name: ZonePropertiesNameServers
+                description: The name servers for this DNS zone. This is a read-only property and any attempt to set this value will be ignored.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - nameServers
+          readOnly: true
+          serializedName: nameServers
+          language: !Languages 
+            default:
+              name: nameServers
+              description: The name servers for this DNS zone. This is a read-only property and any attempt to set this value will be ignored.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_65
+          flattenedNames:
+            - properties
+            - zoneType
+          serializedName: zoneType
+          language: !Languages 
+            default:
+              name: zoneType
+              description: The type of this DNS zone (Public or Private).
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_66
+          flattenedNames:
+            - properties
+            - machineType
+          serializedName: machineType
+          language: !Languages 
+            default:
+              name: machineType
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_67
+          flattenedNames:
+            - properties
+            - storageType
+          serializedName: storageType
+          language: !Languages 
+            default:
+              name: storageType
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_68
+          flattenedNames:
+            - properties
+            - memoryType
+          serializedName: memoryType
+          language: !Languages 
+            default:
+              name: memoryType
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_84
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_36
+            language: !Languages 
+              default:
+                name: ZonePropertiesRegistrationVirtualNetworks
+                description: A list of references to virtual networks that register hostnames in this DNS zone. This is a only when ZoneType is Private.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - registrationVirtualNetworks
+          serializedName: registrationVirtualNetworks
+          language: !Languages 
+            default:
+              name: registrationVirtualNetworks
+              description: A list of references to virtual networks that register hostnames in this DNS zone. This is a only when ZoneType is Private.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_85
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_36
+            language: !Languages 
+              default:
+                name: ZonePropertiesResolutionVirtualNetworks
+                description: A list of references to virtual networks that resolve records in this DNS zone. This is a only when ZoneType is Private.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - resolutionVirtualNetworks
+          serializedName: resolutionVirtualNetworks
+          language: !Languages 
+            default:
+              name: resolutionVirtualNetworks
+              description: A list of references to virtual networks that resolve records in this DNS zone. This is a only when ZoneType is Private.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: Zone
+          description: Describes a DNS zone.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_59
+    - !ObjectSchema &ref_148
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: *ref_69
+          serializedName: tags
+          language: !Languages 
+            default:
+              name: tags
+              description: Resource tags.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: ZoneUpdate
+          description: Describes a request to update a DNS zone.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_156
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_86
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_53
+            language: !Languages 
+              default:
+                name: ZoneListResultValue
+                description: Information about the DNS zones.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Information about the DNS zones.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_70
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The continuation token for the next page of results.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ZoneListResult
+          description: The response to a Zone List or ListAll operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_158
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_87
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: *ref_36
+            language: !Languages 
+              default:
+                name: DnsResourceReferenceRequestPropertiesTargetResources
+                description: A list of references to azure resources for which referencing dns records need to be queried.
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - targetResources
+          serializedName: targetResources
+          language: !Languages 
+            default:
+              name: targetResources
+              description: A list of references to azure resources for which referencing dns records need to be queried.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: DnsResourceReferenceRequest
+          description: Represents the properties of the Dns Resource Reference Request.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_161
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_89
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-09-01'
+            elementType: !ObjectSchema &ref_71
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-09-01'
+              properties:
+                - !Property 
+                  schema: !ArraySchema &ref_88
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-09-01'
+                    elementType: *ref_36
+                    language: !Languages 
+                      default:
+                        name: DnsResourceReferenceDnsResources
+                        description: 'A list of dns Records '
+                    protocol: !Protocols {}
+                  serializedName: dnsResources
+                  language: !Languages 
+                    default:
+                      name: dnsResources
+                      description: 'A list of dns Records '
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_36
+                  serializedName: targetResource
+                  language: !Languages 
+                    default:
+                      name: targetResource
+                      description: A reference to an azure resource from where the dns resource value is taken.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+              language: !Languages 
+                default:
+                  name: DnsResourceReference
+                  description: Represents a single Azure resource and its referencing DNS records.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: DnsResourceReferenceResultPropertiesDnsResourceReferences
+                description: The result of dns resource reference request. A list of dns resource references for each of the azure resource in the request
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - dnsResourceReferences
+          serializedName: dnsResourceReferences
+          language: !Languages 
+            default:
+              name: dnsResourceReferences
+              description: The result of dns resource reference request. A list of dns resource references for each of the azure resource in the request
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: DnsResourceReferenceResult
+          description: Represents the properties of the Dns Resource Reference Result.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_71
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-09-01'
+      properties:
+        - !Property 
+          schema: *ref_51
+          serializedName: RecordSet
+          language: !Languages 
+            default:
+              name: recordSet
+              description: Specifies information about the record set being updated.
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: RecordSetUpdateParameters
+          description: Parameters supplied to update a record set.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_72
+    - *ref_73
+    - *ref_74
+    - *ref_75
+    - *ref_76
+    - *ref_77
+    - *ref_78
+    - *ref_79
+    - *ref_80
+    - *ref_81
+    - *ref_82
+    - *ref_83
+    - *ref_84
+    - *ref_85
+    - *ref_86
+    - *ref_87
+    - *ref_88
+    - *ref_89
+globalParameters:
+  - !Parameter &ref_94
+    schema: *ref_4
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Specifies the Azure subscription ID, which uniquely identifies the Microsoft Azure subscription.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_91
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_93
+    schema: *ref_90
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: RecordSets
+    operations:
+      - !Operation 
+        operationId: RecordSets_Update
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_99
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_100
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_101
+            schema: *ref_4
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: relativeRecordSetName
+                description: The name of the record set, relative to the name of the zone.
+                serializedName: relativeRecordSetName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_102
+            schema: *ref_92
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: recordType
+                description: The type of DNS record in this record set.
+                serializedName: recordType
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_103
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the record set. Omit this value to always overwrite the current record set. Specify the last-seen etag value to prevent accidentally overwriting concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requestMediaTypes:
+          application/json: !Request &ref_98
+            parameters:
+              - !Parameter 
+                schema: *ref_95
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_97
+                schema: *ref_51
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the Update operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_97
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_98
+        signatureParameters:
+          - *ref_99
+          - *ref_100
+          - *ref_101
+          - *ref_102
+          - *ref_103
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: The record set has been updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Update
+            description: Updates a record set within a DNS zone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_107
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_108
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_109
+            schema: *ref_4
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: relativeRecordSetName
+                description: The name of the record set, relative to the name of the zone.
+                serializedName: relativeRecordSetName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_110
+            schema: *ref_92
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: recordType
+                description: The type of DNS record in this record set. Record sets of type SOA can be updated but not created (they are created when the DNS zone is created).
+                serializedName: recordType
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_111
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the record set. Omit this value to always overwrite the current record set. Specify the last-seen etag value to prevent accidentally overwriting any concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_112
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifNoneMatch
+                description: Set to '*' to allow a new record set to be created, but to prevent updating an existing record set. Other values will be ignored.
+                serializedName: If-None-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requestMediaTypes:
+          application/json: !Request &ref_106
+            parameters:
+              - !Parameter 
+                schema: *ref_95
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_105
+                schema: *ref_51
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the CreateOrUpdate operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_105
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_106
+        signatureParameters:
+          - *ref_107
+          - *ref_108
+          - *ref_109
+          - *ref_110
+          - *ref_111
+          - *ref_112
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: The record set has been updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: The record set has been created.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Creates or updates a record set within a DNS zone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_113
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_114
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_115
+            schema: *ref_4
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: relativeRecordSetName
+                description: The name of the record set, relative to the name of the zone.
+                serializedName: relativeRecordSetName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_116
+            schema: *ref_92
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: recordType
+                description: The type of DNS record in this record set. Record sets of type SOA cannot be deleted (they are deleted when the DNS zone is deleted).
+                serializedName: recordType
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_117
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the record set. Omit this value to always delete the current record set. Specify the last-seen etag value to prevent accidentally deleting any concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_113
+          - *ref_114
+          - *ref_115
+          - *ref_116
+          - *ref_117
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The record set has been deleted.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The record set was not found.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Delete
+            description: Deletes a record set from a DNS zone. This operation cannot be undone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_118
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_119
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_120
+            schema: *ref_4
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: relativeRecordSetName
+                description: The name of the record set, relative to the name of the zone.
+                serializedName: relativeRecordSetName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_121
+            schema: *ref_92
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: recordType
+                description: The type of DNS record in this record set.
+                serializedName: recordType
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}/{relativeRecordSetName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_118
+          - *ref_119
+          - *ref_120
+          - *ref_121
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets a record set.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_ListByType
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_123
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_124
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_125
+            schema: *ref_92
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: recordType
+                description: The type of record sets to enumerate.
+                serializedName: recordType
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_126
+            schema: *ref_122
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The maximum number of record sets to return. If not specified, returns up to 100 record sets.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_127
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: recordsetnamesuffix
+                description: The suffix label of the record set name that has to be used to filter the record set enumerations. If this parameter is specified, Enumeration will return only records that end with .<recordSetNameSuffix>
+                serializedName: $recordsetnamesuffix
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/{recordType}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_123
+          - *ref_124
+          - *ref_125
+          - *ref_126
+          - *ref_127
+        responses:
+          - !SchemaResponse 
+            schema: *ref_128
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListByType
+            description: Lists the record sets of a specified type in a DNS zone.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_ListByDnsZone
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_129
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_130
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_131
+            schema: *ref_122
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The maximum number of record sets to return. If not specified, returns up to 100 record sets.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_132
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: recordsetnamesuffix
+                description: The suffix label of the record set name that has to be used to filter the record set enumerations. If this parameter is specified, Enumeration will return only records that end with .<recordSetNameSuffix>
+                serializedName: $recordsetnamesuffix
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/recordsets
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_129
+          - *ref_130
+          - *ref_131
+          - *ref_132
+        responses:
+          - !SchemaResponse 
+            schema: *ref_128
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListByDnsZone
+            description: Lists all record sets in a DNS zone.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RecordSets_ListAllByDnsZone
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_133
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_134
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_135
+            schema: *ref_122
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The maximum number of record sets to return. If not specified, returns up to 100 record sets.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_136
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: recordSetNameSuffix
+                description: The suffix label of the record set name that has to be used to filter the record set enumerations. If this parameter is specified, Enumeration will return only records that end with .<recordSetNameSuffix>
+                serializedName: $recordsetnamesuffix
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}/all
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_133
+          - *ref_134
+          - *ref_135
+          - *ref_136
+        responses:
+          - !SchemaResponse 
+            schema: *ref_128
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListAllByDnsZone
+            description: Lists all record sets in a DNS zone.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: RecordSets
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Zones
+    operations:
+      - !Operation 
+        operationId: Zones_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_139
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_140
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_141
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the DNS zone. Omit this value to always overwrite the current zone. Specify the last-seen etag value to prevent accidentally overwriting any concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_142
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifNoneMatch
+                description: Set to '*' to allow a new DNS zone to be created, but to prevent updating an existing zone. Other values will be ignored.
+                serializedName: If-None-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requestMediaTypes:
+          application/json: !Request &ref_138
+            parameters:
+              - !Parameter 
+                schema: *ref_95
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_137
+                schema: *ref_53
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the CreateOrUpdate operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_137
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_138
+        signatureParameters:
+          - *ref_139
+          - *ref_140
+          - *ref_141
+          - *ref_142
+        responses:
+          - !SchemaResponse 
+            schema: *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone has been updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone has been created.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Creates or updates a DNS zone. Does not modify DNS records within the zone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Zones_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_143
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_144
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_145
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the DNS zone. Omit this value to always delete the current zone. Specify the last-seen etag value to prevent accidentally deleting any concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_143
+          - *ref_144
+          - *ref_145
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone has been deleted.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone delete operation has been accepted and will complete asynchronously.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '202'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone was not found.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Delete
+            description: 'Deletes a DNS zone. WARNING: All DNS records in the zone will also be deleted. This operation cannot be undone.'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Zones_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_146
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_147
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_146
+          - *ref_147
+        responses:
+          - !SchemaResponse 
+            schema: *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets a DNS zone. Retrieves the zone properties, but not the record sets within the zone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Zones_Update
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_151
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_152
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: zoneName
+                description: The name of the DNS zone (without a terminating dot).
+                serializedName: zoneName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_153
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The etag of the DNS zone. Omit this value to always overwrite the current zone. Specify the last-seen etag value to prevent accidentally overwriting any concurrent changes.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_93
+          - *ref_94
+        requestMediaTypes:
+          application/json: !Request &ref_150
+            parameters:
+              - !Parameter 
+                schema: *ref_95
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_149
+                schema: *ref_148
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the Update operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_149
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones/{zoneName}
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_150
+        signatureParameters:
+          - *ref_151
+          - *ref_152
+          - *ref_153
+        responses:
+          - !SchemaResponse 
+            schema: *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: The DNS zone has been updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Update
+            description: Updates a DNS zone. Does not modify DNS records within the zone.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Zones_ListByResourceGroup
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_154
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_155
+            schema: *ref_122
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The maximum number of record sets to return. If not specified, returns up to 100 record sets.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/dnsZones
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_154
+          - *ref_155
+        responses:
+          - !SchemaResponse 
+            schema: *ref_156
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListByResourceGroup
+            description: Lists the DNS zones within a resource group.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Zones_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - !Parameter &ref_157
+            schema: *ref_122
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The maximum number of DNS zones to return. If not specified, returns up to 100 zones.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_93
+          - *ref_94
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Network/dnszones
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_157
+        responses:
+          - !SchemaResponse 
+            schema: *ref_156
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: Lists the DNS zones in all resource groups in a subscription.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Zones
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: DnsResourceReference
+    operations:
+      - !Operation 
+        operationId: DnsResourceReference_GetByTargetResources
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-09-01'
+        parameters:
+          - *ref_91
+          - *ref_93
+          - *ref_94
+        requestMediaTypes:
+          application/json: !Request &ref_160
+            parameters:
+              - !Parameter 
+                schema: *ref_95
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_159
+                schema: *ref_158
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Properties for dns resource reference request.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_96
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_159
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Network/getDnsResourceReference
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_160
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_161
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_104
+            language: !Languages 
+              default:
+                name: ''
+                description: Default response. It will be deserialized as per the Error definition.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetByTargetResources
+            description: Returns the DNS records specified by the referencing targetResourceIds.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: DnsResourceReference
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: PolicyClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

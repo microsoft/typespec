@@ -1,0 +1,662 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Schema mapping",
+    "description": "Schema mapping",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/op": {
+      "get": {
+        "operationId": "input",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InputModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "default":{
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "mixed",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MixedModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/MixedModel"
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "output",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/OutputModel"
+            }
+          }
+        }
+      }
+    },
+    "/op2": {
+      "put": {
+        "operationId": "mixedreadonly",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MixedModelWithReadonlyProperty"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/MixedModelWithReadonlyProperty"
+            }
+          }
+        }
+      }
+    },
+    "/op3": {
+      "put": {
+        "operationId": "flattenedParameterOperation",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "x-ms-client-flatten": true,
+            "schema": {
+              "$ref": "#/definitions/ParametersModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "InputModel": {
+      "type": "object",
+        "properties": {
+            "RequiredString": { "type": "string" },
+            "RequiredInt": { "type": "integer" },
+            "RequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "RequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredString": { "type": "string" },
+            "NonRequiredInt": { "type": "integer" },
+            "NonRequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "NonRequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "RequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "RequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "RequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "RequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "NonRequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "NonRequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "NonRequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+            "vector": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnly": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequired": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequired": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            }
+        },
+        "required": [
+            "RequiredString",
+            "RequiredInt",
+            "RequiredStringList",
+            "RequiredIntList",
+            "RequiredNullableInt",
+            "RequiredNullableString",
+            "RequiredNullableStringList",
+            "RequiredNullableIntList",
+            "vectorReadOnlyRequired",
+            "vectorRequired",
+            "vectorReadOnlyRequiredNullable",
+            "vectorRequiredNullable"
+        ]
+    },
+    "MixedModel": {
+      "type": "object",
+        "properties": {
+            "RequiredString": { "type": "string" },
+            "RequiredInt": { "type": "integer" },
+            "RequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "RequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredString": { "type": "string" },
+            "NonRequiredInt": { "type": "integer" },
+            "NonRequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "NonRequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "RequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "RequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "RequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "RequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "NonRequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "NonRequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "NonRequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+
+            "RequiredReadonlyInt": {
+                "type": "integer",
+                "readOnly": true
+            },
+            "NonRequiredReadonlyInt": {
+                "type": "integer",
+                "readOnly": true
+            },
+            "vector": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnly": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequired": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequired": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            }
+        },
+        "required": [
+            "RequiredString",
+            "RequiredInt",
+            "RequiredStringList",
+            "RequiredIntList",
+            "RequiredNullableInt",
+            "RequiredNullableString",
+            "RequiredNullableStringList",
+            "RequiredNullableIntList",
+            "RequiredReadonlyInt",
+            "vectorReadOnlyRequired",
+            "vectorRequired",
+            "vectorReadOnlyRequiredNullable",
+            "vectorRequiredNullable"
+        ]
+    },
+    "OutputModel": {
+      "type": "object",
+        "properties": {
+            "RequiredString": { "type": "string" },
+            "RequiredInt": { "type": "integer" },
+            "RequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "RequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredString": { "type": "string" },
+            "NonRequiredInt": { "type": "integer" },
+            "NonRequiredStringList": {
+                "type": "array",
+                "items": { "type": "string" }
+            },
+            "NonRequiredIntList": {
+                "type": "array",
+                "items": { "type": "integer" }
+            },
+
+            "RequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "RequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "RequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "RequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+
+            "NonRequiredNullableString": {
+                "type": "string",
+                "x-nullable": true
+            },
+            "NonRequiredNullableInt": {
+                "type": "integer",
+                "x-nullable": true
+            },
+            "NonRequiredNullableStringList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "string" }
+            },
+            "NonRequiredNullableIntList": {
+                "type": "array",
+                "x-nullable": true,
+                "items": { "type": "integer" }
+            },
+
+            "RequiredReadonlyInt": {
+                "type": "integer",
+                "readOnly": true
+            },
+            "NonRequiredReadonlyInt": {
+                "type": "integer",
+                "readOnly": true
+            },
+            "vector": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnly": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequired": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequired": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorReadOnlyRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "readOnly": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            },
+            "vectorRequiredNullable": {
+                "x-ms-embedding-vector": true,
+                "type": "array",
+                "x-nullable": true,
+                "items": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "description": "The vector representation of a search query."
+            }
+        },
+        "required": [
+            "RequiredString",
+            "RequiredInt",
+            "RequiredStringList",
+            "RequiredIntList",
+            "RequiredNullableInt",
+            "RequiredNullableString",
+            "RequiredNullableStringList",
+            "RequiredNullableIntList",
+            "RequiredReadonlyInt",
+            "vectorReadOnlyRequired",
+            "vectorRequired",
+            "vectorReadOnlyRequiredNullable",
+            "vectorRequiredNullable"
+        ]
+    },
+    "UnusedModel": {
+      "type": "object",
+      "properties": {
+        "UnusedString": { "type": "string" }
+      }
+    },
+    "MixedModelWithReadonlyProperty": {
+      "properties": {
+        "ReadonlyProperty": {
+          "$ref": "#/definitions/ReadonlyModel",
+          "readOnly": true
+        },
+        "ReadonlyListProperty": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ReadonlyModel" },
+          "readOnly": true
+        }
+      }
+    },
+    "ReadonlyModel": {
+      "type": "object",
+      "properties": {
+        "Name": { "type": "string" }
+      }
+    },
+    "ErrorModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      }
+    },
+    "ParametersModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,1977 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: AutoRest Swagger BAT Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: RefColorConstantField1
+          description: Sample string.
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_24
+      choices:
+        - !ChoiceValue 
+          value: red color
+          language:
+            default:
+              name: RedColor
+              description: ''
+        - !ChoiceValue 
+          value: green-color
+          language:
+            default:
+              name: GreenColor
+              description: ''
+        - !ChoiceValue 
+          value: blue_color
+          language:
+            default:
+              name: BlueColor
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: Colors
+          description: Referenced Color Enum Description.
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: ''
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_12
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: ''
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant4
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant5
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_14
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant6
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema 
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '    Now is the time for all good men to come to the aid of their country    '
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant7
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_16
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '    Now is the time for all good men to come to the aid of their country    '
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant8
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_3
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: green-color
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ColorConstant
+          description: Referenced Color Constant Description.
+      protocol: !Protocols {}
+  byteArrays:
+    - !ByteArraySchema &ref_18
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_19
+      type: byte-array
+      format: base64url
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_20
+      type: byte-array
+      format: base64url
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_23
+      type: byte-array
+      format: base64url
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_8
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_29
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_3
+          required: true
+          serializedName: ColorConstant
+          language: !Languages 
+            default:
+              name: colorConstant
+              description: Referenced Color Constant Description.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          required: false
+          serializedName: field1
+          language: !Languages 
+            default:
+              name: field1
+              description: Sample string.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: RefColorConstant
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_5
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: string
+    operations:
+      - !Operation 
+        operationId: string_getNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The null String value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getNull:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: GetNull
+            description: Get null string value value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_putNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_11
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_10
+                schema: *ref_7
+                implementation: Method
+                nullable: true
+                required: false
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_10
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/null
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_11
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_putNull:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutNull
+            description: Set string value null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_0
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty String value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getEmpty:
+              parameters: {}
+              responses:
+                '200':
+                  body: ''
+        language: !Languages 
+          default:
+            name: GetEmpty
+            description: Get empty string value value ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_putEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_13
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/empty
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_13
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_putEmpty:
+              parameters:
+                stringBody: ''
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutEmpty
+            description: Set string value empty ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getMbcs
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/mbcs
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_0
+            language: !Languages 
+              default:
+                name: ''
+                description: The mbcs String value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getMbcs:
+              parameters: {}
+              responses:
+                '200':
+                  body: 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+        language: !Languages 
+          default:
+            name: GetMbcs
+            description: Get mbcs string value '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_putMbcs
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_15
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_14
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/mbcs
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_15
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_putMbcs:
+              parameters:
+                stringBody: 啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutMbcs
+            description: Set string value mbcs '啊齄丂狛狜隣郎隣兀﨩ˊ〞〡￤℡㈱‐ー﹡﹢﹫、〓ⅰⅹ⒈€㈠㈩ⅠⅫ！￣ぁんァヶΑ︴АЯаяāɡㄅㄩ─╋︵﹄︻︱︳︴ⅰⅹɑɡ〇〾⿻⺁䜣€'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getWhitespace
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/whitespace
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_0
+            language: !Languages 
+              default:
+                name: ''
+                description: The String value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getWhitespace:
+              parameters: {}
+              responses:
+                '200':
+                  body: '    Now is the time for all good men to come to the aid of their country    '
+        language: !Languages 
+          default:
+            name: GetWhitespace
+            description: Get string value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_putWhitespace
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/whitespace
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_putWhitespace:
+              parameters:
+                stringBody: '    Now is the time for all good men to come to the aid of their country    '
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutWhitespace
+            description: Set String value with leading and trailing whitespace '<tab><space><space>Now is the time for all good men to come to the aid of their country<tab><space><space>'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getNotProvided
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/notProvided
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: The not provided string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getNotProvided:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: GetNotProvided
+            description: Get String value when no string value is sent in response payload
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getBase64Encoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/base64Encoding
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: The base64 encoded string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getBase64Encoded:
+              parameters: {}
+              responses:
+                '200':
+                  body: YSBzdHJpbmcgdGhhdCBnZXRzIGVuY29kZWQgd2l0aCBiYXNlNjQ=
+        language: !Languages 
+          default:
+            name: GetBase64Encoded
+            description: Get value that is base64 encoded
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getBase64UrlEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/base64UrlEncoding
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_19
+            language: !Languages 
+              default:
+                name: ''
+                description: The base64url encoded string value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getBase64UrlEncoded:
+              parameters: {}
+              responses:
+                '200':
+                  body: YSBzdHJpbmcgdGhhdCBnZXRzIGVuY29kZWQgd2l0aCBiYXNlNjR1cmw
+        language: !Languages 
+          default:
+            name: GetBase64UrlEncoded
+            description: Get value that is base64url encoded
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_putBase64UrlEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_22
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_21
+                schema: *ref_20
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_21
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/base64UrlEncoding
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_22
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_putBase64UrlEncoded:
+              parameters:
+                stringBody: YSBzdHJpbmcgdGhhdCBnZXRzIGVuY29kZWQgd2l0aCBiYXNlNjR1cmw
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutBase64UrlEncoded
+            description: Put value that is base64url encoded
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: string_getNullBase64UrlEncoded
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/nullBase64UrlEncoding
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_23
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The null value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            string_getNullBase64UrlEncoded:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: GetNullBase64UrlEncoded
+            description: Get null value that is expected to be base64url encoded
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: String
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: enum
+    operations:
+      - !Operation 
+        operationId: enum_getNotExpandable
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/enum/notExpandable
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: The String value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_getNotExpandable:
+              parameters: {}
+              responses:
+                '200':
+                  body: red color
+        language: !Languages 
+          default:
+            name: GetNotExpandable
+            description: Get enum value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: enum_putNotExpandable
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_26
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_25
+                schema: *ref_24
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_25
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/enum/notExpandable
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_26
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_putNotExpandable:
+              parameters:
+                stringBody: red color
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutNotExpandable
+            description: Sends value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: enum_getReferenced
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/enum/Referenced
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: The String value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_getReferenced:
+              parameters: {}
+              responses:
+                '200':
+                  body: red color
+        language: !Languages 
+          default:
+            name: GetReferenced
+            description: Get enum value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: enum_putReferenced
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_28
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_27
+                schema: *ref_24
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: enumStringBody
+                    description: enum string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_27
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/enum/Referenced
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_28
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_putReferenced:
+              parameters:
+                enumStringBody: red color
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutReferenced
+            description: Sends value 'red color' from enumeration of 'red color', 'green-color', 'blue_color'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: enum_getReferencedConstant
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /string/enum/ReferencedConstant
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_29
+            language: !Languages 
+              default:
+                name: ''
+                description: The String value 'green-color' from a constant
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_getReferencedConstant:
+              parameters: {}
+              responses:
+                '200':
+                  body: green-color
+        language: !Languages 
+          default:
+            name: GetReferencedConstant
+            description: Get value 'green-color' from the constant.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: enum_putReferencedConstant
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+        requestMediaTypes:
+          application/json: !Request &ref_31
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_30
+                schema: *ref_29
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: enumStringBody
+                    description: enum string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_30
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /string/enum/ReferencedConstant
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_31
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            enum_putReferencedConstant:
+              parameters:
+                enumStringBody:
+                  ColorConstant: green-color
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PutReferencedConstant
+            description: Sends value 'green-color' from a constant
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Enum
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

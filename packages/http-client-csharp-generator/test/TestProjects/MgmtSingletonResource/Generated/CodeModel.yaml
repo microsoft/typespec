@@ -1,0 +1,1709 @@
+!CodeModel 
+info: !Info 
+  title: MgmtSingletonResource
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_11
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CarId
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CarName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CarType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CarHorsepower
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CarListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: IgnitionId
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: IgnitionName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: IgnitionType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BrakeId
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BrakeName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BrakeType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SingletonResourceNew
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Resource Id.
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: Resource name.
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: Resource type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ParentResourceNew
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-mutability:
+          - read
+          - create
+      language: !Languages 
+        default:
+          name: TrackedResourceLocation
+          description: The geo-location where the resource lives
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ParentResourceListResultNextLink
+          description: The URI to fetch the next page
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_46
+      choices:
+        - !ChoiceValue 
+          value: default
+          language:
+            default:
+              name: Default
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: BrakeName
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_29
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_33
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_36
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_51
+      type: constant
+      value: !ConstantValue 
+        value: current
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: ''
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_20
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: TrackedResourceTags
+          description: Resource tags.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_35
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_27
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_7
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_2
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_4
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_5
+                  serializedName: horsepower
+                  language: !Languages 
+                    default:
+                      name: horsepower
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: Car
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: CarListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: CarListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_7
+    - !ObjectSchema &ref_45
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_8
+          readOnly: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          readOnly: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          readOnly: true
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          serializedName: pushButton
+          language: !Languages 
+            default:
+              name: pushButton
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: Ignition
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_50
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_12
+          readOnly: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_13
+          readOnly: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_14
+          readOnly: true
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          serializedName: hitBrake
+          language: !Languages 
+            default:
+              name: hitBrake
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: Brake
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_15
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_17
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_15
+                - !ObjectSchema &ref_16
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  children: !Relations 
+                    all:
+                      - !ObjectSchema &ref_19
+                        type: object
+                        apiVersions:
+                          - !ApiVersion 
+                            version: '2020-06-01'
+                        parents: !Relations 
+                          all:
+                            - *ref_16
+                            - *ref_17
+                          immediate:
+                            - *ref_16
+                        properties:
+                          - !Property 
+                            schema: *ref_18
+                            serializedName: new
+                            language: !Languages 
+                              default:
+                                name: new
+                                description: ''
+                            protocol: !Protocols {}
+                        serializationFormats:
+                          - json
+                        usage:
+                          - output
+                          - input
+                        language: !Languages 
+                          default:
+                            name: ParentResource
+                            description: A parent resource.
+                            namespace: ''
+                        protocol: !Protocols {}
+                    immediate:
+                      - *ref_19
+                  parents: !Relations 
+                    all:
+                      - *ref_17
+                    immediate:
+                      - *ref_17
+                  properties:
+                    - !Property 
+                      schema: *ref_20
+                      required: false
+                      serializedName: tags
+                      extensions:
+                        x-ms-mutability:
+                          - read
+                          - create
+                          - update
+                      language: !Languages 
+                        default:
+                          name: tags
+                          description: Resource tags.
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_21
+                      required: true
+                      serializedName: location
+                      extensions:
+                        x-ms-mutability:
+                          - read
+                          - create
+                      language: !Languages 
+                        default:
+                          name: location
+                          description: The geo-location where the resource lives
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - json
+                  summary: Tracked Resource
+                  usage:
+                    - input
+                    - output
+                  language: !Languages 
+                    default:
+                      name: TrackedResource
+                      description: The resource model definition for an Azure Resource Manager tracked top level resource which has 'tags' and a 'location'
+                      namespace: ''
+                      summary: Tracked Resource
+                  protocol: !Protocols {}
+                - *ref_19
+              immediate:
+                - *ref_15
+                - *ref_16
+            properties:
+              - !Property 
+                schema: *ref_22
+                readOnly: true
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: Resource Id.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_23
+                readOnly: true
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: Resource name.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_24
+                readOnly: true
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: Resource type.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            extensions:
+              x-ms-azure-resource: true
+            language: !Languages 
+              default:
+                name: Resource
+                description: The Resource model definition.
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_17
+      properties:
+        - !Property 
+          schema: *ref_25
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: SingletonResource
+          description: A singleton resource.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_17
+    - !ObjectSchema &ref_59
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_28
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_19
+            language: !Languages 
+              default:
+                name: ParentResourceListResultValue
+                description: The list of parent resource
+            protocol: !Protocols {}
+          required: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: The list of parent resource
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_26
+          required: false
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The URI to fetch the next page
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ParentResourceListResult
+          description: The List Availability Set operation response.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_19
+    - *ref_16
+  arrays:
+    - *ref_27
+    - *ref_28
+globalParameters:
+  - !Parameter &ref_32
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: ''
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_30
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_31
+    schema: *ref_29
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: Cars
+    operations:
+      - !Operation 
+        operationId: Cars_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - !Parameter &ref_34
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+          - *ref_32
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_34
+        responses:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Cars_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - !Parameter &ref_39
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_40
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: carName
+                description: ''
+                serializedName: carName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+          - *ref_32
+        requestMediaTypes:
+          application/json: !Request &ref_38
+            parameters:
+              - !Parameter 
+                schema: *ref_36
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_37
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_38
+        signatureParameters:
+          - *ref_39
+          - *ref_40
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Cars_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - !Parameter &ref_41
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_42
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: carName
+                description: ''
+                serializedName: carName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+          - *ref_32
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_41
+          - *ref_42
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Cars
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Ignitions
+    operations:
+      - !Operation 
+        operationId: Ignitions_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - !Parameter &ref_43
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_44
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: carName
+                description: ''
+                serializedName: carName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+          - *ref_32
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}/ignitions/default
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_43
+          - *ref_44
+        responses:
+          - !SchemaResponse 
+            schema: *ref_45
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Ignitions
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Brakes
+    operations:
+      - !Operation 
+        operationId: Brakes_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - !Parameter &ref_47
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_48
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: carName
+                description: ''
+                serializedName: carName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+          - *ref_32
+          - !Parameter &ref_49
+            schema: *ref_46
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: default
+                description: ''
+                serializedName: default
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}/brakes/{default}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_47
+          - *ref_48
+          - *ref_49
+        responses:
+          - !SchemaResponse 
+            schema: *ref_50
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Brakes
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SingletonResources
+    operations:
+      - !Operation 
+        operationId: SingletonResources_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - *ref_32
+          - !Parameter &ref_54
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_55
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: parentName
+                description: ''
+                serializedName: parentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter 
+            schema: *ref_51
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceName
+                description: ''
+                serializedName: resourceName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+        requestMediaTypes:
+          application/json: !Request &ref_53
+            parameters:
+              - !Parameter 
+                schema: *ref_36
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_52
+                schema: *ref_15
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_52
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}/singletonResources/{resourceName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_53
+        signatureParameters:
+          - *ref_54
+          - *ref_55
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Singleton non-resource test example with a single-value enum name parameter.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SingletonResources_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - *ref_32
+          - !Parameter &ref_56
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_57
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: parentName
+                description: ''
+                serializedName: parentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter 
+            schema: *ref_51
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceName
+                description: ''
+                serializedName: resourceName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}/singletonResources/{resourceName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_56
+          - *ref_57
+        responses:
+          - !SchemaResponse 
+            schema: *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Singleton non-resource test example with a single-value enum name parameter.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SingletonResources
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ParentResources
+    operations:
+      - !Operation 
+        operationId: ParentResources_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - *ref_32
+          - !Parameter &ref_58
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_58
+        responses:
+          - !SchemaResponse 
+            schema: *ref_59
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: Singleton Test Parent Example.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ParentResources_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - *ref_32
+          - !Parameter &ref_60
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_61
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: parentName
+                description: ''
+                serializedName: parentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_60
+          - *ref_61
+        responses:
+          - !SchemaResponse 
+            schema: *ref_19
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Singleton Test Parent Example.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ParentResources_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_30
+          - *ref_32
+          - !Parameter &ref_64
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_65
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: parentName
+                description: ''
+                serializedName: parentName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_31
+        requestMediaTypes:
+          application/json: !Request &ref_63
+            parameters:
+              - !Parameter 
+                schema: *ref_36
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_62
+                schema: *ref_19
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_62
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_63
+        signatureParameters:
+          - *ref_64
+          - *ref_65
+        responses:
+          - !SchemaResponse 
+            schema: *ref_19
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ParentResources
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtSingletonResource
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

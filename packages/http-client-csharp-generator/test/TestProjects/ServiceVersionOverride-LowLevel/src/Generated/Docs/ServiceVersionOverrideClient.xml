@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="OperationAsync(string,RequestContext)">
+      <example>
+This sample shows how to call OperationAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ServiceVersionOverrideClient client = new ServiceVersionOverrideClient(endpoint);
+
+Response response = await client.OperationAsync("2.0");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call OperationAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ServiceVersionOverrideClient client = new ServiceVersionOverrideClient(endpoint);
+
+Response response = await client.OperationAsync("2.0");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Operation(string,RequestContext)">
+      <example>
+This sample shows how to call Operation.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ServiceVersionOverrideClient client = new ServiceVersionOverrideClient(endpoint);
+
+Response response = client.Operation("2.0");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Operation with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ServiceVersionOverrideClient client = new ServiceVersionOverrideClient(endpoint);
+
+Response response = client.Operation("2.0");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

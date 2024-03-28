@@ -1,0 +1,2959 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-01",
+    "title": "KeyVaultManagementClient",
+    "description": "The Azure management API provides a RESTful set of web services that interact with Azure Key Vault."
+  },
+  "host": "management.azure.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}": {
+      "put": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_CreateOrUpdate",
+        "x-ms-long-running-operation": true,
+        "description": "Create or update a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the server belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "parameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VaultCreateOrUpdateParameters"
+            },
+            "description": "Parameters to create or update the vault"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created or updated vault",
+            "schema": {
+              "$ref": "#/definitions/Vault"
+            }
+          },
+          "200": {
+            "description": "Created or updated vault",
+            "schema": {
+              "$ref": "#/definitions/Vault"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Create a new vault or update an existing vault": {
+            "$ref": "./examples/createVault.json"
+          },
+          "Verify Sample-gen can handle examples with some parameter missing":{
+            "$ref": "./examples/createVaultMissingNameParam.json"
+          },
+          "Create or update a vault with network acls": {
+            "$ref": "./examples/createVaultWithNetworkAcls.json"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_Update",
+        "description": "Update a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the server belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "parameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VaultPatchParameters"
+            },
+            "description": "Parameters to patch the vault"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Patched vault",
+            "schema": {
+              "$ref": "#/definitions/Vault"
+            }
+          },
+          "200": {
+            "description": "Patched vault",
+            "schema": {
+              "$ref": "#/definitions/Vault"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Update an existing vault": {
+            "$ref": "./examples/updateVault.json"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_Delete",
+        "description": "Deletes the specified Azure key vault.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the vault belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the vault to delete"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK Response."
+          },
+          "204": {
+            "description": "No Content."
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Delete a vault": {
+            "$ref": "./examples/deleteVault.json"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_Get",
+        "description": "Gets the specified Azure key vault.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the vault belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the vault."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved vault",
+            "schema": {
+              "$ref": "#/definitions/Vault"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Retrieve a vault": {
+            "$ref": "./examples/getVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/keys": {
+      "post": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_ListKeys",
+        "description": "Create or update a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the server belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created or updated vault",
+            "schema": {
+              "$ref": "#/definitions/VaultListKeysResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "List keys on an existing vault": {
+            "$ref": "./examples/listKeysOnVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/validate": {
+      "post": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_Validate",
+        "description": "Create or update a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the server belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created or updated vault",
+            "schema": {
+              "$ref": "#/definitions/VaultValidationResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Validate an existing vault": {
+            "$ref": "./examples/validateVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/disable": {
+      "post": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_Disable",
+        "description": "Create or update a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the server belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created or updated vault"
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Disable a vault": {
+            "$ref": "./examples/disableVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/accessPolicies/{operationKind}": {
+      "put": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_UpdateAccessPolicy",
+        "description": "Update access policies in a key vault in the specified subscription.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the vault belongs."
+          },
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{3,24}$",
+            "description": "Name of the vault"
+          },
+          {
+            "name": "operationKind",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "add",
+              "replace",
+              "remove"
+            ],
+            "x-ms-enum": {
+              "name": "AccessPolicyUpdateKind",
+              "modelAsString": false
+            },
+            "description": "Name of the operation"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "parameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VaultAccessPolicyParameters"
+            },
+            "description": "Access policy to merge into the vault"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The updated access policies",
+            "schema": {
+              "$ref": "#/definitions/VaultAccessPolicyParameters"
+            }
+          },
+          "200": {
+            "description": "The updated access policies",
+            "schema": {
+              "$ref": "#/definitions/VaultAccessPolicyParameters"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Add an access policy, or update an access policy with new permissions": {
+            "$ref": "./examples/updateAccessPoliciesAdd.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults": {
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_ListByResourceGroup",
+        "description": "The List operation gets information about the vaults associated with the subscription and within the specified resource group.",
+        "parameters": [
+          {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the Resource Group to which the vault belongs."
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results to return."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get information about all key vaults in the specified resource group.",
+            "schema": {
+              "$ref": "#/definitions/VaultListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-examples": {
+          "List vaults in the specified resource group": {
+            "$ref": "./examples/listVaultByResourceGroup.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/vaults": {
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_ListBySubscription",
+        "description": "The List operation gets information about the vaults associated with the subscription.",
+        "parameters": [
+          {
+            "name": "$top",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results to return."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get information about all key vaults in the specified subscription.",
+            "schema": {
+              "$ref": "#/definitions/VaultListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-examples": {
+          "List vaults in the specified subscription": {
+            "$ref": "./examples/listVaultBySubscription.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/deletedVaults": {
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_ListDeleted",
+        "description": "Gets information about the deleted vaults in a subscription.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved information about all deleted key vaults in a subscription.",
+            "schema": {
+              "$ref": "#/definitions/DeletedVaultListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-examples": {
+          "List deleted vaults in the specified subscription": {
+            "$ref": "./examples/listDeletedVaults.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/locations/{location}/deletedVaults/{vaultName}": {
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_GetDeleted",
+        "description": "Gets the deleted Azure key vault.",
+        "parameters": [
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the vault."
+          },
+          {
+            "name": "location",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The location of the deleted vault."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved information about the deleted vault.",
+            "schema": {
+              "$ref": "#/definitions/DeletedVault"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Retrieve a deleted vault": {
+            "$ref": "./examples/getDeletedVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/locations/{location}/deletedVaults/{vaultName}/purge": {
+      "post": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_PurgeDeleted",
+        "x-ms-long-running-operation": true,
+        "description": "Permanently deletes the specified vault. aka Purges the deleted Azure key vault.",
+        "parameters": [
+          {
+            "name": "vaultName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the soft-deleted vault."
+          },
+          {
+            "name": "location",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The location of the soft-deleted vault."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The vault is purged."
+          },
+          "202": {
+            "description": "Vault is being purged."
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Purge a deleted vault": {
+            "$ref": "./examples/purgeDeletedVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resources": {
+      "get": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_List",
+        "description": "The List operation gets information about the vaults associated with the subscription.",
+        "parameters": [
+          {
+            "name": "$filter",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "resourceType eq 'Microsoft.KeyVault/vaults'"
+            ],
+            "x-ms-enum": {
+              "name": "VaultListFilterTypes",
+              "modelAsString": false
+            },
+            "description": "The filter to apply on the operation."
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results to return."
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "x-ms-api-version": false,
+            "type": "string",
+            "enum": [
+              "2015-11-01"
+            ],
+            "x-ms-enum": {
+              "name": "ResourceManagerApiVersions",
+              "modelAsString": false
+            },
+            "description": "Azure Resource Manager Api Version."
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get information about all key vaults in the subscription.",
+            "schema": {
+              "$ref": "#/definitions/ResourceListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-examples": {
+          "List vaults in the specified subscription": {
+            "$ref": "./examples/listVault.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/checkNameAvailability": {
+      "post": {
+        "tags": [
+          "Vaults"
+        ],
+        "operationId": "Vaults_CheckNameAvailability",
+        "description": "Checks that the vault name is valid and is not already in use.",
+        "parameters": [
+          {
+            "name": "vaultName",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VaultCheckNameAvailabilityParameters"
+            },
+            "description": "The name of the vault."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK -- Operation to check the vault name availability was successful.",
+            "schema": {
+              "$ref": "#/definitions/CheckNameAvailabilityResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Validate a vault name": {
+            "$ref": "./examples/checkVaultNameAvailability.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/privateEndpointConnections/{privateEndpointConnectionName}": {
+      "get": {
+        "tags": [
+          "PrivateEndpointConnections"
+        ],
+        "operationId": "PrivateEndpointConnections_Get",
+        "description": "Gets the specified private endpoint connection associated with the key vault.",
+        "x-ms-examples": {
+          "KeyVaultGetPrivateEndpointConnection": {
+            "$ref": "./examples/getPrivateEndpointConnection.json"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupName"
+          },
+          {
+            "$ref": "#/parameters/VaultName"
+          },
+          {
+            "$ref": "#/parameters/PrivateEndpointConnectionName"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private endpoint connection successfully returned.",
+            "schema": {
+              "$ref": "#/definitions/PrivateEndpointConnection"
+            }
+          },
+          "204": {
+            "description": "The private endpoint connection does not exist."
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "PrivateEndpointConnections"
+        ],
+        "operationId": "PrivateEndpointConnections_Put",
+        "description": "Updates the specified private endpoint connection associated with the key vault.",
+        "x-ms-examples": {
+          "KeyVaultPutPrivateEndpointConnection": {
+            "$ref": "./examples/putPrivateEndpointConnection.json"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupName"
+          },
+          {
+            "$ref": "#/parameters/VaultName"
+          },
+          {
+            "$ref": "#/parameters/PrivateEndpointConnectionName"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "properties",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PrivateEndpointConnection"
+            },
+            "description": "The intended state of private endpoint connection."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The state of private endpoint connection was updated successfully.",
+            "headers": {
+              "Retry-After": {
+                "description": "(specified only if operation does not finish synchronously) The recommended number of seconds to wait before calling the URI specified in Azure-AsyncOperation.",
+                "type": "integer",
+                "format": "int32"
+              },
+              "Azure-AsyncOperation": {
+                "description": "(specified only if operation does not finish synchronously) The URI to poll for completion status. The response of this URI may be synchronous or asynchronous.",
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/PrivateEndpointConnection"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "PrivateEndpointConnections"
+        ],
+        "operationId": "PrivateEndpointConnections_Delete",
+        "description": "Deletes the specified private endpoint connection associated with the key vault.",
+        "x-ms-examples": {
+          "KeyVaultDeletePrivateEndpointConnection": {
+            "$ref": "./examples/deletePrivateEndpointConnection.json"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupName"
+          },
+          {
+            "$ref": "#/parameters/VaultName"
+          },
+          {
+            "$ref": "#/parameters/PrivateEndpointConnectionName"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The private endpoint connection was successfully deleted.",
+            "schema": {
+              "$ref": "#/definitions/PrivateEndpointConnection"
+            }
+          },
+          "202": {
+            "description": "The private endpoint connection is being deleted.",
+            "headers": {
+              "Retry-After": {
+                "description": "The recommended number of seconds to wait before calling the URI specified in the location header.",
+                "type": "integer",
+                "format": "int32"
+              },
+              "Location": {
+                "description": "The URI to poll for completion status.",
+                "type": "string"
+              }
+            }
+          },
+          "204": {
+            "description": "The private endpoint connection does not exist."
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-long-running-operation": true
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/privateEndpointConnections": {
+      "get": {
+        "tags": [
+          "PrivateEndpointConnections"
+        ],
+        "operationId": "PrivateEndpointConnections_ListByResource",
+        "description": "The List operation gets information about the private endpoint connections associated with the vault.",
+        "x-ms-examples": {
+          "KeyVaultListPrivateEndpointConnection": {
+            "$ref": "./examples/listPrivateEndpointConnection.json"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupName"
+          },
+          {
+            "$ref": "#/parameters/VaultName"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get information about all private endpoint connections in the specified resource group.",
+            "schema": {
+              "$ref": "#/definitions/PrivateEndpointConnectionListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}/privateLinkResources": {
+      "get": {
+        "tags": [
+          "PrivateLinkResources"
+        ],
+        "operationId": "PrivateLinkResources_ListByVault",
+        "description": "Gets the private link resources supported for the key vault.",
+        "x-ms-examples": {
+          "KeyVaultListPrivateLinkResources": {
+            "$ref": "./examples/listPrivateLinkResources.json"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "$ref": "#/parameters/ResourceGroupName"
+          },
+          {
+            "$ref": "#/parameters/VaultName"
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved private link resources.",
+            "schema": {
+              "$ref": "#/definitions/PrivateLinkResourceListResult"
+            }
+          },
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "common.json#/definitions/CloudError"
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types/{type}/versions/{version}": {
+        "get": {
+          "tags": [
+            "VirtualMachineExtensionImages"
+          ],
+          "operationId": "VirtualMachineExtensionImages_Get",
+          "description": "Gets a virtual machine extension image.",
+          "parameters": [
+            {
+              "name": "location",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "The name of a supported Azure region."
+            },
+            {
+              "name": "publisherName",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            },
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/VirtualMachineExtensionImage"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "VirtualMachineExtensionImages_Get_MaximumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_Get_MaximumSet_Gen.json"
+            },
+            "VirtualMachineExtensionImages_Get_MinimumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_Get_MinimumSet_Gen.json"
+            }
+          }
+        }
+      },
+      "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types": {
+        "get": {
+          "tags": [
+            "VirtualMachineExtensionImages"
+          ],
+          "operationId": "VirtualMachineExtensionImages_ListTypes",
+          "description": "Gets a list of virtual machine extension image types.",
+          "parameters": [
+            {
+              "name": "location",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "The name of a supported Azure region."
+            },
+            {
+              "name": "publisherName",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            },
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/VirtualMachineExtensionImage"
+                }
+              }
+            }
+          },
+          "x-ms-examples": {
+            "VirtualMachineExtensionImages_ListTypes_MaximumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_ListTypes_MaximumSet_Gen.json"
+            },
+            "VirtualMachineExtensionImages_ListTypes_MinimumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_ListTypes_MinimumSet_Gen.json"
+            }
+          }
+        }
+      },
+      "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types/{type}/versions": {
+        "get": {
+          "tags": [
+            "VirtualMachineExtensionImages"
+          ],
+          "operationId": "VirtualMachineExtensionImages_ListVersions",
+          "description": "Gets a list of virtual machine extension image versions.",
+          "parameters": [
+            {
+              "name": "location",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "The name of a supported Azure region."
+            },
+            {
+              "name": "publisherName",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "$filter",
+              "in": "query",
+              "required": false,
+              "type": "string",
+              "description": "The filter to apply on the operation."
+            },
+            {
+              "name": "$top",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "$orderby",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            },
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/VirtualMachineExtensionImage"
+                }
+              }
+            }
+          },
+          "x-ms-odata": "#/definitions/VirtualMachineExtensionImage",
+          "x-ms-examples": {
+            "VirtualMachineExtensionImages_ListVersions_MaximumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_ListVersions_MaximumSet_Gen.json"
+            },
+            "VirtualMachineExtensionImages_ListVersions_MinimumSet_Gen": {
+              "$ref": "./examples/virtualMachineExtensionImageExamples/VirtualMachineExtensionImages_ListVersions_MinimumSet_Gen.json"
+            }
+          }
+        }
+    },
+    
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/diskEncryptionSets/{diskEncryptionSetName}": {
+        "put": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_CreateOrUpdate",
+          "description": "Creates or updates a disk encryption set",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ResourceGroupName"
+            },
+            {
+              "$ref": "#/parameters/DiskEncryptionSetNameParameter"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            },
+            {
+              "name": "diskEncryptionSet",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              },
+              "description": "disk encryption set object supplied in the body of the Put disk encryption set operation."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              }
+            },
+            "202": {
+              "description": "Accepted",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "Create a disk encryption set.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Create.json"
+            },
+            "Create a disk encryption set with key vault from a different subscription.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Create_WithKeyVaultFromADifferentSubscription.json"
+            },
+            "Create a disk encryption set with key vault from a different tenant.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Create_WithKeyVaultFromADifferentTenant.json"
+            }
+          },
+          "x-ms-long-running-operation": true
+        },
+        "patch": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_Update",
+          "description": "Updates (patches) a disk encryption set.",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ResourceGroupName"
+            },
+            {
+              "$ref": "#/parameters/DiskEncryptionSetNameParameter"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            },
+            {
+              "name": "diskEncryptionSet",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSetUpdate"
+              },
+              "description": "disk encryption set object supplied in the body of the Patch disk encryption set operation."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              }
+            },
+            "202": {
+              "description": "Accepted",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "Update a disk encryption set.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Update.json"
+            },
+            "Update a disk encryption set with rotationToLatestKeyVersionEnabled set to true - Succeeded": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Update_WithRotationToLatestKeyVersionEnabled.json"
+            },
+            "Update a disk encryption set with rotationToLatestKeyVersionEnabled set to true - Updating": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Update_WithRotationToLatestKeyVersionEnabledInProgress.json"
+            }
+          },
+          "x-ms-long-running-operation": true
+        },
+        "get": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_Get",
+          "description": "Gets information about a disk encryption set.",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ResourceGroupName"
+            },
+            {
+              "$ref": "#/parameters/DiskEncryptionSetNameParameter"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSet"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "Get information about a disk encryption set.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Get.json"
+            },
+            "Get information about a disk encryption set when auto-key rotation failed.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Get_WithAutoKeyRotationError.json"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_Delete",
+          "description": "Deletes a disk encryption set.",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ResourceGroupName"
+            },
+            {
+              "$ref": "#/parameters/DiskEncryptionSetNameParameter"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            },
+            "202": {
+              "description": "Accepted"
+            },
+            "204": {
+              "description": "If the disk encryption set is already deleted, this is an expected error code."
+            }
+          },
+          "x-ms-examples": {
+            "Delete a disk encryption set.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_Delete.json"
+            }
+          },
+          "x-ms-long-running-operation": true
+        }
+      },
+      "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/diskEncryptionSets": {
+        "get": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_ListByResourceGroup",
+          "description": "Lists all the disk encryption sets under a resource group.",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ResourceGroupName"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSetList"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "List all disk encryption sets in a resource group.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_ListByResourceGroup.json"
+            }
+          },
+          "x-ms-pageable": {
+            "nextLinkName": "nextLink"
+          }
+        }
+      },
+      "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/diskEncryptionSets": {
+        "get": {
+          "tags": [
+            "DiskEncryptionSets"
+          ],
+          "operationId": "DiskEncryptionSets_List",
+          "description": "Lists all the disk encryption sets under a subscription.",
+          "parameters": [
+            {
+              "$ref": "#/parameters/SubscriptionIdParameter"
+            },
+            {
+              "$ref": "#/parameters/ApiVersionParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/DiskEncryptionSetList"
+              }
+            }
+          },
+          "x-ms-examples": {
+            "List all disk encryption sets in a subscription.": {
+              "$ref": "./examples/diskEncryptionSetExamples/DiskEncryptionSet_ListBySubscription.json"
+            }
+          },
+          "x-ms-pageable": {
+            "nextLinkName": "nextLink"
+          }
+        }
+    }
+  },
+  "definitions": {
+    "Sku": {
+      "properties": {
+        "family": {
+          "type": "string",
+          "description": "SKU family name",
+          "enum": [
+            "A"
+          ],
+          "x-ms-client-default": "A",
+          "x-ms-enum": {
+            "name": "SkuFamily",
+            "modelAsString": true
+          }
+        },
+        "name": {
+          "type": "string",
+          "description": "SKU name to specify whether the key vault is a standard vault or a premium vault.",
+          "enum": [
+            "standard",
+            "premium"
+          ],
+          "x-ms-enum": {
+            "name": "SkuName",
+            "modelAsString": false
+          }
+        }
+      },
+      "description": "SKU details",
+      "required": [
+        "name",
+        "family"
+      ],
+      "type": "object"
+    },
+    "AccessPolicyEntry": {
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault."
+        },
+        "objectId": {
+          "type": "string",
+          "description": "The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies."
+        },
+        "applicationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": " Application ID of the client making request on behalf of a principal"
+        },
+        "permissions": {
+          "$ref": "#/definitions/Permissions",
+          "description": "Permissions the identity has for keys, secrets and certificates."
+        }
+      },
+      "description": "An identity that have access to the key vault. All identities in the array must use the same tenant ID as the key vault's tenant ID.",
+      "required": [
+        "tenantId",
+        "objectId",
+        "permissions"
+      ],
+      "type": "object"
+    },
+    "Permissions": {
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "all",
+              "encrypt",
+              "decrypt",
+              "wrapKey",
+              "unwrapKey",
+              "sign",
+              "verify",
+              "get",
+              "list",
+              "create",
+              "update",
+              "import",
+              "delete",
+              "backup",
+              "restore",
+              "recover",
+              "purge"
+            ],
+            "x-ms-enum": {
+              "name": "KeyPermissions",
+              "modelAsString": true
+            }
+          },
+          "description": "Permissions to keys"
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "all",
+              "get",
+              "list",
+              "set",
+              "delete",
+              "backup",
+              "restore",
+              "recover",
+              "purge"
+            ],
+            "x-ms-enum": {
+              "name": "SecretPermissions",
+              "modelAsString": true
+            }
+          },
+          "description": "Permissions to secrets"
+        },
+        "certificates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "all",
+              "get",
+              "list",
+              "delete",
+              "create",
+              "import",
+              "update",
+              "managecontacts",
+              "getissuers",
+              "listissuers",
+              "setissuers",
+              "deleteissuers",
+              "manageissuers",
+              "recover",
+              "purge",
+              "backup",
+              "restore"
+            ],
+            "x-ms-enum": {
+              "name": "CertificatePermissions",
+              "modelAsString": true
+            }
+          },
+          "description": "Permissions to certificates"
+        },
+        "storage": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "all",
+              "get",
+              "list",
+              "delete",
+              "set",
+              "update",
+              "regeneratekey",
+              "recover",
+              "purge",
+              "backup",
+              "restore",
+              "setsas",
+              "listsas",
+              "getsas",
+              "deletesas"
+            ],
+            "x-ms-enum": {
+              "name": "StoragePermissions",
+              "modelAsString": true
+            }
+          },
+          "description": "Permissions to storage accounts"
+        }
+      },
+      "description": "Permissions the identity has for keys, secrets, certificates and storage.",
+      "type": "object"
+    },
+    "VaultProperties": {
+      "properties": {
+        "duration": {
+          "format": "duration",
+          "description": "Time elapsed for task.",
+          "type": "string"
+        },
+        "createOn": {
+          "type": "string",
+          "description": "The date and time when the cluster creating.",
+          "format": "date-time"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault."
+        },
+        "sku": {
+          "$ref": "#/definitions/Sku",
+          "description": "SKU details"
+        },
+        "accessPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccessPolicyEntry"
+          },
+          "description": "An array of 0 to 1024 identities that have access to the key vault. All identities in the array must use the same tenant ID as the key vault's tenant ID. When `createMode` is set to `recover`, access policies are not required. Otherwise, access policies are required."
+        },
+        "vaultUri": {
+          "type": "string",
+          "description": "The URI of the vault for performing operations on keys and secrets."
+        },
+        "hsmPoolResourceId": {
+          "type": "string",
+          "description": "The resource id of HSM Pool.",
+          "readOnly": true
+        },
+        "deployments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SubResource"
+          },
+          "description": "Specify a list of resource identifiers of deployment"
+        },
+        "enabledForDiskEncryption": {
+          "type": "boolean",
+          "description": "Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys."
+        },
+        "enabledForTemplateDeployment": {
+          "type": "boolean",
+          "description": "Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
+        },
+        "enableSoftDelete": {
+          "type": "boolean",
+          "default": true,
+          "description": "Property to specify whether the 'soft delete' functionality is enabled for this key vault. If it's not set to any value(true or false) when creating new key vault, it will be set to true by default. Once set to true, it cannot be reverted to false."
+        },
+        "softDeleteRetentionInDays": {
+          "type": "integer",
+          "format": "int32",
+          "default": 90,
+          "description": "softDelete data retention days. It accepts >=7 and <=90."
+        },
+        "enableRbacAuthorization": {
+          "type": "boolean",
+          "default": false,
+          "description": "Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, and the access policies specified in vault properties will be  ignored. When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. If null or not specified, the vault is created with the default value of false. Note that management actions are always authorized with RBAC."
+        },
+        "createMode": {
+          "type": "string",
+          "description": "The vault's create mode to indicate whether the vault need to be recovered or not.",
+          "enum": [
+            "recover",
+            "default"
+          ],
+          "x-ms-enum": {
+            "name": "CreateMode",
+            "modelAsString": false
+          },
+          "x-ms-mutability": [
+            "create",
+            "update"
+          ]
+        },
+        "enablePurgeProtection": {
+          "type": "boolean",
+          "description": "Property specifying whether protection against purge is enabled for this vault. Setting this property to true activates protection against purge for this vault and its content - only the Key Vault service may initiate a hard, irrecoverable deletion. The setting is effective only if soft delete is also enabled. Enabling this functionality is irreversible - that is, the property does not accept false as its value."
+        },
+        "networkAcls": {
+          "$ref": "#/definitions/NetworkRuleSet",
+          "description": "Rules governing the accessibility of the key vault from specific network locations."
+        },
+        "provisioningState": {
+          "type": "string",
+          "description": "Provisioning state of the vault.",
+          "enum": [
+            "Succeeded",
+            "RegisteringDns"
+          ],
+          "x-ms-enum": {
+            "name": "VaultProvisioningState",
+            "modelAsString": true
+          }
+        },
+        "privateEndpointConnections": {
+          "readOnly": true,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PrivateEndpointConnectionItem"
+          },
+          "description": "List of private endpoint connections associated with the key vault."
+        },
+        "publicNetworkAccess": {
+          "type": "string",
+          "default": "enabled",
+          "description": "Property to specify whether the vault will accept traffic from public internet. If set to 'disabled' all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules."
+        },
+        "readWriteSingleStringProperty": {
+          "type": "object",
+          "$ref": "#/definitions/SinglePropertyModel"
+        },
+        "readOnlySingleStringProperty": {
+          "type": "object",
+          "$ref": "#/definitions/ReadOnlySinglePropertyModel"
+        },
+        "extremelyDeepStringProperty": {
+          "type": "object",
+          "$ref": "#/definitions/ExtremelyDeepSinglePropertyModel"
+        }
+      },
+      "required": [
+        "tenantId",
+        "sku"
+      ],
+      "description": "Properties of the vault",
+      "type": "object"
+    },
+    "SubResource": {
+      "type": "string",
+      "description": "The resource identifier"
+    },
+    "SinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of string",
+      "properties": {
+        "something": {
+          "type": "string",
+          "description": "This is a string property"
+        }
+      }
+    },
+    "ReadOnlySinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of read-only string",
+      "properties": {
+        "readOnlySomething": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a read only string property"
+        }
+      }
+    },
+    "ExtremelyDeepSinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of string",
+      "properties": {
+        "extreme": {
+          "type": "object",
+          "$ref": "#/definitions/SuperDeepSinglePropertyModel"
+        }
+      }
+    },
+    "SuperDeepSinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of string",
+      "properties": {
+        "super": {
+          "type": "object",
+          "$ref": "#/definitions/VeryDeepSinglePropertyModel"
+        }
+      }
+    },
+    "VeryDeepSinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of string",
+      "properties": {
+        "very": {
+          "type": "object",
+          "$ref": "#/definitions/DeepSinglePropertyModel"
+        }
+      }
+    },
+    "DeepSinglePropertyModel": {
+      "type": "object",
+      "description": "This is a single property of string",
+      "properties": {
+        "deep": {
+          "type": "object",
+          "$ref": "#/definitions/SinglePropertyModel"
+        }
+      }
+    },
+    "VaultPatchProperties": {
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault."
+        },
+        "sku": {
+          "$ref": "#/definitions/Sku",
+          "description": "SKU details"
+        },
+        "accessPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccessPolicyEntry"
+          },
+          "description": "An array of 0 to 16 identities that have access to the key vault. All identities in the array must use the same tenant ID as the key vault's tenant ID."
+        },
+        "enabledForDeployment": {
+          "type": "boolean",
+          "description": "Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault."
+        },
+        "enabledForDiskEncryption": {
+          "type": "boolean",
+          "description": "Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys."
+        },
+        "enabledForTemplateDeployment": {
+          "type": "boolean",
+          "description": "Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
+        },
+        "enableSoftDelete": {
+          "type": "boolean",
+          "description": "Property to specify whether the 'soft delete' functionality is enabled for this key vault. Once set to true, it cannot be reverted to false."
+        },
+        "enableRbacAuthorization": {
+          "type": "boolean",
+          "description": "Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, and the access policies specified in vault properties will be  ignored. When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. If null or not specified, the value of this property will not change."
+        },
+        "softDeleteRetentionInDays": {
+          "type": "integer",
+          "format": "int32",
+          "description": "softDelete data retention days. It accepts >=7 and <=90."
+        },
+        "createMode": {
+          "type": "string",
+          "description": "The vault's create mode to indicate whether the vault need to be recovered or not.",
+          "enum": [
+            "recover",
+            "default"
+          ],
+          "x-ms-enum": {
+            "name": "CreateMode",
+            "modelAsString": false
+          }
+        },
+        "enablePurgeProtection": {
+          "type": "boolean",
+          "description": "Property specifying whether protection against purge is enabled for this vault. Setting this property to true activates protection against purge for this vault and its content - only the Key Vault service may initiate a hard, irrecoverable deletion. The setting is effective only if soft delete is also enabled. Enabling this functionality is irreversible - that is, the property does not accept false as its value."
+        },
+        "networkAcls": {
+          "$ref": "#/definitions/NetworkRuleSet",
+          "description": "A collection of rules governing the accessibility of the vault from specific network locations."
+        },
+        "publicNetworkAccess": {
+          "type": "string",
+          "description": "Property to specify whether the vault will accept traffic from public internet. If set to 'disabled' all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules."
+        }
+      },
+      "description": "Properties of the vault",
+      "type": "object"
+    },
+    "VaultAccessPolicyProperties": {
+      "properties": {
+        "accessPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccessPolicyEntry"
+          },
+          "description": "An array of 0 to 16 identities that have access to the key vault. All identities in the array must use the same tenant ID as the key vault's tenant ID."
+        }
+      },
+      "required": [
+        "accessPolicies"
+      ],
+      "description": "Properties of the vault access policy",
+      "type": "object"
+    },
+    "DeletedVaultProperties": {
+      "properties": {
+        "vaultId": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource id of the original vault."
+        },
+        "location": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The location of the original vault."
+        },
+        "deletionDate": {
+          "readOnly": true,
+          "type": "string",
+          "format": "date-time",
+          "description": "The deleted date."
+        },
+        "scheduledPurgeDate": {
+          "readOnly": true,
+          "type": "string",
+          "format": "date-time",
+          "description": "The scheduled purged date."
+        },
+        "tags": {
+          "readOnly": true,
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags of the original vault."
+        },
+        "purgeProtectionEnabled": {
+          "readOnly": true,
+          "type": "boolean",
+          "description": "Purge protection status of the original vault."
+        }
+      },
+      "description": "Properties of the deleted vault.",
+      "type": "object"
+    },
+    "VaultCreateOrUpdateParameters": {
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "The supported Azure location where the key vault should be created."
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The tags that will be assigned to the key vault."
+        },
+        "properties": {
+          "$ref": "#/definitions/VaultProperties",
+          "description": "Properties of the vault"
+        },
+        "identity": {
+          "$ref": "common.json#/definitions/ManagedServiceIdentity"
+        }
+      },
+      "description": "Parameters for creating or updating a vault",
+      "required": [
+        "location",
+        "properties"
+      ],
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "VaultPatchParameters": {
+      "properties": {
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The tags that will be assigned to the key vault. "
+        },
+        "properties": {
+          "$ref": "#/definitions/VaultPatchProperties",
+          "description": "Properties of the vault"
+        }
+      },
+      "description": "Parameters for creating or updating a vault",
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "VaultAccessPolicyParameters": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource id of the access policy."
+        },
+        "name": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource name of the access policy."
+        },
+        "type": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource name of the access policy."
+        },
+        "location": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource type of the access policy."
+        },
+        "properties": {
+          "$ref": "#/definitions/VaultAccessPolicyProperties",
+          "description": "Properties of the access policy"
+        }
+      },
+      "description": "Parameters for updating the access policy in a vault",
+      "required": [
+        "properties"
+      ],
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "Vault": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Fully qualified identifier of the key vault resource."
+        },
+        "name": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Name of the key vault resource."
+        },
+        "type": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Resource type of the key vault resource."
+        },
+        "location": {
+          "type": "string",
+          "description": "Azure location of the key vault resource."
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags assigned to the key vault resource."
+        },
+        "systemData": {
+          "description": "System metadata for the key vault.",
+          "$ref": "common.json#/definitions/SystemData"
+        },
+        "properties": {
+          "$ref": "#/definitions/VaultProperties",
+          "description": "Properties of the vault"
+        },
+        "identity": {
+          "$ref": "common.json#/definitions/ManagedServiceIdentity",
+          "description": "Identity of the vault"
+        }
+      },
+      "required": [
+        "properties"
+      ],
+      "description": "Resource information with extended details.",
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "DeletedVault": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource ID for the deleted key vault."
+        },
+        "name": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The name of the key vault."
+        },
+        "type": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The resource type of the key vault."
+        },
+        "properties": {
+          "$ref": "#/definitions/DeletedVaultProperties",
+          "description": "Properties of the vault"
+        }
+      },
+      "description": "Deleted vault information with extended details.",
+      "type": "object"
+    },
+    "VaultIssue": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of the issue"
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the issue"
+        },
+        "sev": {
+          "type": "integer",
+          "description": "The severity of the issue"
+        }
+      }
+    },
+    "VaultValidationResult": {
+      "properties": {
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VaultIssue"
+          },
+          "description": "The list of vaults."
+        },
+        "result": {
+          "type": "string",
+          "description": "The result of the validation."
+        }
+      },
+      "description": "List of keys",
+      "type": "object"
+    },
+    "VaultKey": {
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "name of the key"
+        },
+        "content": {
+          "type": "string",
+          "description": "content of the key"
+        }
+      }
+    },
+    "VaultListKeysResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VaultKey"
+          },
+          "description": "The list of vaults."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to get the next set of vaults."
+        }
+      },
+      "description": "List of keys",
+      "type": "object"
+    },
+    "VaultListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Vault"
+          },
+          "description": "The list of vaults."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to get the next set of vaults."
+        }
+      },
+      "description": "List of vaults",
+      "type": "object"
+    },
+    "DeletedVaultListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DeletedVault"
+          },
+          "description": "The list of deleted vaults."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to get the next set of deleted vaults."
+        }
+      },
+      "description": "List of vaults",
+      "type": "object"
+    },
+    "ResourceListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          },
+          "description": "The list of vault resources."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to get the next set of vault resources."
+        }
+      },
+      "description": "List of vault resources.",
+      "type": "object"
+    },
+    "Resource": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Fully qualified identifier of the key vault resource."
+        },
+        "name": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Name of the key vault resource."
+        },
+        "type": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Resource type of the key vault resource."
+        },
+        "location": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Azure location of the key vault resource."
+        },
+        "tags": {
+          "readOnly": true,
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags assigned to the key vault resource."
+        }
+      },
+      "description": "Key Vault resource",
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "VaultCheckNameAvailabilityParameters": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The vault name."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Microsoft.KeyVault/vaults"
+          ],
+          "x-ms-enum": {
+            "name": "Type",
+            "modelAsString": false
+          },
+          "description": "The type of resource, Microsoft.KeyVault/vaults"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "description": "The parameters used to check the availability of the vault name.",
+      "type": "object"
+    },
+    "CheckNameAvailabilityResult": {
+      "properties": {
+        "nameAvailable": {
+          "readOnly": true,
+          "type": "boolean",
+          "description": "A boolean value that indicates whether the name is available for you to use. If true, the name is available. If false, the name has already been taken or is invalid and cannot be used."
+        },
+        "reason": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The reason that a vault name could not be used. The Reason element is only returned if NameAvailable is false.",
+          "enum": [
+            "AccountNameInvalid",
+            "AlreadyExists"
+          ],
+          "x-ms-enum": {
+            "name": "Reason",
+            "modelAsString": false
+          }
+        },
+        "message": {
+          "readOnly": true,
+          "type": "string",
+          "description": "An error message explaining the Reason value in more detail."
+        }
+      },
+      "description": "The CheckNameAvailability operation response.",
+      "type": "object"
+    },
+    "NetworkRuleSet": {
+      "properties": {
+        "bypass": {
+          "type": "string",
+          "description": "Tells what traffic can bypass network rules. This can be 'AzureServices' or 'None'.  If not specified the default is 'AzureServices'.",
+          "enum": [
+            "AzureServices",
+            "None"
+          ],
+          "x-ms-enum": {
+            "name": "NetworkRuleBypassOptions",
+            "modelAsString": true
+          }
+        },
+        "defaultAction": {
+          "type": "string",
+          "description": "The default action when no rule from ipRules and from virtualNetworkRules match. This is only used after the bypass property has been evaluated.",
+          "enum": [
+            "Allow",
+            "Deny"
+          ],
+          "x-ms-enum": {
+            "name": "NetworkRuleAction",
+            "modelAsString": true
+          }
+        },
+        "ipRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IPRule"
+          },
+          "description": "The list of IP address rules."
+        },
+        "virtualNetworkRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VirtualNetworkRule"
+          },
+          "description": "The list of virtual network rules."
+        }
+      },
+      "description": "A set of rules governing the network accessibility of a vault.",
+      "type": "object"
+    },
+    "IPRule": {
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "An IPv4 address range in CIDR notation, such as '124.56.78.91' (simple IP address) or '124.56.78.0/24' (all addresses that start with 124.56.78)."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "description": "A rule governing the accessibility of a vault from a specific ip address or ip range.",
+      "type": "object"
+    },
+    "VirtualNetworkRule": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Full resource id of a vnet subnet, such as '/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/subnet1'."
+        },
+        "ignoreMissingVnetServiceEndpoint": {
+          "type": "boolean",
+          "description": "Property to specify whether NRP will ignore the check if parent subnet has serviceEndpoints configured."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "description": "A rule governing the accessibility of a vault from a specific virtual network.",
+      "type": "object"
+    },
+    "PrivateEndpointConnectionItem": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id of private endpoint connection."
+        },
+        "etag": {
+          "type": "string",
+          "description": "Modified whenever there is a change in the state of private endpoint connection."
+        },
+        "properties": {
+          "$ref": "#/definitions/PrivateEndpointConnectionProperties",
+          "x-ms-client-flatten": true,
+          "description": "Private endpoint connection properties."
+        }
+      },
+      "description": "Private endpoint connection item.",
+      "type": "object"
+    },
+    "PrivateEndpointConnection": {
+      "properties": {
+        "properties": {
+          "$ref": "#/definitions/PrivateEndpointConnectionProperties",
+          "x-ms-client-flatten": true,
+          "description": "Resource properties."
+        },
+        "etag": {
+          "type": "string",
+          "description": "Modified whenever there is a change in the state of private endpoint connection."
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "description": "Private endpoint connection resource.",
+      "x-ms-azure-resource": true,
+      "type": "object"
+    },
+    "PrivateEndpointConnectionListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PrivateEndpointConnection"
+          },
+          "description": "The list of private endpoint connections."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to get the next set of private endpoint connections."
+        }
+      },
+      "description": "List of private endpoint connections.",
+      "type": "object"
+    },
+    "PrivateEndpointConnectionProperties": {
+      "properties": {
+        "privateEndpoint": {
+          "$ref": "#/definitions/PrivateEndpoint",
+          "description": "Properties of the private endpoint object."
+        },
+        "privateLinkServiceConnectionState": {
+          "$ref": "#/definitions/PrivateLinkServiceConnectionState",
+          "description": "Approval state of the private link connection."
+        },
+        "provisioningState": {
+          "$ref": "#/definitions/PrivateEndpointConnectionProvisioningState",
+          "description": "Provisioning state of the private endpoint connection."
+        }
+      },
+      "description": "Properties of the private endpoint connection resource.",
+      "type": "object"
+    },
+    "PrivateEndpoint": {
+      "properties": {
+        "id": {
+          "readOnly": true,
+          "type": "string",
+          "description": "Full identifier of the private endpoint resource."
+        }
+      },
+      "description": "Private endpoint object properties.",
+      "type": "object"
+    },
+    "PrivateLinkServiceConnectionState": {
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/PrivateEndpointServiceConnectionStatus",
+          "description": "Indicates whether the connection has been approved, rejected or removed by the key vault owner."
+        },
+        "description": {
+          "type": "string",
+          "description": "The reason for approval or rejection."
+        },
+        "actionsRequired": {
+          "type": "string",
+          "description": "A message indicating if changes on the service provider require any updates on the consumer.",
+          "enum": [
+            "None"
+          ],
+          "x-ms-enum": {
+            "name": "ActionsRequired",
+            "modelAsString": true
+          }
+        }
+      },
+      "description": "An object that represents the approval state of the private link connection.",
+      "type": "object"
+    },
+    "PrivateEndpointServiceConnectionStatus": {
+      "type": "string",
+      "description": "The private endpoint connection status.",
+      "enum": [
+        "Pending",
+        "Approved",
+        "Rejected",
+        "Disconnected"
+      ],
+      "x-ms-enum": {
+        "name": "PrivateEndpointServiceConnectionStatus",
+        "modelAsString": true
+      }
+    },
+    "PrivateEndpointConnectionProvisioningState": {
+      "type": "string",
+      "readOnly": true,
+      "description": "The current provisioning state.",
+      "enum": [
+        "Succeeded",
+        "Creating",
+        "Updating",
+        "Deleting",
+        "Failed",
+        "Disconnected"
+      ],
+      "x-ms-enum": {
+        "name": "PrivateEndpointConnectionProvisioningState",
+        "modelAsString": true
+      }
+    },
+    "PrivateLinkResourceListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "description": "Array of private link resources",
+          "items": {
+            "$ref": "#/definitions/PrivateLinkResource"
+          }
+        }
+      },
+      "description": "A list of private link resources",
+      "type": "object"
+    },
+    "PrivateLinkResource": {
+      "properties": {
+        "properties": {
+          "$ref": "#/definitions/PrivateLinkResourceProperties",
+          "description": "Resource properties.",
+          "x-ms-client-flatten": true
+        }
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "description": "A private link resource",
+      "type": "object"
+    },
+    "PrivateLinkResourceProperties": {
+      "properties": {
+        "groupId": {
+          "description": "Group identifier of private link resource.",
+          "type": "string",
+          "readOnly": true
+        },
+        "requiredMembers": {
+          "description": "Required member names of private link resource.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "readOnly": true
+        },
+        "requiredZoneNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required DNS zone names of the the private link resource."
+        }
+      },
+      "description": "Properties of a private link resource.",
+      "type": "object"
+    },
+    "VirtualMachineExtensionImageProperties": {
+        "properties": {
+          "operatingSystem": {
+            "type": "string",
+            "description": "The operating system this extension supports."
+          },
+          "computeRole": {
+            "type": "string",
+            "description": "The type of role (IaaS or PaaS) this extension supports."
+          },
+          "handlerSchema": {
+            "type": "string",
+            "description": "The schema defined by publisher, where extension consumers should provide settings in a matching schema."
+          },
+          "vmScaleSetEnabled": {
+            "type": "boolean",
+            "description": "Whether the extension can be used on xRP VMScaleSets. By default existing extensions are usable on scalesets, but there might be cases where a publisher wants to explicitly indicate the extension is only enabled for CRP VMs but not VMSS."
+          },
+          "supportsMultipleExtensions": {
+            "type": "boolean",
+            "description": "Whether the handler can support multiple extensions."
+          }
+        },
+        "required": [
+          "operatingSystem",
+          "computeRole",
+          "handlerSchema"
+        ],
+        "description": "Describes the properties of a Virtual Machine Extension Image."
+      },
+      "VirtualMachineExtensionImage": {
+        "properties": {
+          "properties": {
+            "x-ms-client-flatten": true,
+            "$ref": "#/definitions/VirtualMachineExtensionImageProperties"
+          }
+        },
+        "required": [
+          "name",
+          "location"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/definitions/Resource"
+          }
+        ],
+        "description": "Describes a Virtual Machine Extension Image."
+      },
+      "DiskEncryptionSetType": {
+        "type": "string",
+        "description": "The type of key used to encrypt the data of the disk.",
+        "enum": [
+          "EncryptionAtRestWithCustomerKey",
+          "EncryptionAtRestWithPlatformAndCustomerKeys",
+          "ConfidentialVmEncryptedWithCustomerKey"
+        ],
+        "x-ms-enum": {
+          "name": "DiskEncryptionSetType",
+          "modelAsString": true,
+          "values": [
+            {
+              "value": "EncryptionAtRestWithCustomerKey",
+              "description": "Resource using diskEncryptionSet would be encrypted at rest with Customer managed key that can be changed and revoked by a customer."
+            },
+            {
+              "value": "EncryptionAtRestWithPlatformAndCustomerKeys",
+              "description": "Resource using diskEncryptionSet would be encrypted at rest with two layers of encryption. One of the keys is Customer managed and the other key is Platform managed."
+            },
+            {
+              "value": "ConfidentialVmEncryptedWithCustomerKey",
+              "description": "Confidential VM supported disk and VM guest state would be encrypted with customer managed key."
+            }
+          ]
+        }
+      },
+      "KeyForDiskEncryptionSet": {
+        "properties": {
+          "sourceVault": {
+            "$ref": "common.json#/definitions/SourceVault",
+            "description": "Resource id of the KeyVault containing the key or secret. This property is optional and cannot be used if the KeyVault subscription is not the same as the Disk Encryption Set subscription."
+          },
+          "keyUrl": {
+            "type": "string",
+            "description": "Fully versioned Key Url pointing to a key in KeyVault. Version segment of the Url is required regardless of rotationToLatestKeyVersionEnabled value."
+          }
+        },
+        "required": [
+          "keyUrl"
+        ],
+        "description": "Key Vault Key Url to be used for server side encryption of Managed Disks and Snapshots"
+      },
+      "EncryptionSetProperties": {
+        "properties": {
+          "encryptionType": {
+            "$ref": "#/definitions/DiskEncryptionSetType"
+          },
+          "activeKey": {
+            "$ref": "#/definitions/KeyForDiskEncryptionSet",
+            "description": "The key vault key which is currently used by this disk encryption set."
+          },
+          "previousKeys": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/definitions/KeyForDiskEncryptionSet"
+            },
+            "x-ms-identifiers": [
+              "sourceVault/id"
+            ],
+            "description": "A readonly collection of key vault keys previously used by this disk encryption set while a key rotation is in progress. It will be empty if there is no ongoing key rotation."
+          },
+          "provisioningState": {
+            "readOnly": true,
+            "type": "string",
+            "description": "The disk encryption set provisioning state."
+          },
+          "rotationToLatestKeyVersionEnabled": {
+            "type": "boolean",
+            "description": "Set this flag to true to enable auto-updating of this disk encryption set to the latest key version."
+          },
+          "lastKeyRotationTimestamp": {
+            "readOnly": true,
+            "type": "string",
+            "format": "date-time",
+            "description": "The time when the active key of this disk encryption set was updated."
+          },
+          "federatedClientId": {
+            "type": "string",
+            "description": "Multi-tenant application client id to access key vault in a different tenant. Setting the value to 'None' will clear the property."
+          },
+          "minimumTlsVersion": {
+            "type": "string",
+            "description": "The minimum tls version",
+            "enum": [
+              "TLS1_0",
+              "TLS1_1",
+              "TLS1_2"
+            ],
+            "x-ms-enum": {
+              "name": "MinimumTlsVersion",
+              "modelAsString": true
+            }
+          }
+        }
+      },
+      "DiskEncryptionSet": {
+        "properties": {
+          "identity": {
+            "$ref": "common.json#/definitions/ManagedServiceIdentity"
+          },
+          "properties": {
+            "x-ms-client-flatten": true,
+            "$ref": "#/definitions/EncryptionSetProperties"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/definitions/Resource"
+          }
+        ],
+        "description": "disk encryption set resource."
+      },
+      "DiskEncryptionSetUpdate": {
+        "properties": {
+          "properties": {
+            "x-ms-client-flatten": true,
+            "$ref": "#/definitions/DiskEncryptionSetUpdateProperties"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Resource tags"
+          },
+          "identity": {
+            "$ref": "common.json#/definitions/ManagedServiceIdentity"
+          }
+        },
+        "description": "disk encryption set update resource."
+      },
+      "DiskEncryptionSetUpdateProperties": {
+        "properties": {
+          "encryptionType": {
+            "$ref": "#/definitions/DiskEncryptionSetType"
+          },
+          "activeKey": {
+            "$ref": "#/definitions/KeyForDiskEncryptionSet"
+          },
+          "rotationToLatestKeyVersionEnabled": {
+            "type": "boolean",
+            "description": "Set this flag to true to enable auto-updating of this disk encryption set to the latest key version."
+          },
+          "federatedClientId": {
+            "type": "string",
+            "description": "Multi-tenant application client id to access key vault in a different tenant. Setting the value to 'None' will clear the property."
+          }
+        },
+        "description": "disk encryption set resource update properties."
+      },
+      "DiskEncryptionSetList": {
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/DiskEncryptionSet"
+            },
+            "description": "A list of disk encryption sets."
+          },
+          "nextLink": {
+            "type": "string",
+            "description": "The uri to fetch the next page of disk encryption sets. Call ListNext() with this to fetch the next page of disk encryption sets."
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "description": "The List disk encryption set operation response."
+      }
+  },
+  "parameters": {
+    "SubscriptionIdParameter": {
+      "name": "subscriptionId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+    },
+    "ResourceGroupName": {
+      "name": "resourceGroupName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "Name of the resource group that contains the key vault.",
+      "x-ms-parameter-location": "method"
+    },
+    "VaultName": {
+      "name": "vaultName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9-]{3,24}$",
+      "description": "The name of the key vault.",
+      "x-ms-parameter-location": "method"
+    },
+    "PrivateEndpointConnectionName": {
+      "name": "privateEndpointConnectionName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "Name of the private endpoint connection associated with the key vault.",
+      "x-ms-parameter-location": "method"
+    },
+    "ApiVersionParameter": {
+      "name": "api-version",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "description": "Client Api Version."
+    },
+    "DiskEncryptionSetNameParameter": {
+      "name": "diskEncryptionSetName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The name of the disk encryption set that is being created. The name can't be changed after the disk encryption set is created. Supported characters for the name are a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.",
+      "x-ms-parameter-location": "method"
+    }
+  },
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  }
+}

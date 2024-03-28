@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIsModelAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetIsModelAsync.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response<IsModelAdditionalProperties> response = await client.GetIsModelAsync();
+]]></code>
+This sample shows how to call GetIsModelAsync with all parameters.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response<IsModelAdditionalProperties> response = await client.GetIsModelAsync();
+]]></code></example>
+    </member>
+    <member name="GetIsModel(CancellationToken)">
+      <example>
+This sample shows how to call GetIsModel.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response<IsModelAdditionalProperties> response = client.GetIsModel();
+]]></code>
+This sample shows how to call GetIsModel with all parameters.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response<IsModelAdditionalProperties> response = client.GetIsModel();
+]]></code></example>
+    </member>
+    <member name="GetIsModelAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIsModelAsync and parse the result.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response response = await client.GetIsModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetIsModelAsync with all parameters and parse the result.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response response = await client.GetIsModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetIsModel(RequestContext)">
+      <example>
+This sample shows how to call GetIsModel and parse the result.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response response = client.GetIsModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetIsModel with all parameters and parse the result.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+Response response = client.GetIsModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IsModelAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+IsModelAdditionalProperties body = new IsModelAdditionalProperties();
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+IsModelAdditionalProperties body = new IsModelAdditionalProperties();
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(IsModelAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+IsModelAdditionalProperties body = new IsModelAdditionalProperties();
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+IsModelAdditionalProperties body = new IsModelAdditionalProperties();
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+IsModel client = new AdditionalPropertiesClient().GetIsModelClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

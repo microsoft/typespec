@@ -1,0 +1,30 @@
+{
+  "parameters": {
+    "location": "aaaaaaaaaaaaa",
+    "publisherName": "aaaaaaaaaaaaaaaaaaaa",
+    "type": "aaaaaaaaaaaaaaaaaa",
+    "version": "aaaaaaaaaaaaaa",
+    "api-version": "2022-03-01",
+    "subscriptionId": "{subscription-id}"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "properties": {
+          "operatingSystem": "aaaaaaaaaaaaaaaaaa",
+          "computeRole": "aaaaaaaaaaaaaaaaa",
+          "handlerSchema": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "vmScaleSetEnabled": true,
+          "supportsMultipleExtensions": true
+        },
+        "id": "aaaaaaaaaaaaaaaaa",
+        "name": "aaaaaaaaaaaaaaa",
+        "type": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "location": "aaaaaaaaaaaaa",
+        "tags": {
+          "key9885": "aaaaaaaaa"
+        }
+      }
+    }
+  }
+}

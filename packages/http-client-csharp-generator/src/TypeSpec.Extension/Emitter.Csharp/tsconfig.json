@@ -1,0 +1,32 @@
+
+{
+    "compilerOptions": {
+      "composite": true,
+      "alwaysStrict": true,
+      "forceConsistentCasingInFileNames": true,
+      "preserveConstEnums": true,
+      "module": "node16",
+      "moduleResolution": "node16",
+      "esModuleInterop": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "sourceMap": true,
+      "declarationMap": true,
+      "strict": true,
+      "declaration": true,
+      "stripInternal": true,
+      "noEmitHelpers": false,
+      "target": "es2021",
+      "lib": ["es2021"],
+      "experimentalDecorators": true,
+      "newLine": "LF",
+      "outDir": "dist",
+      "rootDir": ".",
+      "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+      "types": ["node", "mocha"],
+      "skipLibCheck": true
+    },
+    "include": ["src/**/*.ts", "test/**/*.ts"]
+}
+  

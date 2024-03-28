@@ -1,0 +1,13 @@
+{
+  "output-folder": ".",
+  "namespace": "UnbrandedTypeSpec",
+  "library-name": "UnbrandedTypeSpec",
+  "shared-source-folders": [
+    "../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Generator.Shared",
+    "../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Azure.Core.Shared"
+  ],
+  "use-overloads-between-protocol-and-convenience": true,
+  "head-as-boolean": true,
+  "deserialize-null-collection-as-null-value": true,
+  "branded": false
+}

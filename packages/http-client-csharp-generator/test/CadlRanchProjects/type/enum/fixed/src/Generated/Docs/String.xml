@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetKnownValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetKnownValueAsync.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response<DaysOfWeekEnum> response = await client.GetKnownValueAsync();
+]]></code>
+This sample shows how to call GetKnownValueAsync with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response<DaysOfWeekEnum> response = await client.GetKnownValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetKnownValue(CancellationToken)">
+      <example>
+This sample shows how to call GetKnownValue.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response<DaysOfWeekEnum> response = client.GetKnownValue();
+]]></code>
+This sample shows how to call GetKnownValue with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response<DaysOfWeekEnum> response = client.GetKnownValue();
+]]></code></example>
+    </member>
+    <member name="GetKnownValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetKnownValueAsync and parse the result.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.GetKnownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetKnownValueAsync with all parameters and parse the result.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.GetKnownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetKnownValue(RequestContext)">
+      <example>
+This sample shows how to call GetKnownValue and parse the result.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.GetKnownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetKnownValue with all parameters and parse the result.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.GetKnownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutKnownValueAsync(DaysOfWeekEnum,CancellationToken)">
+      <example>
+This sample shows how to call PutKnownValueAsync.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.PutKnownValueAsync(DaysOfWeekEnum.Monday);
+]]></code>
+This sample shows how to call PutKnownValueAsync with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.PutKnownValueAsync(DaysOfWeekEnum.Monday);
+]]></code></example>
+    </member>
+    <member name="PutKnownValue(DaysOfWeekEnum,CancellationToken)">
+      <example>
+This sample shows how to call PutKnownValue.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.PutKnownValue(DaysOfWeekEnum.Monday);
+]]></code>
+This sample shows how to call PutKnownValue with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.PutKnownValue(DaysOfWeekEnum.Monday);
+]]></code></example>
+    </member>
+    <member name="PutKnownValueAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutKnownValueAsync.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = await client.PutKnownValueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutKnownValueAsync with all request content.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = await client.PutKnownValueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutKnownValue(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutKnownValue.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = client.PutKnownValue(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutKnownValue with all request content.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = client.PutKnownValue(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutUnknownValueAsync(DaysOfWeekEnum,CancellationToken)">
+      <example>
+This sample shows how to call PutUnknownValueAsync.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.PutUnknownValueAsync(DaysOfWeekEnum.Monday);
+]]></code>
+This sample shows how to call PutUnknownValueAsync with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = await client.PutUnknownValueAsync(DaysOfWeekEnum.Monday);
+]]></code></example>
+    </member>
+    <member name="PutUnknownValue(DaysOfWeekEnum,CancellationToken)">
+      <example>
+This sample shows how to call PutUnknownValue.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.PutUnknownValue(DaysOfWeekEnum.Monday);
+]]></code>
+This sample shows how to call PutUnknownValue with all parameters.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+Response response = client.PutUnknownValue(DaysOfWeekEnum.Monday);
+]]></code></example>
+    </member>
+    <member name="PutUnknownValueAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutUnknownValueAsync.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = await client.PutUnknownValueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutUnknownValueAsync with all request content.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = await client.PutUnknownValueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutUnknownValue(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutUnknownValue.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = client.PutUnknownValue(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutUnknownValue with all request content.
+<code><![CDATA[
+String client = new FixedClient().GetStringClient();
+
+using RequestContent content = RequestContent.Create("Monday");
+Response response = client.PutUnknownValue(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

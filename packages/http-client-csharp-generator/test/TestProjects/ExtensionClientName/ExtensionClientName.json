@@ -1,0 +1,91 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "AutoRest Parameter Flattening",
+    "description": "Resource Flattening for AutoRest",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/originalOperation/{originalPathParameter}": {
+      "patch": {
+        "operationId": "originalOperation",
+        "x-ms-client-name": "RenamedOperation",
+        "parameters": [
+          {
+            "name": "originalPathParameter",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-ms-client-name": "RenamedPathParameter"
+          },
+          {
+            "name": "originalQueryParameter",
+            "x-ms-client-name": "RenamedQueryParameter",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "originalBodyParameter",
+            "x-ms-client-name": "RenamedBodyParameter",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OriginalSchema"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/OriginalSchema"
+            },
+            "headers": {
+              "originalHeader": {
+                  "x-ms-client-name": "RenamedHeader",
+                  "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "OriginalSchema": {
+      "type":  "object",
+      "properties": {
+        "originalProperty": {
+          "type": "object",
+          "title": "A set of tags.",
+          "x-ms-client-name": "RenamedProperty",
+          "description": "A description about the set of tags.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "originalPropertyString": {
+          "type": "string",
+          "title": "A set of tags.",
+          "x-ms-client-name": "RenamedPropertyString",
+          "description": "A description about the set of tags."
+        }
+      },
+      "x-ms-client-name": "RenamedSchema",
+      "required": [
+        "tags"
+      ]
+    }
+  }
+}

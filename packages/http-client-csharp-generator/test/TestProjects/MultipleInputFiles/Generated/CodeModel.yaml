@@ -1,0 +1,311 @@
+!CodeModel 
+info: !Info 
+  title: MultipleInputFiles
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '1.0'
+      language: !Languages 
+        default:
+          name: TestModelCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '1.0'
+      language: !Languages 
+        default:
+          name: TestModelStatus
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_3
+      choices:
+        - !ChoiceValue 
+          value: us
+          language:
+            default:
+              name: Us
+              description: ''
+        - !ChoiceValue 
+          value: eu
+          language:
+            default:
+              name: Eu
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: Source
+          description: source - server parameter
+      protocol: !Protocols {}
+    - !ChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '1.0'
+      choiceType: *ref_0
+      defaultValue: value1
+      language: !Languages 
+        default:
+          name: SourceEnum
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_5
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_6
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '1.0'
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: Code
+          language: !Languages 
+            default:
+              name: code
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: Status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: TestModel
+          description: .
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_4
+    schema: *ref_3
+    clientDefaultValue: value1
+    implementation: Client
+    required: true
+    extensions:
+      x-in: path
+      x-ms-priority: 0
+      x-name: source
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Source
+        description: source - server parameter
+        serializedName: source
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation1
+        apiVersions:
+          - !ApiVersion 
+            version: '1.0'
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_8
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_7
+                schema: *ref_6
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /operation1
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: https://{source}.fakeendpoint.azure.com
+        requests:
+          - *ref_8
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation1
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Operation2
+        apiVersions:
+          - !ApiVersion 
+            version: '1.0'
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_10
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_9
+                schema: *ref_6
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /operation2
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: https://{source}.fakeendpoint.azure.com
+        requests:
+          - *ref_10
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation2
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://fakeendpoint.azure.com/.default
+    - !KeySecurityScheme 
+      name: subscription-key
+      type: Key
+      in: header
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://fakeendpoint.azure.com/.default
+    - !KeySecurityScheme 
+      name: subscription-key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: MultipleInputFiles
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

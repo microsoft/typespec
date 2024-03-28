@@ -1,0 +1,58 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "vaultName": "sample-vault-name",
+    "keyName": "sample-key-name",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault-name/keys/sample-key-name/versions/c2296aa24acf4daf86942bff5aca73dd",
+            "name": "c2296aa24acf4daf86942bff5aca73dd",
+            "type": "Microsoft.KeyVault/vaults/keys/versions",
+            "location": "westus",
+            "properties": {
+              "attributes": {
+                "enabled": true,
+                "created": 1598641074,
+                "updated": 1598641074,
+                "recoveryLevel": "Purgeable"
+              },
+              "keyUri": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name",
+              "keyUriWithVersion": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name/c2296aa24acf4daf86942bff5aca73dd"
+            }
+          },
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault-name/keys/sample-key-name/versions/d5a04667b6f44b0ca62825f5eae93da6",
+            "name": "d5a04667b6f44b0ca62825f5eae93da6",
+            "type": "Microsoft.KeyVault/vaults/keys/versions",
+            "location": "westus",
+            "properties": {
+              "attributes": {
+                "enabled": true,
+                "created": 1598641295,
+                "updated": 1598641295,
+                "recoveryLevel": "Purgeable"
+              },
+              "keyUri": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name",
+              "keyUriWithVersion": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name/d5a04667b6f44b0ca62825f5eae93da6"
+            }
+          }
+        ]
+      }
+    },
+    "default": {
+      "headers": {},
+      "body": {
+        "error": {
+          "code": "",
+          "message": ""
+        }
+      }
+    }
+  }
+}

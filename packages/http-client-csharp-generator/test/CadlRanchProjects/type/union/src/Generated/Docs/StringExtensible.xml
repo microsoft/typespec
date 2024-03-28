@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetStringExtensibleAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetStringExtensibleAsync.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response<GetResponse1> response = await client.GetStringExtensibleAsync();
+]]></code>
+This sample shows how to call GetStringExtensibleAsync with all parameters.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response<GetResponse1> response = await client.GetStringExtensibleAsync();
+]]></code></example>
+    </member>
+    <member name="GetStringExtensible(CancellationToken)">
+      <example>
+This sample shows how to call GetStringExtensible.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response<GetResponse1> response = client.GetStringExtensible();
+]]></code>
+This sample shows how to call GetStringExtensible with all parameters.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response<GetResponse1> response = client.GetStringExtensible();
+]]></code></example>
+    </member>
+    <member name="GetStringExtensibleAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringExtensibleAsync and parse the result.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = await client.GetStringExtensibleAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetStringExtensibleAsync with all parameters and parse the result.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = await client.GetStringExtensibleAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringExtensible(RequestContext)">
+      <example>
+This sample shows how to call GetStringExtensible and parse the result.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = client.GetStringExtensible(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetStringExtensible with all parameters and parse the result.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = client.GetStringExtensible(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="SendAsync(SendRequest1Prop,CancellationToken)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = await client.SendAsync(new SendRequest1Prop("<prop>"));
+]]></code>
+This sample shows how to call SendAsync with all parameters.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = await client.SendAsync(new SendRequest1Prop("<prop>"));
+]]></code></example>
+    </member>
+    <member name="Send(SendRequest1Prop,CancellationToken)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = client.Send(new SendRequest1Prop("<prop>"));
+]]></code>
+This sample shows how to call Send with all parameters.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+Response response = client.Send(new SendRequest1Prop("<prop>"));
+]]></code></example>
+    </member>
+    <member name="SendAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "<prop>",
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsync with all request content.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "<prop>",
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Send(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "<prop>",
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Send with all request content.
+<code><![CDATA[
+StringExtensible client = new UnionClient().GetStringExtensibleClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "<prop>",
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

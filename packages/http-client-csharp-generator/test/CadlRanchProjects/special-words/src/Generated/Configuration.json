@@ -1,0 +1,11 @@
+{
+  "output-folder": ".",
+  "namespace": "SpecialWords",
+  "library-name": "SpecialWords",
+  "shared-source-folders": [
+    "../../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Generator.Shared",
+    "../../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Azure.Core.Shared"
+  ],
+  "model-namespace": false,
+  "use-model-reader-writer": true
+}

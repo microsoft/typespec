@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetExtensibleModelAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelAsync();
+]]></code>
+This sample shows how to call GetExtensibleModelAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelAsync();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModel(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModel();
+]]></code>
+This sample shows how to call GetExtensibleModel with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModel();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelAsync(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModelAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModelAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModel(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModel and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModel with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="PutExtensibleModelAsync(Dog,CancellationToken)">
+      <example>
+This sample shows how to call PutExtensibleModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Dog input = new Golden(1234);
+Response response = await client.PutExtensibleModelAsync(input);
+]]></code>
+This sample shows how to call PutExtensibleModelAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Dog input = new Golden(1234);
+Response response = await client.PutExtensibleModelAsync(input);
+]]></code></example>
+    </member>
+    <member name="PutExtensibleModel(Dog,CancellationToken)">
+      <example>
+This sample shows how to call PutExtensibleModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Dog input = new Golden(1234);
+Response response = client.PutExtensibleModel(input);
+]]></code>
+This sample shows how to call PutExtensibleModel with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Dog input = new Golden(1234);
+Response response = client.PutExtensibleModel(input);
+]]></code></example>
+    </member>
+    <member name="PutExtensibleModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutExtensibleModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "golden",
+    weight = 1234,
+});
+Response response = await client.PutExtensibleModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutExtensibleModelAsync with all request content.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "golden",
+    weight = 1234,
+});
+Response response = await client.PutExtensibleModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutExtensibleModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutExtensibleModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "golden",
+    weight = 1234,
+});
+Response response = client.PutExtensibleModel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutExtensibleModel with all request content.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "golden",
+    weight = 1234,
+});
+Response response = client.PutExtensibleModel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelMissingDiscriminatorAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModelMissingDiscriminatorAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelMissingDiscriminatorAsync();
+]]></code>
+This sample shows how to call GetExtensibleModelMissingDiscriminatorAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelMissingDiscriminatorAsync();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelMissingDiscriminator(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModelMissingDiscriminator.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModelMissingDiscriminator();
+]]></code>
+This sample shows how to call GetExtensibleModelMissingDiscriminator with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModelMissingDiscriminator();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelMissingDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModelMissingDiscriminatorAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelMissingDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModelMissingDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelMissingDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelMissingDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModelMissingDiscriminator and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModelMissingDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModelMissingDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModelMissingDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelWrongDiscriminatorAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModelWrongDiscriminatorAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelWrongDiscriminatorAsync();
+]]></code>
+This sample shows how to call GetExtensibleModelWrongDiscriminatorAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = await client.GetExtensibleModelWrongDiscriminatorAsync();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelWrongDiscriminator(CancellationToken)">
+      <example>
+This sample shows how to call GetExtensibleModelWrongDiscriminator.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModelWrongDiscriminator();
+]]></code>
+This sample shows how to call GetExtensibleModelWrongDiscriminator with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Dog> response = client.GetExtensibleModelWrongDiscriminator();
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelWrongDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModelWrongDiscriminatorAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelWrongDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModelWrongDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetExtensibleModelWrongDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtensibleModelWrongDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetExtensibleModelWrongDiscriminator and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModelWrongDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code>
+This sample shows how to call GetExtensibleModelWrongDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetExtensibleModelWrongDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("weight").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFixedModelAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelAsync();
+]]></code>
+This sample shows how to call GetFixedModelAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelAsync();
+]]></code></example>
+    </member>
+    <member name="GetFixedModel(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModel();
+]]></code>
+This sample shows how to call GetFixedModel with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModel();
+]]></code></example>
+    </member>
+    <member name="GetFixedModelAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModelAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModelAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFixedModel(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModel and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModel with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="PutFixedModelAsync(Snake,CancellationToken)">
+      <example>
+This sample shows how to call PutFixedModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Snake input = new Cobra(1234);
+Response response = await client.PutFixedModelAsync(input);
+]]></code>
+This sample shows how to call PutFixedModelAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Snake input = new Cobra(1234);
+Response response = await client.PutFixedModelAsync(input);
+]]></code></example>
+    </member>
+    <member name="PutFixedModel(Snake,CancellationToken)">
+      <example>
+This sample shows how to call PutFixedModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Snake input = new Cobra(1234);
+Response response = client.PutFixedModel(input);
+]]></code>
+This sample shows how to call PutFixedModel with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Snake input = new Cobra(1234);
+Response response = client.PutFixedModel(input);
+]]></code></example>
+    </member>
+    <member name="PutFixedModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFixedModelAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "cobra",
+    length = 1234,
+});
+Response response = await client.PutFixedModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFixedModelAsync with all request content.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "cobra",
+    length = 1234,
+});
+Response response = await client.PutFixedModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutFixedModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFixedModel.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "cobra",
+    length = 1234,
+});
+Response response = client.PutFixedModel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFixedModel with all request content.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "cobra",
+    length = 1234,
+});
+Response response = client.PutFixedModel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetFixedModelMissingDiscriminatorAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModelMissingDiscriminatorAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelMissingDiscriminatorAsync();
+]]></code>
+This sample shows how to call GetFixedModelMissingDiscriminatorAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelMissingDiscriminatorAsync();
+]]></code></example>
+    </member>
+    <member name="GetFixedModelMissingDiscriminator(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModelMissingDiscriminator.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModelMissingDiscriminator();
+]]></code>
+This sample shows how to call GetFixedModelMissingDiscriminator with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModelMissingDiscriminator();
+]]></code></example>
+    </member>
+    <member name="GetFixedModelMissingDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModelMissingDiscriminatorAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelMissingDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModelMissingDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelMissingDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFixedModelMissingDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModelMissingDiscriminator and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModelMissingDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModelMissingDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModelMissingDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFixedModelWrongDiscriminatorAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModelWrongDiscriminatorAsync.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelWrongDiscriminatorAsync();
+]]></code>
+This sample shows how to call GetFixedModelWrongDiscriminatorAsync with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = await client.GetFixedModelWrongDiscriminatorAsync();
+]]></code></example>
+    </member>
+    <member name="GetFixedModelWrongDiscriminator(CancellationToken)">
+      <example>
+This sample shows how to call GetFixedModelWrongDiscriminator.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModelWrongDiscriminator();
+]]></code>
+This sample shows how to call GetFixedModelWrongDiscriminator with all parameters.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response<Snake> response = client.GetFixedModelWrongDiscriminator();
+]]></code></example>
+    </member>
+    <member name="GetFixedModelWrongDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModelWrongDiscriminatorAsync and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelWrongDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModelWrongDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = await client.GetFixedModelWrongDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFixedModelWrongDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetFixedModelWrongDiscriminator and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModelWrongDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetFixedModelWrongDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+EnumDiscriminatorClient client = new EnumDiscriminatorClient();
+
+Response response = client.GetFixedModelWrongDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

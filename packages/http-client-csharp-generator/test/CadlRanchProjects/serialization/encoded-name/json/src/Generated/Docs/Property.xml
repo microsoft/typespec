@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SendAsync(JsonEncodedNameModel,CancellationToken)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+JsonEncodedNameModel jsonEncodedNameModel = new JsonEncodedNameModel(true);
+Response response = await client.SendAsync(jsonEncodedNameModel);
+]]></code>
+This sample shows how to call SendAsync with all parameters.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+JsonEncodedNameModel jsonEncodedNameModel = new JsonEncodedNameModel(true);
+Response response = await client.SendAsync(jsonEncodedNameModel);
+]]></code></example>
+    </member>
+    <member name="Send(JsonEncodedNameModel,CancellationToken)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+JsonEncodedNameModel jsonEncodedNameModel = new JsonEncodedNameModel(true);
+Response response = client.Send(jsonEncodedNameModel);
+]]></code>
+This sample shows how to call Send with all parameters.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+JsonEncodedNameModel jsonEncodedNameModel = new JsonEncodedNameModel(true);
+Response response = client.Send(jsonEncodedNameModel);
+]]></code></example>
+    </member>
+    <member name="SendAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsync with all request content.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Send(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Send with all request content.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetPropertyAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetPropertyAsync.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response<JsonEncodedNameModel> response = await client.GetPropertyAsync();
+]]></code>
+This sample shows how to call GetPropertyAsync with all parameters.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response<JsonEncodedNameModel> response = await client.GetPropertyAsync();
+]]></code></example>
+    </member>
+    <member name="GetProperty(CancellationToken)">
+      <example>
+This sample shows how to call GetProperty.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response<JsonEncodedNameModel> response = client.GetProperty();
+]]></code>
+This sample shows how to call GetProperty with all parameters.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response<JsonEncodedNameModel> response = client.GetProperty();
+]]></code></example>
+    </member>
+    <member name="GetPropertyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetPropertyAsync and parse the result.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response response = await client.GetPropertyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("wireName").ToString());
+]]></code>
+This sample shows how to call GetPropertyAsync with all parameters and parse the result.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response response = await client.GetPropertyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("wireName").ToString());
+]]></code></example>
+    </member>
+    <member name="GetProperty(RequestContext)">
+      <example>
+This sample shows how to call GetProperty and parse the result.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response response = client.GetProperty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("wireName").ToString());
+]]></code>
+This sample shows how to call GetProperty with all parameters and parse the result.
+<code><![CDATA[
+Property client = new JsonClient().GetPropertyClient();
+
+Response response = client.GetProperty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("wireName").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

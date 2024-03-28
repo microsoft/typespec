@@ -1,0 +1,351 @@
+{
+ "$id": "1",
+ "Name": "Type.Model.Empty",
+ "Description": "Illustrates usage of empty model used in operation's parameters and responses.",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [
+  {
+   "$id": "2",
+   "Kind": "Model",
+   "Name": "EmptyInput",
+   "Namespace": "Type.Model.Empty",
+   "Description": "Empty model used in operation parameters",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": []
+  },
+  {
+   "$id": "3",
+   "Kind": "Model",
+   "Name": "EmptyOutput",
+   "Namespace": "Type.Model.Empty",
+   "Description": "Empty model used in operation return type",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": []
+  },
+  {
+   "$id": "4",
+   "Kind": "Model",
+   "Name": "EmptyInputOutput",
+   "Namespace": "Type.Model.Empty",
+   "Description": "Empty model used in both parameter and return type",
+   "IsNullable": false,
+   "Usage": "RoundTrip",
+   "Properties": []
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "5",
+   "Name": "EmptyClient",
+   "Description": "Illustrates usage of empty model used in operation's parameters and responses.",
+   "Operations": [
+    {
+     "$id": "6",
+     "Name": "putEmpty",
+     "ResourceName": "Empty",
+     "Parameters": [
+      {
+       "$id": "7",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "8",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "9",
+        "Type": {
+         "$id": "10",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "11",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "12",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "13",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "14",
+        "Type": {
+         "$ref": "13"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "15",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "16",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "17",
+        "Type": {
+         "$ref": "16"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "18",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/empty/alone",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "19",
+     "Name": "getEmpty",
+     "ResourceName": "Empty",
+     "Parameters": [
+      {
+       "$ref": "7"
+      },
+      {
+       "$id": "20",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "21",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "22",
+        "Type": {
+         "$ref": "21"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "23",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "3"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/empty/alone",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "24",
+     "Name": "postRoundTripEmpty",
+     "ResourceName": "Empty",
+     "Parameters": [
+      {
+       "$ref": "7"
+      },
+      {
+       "$id": "25",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "4"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "26",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "27",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "28",
+        "Type": {
+         "$ref": "27"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "29",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "31",
+        "Type": {
+         "$ref": "30"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "32",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "4"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/empty/round-trip",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "33"
+   },
+   "Creatable": true
+  }
+ ]
+}

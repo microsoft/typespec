@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetAllWithValuesAsync(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetAllWithValuesAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetAllWithValuesAsync("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetAllWithValuesAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetAllWithValuesAsync("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetAllWithValues(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetAllWithValues.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetAllWithValues("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetAllWithValues with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetAllWithValues("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetGlobalQueryNullAsync(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetGlobalQueryNullAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetGlobalQueryNullAsync("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetGlobalQueryNullAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetGlobalQueryNullAsync("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetGlobalQueryNull(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetGlobalQueryNull.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetGlobalQueryNull("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetGlobalQueryNull with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetGlobalQueryNull("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetGlobalAndLocalQueryNullAsync(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetGlobalAndLocalQueryNullAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetGlobalAndLocalQueryNullAsync("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetGlobalAndLocalQueryNullAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetGlobalAndLocalQueryNullAsync("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetGlobalAndLocalQueryNull(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetGlobalAndLocalQueryNull.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetGlobalAndLocalQueryNull("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetGlobalAndLocalQueryNull with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetGlobalAndLocalQueryNull("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetLocalPathItemQueryNullAsync(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetLocalPathItemQueryNullAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetLocalPathItemQueryNullAsync("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetLocalPathItemQueryNullAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = await client.GetLocalPathItemQueryNullAsync("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetLocalPathItemQueryNull(string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetLocalPathItemQueryNull.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetLocalPathItemQueryNull("<pathItemStringPath>", "<localStringPath>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetLocalPathItemQueryNull with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathItemsClient client = new PathItemsClient("<GlobalStringPath>", credential);
+
+Response response = client.GetLocalPathItemQueryNull("<pathItemStringPath>", "<localStringPath>", pathItemStringQuery: "<pathItemStringQuery>", localStringQuery: "<localStringQuery>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

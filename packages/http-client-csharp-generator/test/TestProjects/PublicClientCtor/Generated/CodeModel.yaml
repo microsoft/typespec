@@ -1,0 +1,274 @@
+!CodeModel 
+info: !Info 
+  description: Public Client Constructor
+  title: PublicClientCtor
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelStatus
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_5
+      type: constant
+      value: !ConstantValue 
+        value: 1.0.0
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion10
+          description: Api Version (1.0.0)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_10
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  uris:
+    - !UriSchema &ref_4
+      type: uri
+      language: !Languages 
+        default:
+          name: Endpoint
+          description: ''
+      protocol: !Protocols {}
+    - !UriSchema 
+      type: uri
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Uri
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_11
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: Code
+          language: !Languages 
+            default:
+              name: code
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: Status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: TestModel
+          description: .
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_7
+    schema: *ref_3
+    clientDefaultValue: value1
+    implementation: Client
+    extensions:
+      x-ms-client-default: value1
+      x-ms-priority: 1
+    language: !Languages 
+      default:
+        name: Param1
+        description: Tesing Param1
+        serializedName: Param1
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: header
+  - !Parameter &ref_8
+    schema: *ref_3
+    implementation: Client
+    extensions:
+      x-ms-priority: 2
+    language: !Languages 
+      default:
+        name: Param2
+        description: Testing Param2
+        serializedName: Param2
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: header
+  - !Parameter &ref_6
+    schema: *ref_4
+    implementation: Client
+    required: true
+    extensions:
+      x-format: url
+      x-in: path
+      x-ms-priority: 3
+      x-ms-skip-url-encoding: true
+      x-name: Endpoint
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Endpoint
+        description: server parameter.
+        serializedName: Endpoint
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_9
+    schema: *ref_5
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_6
+          - *ref_7
+          - *ref_8
+          - *ref_9
+        requestMediaTypes:
+          application/json: !Request &ref_13
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_12
+                schema: *ref_11
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /op
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{Endpoint}/publicclientctor/1.0.0'
+        requests:
+          - *ref_13
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: fake-key
+      type: Key
+      in: header
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://fakeendpoint.azure.com/.default
+        - https://dummyendpoint.azure.com/.default
+language: !Languages 
+  default:
+    name: PublicClientCtor
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

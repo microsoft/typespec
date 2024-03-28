@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="DoSomethingAsync(string,string,CancellationToken)">
+      <example>
+This sample shows how to call DoSomethingAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response<Thing> response = await client.DoSomethingAsync("<id>", "<h1>");
+]]></code>
+This sample shows how to call DoSomethingAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response<Thing> response = await client.DoSomethingAsync("<id>", "<h1>");
+]]></code></example>
+    </member>
+    <member name="DoSomething(string,string,CancellationToken)">
+      <example>
+This sample shows how to call DoSomething.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response<Thing> response = client.DoSomething("<id>", "<h1>");
+]]></code>
+This sample shows how to call DoSomething with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response<Thing> response = client.DoSomething("<id>", "<h1>");
+]]></code></example>
+    </member>
+    <member name="DoSomethingAsync(string,string,RequestContext)">
+      <example>
+This sample shows how to call DoSomethingAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response response = await client.DoSomethingAsync("<id>", "<h1>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code>
+This sample shows how to call DoSomethingAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response response = await client.DoSomethingAsync("<id>", "<h1>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("optionalNullableList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="DoSomething(string,string,RequestContext)">
+      <example>
+This sample shows how to call DoSomething and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response response = client.DoSomething("<id>", "<h1>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code>
+This sample shows how to call DoSomething with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Glossary client = new FirstTestTypeSpecClient(endpoint).GetGlossaryClient();
+
+Response response = client.DoSomething("<id>", "<h1>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+Console.WriteLine(result.GetProperty("optionalNullableList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableList")[0].ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

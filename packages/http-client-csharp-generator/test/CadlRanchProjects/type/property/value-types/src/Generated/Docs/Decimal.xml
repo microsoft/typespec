@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetDecimalAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetDecimalAsync.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response<DecimalProperty> response = await client.GetDecimalAsync();
+]]></code>
+This sample shows how to call GetDecimalAsync with all parameters.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response<DecimalProperty> response = await client.GetDecimalAsync();
+]]></code></example>
+    </member>
+    <member name="GetDecimal(CancellationToken)">
+      <example>
+This sample shows how to call GetDecimal.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response<DecimalProperty> response = client.GetDecimal();
+]]></code>
+This sample shows how to call GetDecimal with all parameters.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response<DecimalProperty> response = client.GetDecimal();
+]]></code></example>
+    </member>
+    <member name="GetDecimalAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDecimalAsync and parse the result.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response response = await client.GetDecimalAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetDecimalAsync with all parameters and parse the result.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response response = await client.GetDecimalAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDecimal(RequestContext)">
+      <example>
+This sample shows how to call GetDecimal and parse the result.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response response = client.GetDecimal(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetDecimal with all parameters and parse the result.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+Response response = client.GetDecimal(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(DecimalProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+DecimalProperty body = new DecimalProperty(default);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+DecimalProperty body = new DecimalProperty(default);
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(DecimalProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+DecimalProperty body = new DecimalProperty(default);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+DecimalProperty body = new DecimalProperty(default);
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Decimal client = new ValueTypesClient().GetDecimalClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

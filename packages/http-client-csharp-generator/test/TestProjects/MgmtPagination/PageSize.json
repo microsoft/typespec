@@ -1,0 +1,1298 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Various page size definitions",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeIntegerModel": {
+            "get": {
+                "tags": [
+                    "PageSizeIntegerModels"
+                ],
+                "operationId": "PageSizeIntegerModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeIntegerModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeIntegerModels"
+                ],
+                "operationId": "PageSizeIntegerModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeIntegerModels"
+                ],
+                "operationId": "PageSizeIntegerModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeIntegerModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeInt64Model": {
+            "get": {
+                "tags": [
+                    "PageSizeInt64Models"
+                ],
+                "operationId": "PageSizeInt64Models_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt64ModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeInt64Model/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeInt64Models"
+                ],
+                "operationId": "PageSizeInt64Models_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt64Model"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt64Model"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeInt64Models"
+                ],
+                "operationId": "PageSizeInt64Models_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt64Model"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeInt32Model": {
+            "get": {
+                "tags": [
+                    "PageSizeInt32Models"
+                ],
+                "operationId": "PageSizeInt32Models_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt32ModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeInt32Model/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeInt32Models"
+                ],
+                "operationId": "PageSizeInt32Models_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt32Model"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt32Model"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeInt32Models"
+                ],
+                "operationId": "PageSizeInt32Models_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeInt32Model"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeNumericModel": {
+            "get": {
+                "tags": [
+                    "PageSizeNumericModels"
+                ],
+                "operationId": "PageSizeNumericModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "number",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeNumericModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeNumericModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeNumericModels"
+                ],
+                "operationId": "PageSizeNumericModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeNumericModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeNumericModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeNumericModels"
+                ],
+                "operationId": "PageSizeNumericModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeNumericModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeFloatModel": {
+            "get": {
+                "tags": [
+                    "PageSizeFloatModels"
+                ],
+                "operationId": "PageSizeFloatModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "number",
+                        "format": "float",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeFloatModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeFloatModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeFloatModels"
+                ],
+                "operationId": "PageSizeFloatModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeFloatModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeFloatModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeFloatModels"
+                ],
+                "operationId": "PageSizeFloatModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeFloatModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeDoubleModel": {
+            "get": {
+                "tags": [
+                    "PageSizeDoubleModels"
+                ],
+                "operationId": "PageSizeDoubleModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "number",
+                        "format": "double",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDoubleModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeDoubleModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeDoubleModels"
+                ],
+                "operationId": "PageSizeDoubleModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDoubleModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDoubleModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeDoubleModels"
+                ],
+                "operationId": "PageSizeDoubleModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDoubleModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeDecimalModel": {
+            "get": {
+                "tags": [
+                    "PageSizeDecimalModels"
+                ],
+                "operationId": "PageSizeDecimalModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "number",
+                        "format": "decimal",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDecimalModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeDecimalModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeDecimalModels"
+                ],
+                "operationId": "PageSizeDecimalModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDecimalModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDecimalModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeDecimalModels"
+                ],
+                "operationId": "PageSizeDecimalModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeDecimalModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeStringModel": {
+            "get": {
+                "tags": [
+                    "PageSizeStringModels"
+                ],
+                "operationId": "PageSizeStringModels_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "maxpagesize",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeStringModelListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/pageSizeStringModel/{name}": {
+            "put": {
+                "tags": [
+                    "PageSizeStringModels"
+                ],
+                "operationId": "PageSizeStringModels_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeStringModel"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeStringModel"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PageSizeStringModels"
+                ],
+                "operationId": "PageSizeStringModels_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PageSizeStringModel"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "PageSizeIntegerModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeIntegerModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeIntegerModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeInt64ModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeInt64Model"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeInt64Model": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeInt32ModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeInt32Model"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeInt32Model": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeNumericModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeNumericModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeNumericModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeFloatModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeFloatModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeFloatModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeDoubleModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeDoubleModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeDoubleModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeDecimalModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeDecimalModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeDecimalModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        },
+        "PageSizeStringModelListResult": {
+            "properties": {
+                "value":{
+                    "type": "array",
+                    "items":{
+                        "$ref": "#/definitions/PageSizeStringModel"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "PageSizeStringModel": {
+            "type": "object",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+  "parameters": {
+    "resourceGroupName": "hsm-group",
+    "name": "hsm1",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01",
+    "parameters": {
+      "properties": {
+        "settings": "{\"config1\":\"value1\",\"config2\":8427,\"config3\":false,\"config4\":[\"1\",\"2\"],\"config5\":{\"inner\":\"something\"}}",
+        "protectedSettings": {
+          "protected1": "value2",
+          "protected2": 10,
+          "protected3": false,
+          "protected4": ["1", "2", "3"],
+          "protected5": {
+            "protectedInner": "something else"
+          }
+        },
+        "rawMessage": "PFX-or-PEM-blob",
+        "tenantId": "00000000-0000-0000-0000-000000000000",
+        "initialAdminObjectIds": [
+          "00000000-0000-0000-0000-000000000000"
+        ],
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enablePurgeProtection": true,
+        "networkAcls": {
+          "virtualNetworkRules": [
+            {
+              "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default"
+            }
+          ]
+        }
+      },
+      "location": "westus",
+      "sku": {
+        "family": "B",
+        "name": "Standard_B1"
+      },
+      "tags": {
+        "Dept": "hsm",
+        "Environment": "dogfood"
+      }
+    }
+  },
+  "responses": {
+    "202": {
+      "body": {
+        "properties": {
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "initialAdminObjectIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "enableSoftDelete": true,
+          "softDeleteRetentionInDays": 90,
+          "enablePurgeProtection": true,
+          "hsmUri": null,
+          "provisioningState": "Provisioning",
+          "statusMessage": "Allocating hardware"
+        },
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm1",
+        "name": "hsm1",
+        "type": "Microsoft.KeyVault/managedHSMs",
+        "location": "westus",
+        "sku": {
+          "family": "B",
+          "name": "Standard_B1"
+        },
+        "tags": {
+          "Dept": "hsm",
+          "Environment": "dogfood"
+        }
+      }
+    },
+    "200": {
+      "body": {
+        "properties": {
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "initialAdminObjectIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "enableSoftDelete": true,
+          "softDeleteRetentionInDays": 90,
+          "enablePurgeProtection": true,
+          "hsmUri": "https://westus.hsm1.managedhsm.azure.net",
+          "provisioningState": "Succeeded",
+          "statusMessage": "ManagedHsm is functional."
+        },
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm1",
+        "name": "hsm1",
+        "type": "Microsoft.KeyVault/managedHSMs",
+        "location": "westus",
+        "sku": {
+          "family": "B",
+          "name": "Standard_B1"
+        },
+        "tags": {
+          "Dept": "hsm",
+          "Environment": "dogfood"
+        }
+      }
+    }
+  }
+}

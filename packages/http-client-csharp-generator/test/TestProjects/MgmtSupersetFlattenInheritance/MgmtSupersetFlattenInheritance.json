@@ -1,0 +1,1596 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Azure Resources with flatten properties",
+        "description": "Test definitions regarding x-ms-azure-resource:true and flatten properties.",
+        "version": "2021-06-10"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel1s": {
+            "get": {
+                "tags": [
+                    "CustomModel1s"
+                ],
+                "operationId": "CustomModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel1s/{customModel1sName}": {
+            "put": {
+                "tags": [
+                    "CustomModel1s"
+                ],
+                "operationId": "CustomModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "customModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "CustomModel1s"
+                ],
+                "operationId": "CustomModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "customModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel2s": {
+            "get": {
+                "tags": [
+                    "CustomModel2s"
+                ],
+                "operationId": "CustomModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel2s/{customModel2sName}": {
+            "put": {
+                "tags": [
+                    "CustomModel2s"
+                ],
+                "operationId": "CustomModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "customModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "CustomModel2s"
+                ],
+                "operationId": "CustomModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "customModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CustomModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel1s": {
+            "get": {
+                "tags": [
+                    "SubResourceModel1s"
+                ],
+                "operationId": "SubResourceModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel1s/{subResourceModel1sName}": {
+            "put": {
+                "tags": [
+                    "SubResourceModel1s"
+                ],
+                "operationId": "SubResourceModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubResourceModel1s"
+                ],
+                "operationId": "SubResourceModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel2s": {
+            "get": {
+                "tags": [
+                    "SubResourceModel2s"
+                ],
+                "operationId": "SubResourceModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel2s/{subResourceModel2sName}": {
+            "put": {
+                "tags": [
+                    "SubResourceModel2s"
+                ],
+                "operationId": "SubResourceModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubResourceModel2s"
+                ],
+                "operationId": "SubResourceModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubResourceModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel1s": {
+            "get": {
+                "tags": [
+                    "WritableSubResourceModel1s"
+                ],
+                "operationId": "WritableSubResourceModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel1s/{writableSubResourceModel1sName}": {
+            "put": {
+                "tags": [
+                    "WritableSubResourceModel1s"
+                ],
+                "operationId": "WritableSubResourceModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "writableSubResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "WritableSubResourceModel1s"
+                ],
+                "operationId": "WritableSubResourceModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "writableSubResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel2s": {
+            "get": {
+                "tags": [
+                    "WritableSubResourceModel2s"
+                ],
+                "operationId": "WritableSubResourceModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel2s/{writableSubResourceModel2sName}": {
+            "put": {
+                "tags": [
+                    "WritableSubResourceModel2s"
+                ],
+                "operationId": "WritableSubResourceModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "writableSubResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "WritableSubResourceModel2s"
+                ],
+                "operationId": "WritableSubResourceModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "writableSubResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/WritableSubResourceModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel1s": {
+            "get": {
+                "tags": [
+                    "ResourceModel1s"
+                ],
+                "operationId": "ResourceModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel1s/{resourceModel1sName}": {
+            "put": {
+                "tags": [
+                    "ResourceModel1s"
+                ],
+                "operationId": "ResourceModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResourceModel1s"
+                ],
+                "operationId": "ResourceModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel2s": {
+            "get": {
+                "tags": [
+                    "ResourceModel2s"
+                ],
+                "operationId": "ResourceModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel2s/{resourceModel2sName}": {
+            "put": {
+                "tags": [
+                    "ResourceModel2s"
+                ],
+                "operationId": "ResourceModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResourceModel2s"
+                ],
+                "operationId": "ResourceModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResourceModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel1s": {
+            "get": {
+                "tags": [
+                    "TrackedResourceModel1s"
+                ],
+                "operationId": "TrackedResourceModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel1s/{trackedResourceModel1sName}": {
+            "put": {
+                "tags": [
+                    "TrackedResourceModel1s"
+                ],
+                "operationId": "TrackedResourceModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "trackedResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TrackedResourceModel1s"
+                ],
+                "operationId": "TrackedResourceModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "trackedResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel2s": {
+            "get": {
+                "tags": [
+                    "TrackedResourceModel2s"
+                ],
+                "operationId": "TrackedResourceModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel2s/{trackedResourceModel2sName}": {
+            "put": {
+                "tags": [
+                    "TrackedResourceModel2s"
+                ],
+                "operationId": "TrackedResourceModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "trackedResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TrackedResourceModel2s"
+                ],
+                "operationId": "TrackedResourceModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "trackedResourceModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TrackedResourceModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/nonResourceModel1s/{nonResourceModel1sName}": {
+            "put": {
+                "tags": [
+                    "NonResourceModel1s"
+                ],
+                "operationId": "NonResourceModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "nonResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "NonResourceModel1s"
+                ],
+                "operationId": "NonResourceModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "nonResourceModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceModel1"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CustomModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "CustomModel1": {
+            "type": "object",
+            "description": "Normal custom object, although marked as azure resource, but it's not recognized by autorest.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        "CustomModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CustomModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "CustomModel2": {
+            "type": "object",
+            "description": "Normal custom object with flatten properties from CustomModel2. Also marked as azure resource, but it's not recognized either.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "bar": {
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/CustomModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        },
+        "SubResourceModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubResourceModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "SubResourceModel1": {
+            "type": "object",
+            "description": "SubResource WITHOUT flatten properties.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        "SubResourceModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubResourceModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "SubResourceModel2": {
+            "type": "object",
+            "description": "SubResource with flatten properties.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/CustomModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        },
+        "WritableSubResourceModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WritableSubResourceModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "WritableSubResourceModel1": {
+            "type": "object",
+            "description": "WritableSubResource WITHOUT flatten properties.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        "WritableSubResourceModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WritableSubResourceModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "WritableSubResourceModel2": {
+            "type": "object",
+            "description": "WritableSubResource with flatten properties.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/CustomModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        },
+        "ResourceModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "ResourceModel1": {
+            "type": "object",
+            "description": "Resource WITHOUT flatten properties.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        "ResourceModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResourceModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "ResourceModel2": {
+            "type": "object",
+            "description": "Resource with flatten properties (contains id). Since the id comes from flattened properties, this should not be counted as a resource",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/SubResourceModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        },
+        "TrackedResourceModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TrackedResourceModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "TrackedResourceModel1": {
+            "type": "object",
+            "description": "TrackedResource WITHOUT flatten properties",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "foo": {
+                    "type": "string"
+                }
+            }
+        },
+        "TrackedResourceModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TrackedResourceModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "TrackedResourceModel2": {
+            "type": "object",
+            "description": "TrackedResource with flatten properties, but the id comes from flattened properties, therefore this should not be a resource",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "location": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "foo": {
+                    "type": "string"
+                },
+                "bar": {
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/ResourceModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        },
+        "NonResourceModel1": {
+            "type": "object",
+            "description": "Normal custom object with flatten properties from CustomModel2. Also marked as azure resource, but it's not recognized either.",
+            "x-ms-azure-resource": true,
+            "properties": {
+                "bar": {
+                    "type": "string"
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/CustomModel1",
+                    "description": "Flatten properties"
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

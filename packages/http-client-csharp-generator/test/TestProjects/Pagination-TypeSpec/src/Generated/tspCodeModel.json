@@ -1,0 +1,1835 @@
+{
+ "$id": "1",
+ "Name": "Pagination",
+ "ApiVersions": [
+  "2022-05-13"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "Interval",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "PT5S",
+     "Value": "PT5S",
+     "Description": "5 seconds, available only if test run duration is less than 10 minutes"
+    },
+    {
+     "$id": "4",
+     "Name": "PT10S",
+     "Value": "PT10S",
+     "Description": "10 seconds, available only if test run duration is less than 10 minutes"
+    },
+    {
+     "$id": "5",
+     "Name": "PT1M",
+     "Value": "PT1M",
+     "Description": "1 minute"
+    },
+    {
+     "$id": "6",
+     "Name": "PT5M",
+     "Value": "PT5M",
+     "Description": "5 minutes, available only if test run duration is greater than 1 minute"
+    },
+    {
+     "$id": "7",
+     "Name": "PT1H",
+     "Value": "PT1H",
+     "Description": "1 hour, available only if test run duration is greater than 1 minute"
+    }
+   ],
+   "Namespace": "Pagination",
+   "Description": "The interval",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "Input"
+  },
+  {
+   "$id": "8",
+   "Kind": "Enum",
+   "Name": "OAuth2FlowType",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "9",
+     "Name": "authorizationCode",
+     "Value": "authorizationCode",
+     "Description": "authorization code flow"
+    },
+    {
+     "$id": "10",
+     "Name": "implicit",
+     "Value": "implicit",
+     "Description": "implcit flow"
+    },
+    {
+     "$id": "11",
+     "Name": "password",
+     "Value": "password",
+     "Description": "password flow"
+    },
+    {
+     "$id": "12",
+     "Name": "clientCredentials",
+     "Value": "clientCredentials",
+     "Description": "client credential flow"
+    }
+   ],
+   "Namespace": "TypeSpec.Http",
+   "Description": "Describes the OAuth2 flow type",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "13",
+   "Kind": "Enum",
+   "Name": "AuthFlow_tokenUrl",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "14",
+     "Name": "https://pagnation.azure.com/token",
+     "Value": "https://pagnation.azure.com/token",
+     "Description": "https://pagnation.azure.com/token"
+    }
+   ],
+   "Namespace": "Pagination",
+   "Description": "The AuthFlow_tokenUrl",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "15",
+   "Kind": "Enum",
+   "Name": "AuthFlow_refreshUrl",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "16",
+     "Name": "https://pagination.azure.com/refresh",
+     "Value": "https://pagination.azure.com/refresh",
+     "Description": "https://pagination.azure.com/refresh"
+    }
+   ],
+   "Namespace": "Pagination",
+   "Description": "The AuthFlow_refreshUrl",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "17",
+   "Kind": "Enum",
+   "Name": "Versions",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "18",
+     "Name": "2022-05-13",
+     "Value": "2022-05-13"
+    }
+   ],
+   "Namespace": "Pagination",
+   "Description": "",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "19",
+   "Kind": "Enum",
+   "Name": "LedgerUserRoleKV",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "20",
+     "Name": "Administrator",
+     "Value": "Administrator"
+    },
+    {
+     "$id": "21",
+     "Name": "Contributor",
+     "Value": "Contributor"
+    },
+    {
+     "$id": "22",
+     "Name": "Reader",
+     "Value": "Reader"
+    }
+   ],
+   "Namespace": "Pagination",
+   "Description": "User roles",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "23",
+   "Kind": "Model",
+   "Name": "ListLedgerEntryInputBody",
+   "Namespace": "Pagination",
+   "Description": "Type for input model body",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "24",
+     "Name": "requiredString",
+     "SerializedName": "requiredString",
+     "Description": "Required string",
+     "Type": {
+      "$id": "25",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "26",
+     "Name": "requiredInt",
+     "SerializedName": "requiredInt",
+     "Description": "Required int",
+     "Type": {
+      "$id": "27",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "28",
+   "Kind": "Model",
+   "Name": "PagedLedgerEntries",
+   "Namespace": "Pagination",
+   "Description": "Paginated ledger entries",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "29",
+     "Name": "entries",
+     "SerializedName": "entries",
+     "Description": "Array of ledger entries",
+     "Type": {
+      "$id": "30",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "31",
+       "Kind": "Model",
+       "Name": "LedgerEntry",
+       "Namespace": "Pagination",
+       "IsNullable": false,
+       "Usage": "Output",
+       "Properties": [
+        {
+         "$id": "32",
+         "Name": "contents",
+         "SerializedName": "contents",
+         "Description": "Contents of the ledger entry.",
+         "Type": {
+          "$id": "33",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": false
+        },
+        {
+         "$id": "34",
+         "Name": "collectionId",
+         "SerializedName": "collectionId",
+         "Description": "",
+         "Type": {
+          "$id": "35",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": true
+        },
+        {
+         "$id": "36",
+         "Name": "transactionId",
+         "SerializedName": "transactionId",
+         "Description": "",
+         "Type": {
+          "$id": "37",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": true
+        }
+       ]
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "38",
+     "Name": "customNextLink",
+     "SerializedName": "customNextLink",
+     "Description": "Path to retrieve next page of ledger entries",
+     "Type": {
+      "$id": "39",
+      "Kind": "Primitive",
+      "Name": "Uri",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "31"
+  },
+  {
+   "$id": "40",
+   "Kind": "Model",
+   "Name": "PagedDimensionValueListItem",
+   "Namespace": "Azure.Core.Foundations",
+   "Description": "Paged collection of DimensionValueListItem items",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "41",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "The DimensionValueListItem items on this page",
+     "Type": {
+      "$id": "42",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "43",
+       "Kind": "Model",
+       "Name": "DimensionValueListItem",
+       "Namespace": "Pagination",
+       "IsNullable": false,
+       "Usage": "Output",
+       "Properties": [
+        {
+         "$id": "44",
+         "Name": "value",
+         "SerializedName": "value",
+         "Description": "",
+         "Type": {
+          "$id": "45",
+          "Kind": "Array",
+          "Name": "Array",
+          "ElementType": {
+           "$id": "46",
+           "Kind": "Primitive",
+           "Name": "String",
+           "IsNullable": false
+          },
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": false
+        }
+       ]
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "47",
+     "Name": "nextLink",
+     "SerializedName": "nextLink",
+     "Description": "The link to the next page of items",
+     "Type": {
+      "$id": "48",
+      "Kind": "Primitive",
+      "Name": "Uri",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "43"
+  },
+  {
+   "$id": "49",
+   "Kind": "Model",
+   "Name": "PagedLedgerEntry",
+   "Namespace": "Azure.Core",
+   "Description": "Paged collection of LedgerEntry items",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "50",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "The LedgerEntry items on this page",
+     "Type": {
+      "$id": "51",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$ref": "31"
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "52",
+     "Name": "nextLink",
+     "SerializedName": "nextLink",
+     "Description": "The link to the next page of items",
+     "Type": {
+      "$id": "53",
+      "Kind": "Primitive",
+      "Name": "Uri",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "54",
+   "Kind": "Model",
+   "Name": "PagedTextBlocklist",
+   "Namespace": "Azure.Core.Foundations",
+   "Description": "Paged collection of TextBlocklist items",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "55",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "The TextBlocklist items on this page",
+     "Type": {
+      "$id": "56",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "57",
+       "Kind": "Model",
+       "Name": "TextBlocklist",
+       "Namespace": "Pagination",
+       "Description": "Text Blocklist.",
+       "IsNullable": false,
+       "Usage": "Output",
+       "Properties": [
+        {
+         "$id": "58",
+         "Name": "blocklistName",
+         "SerializedName": "blocklistName",
+         "Description": "Text blocklist name. Only supports the following characters: 0-9  A-Z  a-z  -  .  _  ~",
+         "Type": {
+          "$id": "59",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": false
+        },
+        {
+         "$id": "60",
+         "Name": "description",
+         "SerializedName": "description",
+         "Description": "Text blocklist description.",
+         "Type": {
+          "$id": "61",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": false,
+         "IsReadOnly": false
+        }
+       ]
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "62",
+     "Name": "nextLink",
+     "SerializedName": "nextLink",
+     "Description": "The link to the next page of items",
+     "Type": {
+      "$id": "63",
+      "Kind": "Primitive",
+      "Name": "Uri",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "57"
+  },
+  {
+   "$id": "64",
+   "Kind": "Model",
+   "Name": "PagedTextBlockItem",
+   "Namespace": "Azure.Core.Foundations",
+   "Description": "Paged collection of TextBlockItem items",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "65",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "The TextBlockItem items on this page",
+     "Type": {
+      "$id": "66",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "67",
+       "Kind": "Model",
+       "Name": "TextBlockItem",
+       "Namespace": "Pagination",
+       "Description": "Item in TextBlocklist.",
+       "IsNullable": false,
+       "Usage": "Output",
+       "Properties": [
+        {
+         "$id": "68",
+         "Name": "blockItemId",
+         "SerializedName": "blockItemId",
+         "Description": "Block Item Id. It will be uuid.",
+         "Type": {
+          "$id": "69",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": false
+        },
+        {
+         "$id": "70",
+         "Name": "description",
+         "SerializedName": "description",
+         "Description": "Block item description.",
+         "Type": {
+          "$id": "71",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": false,
+         "IsReadOnly": false
+        },
+        {
+         "$id": "72",
+         "Name": "text",
+         "SerializedName": "text",
+         "Description": "Block item content.",
+         "Type": {
+          "$id": "73",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": true,
+         "IsReadOnly": false
+        }
+       ]
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "74",
+     "Name": "nextLink",
+     "SerializedName": "nextLink",
+     "Description": "The link to the next page of items",
+     "Type": {
+      "$id": "75",
+      "Kind": "Primitive",
+      "Name": "Uri",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "67"
+  },
+  {
+   "$id": "76",
+   "Kind": "Model",
+   "Name": "BatchPoolListResult",
+   "Namespace": "Pagination",
+   "Description": "The result of listing the Pools in an Account.",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "77",
+     "Name": "value",
+     "SerializedName": "value",
+     "Description": "The list of Pools.",
+     "Type": {
+      "$id": "78",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "79",
+       "Kind": "Model",
+       "Name": "BatchPool",
+       "Namespace": "Pagination",
+       "Description": "A Pool in the Azure Batch service.",
+       "IsNullable": false,
+       "Usage": "Output",
+       "Properties": [
+        {
+         "$id": "80",
+         "Name": "id",
+         "SerializedName": "id",
+         "Description": "A string that uniquely identifies the Pool within the Account. The ID can contain any combination of alphanumeric characters including hyphens and underscores, and cannot contain more than 64 characters. The ID is case-preserving and case-insensitive (that is, you may not have two IDs within an Account that differ only by case).",
+         "Type": {
+          "$id": "81",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": false,
+         "IsReadOnly": true
+        },
+        {
+         "$id": "82",
+         "Name": "displayName",
+         "SerializedName": "displayName",
+         "Description": "The display name for the Pool. The display name need not be unique and can contain any Unicode characters up to a maximum length of 1024.",
+         "Type": {
+          "$id": "83",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": false,
+         "IsReadOnly": true
+        },
+        {
+         "$id": "84",
+         "Name": "url",
+         "SerializedName": "url",
+         "Description": "The URL of the Pool.",
+         "Type": {
+          "$id": "85",
+          "Kind": "Primitive",
+          "Name": "String",
+          "IsNullable": false
+         },
+         "IsRequired": false,
+         "IsReadOnly": true
+        }
+       ]
+      },
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "86",
+     "Name": "odata.nextLink",
+     "SerializedName": "odata.nextLink",
+     "Description": "The URL to get the next set of results.",
+     "Type": {
+      "$id": "87",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "79"
+  },
+  {
+   "$id": "88",
+   "Kind": "Model",
+   "Name": "AuthFlow",
+   "Namespace": "Pagination",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": [
+    {
+     "$id": "89",
+     "Name": "type",
+     "SerializedName": "type",
+     "Description": "",
+     "Type": {
+      "$ref": "8"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "90",
+     "Name": "tokenUrl",
+     "SerializedName": "tokenUrl",
+     "Description": "",
+     "Type": {
+      "$id": "91",
+      "Kind": "Literal",
+      "Name": "Literal",
+      "LiteralValueType": {
+       "$ref": "13"
+      },
+      "Value": "https://pagnation.azure.com/token",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "92",
+     "Name": "refreshUrl",
+     "SerializedName": "refreshUrl",
+     "Description": "",
+     "Type": {
+      "$id": "93",
+      "Kind": "Literal",
+      "Name": "Literal",
+      "LiteralValueType": {
+       "$ref": "15"
+      },
+      "Value": "https://pagination.azure.com/refresh",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "94",
+     "Name": "scopes",
+     "SerializedName": "scopes",
+     "Description": "",
+     "Type": {
+      "$id": "95",
+      "Kind": "Intrinsic",
+      "Name": "unknown",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "96",
+   "Kind": "Model",
+   "Name": "ListLedgerEntryInput",
+   "Namespace": "Pagination",
+   "Description": "Input model for the ListPaginationLedgerEntries",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "97",
+     "Name": "bodyInput",
+     "SerializedName": "bodyInput",
+     "Description": "Body parameter",
+     "Type": {
+      "$ref": "23"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "98",
+   "Kind": "Model",
+   "Name": "MetricDimensions",
+   "Namespace": "Pagination",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": []
+  },
+  {
+   "$id": "99",
+   "Kind": "Model",
+   "Name": "TestRuns",
+   "Namespace": "Pagination",
+   "Description": "Load test run model",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": []
+  },
+  {
+   "$id": "100",
+   "Kind": "Model",
+   "Name": "Dimension",
+   "Namespace": "Pagination",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": []
+  },
+  {
+   "$id": "101",
+   "Kind": "Model",
+   "Name": "BatchRequestHeaders",
+   "Namespace": "Pagination",
+   "Description": "Client related response header values",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": []
+  },
+  {
+   "$id": "102",
+   "Kind": "Model",
+   "Name": "BatchResponseHeaders",
+   "Namespace": "Pagination",
+   "Description": "Client related response header values",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": []
+  },
+  {
+   "$id": "103",
+   "Kind": "Model",
+   "Name": "BatchError",
+   "Namespace": "Pagination",
+   "Description": "An error response received from the Azure Batch service.",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "104",
+     "Name": "code",
+     "SerializedName": "code",
+     "Description": "An identifier for the error. Codes are invariant and are intended to be consumed programmatically.",
+     "Type": {
+      "$id": "105",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "106",
+   "Name": "PaginationClient",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "107",
+     "Name": "ListPaginationLedgerEntries",
+     "ResourceName": "LedgerEntry",
+     "Summary": "Gets ledger entries from a collection corresponding to a range.",
+     "Description": "A collection id may optionally be specified. Only entries in the specified (or default) collection will be returned.",
+     "Parameters": [
+      {
+       "$id": "108",
+       "Name": "pagnationUri",
+       "NameInRequest": "pagnationUri",
+       "Type": {
+        "$id": "109",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "110",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "111",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$id": "112",
+        "Type": {
+         "$id": "113",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "2022-05-13"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "114",
+       "Name": "bodyInput",
+       "NameInRequest": "bodyInput",
+       "Description": "Body parameter",
+       "Type": {
+        "$ref": "23"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "115",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "116",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "117",
+        "Type": {
+         "$ref": "116"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "118",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "119",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "120",
+        "Type": {
+         "$ref": "119"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "121",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "28"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/transactions",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "122",
+      "NextLinkName": "customNextLink",
+      "ItemName": "entries"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "123"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "124",
+   "Name": "AdditionalParameter",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "125",
+     "Name": "ListMetricDimensionValues",
+     "ResourceName": "DimensionValueListItem",
+     "Summary": "List the dimension values for the given metric dimension name.",
+     "Description": "List the dimension values for the given metric dimension name.",
+     "Parameters": [
+      {
+       "$ref": "108"
+      },
+      {
+       "$id": "126",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "127",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "112"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "128",
+       "Name": "testRunId",
+       "NameInRequest": "testRunId",
+       "Description": "Unique test run name as identifier",
+       "Type": {
+        "$id": "129",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "130",
+       "Name": "name",
+       "NameInRequest": "name",
+       "Description": "Dimension name",
+       "Type": {
+        "$id": "131",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "132",
+       "Name": "interval",
+       "NameInRequest": "interval",
+       "Description": "The interval (i.e. timegrain) of the query.",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "133",
+       "Name": "metricName",
+       "NameInRequest": "metricName",
+       "Description": "Metric name",
+       "Type": {
+        "$id": "134",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "135",
+       "Name": "metricNamespace",
+       "NameInRequest": "metricNamespace",
+       "Description": "Metric namespace to query metric definitions for.",
+       "Type": {
+        "$id": "136",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "137",
+       "Name": "timespan",
+       "NameInRequest": "timespan",
+       "Description": "The timespan of the query. It is a string with the following format\n'startDateTime_ISO/endDateTime_ISO'.",
+       "Type": {
+        "$id": "138",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "139",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "140",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "141",
+        "Type": {
+         "$ref": "140"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "142",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "40"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/test-runs/{testRunId}/metric-dimensions/{name}/values",
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "143",
+      "NextLinkName": "nextLink",
+      "ItemName": "value"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "144"
+   },
+   "Creatable": false,
+   "Parent": "PaginationClient"
+  },
+  {
+   "$id": "145",
+   "Name": "UseFoundationsResourceList",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "146",
+     "Name": "list",
+     "ResourceName": "LedgerEntry",
+     "Description": "List upload detail for the discovery resource.",
+     "Parameters": [
+      {
+       "$ref": "108"
+      },
+      {
+       "$id": "147",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "148",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "112"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "149",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "150",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "151",
+        "Type": {
+         "$ref": "150"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "152",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "49"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/adp/transactions",
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "153",
+      "NextLinkName": "nextLink",
+      "ItemName": "value"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "154"
+   },
+   "Creatable": false,
+   "Parent": "PaginationClient"
+  },
+  {
+   "$id": "155",
+   "Name": "TwoTypesItem",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "156",
+     "Name": "listTextBlocklists",
+     "ResourceName": "TextBlocklist",
+     "Summary": "Get All Text Blocklists",
+     "Description": "Get all text blocklists details.",
+     "Parameters": [
+      {
+       "$ref": "108"
+      },
+      {
+       "$id": "157",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "158",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "112"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "159",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "160",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "161",
+        "Type": {
+         "$ref": "160"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "162",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "54"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/text/blocklists",
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "163",
+      "NextLinkName": "nextLink",
+      "ItemName": "value"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "164",
+     "Name": "listTextBlocklistItems",
+     "ResourceName": "TextBlockItem",
+     "Summary": "Get All BlockItems By blocklistName",
+     "Description": "Get all blockItems in a text blocklist",
+     "Parameters": [
+      {
+       "$ref": "108"
+      },
+      {
+       "$id": "165",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "166",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "112"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "167",
+       "Name": "blocklistName",
+       "NameInRequest": "blocklistName",
+       "Description": "Text blocklist name. Only supports the following characters: 0-9  A-Z  a-z  -  .  _  ~",
+       "Type": {
+        "$id": "168",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "169",
+       "Name": "top",
+       "NameInRequest": "top",
+       "Description": "The number of result items to return.",
+       "Type": {
+        "$id": "170",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "171",
+       "Name": "skip",
+       "NameInRequest": "skip",
+       "Description": "The number of result items to skip.",
+       "Type": {
+        "$id": "172",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "173",
+       "Name": "maxpagesize",
+       "NameInRequest": "maxpagesize",
+       "Description": "The maximum number of result items per page.",
+       "Type": {
+        "$id": "174",
+        "Kind": "Primitive",
+        "Name": "Int32",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "175",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "176",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "177",
+        "Type": {
+         "$ref": "176"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "178",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "64"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/text/blocklists/{blocklistName}/blockItems",
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "179",
+      "NextLinkName": "nextLink",
+      "ItemName": "value"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "180"
+   },
+   "Creatable": false,
+   "Parent": "PaginationClient"
+  },
+  {
+   "$id": "181",
+   "Name": "Pools",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "182",
+     "Name": "listPools",
+     "ResourceName": "Pools",
+     "Description": "Lists all of the Pools in the specified Account.",
+     "Parameters": [
+      {
+       "$ref": "108"
+      },
+      {
+       "$id": "183",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "184",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "DefaultValue": {
+        "$ref": "112"
+       },
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "185",
+       "Name": "$filter",
+       "NameInRequest": "$filter",
+       "Description": "An OData $filter clause. For more information on constructing this filter, see\nhttps://docs.microsoft.com/en-us/rest/api/batchservice/odata-filters-in-batch#list-pools.",
+       "Type": {
+        "$id": "186",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "187",
+       "Name": "$select",
+       "NameInRequest": "$select",
+       "Description": "An OData $select clause.",
+       "Type": {
+        "$id": "188",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "189",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": ","
+      },
+      {
+       "$id": "190",
+       "Name": "$expand",
+       "NameInRequest": "$expand",
+       "Description": "An OData $expand clause.",
+       "Type": {
+        "$id": "191",
+        "Kind": "Array",
+        "Name": "Array",
+        "ElementType": {
+         "$id": "192",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method",
+       "ArraySerializationDelimiter": ","
+      },
+      {
+       "$id": "193",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "194",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "195",
+        "Type": {
+         "$ref": "194"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "196",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "76"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{pagnationUri}",
+     "Path": "/app/pools",
+     "BufferResponse": true,
+     "Paging": {
+      "$id": "197",
+      "NextLinkName": "odata.nextLink",
+      "ItemName": "value"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "198"
+   },
+   "Creatable": false,
+   "Parent": "PaginationClient"
+  }
+ ],
+ "Auth": {
+  "$id": "199",
+  "OAuth2": {
+   "$id": "200",
+   "Scopes": [
+    "https://pagination.azure.com/.default"
+   ]
+  }
+ }
+}

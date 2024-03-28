@@ -1,0 +1,54 @@
+{
+  "parameters": {
+    "ruleCollectionGroupName": "ruleCollectionGroup1",
+    "firewallPolicyName": "firewallPolicy",
+    "resourceGroupName": "rg1",
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "ruleCollectionGroup1",
+        "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy/ruleCollectionGroups/ruleCollectionGroup1",
+        "etag": "W/\"72090554-7e3b-43f2-80ad-99a9020dcb11\"",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "priority": 100,
+          "ruleCollections": [
+            {
+              "ruleCollectionType": "FirewallPolicyNatRuleCollection",
+              "action": {
+                "type": "DNAT"
+              },
+              "rules": [
+                {
+                  "ruleType": "NatRule",
+                  "name": "NatRule1",
+                  "translatedFqdn": "internalhttpserver",
+                  "translatedPort": "8080",
+                  "ipProtocols": [
+                    "TCP",
+                    "UDP"
+                  ],
+                  "sourceAddresses": [
+                    "2.2.2.2"
+                  ],
+                  "sourceIpGroups": [],
+                  "destinationAddresses": [
+                    "152.23.32.23"
+                  ],
+                  "destinationPorts": [
+                    "8080"
+                  ]
+                }
+              ],
+              "name": "NatRC",
+              "priority": 100
+            }
+          ]
+        }
+      }
+    }
+  }
+}

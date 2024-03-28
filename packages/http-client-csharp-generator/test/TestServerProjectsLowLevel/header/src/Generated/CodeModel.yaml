@@ -1,0 +1,2778 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Swagger BAT Header Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_27
+      type: boolean
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_11
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+          header: value
+      protocol: !Protocols {}
+    - !NumberSchema &ref_15
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+          header: value
+      protocol: !Protocols {}
+    - !NumberSchema &ref_19
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+          header: value
+      protocol: !Protocols {}
+    - !NumberSchema &ref_23
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: User-Agent
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: Content-Type
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: value
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_56
+      choices:
+        - !ChoiceValue 
+          value: White
+          language:
+            default:
+              name: White
+              description: ''
+        - !ChoiceValue 
+          value: black
+          language:
+            default:
+              name: Black
+              description: ''
+        - !ChoiceValue 
+          value: GREY
+          language:
+            default:
+              name: Grey
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: GreyscaleColors
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_5
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  byteArrays:
+    - !ByteArraySchema &ref_51
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+      protocol: !Protocols {}
+    - !ByteArraySchema &ref_55
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ByteArray
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_39
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: DateTime
+          description: ''
+          header: value
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_43
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: DateTime
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  dates:
+    - !DateSchema &ref_35
+      type: date
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Date
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  durations:
+    - !DurationSchema &ref_47
+      type: duration
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Duration
+          description: ''
+          header: value
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_7
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: header
+    operations:
+      - !Operation 
+        operationId: header_paramExistingKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_6
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: userAgent
+                description: 'Send a post request with header value "User-Agent": "overwrite"'
+                serializedName: User-Agent
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/existingkey
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_6
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            header_paramExistingKey:
+              parameters:
+                User-Agent: overwrite
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ParamExistingKey
+            description: 'Send a post request with header value "User-Agent": "overwrite"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseExistingKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/existingkey
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_4
+                    header: User-Agent
+                    language:
+                      default:
+                        name: UserAgent
+                        description: 'response with header value "User-Agent": "overwrite"'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseExistingKey
+            description: 'Get a response with header value "User-Agent": "overwrite"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramProtectedKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_9
+            schema: *ref_8
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: contentType
+                description: 'Send a post request with header value "Content-Type": "text/html"'
+                serializedName: Content-Type
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/protectedkey
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_9
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            header_paramProtectedKey:
+              parameters:
+                Content-Type: text/html
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ParamProtectedKey
+            description: 'Send a post request with header value "Content-Type": "text/html"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseProtectedKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/protectedkey
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_8
+                    header: Content-Type
+                    language:
+                      default:
+                        name: ContentType
+                        description: 'response with header value "Content-Type": "text/html"'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseProtectedKey
+            description: 'Get a response with header value "Content-Type": "text/html"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramInteger
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_12
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_13
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values 1 or -2
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/integer
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_12
+          - *ref_13
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            header_paramInteger:
+              parameters:
+                scenario: positive
+                value: 1
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ParamInteger
+            description: 'Send a post request with header values "scenario": "positive", "value": 1 or "scenario": "negative", "value": -2 '
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseInteger
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_14
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/integer
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_14
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_11
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: 'response with header value "value": 1 or -2'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseInteger
+            description: 'Get a response with header value "value": 1 or -2'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramLong
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_16
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_17
+            schema: *ref_15
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values 105 or -2
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/long
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_16
+          - *ref_17
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamLong
+            description: 'Send a post request with header values "scenario": "positive", "value": 105 or "scenario": "negative", "value": -2 '
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseLong
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_18
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/long
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_18
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_15
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: 'response with header value "value": 105 or -2'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseLong
+            description: 'Get a response with header value "value": 105 or -2'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_20
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_21
+            schema: *ref_19
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values 0.07 or -3.0
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/float
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_20
+          - *ref_21
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamFloat
+            description: 'Send a post request with header values "scenario": "positive", "value": 0.07 or "scenario": "negative", "value": -3.0'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseFloat
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_22
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/float
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_22
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_19
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: 'response with header value "value": 0.07 or -3.0'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseFloat
+            description: 'Get a response with header value "value": 0.07 or -3.0'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_24
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_25
+            schema: *ref_23
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values 7e120 or -3.0
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/double
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_24
+          - *ref_25
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamDouble
+            description: 'Send a post request with header values "scenario": "positive", "value": 7e120 or "scenario": "negative", "value": -3.0'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseDouble
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_26
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "positive" or "negative"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/double
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_26
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_23
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: 'response with header value "value": 7e120 or -3.0'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseDouble
+            description: 'Get a response with header value "value": 7e120 or -3.0'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramBool
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_28
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "true" or "false"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_29
+            schema: *ref_27
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values true or false
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/bool
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_28
+          - *ref_29
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamBool
+            description: 'Send a post request with header values "scenario": "true", "value": true or "scenario": "false", "value": false'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseBool
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_30
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "true" or "false"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/bool
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_30
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_27
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: 'response with header value "value": true or false'
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseBool
+            description: 'Get a response with header value "value": true or false'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_31
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "null" or "empty"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_32
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "The quick brown fox jumps over the lazy dog" or null or ""
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/string
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_31
+          - *ref_32
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamString
+            description: 'Send a post request with header values "scenario": "valid", "value": "The quick brown fox jumps over the lazy dog" or "scenario": "null", "value": null or "scenario": "empty", "value": ""'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_33
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "null" or "empty"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/string
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_33
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_10
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "The quick brown fox jumps over the lazy dog" or null or ""
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseString
+            description: Get a response with header values "The quick brown fox jumps over the lazy dog" or null or ""
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramDate
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_36
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_37
+            schema: *ref_35
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "2010-01-01" or "0001-01-01"
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/date
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_36
+          - *ref_37
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamDate
+            description: 'Send a post request with header values "scenario": "valid", "value": "2010-01-01" or "scenario": "min", "value": "0001-01-01"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseDate
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_38
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/date
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_38
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_35
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "2010-01-01" or "0001-01-01"
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseDate
+            description: Get a response with header values "2010-01-01" or "0001-01-01"
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramDatetime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_40
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_41
+            schema: *ref_39
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "2010-01-01T12:34:56Z" or "0001-01-01T00:00:00Z"
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/datetime
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_40
+          - *ref_41
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamDatetime
+            description: 'Send a post request with header values "scenario": "valid", "value": "2010-01-01T12:34:56Z" or "scenario": "min", "value": "0001-01-01T00:00:00Z"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseDatetime
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_42
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/datetime
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_42
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_39
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "2010-01-01T12:34:56Z" or "0001-01-01T00:00:00Z"
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseDatetime
+            description: Get a response with header values "2010-01-01T12:34:56Z" or "0001-01-01T00:00:00Z"
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramDatetimeRfc1123
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_44
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_45
+            schema: *ref_43
+            implementation: Method
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "Wed, 01 Jan 2010 12:34:56 GMT" or "Mon, 01 Jan 0001 00:00:00 GMT"
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/datetimerfc1123
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_44
+          - *ref_45
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamDatetimeRfc1123
+            description: 'Send a post request with header values "scenario": "valid", "value": "Wed, 01 Jan 2010 12:34:56 GMT" or "scenario": "min", "value": "Mon, 01 Jan 0001 00:00:00 GMT"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseDatetimeRfc1123
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_46
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "min"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/datetimerfc1123
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_46
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_43
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "Wed, 01 Jan 2010 12:34:56 GMT" or "Mon, 01 Jan 0001 00:00:00 GMT"
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseDatetimeRfc1123
+            description: Get a response with header values "Wed, 01 Jan 2010 12:34:56 GMT" or "Mon, 01 Jan 0001 00:00:00 GMT"
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramDuration
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_48
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_49
+            schema: *ref_47
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "P123DT22H14M12.011S"
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/duration
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_48
+          - *ref_49
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamDuration
+            description: 'Send a post request with header values "scenario": "valid", "value": "P123DT22H14M12.011S"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseDuration
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_50
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/duration
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_50
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_47
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "P123DT22H14M12.011S"
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseDuration
+            description: Get a response with header values "P123DT22H14M12.011S"
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramByte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_52
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_53
+            schema: *ref_51
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: value
+                description: Send a post request with header values "啊齄丂狛狜隣郎隣兀﨩"
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/byte
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_52
+          - *ref_53
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamByte
+            description: 'Send a post request with header values "scenario": "valid", "value": "啊齄丂狛狜隣郎隣兀﨩"'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseByte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_54
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/byte
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_54
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_55
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "啊齄丂狛狜隣郎隣兀﨩"
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseByte
+            description: Get a response with header values "啊齄丂狛狜隣郎隣兀﨩"
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_paramEnum
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_57
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "null" or "empty"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_58
+            schema: *ref_56
+            implementation: Method
+            language: !Languages 
+              default:
+                name: value
+                description: 'Send a post request with header values ''GREY'' '
+                serializedName: value
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/param/prim/enum
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_57
+          - *ref_58
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamEnum
+            description: 'Send a post request with header values "scenario": "valid", "value": "GREY" or "scenario": "null", "value": null'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_responseEnum
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_59
+            schema: *ref_34
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scenario
+                description: 'Send a post request with header values "scenario": "valid" or "null" or "empty"'
+                serializedName: scenario
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/response/prim/enum
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_59
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_56
+                    header: value
+                    language:
+                      default:
+                        name: Value
+                        description: response with header values "GREY" or null
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ResponseEnum
+            description: Get a response with header values "GREY" or null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_customRequestId
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_5
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /header/custom/x-ms-client-request-id/9C4D50EE-2D56-4CD3-8152-34347DC9F2B0
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response indicates that x-ms-client-request-id was successfuly received
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CustomRequestId
+            description: Send x-ms-client-request-id = 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0 in the header of the request
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Header
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATHeaderService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

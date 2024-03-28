@@ -1,0 +1,387 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: LRO With Paramaterized Endpoints
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: Location
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: Location
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: host
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_8
+      type: constant
+      value: !ConstantValue 
+        value: iAmConstant
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ConstantEnum
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_7
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_0
+    clientDefaultValue: host
+    implementation: Client
+    required: true
+    extensions:
+      x-in: path
+      x-ms-priority: 0
+      x-ms-skip-url-encoding: true
+      x-name: host
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Host
+        description: A string value that is used as a global part of the parameterized host. Pass in 'host:3000' to pass test.
+        serializedName: host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: pollWithParameterizedEndpoints
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_5
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: accountName
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: accountName
+                description: Account Name. Pass in 'local' to pass test.
+                serializedName: accountName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /lroParameterizedEndpoints
+                method: post
+                uri: http://{accountName}{host}
+        signatureParameters:
+          - *ref_5
+        responses:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Will return string 'success' if polling was a success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted polling request
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_6
+                    header: Location
+                    language:
+                      default:
+                        name: Location
+                        description: Url to retrieve the final update resource. Is a relative link
+                statusCodes:
+                  - '202'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+          x-ms-long-running-operation-options:
+            final-state-via: location
+        language: !Languages 
+          default:
+            name: PollWithParameterizedEndpoints
+            description: Poll with method and client level parameters in endpoint
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: pollWithConstantParameterizedEndpoints
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_9
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: accountName
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: accountName
+                description: Account Name. Pass in 'local' to pass test.
+                serializedName: accountName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_3
+          - !Parameter 
+            schema: *ref_8
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: constantParameter
+                description: Next link for the list operation.
+                serializedName: constantParameter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /lroConstantParameterizedEndpoints/{constantParameter}
+                method: post
+                uri: http://{accountName}{host}
+        signatureParameters:
+          - *ref_9
+        responses:
+          - !SchemaResponse 
+            schema: *ref_10
+            language: !Languages 
+              default:
+                name: ''
+                description: Will return string 'success' if polling was a success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted polling request
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_10
+                    header: Location
+                    language:
+                      default:
+                        name: Location
+                        description: Url to retrieve the final update resource. Is a relative link
+                statusCodes:
+                  - '202'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: PollWithConstantParameterizedEndpoints
+            description: Poll with method and client level parameters in endpoint, with a constant value
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: LROWithParamaterizedEndpoints
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

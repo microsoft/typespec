@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="Put201CreatingSucceeded200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingSucceeded200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Accepted200SucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Accepted200SucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Accepted200SucceededAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Accepted200SucceededAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Accepted200SucceededAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Accepted200Succeeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Accepted200Succeeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Accepted200Succeeded(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Accepted200Succeeded with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Accepted200Succeeded(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete202Retry200Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202Retry200Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = await client.Delete202Retry200Async(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202Retry200Async with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = await client.Delete202Retry200Async(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete202Retry200(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202Retry200.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = client.Delete202Retry200(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202Retry200 with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = client.Delete202Retry200(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetrySucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetrySucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetrySucceededAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetrySucceededAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetrySucceededAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetrySucceeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetrySucceeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetrySucceeded(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetrySucceeded with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetrySucceeded(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Post202Retry200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202Retry200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetrySucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRelativeRetrySucceededAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetrySucceededAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRelativeRetrySucceededAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetrySucceeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRelativeRetrySucceeded(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetrySucceeded with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LRORetrysClient client = new LRORetrysClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRelativeRetrySucceeded(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

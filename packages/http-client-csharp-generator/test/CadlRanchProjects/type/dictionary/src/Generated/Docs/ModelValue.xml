@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetModelValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetModelValueAsync.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = await client.GetModelValueAsync();
+]]></code>
+This sample shows how to call GetModelValueAsync with all parameters.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = await client.GetModelValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetModelValue(CancellationToken)">
+      <example>
+This sample shows how to call GetModelValue.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = client.GetModelValue();
+]]></code>
+This sample shows how to call GetModelValue with all parameters.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = client.GetModelValue();
+]]></code></example>
+    </member>
+    <member name="GetModelValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetModelValueAsync and parse the result.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = await client.GetModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetModelValueAsync with all parameters and parse the result.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = await client.GetModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+Console.WriteLine(result.GetProperty("<key>").GetProperty("children").GetProperty("<key>").GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetModelValue(RequestContext)">
+      <example>
+This sample shows how to call GetModelValue and parse the result.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = client.GetModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetModelValue with all parameters and parse the result.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = client.GetModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+Console.WriteLine(result.GetProperty("<key>").GetProperty("children").GetProperty("<key>").GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IDictionary{string,InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+    {
+        Children =
+        {
+            ["key"] = default
+        },
+    }
+});
+]]></code></example>
+    </member>
+    <member name="Put(IDictionary{string,InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = client.Put(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+Response response = client.Put(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+    {
+        Children =
+        {
+            ["key"] = default
+        },
+    }
+});
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+        children = new { },
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+ModelValue client = new DictionaryClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+        children = new { },
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

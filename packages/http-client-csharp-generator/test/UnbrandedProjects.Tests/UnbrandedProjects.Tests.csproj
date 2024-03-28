@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>annotations</Nullable>
+    <IncludeSharedSourceInLocalBuild>false</IncludeSharedSourceInLocalBuild>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" />
+    <PackageReference Include="nunit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../UnbrandedProjects/**/*.cs" LinkBase="UnbrandedProjects" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,713 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "OmitOperationGroups",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model1s/{model1sName}": {
+            "put": {
+                "tags": [
+                    "Model1s"
+                ],
+                "operationId": "Model1s_CreateOrUpdate",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Model1s"
+                ],
+                "operationId": "Model1s_Update",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Model1Update"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Model1s"
+                ],
+                "operationId": "Model1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Model1s"
+                ],
+                "operationId": "Model1s_Delete",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/model1s": {
+            "get": {
+                "tags": [
+                    "Model1s"
+                ],
+                "operationId": "Model1s_ListBySubscription",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model2s": {
+            "get": {
+                "tags": [
+                    "Model2s"
+                ],
+                "operationId": "Model2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model2s/{model2sName}": {
+            "put": {
+                "tags": [
+                    "Model2s"
+                ],
+                "operationId": "Model2s_CreateOrUpdate",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Model2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Model2s"
+                ],
+                "operationId": "Model2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model2s/{model2sName}/model4s/default": {
+            "get": {
+                "tags": [
+                    "Model4s"
+                ],
+                "operationId": "Model4s_GetDefault",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model4"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model5s": {
+            "get": {
+                "tags": [
+                    "Model5s"
+                ],
+                "operationId": "Model5s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model5ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/model5s/{model5sName}": {
+            "put": {
+                "tags": [
+                    "Model5s"
+                ],
+                "operationId": "Model5s_CreateOrUpdate",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model5sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Model5"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model5"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Model5s"
+                ],
+                "operationId": "Model5s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "model5sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Model5"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Model1": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "string"
+                },
+                "modelx": {
+                    "$ref": "#/definitions/ModelX"
+                },
+                "modelz": {
+                    "$ref": "#/definitions/ModelZ"
+                },
+                "modelps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModelP"
+                    }
+                },
+                "modelq": {
+                    "$ref": "#/definitions/ModelQ"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Model3"
+                }
+            ]
+        },
+        "Model1Update": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Model1ListResult": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Model2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Model2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "Model2": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "b": {
+                    "type": "string"
+                },
+                "modelx": {
+                    "$ref": "#/definitions/ModelX"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Model3"
+                }
+            ]
+        },
+        "ModelX": {
+            "type": "object",
+            "properties": {
+                "c": {
+                    "type": "string"
+                },
+                "d": {
+                    "type": "string"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ModelY"
+                }
+            ]
+        },
+        "ModelY": {
+            "type": "object",
+            "properties": {
+                "e": {
+                    "type": "string"
+                }
+            }
+        },
+        "Model3": {
+            "type": "object",
+            "properties": {
+                "f": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "g": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "Resource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "ModelZ": {
+            "type": "object",
+            "properties": {
+                "h": {
+                    "type": "string"
+                },
+                "i": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "Model4": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "j": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "modelz": {
+                    "$ref": "#/definitions/ModelZ"
+                }
+            }
+        },
+        "Model5ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Model5"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "Model5": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "k": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "modelqs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModelQ"
+                    }
+                }
+            }
+        },
+        "ModelP": {
+            "type": "object",
+            "properties": {
+                "l": {
+                    "type": "string"
+                }
+            }
+        },
+        "ModelQ": {
+            "type": "object",
+            "properties": {
+                "m": {
+                    "type": "string"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,2216 @@
+!CodeModel 
+info: !Info 
+  description: The Compute Management Client.
+  title: MgmtPropertyBag
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_28
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: FooDetails
+          description: The details of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: The name of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailCode
+          description: The error code.
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailMessage
+          description: The error message.
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailTarget
+          description: The error target.
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorAdditionalInfoType
+          description: The additional info type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_36
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      maxLength: 90
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: FooPatchDetails
+          description: The details of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: Post5ItemsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BarDetails
+          description: The details of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BarListResultNextLink
+          description: The uri to fetch the next page of bar. Call ListNext() with this to fetch the next page
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: Get5ItemsItem
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_26
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_31
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_52
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  anyObjects:
+    - !AnyObjectSchema &ref_16
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  durations:
+    - !DurationSchema &ref_4
+      type: duration
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: FooReconnectContentAfter
+          description: Duration in ISO8601 format after which reconnect will be initiated. Minimum duration of the Reconnect is PT2M.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_1
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_2
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_1
+                - !ObjectSchema &ref_5
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  parents: !Relations 
+                    all:
+                      - *ref_2
+                    immediate:
+                      - *ref_2
+                  properties:
+                    - !Property 
+                      schema: *ref_3
+                      serializedName: details
+                      language: !Languages 
+                        default:
+                          name: details
+                          description: The details of the resource
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - json
+                  usage:
+                    - output
+                    - input
+                  language: !Languages 
+                    default:
+                      name: Bar
+                      description: Bar instance details.
+                      namespace: ''
+                  protocol: !Protocols {}
+                - !ObjectSchema &ref_6
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  parents: !Relations 
+                    all:
+                      - *ref_2
+                    immediate:
+                      - *ref_2
+                  properties:
+                    - !Property 
+                      schema: *ref_4
+                      serializedName: after
+                      language: !Languages 
+                        default:
+                          name: after
+                          description: Duration in ISO8601 format after which reconnect will be initiated. Minimum duration of the Reconnect is PT2M.
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - json
+                  usage:
+                    - output
+                    - input
+                  language: !Languages 
+                    default:
+                      name: FooReconnectContent
+                      description: Foo instance details.
+                      namespace: ''
+                  protocol: !Protocols {}
+              immediate:
+                - *ref_1
+                - *ref_5
+                - *ref_6
+            properties:
+              - !Property 
+                schema: *ref_7
+                readOnly: true
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_8
+                readOnly: true
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: The name of the resource
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_9
+                readOnly: true
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            summary: Resource
+            usage:
+              - output
+              - input
+            extensions:
+              x-ms-azure-resource: true
+            language: !Languages 
+              default:
+                name: Resource
+                description: Common fields that are returned in the response for all Azure Resource Manager resources
+                namespace: ''
+                summary: Resource
+            protocol: !Protocols {}
+        immediate:
+          - *ref_2
+      properties:
+        - !Property 
+          schema: *ref_10
+          serializedName: details
+          language: !Languages 
+            default:
+              name: details
+              description: The details of the resource
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: Foo
+          description: Foo instance details.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_2
+    - !ObjectSchema &ref_35
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_14
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            properties:
+              - !Property 
+                schema: *ref_11
+                readOnly: true
+                serializedName: code
+                language: !Languages 
+                  default:
+                    name: code
+                    description: The error code.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_12
+                readOnly: true
+                serializedName: message
+                language: !Languages 
+                  default:
+                    name: message
+                    description: The error message.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_13
+                readOnly: true
+                serializedName: target
+                language: !Languages 
+                  default:
+                    name: target
+                    description: The error target.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_20
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: *ref_14
+                  extensions:
+                    x-ms-identifiers:
+                      - message
+                      - target
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailDetails
+                      description: The error details.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: details
+                extensions:
+                  x-ms-identifiers:
+                    - message
+                    - target
+                language: !Languages 
+                  default:
+                    name: details
+                    description: The error details.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_21
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: !ObjectSchema &ref_17
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_15
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: The additional info type.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_16
+                        readOnly: true
+                        serializedName: info
+                        language: !Languages 
+                          default:
+                            name: info
+                            description: The additional info.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - exception
+                    language: !Languages 
+                      default:
+                        name: ErrorAdditionalInfo
+                        description: The resource management error additional info.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  extensions:
+                    x-ms-identifiers: []
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailAdditionalInfo
+                      description: The error additional info.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: additionalInfo
+                extensions:
+                  x-ms-identifiers: []
+                language: !Languages 
+                  default:
+                    name: additionalInfo
+                    description: The error additional info.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - exception
+            language: !Languages 
+              default:
+                name: ErrorDetail
+                description: The error detail.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: error
+          language: !Languages 
+            default:
+              name: error
+              description: The error object.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      summary: Error response
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: ErrorResponse
+          description: Error response indicates Azure Front Door Standard or Azure Front Door Premium or CDN service is not able to process the incoming request. The reason is provided in the error message.
+          namespace: ''
+          summary: Error response
+      protocol: !Protocols {}
+    - *ref_14
+    - *ref_17
+    - !ObjectSchema &ref_60
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_18
+          serializedName: details
+          language: !Languages 
+            default:
+              name: details
+              description: The details of the resource
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: FooPatch
+          description: Foo instance details.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_77
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_23
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_5
+            language: !Languages 
+              default:
+                name: BarListResultValue
+                description: The list of bar.
+            protocol: !Protocols {}
+          required: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: The list of bar.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          required: false
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The uri to fetch the next page of bar. Call ListNext() with this to fetch the next page
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: BarListResult
+          description: The List bar with subscription response.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_5
+    - *ref_6
+  arrays:
+    - !ArraySchema &ref_34
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: ArrayOfFoo
+          description: Array of Foo
+      protocol: !Protocols {}
+    - *ref_20
+    - *ref_21
+    - !ArraySchema &ref_44
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: ArrayOfFoo
+          description: Array of Foo
+      protocol: !Protocols {}
+    - !ArraySchema &ref_65
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      elementType: *ref_22
+      language: !Languages 
+        default:
+          name: ArrayOfPost5ItemsItem
+          description: Array of Post5ItemsItem
+      protocol: !Protocols {}
+    - *ref_23
+    - !ArraySchema &ref_85
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      elementType: *ref_5
+      language: !Languages 
+        default:
+          name: ArrayOfBar
+          description: Array of Bar
+      protocol: !Protocols {}
+    - !ArraySchema &ref_86
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      elementType: *ref_24
+      language: !Languages 
+        default:
+          name: ArrayOfGet5ItemsItem
+          description: Array of Get5ItemsItem
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_30
+    schema: *ref_25
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_27
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_29
+    schema: *ref_26
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: Foos
+    operations:
+      - !Operation 
+        operationId: Foos_ListWithSubscription
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_32
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_33
+            schema: *ref_28
+            clientDefaultValue: 10
+            implementation: Method
+            extensions:
+              x-ms-client-default: 10
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Fake/foos
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_32
+          - *ref_33
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: ListWithSubscription
+            description: Gets a list of foo with two optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Foos_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_37
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_38
+            schema: *ref_28
+            clientDefaultValue: 10
+            implementation: Method
+            extensions:
+              x-ms-client-default: 10
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_39
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: orderby
+                description: ''
+                serializedName: $orderby
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_40
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_41
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: $maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_42
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Number of records to skip.
+                serializedName: $skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_43
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_37
+          - *ref_38
+          - *ref_39
+          - *ref_40
+          - *ref_41
+          - *ref_42
+          - *ref_43
+        responses:
+          - !SchemaResponse 
+            schema: *ref_44
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: List
+            description: Gets a list of foo with six optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Foos_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_45
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: fooName
+                description: The foo name.
+                serializedName: fooName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_46
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_47
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_48
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: orderby
+                description: ''
+                serializedName: $orderby
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_49
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_50
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Number of records to skip.
+                serializedName: $skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_51
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_45
+          - *ref_46
+          - *ref_47
+          - *ref_48
+          - *ref_49
+          - *ref_50
+          - *ref_51
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets a specific foo with five optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Foos_Create
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_55
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: fooName
+                description: The foo name.
+                serializedName: fooName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_56
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_57
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_58
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: orderby
+                description: ''
+                serializedName: $orderby
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_59
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_54
+            parameters:
+              - !Parameter 
+                schema: *ref_52
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_53
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: The foo parameters supplied to the CreateOrUpdate operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_54
+        signatureParameters:
+          - *ref_55
+          - *ref_56
+          - *ref_57
+          - *ref_58
+          - *ref_59
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: Create
+            description: Create foo with four optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Foos_Update
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_63
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: fooName
+                description: The foo name.
+                serializedName: fooName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_64
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_62
+            parameters:
+              - !Parameter 
+                schema: *ref_52
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_61
+                schema: *ref_60
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: The foo parameters supplied to the Update operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_61
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_62
+        signatureParameters:
+          - *ref_63
+          - *ref_64
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: Update
+            description: Update foo.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Foos_Reconnect
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_68
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: fooName
+                description: The foo name.
+                serializedName: fooName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_69
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_70
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_71
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: orderby
+                description: ''
+                serializedName: $orderby
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_72
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_73
+            schema: *ref_65
+            implementation: Method
+            language: !Languages 
+              default:
+                name: countryOrRegions
+                description: ''
+                serializedName: countryOrRegions
+            protocol: !Protocols 
+              http: !HttpParameter 
+                explode: true
+                in: query
+                style: form
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_74
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_67
+            parameters:
+              - !Parameter 
+                schema: *ref_52
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_66
+                schema: *ref_1
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: The parameters supplied to the Reconnect operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_66
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}/reconnect
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_67
+        signatureParameters:
+          - *ref_68
+          - *ref_69
+          - *ref_70
+          - *ref_71
+          - *ref_72
+          - *ref_73
+          - *ref_74
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Foo'
+        language: !Languages 
+          default:
+            name: Reconnect
+            description: Reconnect an existing foo with five optional query parameters.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Foos
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Bars
+    operations:
+      - !Operation 
+        operationId: Bars_ListWithSubscription
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_75
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_76
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Fake/bars
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_75
+          - *ref_76
+        responses:
+          - !SchemaResponse 
+            schema: *ref_77
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Bar'
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListWithSubscription
+            description: Gets a list of bar with one required header parameter and one optional query parameter.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Bars_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_78
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_79
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_80
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_81
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifNoneMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-None-Match to unconditionally apply the operation.
+                serializedName: If-None-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_82
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Optional. Specified maximum number of containers that can be included in the list.
+                serializedName: $maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_83
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Number of records to skip.
+                serializedName: $skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_84
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/bars
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_78
+          - *ref_79
+          - *ref_80
+          - *ref_81
+          - *ref_82
+          - *ref_83
+          - *ref_84
+        responses:
+          - !SchemaResponse 
+            schema: *ref_85
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Bar'
+        language: !Languages 
+          default:
+            name: List
+            description: Gets a list of bar with one optional header parameter and five optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Bars_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_87
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: barName
+                description: The bar name.
+                serializedName: barName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_88
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_89
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_90
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_91
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Optional. Number of records to skip.
+                serializedName: $skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_92
+            schema: *ref_86
+            implementation: Method
+            language: !Languages 
+              default:
+                name: items
+                description: The items to query on the bar resource.
+                serializedName: items
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+                style: form
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_93
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/bars/{barName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_87
+          - *ref_88
+          - *ref_89
+          - *ref_90
+          - *ref_91
+          - *ref_92
+          - *ref_93
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Bar'
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets a specific bar with one required header parameter and four optional query parameters.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Bars_Create
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_27
+          - !Parameter &ref_96
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: barName
+                description: The bar name.
+                serializedName: barName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_97
+            schema: *ref_25
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_98
+            schema: *ref_28
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: ''
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_99
+            schema: *ref_25
+            implementation: Method
+            extensions:
+              x-ms-format: etag
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: The entity state (Etag) version. A value of "*" can be used for If-Match to unconditionally apply the operation.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_100
+            schema: *ref_36
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_95
+            parameters:
+              - !Parameter 
+                schema: *ref_52
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_94
+                schema: *ref_5
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: The bar parameters supplied to the CreateOrUpdate operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_94
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/bars/{barName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_95
+        signatureParameters:
+          - *ref_96
+          - *ref_97
+          - *ref_98
+          - *ref_99
+          - *ref_100
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_35
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/Bar'
+        language: !Languages 
+          default:
+            name: Create
+            description: Create a bar with five optional query parameters.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Bars
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtPropertyBag
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

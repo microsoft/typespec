@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="DefaultAsync(CancellationToken)">
+      <example>
+This sample shows how to call DefaultAsync.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.DefaultAsync();
+]]></code>
+This sample shows how to call DefaultAsync with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.DefaultAsync();
+]]></code></example>
+    </member>
+    <member name="Default(CancellationToken)">
+      <example>
+This sample shows how to call Default.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Default();
+]]></code>
+This sample shows how to call Default with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Default();
+]]></code></example>
+    </member>
+    <member name="DefaultAsync(RequestContext)">
+      <example>
+This sample shows how to call DefaultAsync and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.DefaultAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DefaultAsync with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.DefaultAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Default(RequestContext)">
+      <example>
+This sample shows how to call Default and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Default(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Default with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Default(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="OctetStreamAsync(CancellationToken)">
+      <example>
+This sample shows how to call OctetStreamAsync.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.OctetStreamAsync();
+]]></code>
+This sample shows how to call OctetStreamAsync with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.OctetStreamAsync();
+]]></code></example>
+    </member>
+    <member name="OctetStream(CancellationToken)">
+      <example>
+This sample shows how to call OctetStream.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.OctetStream();
+]]></code>
+This sample shows how to call OctetStream with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.OctetStream();
+]]></code></example>
+    </member>
+    <member name="OctetStreamAsync(RequestContext)">
+      <example>
+This sample shows how to call OctetStreamAsync and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.OctetStreamAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call OctetStreamAsync with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.OctetStreamAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="OctetStream(RequestContext)">
+      <example>
+This sample shows how to call OctetStream and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.OctetStream(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call OctetStream with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.OctetStream(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="CustomContentTypeAsync(CancellationToken)">
+      <example>
+This sample shows how to call CustomContentTypeAsync.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.CustomContentTypeAsync();
+]]></code>
+This sample shows how to call CustomContentTypeAsync with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.CustomContentTypeAsync();
+]]></code></example>
+    </member>
+    <member name="CustomContentType(CancellationToken)">
+      <example>
+This sample shows how to call CustomContentType.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.CustomContentType();
+]]></code>
+This sample shows how to call CustomContentType with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.CustomContentType();
+]]></code></example>
+    </member>
+    <member name="CustomContentTypeAsync(RequestContext)">
+      <example>
+This sample shows how to call CustomContentTypeAsync and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.CustomContentTypeAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call CustomContentTypeAsync with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.CustomContentTypeAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="CustomContentType(RequestContext)">
+      <example>
+This sample shows how to call CustomContentType and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.CustomContentType(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call CustomContentType with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.CustomContentType(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Base64Async(CancellationToken)">
+      <example>
+This sample shows how to call Base64Async.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.Base64Async();
+]]></code>
+This sample shows how to call Base64Async with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.Base64Async();
+]]></code></example>
+    </member>
+    <member name="Base64(CancellationToken)">
+      <example>
+This sample shows how to call Base64.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Base64();
+]]></code>
+This sample shows how to call Base64 with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Base64();
+]]></code></example>
+    </member>
+    <member name="Base64Async(RequestContext)">
+      <example>
+This sample shows how to call Base64Async and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.Base64Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Base64Async with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.Base64Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Base64(RequestContext)">
+      <example>
+This sample shows how to call Base64 and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Base64(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Base64 with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Base64(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Base64urlAsync(CancellationToken)">
+      <example>
+This sample shows how to call Base64urlAsync.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.Base64urlAsync();
+]]></code>
+This sample shows how to call Base64urlAsync with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = await client.Base64urlAsync();
+]]></code></example>
+    </member>
+    <member name="Base64url(CancellationToken)">
+      <example>
+This sample shows how to call Base64url.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Base64url();
+]]></code>
+This sample shows how to call Base64url with all parameters.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response<BinaryData> response = client.Base64url();
+]]></code></example>
+    </member>
+    <member name="Base64urlAsync(RequestContext)">
+      <example>
+This sample shows how to call Base64urlAsync and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.Base64urlAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Base64urlAsync with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = await client.Base64urlAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Base64url(RequestContext)">
+      <example>
+This sample shows how to call Base64url and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Base64url(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Base64url with all parameters and parse the result.
+<code><![CDATA[
+ResponseBody client = new BytesClient().GetResponseBodyClient();
+
+Response response = client.Base64url(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

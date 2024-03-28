@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="RenamedOneAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedOneAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedOneAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedOneAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedOneAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedOne(RequestContext)">
+      <example>
+This sample shows how to call RenamedOne.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedOne();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedOne with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedOne();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedThreeAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedThreeAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedThreeAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedThreeAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedThreeAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedThree(RequestContext)">
+      <example>
+This sample shows how to call RenamedThree.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedThree();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedThree with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedThree();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedFiveAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedFiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedFiveAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedFiveAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = await client.RenamedFiveAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedFive(RequestContext)">
+      <example>
+This sample shows how to call RenamedFive.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedFive();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedFive with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientAClient client = new ClientAClient(endpoint, "default");
+
+Response response = client.RenamedFive();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

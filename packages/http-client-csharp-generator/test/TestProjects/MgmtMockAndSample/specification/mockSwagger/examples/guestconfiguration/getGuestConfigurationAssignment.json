@@ -1,0 +1,36 @@
+{
+  "parameters": {
+    "subscriptionId": "mySubscriptionId",
+    "resourceGroupName": "myResourceGroupName",
+    "vmName": "myVMName",
+    "guestConfigurationAssignmentName": "SecureProtocol",
+    "api-version": "2022-01-25"
+  },
+  "responses": {
+    "200": {
+      "headers": {},
+      "body": {
+        "location": "centraluseuap",
+        "id": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/AuditSecureProtocol",
+        "name": "AuditSecureProtocol",
+        "properties": {
+          "complianceStatus": "Compliant",
+          "assignmentHash": "E0D8941DD713F284284561648C00C18FA76C8602943C7CD38AFD73B56AE4C35F.E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+          "latestReportId": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/AuditSecureProtocol/reports/7367cbb8-ae99-47d0-a33b-a283564d2cb1",
+          "lastComplianceStatusChecked": "2018-08-29T22:14:13Z",
+          "context": null,
+          "guestConfiguration": {
+            "kind": null,
+            "name": "AuditSecureProtocol",
+            "version": "1.0.0.3",
+            "contentUri": "https://mystorageaccount.blob.core.windows.net/builtinconfig/AuditSecureProtocol/AuditSecureProtocol_1.0.0.3.zip",
+            "contentHash": "content hash",
+            "configurationParameter": [],
+            "configurationSetting": null
+          },
+          "provisioningState": "Succeeded"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "vaultName": "sample-vault-name",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault-name/keys/sample-key-name-1",
+            "name": "sample-key-name-1",
+            "type": "Microsoft.KeyVault/vaults/keys",
+            "location": "westus",
+            "properties": {
+              "attributes": {
+                "enabled": true,
+                "created": 1596493796,
+                "updated": 1596493796,
+                "recoveryLevel": "Purgeable"
+              },
+              "keyUri": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name-1"
+            }
+          },
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault-name/keys/sample-key-name-2",
+            "name": "sample-key-name-2",
+            "type": "Microsoft.KeyVault/vaults/keys",
+            "location": "westus",
+            "properties": {
+              "attributes": {
+                "enabled": true,
+                "created": 1596493797,
+                "updated": 1596493797,
+                "recoveryLevel": "Purgeable"
+              },
+              "keyUri": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name-2"
+            }
+          }
+        ]
+      }
+    },
+    "default": {
+      "headers": {},
+      "body": {
+        "error": {
+          "code": "",
+          "message": ""
+        }
+      }
+    }
+  }
+}

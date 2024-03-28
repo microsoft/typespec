@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetDecimal128Async(CancellationToken)">
+      <example>
+This sample shows how to call GetDecimal128Async.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response<Decimal128Property> response = await client.GetDecimal128Async();
+]]></code>
+This sample shows how to call GetDecimal128Async with all parameters.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response<Decimal128Property> response = await client.GetDecimal128Async();
+]]></code></example>
+    </member>
+    <member name="GetDecimal128(CancellationToken)">
+      <example>
+This sample shows how to call GetDecimal128.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response<Decimal128Property> response = client.GetDecimal128();
+]]></code>
+This sample shows how to call GetDecimal128 with all parameters.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response<Decimal128Property> response = client.GetDecimal128();
+]]></code></example>
+    </member>
+    <member name="GetDecimal128Async(RequestContext)">
+      <example>
+This sample shows how to call GetDecimal128Async and parse the result.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response response = await client.GetDecimal128Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetDecimal128Async with all parameters and parse the result.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response response = await client.GetDecimal128Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDecimal128(RequestContext)">
+      <example>
+This sample shows how to call GetDecimal128 and parse the result.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response response = client.GetDecimal128(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetDecimal128 with all parameters and parse the result.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Response response = client.GetDecimal128(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(Decimal128Property,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Decimal128Property body = new Decimal128Property(default);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Decimal128Property body = new Decimal128Property(default);
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(Decimal128Property,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Decimal128Property body = new Decimal128Property(default);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+Decimal128Property body = new Decimal128Property(default);
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Decimal128 client = new ValueTypesClient().GetDecimal128Client();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

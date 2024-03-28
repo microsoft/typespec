@@ -1,0 +1,2565 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ComputeManagementClient",
+        "description": "The Compute Management Client.",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets/{availabilitySetName}": {
+            "put": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_CreateOrUpdate",
+                "description": "Create or update an availability set.",
+                "parameters": [
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        },
+                        "description": "Parameters supplied to the Create Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Update",
+                "description": "Update an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set.",
+                        "x-ms-client-default": "test"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Delete",
+                "description": "Delete an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_Get",
+                "description": "Retrieves information about an availability set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "availabilitySetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the availability set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySet"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/availabilitySets": {
+            "get": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_ListBySubscription",
+                "description": "Lists all availability sets in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply to the operation. Allowed values are 'instanceView'."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/availabilitySets": {
+            "get": {
+                "tags": [
+                    "AvailabilitySets"
+                ],
+                "operationId": "AvailabilitySets_List",
+                "description": "Lists all availability sets in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AvailabilitySetListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/hostGroups": {
+            "get": {
+                "tags": [
+                    "DedicatedHostGroups"
+                ],
+                "operationId": "DedicatedHostGroups_List",
+                "description": "Retrieves information about a dedicated host group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation. The response shows the list of instance view of the dedicated hosts under the dedicated host group.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "InstanceViewTypes",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroupListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/hostGroups/{hostGroupName}": {
+            "put": {
+                "tags": [
+                    "DedicatedHostGroups"
+                ],
+                "operationId": "DedicatedHostGroups_CreateOrUpdate",
+                "description": "Create or update a dedicated host group. For details of Dedicated Host and Dedicated Host Groups please see [Dedicated Host Documentation] (https://go.microsoft.com/fwlink/?linkid=2082596)",
+                "parameters": [
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroup"
+                        },
+                        "description": "Parameters supplied to the Create Dedicated Host Group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroup"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroup"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "DedicatedHostGroups"
+                ],
+                "operationId": "DedicatedHostGroups_Update",
+                "description": "Update an dedicated host group.",
+                "parameters": [
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroupUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Dedicated Host Group operation."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroup"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "DedicatedHostGroups"
+                ],
+                "operationId": "DedicatedHostGroups_Delete",
+                "description": "Delete a dedicated host group.",
+                "parameters": [
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "DedicatedHostGroups"
+                ],
+                "operationId": "DedicatedHostGroups_Get",
+                "description": "Retrieves information about a dedicated host group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation. The response shows the list of instance view of the dedicated hosts under the dedicated host group.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "InstanceViewTypes",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostGroup"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/hostGroups/{hostGroupName}/hosts/{hostName}": {
+            "put": {
+                "tags": [
+                    "DedicatedHosts"
+                ],
+                "operationId": "DedicatedHosts_CreateOrUpdate",
+                "description": "Create or update a dedicated host .",
+                "parameters": [
+                    {
+                        "name": "hostName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host ."
+                    },
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHost"
+                        },
+                        "description": "Parameters supplied to the Create Dedicated Host."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHost"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHost"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "DedicatedHosts"
+                ],
+                "operationId": "DedicatedHosts_Update",
+                "description": "Update an dedicated host .",
+                "parameters": [
+                    {
+                        "name": "hostName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host ."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Dedicated Host operation."
+                    },
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHost"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "DedicatedHosts"
+                ],
+                "operationId": "DedicatedHosts_Delete",
+                "description": "Delete a dedicated host.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "hostName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host."
+                    },
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "DedicatedHosts"
+                ],
+                "operationId": "DedicatedHosts_Get",
+                "description": "Retrieves information about a dedicated host.",
+                "parameters": [
+                    {
+                        "name": "hostName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "InstanceViewTypes",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHost"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/hostGroups/{hostGroupName}/hosts": {
+            "get": {
+                "tags": [
+                    "DedicatedHost"
+                ],
+                "operationId": "DedicatedHosts_ListByHostGroup",
+                "description": "Lists all of the dedicated hosts in the specified dedicated host group. Use the nextLink property in the response to get the next page of dedicated hosts.",
+                "parameters": [
+                    {
+                        "name": "hostGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the dedicated host group."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DedicatedHostListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types/{type}/versions/{version}": {
+            "get": {
+                "tags": [
+                    "VirtualMachineExtensionImages"
+                ],
+                "operationId": "VirtualMachineExtensionImages_Get",
+                "description": "Gets a virtual machine extension image.",
+                "parameters": [
+                    {
+                        "name": "version",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of a supported Azure region."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "publisherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineExtensionImage"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types": {
+            "get": {
+                "tags": [
+                    "VirtualMachineExtensionImages"
+                ],
+                "operationId": "VirtualMachineExtensionImages_ListTypes",
+                "description": "Gets a list of virtual machine extension image types.",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of a supported Azure region."
+                    },
+                    {
+                        "name": "publisherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/VirtualMachineExtensionImage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/locations/{location}/publishers/{publisherName}/artifacttypes/vmextension/types/{type}/versions": {
+            "get": {
+                "tags": [
+                    "VirtualMachineExtensionImages"
+                ],
+                "operationId": "VirtualMachineExtensionImages_ListVersions",
+                "description": "Gets a list of virtual machine extension image versions.",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "publisherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of a supported Azure region."
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "$orderby",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/VirtualMachineExtensionImage"
+                            }
+                        }
+                    }
+                },
+                "x-ms-odata": "#/definitions/VirtualMachineExtensionImage"
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningServices/workspaces/{workspaceName}/environments": {
+            "get": {
+                "tags": [
+                    "EnvironmentContainer"
+                ],
+                "summary": "Get container.",
+                "operationId": "EnvironmentContainers_List",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/EnvironmentContainerResourceListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningServices/workspaces/{workspaceName}/environments/{name}": {
+            "delete": {
+                "tags": [
+                    "EnvironmentContainer"
+                ],
+                "summary": "Delete container.",
+                "operationId": "EnvironmentContainers_Delete",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "name",
+                        "description": "Container name.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "EnvironmentContainer"
+                ],
+                "summary": "Get container.",
+                "operationId": "EnvironmentContainers_Get",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "name",
+                        "description": "Container name.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/EnvironmentContainerResource"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "EnvironmentContainer"
+                ],
+                "summary": "Create or update container.",
+                "operationId": "EnvironmentContainers_CreateOrUpdate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "name",
+                        "description": "Container name.",
+                        "required": true,
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9\\-_]{0,254}$"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Container entity to create or update.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/EnvironmentContainerResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/EnvironmentContainerResource"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/EnvironmentContainerResource"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningServices/workspaces": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "description": "Gets the properties of the specified machine learning workspace.",
+                "operationId": "Workspaces_List",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful; the request was well-formed and received properly.",
+                        "schema": {
+                            "$ref": "#/definitions/WorkspaceListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MachineLearningServices/workspaces/{workspaceName}": {
+            "get": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "description": "Gets the properties of the specified machine learning workspace.",
+                "operationId": "Workspaces_Get",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful; the request was well-formed and received properly.",
+                        "schema": {
+                            "$ref": "#/definitions/Workspace"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "description": "Creates or updates a workspace with the specified parameters.",
+                "operationId": "Workspaces_CreateOrUpdate",
+                "x-ms-long-running-operation": true,
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "description": "The parameters for creating or updating a machine learning workspace.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Workspace"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful; the request was well-formed and received properly.",
+                        "schema": {
+                            "$ref": "#/definitions/Workspace"
+                        }
+                    },
+                    "201": {
+                        "description": "The request was successful; the request was well-formed and received properly.",
+                        "schema": {
+                            "$ref": "#/definitions/Workspace"
+                        }
+                    },
+                    "202": {
+                        "description": "The request was successful; the request was well-formed and received properly."
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "description": "Deletes a machine learning workspace.",
+                "operationId": "Workspaces_Delete",
+                "x-ms-long-running-operation": true,
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful; the request was well-formed and received properly."
+                    },
+                    "202": {
+                        "description": "The request was accepted; the request was well-formed and received properly."
+                    },
+                    "204": {
+                        "description": "The machine learning workspace does not exist in the subscription."
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Workspaces"
+                ],
+                "description": "Updates a machine learning workspace with the specified parameters.",
+                "operationId": "Workspaces_Update",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/WorkspaceNameParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "description": "The parameters for updating a machine learning workspace.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/WorkspaceUpdateParameters"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request was successful; the request was well-formed and received properly.",
+                        "schema": {
+                            "$ref": "#/definitions/Workspace"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}": {
+            "put": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_CreateOrUpdate",
+                "description": "required body, required header;Create or update a VM scale set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set to create or update."
+                    },
+                    {
+                        "name": "quick",
+                        "in": "header",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSet"
+                        },
+                        "description": "The scale set object."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSet"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSet"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_Update",
+                "description": "optional body, no query; Update a VM scale set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSetUpdate"
+                        },
+                        "description": "The scale set object."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set to create or update."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSet"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_Delete",
+                "description": "Deletes a VM scale set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "forceDeletion",
+                        "in": "query",
+                        "required": true,
+                        "type": "boolean",
+                        "description": "Optional parameter to force delete a VM scale set. (Feature in Preview)"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-examples": {
+                    "Force Delete a VM scale set.": {
+                        "$ref": "./examples/compute/ForceDeleteVirtualMachineScaleSets.json"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_Get",
+                "description": "Display information about a virtual machine scale set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation. 'UserData' retrieves the UserData property of the VM scale set that was provided by the user during the VM scale set Create/Update operation",
+                        "enum": [
+                            "userData"
+                        ],
+                        "x-ms-enum": {
+                            "name": "ExpandTypesForGetVMScaleSets",
+                            "modelAsString": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSet"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Get a virtual machine scale set placed on a dedicated host group through automatic placement.": {
+                        "$ref": "./examples/compute/GetVirtualMachineScaleSetAutoPlacedOnDedicatedHostGroup.json"
+                    },
+                    "Get a virtual machine scale set with UserData": {
+                        "$ref": "./examples/compute/GetVirtualMachineScaleSetWithUserData.json"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}/deallocate": {
+            "post": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_Deallocate",
+                "description": "optional body, optional query; Deallocates specific virtual machines in a VM scale set. Shuts down the virtual machines and releases the compute resources. You are not billed for the compute resources that this virtual machine scale set deallocates.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "vmInstanceIDs",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSetVMInstanceIDs"
+                        },
+                        "description": "A list of virtual machine instance IDs from the VM scale set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}/delete": {
+            "post": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_DeleteInstances",
+                "description": "required body, optional query; Deletes virtual machines in a VM scale set.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "forceDeletion",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean",
+                        "description": "Optional parameter to force delete virtual machines from the VM scale set. (Feature in Preview)"
+                    },
+                    {
+                        "name": "vmInstanceIDs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSetVMInstanceRequiredIDs"
+                        },
+                        "description": "A list of virtual machine instance IDs from the VM scale set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{vmScaleSetName}/instanceView": {
+            "get": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_GetInstanceView",
+                "description": "No body, mixed parameters; Gets the status of a VM scale set instance.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSetInstanceView"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets": {
+            "get": {
+                "tags": [
+                    "VirtualMachineScaleSets"
+                ],
+                "operationId": "VirtualMachineScaleSets_List",
+                "description": "Gets a list of all VM scale sets under a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineScaleSetListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AvailabilitySet": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set."
+        },
+        "AvailabilitySetUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/AvailabilitySetProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Specifies information about the availability set that the virtual machine should be assigned to. Only tags may be updated."
+        },
+        "AvailabilitySetProperties": {
+            "properties": {
+                "platformUpdateDomainCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Update Domain count."
+                },
+                "platformFaultDomainCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Fault Domain count."
+                }
+            },
+            "description": "The instance view of a resource."
+        },
+        "AvailabilitySetListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AvailabilitySet"
+                    },
+                    "description": "The list of availability sets"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of AvailabilitySets. Call ListNext() with this URI to fetch the next page of AvailabilitySets."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "VirtualMachineExtensionImage": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "The VirtualMachineExtensionImage."
+        },
+        "DedicatedHostGroupUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/DedicatedHostGroupProperties"
+                },
+                "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Availability Zone to use for this host group. Only single zone is supported. The zone can be assigned only during creation. If not provided, the group supports all zones in the region. If provided, enforces each host in the group to be in the same zone."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Specifies information about the dedicated host group that the dedicated host should be assigned to. Only tags may be updated."
+        },
+        "DedicatedHostGroupProperties": {
+            "properties": {
+                "platformFaultDomainCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 1,
+                    "description": "Number of fault domains that the host group can span."
+                },
+                "supportAutomaticPlacement": {
+                    "type": "boolean",
+                    "description": "Specifies whether virtual machines or virtual machine scale sets can be placed automatically on the dedicated host group. Automatic placement means resources are allocated on dedicated hosts, that are chosen by Azure, under the dedicated host group. The value is defaulted to 'true' when not provided. <br><br>Minimum api-version: 2020-06-01."
+                }
+            },
+            "required": [
+                "platformFaultDomainCount"
+            ],
+            "description": "Dedicated Host Group Properties."
+        },
+        "UpdateResource": {
+            "description": "The Update Resource model definition.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        },
+        "DedicatedHost": {
+            "properties": {
+                "foo": {
+                    "type": "string",
+                    "description": "specifies the foo"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the Dedicated host."
+        },
+        "DedicatedHostGroupListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DedicatedHostGroup"
+                    },
+                    "description": "The list of dedicated hosts"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of dedicated hosts. Call ListNext() with this URI to fetch the next page of dedicated hosts."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The list dedicated host operation response."
+        },
+        "DedicatedHostGroup": {
+            "properties": {
+                "foo": {
+                    "type": "string",
+                    "description": "specifies the foo"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the Dedicated host."
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "DedicatedHostUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/DedicatedHostProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Specifies information about the dedicated host. Only tags, autoReplaceOnFailure and licenseType may be updated."
+        },
+        "DedicatedHostProperties": {
+            "properties": {
+                "platformFaultDomain": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0,
+                    "description": "Fault domain of the dedicated host within a dedicated host group."
+                },
+                "autoReplaceOnFailure": {
+                    "type": "boolean",
+                    "description": "Specifies whether the dedicated host should be replaced automatically in case of a failure. The value is defaulted to 'true' when not provided."
+                },
+                "hostId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "A unique id generated and assigned to the dedicated host by the platform. <br><br> Does not change throughout the lifetime of the host."
+                },
+                "provisioningTime": {
+                    "readOnly": true,
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The date when the host was first provisioned."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Properties of the dedicated host."
+        },
+        "DedicatedHostListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DedicatedHost"
+                    },
+                    "description": "The list of dedicated hosts"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of dedicated hosts. Call ListNext() with this URI to fetch the next page of dedicated hosts."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The list dedicated host operation response."
+        },
+        "ErrorResponse": {
+            "title": "Error response",
+            "description": "Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.).",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "The error object.",
+                    "$ref": "#/definitions/ErrorDetail"
+                }
+            }
+        },
+        "ErrorDetail": {
+            "description": "The error detail.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "message": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error message."
+                },
+                "target": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error target."
+                },
+                "details": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorDetail"
+                    },
+                    "description": "The error details."
+                },
+                "additionalInfo": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorAdditionalInfo"
+                    },
+                    "description": "The error additional info."
+                }
+            }
+        },
+        "ErrorAdditionalInfo": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The additional info type."
+                },
+                "info": {
+                    "readOnly": true,
+                    "type": "object",
+                    "description": "The additional info."
+                }
+            },
+            "description": "The resource management error additional info."
+        },
+        "EnvironmentContainerResourceListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/EnvironmentContainerResource"
+                    },
+                    "description": "The list of dedicated hosts"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of dedicated hosts. Call ListNext() with this URI to fetch the next page of dedicated hosts."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The list dedicated host operation response."
+        },
+        "EnvironmentContainerResource": {
+            "description": "Azure Resource Manager resource envelope.",
+            "required": [
+                "properties"
+            ],
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "properties": {
+                    "description": "Additional attributes of the entity.",
+                    "$ref": "#/definitions/EnvironmentContainer"
+                },
+                "systemData": {
+                    "description": "System data associated with resource provider",
+                    "$ref": "#/definitions/systemData",
+                    "readOnly": true,
+                    "x-ms-mutability": [
+                        "read"
+                    ]
+                }
+            }
+        },
+        "systemData": {
+            "description": "Metadata pertaining to creation and last modification of the resource.",
+            "type": "object",
+            "readOnly": true,
+            "properties": {
+                "createdBy": {
+                    "type": "string",
+                    "description": "The identity that created the resource."
+                },
+                "createdByType": {
+                    "type": "string",
+                    "description": "The type of identity that created the resource.",
+                    "enum": [
+                        "User",
+                        "Application",
+                        "ManagedIdentity",
+                        "Key"
+                    ],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of resource creation (UTC)."
+                },
+                "lastModifiedBy": {
+                    "type": "string",
+                    "description": "The identity that last modified the resource."
+                },
+                "lastModifiedByType": {
+                    "type": "string",
+                    "description": "The type of identity that last modified the resource.",
+                    "enum": [
+                        "User",
+                        "Application",
+                        "ManagedIdentity",
+                        "Key"
+                    ],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "lastModifiedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of resource last modification (UTC)"
+                }
+            }
+        },
+        "EnvironmentContainer": {
+            "description": "Container for environment specification versions.",
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "The asset description text.",
+                    "type": "string"
+                },
+                "properties": {
+                    "description": "The asset property dictionary.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "tags": {
+                    "description": "Tag dictionary. Tags can be added, removed, and updated.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "WorkspaceListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Workspace"
+                    },
+                    "description": "The list of dedicated hosts"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of dedicated hosts. Call ListNext() with this URI to fetch the next page of dedicated hosts."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The list dedicated host operation response."
+        },
+        "Workspace": {
+            "type": "object",
+            "description": "An object that represents a machine learning workspace.",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "properties": {
+                    "$ref": "#/definitions/WorkspaceProperties",
+                    "description": "The properties of the machine learning workspace.",
+                    "x-ms-client-flatten": true
+                },
+                "location": {
+                    "description": "Specifies the location of the resource.",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "Contains resource tags defined as key/value pairs.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "systemData": {
+                    "$ref": "#/definitions/systemData"
+                }
+            }
+        },
+        "WorkspaceProperties": {
+            "type": "object",
+            "description": "The properties of a machine learning workspace.",
+            "properties": {
+                "workspaceId": {
+                    "description": "The immutable id associated with this workspace.",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "description": {
+                    "description": "The description of this workspace.",
+                    "type": "string"
+                },
+                "friendlyName": {
+                    "description": "The friendly name for this workspace. This name in mutable",
+                    "type": "string"
+                },
+                "keyVault": {
+                    "description": "ARM id of the key vault associated with this workspace. This cannot be changed once the workspace has been created",
+                    "type": "string"
+                },
+                "applicationInsights": {
+                    "description": "ARM id of the application insights associated with this workspace. This cannot be changed once the workspace has been created",
+                    "type": "string"
+                },
+                "containerRegistry": {
+                    "description": "ARM id of the container registry associated with this workspace. This cannot be changed once the workspace has been created",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "storageAccount": {
+                    "description": "ARM id of the storage account associated with this workspace. This cannot be changed once the workspace has been created",
+                    "type": "string"
+                },
+                "discoveryUrl": {
+                    "description": "Url for the discovery service to identify regional endpoints for machine learning experimentation services",
+                    "type": "string"
+                },
+                "provisioningState": {
+                    "type": "string",
+                    "enum": [
+                        "Unknown",
+                        "Updating",
+                        "Creating",
+                        "Deleting",
+                        "Succeeded",
+                        "Failed",
+                        "Canceled"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ProvisioningState",
+                        "modelAsString": true
+                    },
+                    "readOnly": true,
+                    "description": "The current deployment state of workspace resource. The provisioningState is to indicate states for resource provisioning."
+                },
+                "hbiWorkspace": {
+                    "type": "boolean",
+                    "description": "The flag to signal HBI data in the workspace and reduce diagnostic data collected by the service",
+                    "default": false
+                },
+                "serviceProvisionedResourceGroup": {
+                    "type": "string",
+                    "description": "The name of the managed resource group created by workspace RP in customer subscription if the workspace is CMK workspace",
+                    "readOnly": true
+                },
+                "privateLinkCount": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Count of private connections in the workspace",
+                    "readOnly": true
+                },
+                "imageBuildCompute": {
+                    "description": "The compute name for image build",
+                    "type": "string"
+                },
+                "allowPublicAccessWhenBehindVnet": {
+                    "type": "boolean",
+                    "description": "The flag to indicate whether to allow public access when behind VNet.",
+                    "default": false
+                },
+                "primaryUserAssignedIdentity": {
+                    "description": "The user assigned identity resource id that represents the workspace identity.",
+                    "type": "string"
+                },
+                "tenantId": {
+                    "description": "The tenant id associated with this workspace.",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "WorkspaceUpdateParameters": {
+            "description": "The parameters for updating a machine learning workspace.",
+            "properties": {
+                "tags": {
+                    "description": "The resource tags for the machine learning workspace.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "VirtualMachineScaleSetVMListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/VirtualMachineScaleSetVM"
+                    },
+                    "description": "The list of virtual machine scale sets VMs."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of Virtual Machine Scale Set VMs. Call ListNext() with this to fetch the next page of VMSS VMs"
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Virtual Machine Scale Set VMs operation response."
+        },
+        "VirtualMachineScaleSet": {
+            "properties": {
+                "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine scale set zones. NOTE: Availability zones can only be set when you create the scale set"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine Scale Set."
+        },
+        "VirtualMachineScaleSetListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/VirtualMachineScaleSet"
+                    },
+                    "description": "The list of virtual machine scale sets."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of Virtual Machine Scale Sets. Call ListNext() with this to fetch the next page of VMSS."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Virtual Machine operation response."
+        },
+        "VirtualMachineScaleSetUpdate": {
+            "properties": {
+                "sku": {
+                    "$ref": "#/definitions/Sku",
+                    "description": "The virtual machine scale set sku."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine Scale Set."
+        },
+        "Sku": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The sku name."
+                },
+                "tier": {
+                    "type": "string",
+                    "description": "Specifies the tier of virtual machines in a scale set.<br /><br /> Possible Values:<br /><br /> **Standard**<br /><br /> **Basic**"
+                },
+                "capacity": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "Specifies the number of virtual machines in the scale set."
+                }
+            },
+            "description": "Describes a virtual machine scale set sku. NOTE: If the new VM SKU is not supported on the hardware the scale set is currently on, you need to deallocate the VMs in the scale set before you modify the SKU name."
+        },
+        "VirtualMachineScaleSetVMInstanceIDs": {
+            "properties": {
+                "instanceIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine scale set instance ids. Omitting the virtual machine scale set instance ids will result in the operation being performed on all virtual machines in the virtual machine scale set."
+                }
+            },
+            "description": "Specifies a list of virtual machine instance IDs from the VM scale set."
+        },
+        "VirtualMachineScaleSetVMInstanceRequiredIDs": {
+            "properties": {
+                "instanceIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine scale set instance ids."
+                }
+            },
+            "required": [
+                "instanceIds"
+            ],
+            "description": "Specifies a list of virtual machine instance IDs from the VM scale set."
+        },
+        "VirtualMachineScaleSetInstanceView": {
+            "properties": {
+                "virtualMachine": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "The instance view status summary for the virtual machine scale set."
+                }
+            },
+            "description": "The instance view of a virtual machine scale set."
+        },
+        "VirtualMachineScaleSetVM": {
+            "properties": {
+                "instanceId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "remove some properties to simplify; The virtual machine instance ID."
+                },
+                "zones": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine zones."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a virtual machine scale set virtual machine."
+
+        },
+        "LocationFormatObject": {
+            "properties": {
+                "stringLocation": {
+                    "type": "string",
+                    "description": "This location should be a string"
+                },
+                "objectLocation": {
+                    "type": "string",
+                    "x-ms-format": "azure-location",
+                    "description": "This location should be an AzureLocation"
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        },
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource group. The name is case insensitive.",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method"
+        },
+        "WorkspaceNameParameter": {
+            "name": "workspaceName",
+            "description": "Name of Azure Machine Learning workspace.",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

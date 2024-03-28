@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetUnknownValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownValueAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+EnumTest client = new FirstTestTypeSpecClient(endpoint).GetEnumTestClient();
+
+Response response = await client.GetUnknownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetUnknownValueAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+EnumTest client = new FirstTestTypeSpecClient(endpoint).GetEnumTestClient();
+
+Response response = await client.GetUnknownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetUnknownValue(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownValue and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+EnumTest client = new FirstTestTypeSpecClient(endpoint).GetEnumTestClient();
+
+Response response = client.GetUnknownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetUnknownValue with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+EnumTest client = new FirstTestTypeSpecClient(endpoint).GetEnumTestClient();
+
+Response response = client.GetUnknownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

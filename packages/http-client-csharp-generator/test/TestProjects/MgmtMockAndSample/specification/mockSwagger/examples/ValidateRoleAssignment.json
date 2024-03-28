@@ -1,0 +1,10 @@
+{
+  "parameters": {
+    "subscriptionId": "subId",
+    "roleAssignmentName": "roleAssignmentId",
+    "api-version": "2017-10-01-preview"
+  },
+  "responses": {
+    "200": {}
+  }
+}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetItemAsync(RequestContext)">
+      <example>
+This sample shows how to call GetItemAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Resource client = new ResourceServiceClient(credential).GetResourceGroup("<GroupId>").GetResource("<ItemId>");
+
+Response response = await client.GetItemAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetItemAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Resource client = new ResourceServiceClient(credential).GetResourceGroup("<GroupId>").GetResource("<ItemId>");
+
+Response response = await client.GetItemAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetItem(RequestContext)">
+      <example>
+This sample shows how to call GetItem and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Resource client = new ResourceServiceClient(credential).GetResourceGroup("<GroupId>").GetResource("<ItemId>");
+
+Response response = client.GetItem(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetItem with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Resource client = new ResourceServiceClient(credential).GetResourceGroup("<GroupId>").GetResource("<ItemId>");
+
+Response response = client.GetItem(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

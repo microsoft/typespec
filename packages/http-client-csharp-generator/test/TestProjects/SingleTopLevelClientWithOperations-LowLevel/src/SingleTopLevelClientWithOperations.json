@@ -1,0 +1,127 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-19",
+    "title": "TopLevelClientWithOperation"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [ "application/json" ],
+  "consumes": [ "application/json" ],
+  "paths": {
+    "/client1": {
+      "get": {
+        "operationId": "Client1_Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/client2": {
+      "get": {
+        "operationId": "Client2_Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/client3": {
+      "get": {
+        "operationId": "Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/client4": {
+      "get": {
+        "description": "Operation defined in resource client, but must be promoted to the top level client because it doesn't have a parameter with `x-ms-resource-identifier: true`.",
+        "operationId": "Client4_GetAll",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Items"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        } 
+      },      
+      "patch": {
+        "description": "Operation has a parameter with `x-ms-resource-identifier: true`, hence `Client4` will be codegen'ed as a resource client.",
+        "operationId": "Client4_Patch",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "clientParameter",
+            "required": true,
+            "type": "string",
+            "x-ms-resource-identifier": true,
+            "x-ms-parameter-location": "client"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Items": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextLink": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": { },
+  "securityDefinitions": {},
+  "security": [],
+  "tags": []
+}

@@ -1,0 +1,8 @@
+* text=auto
+
+**/Generated/*.cs linguist-generated=true
+**/samples/**/*.csproj linguist-generated=true
+**/test/TestProjects/**/*.csproj linguist-generated=true
+**/test/TestServerProjects/**/*.csproj linguist-generated=true
+**/*.yaml linguist-generated=true
+**/Configuration.json linguist-generated=true

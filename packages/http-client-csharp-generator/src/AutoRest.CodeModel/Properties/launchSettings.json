@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AutoRest.CodeModel": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

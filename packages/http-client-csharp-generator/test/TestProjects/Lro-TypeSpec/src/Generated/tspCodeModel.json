@@ -1,0 +1,1050 @@
+{
+ "$id": "1",
+ "Name": "lro",
+ "Description": "This is a sample typespec lro project.",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "JobStatus",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "NotStarted",
+     "Value": "notStarted"
+    },
+    {
+     "$id": "4",
+     "Name": "Running",
+     "Value": "running"
+    },
+    {
+     "$id": "5",
+     "Name": "Succeeded",
+     "Value": "succeeded"
+    },
+    {
+     "$id": "6",
+     "Name": "Failed",
+     "Value": "failed"
+    },
+    {
+     "$id": "7",
+     "Name": "Canceled",
+     "Value": "canceled"
+    }
+   ],
+   "Namespace": "lro",
+   "Description": "The status of the processing job.",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "Output"
+  },
+  {
+   "$id": "8",
+   "Kind": "Enum",
+   "Name": "OAuth2FlowType",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "9",
+     "Name": "authorizationCode",
+     "Value": "authorizationCode",
+     "Description": "authorization code flow"
+    },
+    {
+     "$id": "10",
+     "Name": "implicit",
+     "Value": "implicit",
+     "Description": "implcit flow"
+    },
+    {
+     "$id": "11",
+     "Name": "password",
+     "Value": "password",
+     "Description": "password flow"
+    },
+    {
+     "$id": "12",
+     "Name": "clientCredentials",
+     "Value": "clientCredentials",
+     "Description": "client credential flow"
+    }
+   ],
+   "Namespace": "TypeSpec.Http",
+   "Description": "Describes the OAuth2 flow type",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "13",
+   "Kind": "Enum",
+   "Name": "AuthFlow_tokenUrl",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "14",
+     "Name": "https://api.example.com/oauth2/token",
+     "Value": "https://api.example.com/oauth2/token",
+     "Description": "https://api.example.com/oauth2/token"
+    }
+   ],
+   "Namespace": "lro",
+   "Description": "The AuthFlow_tokenUrl",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "15",
+   "Kind": "Enum",
+   "Name": "AuthFlow_refreshUrl",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "16",
+     "Name": "https://api.example.com/oauth2/refresh",
+     "Value": "https://api.example.com/oauth2/refresh",
+     "Description": "https://api.example.com/oauth2/refresh"
+    }
+   ],
+   "Namespace": "lro",
+   "Description": "The AuthFlow_refreshUrl",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "17",
+   "Kind": "Model",
+   "Name": "RadiologyInsightsResult",
+   "Namespace": "lro",
+   "Description": "The response for the Radiology Insights request.",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "18",
+     "Name": "id",
+     "SerializedName": "id",
+     "Description": "The unique ID of the operation.",
+     "Type": {
+      "$id": "19",
+      "Kind": "Primitive",
+      "Name": "Guid",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "20",
+     "Name": "status",
+     "SerializedName": "status",
+     "Description": "The status of the operation",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": true,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "21",
+     "Name": "createdDateTime",
+     "SerializedName": "createdDateTime",
+     "Description": "The date and time when the processing job was created.",
+     "Type": {
+      "$id": "22",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "23",
+     "Name": "expirationDateTime",
+     "SerializedName": "expirationDateTime",
+     "Description": "The date and time when the processing job is set to expire.",
+     "Type": {
+      "$id": "24",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "25",
+     "Name": "lastUpdateDateTime",
+     "SerializedName": "lastUpdateDateTime",
+     "Description": "The date and time when the processing job was last updated.",
+     "Type": {
+      "$id": "26",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "27",
+     "Name": "error",
+     "SerializedName": "error",
+     "Description": "Error object that describes the error when status is \"Failed\".",
+     "Type": {
+      "$id": "28",
+      "Kind": "Model",
+      "Name": "Error",
+      "Namespace": "Azure.Core.Foundations",
+      "Description": "The error object.",
+      "IsNullable": false,
+      "Usage": "Output",
+      "Properties": [
+       {
+        "$id": "29",
+        "Name": "code",
+        "SerializedName": "code",
+        "Description": "One of a server-defined set of error codes.",
+        "Type": {
+         "$id": "30",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "31",
+        "Name": "message",
+        "SerializedName": "message",
+        "Description": "A human-readable representation of the error.",
+        "Type": {
+         "$id": "32",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "33",
+        "Name": "target",
+        "SerializedName": "target",
+        "Description": "The target of the error.",
+        "Type": {
+         "$id": "34",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "35",
+        "Name": "details",
+        "SerializedName": "details",
+        "Description": "An array of details about specific errors that led to this reported error.",
+        "Type": {
+         "$id": "36",
+         "Kind": "Array",
+         "Name": "Array",
+         "ElementType": {
+          "$ref": "28"
+         },
+         "IsNullable": false
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       },
+       {
+        "$id": "37",
+        "Name": "innererror",
+        "SerializedName": "innererror",
+        "Description": "An object containing more specific information than the current object about the error.",
+        "Type": {
+         "$id": "38",
+         "Kind": "Model",
+         "Name": "InnerError",
+         "Namespace": "Azure.Core.Foundations",
+         "Description": "An object containing more specific information about the error. As per Microsoft One API guidelines - https://github.com/Microsoft/api-guidelines/blob/vNext/Guidelines.md#7102-error-condition-responses.",
+         "IsNullable": false,
+         "Usage": "Output",
+         "Properties": [
+          {
+           "$id": "39",
+           "Name": "code",
+           "SerializedName": "code",
+           "Description": "One of a server-defined set of error codes.",
+           "Type": {
+            "$id": "40",
+            "Kind": "Primitive",
+            "Name": "String",
+            "IsNullable": false
+           },
+           "IsRequired": false,
+           "IsReadOnly": false
+          },
+          {
+           "$id": "41",
+           "Name": "InnerErrorObject",
+           "SerializedName": "innererror",
+           "Description": "Inner error.",
+           "Type": {
+            "$ref": "38"
+           },
+           "IsRequired": false,
+           "IsReadOnly": false
+          }
+         ]
+        },
+        "IsRequired": false,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "42",
+     "Name": "result",
+     "SerializedName": "result",
+     "Description": "The result of the operation.",
+     "Type": {
+      "$id": "43",
+      "Kind": "Model",
+      "Name": "RadiologyInsightsInferenceResult",
+      "Namespace": "lro",
+      "Description": "The inference results for the Radiology Insights request.",
+      "IsNullable": false,
+      "Usage": "Output",
+      "Properties": [
+       {
+        "$id": "44",
+        "Name": "id",
+        "SerializedName": "id",
+        "Description": "",
+        "Type": {
+         "$id": "45",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "28"
+  },
+  {
+   "$ref": "38"
+  },
+  {
+   "$ref": "43"
+  },
+  {
+   "$id": "46",
+   "Kind": "Model",
+   "Name": "RadiologyInsightsData",
+   "Namespace": "lro",
+   "Description": "The body of the Radiology Insights request.",
+   "IsNullable": false,
+   "Usage": "Input",
+   "Properties": [
+    {
+     "$id": "47",
+     "Name": "patients",
+     "SerializedName": "patients",
+     "Description": "The list of patients, including their clinical information and data.",
+     "Type": {
+      "$id": "48",
+      "Kind": "Array",
+      "Name": "Array",
+      "ElementType": {
+       "$id": "49",
+       "Kind": "Primitive",
+       "Name": "String",
+       "IsNullable": false
+      },
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "50",
+     "Name": "configuration",
+     "SerializedName": "configuration",
+     "Description": "Configuration affecting the Radiology Insights model's inference.",
+     "Type": {
+      "$id": "51",
+      "Kind": "Primitive",
+      "Name": "String",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "52",
+   "Kind": "Model",
+   "Name": "HealthInsightsOperationStatusneverError",
+   "Namespace": "lro",
+   "Description": "Provides status details for long running operations.",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "53",
+     "Name": "id",
+     "SerializedName": "id",
+     "Description": "The unique ID of the operation.",
+     "Type": {
+      "$id": "54",
+      "Kind": "Primitive",
+      "Name": "Guid",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "55",
+     "Name": "status",
+     "SerializedName": "status",
+     "Description": "The status of the operation",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": true,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "56",
+     "Name": "createdDateTime",
+     "SerializedName": "createdDateTime",
+     "Description": "The date and time when the processing job was created.",
+     "Type": {
+      "$id": "57",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "58",
+     "Name": "expirationDateTime",
+     "SerializedName": "expirationDateTime",
+     "Description": "The date and time when the processing job is set to expire.",
+     "Type": {
+      "$id": "59",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "60",
+     "Name": "lastUpdateDateTime",
+     "SerializedName": "lastUpdateDateTime",
+     "Description": "The date and time when the processing job was last updated.",
+     "Type": {
+      "$id": "61",
+      "Kind": "Primitive",
+      "Name": "DateTime",
+      "IsNullable": false
+     },
+     "IsRequired": false,
+     "IsReadOnly": true
+    },
+    {
+     "$id": "62",
+     "Name": "error",
+     "SerializedName": "error",
+     "Description": "Error object that describes the error when status is \"Failed\".",
+     "Type": {
+      "$ref": "28"
+     },
+     "IsRequired": false,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "63",
+   "Kind": "Model",
+   "Name": "AuthFlow",
+   "Namespace": "lro",
+   "Description": "The auth flow model",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": [
+    {
+     "$id": "64",
+     "Name": "type",
+     "SerializedName": "type",
+     "Description": "",
+     "Type": {
+      "$ref": "8"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "65",
+     "Name": "tokenUrl",
+     "SerializedName": "tokenUrl",
+     "Description": "",
+     "Type": {
+      "$id": "66",
+      "Kind": "Literal",
+      "Name": "Literal",
+      "LiteralValueType": {
+       "$ref": "13"
+      },
+      "Value": "https://api.example.com/oauth2/token",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "67",
+     "Name": "refreshUrl",
+     "SerializedName": "refreshUrl",
+     "Description": "",
+     "Type": {
+      "$id": "68",
+      "Kind": "Literal",
+      "Name": "Literal",
+      "LiteralValueType": {
+       "$ref": "15"
+      },
+      "Value": "https://api.example.com/oauth2/refresh",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    },
+    {
+     "$id": "69",
+     "Name": "scopes",
+     "SerializedName": "scopes",
+     "Description": "",
+     "Type": {
+      "$id": "70",
+      "Kind": "Intrinsic",
+      "Name": "unknown",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "71",
+   "Kind": "Model",
+   "Name": "HealthInsightsRetryAfterTrait",
+   "Namespace": "lro",
+   "Description": "Health Insights retry after trait",
+   "IsNullable": false,
+   "Usage": "None",
+   "Properties": [
+    {
+     "$id": "72",
+     "Name": "retryAfter",
+     "SerializedName": "retryAfter",
+     "Description": "The retry-after header.",
+     "Type": {
+      "$id": "73",
+      "Kind": "Model",
+      "Name": "HealthInsightsRetryAfterTraitRetryAfter",
+      "Namespace": "lro",
+      "IsNullable": false,
+      "Usage": "None",
+      "Properties": [
+       {
+        "$id": "74",
+        "Name": "response",
+        "SerializedName": "response",
+        "Description": "",
+        "Type": {
+         "$id": "75",
+         "Kind": "Model",
+         "Name": "RetryAfterHeader",
+         "Namespace": "Azure.Core.Foundations",
+         "Description": "The retry-after envelope.",
+         "IsNullable": false,
+         "Usage": "None",
+         "Properties": []
+        },
+        "IsRequired": true,
+        "IsReadOnly": false
+       }
+      ]
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$ref": "73"
+  },
+  {
+   "$ref": "75"
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "76",
+   "Name": "lroClient",
+   "Description": "",
+   "Operations": [],
+   "Protocol": {
+    "$id": "77"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "78",
+   "Name": "LegacyLro",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "79",
+     "Name": "getJob",
+     "ResourceName": "LegacyLro",
+     "Summary": "Get Radiology Insights job details",
+     "Description": "Gets the status and details of the Radiology Insights job.",
+     "Parameters": [
+      {
+       "$id": "80",
+       "Name": "lroEndpoint",
+       "NameInRequest": "lroEndpoint",
+       "Type": {
+        "$id": "81",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "82",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "83",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "84",
+       "Name": "id",
+       "NameInRequest": "id",
+       "Description": "A processing job identifier.",
+       "Type": {
+        "$id": "85",
+        "Kind": "Primitive",
+        "Name": "Guid",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "86",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "87",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "88",
+        "Type": {
+         "$ref": "87"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "89",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "17"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "90",
+         "Name": "Retry-After",
+         "NameInResponse": "retryAfter",
+         "Description": "The Retry-After header can indicate how long the client should wait before polling the operation status.",
+         "Type": {
+          "$id": "91",
+          "Kind": "Primitive",
+          "Name": "Int32",
+          "IsNullable": false
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{lroEndpoint}",
+     "Path": "/radiology-insights/jobs/{id}",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    },
+    {
+     "$id": "92",
+     "Name": "createJob",
+     "ResourceName": "LegacyLro",
+     "Summary": "Create Radiology Insights job",
+     "Description": "Creates a Radiology Insights job with the given request body.",
+     "Parameters": [
+      {
+       "$ref": "80"
+      },
+      {
+       "$id": "93",
+       "Name": "apiVersion",
+       "NameInRequest": "api-version",
+       "Description": "The API version to use for this operation.",
+       "Type": {
+        "$id": "94",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Query",
+       "IsRequired": true,
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "95",
+       "Name": "repeatabilityRequestId",
+       "NameInRequest": "Repeatability-Request-ID",
+       "Description": "An opaque, globally-unique, client-generated string identifier for the request.",
+       "Type": {
+        "$id": "96",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "97",
+       "Name": "repeatabilityFirstSent",
+       "NameInRequest": "Repeatability-First-Sent",
+       "Description": "Specifies the date and time at which the request was first created.",
+       "Type": {
+        "$id": "98",
+        "Kind": "Primitive",
+        "Name": "DateTime",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsRequired": false,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "99",
+       "Name": "RadiologyInsightsData",
+       "NameInRequest": "RadiologyInsightsData",
+       "Description": "The body of the Radiology Insights request.",
+       "Type": {
+        "$ref": "46"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "100",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "101",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "102",
+        "Type": {
+         "$ref": "101"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "103",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "104",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "105",
+        "Type": {
+         "$ref": "104"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "106",
+       "StatusCodes": [
+        202
+       ],
+       "BodyType": {
+        "$ref": "52"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [
+        {
+         "$id": "107",
+         "Name": "Operation-Location",
+         "NameInResponse": "operationLocation",
+         "Description": "The location for monitoring the operation state.",
+         "Type": {
+          "$id": "108",
+          "Kind": "Primitive",
+          "Name": "Uri",
+          "IsNullable": false
+         }
+        },
+        {
+         "$id": "109",
+         "Name": "Retry-After",
+         "NameInResponse": "retryAfter",
+         "Description": "The Retry-After header can indicate how long the client should wait before polling the operation status.",
+         "Type": {
+          "$id": "110",
+          "Kind": "Primitive",
+          "Name": "Int32",
+          "IsNullable": false
+         }
+        },
+        {
+         "$id": "111",
+         "Name": "Repeatability-Result",
+         "NameInResponse": "repeatabilityResult",
+         "Description": "Indicates whether the repeatable request was accepted or rejected.",
+         "Type": {
+          "$id": "112",
+          "Kind": "Union",
+          "Name": "Union",
+          "UnionItemTypes": [
+           {
+            "$id": "113",
+            "Kind": "Literal",
+            "Name": "Literal",
+            "LiteralValueType": {
+             "$id": "114",
+             "Kind": "Primitive",
+             "Name": "String",
+             "IsNullable": false
+            },
+            "Value": "accepted",
+            "IsNullable": false
+           },
+           {
+            "$id": "115",
+            "Kind": "Literal",
+            "Name": "Literal",
+            "LiteralValueType": {
+             "$id": "116",
+             "Kind": "Primitive",
+             "Name": "String",
+             "IsNullable": false
+            },
+            "Value": "rejected",
+            "IsNullable": false
+           }
+          ],
+          "IsNullable": false
+         }
+        }
+       ],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "POST",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{lroEndpoint}",
+     "Path": "/radiology-insights/jobs",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "LongRunning": {
+      "$id": "117",
+      "FinalStateVia": 3,
+      "FinalResponse": {
+       "$id": "118",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "17"
+       },
+       "BodyMediaType": "Json"
+      },
+      "ResultPath": "result"
+     },
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "119"
+   },
+   "Creatable": false,
+   "Parent": "lroClient"
+  }
+ ],
+ "Auth": {
+  "$id": "120",
+  "ApiKey": {
+   "$id": "121",
+   "Name": "x-ms-api-key"
+  },
+  "OAuth2": {
+   "$id": "122",
+   "Scopes": [
+    "https://api.example.com/.default"
+   ]
+  }
+ }
+}

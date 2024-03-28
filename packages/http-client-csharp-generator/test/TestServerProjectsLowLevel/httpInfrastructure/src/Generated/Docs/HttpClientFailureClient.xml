@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="Head400Async(RequestContext)">
+      <example>
+This sample shows how to call Head400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head400Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head400Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head400(RequestContext)">
+      <example>
+This sample shows how to call Head400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head400();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head400();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get400Async(RequestContext)">
+      <example>
+This sample shows how to call Get400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get400Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get400Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get400(RequestContext)">
+      <example>
+This sample shows how to call Get400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get400();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get400();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options400Async(RequestContext)">
+      <example>
+This sample shows how to call Options400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options400Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options400Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options400(RequestContext)">
+      <example>
+This sample shows how to call Options400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options400();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options400();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put400Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Put400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Put400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put400(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Put400(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Put400(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch400Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Patch400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Patch400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch400(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Patch400(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Patch400(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post400Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Post400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Post400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post400(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Post400(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Post400(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete400Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Delete400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete400Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Delete400Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete400(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Delete400(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete400 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Delete400(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head401Async(RequestContext)">
+      <example>
+This sample shows how to call Head401Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head401Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head401Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head401Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head401(RequestContext)">
+      <example>
+This sample shows how to call Head401.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head401();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head401 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head401();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get402Async(RequestContext)">
+      <example>
+This sample shows how to call Get402Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get402Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get402Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get402Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get402(RequestContext)">
+      <example>
+This sample shows how to call Get402.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get402();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get402 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get402();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options403Async(RequestContext)">
+      <example>
+This sample shows how to call Options403Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options403Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options403Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options403Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options403(RequestContext)">
+      <example>
+This sample shows how to call Options403.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options403();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options403 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options403();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get403Async(RequestContext)">
+      <example>
+This sample shows how to call Get403Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get403Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get403Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get403Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get403(RequestContext)">
+      <example>
+This sample shows how to call Get403.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get403();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get403 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get403();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put404Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put404Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Put404Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put404Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Put404Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put404(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put404.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Put404(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put404 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Put404(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch405Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch405Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Patch405Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch405Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Patch405Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch405(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch405.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Patch405(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch405 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Patch405(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post406Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post406Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Post406Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post406Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Post406Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post406(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post406.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Post406(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post406 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Post406(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete407Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete407Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Delete407Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete407Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Delete407Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete407(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete407.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Delete407(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete407 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Delete407(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put409Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put409Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Put409Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put409Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Put409Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put409(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put409.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Put409(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put409 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Put409(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head410Async(RequestContext)">
+      <example>
+This sample shows how to call Head410Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head410Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head410Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head410Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head410(RequestContext)">
+      <example>
+This sample shows how to call Head410.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head410();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head410 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head410();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get411Async(RequestContext)">
+      <example>
+This sample shows how to call Get411Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get411Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get411Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get411Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get411(RequestContext)">
+      <example>
+This sample shows how to call Get411.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get411();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get411 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get411();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options412Async(RequestContext)">
+      <example>
+This sample shows how to call Options412Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options412Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options412Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Options412Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Options412(RequestContext)">
+      <example>
+This sample shows how to call Options412.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options412();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Options412 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Options412();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get412Async(RequestContext)">
+      <example>
+This sample shows how to call Get412Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get412Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get412Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get412Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get412(RequestContext)">
+      <example>
+This sample shows how to call Get412.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get412();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get412 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get412();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put413Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put413Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Put413Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put413Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Put413Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put413(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put413.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Put413(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put413 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Put413(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch414Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch414Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Patch414Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch414Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Patch414Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Patch414(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch414.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Patch414(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Patch414 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Patch414(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post415Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post415Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Post415Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post415Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Post415Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post415(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post415.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Post415(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post415 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Post415(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get416Async(RequestContext)">
+      <example>
+This sample shows how to call Get416Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get416Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get416Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Get416Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get416(RequestContext)">
+      <example>
+This sample shows how to call Get416.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get416();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get416 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Get416();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete417Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete417Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Delete417Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete417Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Delete417Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete417(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete417.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Delete417(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete417 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Delete417(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head429Async(RequestContext)">
+      <example>
+This sample shows how to call Head429Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head429Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head429Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = await client.Head429Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head429(RequestContext)">
+      <example>
+This sample shows how to call Head429.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head429();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head429 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpClientFailureClient client = new HttpClientFailureClient(credential);
+
+Response response = client.Head429();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

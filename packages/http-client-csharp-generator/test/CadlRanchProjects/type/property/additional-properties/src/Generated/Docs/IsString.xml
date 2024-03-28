@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIsStringAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetIsStringAsync.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response<IsStringAdditionalProperties> response = await client.GetIsStringAsync();
+]]></code>
+This sample shows how to call GetIsStringAsync with all parameters.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response<IsStringAdditionalProperties> response = await client.GetIsStringAsync();
+]]></code></example>
+    </member>
+    <member name="GetIsString(CancellationToken)">
+      <example>
+This sample shows how to call GetIsString.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response<IsStringAdditionalProperties> response = client.GetIsString();
+]]></code>
+This sample shows how to call GetIsString with all parameters.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response<IsStringAdditionalProperties> response = client.GetIsString();
+]]></code></example>
+    </member>
+    <member name="GetIsStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIsStringAsync and parse the result.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response response = await client.GetIsStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetIsStringAsync with all parameters and parse the result.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response response = await client.GetIsStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="GetIsString(RequestContext)">
+      <example>
+This sample shows how to call GetIsString and parse the result.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response response = client.GetIsString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetIsString with all parameters and parse the result.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+Response response = client.GetIsString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IsStringAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+IsStringAdditionalProperties body = new IsStringAdditionalProperties("<name>");
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+IsStringAdditionalProperties body = new IsStringAdditionalProperties("<name>");
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(IsStringAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+IsStringAdditionalProperties body = new IsStringAdditionalProperties("<name>");
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+IsStringAdditionalProperties body = new IsStringAdditionalProperties("<name>");
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+IsString client = new AdditionalPropertiesClient().GetIsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

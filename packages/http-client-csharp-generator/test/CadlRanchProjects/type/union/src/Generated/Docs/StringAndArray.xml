@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetStringAndArrayAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetStringAndArrayAsync.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response<GetResponse7> response = await client.GetStringAndArrayAsync();
+]]></code>
+This sample shows how to call GetStringAndArrayAsync with all parameters.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response<GetResponse7> response = await client.GetStringAndArrayAsync();
+]]></code></example>
+    </member>
+    <member name="GetStringAndArray(CancellationToken)">
+      <example>
+This sample shows how to call GetStringAndArray.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response<GetResponse7> response = client.GetStringAndArray();
+]]></code>
+This sample shows how to call GetStringAndArray with all parameters.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response<GetResponse7> response = client.GetStringAndArray();
+]]></code></example>
+    </member>
+    <member name="GetStringAndArrayAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringAndArrayAsync and parse the result.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response response = await client.GetStringAndArrayAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").GetProperty("string").ToString());
+Console.WriteLine(result.GetProperty("prop").GetProperty("array").ToString());
+]]></code>
+This sample shows how to call GetStringAndArrayAsync with all parameters and parse the result.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response response = await client.GetStringAndArrayAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").GetProperty("string").ToString());
+Console.WriteLine(result.GetProperty("prop").GetProperty("array").ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringAndArray(RequestContext)">
+      <example>
+This sample shows how to call GetStringAndArray and parse the result.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response response = client.GetStringAndArray(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").GetProperty("string").ToString());
+Console.WriteLine(result.GetProperty("prop").GetProperty("array").ToString());
+]]></code>
+This sample shows how to call GetStringAndArray with all parameters and parse the result.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+Response response = client.GetStringAndArray(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").GetProperty("string").ToString());
+Console.WriteLine(result.GetProperty("prop").GetProperty("array").ToString());
+]]></code></example>
+    </member>
+    <member name="SendAsync(StringAndArrayCases,CancellationToken)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+StringAndArrayCases prop = new StringAndArrayCases(BinaryData.FromObjectAsJson("<string>"), BinaryData.FromObjectAsJson("<array>"));
+Response response = await client.SendAsync(prop);
+]]></code>
+This sample shows how to call SendAsync with all parameters.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+StringAndArrayCases prop = new StringAndArrayCases(BinaryData.FromObjectAsJson("<string>"), BinaryData.FromObjectAsJson("<array>"));
+Response response = await client.SendAsync(prop);
+]]></code></example>
+    </member>
+    <member name="Send(StringAndArrayCases,CancellationToken)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+StringAndArrayCases prop = new StringAndArrayCases(BinaryData.FromObjectAsJson("<string>"), BinaryData.FromObjectAsJson("<array>"));
+Response response = client.Send(prop);
+]]></code>
+This sample shows how to call Send with all parameters.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+StringAndArrayCases prop = new StringAndArrayCases(BinaryData.FromObjectAsJson("<string>"), BinaryData.FromObjectAsJson("<array>"));
+Response response = client.Send(prop);
+]]></code></example>
+    </member>
+    <member name="SendAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new Dictionary<string, object>
+    {
+        ["string"] = "<string>",
+        ["array"] = "<array>"
+    },
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsync with all request content.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new Dictionary<string, object>
+    {
+        ["string"] = "<string>",
+        ["array"] = "<array>"
+    },
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Send(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new Dictionary<string, object>
+    {
+        ["string"] = "<string>",
+        ["array"] = "<array>"
+    },
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Send with all request content.
+<code><![CDATA[
+StringAndArray client = new UnionClient().GetStringAndArrayClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new Dictionary<string, object>
+    {
+        ["string"] = "<string>",
+        ["array"] = "<array>"
+    },
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

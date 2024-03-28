@@ -1,0 +1,1450 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "NetworkManagementClient",
+        "description": "The Microsoft Azure Network management API provides a RESTful set of web services that interact with Microsoft Azure Networks service to manage your network resources. The API has entities that capture the relationship between an end user and the Microsoft Azure Networks service.",
+        "version": "2021-02-01"
+    },
+    "host": "management.azure.com",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+        {
+            "azure_auth": ["user_impersonation"]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow.",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/firewallPolicies/{firewallPolicyName}": {
+            "delete": {
+                "tags": ["FirewallPolicies"],
+                "operationId": "FirewallPolicies_Delete",
+                "description": "Deletes the specified Firewall Policy.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted and the operation will complete asynchronously."
+                    },
+                    "204": {
+                        "description": "Request successful. Resource with the specified name does not exist."
+                    },
+                    "200": {
+                        "description": "Delete successful."
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Delete Firewall Policy": {
+                        "$ref": "./examples/network/FirewallPolicyDelete.json"
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "location"
+                }
+            },
+            "get": {
+                "tags": ["FirewallPolicies"],
+                "operationId": "FirewallPolicies_Get",
+                "description": "Gets the specified Firewall Policy.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "Expands referenced resources."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns a Firewall Policy resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicy"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Get FirewallPolicy": {
+                        "$ref": "./examples/network/FirewallPolicyGet.json"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["FirewallPolicies"],
+                "operationId": "FirewallPolicies_CreateOrUpdate",
+                "description": "Creates or updates the specified Firewall Policy.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicy"
+                        },
+                        "description": "Parameters supplied to the create or update Firewall Policy operation."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Request received successfully. The operation returns the resulting FirewallPolicy resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicy"
+                        }
+                    },
+                    "200": {
+                        "description": "Request successful. The operation returns the resulting FirewallPolicy resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicy"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Create FirewallPolicy": {
+                        "$ref": "./examples/network/FirewallPolicyPut.json"
+                    },
+                    "Create FirewallPolicy with different values": {
+                        "$ref": "./examples/network/FirewallPolicyPutWithCustomizedEnumValue.json"
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "azure-async-operation"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/firewallPolicies": {
+            "get": {
+                "tags": ["FirewallPolicies"],
+                "operationId": "FirewallPolicies_List",
+                "description": "Lists all Firewall Policies in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success. The operation returns a list of FirewallPolicy resources.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "List all Firewall Policies for a given resource group": {
+                        "$ref": "./examples/network/FirewallPolicyListByResourceGroup.json"
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Network/firewallPolicies": {
+            "get": {
+                "tags": ["FirewallPolicies"],
+                "operationId": "FirewallPolicies_ListAll",
+                "description": "Gets all the Firewall Policies in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success. The operation returns a list of FirewallPolicy resources.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "List all Firewall Policies for a given subscription": {
+                        "$ref": "./examples/network/FirewallPolicyListBySubscription.json"
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/firewallPolicies/{firewallPolicyName}/ruleCollectionGroups/{ruleCollectionGroupName}": {
+            "delete": {
+                "tags": ["FirewallPolicyRuleCollectionGroups"],
+                "operationId": "FirewallPolicyRuleCollectionGroups_Delete",
+                "description": "Deletes the specified FirewallPolicyRuleCollectionGroup.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "name": "ruleCollectionGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the FirewallPolicyRuleCollectionGroup."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted and the operation will complete asynchronously."
+                    },
+                    "204": {
+                        "description": "Request successful. Resource with the specified name does not exist."
+                    },
+                    "200": {
+                        "description": "Delete successful."
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Delete FirewallPolicyRuleCollectionGroup": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupDelete.json"
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "location"
+                }
+            },
+            "get": {
+                "tags": ["FirewallPolicyRuleCollectionGroups"],
+                "operationId": "FirewallPolicyRuleCollectionGroups_Get",
+                "description": "Gets the specified FirewallPolicyRuleCollectionGroup.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "name": "ruleCollectionGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the FirewallPolicyRuleCollectionGroup."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns a FirewallPolicyRuleCollectionGroup resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyRuleCollectionGroup"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Get FirewallPolicyRuleCollectionGroup": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupGet.json"
+                    },
+                    "Get FirewallPolicyRuleCollectionGroup With IpGroups": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithIpGroupsGet.json"
+                    },
+                    "Get FirewallPolicyNatRuleCollectionGroup": {
+                        "$ref": "./examples/network/FirewallPolicyNatRuleCollectionGroupGet.json"
+                    },
+                    "Get FirewallPolicyRuleCollectionGroup With Web Categories": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithWebCategoriesGet.json"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["FirewallPolicyRuleCollectionGroups"],
+                "operationId": "FirewallPolicyRuleCollectionGroups_CreateOrUpdate",
+                "description": "Creates or updates the specified FirewallPolicyRuleCollectionGroup.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "name": "ruleCollectionGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the FirewallPolicyRuleCollectionGroup."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyRuleCollectionGroup"
+                        },
+                        "description": "Parameters supplied to the create or update FirewallPolicyRuleCollectionGroup operation."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Request received successfully. The operation returns the resulting FirewallPolicyRuleCollectionGroup resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyRuleCollectionGroup"
+                        }
+                    },
+                    "200": {
+                        "description": "Request successful. The operation returns the resulting FirewallPolicyRuleCollectionGroup resource.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyRuleCollectionGroup"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Create FirewallPolicyRuleCollectionGroup": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupPut.json"
+                    },
+                    "Create FirewallPolicyRuleCollectionGroup With IpGroups": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithIpGroupsPut.json"
+                    },
+                    "Create FirewallPolicyNatRuleCollectionGroup": {
+                        "$ref": "./examples/network/FirewallPolicyNatRuleCollectionGroupPut.json"
+                    },
+                    "Create FirewallPolicyRuleCollectionGroup With Web Categories": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithWebCategoriesPut.json"
+                    },
+                    "Create FirewallPolicyRuleCollectionGroup With All Default Values": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithDefaultsPut.json"
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "azure-async-operation"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/firewallPolicies/{firewallPolicyName}/ruleCollectionGroups": {
+            "get": {
+                "tags": ["FirewallPolicyRuleCollectionGroups"],
+                "operationId": "FirewallPolicyRuleCollectionGroups_List",
+                "description": "Lists all FirewallPolicyRuleCollectionGroups in a FirewallPolicy resource.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "firewallPolicyName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the Firewall Policy."
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "./common.json#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success. The operation returns a list of FirewallPolicyRuleCollectionGroup resources.",
+                        "schema": {
+                            "$ref": "#/definitions/FirewallPolicyRuleCollectionGroupListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "./common.json#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "List all FirewallPolicyRuleCollectionGroups for a given FirewallPolicy": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupList.json"
+                    },
+                    "List all FirewallPolicyRuleCollectionGroups with IpGroups for a given FirewallPolicy": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithIpGroupsList.json"
+                    },
+                    "List all FirewallPolicyRuleCollectionGroup With Web Categories": {
+                        "$ref": "./examples/network/FirewallPolicyRuleCollectionGroupWithWebCategoriesList.json"
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "FirewallPolicy": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/FirewallPolicyPropertiesFormat",
+                    "description": "Properties of the firewall policy."
+                },
+                "etag": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "A unique read-only string that changes whenever the resource is updated."
+                },
+                "identity": {
+                    "$ref": "./common.json#/definitions/ManagedServiceIdentity",
+                    "description": "The identity of the firewall policy."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NetworkResource"
+                }
+            ],
+            "description": "FirewallPolicy Resource."
+        },
+        "Probe": {
+            "description": "Probe describes a health check to be performed against an App Instance to determine whether it is alive or ready to receive traffic.",
+            "type": "object",
+            "required": ["disableProbe"],
+            "properties": {
+                "disableProbe": {
+                    "description": "Indicate whether the probe is disabled.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "initialDelaySeconds": {
+                    "description": "Number of seconds after the App Instance has started before probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes",
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "periodSeconds": {
+                    "description": "How often (in seconds) to perform the probe. Minimum value is 1.",
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "timeoutSeconds": {
+                    "description": "Number of seconds after which the probe times out. Minimum value is 1.",
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "failureThreshold": {
+                    "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded. Minimum value is 1.",
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "successThreshold": {
+                    "description": "Minimum consecutive successes for the probe to be considered successful after having failed. Must be 1 for liveness and startup. Minimum value is 1.",
+                    "format": "int32",
+                    "type": "integer"
+                }
+            }
+        },
+        "FirewallPolicyPropertiesFormat": {
+            "properties": {
+                "startupProbe": {
+                    "$ref": "#/definitions/Probe",
+                    "description": "StartupProbe indicates that the App Instance has successfully initialized. If specified, no other probes are executed until this completes successfully. If this probe fails, the Pod will be restarted, just as if the livenessProbe failed. This can be used to provide different probe parameters at the beginning of a App Instance's lifecycle, when it might take a long time to load data or warm a cache, than during steady-state operation. This cannot be updated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+                },
+                "readinessProbe": {
+                    "$ref": "#/definitions/Probe",
+                    "description": "Periodic probe of App Instance service readiness. App Instance will be removed from service endpoints if the probe fails. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes"
+                },
+                "desiredStatusCode": {
+                    "description": "The desired status code",
+                    "type": "integer",
+                    "format": "int32",
+                    "enum": [
+                        200, 201, 202, 400, 404
+                    ],
+                    "x-ms-enum": {
+                        "name": "DesiredStatusCode",
+                        "modelAsString": true
+                    }
+                },
+                "ruleCollectionGroups": {
+                    "type": "array",
+                    "readOnly": true,
+                    "description": "List of references to FirewallPolicyRuleCollectionGroups.",
+                    "items": {
+                        "$ref": "./common.json#/definitions/SubResource"
+                    }
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "$ref": "#/definitions/NetworkProvisioningState",
+                    "description": "The provisioning state of the firewall policy resource."
+                },
+                "basePolicy": {
+                    "readOnly": false,
+                    "$ref": "./common.json#/definitions/SubResource",
+                    "description": "The parent firewall policy from which rules are inherited."
+                },
+                "firewalls": {
+                    "type": "array",
+                    "readOnly": true,
+                    "description": "List of references to Azure Firewalls that this Firewall Policy is associated with.",
+                    "items": {
+                        "$ref": "./common.json#/definitions/SubResource"
+                    }
+                },
+                "childPolicies": {
+                    "type": "array",
+                    "readOnly": true,
+                    "description": "List of references to Child Firewall Policies.",
+                    "items": {
+                        "$ref": "./common.json#/definitions/SubResource"
+                    }
+                },
+                "threatIntelWhitelist": {
+                    "description": "ThreatIntel Whitelist for Firewall Policy.",
+                    "$ref": "#/definitions/FirewallPolicyThreatIntelWhitelist"
+                },
+                "insights": {
+                    "description": "Insights on Firewall Policy.",
+                    "$ref": "#/definitions/FirewallPolicyInsights"
+                },
+                "snat": {
+                    "description": "The private IP addresses/IP ranges to which traffic will not be SNAT.",
+                    "$ref": "#/definitions/FirewallPolicySNAT"
+                },
+                "dnsSettings": {
+                    "description": "DNS Proxy Settings definition.",
+                    "$ref": "#/definitions/DnsSettings"
+                },
+                "intrusionDetection": {
+                    "description": "The configuration for Intrusion detection.",
+                    "$ref": "#/definitions/FirewallPolicyIntrusionDetection"
+                },
+                "transportSecurity": {
+                    "description": "TLS Configuration definition.",
+                    "$ref": "#/definitions/FirewallPolicyTransportSecurity"
+                },
+                "sku": {
+                    "description": "The Firewall Policy SKU.",
+                    "$ref": "#/definitions/FirewallPolicySku"
+                }
+            },
+            "description": "Firewall Policy definition."
+        },
+        "FirewallPolicyTransportSecurity": {
+            "properties": {
+                "certificateAuthority": {
+                    "$ref": "#/definitions/FirewallPolicyCertificateAuthority",
+                    "description": "The CA used for intermediate CA generation."
+                }
+            },
+            "description": "Configuration needed to perform TLS termination & initiation."
+        },
+        "FirewallPolicySku": {
+            "properties": {
+                "tier": {
+                    "type": "string",
+                    "description": "Tier of Firewall Policy.",
+                    "enum": ["Standard", "Premium"],
+                    "x-ms-enum": {
+                        "name": "FirewallPolicySkuTier",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "description": "SKU of Firewall policy."
+        },
+        "FirewallPolicyCertificateAuthority": {
+            "properties": {
+                "keyVaultSecretId": {
+                    "type": "string",
+                    "description": "Secret Id of (base-64 encoded unencrypted pfx) 'Secret' or 'Certificate' object stored in KeyVault."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the CA certificate."
+                }
+            },
+            "description": "Trusted Root certificates properties for tls."
+        },
+        "FirewallPolicyIntrusionDetection": {
+            "description": "Configuration for intrusion detection mode and rules.",
+            "properties": {
+                "mode": {
+                    "$ref": "#/definitions/FirewallPolicyIntrusionDetectionStateOptions",
+                    "description": "Intrusion detection general state."
+                },
+                "configuration": {
+                    "$ref": "#/definitions/FirewallPolicyIntrusionDetectionConfiguration",
+                    "description": "Intrusion detection configuration properties."
+                }
+            }
+        },
+        "FirewallPolicyIntrusionDetectionStateOptions": {
+            "type": "string",
+            "description": "Possible state values.",
+            "enum": ["Off", "Alert", "Deny"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyIntrusionDetectionStateType",
+                "modelAsString": true
+            }
+        },
+        "FirewallPolicyIntrusionDetectionConfiguration": {
+            "description": "The operation for configuring intrusion detection.",
+            "properties": {
+                "signatureOverrides": {
+                    "type": "array",
+                    "description": "List of specific signatures states.",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyIntrusionDetectionSignatureSpecification"
+                    }
+                },
+                "bypassTrafficSettings": {
+                    "type": "array",
+                    "description": "List of rules for traffic to bypass.",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyIntrusionDetectionBypassTrafficSpecifications"
+                    }
+                }
+            }
+        },
+        "FirewallPolicyIntrusionDetectionSignatureSpecification": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Signature id."
+                },
+                "mode": {
+                    "$ref": "#/definitions/FirewallPolicyIntrusionDetectionStateOptions",
+                    "description": "The signature state."
+                }
+            },
+            "description": "Intrusion detection signatures specification states."
+        },
+        "FirewallPolicyIntrusionDetectionBypassTrafficSpecifications": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the bypass traffic rule."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the bypass traffic rule."
+                },
+                "protocol": {
+                    "type": "string",
+                    "$ref": "#/definitions/FirewallPolicyIntrusionDetectionBypassTrafficProtocol",
+                    "description": "The rule bypass protocol."
+                },
+                "sourceAddresses": {
+                    "type": "array",
+                    "description": "List of source IP addresses or ranges for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationAddresses": {
+                    "type": "array",
+                    "description": "List of destination IP addresses or ranges for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationPorts": {
+                    "type": "array",
+                    "description": "List of destination ports or ranges.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sourceIpGroups": {
+                    "type": "array",
+                    "description": "List of source IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationIpGroups": {
+                    "type": "array",
+                    "description": "List of destination IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "description": "Intrusion detection bypass traffic specification."
+        },
+        "FirewallPolicyIntrusionDetectionBypassTrafficProtocol": {
+            "type": "string",
+            "description": "Possible intrusion detection bypass traffic protocols.",
+            "enum": ["TCP", "UDP", "ICMP", "ANY"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyIntrusionDetectionProtocol",
+                "modelAsString": true
+            }
+        },
+        "DnsSettings": {
+            "description": "DNS Proxy Settings in Firewall Policy.",
+            "x-ms-discriminator-value": "DnsSettings",
+            "properties": {
+                "servers": {
+                    "type": "array",
+                    "description": "List of Custom DNS Servers.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "enableProxy": {
+                    "type": "boolean",
+                    "description": "Enable DNS Proxy on Firewalls attached to the Firewall Policy."
+                },
+                "requireProxyForNetworkRules": {
+                    "type": "boolean",
+                    "description": "FQDNs in Network Rules are supported when set to true.",
+                    "x-nullable": true
+                }
+            }
+        },
+        "FirewallPolicySNAT": {
+            "description": "The private IP addresses/IP ranges to which traffic will not be SNAT.",
+            "x-ms-discriminator-value": "FirewallPolicySNAT",
+            "properties": {
+                "privateRanges": {
+                    "type": "array",
+                    "description": "List of private IP addresses/IP address ranges to not be SNAT.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "FirewallPolicyInsights": {
+            "description": "Firewall Policy Insights.",
+            "x-ms-discriminator-value": "FirewallPolicyInsights",
+            "properties": {
+                "isEnabled": {
+                    "type": "boolean",
+                    "description": "A flag to indicate if the insights are enabled on the policy."
+                },
+                "retentionDays": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Number of days the insights should be enabled on the policy."
+                },
+                "logAnalyticsResources": {
+                    "description": "Workspaces needed to configure the Firewall Policy Insights.",
+                    "$ref": "#/definitions/FirewallPolicyLogAnalyticsResources"
+                }
+            }
+        },
+        "FirewallPolicyLogAnalyticsResources": {
+            "description": "Log Analytics Resources for Firewall Policy Insights.",
+            "x-ms-discriminator-value": "FirewallPolicyLogAnalyticsResources",
+            "properties": {
+                "workspaces": {
+                    "type": "array",
+                    "description": "List of workspaces for Firewall Policy Insights.",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyLogAnalyticsWorkspace"
+                    }
+                },
+                "defaultWorkspaceId": {
+                    "$ref": "./common.json#/definitions/SubResource",
+                    "description": "The default workspace Id for Firewall Policy Insights."
+                }
+            }
+        },
+        "FirewallPolicyLogAnalyticsWorkspace": {
+            "description": "Log Analytics Workspace for Firewall Policy Insights.",
+            "x-ms-discriminator-value": "FirewallPolicyLogAnalyticsWorkspace",
+            "properties": {
+                "region": {
+                    "type": "string",
+                    "description": "Region to configure the Workspace."
+                },
+                "workspaceId": {
+                    "$ref": "./common.json#/definitions/SubResource",
+                    "description": "The workspace Id for Firewall Policy Insights."
+                }
+            }
+        },
+        "FirewallPolicyThreatIntelWhitelist": {
+            "description": "ThreatIntel Whitelist for Firewall Policy.",
+            "x-ms-discriminator-value": "FirewallPolicyThreatIntelWhitelist",
+            "properties": {
+                "ipAddresses": {
+                    "type": "array",
+                    "description": "List of IP addresses for the ThreatIntel Whitelist.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fqdns": {
+                    "type": "array",
+                    "description": "List of FQDNs for the ThreatIntel Whitelist.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "FirewallPolicyListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicy"
+                    },
+                    "description": "List of Firewall Policies in a resource group."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "URL to get the next set of results."
+                }
+            },
+            "description": "Response for ListFirewallPolicies API service call."
+        },
+        "NetworkResource": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "Resource ID."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location."
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags."
+                }
+            },
+            "description": "Common resource representation.",
+            "x-ms-azure-resource": true
+        },
+        "FirewallPolicyRuleCollectionGroup": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/FirewallPolicyRuleCollectionGroupProperties",
+                    "description": "The properties of the firewall policy rule collection group."
+                },
+                "name": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "The name of the resource that is unique within a resource group. This name can be used to access the resource."
+                },
+                "etag": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "A unique read-only string that changes whenever the resource is updated."
+                },
+                "type": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "Rule Group type."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "./common.json#/definitions/SubResource"
+                }
+            ],
+            "description": "Rule Collection Group resource."
+        },
+        "FirewallPolicyRuleCollectionGroupProperties": {
+            "properties": {
+                "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 65000,
+                    "exclusiveMaximum": false,
+                    "minimum": 100,
+                    "exclusiveMinimum": false,
+                    "description": "Priority of the Firewall Policy Rule Collection Group resource."
+                },
+                "ruleCollections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRuleCollection"
+                    },
+                    "description": "Group of Firewall Policy rule collections."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "$ref": "#/definitions/NetworkProvisioningState",
+                    "description": "The provisioning state of the firewall policy rule collection group resource."
+                }
+            },
+            "description": "Properties of the rule collection group."
+        },
+        "FirewallPolicyRuleCollection": {
+            "description": "Properties of the rule collection.",
+            "discriminator": "ruleCollectionType",
+            "required": ["ruleCollectionType"],
+            "properties": {
+                "ruleCollectionType": {
+                    "type": "string",
+                    "description": "The type of the rule collection.",
+                    "enum": [
+                        "FirewallPolicyNatRuleCollection",
+                        "FirewallPolicyFilterRuleCollection"
+                    ],
+                    "x-ms-enum": {
+                        "name": "FirewallPolicyRuleCollectionType",
+                        "modelAsString": true
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the rule collection."
+                },
+                "priority": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 65000,
+                    "exclusiveMaximum": false,
+                    "minimum": 100,
+                    "exclusiveMinimum": false,
+                    "description": "Priority of the Firewall Policy Rule Collection resource."
+                }
+            }
+        },
+        "FirewallPolicyNatRuleCollection": {
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/FirewallPolicyNatRuleCollectionAction",
+                    "description": "The action type of a Nat rule collection."
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRule"
+                    },
+                    "description": "List of rules included in a rule collection."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/FirewallPolicyRuleCollection"
+                }
+            ],
+            "x-ms-discriminator-value": "FirewallPolicyNatRuleCollection",
+            "description": "Firewall Policy NAT Rule Collection."
+        },
+        "FirewallPolicyFilterRuleCollection": {
+            "properties": {
+                "action": {
+                    "$ref": "#/definitions/FirewallPolicyFilterRuleCollectionAction",
+                    "description": "The action type of a Filter rule collection."
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRule"
+                    },
+                    "description": "List of rules included in a rule collection."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/FirewallPolicyRuleCollection"
+                }
+            ],
+            "x-ms-discriminator-value": "FirewallPolicyFilterRuleCollection",
+            "description": "Firewall Policy Filter Rule Collection."
+        },
+        "FirewallPolicyRule": {
+            "description": "Properties of a rule.",
+            "discriminator": "ruleType",
+            "required": ["ruleType"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the rule."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the rule."
+                },
+                "ruleType": {
+                    "type": "string",
+                    "description": "Rule Type.",
+                    "enum": ["ApplicationRule", "NetworkRule", "NatRule"],
+                    "x-ms-enum": {
+                        "name": "FirewallPolicyRuleType",
+                        "modelAsString": true
+                    }
+                }
+            }
+        },
+        "ApplicationRule": {
+            "x-ms-discriminator-value": "ApplicationRule",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/FirewallPolicyRule"
+                }
+            ],
+            "properties": {
+                "sourceAddresses": {
+                    "type": "array",
+                    "description": "List of source IP addresses for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationAddresses": {
+                    "type": "array",
+                    "description": "List of destination IP addresses or Service Tags.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRuleApplicationProtocol"
+                    },
+                    "description": "Array of Application Protocols."
+                },
+                "targetFqdns": {
+                    "type": "array",
+                    "description": "List of FQDNs for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "targetUrls": {
+                    "type": "array",
+                    "description": "List of Urls for this rule condition.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fqdnTags": {
+                    "type": "array",
+                    "description": "List of FQDN Tags for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sourceIpGroups": {
+                    "type": "array",
+                    "description": "List of source IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "terminateTLS": {
+                    "type": "boolean",
+                    "description": "Terminate TLS connections for this rule."
+                },
+                "webCategories": {
+                    "type": "array",
+                    "description": "List of destination azure web categories.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "description": "Rule of type application."
+        },
+        "NatRule": {
+            "description": "Rule of type nat.",
+            "x-ms-discriminator-value": "NatRule",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/FirewallPolicyRule"
+                }
+            ],
+            "properties": {
+                "ipProtocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRuleNetworkProtocol"
+                    },
+                    "description": "Array of FirewallPolicyRuleNetworkProtocols."
+                },
+                "sourceAddresses": {
+                    "type": "array",
+                    "description": "List of source IP addresses for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationAddresses": {
+                    "type": "array",
+                    "description": "List of destination IP addresses or Service Tags.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationPorts": {
+                    "type": "array",
+                    "description": "List of destination ports.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "translatedAddress": {
+                    "type": "string",
+                    "description": "The translated address for this NAT rule."
+                },
+                "translatedPort": {
+                    "type": "string",
+                    "description": "The translated port for this NAT rule."
+                },
+                "sourceIpGroups": {
+                    "type": "array",
+                    "description": "List of source IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "translatedFqdn": {
+                    "type": "string",
+                    "description": "The translated FQDN for this NAT rule."
+                }
+            }
+        },
+        "NetworkRule": {
+            "description": "Rule of type network.",
+            "x-ms-discriminator-value": "NetworkRule",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/FirewallPolicyRule"
+                }
+            ],
+            "properties": {
+                "ipProtocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRuleNetworkProtocol"
+                    },
+                    "description": "Array of FirewallPolicyRuleNetworkProtocols."
+                },
+                "sourceAddresses": {
+                    "type": "array",
+                    "description": "List of source IP addresses for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationAddresses": {
+                    "type": "array",
+                    "description": "List of destination IP addresses or Service Tags.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationPorts": {
+                    "type": "array",
+                    "description": "List of destination ports.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sourceIpGroups": {
+                    "type": "array",
+                    "description": "List of source IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationIpGroups": {
+                    "type": "array",
+                    "description": "List of destination IpGroups for this rule.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "destinationFqdns": {
+                    "type": "array",
+                    "description": "List of destination FQDNs.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "FirewallPolicyRuleApplicationProtocol": {
+            "properties": {
+                "protocolType": {
+                    "description": "Protocol type.",
+                    "$ref": "#/definitions/FirewallPolicyRuleApplicationProtocolType"
+                },
+                "port": {
+                    "type": "integer",
+                    "format": "int32",
+                    "maximum": 64000,
+                    "exclusiveMaximum": false,
+                    "minimum": 0,
+                    "exclusiveMinimum": false,
+                    "description": "Port number for the protocol, cannot be greater than 64000."
+                }
+            },
+            "description": "Properties of the application rule protocol."
+        },
+        "FirewallPolicyRuleApplicationProtocolType": {
+            "type": "string",
+            "description": "The application protocol type of a Rule.",
+            "enum": ["Http", "Https"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyRuleApplicationProtocolType",
+                "modelAsString": true
+            }
+        },
+        "FirewallPolicyRuleNetworkProtocol": {
+            "type": "string",
+            "description": "The Network protocol of a Rule.",
+            "enum": ["TCP", "UDP", "Any", "ICMP"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyRuleNetworkProtocol",
+                "modelAsString": true
+            }
+        },
+        "FirewallPolicyNatRuleCollectionAction": {
+            "properties": {
+                "type": {
+                    "description": "The type of action.",
+                    "$ref": "#/definitions/FirewallPolicyNatRuleCollectionActionType"
+                }
+            },
+            "description": "Properties of the FirewallPolicyNatRuleCollectionAction."
+        },
+        "FirewallPolicyNatRuleCollectionActionType": {
+            "type": "string",
+            "description": "The action type of a rule.",
+            "enum": ["DNAT"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyNatRuleCollectionActionType",
+                "modelAsString": true
+            }
+        },
+        "FirewallPolicyFilterRuleCollectionAction": {
+            "properties": {
+                "type": {
+                    "description": "The type of action.",
+                    "$ref": "#/definitions/FirewallPolicyFilterRuleCollectionActionType"
+                }
+            },
+            "description": "Properties of the FirewallPolicyFilterRuleCollectionAction."
+        },
+        "FirewallPolicyFilterRuleCollectionActionType": {
+            "type": "string",
+            "description": "The action type of a rule.",
+            "enum": ["Allow", "Deny"],
+            "x-ms-enum": {
+                "name": "FirewallPolicyFilterRuleCollectionActionType",
+                "modelAsString": true
+            }
+        },
+        "NetworkProvisioningState": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The current provisioning state.",
+            "enum": ["Succeeded", "Updating", "Deleting", "Failed"],
+            "x-ms-enum": {
+                "name": "ProvisioningState",
+                "modelAsString": true
+            }
+        },
+        "FirewallPolicyRuleCollectionGroupListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FirewallPolicyRuleCollectionGroup"
+                    },
+                    "description": "List of FirewallPolicyRuleCollectionGroups in a FirewallPolicy."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "URL to get the next set of results."
+                }
+            },
+            "description": "Response for ListFirewallPolicyRuleCollectionGroups API service call."
+        }
+    }
+}

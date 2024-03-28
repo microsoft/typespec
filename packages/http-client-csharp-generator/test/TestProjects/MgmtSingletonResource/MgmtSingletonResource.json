@@ -1,0 +1,642 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "SingletonResource",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars": {
+            "get": {
+                "tags": [
+                    "Cars"
+                ],
+                "operationId": "Cars_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CarListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}": {
+            "put": {
+                "tags": [
+                    "Cars"
+                ],
+                "operationId": "Cars_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "carName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Car"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Car"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Cars"
+                ],
+                "operationId": "Cars_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "carName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Car"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}/ignitions/default": {
+            "get": {
+                "tags": [
+                    "Ignitions"
+                ],
+                "operationId": "Ignitions_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "carName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Ignition"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/cars/{carName}/brakes/{default}": {
+            "get": {
+                "tags": [
+                    "Brakes"
+                ],
+                "operationId": "Brakes_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "carName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "default",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "default"
+                        ],
+                        "x-ms-enum": {
+                            "name": "BrakeName",
+                            "modelAsString": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Brake"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}/singletonResources/{resourceName}": {
+            "put": {
+                "tags": [
+                    "SingletonResources"
+                ],
+                "operationId": "SingletonResources_CreateOrUpdate",
+                "description": "Singleton non-resource test example with a single-value enum name parameter.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                          "current"
+                        ],
+                        "x-ms-enum": {
+                          "name": "ResourceName",
+                          "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SingletonResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SingletonResource"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SingletonResources"
+                ],
+                "operationId": "SingletonResources_Get",
+                "description": "Singleton non-resource test example with a single-value enum name parameter.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "resourceName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                          "current"
+                        ],
+                        "x-ms-enum": {
+                          "name": "ResourceName",
+                          "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SingletonResource"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources": {
+            "get": {
+                "tags": [
+                    "ParentResources"
+                ],
+                "operationId": "ParentResources_List",
+                "description": "Singleton Test Parent Example.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/ParentResourceListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Billing/parentResources/{parentName}": {
+            "get": {
+                "tags": [
+                    "ParentResources"
+                ],
+                "operationId": "ParentResources_Get",
+                "description": "Singleton Test Parent Example.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/ParentResource"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "ParentResources"
+                ],
+                "operationId": "ParentResources_CreateOrUpdate",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ParentResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ParentResource"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CarListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Car"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "Car": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "horsepower": {
+                    "type": "string"
+                }
+            }
+        },
+        "Ignition": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "pushButton": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "Brake": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "hitBrake": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "SingletonResource": {
+            "description": "A singleton resource.",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type."
+                }
+            },
+            "x-ms-azure-resource": true
+        },
+        "ParentResourceListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ParentResource"
+                    },
+                    "description": "The list of parent resource"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page"
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "ParentResource": {
+            "description": "A parent resource.",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TrackedResource"
+                }
+            ],
+            "properties": {
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "TrackedResource": {
+            "title": "Tracked Resource",
+            "description": "The resource model definition for an Azure Resource Manager tracked top level resource which has 'tags' and a 'location'",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "x-ms-mutability": [
+                        "read",
+                        "create",
+                        "update"
+                    ],
+                    "description": "Resource tags."
+                },
+                "location": {
+                    "type": "string",
+                    "x-ms-mutability": [
+                        "read",
+                        "create"
+                    ],
+                    "description": "The geo-location where the resource lives"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

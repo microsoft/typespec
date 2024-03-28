@@ -1,0 +1,24 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtParamOrdering",
+  "library-name": "MgmtParamOrdering",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "head-as-boolean": true,
+  "skip-csproj-packagereference": true,
+  "KeepOrphanedModels": [
+    "LocationFormatObject"
+  ],
+  "FormatByNameRules": {
+    "tenantId": "uuid",
+    "resourceType": "resource-type",
+    "etag": "etag",
+    "location": "azure-location",
+    "*Uri": "Uri",
+    "*Uris": "Uri"
+  }
+}

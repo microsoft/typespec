@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetFirstItemsAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetFirstItemsAsync.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (FirstItem item in client.GetFirstItemsAsync())
+{
+}
+]]></code>
+This sample shows how to call GetFirstItemsAsync with all parameters.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (FirstItem item in client.GetFirstItemsAsync())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetFirstItems(CancellationToken)">
+      <example>
+This sample shows how to call GetFirstItems.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (FirstItem item in client.GetFirstItems())
+{
+}
+]]></code>
+This sample shows how to call GetFirstItems with all parameters.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (FirstItem item in client.GetFirstItems())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetFirstItemsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFirstItemsAsync and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (BinaryData item in client.GetFirstItemsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+}
+]]></code>
+This sample shows how to call GetFirstItemsAsync with all parameters and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (BinaryData item in client.GetFirstItemsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetFirstItems(RequestContext)">
+      <example>
+This sample shows how to call GetFirstItems and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (BinaryData item in client.GetFirstItems(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+}
+]]></code>
+This sample shows how to call GetFirstItems with all parameters and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (BinaryData item in client.GetFirstItems(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetSecondItemsAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetSecondItemsAsync.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (SecondItem item in client.GetSecondItemsAsync())
+{
+}
+]]></code>
+This sample shows how to call GetSecondItemsAsync with all parameters.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (SecondItem item in client.GetSecondItemsAsync())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetSecondItems(CancellationToken)">
+      <example>
+This sample shows how to call GetSecondItems.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (SecondItem item in client.GetSecondItems())
+{
+}
+]]></code>
+This sample shows how to call GetSecondItems with all parameters.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (SecondItem item in client.GetSecondItems())
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetSecondItemsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetSecondItemsAsync and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (BinaryData item in client.GetSecondItemsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetSecondItemsAsync with all parameters and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+await foreach (BinaryData item in client.GetSecondItemsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetSecondItems(RequestContext)">
+      <example>
+This sample shows how to call GetSecondItems and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (BinaryData item in client.GetSecondItems(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetSecondItems with all parameters and parse the result.
+<code><![CDATA[
+TwoModelsAsPageItem client = new BasicClient().GetTwoModelsAsPageItemClient();
+
+foreach (BinaryData item in client.GetSecondItems(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

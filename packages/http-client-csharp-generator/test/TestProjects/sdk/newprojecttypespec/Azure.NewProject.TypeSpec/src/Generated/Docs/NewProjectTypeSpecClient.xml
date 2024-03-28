@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="TopActionAsync(DateTimeOffset,CancellationToken)">
+      <example>
+This sample shows how to call TopActionAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response<Thing> response = await client.TopActionAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+]]></code>
+This sample shows how to call TopActionAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response<Thing> response = await client.TopActionAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+]]></code></example>
+    </member>
+    <member name="TopAction(DateTimeOffset,CancellationToken)">
+      <example>
+This sample shows how to call TopAction.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response<Thing> response = client.TopAction(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+]]></code>
+This sample shows how to call TopAction with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response<Thing> response = client.TopAction(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+]]></code></example>
+    </member>
+    <member name="TopActionAsync(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call TopActionAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.TopActionAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"), null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call TopActionAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.TopActionAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"), null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="TopAction(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call TopAction and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.TopAction(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"), null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call TopAction with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.TopAction(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"), null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="TopAction2Async(RequestContext)">
+      <example>
+This sample shows how to call TopAction2Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.TopAction2Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call TopAction2Async with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.TopAction2Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="TopAction2(RequestContext)">
+      <example>
+This sample shows how to call TopAction2 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.TopAction2(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call TopAction2 with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.TopAction2(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="PatchActionAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchActionAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = await client.PatchActionAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call PatchActionAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    optionalLiteralString = "reject",
+    optionalLiteralInt = 456,
+    optionalLiteralFloat = 4.56F,
+    optionalLiteralBool = true,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = await client.PatchActionAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="PatchAction(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchAction and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = client.PatchAction(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call PatchAction with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    optionalLiteralString = "reject",
+    optionalLiteralInt = 456,
+    optionalLiteralFloat = 4.56F,
+    optionalLiteralBool = true,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = client.PatchAction(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="AnonymousBodyAsync(Thing,CancellationToken)">
+      <example>
+This sample shows how to call AnonymousBodyAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Thing thing = new Thing("<name>", BinaryData.FromObjectAsJson("<requiredUnion>"), "<requiredBadDescription>");
+Response<Thing> response = await client.AnonymousBodyAsync(thing);
+]]></code>
+This sample shows how to call AnonymousBodyAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Thing thing = new Thing("<name>", BinaryData.FromObjectAsJson("<requiredUnion>"), "<requiredBadDescription>")
+{
+    OptionalLiteralString = ThingOptionalLiteralString.Reject,
+    OptionalLiteralInt = ThingOptionalLiteralInt._456,
+    OptionalLiteralFloat = ThingOptionalLiteralFloat._456,
+    OptionalLiteralBool = true,
+};
+Response<Thing> response = await client.AnonymousBodyAsync(thing);
+]]></code></example>
+    </member>
+    <member name="AnonymousBody(Thing,CancellationToken)">
+      <example>
+This sample shows how to call AnonymousBody.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Thing thing = new Thing("<name>", BinaryData.FromObjectAsJson("<requiredUnion>"), "<requiredBadDescription>");
+Response<Thing> response = client.AnonymousBody(thing);
+]]></code>
+This sample shows how to call AnonymousBody with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Thing thing = new Thing("<name>", BinaryData.FromObjectAsJson("<requiredUnion>"), "<requiredBadDescription>")
+{
+    OptionalLiteralString = ThingOptionalLiteralString.Reject,
+    OptionalLiteralInt = ThingOptionalLiteralInt._456,
+    OptionalLiteralFloat = ThingOptionalLiteralFloat._456,
+    OptionalLiteralBool = true,
+};
+Response<Thing> response = client.AnonymousBody(thing);
+]]></code></example>
+    </member>
+    <member name="AnonymousBodyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call AnonymousBodyAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = await client.AnonymousBodyAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call AnonymousBodyAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    optionalLiteralString = "reject",
+    optionalLiteralInt = 456,
+    optionalLiteralFloat = 4.56F,
+    optionalLiteralBool = true,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = await client.AnonymousBodyAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="AnonymousBody(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call AnonymousBody and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = client.AnonymousBody(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code>
+This sample shows how to call AnonymousBody with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    requiredUnion = "<requiredUnion>",
+    requiredLiteralString = "accept",
+    requiredLiteralInt = 123,
+    requiredLiteralFloat = 1.23F,
+    requiredLiteralBool = false,
+    optionalLiteralString = "reject",
+    optionalLiteralInt = 456,
+    optionalLiteralFloat = 4.56F,
+    optionalLiteralBool = true,
+    requiredBadDescription = "<requiredBadDescription>",
+});
+Response response = client.AnonymousBody(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("requiredUnion").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralString").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("requiredLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralString").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralInt").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralFloat").ToString());
+Console.WriteLine(result.GetProperty("optionalLiteralBool").ToString());
+Console.WriteLine(result.GetProperty("requiredBadDescription").ToString());
+]]></code></example>
+    </member>
+    <member name="FriendlyModelAsync(Friend,CancellationToken)">
+      <example>
+This sample shows how to call FriendlyModelAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Friend friend = new Friend("<name>");
+Response<Friend> response = await client.FriendlyModelAsync(friend);
+]]></code>
+This sample shows how to call FriendlyModelAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Friend friend = new Friend("<name>");
+Response<Friend> response = await client.FriendlyModelAsync(friend);
+]]></code></example>
+    </member>
+    <member name="FriendlyModel(Friend,CancellationToken)">
+      <example>
+This sample shows how to call FriendlyModel.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Friend friend = new Friend("<name>");
+Response<Friend> response = client.FriendlyModel(friend);
+]]></code>
+This sample shows how to call FriendlyModel with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Friend friend = new Friend("<name>");
+Response<Friend> response = client.FriendlyModel(friend);
+]]></code></example>
+    </member>
+    <member name="FriendlyModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call FriendlyModelAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.FriendlyModelAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call FriendlyModelAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.FriendlyModelAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="FriendlyModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call FriendlyModel and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.FriendlyModel(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call FriendlyModel with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.FriendlyModel(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="AddTimeHeaderAsync(RequestContext)">
+      <example>
+This sample shows how to call AddTimeHeaderAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.AddTimeHeaderAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AddTimeHeaderAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = await client.AddTimeHeaderAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AddTimeHeader(RequestContext)">
+      <example>
+This sample shows how to call AddTimeHeader.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.AddTimeHeader();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AddTimeHeader with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+Response response = client.AddTimeHeader();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="StringFormatAsync(Guid,ModelWithFormat,CancellationToken)">
+      <example>
+This sample shows how to call StringFormatAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+ModelWithFormat body = new ModelWithFormat(new Uri("http://localhost:3000"), Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"));
+Response response = await client.StringFormatAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), body);
+]]></code>
+This sample shows how to call StringFormatAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+ModelWithFormat body = new ModelWithFormat(new Uri("http://localhost:3000"), Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"));
+Response response = await client.StringFormatAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), body);
+]]></code></example>
+    </member>
+    <member name="StringFormat(Guid,ModelWithFormat,CancellationToken)">
+      <example>
+This sample shows how to call StringFormat.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+ModelWithFormat body = new ModelWithFormat(new Uri("http://localhost:3000"), Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"));
+Response response = client.StringFormat(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), body);
+]]></code>
+This sample shows how to call StringFormat with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+ModelWithFormat body = new ModelWithFormat(new Uri("http://localhost:3000"), Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"));
+Response response = client.StringFormat(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), body);
+]]></code></example>
+    </member>
+    <member name="StringFormatAsync(Guid,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call StringFormatAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sourceUrl = "http://localhost:3000",
+    guid = "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a",
+});
+Response response = await client.StringFormatAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call StringFormatAsync with all parameters and request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sourceUrl = "http://localhost:3000",
+    guid = "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a",
+});
+Response response = await client.StringFormatAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="StringFormat(Guid,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call StringFormat.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sourceUrl = "http://localhost:3000",
+    guid = "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a",
+});
+Response response = client.StringFormat(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call StringFormat with all parameters and request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+NewProjectTypeSpecClient client = new NewProjectTypeSpecClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sourceUrl = "http://localhost:3000",
+    guid = "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a",
+});
+Response response = client.StringFormat(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

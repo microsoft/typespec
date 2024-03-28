@@ -1,0 +1,37 @@
+{
+    "name": "@azure-tools/cadl-ranch-mockapis",
+    "version": "0.0.1",
+    "author": "Microsoft Corporation",
+    "description": "",
+    "homepage": "https://github.com/Azure/autorest.csharp#readme",
+    "readme": "",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Azure/autorest.csharp.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Azure/autorest.csharp/issues"
+    },
+    "keywords": [
+        "cadl"
+    ],
+    "type": "module",
+    "main": "dist/src/index.js",
+    "scripts": {
+        "clean": "rimraf ./dist ./temp",
+        "build": "tsc -p .",
+        "watch": "tsc -p . --watch",
+        "pack": "npx webpack",
+        "lint": "eslint . --ext .ts --max-warnings=0",
+        "lint:fix": "eslint . --fix --ext .ts",
+        "prettier:fix": "prettier --write ./src/**/*.ts",
+        "prettier": "prettier --check ./src/**/*.ts"
+    },
+    "files": [
+        "dist/**"
+    ],
+    "peerDependencies": {
+        "@azure-tools/cadl-ranch-specs": "0.30.1"
+    }
+}

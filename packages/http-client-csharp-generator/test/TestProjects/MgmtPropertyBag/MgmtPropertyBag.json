@@ -1,0 +1,931 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ComputeManagementClient",
+        "description": "The Compute Management Client.",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/foos": {
+            "get": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_ListWithSubscription",
+                "description": "Gets a list of foo with two optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "x-ms-client-default": 10
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Foo"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos": {
+            "get": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_List",
+                "description": "Gets a list of foo with six optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "x-ms-client-default": 10
+                    },
+                    {
+                        "name": "$orderby",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "$maxpagesize",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "name": "$skip",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Number of records to skip."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Foo"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}": {
+            "get": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_Get",
+                "description": "Gets a specific foo with five optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "fooName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The foo name."
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "$orderby",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "$skip",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Number of records to skip."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_Create",
+                "description": "Create foo with four optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "fooName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The foo name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        },
+                        "description": "The foo parameters supplied to the CreateOrUpdate operation."
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "$orderby",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_Update",
+                "description": "Update foo.",
+                "parameters": [
+                    {
+                        "name": "fooName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The foo name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FooPatch"
+                        },
+                        "description": "The foo parameters supplied to the Update operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/foos/{fooName}/reconnect": {
+            "post": {
+                "tags": [
+                    "Foos"
+                ],
+                "x-ms-odata": "#/definitions/Foo",
+                "operationId": "Foos_Reconnect",
+                "description": "Reconnect an existing foo with five optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "fooName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The foo name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        },
+                        "description": "The parameters supplied to the Reconnect operation."
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "$orderby",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "countryOrRegions",
+                        "type": "array",
+                        "in": "query",
+                        "collectionFormat": "multi",
+                        "required": false,
+                        "items": {
+                          "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Foo"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/bars": {
+            "get": {
+                "tags": [
+                    "Bars"
+                ],
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "x-ms-odata": "#/definitions/Bar",
+                "operationId": "Bars_ListWithSubscription",
+                "description": "Gets a list of bar with one required header parameter and one optional query parameter.",
+                "parameters": [
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/BarListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/bars": {
+            "get": {
+                "tags": [
+                    "Bars"
+                ],
+                "x-ms-odata": "#/definitions/Bar",
+                "operationId": "Bars_List",
+                "description": "Gets a list of bar with one optional header parameter and five optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "If-None-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-None-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "name": "$maxpagesize",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Optional. Specified maximum number of containers that can be included in the list."
+                    },
+                    {
+                        "name": "$skip",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Number of records to skip."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Bar"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                        "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Fake/bars/{barName}": {
+            "get": {
+                "tags": [
+                    "Bars"
+                ],
+                "x-ms-odata": "#/definitions/Bar",
+                "operationId": "Bars_Get",
+                "description": "Gets a specific bar with one required header parameter and four optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "barName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The bar name."
+                    },
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string"
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "$skip",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Optional. Number of records to skip."
+                    },
+                    {
+                        "name": "items",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "The items to query on the bar resource."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Bar"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                        "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Bars"
+                ],
+                "x-ms-odata": "#/definitions/Bar",
+                "operationId": "Bars_Create",
+                "description": "Create a bar with five optional query parameters.",
+                "parameters": [
+                    {
+                        "name": "barName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The bar name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Bar"
+                        },
+                        "description": "The bar parameters supplied to the CreateOrUpdate operation."
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "name": "$top",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "If-Match",
+                        "in": "header",
+                        "required": false,
+                        "description": "The entity state (Etag) version. A value of \"*\" can be used for If-Match to unconditionally apply the operation.",
+                        "type": "string",
+                        "x-ms-format": "etag"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Bar"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                        "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "BarListResult": {
+            "properties": {
+              "value": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Bar"
+                },
+                "description": "The list of bar."
+              },
+              "nextLink": {
+                "type": "string",
+                "description": "The uri to fetch the next page of bar. Call ListNext() with this to fetch the next page"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "description": "The List bar with subscription response."
+        },
+        "Foo": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "description": "The details of the resource"
+                }
+            },
+            "description": "Foo instance details."
+        },
+        "FooPatch": {
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "description": "The details of the resource"
+                }
+            },
+            "description": "Foo instance details."
+        },
+        "FooReconnectContent": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "after": {
+                    "type": "string",
+                    "format": "duration",
+                    "description": "Duration in ISO8601 format after which reconnect will be initiated. Minimum duration of the Reconnect is PT2M."
+                  }
+            },
+            "description": "Foo instance details."
+        },
+        "Bar": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "description": "The details of the resource"
+                }
+            },
+            "description": "Bar instance details."
+        },
+        "Resource": {
+            "title": "Resource",
+            "description": "Common fields that are returned in the response for all Azure Resource Manager resources",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The name of the resource"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The type of the resource. E.g. \"Microsoft.Compute/virtualMachines\" or \"Microsoft.Storage/storageAccounts\""
+                }
+            },
+            "x-ms-azure-resource": true
+        },
+        "ErrorResponse": {
+            "title": "Error response",
+            "description": "Error response indicates Azure Front Door Standard or Azure Front Door Premium or CDN service is not able to process the incoming request. The reason is provided in the error message.",
+            "type": "object",
+            "properties": {
+              "error": {
+                "description": "The error object.",
+                "$ref": "#/definitions/ErrorDetail"
+              }
+            }
+        },
+        "ErrorDetail": {
+            "description": "The error detail.",
+            "type": "object",
+            "properties": {
+              "code": {
+                "readOnly": true,
+                "type": "string",
+                "description": "The error code."
+              },
+              "message": {
+                "readOnly": true,
+                "type": "string",
+                "description": "The error message."
+              },
+              "target": {
+                "readOnly": true,
+                "type": "string",
+                "description": "The error target."
+              },
+              "details": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ErrorDetail"
+                },
+                "x-ms-identifiers": [
+                  "message",
+                  "target"
+                ],
+                "description": "The error details."
+              },
+              "additionalInfo": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ErrorAdditionalInfo"
+                },
+                "x-ms-identifiers": [],
+                "description": "The error additional info."
+              }
+            }
+        },
+        "ErrorAdditionalInfo": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "readOnly": true,
+                "type": "string",
+                "description": "The additional info type."
+              },
+              "info": {
+                "readOnly": true,
+                "type": "object",
+                "description": "The additional info."
+              }
+            },
+            "description": "The resource management error additional info."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        },
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource group. The name is case insensitive.",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

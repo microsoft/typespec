@@ -1,0 +1,19 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "api-version": "2022-03-02",
+    "diskEncryptionSetName": "myDiskEncryptionSet"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/disks/myManagedDisk",
+          "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/snapshots/mySnapshot"
+        ],
+        "nextLink": "https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/diskEncryptionSets/{diskEncryptionSetName}/associatedResources?$skiptoken={token}"
+      }
+    }
+  }
+}

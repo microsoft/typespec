@@ -1,0 +1,4418 @@
+!CodeModel 
+info: !Info 
+  description: Test definitions regarding x-ms-azure-resource:true and flatten properties.
+  title: SuperSet Of Flatten Properties
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel1Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel2Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel2Bar
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: CustomModel2ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: SubResourceModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: SubResourceModel1Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: SubResourceModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: SubResourceModel2Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: SubResourceModel2ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel1Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel2Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel2ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel1Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel1Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel1Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel2Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_31
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel2Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_32
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: ResourceModel2ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_35
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_36
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_37
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Location
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_39
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_40
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_42
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2Location
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_44
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2Foo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_45
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2Bar
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_46
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_48
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      language: !Languages 
+        default:
+          name: NonResourceModel1Bar
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_59
+      type: constant
+      value: !ConstantValue 
+        value: '2021-06-10'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20210610
+          description: Api Version (2021-06-10)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_63
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_66
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_38
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1Tags
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_43
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2Tags
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_65
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_49
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_5
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_2
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+                x-ms-flattened: true
+              language: !Languages 
+                default:
+                  name: CustomModel1
+                  description: Normal custom object, although marked as azure resource, but it's not recognized by autorest.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: CustomModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: CustomModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_5
+    - !ObjectSchema &ref_74
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_50
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_9
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_6
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_7
+                  serializedName: bar
+                  language: !Languages 
+                    default:
+                      name: bar
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  flattenedNames:
+                    - properties
+                    - id
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: idPropertiesId
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  flattenedNames:
+                    - properties
+                    - foo
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: CustomModel2
+                  description: Normal custom object with flatten properties from CustomModel2. Also marked as azure resource, but it's not recognized either.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: CustomModel2ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_8
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: CustomModel2ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_9
+    - !ObjectSchema &ref_82
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_51
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_13
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_10
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_11
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+                x-ms-flattened: true
+              language: !Languages 
+                default:
+                  name: SubResourceModel1
+                  description: SubResource WITHOUT flatten properties.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SubResourceModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_12
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SubResourceModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_13
+    - !ObjectSchema &ref_90
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_52
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_16
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_14
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  flattenedNames:
+                    - properties
+                    - id
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: idPropertiesId
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  flattenedNames:
+                    - properties
+                    - foo
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: SubResourceModel2
+                  description: SubResource with flatten properties.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SubResourceModel2ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_15
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SubResourceModel2ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_16
+    - !ObjectSchema &ref_98
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_53
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_20
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_17
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_18
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: WritableSubResourceModel1
+                  description: WritableSubResource WITHOUT flatten properties.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: WritableSubResourceModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_20
+    - !ObjectSchema &ref_106
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_54
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_23
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_21
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  flattenedNames:
+                    - properties
+                    - id
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: idPropertiesId
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  flattenedNames:
+                    - properties
+                    - foo
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: WritableSubResourceModel2
+                  description: WritableSubResource with flatten properties.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: WritableSubResourceModel2ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_22
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: WritableSubResourceModel2ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_23
+    - !ObjectSchema &ref_114
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_55
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_29
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_24
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_25
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_26
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_27
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+                x-ms-flattened: true
+              language: !Languages 
+                default:
+                  name: ResourceModel1
+                  description: Resource WITHOUT flatten properties.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ResourceModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_28
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ResourceModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_29
+    - !ObjectSchema &ref_122
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_56
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_33
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_30
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_31
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_10
+                  flattenedNames:
+                    - properties
+                    - id
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_11
+                  flattenedNames:
+                    - properties
+                    - foo
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: ResourceModel2
+                  description: Resource with flatten properties (contains id). Since the id comes from flattened properties, this should not be counted as a resource
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ResourceModel2ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_32
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ResourceModel2ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_33
+    - !ObjectSchema &ref_130
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_57
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_41
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_34
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_35
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_36
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_37
+                  serializedName: location
+                  language: !Languages 
+                    default:
+                      name: location
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_38
+                  serializedName: tags
+                  language: !Languages 
+                    default:
+                      name: tags
+                      description: Dictionary of <string>
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_39
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: TrackedResourceModel1
+                  description: TrackedResource WITHOUT flatten properties
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: TrackedResourceModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_40
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: TrackedResourceModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_41
+    - !ObjectSchema &ref_138
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_58
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-06-10'
+            elementType: !ObjectSchema &ref_47
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-06-10'
+              properties:
+                - !Property 
+                  schema: *ref_42
+                  serializedName: location
+                  language: !Languages 
+                    default:
+                      name: location
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_43
+                  serializedName: tags
+                  language: !Languages 
+                    default:
+                      name: tags
+                      description: Dictionary of <string>
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_44
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: foo
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_45
+                  serializedName: bar
+                  language: !Languages 
+                    default:
+                      name: bar
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_24
+                  flattenedNames:
+                    - properties
+                    - id
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_25
+                  flattenedNames:
+                    - properties
+                    - name
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_26
+                  flattenedNames:
+                    - properties
+                    - type
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_27
+                  flattenedNames:
+                    - properties
+                    - foo
+                  serializedName: foo
+                  language: !Languages 
+                    default:
+                      name: fooPropertiesFoo
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              extensions:
+                x-ms-azure-resource: true
+              language: !Languages 
+                default:
+                  name: TrackedResourceModel2
+                  description: TrackedResource with flatten properties, but the id comes from flattened properties, therefore this should not be a resource
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: TrackedResourceModel2ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_46
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: TrackedResourceModel2ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_47
+    - !ObjectSchema &ref_145
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-06-10'
+      properties:
+        - !Property 
+          schema: *ref_48
+          serializedName: bar
+          language: !Languages 
+            default:
+              name: bar
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          flattenedNames:
+            - properties
+            - id
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          flattenedNames:
+            - properties
+            - foo
+          serializedName: foo
+          language: !Languages 
+            default:
+              name: foo
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      extensions:
+        x-ms-azure-resource: true
+      language: !Languages 
+        default:
+          name: NonResourceModel1
+          description: Normal custom object with flatten properties from CustomModel2. Also marked as azure resource, but it's not recognized either.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_49
+    - *ref_50
+    - *ref_51
+    - *ref_52
+    - *ref_53
+    - *ref_54
+    - *ref_55
+    - *ref_56
+    - *ref_57
+    - *ref_58
+globalParameters:
+  - !Parameter &ref_62
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: ''
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_60
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_61
+    schema: *ref_59
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: CustomModel1s
+    operations:
+      - !Operation 
+        operationId: CustomModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_64
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_64
+        responses:
+          - !SchemaResponse 
+            schema: *ref_65
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: CustomModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_69
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_70
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: customModel1SName
+                description: ''
+                serializedName: customModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_68
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_67
+                schema: *ref_5
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_67
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel1s/{customModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_68
+        signatureParameters:
+          - *ref_69
+          - *ref_70
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: CustomModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_71
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_72
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: customModel1SName
+                description: ''
+                serializedName: customModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel1s/{customModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_71
+          - *ref_72
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: CustomModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: CustomModel2s
+    operations:
+      - !Operation 
+        operationId: CustomModel2s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_73
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel2s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_73
+        responses:
+          - !SchemaResponse 
+            schema: *ref_74
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: CustomModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_77
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_78
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: customModel2SName
+                description: ''
+                serializedName: customModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_76
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_75
+                schema: *ref_9
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_75
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel2s/{customModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_76
+        signatureParameters:
+          - *ref_77
+          - *ref_78
+        responses:
+          - !SchemaResponse 
+            schema: *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: CustomModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_79
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_80
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: customModel2SName
+                description: ''
+                serializedName: customModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/customModel2s/{customModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_79
+          - *ref_80
+        responses:
+          - !SchemaResponse 
+            schema: *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: CustomModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SubResourceModel1s
+    operations:
+      - !Operation 
+        operationId: SubResourceModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_81
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_81
+        responses:
+          - !SchemaResponse 
+            schema: *ref_82
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SubResourceModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_85
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_86
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subResourceModel1SName
+                description: ''
+                serializedName: subResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_84
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_83
+                schema: *ref_13
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_83
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel1s/{subResourceModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_84
+        signatureParameters:
+          - *ref_85
+          - *ref_86
+        responses:
+          - !SchemaResponse 
+            schema: *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SubResourceModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_87
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_88
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subResourceModel1SName
+                description: ''
+                serializedName: subResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel1s/{subResourceModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_87
+          - *ref_88
+        responses:
+          - !SchemaResponse 
+            schema: *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SubResourceModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SubResourceModel2s
+    operations:
+      - !Operation 
+        operationId: SubResourceModel2s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_89
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel2s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_89
+        responses:
+          - !SchemaResponse 
+            schema: *ref_90
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SubResourceModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_93
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_94
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subResourceModel2SName
+                description: ''
+                serializedName: subResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_92
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_91
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_91
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel2s/{subResourceModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_92
+        signatureParameters:
+          - *ref_93
+          - *ref_94
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SubResourceModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_95
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_96
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subResourceModel2SName
+                description: ''
+                serializedName: subResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/subResourceModel2s/{subResourceModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_95
+          - *ref_96
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SubResourceModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: WritableSubResourceModel1s
+    operations:
+      - !Operation 
+        operationId: WritableSubResourceModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_97
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_97
+        responses:
+          - !SchemaResponse 
+            schema: *ref_98
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: WritableSubResourceModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_101
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_102
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: writableSubResourceModel1SName
+                description: ''
+                serializedName: writableSubResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_100
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_99
+                schema: *ref_20
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_99
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel1s/{writableSubResourceModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_100
+        signatureParameters:
+          - *ref_101
+          - *ref_102
+        responses:
+          - !SchemaResponse 
+            schema: *ref_20
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: WritableSubResourceModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_103
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_104
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: writableSubResourceModel1SName
+                description: ''
+                serializedName: writableSubResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel1s/{writableSubResourceModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_103
+          - *ref_104
+        responses:
+          - !SchemaResponse 
+            schema: *ref_20
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: WritableSubResourceModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: WritableSubResourceModel2s
+    operations:
+      - !Operation 
+        operationId: WritableSubResourceModel2s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_105
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel2s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_105
+        responses:
+          - !SchemaResponse 
+            schema: *ref_106
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: WritableSubResourceModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_109
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_110
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: writableSubResourceModel2SName
+                description: ''
+                serializedName: writableSubResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_108
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_107
+                schema: *ref_23
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_107
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel2s/{writableSubResourceModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_108
+        signatureParameters:
+          - *ref_109
+          - *ref_110
+        responses:
+          - !SchemaResponse 
+            schema: *ref_23
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: WritableSubResourceModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_111
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_112
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: writableSubResourceModel2SName
+                description: ''
+                serializedName: writableSubResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/writableSubResourceModel2s/{writableSubResourceModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_111
+          - *ref_112
+        responses:
+          - !SchemaResponse 
+            schema: *ref_23
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: WritableSubResourceModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ResourceModel1s
+    operations:
+      - !Operation 
+        operationId: ResourceModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_113
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_113
+        responses:
+          - !SchemaResponse 
+            schema: *ref_114
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ResourceModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_117
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_118
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceModel1SName
+                description: ''
+                serializedName: resourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_116
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_115
+                schema: *ref_29
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_115
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel1s/{resourceModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_116
+        signatureParameters:
+          - *ref_117
+          - *ref_118
+        responses:
+          - !SchemaResponse 
+            schema: *ref_29
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ResourceModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_119
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_120
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceModel1SName
+                description: ''
+                serializedName: resourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel1s/{resourceModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_119
+          - *ref_120
+        responses:
+          - !SchemaResponse 
+            schema: *ref_29
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ResourceModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ResourceModel2s
+    operations:
+      - !Operation 
+        operationId: ResourceModel2s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_121
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel2s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_121
+        responses:
+          - !SchemaResponse 
+            schema: *ref_122
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ResourceModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_125
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_126
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceModel2SName
+                description: ''
+                serializedName: resourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_124
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_123
+                schema: *ref_33
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_123
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel2s/{resourceModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_124
+        signatureParameters:
+          - *ref_125
+          - *ref_126
+        responses:
+          - !SchemaResponse 
+            schema: *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ResourceModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_127
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_128
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceModel2SName
+                description: ''
+                serializedName: resourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/resourceModel2s/{resourceModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_127
+          - *ref_128
+        responses:
+          - !SchemaResponse 
+            schema: *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ResourceModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: TrackedResourceModel1s
+    operations:
+      - !Operation 
+        operationId: TrackedResourceModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_129
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_129
+        responses:
+          - !SchemaResponse 
+            schema: *ref_130
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: TrackedResourceModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_133
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_134
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: trackedResourceModel1SName
+                description: ''
+                serializedName: trackedResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_132
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_131
+                schema: *ref_41
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_131
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel1s/{trackedResourceModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_132
+        signatureParameters:
+          - *ref_133
+          - *ref_134
+        responses:
+          - !SchemaResponse 
+            schema: *ref_41
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: TrackedResourceModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_135
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_136
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: trackedResourceModel1SName
+                description: ''
+                serializedName: trackedResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel1s/{trackedResourceModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_135
+          - *ref_136
+        responses:
+          - !SchemaResponse 
+            schema: *ref_41
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: TrackedResourceModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: TrackedResourceModel2s
+    operations:
+      - !Operation 
+        operationId: TrackedResourceModel2s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_137
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel2s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_137
+        responses:
+          - !SchemaResponse 
+            schema: *ref_138
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: TrackedResourceModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_141
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_142
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: trackedResourceModel2SName
+                description: ''
+                serializedName: trackedResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_140
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_139
+                schema: *ref_47
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_139
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel2s/{trackedResourceModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_140
+        signatureParameters:
+          - *ref_141
+          - *ref_142
+        responses:
+          - !SchemaResponse 
+            schema: *ref_47
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: TrackedResourceModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_143
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_144
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: trackedResourceModel2SName
+                description: ''
+                serializedName: trackedResourceModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/trackedResourceModel2s/{trackedResourceModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_143
+          - *ref_144
+        responses:
+          - !SchemaResponse 
+            schema: *ref_47
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: TrackedResourceModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: NonResourceModel1s
+    operations:
+      - !Operation 
+        operationId: NonResourceModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_148
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_149
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: nonResourceModel1SName
+                description: ''
+                serializedName: nonResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_147
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_146
+                schema: *ref_145
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_146
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/nonResourceModel1s/{nonResourceModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_147
+        signatureParameters:
+          - *ref_148
+          - *ref_149
+        responses:
+          - !SchemaResponse 
+            schema: *ref_145
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: NonResourceModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-06-10'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_150
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_151
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: nonResourceModel1SName
+                description: ''
+                serializedName: nonResourceModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/nonResourceModel1s/{nonResourceModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_150
+          - *ref_151
+        responses:
+          - !SchemaResponse 
+            schema: *ref_145
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: NonResourceModel1S
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: SuperSetOfFlattenProperties
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

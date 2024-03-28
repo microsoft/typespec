@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetRecursiveModelValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetRecursiveModelValueAsync.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = await client.GetRecursiveModelValueAsync();
+]]></code>
+This sample shows how to call GetRecursiveModelValueAsync with all parameters.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = await client.GetRecursiveModelValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetRecursiveModelValue(CancellationToken)">
+      <example>
+This sample shows how to call GetRecursiveModelValue.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = client.GetRecursiveModelValue();
+]]></code>
+This sample shows how to call GetRecursiveModelValue with all parameters.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response<IReadOnlyDictionary<string, InnerModel>> response = client.GetRecursiveModelValue();
+]]></code></example>
+    </member>
+    <member name="GetRecursiveModelValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetRecursiveModelValueAsync and parse the result.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = await client.GetRecursiveModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetRecursiveModelValueAsync with all parameters and parse the result.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = await client.GetRecursiveModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+Console.WriteLine(result.GetProperty("<key>").GetProperty("children").GetProperty("<key>").GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetRecursiveModelValue(RequestContext)">
+      <example>
+This sample shows how to call GetRecursiveModelValue and parse the result.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = client.GetRecursiveModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetRecursiveModelValue with all parameters and parse the result.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = client.GetRecursiveModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").GetProperty("property").ToString());
+Console.WriteLine(result.GetProperty("<key>").GetProperty("children").GetProperty("<key>").GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IDictionary{string,InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+    {
+        Children =
+        {
+            ["key"] = default
+        },
+    }
+});
+]]></code></example>
+    </member>
+    <member name="Put(IDictionary{string,InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = client.Put(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+Response response = client.Put(new Dictionary<string, InnerModel>
+{
+    ["key"] = new InnerModel("<property>")
+    {
+        Children =
+        {
+            ["key"] = default
+        },
+    }
+});
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+        children = new { },
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+RecursiveModelValue client = new DictionaryClient().GetRecursiveModelValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = new
+    {
+        property = "<property>",
+        children = new { },
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

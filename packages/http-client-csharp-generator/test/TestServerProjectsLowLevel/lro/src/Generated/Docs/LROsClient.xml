@@ -1,0 +1,3061 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="Put200SucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200SucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put200SucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200SucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put200SucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200Succeeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200Succeeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put200Succeeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200Succeeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put200Succeeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch200SucceededIgnoreHeadersAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch200SucceededIgnoreHeadersAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Patch200SucceededIgnoreHeadersAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch200SucceededIgnoreHeadersAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Patch200SucceededIgnoreHeadersAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch200SucceededIgnoreHeaders(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch200SucceededIgnoreHeaders and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Patch200SucceededIgnoreHeaders(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch200SucceededIgnoreHeaders with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Patch200SucceededIgnoreHeaders(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch201RetryWithAsyncHeaderAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch201RetryWithAsyncHeaderAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Patch201RetryWithAsyncHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch201RetryWithAsyncHeaderAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Patch201RetryWithAsyncHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch201RetryWithAsyncHeader(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch201RetryWithAsyncHeader and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Patch201RetryWithAsyncHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch201RetryWithAsyncHeader with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Patch201RetryWithAsyncHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch202RetryWithAsyncAndLocationHeaderAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch202RetryWithAsyncAndLocationHeaderAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Patch202RetryWithAsyncAndLocationHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch202RetryWithAsyncAndLocationHeaderAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Patch202RetryWithAsyncAndLocationHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Patch202RetryWithAsyncAndLocationHeader(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Patch202RetryWithAsyncAndLocationHeader and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Patch202RetryWithAsyncAndLocationHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch202RetryWithAsyncAndLocationHeader with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Patch202RetryWithAsyncAndLocationHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201SucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201SucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put201SucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201SucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put201SucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201Succeeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201Succeeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put201Succeeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201Succeeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put201Succeeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Post202ListAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Post202ListAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Post202ListAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call Post202ListAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Post202ListAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result[0].GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result[0].GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result[0].GetProperty("id").ToString());
+Console.WriteLine(result[0].GetProperty("type").ToString());
+Console.WriteLine(result[0].GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result[0].GetProperty("location").ToString());
+Console.WriteLine(result[0].GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Post202List(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Post202List and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Post202List(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call Post202List with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Post202List(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result[0].GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result[0].GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result[0].GetProperty("id").ToString());
+Console.WriteLine(result[0].GetProperty("type").ToString());
+Console.WriteLine(result[0].GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result[0].GetProperty("location").ToString());
+Console.WriteLine(result[0].GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200SucceededNoStateAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200SucceededNoStateAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put200SucceededNoStateAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200SucceededNoStateAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put200SucceededNoStateAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200SucceededNoState(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200SucceededNoState and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put200SucceededNoState(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200SucceededNoState with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put200SucceededNoState(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put202Retry200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put202Retry200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put202Retry200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put202Retry200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put202Retry200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put202Retry200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put202Retry200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put202Retry200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put202Retry200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put202Retry200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingSucceeded200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingSucceeded200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200UpdatingSucceeded204Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200UpdatingSucceeded204Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put200UpdatingSucceeded204Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200UpdatingSucceeded204Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put200UpdatingSucceeded204Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200UpdatingSucceeded204(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200UpdatingSucceeded204 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put200UpdatingSucceeded204(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200UpdatingSucceeded204 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put200UpdatingSucceeded204(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingFailed200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingFailed200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put201CreatingFailed200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingFailed200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put201CreatingFailed200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingFailed200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingFailed200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put201CreatingFailed200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingFailed200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put201CreatingFailed200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200Acceptedcanceled200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200Acceptedcanceled200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put200Acceptedcanceled200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200Acceptedcanceled200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put200Acceptedcanceled200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200Acceptedcanceled200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200Acceptedcanceled200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put200Acceptedcanceled200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200Acceptedcanceled200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put200Acceptedcanceled200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNoHeaderInRetryAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNoHeaderInRetryAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutNoHeaderInRetryAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNoHeaderInRetryAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutNoHeaderInRetryAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNoHeaderInRetry(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNoHeaderInRetry and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutNoHeaderInRetry(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNoHeaderInRetry with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutNoHeaderInRetry(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncNoRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncNoRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncNoRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncNoRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRetryFailedAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetryFailedAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRetryFailedAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetryFailedAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRetryFailedAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRetryFailed(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetryFailed and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRetryFailed(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetryFailed with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRetryFailed(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoRetrycanceledAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoRetrycanceledAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncNoRetrycanceledAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoRetrycanceledAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncNoRetrycanceledAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoRetrycanceled(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoRetrycanceled and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncNoRetrycanceled(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoRetrycanceled with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncNoRetrycanceled(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoHeaderInRetryAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoHeaderInRetryAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncNoHeaderInRetryAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoHeaderInRetryAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncNoHeaderInRetryAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNoHeaderInRetry(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNoHeaderInRetry and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncNoHeaderInRetry(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNoHeaderInRetry with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncNoHeaderInRetry(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonResourceAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonResourceAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutNonResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonResourceAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    id = "<id>",
+});
+Operation<BinaryData> operation = await client.PutNonResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonResource(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonResource and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutNonResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonResource with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    id = "<id>",
+});
+Operation<BinaryData> operation = client.PutNonResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNonResourceAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNonResourceAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncNonResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNonResourceAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    id = "<id>",
+});
+Operation<BinaryData> operation = await client.PutAsyncNonResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncNonResource(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncNonResource and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncNonResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncNonResource with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    id = "<id>",
+});
+Operation<BinaryData> operation = client.PutAsyncNonResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutSubResourceAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutSubResourceAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutSubResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutSubResourceAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+});
+Operation<BinaryData> operation = await client.PutSubResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutSubResource(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutSubResource and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutSubResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutSubResource with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+});
+Operation<BinaryData> operation = client.PutSubResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncSubResourceAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncSubResourceAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncSubResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncSubResourceAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+});
+Operation<BinaryData> operation = await client.PutAsyncSubResourceAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncSubResource(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncSubResource and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncSubResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncSubResource with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+});
+Operation<BinaryData> operation = client.PutAsyncSubResource(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Accepted200SucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Accepted200SucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Accepted200SucceededAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Accepted200SucceededAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Accepted200SucceededAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Accepted200Succeeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Accepted200Succeeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Accepted200Succeeded(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Accepted200Succeeded with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Accepted200Succeeded(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202DeletingFailed200Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202DeletingFailed200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202DeletingFailed200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202DeletingFailed200Async with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202DeletingFailed200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202DeletingFailed200(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202DeletingFailed200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202DeletingFailed200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202DeletingFailed200 with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202DeletingFailed200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Deletingcanceled200Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Deletingcanceled200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Deletingcanceled200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Deletingcanceled200Async with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.DeleteProvisioning202Deletingcanceled200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteProvisioning202Deletingcanceled200(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteProvisioning202Deletingcanceled200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Deletingcanceled200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call DeleteProvisioning202Deletingcanceled200 with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.DeleteProvisioning202Deletingcanceled200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete204SucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete204SucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.Delete204SucceededAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete204SucceededAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.Delete204SucceededAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete204Succeeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete204Succeeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.Delete204Succeeded(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete204Succeeded with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.Delete204Succeeded(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete202Retry200Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202Retry200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Delete202Retry200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Delete202Retry200Async with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Delete202Retry200Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete202Retry200(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202Retry200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Delete202Retry200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Delete202Retry200 with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Delete202Retry200(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete202NoRetry204Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202NoRetry204Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Delete202NoRetry204Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Delete202NoRetry204Async with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Delete202NoRetry204Async(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete202NoRetry204(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202NoRetry204 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Delete202NoRetry204(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Delete202NoRetry204 with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Delete202NoRetry204(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteNoHeaderInRetryAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteNoHeaderInRetryAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteNoHeaderInRetryAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteNoHeaderInRetryAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteNoHeaderInRetryAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteNoHeaderInRetry(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteNoHeaderInRetry.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteNoHeaderInRetry(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteNoHeaderInRetry with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteNoHeaderInRetry(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncNoHeaderInRetryAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncNoHeaderInRetryAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncNoHeaderInRetryAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncNoHeaderInRetryAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncNoHeaderInRetryAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncNoHeaderInRetry(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncNoHeaderInRetry.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncNoHeaderInRetry(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncNoHeaderInRetry with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncNoHeaderInRetry(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetrySucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetrySucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetrySucceededAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetrySucceededAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetrySucceededAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetrySucceeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetrySucceeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetrySucceeded(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetrySucceeded with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetrySucceeded(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncNoRetrySucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncNoRetrySucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncNoRetrySucceededAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncNoRetrySucceededAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncNoRetrySucceededAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncNoRetrySucceeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncNoRetrySucceeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncNoRetrySucceeded(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncNoRetrySucceeded with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncNoRetrySucceeded(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetryFailedAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetryFailedAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetryFailedAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetryFailedAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetryFailedAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetryFailed(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetryFailed.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetryFailed(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetryFailed with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetryFailed(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetrycanceledAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetrycanceledAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetrycanceledAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetrycanceledAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = await client.DeleteAsyncRetrycanceledAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRetrycanceled(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRetrycanceled.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetrycanceled(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRetrycanceled with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation operation = client.DeleteAsyncRetrycanceled(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Post200WithPayloadAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Post200WithPayloadAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Post200WithPayloadAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Post200WithPayloadAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.Post200WithPayloadAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="Post200WithPayload(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Post200WithPayload and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Post200WithPayload(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Post200WithPayload with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.Post200WithPayload(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="Post202Retry200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202Retry200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202NoRetry204Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NoRetry204Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Post202NoRetry204Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Post202NoRetry204Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Post202NoRetry204Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Post202NoRetry204(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NoRetry204 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Post202NoRetry204(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Post202NoRetry204 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Post202NoRetry204(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalLocationGetAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalLocationGetAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalLocationGetAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalLocationGetAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalLocationGetAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalLocationGet(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalLocationGet and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalLocationGet(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalLocationGet with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalLocationGet(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalAzureHeaderGetAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalAzureHeaderGetAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalAzureHeaderGetAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalAzureHeaderGet(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGet and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalAzureHeaderGet(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGet with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalAzureHeaderGet(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalAzureHeaderGetDefaultAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetDefaultAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalAzureHeaderGetDefaultAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetDefaultAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = await client.PostDoubleHeadersFinalAzureHeaderGetDefaultAsync(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostDoubleHeadersFinalAzureHeaderGetDefault(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetDefault and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalAzureHeaderGetDefault(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostDoubleHeadersFinalAzureHeaderGetDefault with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+Operation<BinaryData> operation = client.PostDoubleHeadersFinalAzureHeaderGetDefault(WaitUntil.Completed, null);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PostAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostAsyncRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PostAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PostAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostAsyncRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PostAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostAsyncNoRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncNoRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PostAsyncNoRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostAsyncNoRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PostAsyncNoRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostAsyncNoRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncNoRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PostAsyncNoRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostAsyncNoRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PostAsyncNoRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetryFailedAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetryFailedAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRetryFailedAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetryFailedAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRetryFailedAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetryFailed(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetryFailed.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRetryFailed(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetryFailed with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRetryFailed(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrycanceledAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrycanceledAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRetrycanceledAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetrycanceledAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRetrycanceledAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrycanceled(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrycanceled.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRetrycanceled(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetrycanceled with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsClient client = new LROsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRetrycanceled(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

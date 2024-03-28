@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PublicAsync(string,CancellationToken)">
+      <example>
+This sample shows how to call PublicAsync.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response<SharedModel> response = await client.PublicAsync("<name>");
+]]></code>
+This sample shows how to call PublicAsync with all parameters.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response<SharedModel> response = await client.PublicAsync("<name>");
+]]></code></example>
+    </member>
+    <member name="Public(string,CancellationToken)">
+      <example>
+This sample shows how to call Public.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response<SharedModel> response = client.Public("<name>");
+]]></code>
+This sample shows how to call Public with all parameters.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response<SharedModel> response = client.Public("<name>");
+]]></code></example>
+    </member>
+    <member name="PublicAsync(string,RequestContext)">
+      <example>
+This sample shows how to call PublicAsync and parse the result.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response response = await client.PublicAsync("<name>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call PublicAsync with all parameters and parse the result.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response response = await client.PublicAsync("<name>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Public(string,RequestContext)">
+      <example>
+This sample shows how to call Public and parse the result.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response response = client.Public("<name>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call Public with all parameters and parse the result.
+<code><![CDATA[
+SharedModelInOperation client = new AccessClient().GetSharedModelInOperationClient();
+
+Response response = client.Public("<name>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

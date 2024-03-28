@@ -1,0 +1,59 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AutoRest Common Types",
+    "version": "1.0"
+  },
+  "x-ms-parameterized-host": {
+    "hostTemplate": "{source}.fakeendpoint.azure.com",
+    "parameters": [
+      {
+        "$ref": "#/parameters/SourceEnum"
+      }
+    ]
+  },
+  "schemes": [
+    "https"
+  ],
+  "consumes": [],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      },
+      "description": "."
+    }
+  },
+  "parameters": {
+    "SourceEnum": {
+      "name": "source",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "default": "value1",
+      "enum": [
+        "us",
+        "eu"
+      ],
+      "x-ms-enum": {
+        "name": "SourceEnum",
+        "modelAsString": true,
+        "values": [
+          {
+            "value": "value1"
+          },
+          {
+            "value": "value2"
+          }
+        ]
+      },
+      "x-ms-parameter-location": "client"
+    }
+  }
+}

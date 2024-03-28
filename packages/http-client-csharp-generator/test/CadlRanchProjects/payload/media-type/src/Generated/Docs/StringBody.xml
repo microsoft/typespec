@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SendAsTextAsync(string,CancellationToken)">
+      <example>
+This sample shows how to call SendAsTextAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.SendAsTextAsync("<text>");
+]]></code>
+This sample shows how to call SendAsTextAsync with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.SendAsTextAsync("<text>");
+]]></code></example>
+    </member>
+    <member name="SendAsText(string,CancellationToken)">
+      <example>
+This sample shows how to call SendAsText.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.SendAsText("<text>");
+]]></code>
+This sample shows how to call SendAsText with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.SendAsText("<text>");
+]]></code></example>
+    </member>
+    <member name="SendAsTextAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsTextAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = await client.SendAsTextAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsTextAsync with all request content.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = await client.SendAsTextAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="SendAsText(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsText.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = client.SendAsText(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsText with all request content.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = client.SendAsText(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetAsTextAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetAsTextAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = await client.GetAsTextAsync();
+]]></code>
+This sample shows how to call GetAsTextAsync with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = await client.GetAsTextAsync();
+]]></code></example>
+    </member>
+    <member name="GetAsText(CancellationToken)">
+      <example>
+This sample shows how to call GetAsText.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = client.GetAsText();
+]]></code>
+This sample shows how to call GetAsText with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = client.GetAsText();
+]]></code></example>
+    </member>
+    <member name="GetAsTextAsync(RequestContext)">
+      <example>
+This sample shows how to call GetAsTextAsync and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.GetAsTextAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetAsTextAsync with all parameters and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.GetAsTextAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetAsText(RequestContext)">
+      <example>
+This sample shows how to call GetAsText and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.GetAsText(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetAsText with all parameters and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.GetAsText(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="SendAsJsonAsync(string,CancellationToken)">
+      <example>
+This sample shows how to call SendAsJsonAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.SendAsJsonAsync("<text>");
+]]></code>
+This sample shows how to call SendAsJsonAsync with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.SendAsJsonAsync("<text>");
+]]></code></example>
+    </member>
+    <member name="SendAsJson(string,CancellationToken)">
+      <example>
+This sample shows how to call SendAsJson.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.SendAsJson("<text>");
+]]></code>
+This sample shows how to call SendAsJson with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.SendAsJson("<text>");
+]]></code></example>
+    </member>
+    <member name="SendAsJsonAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsJsonAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = await client.SendAsJsonAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsJsonAsync with all request content.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = await client.SendAsJsonAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="SendAsJson(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsJson.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = client.SendAsJson(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsJson with all request content.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+using RequestContent content = RequestContent.Create("<text>");
+Response response = client.SendAsJson(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetAsJsonAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetAsJsonAsync.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = await client.GetAsJsonAsync();
+]]></code>
+This sample shows how to call GetAsJsonAsync with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = await client.GetAsJsonAsync();
+]]></code></example>
+    </member>
+    <member name="GetAsJson(CancellationToken)">
+      <example>
+This sample shows how to call GetAsJson.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = client.GetAsJson();
+]]></code>
+This sample shows how to call GetAsJson with all parameters.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response<string> response = client.GetAsJson();
+]]></code></example>
+    </member>
+    <member name="GetAsJsonAsync(RequestContext)">
+      <example>
+This sample shows how to call GetAsJsonAsync and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.GetAsJsonAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetAsJsonAsync with all parameters and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = await client.GetAsJsonAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetAsJson(RequestContext)">
+      <example>
+This sample shows how to call GetAsJson and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.GetAsJson(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetAsJson with all parameters and parse the result.
+<code><![CDATA[
+StringBody client = new MediaTypeClient().GetStringBodyClient();
+
+Response response = client.GetAsJson(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

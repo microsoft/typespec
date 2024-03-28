@@ -1,0 +1,2674 @@
+!CodeModel 
+info: !Info 
+  title: MgmtSupersetInheritance
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_12
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: SupersetModel3Id
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel1Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel1Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel1Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel1New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel2ID
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel2Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel2Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel2New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel3Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel3Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel3New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4Location
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel4ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_29
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6SystemDataCreatedBy
+          description: The identity that created the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_33
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6SystemDataLastModifiedBy
+          description: The identity that last modified the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_35
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_38
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_39
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_40
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_41
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_42
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7SystemDataCreatedBy
+          description: The identity that created the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_44
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7SystemDataLastModifiedBy
+          description: The identity that last modified the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_45
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel5Foo
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_31
+      choices:
+        - !ChoiceValue 
+          value: User
+          language:
+            default:
+              name: User
+              description: ''
+        - !ChoiceValue 
+          value: Application
+          language:
+            default:
+              name: Application
+              description: ''
+        - !ChoiceValue 
+          value: ManagedIdentity
+          language:
+            default:
+              name: ManagedIdentity
+              description: ''
+        - !ChoiceValue 
+          value: Key
+          language:
+            default:
+              name: Key
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CreatedByType
+          description: The type of identity that created the resource.
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_52
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_56
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_59
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_23
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: SupersetModel4Tags
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_32
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6SystemDataCreatedAt
+          description: The timestamp of resource creation (UTC).
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_34
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel6SystemDataLastModifiedAt
+          description: The timestamp of resource last modification (UTC)
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_43
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SupersetModel7SystemDataCreatedAt
+          description: The timestamp of resource creation (UTC).
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_58
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_48
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_7
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_2
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_3
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_4
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_5
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: SupersetModel1
+                  description: This model does not have systemData, but should inherit from Resource.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SupersetModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_7
+    - !ObjectSchema &ref_66
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_8
+          serializedName: iD
+          language: !Languages 
+            default:
+              name: iD
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel2
+          description: This model does not have id property, it's Non-Resource.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_73
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_12
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_13
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_14
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_15
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel3
+          description: id is integer, the model is Non-Resource.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_81
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_49
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_16
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              children: !Relations 
+                all:
+                  - !ObjectSchema &ref_18
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    parents: !Relations 
+                      all:
+                        - *ref_16
+                      immediate:
+                        - *ref_16
+                    properties:
+                      - !Property 
+                        schema: *ref_17
+                        serializedName: foo
+                        language: !Languages 
+                          default:
+                            name: foo
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: SupersetModel5
+                        description: This model should inherit from SupersetModel4.
+                        namespace: ''
+                    protocol: !Protocols {}
+                immediate:
+                  - *ref_18
+              properties:
+                - !Property 
+                  schema: *ref_19
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_20
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_21
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_22
+                  serializedName: location
+                  language: !Languages 
+                    default:
+                      name: location
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_23
+                  serializedName: tags
+                  language: !Languages 
+                    default:
+                      name: tags
+                      description: Dictionary of <string>
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_24
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: SupersetModel4
+                  description: This model does not have systemData, but should inherit from TrackedResource.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SupersetModel4ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel4ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_16
+    - !ObjectSchema &ref_89
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_50
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_36
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_26
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_27
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_28
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_29
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_37
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_30
+                        serializedName: createdBy
+                        language: !Languages 
+                          default:
+                            name: createdBy
+                            description: The identity that created the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_31
+                        serializedName: createdByType
+                        language: !Languages 
+                          default:
+                            name: createdByType
+                            description: The type of identity that created the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_32
+                        serializedName: createdAt
+                        language: !Languages 
+                          default:
+                            name: createdAt
+                            description: The timestamp of resource creation (UTC).
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_33
+                        serializedName: lastModifiedBy
+                        language: !Languages 
+                          default:
+                            name: lastModifiedBy
+                            description: The identity that last modified the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_31
+                        serializedName: lastModifiedByType
+                        language: !Languages 
+                          default:
+                            name: lastModifiedByType
+                            description: The type of identity that last modified the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_34
+                        serializedName: lastModifiedAt
+                        language: !Languages 
+                          default:
+                            name: lastModifiedAt
+                            description: The timestamp of resource last modification (UTC)
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: SupersetModel6SystemData
+                        description: Metadata pertaining to creation and last modification of the resource.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  readOnly: true
+                  serializedName: systemData
+                  language: !Languages 
+                    default:
+                      name: systemData
+                      description: Metadata pertaining to creation and last modification of the resource.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: SupersetModel6
+                  description: This model has a common type systemData and should inherit from Resource.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SupersetModel6ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_35
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel6ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_36
+    - *ref_37
+    - !ObjectSchema &ref_97
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_51
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_46
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_38
+                  readOnly: true
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_39
+                  readOnly: true
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_40
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_41
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_47
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_42
+                        serializedName: createdBy
+                        language: !Languages 
+                          default:
+                            name: createdBy
+                            description: The identity that created the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_43
+                        serializedName: createdAt
+                        language: !Languages 
+                          default:
+                            name: createdAt
+                            description: The timestamp of resource creation (UTC).
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_44
+                        serializedName: lastModifiedBy
+                        language: !Languages 
+                          default:
+                            name: lastModifiedBy
+                            description: The identity that last modified the resource.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: SupersetModel7SystemData
+                        description: Metadata pertaining to creation and last modification of the resource.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  readOnly: true
+                  serializedName: systemData
+                  language: !Languages 
+                    default:
+                      name: systemData
+                      description: Metadata pertaining to creation and last modification of the resource.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: SupersetModel7
+                  description: This model has a systemData different from common type and should not inherit from Resource.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SupersetModel7ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_45
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: SupersetModel7ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_46
+    - *ref_47
+    - *ref_18
+  arrays:
+    - *ref_48
+    - *ref_49
+    - *ref_50
+    - *ref_51
+globalParameters:
+  - !Parameter &ref_55
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: ''
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_53
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_54
+    schema: *ref_52
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: SupersetModel1s
+    operations:
+      - !Operation 
+        operationId: SupersetModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_57
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel1s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_57
+        responses:
+          - !SchemaResponse 
+            schema: *ref_58
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_62
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_63
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel1SName
+                description: ''
+                serializedName: supersetModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_61
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_60
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_60
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel1s/{supersetModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_61
+        signatureParameters:
+          - *ref_62
+          - *ref_63
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_64
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_65
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel1SName
+                description: ''
+                serializedName: supersetModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel1s/{supersetModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_64
+          - *ref_65
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SupersetModel2s
+    operations:
+      - !Operation 
+        operationId: SupersetModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_69
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_70
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel2SName
+                description: ''
+                serializedName: supersetModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_68
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_67
+                schema: *ref_66
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_67
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel2s/{supersetModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_68
+        signatureParameters:
+          - *ref_69
+          - *ref_70
+        responses:
+          - !SchemaResponse 
+            schema: *ref_66
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel2s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_71
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_72
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel2SName
+                description: ''
+                serializedName: supersetModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel2s/{supersetModel2sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_71
+          - *ref_72
+        responses:
+          - !SchemaResponse 
+            schema: *ref_66
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SupersetModel3s
+    operations:
+      - !Operation 
+        operationId: SupersetModel3s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_76
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_77
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel3SName
+                description: ''
+                serializedName: supersetModel3sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_75
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_74
+                schema: *ref_73
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_74
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel3s/{supersetModel3sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_75
+        signatureParameters:
+          - *ref_76
+          - *ref_77
+        responses:
+          - !SchemaResponse 
+            schema: *ref_73
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel3s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_78
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_79
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel3SName
+                description: ''
+                serializedName: supersetModel3sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel3s/{supersetModel3sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_78
+          - *ref_79
+        responses:
+          - !SchemaResponse 
+            schema: *ref_73
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel3S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SupersetModel4s
+    operations:
+      - !Operation 
+        operationId: SupersetModel4s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_80
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel4s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_80
+        responses:
+          - !SchemaResponse 
+            schema: *ref_81
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel4s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_84
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_85
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel4SName
+                description: ''
+                serializedName: supersetModel4sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_83
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_82
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_82
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel4s/{supersetModel4sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_83
+        signatureParameters:
+          - *ref_84
+          - *ref_85
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel4s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_86
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_87
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel4SName
+                description: ''
+                serializedName: supersetModel4sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel4s/{supersetModel4sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_86
+          - *ref_87
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel4S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SupersetModel6s
+    operations:
+      - !Operation 
+        operationId: SupersetModel6s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_88
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel6s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_88
+        responses:
+          - !SchemaResponse 
+            schema: *ref_89
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel6s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_92
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_93
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel6SName
+                description: ''
+                serializedName: supersetModel6sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_91
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_90
+                schema: *ref_36
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_90
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel6s/{supersetModel6sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_91
+        signatureParameters:
+          - *ref_92
+          - *ref_93
+        responses:
+          - !SchemaResponse 
+            schema: *ref_36
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel6s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_94
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_95
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel6SName
+                description: ''
+                serializedName: supersetModel6sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel6s/{supersetModel6sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_94
+          - *ref_95
+        responses:
+          - !SchemaResponse 
+            schema: *ref_36
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel6S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: SupersetModel7s
+    operations:
+      - !Operation 
+        operationId: SupersetModel7s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_96
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel7s
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_96
+        responses:
+          - !SchemaResponse 
+            schema: *ref_97
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel7s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_100
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_101
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel7SName
+                description: ''
+                serializedName: supersetModel7sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requestMediaTypes:
+          application/json: !Request &ref_99
+            parameters:
+              - !Parameter 
+                schema: *ref_59
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_98
+                schema: *ref_46
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_98
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel7s/{supersetModel7sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_99
+        signatureParameters:
+          - *ref_100
+          - *ref_101
+        responses:
+          - !SchemaResponse 
+            schema: *ref_46
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: SupersetModel7s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_53
+          - !Parameter &ref_102
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_103
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: supersetModel7SName
+                description: ''
+                serializedName: supersetModel7sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_54
+          - *ref_55
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_56
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel7s/{supersetModel7sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_102
+          - *ref_103
+        responses:
+          - !SchemaResponse 
+            schema: *ref_46
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SupersetModel7S
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtSupersetInheritance
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

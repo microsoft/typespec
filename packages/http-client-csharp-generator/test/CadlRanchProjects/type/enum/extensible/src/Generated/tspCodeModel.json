@@ -1,0 +1,441 @@
+{
+ "$id": "1",
+ "Name": "Type.Enum.Extensible",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "DaysOfWeekExtensibleEnum",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "Monday",
+     "Value": "Monday",
+     "Description": "Monday."
+    },
+    {
+     "$id": "4",
+     "Name": "Tuesday",
+     "Value": "Tuesday",
+     "Description": "Tuesday."
+    },
+    {
+     "$id": "5",
+     "Name": "Wednesday",
+     "Value": "Wednesday",
+     "Description": "Wednesday."
+    },
+    {
+     "$id": "6",
+     "Name": "Thursday",
+     "Value": "Thursday",
+     "Description": "Thursday."
+    },
+    {
+     "$id": "7",
+     "Name": "Friday",
+     "Value": "Friday",
+     "Description": "Friday."
+    },
+    {
+     "$id": "8",
+     "Name": "Saturday",
+     "Value": "Saturday",
+     "Description": "Saturday."
+    },
+    {
+     "$id": "9",
+     "Name": "Sunday",
+     "Value": "Sunday",
+     "Description": "Sunday."
+    }
+   ],
+   "Namespace": "Type.Enum.Extensible",
+   "Description": "Days of the week",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  }
+ ],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "10",
+   "Name": "ExtensibleClient",
+   "Description": "",
+   "Operations": [],
+   "Protocol": {
+    "$id": "11"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "12",
+   "Name": "String",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "13",
+     "Name": "getKnownValue",
+     "ResourceName": "String",
+     "Parameters": [
+      {
+       "$id": "14",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "15",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "16",
+        "Type": {
+         "$id": "17",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "18",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "19",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "20",
+        "Type": {
+         "$ref": "19"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "21",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/enum/extensible/string/known-value",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "22",
+     "Name": "getUnknownValue",
+     "ResourceName": "String",
+     "Parameters": [
+      {
+       "$ref": "14"
+      },
+      {
+       "$id": "23",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "24",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "25",
+        "Type": {
+         "$ref": "24"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "26",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "2"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/enum/extensible/string/unknown-value",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "27",
+     "Name": "putKnownValue",
+     "ResourceName": "String",
+     "Parameters": [
+      {
+       "$ref": "14"
+      },
+      {
+       "$id": "28",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "29",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "31",
+        "Type": {
+         "$ref": "30"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "32",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "33",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "34",
+        "Type": {
+         "$ref": "33"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "35",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/enum/extensible/string/known-value",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "36",
+     "Name": "putUnknownValue",
+     "ResourceName": "String",
+     "Parameters": [
+      {
+       "$ref": "14"
+      },
+      {
+       "$id": "37",
+       "Name": "body",
+       "NameInRequest": "body",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "38",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "39",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "40",
+        "Type": {
+         "$ref": "39"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "41",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "42",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "43",
+        "Type": {
+         "$ref": "42"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "44",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/enum/extensible/string/unknown-value",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "45"
+   },
+   "Creatable": false,
+   "Parent": "ExtensibleClient"
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "vaultName": "sample-vault",
+    "api-version": "2018-02-14"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-resource-group/providers/Microsoft.KeyVault/vaults/sample-vault/privateLinkResources/vault",
+            "name": "vault",
+            "type": "Microsoft.KeyVault/vaults/privateLinkResources",
+            "properties": {
+              "groupId": "vault",
+              "requiredMembers": [
+                "default"
+              ],
+              "requiredZoneNames": [
+                "privatelink.vaultcore.azure.net"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

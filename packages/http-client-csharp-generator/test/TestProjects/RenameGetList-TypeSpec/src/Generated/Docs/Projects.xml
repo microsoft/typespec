@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetProjectAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetProjectAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetProjectAsync("<projectName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call GetProjectAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetProjectAsync("<projectName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="GetProject(string,RequestContext)">
+      <example>
+This sample shows how to call GetProject and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetProject("<projectName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code>
+This sample shows how to call GetProject with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetProject("<projectName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("projectName").ToString());
+Console.WriteLine(result.GetProperty("projectKind").ToString());
+Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+Console.WriteLine(result.GetProperty("settings").ToString());
+Console.WriteLine(result.GetProperty("multilingual").ToString());
+Console.WriteLine(result.GetProperty("description").ToString());
+Console.WriteLine(result.GetProperty("language").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+]]></code></example>
+    </member>
+    <member name="GetProjectsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetProjectsAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetProjectsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code>
+This sample shows how to call GetProjectsAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetProjectsAsync(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("settings").ToString());
+    Console.WriteLine(result.GetProperty("multilingual").ToString());
+    Console.WriteLine(result.GetProperty("description").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetProjects(RequestContext)">
+      <example>
+This sample shows how to call GetProjects and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetProjects(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code>
+This sample shows how to call GetProjects with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Projects client = new RenameGetListClient(endpoint).GetProjectsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetProjects(null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("projectName").ToString());
+    Console.WriteLine(result.GetProperty("projectKind").ToString());
+    Console.WriteLine(result.GetProperty("storageInputContainerName").ToString());
+    Console.WriteLine(result.GetProperty("settings").ToString());
+    Console.WriteLine(result.GetProperty("multilingual").ToString());
+    Console.WriteLine(result.GetProperty("description").ToString());
+    Console.WriteLine(result.GetProperty("language").ToString());
+    Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastModifiedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastTrainedDateTime").ToString());
+    Console.WriteLine(result.GetProperty("lastDeployedDateTime").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

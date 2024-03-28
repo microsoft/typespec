@@ -1,0 +1,534 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: Body Forms Data URLEncoded
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_10
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: PostContentSchemaPetAge
+          description: How many years is it old?
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PostContentSchemaName
+          description: Updated name of the pet
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PostContentSchemaStatus
+          description: Updated status of the pet
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PostContentSchemaService
+          description: Indicates the name of your Azure container registry.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PostContentSchemaAccessToken
+          description: AAD access token, mandatory when grant_type is access_token_refresh_token or access_token.
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_2
+      choices:
+        - !ChoiceValue 
+          value: meat
+          language:
+            default:
+              name: Meat
+              description: ''
+        - !ChoiceValue 
+          value: fish
+          language:
+            default:
+              name: Fish
+              description: ''
+        - !ChoiceValue 
+          value: plant
+          language:
+            default:
+              name: Plant
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PetFood
+          description: Can take a value of meat, or fish, or plant
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_1
+      choices:
+        - !ChoiceValue 
+          value: dog
+          language:
+            default:
+              name: Dog
+              description: ''
+        - !ChoiceValue 
+          value: cat
+          language:
+            default:
+              name: Cat
+              description: ''
+        - !ChoiceValue 
+          value: fish
+          language:
+            default:
+              name: Fish
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PetType
+          description: Can take a value of dog, or cat, or fish
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_11
+      type: constant
+      value: !ConstantValue 
+        value: application/x-www-form-urlencoded
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationXWwwFormUrlencoded
+          description: Content Type 'application/x-www-form-urlencoded'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_6
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: access_token
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: PostContentSchemaGrantType
+          description: Constant part of a formdata body.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          required: true
+          serializedName: pet_type
+          language: !Languages 
+            default:
+              name: petType
+              description: Can take a value of dog, or cat, or fish
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          required: true
+          serializedName: pet_food
+          language: !Languages 
+            default:
+              name: petFood
+              description: Can take a value of meat, or fish, or plant
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          required: true
+          serializedName: pet_age
+          language: !Languages 
+            default:
+              name: petAge
+              description: How many years is it old?
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: Updated name of the pet
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: Updated status of the pet
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Paths14Hl8BdFormsdataurlencodedPetAddPetidPostRequestbodyContentApplicationXWwwFormUrlencodedSchema
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_6
+          required: true
+          serializedName: grant_type
+          language: !Languages 
+            default:
+              name: grantType
+              description: Constant part of a formdata body.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          required: true
+          serializedName: service
+          language: !Languages 
+            default:
+              name: service
+              description: Indicates the name of your Azure container registry.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_8
+          required: true
+          serializedName: access_token
+          language: !Languages 
+            default:
+              name: aadAccessToken
+              description: AAD access token, mandatory when grant_type is access_token_refresh_token or access_token.
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: PathsPvivzlFormsdataurlencodedPartialconstantbodyPostRequestbodyContentApplicationXWwwFormUrlencodedSchema
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_9
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: formdataurlencoded
+    operations:
+      - !Operation 
+        operationId: formdataurlencoded_updatePetWithForm
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_9
+          - !Parameter &ref_18
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: petId
+                description: ID of pet that needs to be updated
+                serializedName: petId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/x-www-form-urlencoded: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_12
+                schema: *ref_1
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: petType
+                    description: Can take a value of dog, or cat, or fish
+                    serializedName: pet_type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_13
+                schema: *ref_2
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: petFood
+                    description: Can take a value of meat, or fish, or plant
+                    serializedName: pet_food
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_14
+                schema: *ref_3
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: petAge
+                    description: How many years is it old?
+                    serializedName: pet_age
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_15
+                schema: *ref_4
+                implementation: Method
+                isPartialBody: true
+                language: !Languages 
+                  default:
+                    name: name
+                    description: Updated name of the pet
+                    serializedName: name
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_16
+                schema: *ref_5
+                implementation: Method
+                isPartialBody: true
+                language: !Languages 
+                  default:
+                    name: status
+                    description: Updated status of the pet
+                    serializedName: status
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+            signatureParameters:
+              - *ref_12
+              - *ref_13
+              - *ref_14
+              - *ref_15
+              - *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /formsdataurlencoded/pet/add/{petId}
+                method: post
+                knownMediaType: form
+                mediaTypes:
+                  - application/x-www-form-urlencoded
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters:
+          - *ref_18
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Pet updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Invalid input
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '405'
+        language: !Languages 
+          default:
+            name: UpdatePetWithForm
+            description: Updates a pet in the store with form data
+            summary: Updates a pet in the store with form data
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: formdataurlencoded_partialConstantBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_9
+        requestMediaTypes:
+          application/x-www-form-urlencoded: !Request &ref_21
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: grantType
+                    description: Constant part of a formdata body.
+                    serializedName: grant_type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_19
+                schema: *ref_7
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: service
+                    description: Indicates the name of your Azure container registry.
+                    serializedName: service
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_20
+                schema: *ref_8
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: accessToken
+                    description: AAD access token, mandatory when grant_type is access_token_refresh_token or access_token.
+                    serializedName: access_token
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+            signatureParameters:
+              - *ref_19
+              - *ref_20
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /formsdataurlencoded/partialConstantBody
+                method: post
+                knownMediaType: form
+                mediaTypes:
+                  - application/x-www-form-urlencoded
+                uri: '{$host}'
+        requests:
+          - *ref_21
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Pet updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PartialConstantBody
+            description: 'Test a partially constant formdata body. Pass in { grant_type: ''access_token'', access_token: ''foo'', service: ''bar'' } to pass the test.'
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Formdataurlencoded
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: BodyFormsDataURLEncoded
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

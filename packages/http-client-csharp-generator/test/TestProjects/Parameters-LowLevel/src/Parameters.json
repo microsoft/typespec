@@ -1,0 +1,324 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "AutoRest Swagger BAT Service",
+    "description": "Test",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": ["http"],
+  "produces": ["application/json"],
+  "consumes": ["application/json"],
+  "paths": {
+    "/test1": {
+      "get": {
+        "operationId": "NoRequestBodyResponseBody",
+        "description": "No RequestBody and ResponseBody",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "$top",
+            "description": "Query parameter top",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "id",
+            "description": "Query parameter Id",
+            "type": "integer",
+            "required": true,
+            "x-nullable": true
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "description": "Query parameter skip",
+            "type": "integer",
+            "required": true,
+            "x-ms-client-default": 12
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "description": "Query parameter status",
+            "type": "string",
+            "x-ms-client-default": "start"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "String Response",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "RequestBodyResponseBody",
+        "description": "RequestBody and ResponseBody",
+        "parameters": [
+          {
+            "name": "model",
+            "description": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "String Response",
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "DeleteNoRequestBodyResponseBody",
+        "description": "Delete",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resourceName",
+            "description": "name",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "String Response",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/test2": {
+      "get": {
+        "operationId": "NoRequestBodyNoResponseBody",
+        "description": "No RequestBody and No ResponseBody",
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      },
+      "put": {
+        "operationId": "RequestBodyNoResponseBody",
+        "description": "RequestBody and No ResponseBody",
+        "parameters": [
+          {
+            "name": "stringBody",
+            "description": "string body",
+            "in": "body",
+            "schema": {
+              "type": "string",
+              "x-nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      }
+    },
+    "/test3/{id}/{name}": {
+      "get": {
+        "operationId": "optionalPathParameters",
+        "description": "Optional PathParameters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Query parameter Id",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "description": "Query parameter skip",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "description": "Query parameter status",
+            "type": "string",
+            "required": true,
+            "x-ms-client-default": "start"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      }
+    },
+    "/test4/{id}/{name}": {
+      "get": {
+        "operationId": "optionalPathParametersWithMixedSequence",
+        "description": "Optional path parameters with mixed sequence",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "description": "Query parameter status",
+            "type": "string",
+            "required": true,
+            "x-ms-client-default": "start"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "description": "Query parameter skip",
+            "type": "integer",
+            "required": true,
+            "x-ms-client-default": 12
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Query parameter Id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      }
+    },
+    "/test5/{id}/{name}": {
+      "post": {
+        "operationId": "optionalPathBodyParametersWithMixedSequence",
+        "description": "Optional path/body parameters with mixed sequence",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Query parameter Id",
+            "type": "integer",
+            "required": true,
+            "x-ms-client-default": 123
+          },
+          {
+            "in": "query",
+            "name": "top",
+            "description": "Query parameter top",
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "description": "Query parameter skip",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "max",
+            "description": "Query parameter max",
+            "type": "integer",
+            "required": true,
+            "x-ms-client-default": 50
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "description": "Query parameter status",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "content",
+            "description": "Request content",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      }
+    },
+    "/test6/{id}/{name}": {
+      "post": {
+        "operationId": "repeatableAction",
+        "description": "OASIS repeatable action",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Query parameter Id",
+            "type": "integer",
+            "required": true,
+            "x-ms-client-default": 123
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "description": "Query parameter status",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "content",
+            "description": "Request content",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          },
+          {
+            "name": "Repeatability-Request-ID",
+            "in": "header",
+            "description": "If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-Id is an opaque string representing a client-generated unique identifier for the request. It is a version 4 (random) UUID.",
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "Repeatability-First-Sent",
+            "in": "header",
+            "description": "If Repeatability-Request-ID header is specified, then Repeatability-First-Sent header must also be specified. The value should be the date and time at which the request was first created, expressed using the IMF-fixdate form of HTTP-date. Example: Sun, 06 Nov 1994 08:49:37 GMT.",
+            "type": "string",
+            "format": "date-time-rfc1123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empty Response"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      },
+      "description": "."
+    }
+  }
+}

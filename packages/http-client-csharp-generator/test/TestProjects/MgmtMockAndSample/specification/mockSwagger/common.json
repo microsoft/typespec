@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-01",
+    "title": "KeyVaultManagementClient",
+    "description": "The Azure management API provides a RESTful set of web services that interact with Azure Key Vault."
+  },
+  "paths": {},
+  "definitions": {
+    "CloudError": {
+      "description": "An error response from Key Vault resource provider",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/CloudErrorBody"
+        }
+      },
+      "x-ms-external": true,
+      "type": "object"
+    },
+    "CloudErrorBody": {
+      "description": "An error response from Key Vault resource provider",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code. This is a mnemonic that can be consumed programmatically."
+        },
+        "message": {
+          "type": "string",
+          "description": "User friendly error message. The message is typically localized and may vary with service version."
+        }
+      },
+      "x-ms-external": true,
+      "type": "object"
+    },
+    "SystemData": {
+      "description": "Metadata pertaining to creation and last modification of the key vault resource.",
+      "readOnly": true,
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "description": "The identity that created the key vault resource."
+        },
+        "createdByType": {
+          "description": "The type of identity that created the key vault resource.",
+          "$ref": "#/definitions/IdentityType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the key vault resource creation (UTC)."
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "The identity that last modified the key vault resource."
+        },
+        "lastModifiedByType": {
+          "description": "The type of identity that last modified the key vault resource.",
+          "$ref": "#/definitions/IdentityType"
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the key vault resource last modification (UTC)."
+        }
+      },
+      "type": "object"
+    },
+    "IdentityType": {
+      "type": "string",
+      "description": "The type of identity.",
+      "enum": [
+        "User",
+        "Application",
+        "ManagedIdentity",
+        "Key"
+      ],
+      "x-ms-enum": {
+        "name": "identityType",
+        "modelAsString": true
+      }
+    },
+    "SourceVault": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Resource Id"
+        }
+      },
+      "description": "The vault id is an Azure Resource Manager Resource id in the form /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/{vaultName}"
+    },
+    "ManagedServiceIdentity": {
+      "properties": {
+        "principalId": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The principal id of the vault identity. This property will only be provided for a system assigned identity."
+        },
+        "tenantId": {
+          "readOnly": true,
+          "type": "string",
+          "description": "The tenant id associated with the vault. This property will only be provided for a system assigned identity."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of identity used for the vault. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+          "enum": [
+            "SystemAssigned",
+            "UserAssigned",
+            "SystemAssigned,UserAssigned",
+            "None"
+          ],
+          "x-ms-enum": {
+            "name": "ResourceIdentityType",
+            "modelAsString": false
+          }
+        },
+        "userAssignedIdentities": {
+          "$ref": "common.json#/definitions/UserAssignedIdentities",
+          "description": "The list of user identities associated with the vault. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+        }
+      },
+      "description": "Identity for the virtual machine."
+    },
+    "UserAssignedIdentities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "x-ms-client-name": "userAssignedIdentitiesValue",
+        "properties": {
+          "principalId": {
+            "readOnly": true,
+            "type": "string",
+            "description": "The principal id of user assigned identity."
+          },
+          "clientId": {
+            "readOnly": true,
+            "type": "string",
+            "description": "The client id of user assigned identity."
+          }
+        }
+      },
+      "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+    },
+    "SubResource": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Resource ID."
+        }
+      },
+      "description": "Reference to another subresource.",
+      "x-ms-azure-resource": true
+    }
+  },
+  "parameters": {
+    "SubscriptionIdParameter": {
+      "name": "subscriptionId",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The subscription credentials which uniquely identify the Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+    },
+    "ApiVersionParameter": {
+      "name": "api-version",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "description": "Client API version."
+    }
+  },
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  }
+}

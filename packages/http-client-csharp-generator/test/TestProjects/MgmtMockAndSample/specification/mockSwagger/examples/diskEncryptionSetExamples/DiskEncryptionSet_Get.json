@@ -1,0 +1,36 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "api-version": "2022-03-02",
+    "diskEncryptionSetName": "myDiskEncryptionSet"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "properties": {
+          "activeKey": {
+            "sourceVault": {
+              "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.KeyVault/vaults/myVMVault"
+            },
+            "keyUrl": "https://myvmvault.vault-int.azure-int.net/keys/{key}"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "previousKeys": [],
+          "provisioningState": "Succeeded"
+        },
+        "type": "Microsoft.Compute/diskEncryptionSets",
+        "location": "westus",
+        "tags": {
+          "department": "Development",
+          "project": "Encryption"
+        },
+        "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/diskEncryptionSets/myDiskEncryptionSet",
+        "name": "myDiskEncryptionSet"
+      }
+    }
+  }
+}

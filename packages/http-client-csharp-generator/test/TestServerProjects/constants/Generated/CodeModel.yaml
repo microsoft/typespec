@@ -1,0 +1,1946 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger Constant
+  title: AutoRest Swagger Constant Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_1
+      type: boolean
+      language: !Languages 
+        default:
+          name: Bool
+          description: simple boolean
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_2
+      type: integer
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_35
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_37
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_39
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_41
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_43
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_45
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_47
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_49
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_11
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_12
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_13
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_14
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_15
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_16
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_17
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_18
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_23
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_25
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_29
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_31
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_3
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_4
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_7
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_8
+      choices:
+        - !ChoiceValue 
+          value: value1
+          language:
+            default:
+              name: Value1
+              description: ''
+        - !ChoiceValue 
+          value: value2
+          language:
+            default:
+              name: Value2
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_27
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_28
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_33
+      type: constant
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueNoDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_34
+      type: constant
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueDefaultOpEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_19
+      type: constant
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant28
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_20
+      type: constant
+      value: !ConstantValue 
+        value: 100
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: Constant29
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_21
+      type: constant
+      value: !ConstantValue 
+        value: path
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant30
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_5
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_6
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueNoDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_10
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: value1
+      valueType: *ref_0
+      extensions:
+        x-ms-client-default: value1
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueDefaultEnum
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_3
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_4
+          clientDefaultValue: value1
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredTwoValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_5
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_6
+          clientDefaultValue: value1
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringNoRequiredOneValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_7
+          required: true
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_8
+          clientDefaultValue: value1
+          required: true
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredTwoValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_9
+          required: true
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_10
+          clientDefaultValue: value1
+          required: true
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: NoModelAsStringRequiredOneValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_11
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_12
+          clientDefaultValue: value1
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredTwoValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_13
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_14
+          clientDefaultValue: value1
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringNoRequiredOneValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_15
+          required: true
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_16
+          clientDefaultValue: value1
+          required: true
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredTwoValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_17
+          required: true
+          serializedName: parameter
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueNoDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_18
+          clientDefaultValue: value1
+          required: true
+          serializedName: parameter
+          extensions:
+            x-ms-client-default: value1
+          language: !Languages 
+            default:
+              name: parameter
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelAsStringRequiredOneValueDefault
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_51
+    schema: *ref_19
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: headerConstant
+        description: Constant header property on the client that is a required parameter for operation 'constants_putClientConstants'
+        serializedName: header-constant
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: header
+  - !Parameter &ref_52
+    schema: *ref_20
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 1
+    language: !Languages 
+      default:
+        name: queryConstant
+        description: Constant query property on the client that is a required parameter for operation 'constants_putClientConstants'
+        serializedName: query-constant
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+  - !Parameter &ref_53
+    schema: *ref_21
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 2
+    language: !Languages 
+      default:
+        name: pathConstant
+        description: Constant path property on the client that is a required parameter for operation 'constants_putClientConstants'
+        serializedName: path-constant
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_22
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: contants
+    operations:
+      - !Operation 
+        operationId: contants_putNoModelAsStringNoRequiredTwoValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_24
+            schema: *ref_23
+            implementation: Method
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringNoRequiredTwoValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_24
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringNoRequiredTwoValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringNoRequiredTwoValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_26
+            schema: *ref_25
+            clientDefaultValue: value1
+            implementation: Method
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringNoRequiredTwoValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_26
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringNoRequiredTwoValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringNoRequiredOneValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter 
+            schema: *ref_27
+            implementation: Method
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringNoRequiredOneValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringNoRequiredOneValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringNoRequiredOneValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter 
+            schema: *ref_28
+            clientDefaultValue: value1
+            implementation: Method
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringNoRequiredOneValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringNoRequiredOneValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringRequiredTwoValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_30
+            schema: *ref_29
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringRequiredTwoValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_30
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringRequiredTwoValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringRequiredTwoValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_32
+            schema: *ref_31
+            clientDefaultValue: value1
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringRequiredTwoValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_32
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringRequiredTwoValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringRequiredOneValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter 
+            schema: *ref_33
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringRequiredOneValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringRequiredOneValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putNoModelAsStringRequiredOneValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter 
+            schema: *ref_34
+            clientDefaultValue: value1
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putNoModelAsStringRequiredOneValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutNoModelAsStringRequiredOneValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringNoRequiredTwoValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_36
+            schema: *ref_35
+            implementation: Method
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringNoRequiredTwoValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_36
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringNoRequiredTwoValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringNoRequiredTwoValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_38
+            schema: *ref_37
+            clientDefaultValue: value1
+            implementation: Method
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringNoRequiredTwoValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_38
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringNoRequiredTwoValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringNoRequiredOneValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_40
+            schema: *ref_39
+            implementation: Method
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringNoRequiredOneValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_40
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringNoRequiredOneValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringNoRequiredOneValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_42
+            schema: *ref_41
+            clientDefaultValue: value1
+            implementation: Method
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringNoRequiredOneValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_42
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringNoRequiredOneValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringRequiredTwoValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_44
+            schema: *ref_43
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringRequiredTwoValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_44
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringRequiredTwoValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringRequiredTwoValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_46
+            schema: *ref_45
+            clientDefaultValue: value1
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringRequiredTwoValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_46
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringRequiredTwoValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringRequiredOneValueNoDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_48
+            schema: *ref_47
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringRequiredOneValueNoDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_48
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringRequiredOneValueNoDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putModelAsStringRequiredOneValueDefault
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - !Parameter &ref_50
+            schema: *ref_49
+            clientDefaultValue: value1
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: value1
+            language: !Languages 
+              default:
+                name: input
+                description: ''
+                serializedName: input
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/putModelAsStringRequiredOneValueDefault
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_50
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutModelAsStringRequiredOneValueDefault
+            description: Puts constants to the testserver
+            summary: Puts constants to the testserver
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: contants_putClientConstants
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_22
+          - *ref_51
+          - *ref_52
+          - *ref_53
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /constants/clientConstants/{path-constant}
+                method: put
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutClientConstants
+            description: Pass constants from the client to this function. Will pass in constant path, query, and header parameters.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Contants
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestSwaggerConstantService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

@@ -1,0 +1,337 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Test Service",
+    "description": "Test Service",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/template/resources": {
+      "put": {
+        "operationId": "Create",
+        "description": "Create or update resource.",
+        "parameters": [
+          {
+            "name": "resource",
+            "description": "Information about the resource",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          },
+          {
+            "name": "first",
+            "description": "First in group",
+            "required": false,
+            "type": "string",
+            "in": "query",
+            "x-ms-parameter-location": "method",
+            "x-ms-parameter-grouping": {
+              "name": "Grouped"
+            }
+          },
+          {
+            "name": "second",
+            "description": "Second in group",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "in": "query",
+            "x-ms-parameter-location": "method",
+            "x-ms-parameter-grouping": {
+              "name": "Grouped"
+            }
+          },
+          {
+            "name": "Repeatability-Request-ID",
+            "in": "header",
+            "description": "If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-Id is an opaque string representing a client-generated unique identifier for the request. It is a version 4 (random) UUID.",
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "Repeatability-First-Sent",
+            "in": "header",
+            "description": "If Repeatability-Request-ID header is specified, then Repeatability-First-Sent header must also be specified. The value should be the date and time at which the request was first created, expressed using the IMF-fixdate form of HTTP-date. Example: Sun, 06 Nov 1994 08:49:37 GMT.",
+            "type": "string",
+            "format": "date-time-rfc1123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/template/resources/{resourceId}": {
+      "delete": {
+        "operationId": "Delete",
+        "description": "Delete resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "description": "The ETag of the transformation."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "operationId": "Get",
+        "description": "Retrieves information about the resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/firstTemplate/resources": {
+      "put": {
+        "operationId": "firstTemplate_Create",
+        "description": "Create or update resource.",
+        "parameters": [
+          {
+            "name": "resource",
+            "description": "Information about the resource",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/firstTemplate/resources/{resourceId}": {
+      "delete": {
+        "operationId": "firstTemplate_Delete",
+        "description": "Delete resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "operationId": "firstTemplate_Get",
+        "description": "Retrieves information about the resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/secondTemplate/resources": {
+      "put": {
+        "operationId": "secondTemplate_Create",
+        "description": "Create or update resource.",
+        "parameters": [
+          {
+            "name": "resource",
+            "description": "Information about the resource",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/secondTemplate/resources/{resourceId}": {
+      "delete": {
+        "operationId": "secondTemplate_Delete",
+        "description": "Delete resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "operationId": "secondTemplate_Get",
+        "description": "Retrieves information about the resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/thirdTemplate/resources/{resourceId}": {
+      "delete": {
+        "operationId": "thirdTemplate_Delete",
+        "description": "Delete resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "operationId": "thirdTemplate_Get",
+        "description": "Retrieves information about the resource.",
+        "parameters": [
+          {
+            "name": "resourceId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The id of the resource."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    },
+    "/thirdTemplate/resources": {
+      "put": {
+        "operationId": "thirdTemplate_Create",
+        "description": "Create or update resource.",
+        "parameters": [
+          {
+            "name": "resource",
+            "description": "Information about the resource",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Resource"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Resource": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "description": "."
+    }
+  }
+}

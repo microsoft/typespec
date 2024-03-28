@@ -1,0 +1,623 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ComputeManagementClient",
+        "description": "The Compute Management Client.",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines/{name}": {
+            "put": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_CreateOrUpdate",
+                "description": "The operation to create or update a virtual machine. Please note some properties can be set only during virtual machine creation.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine operation."
+                    },
+                    {
+                        "name": "required-string-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "default"
+                        ],
+                        "x-ms-enum": {
+                            "name": "StringConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "required-boolean-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "boolean",
+                        "enum": [
+                            true
+                        ],
+                        "x-ms-enum": {
+                            "name": "BooleanConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-string-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "default"
+                        ],
+                        "x-ms-enum": {
+                            "name": "StringConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-boolean-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean",
+                        "enum": [
+                            true
+                        ],
+                        "x-ms-enum": {
+                            "name": "BooleanConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_Update",
+                "description": "The operation to update a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachineUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine operation."
+                    },
+                    {
+                        "name": "required-int-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "integer",
+                        "enum": [
+                            0
+                        ],
+                        "x-ms-enum": {
+                            "name": "IntConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "required-float-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "number",
+                        "enum": [
+                            3.14
+                        ],
+                        "x-ms-enum": {
+                            "name": "FloatConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-int-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "enum": [
+                            0
+                        ],
+                        "x-ms-enum": {
+                            "name": "IntConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-float-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "number",
+                        "enum": [
+                            3.14
+                        ],
+                        "x-ms-enum": {
+                            "name": "FloatConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_Delete",
+                "description": "The operation to delete a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "forceDeletion",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean",
+                        "description": "Optional parameter to force delete virtual machines."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_Get",
+                "description": "Retrieves information about the model view or the instance view of a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "OptionalMachineExpand",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachine"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines": {
+            "get": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_List",
+                "description": "Lists all of the virtual machines in the specified resource group. Use the nextLink property in the response to get the next page of virtual machines.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachineListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Constant/optionalMachines": {
+            "get": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "Optionals_ListAll",
+                "description": "Lists all of the virtual machines in the specified subscription. Use the nextLink property in the response to get the next page of virtual machines.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "statusOnly",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "statusOnly=true enables fetching run time status of all Virtual Machines in the subscription."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/OptionalMachineListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ConstantSchema": {
+            "type": "string",
+            "description": "A constant based on string, the only allowable value is default.",
+            "enum": [
+                "default"
+            ],
+            "x-ms-enum": {
+                "name": "StringConstant",
+                "modelAsString": false
+            }
+        },
+        "IntConstantSchema": {
+            "type": "integer",
+            "description": "A constant based on integer",
+            "enum": [
+                0
+            ],
+            "x-ms-enum": {
+                "name": "IntConstant",
+                "modelAsString": false
+            }
+        },
+        "BooleanConstantSchema": {
+            "type": "boolean",
+            "description": "A constant based on boolean",
+            "enum": [
+                true
+            ],
+            "x-ms-enum": {
+                "name": "BooleanConstant",
+                "modelAsString": false
+            }
+        },
+        "FloatConstantSchema": {
+            "type": "number",
+            "description": "A constant based on float",
+            "enum": [
+                3.14
+            ],
+            "x-ms-enum": {
+                "name": "FloatConstant",
+                "modelAsString": false
+            }
+        },
+        "ModelWithOptionalConstant": {
+            "properties": {
+                "optionalStringConstant": {
+                    "$ref": "#/definitions/ConstantSchema"
+                },
+                "optionalIntConstant": {
+                    "$ref": "#/definitions/IntConstantSchema"
+                },
+                "optionalBooleanConstant": {
+                    "$ref": "#/definitions/BooleanConstantSchema"
+                },
+                "optionalFloatConstant": {
+                    "$ref": "#/definitions/FloatConstantSchema"
+                }
+            },
+            "description": "Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is applied."
+        },
+        "ModelWithRequiredConstant": {
+            "properties": {
+                "requiredStringConstant": {
+                    "$ref": "#/definitions/ConstantSchema"
+                },
+                "requiredIntConstant": {
+                    "$ref": "#/definitions/IntConstantSchema"
+                },
+                "requiredBooleanConstant": {
+                    "$ref": "#/definitions/BooleanConstantSchema"
+                },
+                "requiredFloatConstant": {
+                    "$ref": "#/definitions/FloatConstantSchema"
+                }
+            },
+            "description": "Describes Protocol and thumbprint of Windows Remote Management listener",
+            "required": [
+                "requiredStringConstant", "requiredIntConstant", "requiredBooleanConstant", "requiredFloatConstant"
+            ]
+        },
+        "OptionalMachineProperties": {
+            "properties": {
+                "listener": {
+                    "$ref": "#/definitions/ModelWithRequiredConstant"
+                },
+                "content": {
+                    "$ref": "#/definitions/ModelWithOptionalConstant"
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine."
+        },
+        "OptionalMachine": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/OptionalMachineProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine."
+        },
+        "OptionalMachineUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/OptionalMachineProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine Update."
+        },
+        "OptionalMachineListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OptionalMachine"
+                    },
+                    "description": "The list of virtual machines."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of VMs. Call ListNext() with this URI to fetch the next page of Virtual Machines."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Virtual Machine operation response."
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "UpdateResource": {
+            "description": "The Update Resource model definition.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        }
+    }
+}

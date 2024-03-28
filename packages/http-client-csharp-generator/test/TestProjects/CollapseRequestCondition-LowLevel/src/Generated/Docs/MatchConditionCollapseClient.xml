@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="CollapseGetWithHeadAsync(string,MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapseGetWithHeadAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = await client.CollapseGetWithHeadAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapseGetWithHeadAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = await client.CollapseGetWithHeadAsync(otherHeader: "<otherHeader>", matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CollapseGetWithHead(string,MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapseGetWithHead.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = client.CollapseGetWithHead();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapseGetWithHead with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = client.CollapseGetWithHead(otherHeader: "<otherHeader>", matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CollapsePutAsync(RequestContent,MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapsePutAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+using RequestContent content = null;
+Response response = await client.CollapsePutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapsePutAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = await client.CollapsePutAsync(content, matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CollapsePut(RequestContent,MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapsePut.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+using RequestContent content = null;
+Response response = client.CollapsePut(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapsePut with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+using RequestContent content = RequestContent.Create("<body>");
+Response response = client.CollapsePut(content, matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CollapseGetAsync(MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapseGetAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = await client.CollapseGetAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapseGetAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = await client.CollapseGetAsync(matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CollapseGet(MatchConditions,RequestContext)">
+      <example>
+This sample shows how to call CollapseGet.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = client.CollapseGet();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CollapseGet with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MatchConditionCollapseClient client = new MatchConditionCollapseClient(credential);
+
+Response response = client.CollapseGet(matchConditions: null);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,243 @@
+!CodeModel 
+info: !Info 
+  description: Security definition client which supports oauth2 and apiKey credential type
+  title: SecurityDefinitionClient
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelStatus
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: 1.0.0
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion10
+          description: Api Version (1.0.0)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  uris:
+    - !UriSchema &ref_3
+      type: uri
+      language: !Languages 
+        default:
+          name: Endpoint
+          description: ''
+      protocol: !Protocols {}
+    - !UriSchema 
+      type: uri
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Uri
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_8
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: Code
+          language: !Languages 
+            default:
+              name: code
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: Status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: TestModel
+          description: .
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_5
+    schema: *ref_3
+    implementation: Client
+    required: true
+    extensions:
+      x-format: url
+      x-in: path
+      x-ms-priority: 1
+      x-ms-skip-url-encoding: true
+      x-name: Endpoint
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Endpoint
+        description: server parameter.
+        serializedName: Endpoint
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_6
+    schema: *ref_4
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+          - *ref_6
+        requestMediaTypes:
+          application/json: !Request &ref_10
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_9
+                schema: *ref_8
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /op
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{Endpoint}/securitydefinition/1.0.0'
+        requests:
+          - *ref_10
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - user_impersonation
+    - !KeySecurityScheme 
+      name: Ocp-Apim-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: SecurityDefinitionClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

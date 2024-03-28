@@ -1,0 +1,12 @@
+{
+  "parameters": {
+    "subscriptionId": "mySubscriptionId",
+    "resourceGroupName": "myResourceGroupName",
+    "vmName": "myVMName",
+    "guestConfigurationAssignmentName": "SecureProtocol",
+    "api-version": "2022-01-25"
+  },
+  "responses": {
+    "200": {}
+  }
+}

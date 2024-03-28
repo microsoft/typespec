@@ -1,0 +1,578 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "MgmtExtensionCommonRestOperation",
+        "version": "2020-09-01",
+        "description": "To manage and control access to your resources, you can define customized policies and assign them at a scope."
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/providers/Microsoft.TypeOne/typeOnes": {
+            "get": {
+                "tags": [
+                    "TypeOne"
+                ],
+                "operationId": "Common_ListTypeOnesBySubscription",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeOneListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.TypeTwo/typeTwos": {
+            "get": {
+                "tags": [
+                    "TypeTwo"
+                ],
+                "operationId": "Common_ListTypeTwosBySubscription",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeTwoListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TypeOne/typeOnes": {
+            "get": {
+                "tags": [
+                    "TypeOne"
+                ],
+                "operationId": "Common_ListTypeOnes",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeOneListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TypeTwo/typeTwos": {
+            "get": {
+                "tags": [
+                    "TypeTwo"
+                ],
+                "operationId": "Common_ListTypeTwos",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeTwoListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TypeOne/typeOnes/{typeOneName}": {
+            "get": {
+                "tags": [
+                    "TypeOne"
+                ],
+                "operationId": "Common_GetTypeOne",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "typeOneName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeOne"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "TypeOne"
+                ],
+                "operationId": "Common_CreateOrUpdateTypeOne",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "typeOneName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "typeOne",
+                        "in": "body",
+                        "description": "Information to validate.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TypeOne"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeOne"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.TypeTwo/typeTwos/{typeTwoName}": {
+            "get": {
+                "tags": [
+                    "TypeTwo"
+                ],
+                "operationId": "Common_GetTypeTwo",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "typeTwoName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeTwo"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "TypeTwo"
+                ],
+                "operationId": "Common_CreateOrUpdateTypeTwo",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "typeTwoName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name."
+                    },
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "typeTwo",
+                        "in": "body",
+                        "description": "Information to validate.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TypeTwo"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/TypeTwo"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "LayerOneSingleConflict": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The id of layer one."
+                }
+            }
+        },
+        "LayerOneProperties": {
+            "properties": {
+                "uniqueId": {
+                    "type": "string",
+                    "description": "The id of layer one."
+                }
+            }
+        },
+        "LayerOneSingle": {
+            "properties": {
+                "layerTwo": {
+                    "$ref": "#/definitions/LayerTwoSingle",
+                    "description": "The second single value prop."
+                }
+            }
+        },
+        "LayerTwoSingle": {
+            "properties": {
+                "myProp": {
+                    "type": "string",
+                    "description": "MyProp description."
+                }
+            }
+        },
+        "TypeOneListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TypeOne"
+                    },
+                    "description": "The list of of typeones."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of Virtual Machine Scale Set VMs. Call ListNext() with this to fetch the next page of VMSS VMs"
+                }
+            },
+            "required": [
+                "value"
+            ]
+        },
+        "TypeOne": {
+            "description": "The TypeOne.",
+            "type": "object",
+            "properties": {
+                "MyType": {
+                    "type": "string",
+                    "description": "The details of the type."
+                },
+                "layerOne": {
+                    "$ref": "#/definitions/LayerOneSingle",
+                    "description": "The single value prop."
+                },
+                "layerOneType": {
+                    "$ref": "#/definitions/LayerOneBaseType",
+                    "description": "The single value prop with discriminator."
+                },
+                "layerOneConflict": {
+                    "$ref": "#/definitions/LayerOneSingleConflict",
+                    "description": "The single value prop with conflict."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "TypeTwoListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TypeTwo"
+                    },
+                    "description": "The list of of type twos."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of Virtual Machine Scale Set VMs. Call ListNext() with this to fetch the next page of VMSS VMs"
+                }
+            },
+            "required": [
+                "value"
+            ]
+        },
+        "TypeTwo": {
+            "description": "The TypeTwo.",
+            "type": "object",
+            "properties": {
+                "MyType": {
+                    "type": "string",
+                    "description": "The details of the type."
+                },
+                "properties": {
+                    "$ref": "#/definitions/LayerOneSingle",
+                    "description": "The single value prop."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "TypeThree": {
+            "description": "The TypeThree.",
+            "type": "object",
+            "properties": {
+                "MyType": {
+                    "type": "string",
+                    "description": "The details of the type."
+                },
+                "properties": {
+                    "$ref": "#/definitions/LayerTwoSingle",
+                    "description": "The single value prop."
+                }
+            }
+        },
+        "TypeFour": {
+            "description": "The TypeFour.",
+            "type": "object",
+            "properties": {
+                "MyType": {
+                    "type": "string",
+                    "description": "The details of the type."
+                },
+                "properties": {
+                    "$ref": "#/definitions/LayerOneProperties",
+                    "description": "The single value prop."
+                }
+            }
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "LayerOneBaseType": {
+            "discriminator": "name",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "enum": [
+                        "LayerOneFoo",
+                        "LayerOneBar"
+                    ],
+                    "x-ms-enum": {
+                        "name": "LayerOneTypeName",
+                        "modelAsString": true
+                    }
+                }
+            }
+        },
+        "LayerOneFooType": {
+            "x-ms-discriminator-value": "LayerOneFoo",
+            "allOf": [
+              {
+                "$ref": "#/definitions/LayerOneBaseType"
+              }
+            ],
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "description": "Defines the parameters for the type.",
+                "type": "string"
+              }
+            }
+        },
+        "LayerOneBarType": {
+            "x-ms-discriminator-value": "LayerOneBar",
+            "allOf": [
+              {
+                "$ref": "#/definitions/LayerOneBaseType"
+              }
+            ],
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "description": "Defines the parameters for the type.",
+                "type": "string"
+              }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the target subscription."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "The API version to use for the operation."
+        }
+    }
+}

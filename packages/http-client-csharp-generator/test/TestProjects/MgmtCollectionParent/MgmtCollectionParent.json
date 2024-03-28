@@ -1,0 +1,543 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ComputeManagementClient",
+        "description": "The Compute Management Client.",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+        {
+            "azure_auth": ["user_impersonation"]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/providers/Microsoft.EdgeOrder/orders": {
+            "get": {
+                "tags": ["Orders"],
+                "description": "Lists order at subscription level.",
+                "operationId": "ListOrderAtSubscriptionLevel",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "$skipToken",
+                        "in": "query",
+                        "description": "$skipToken is supported on Get list of order, which provides the next page in the list of order.",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order object",
+                        "schema": {
+                            "$ref": "#/definitions/OrderResourceList"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing reason for operation failure.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/orders": {
+            "get": {
+                "tags": ["Orders"],
+                "description": "Lists order at resource group level.",
+                "operationId": "ListOrderAtResourceGroupLevel",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "$skipToken",
+                        "in": "query",
+                        "description": "$skipToken is supported on Get list of order, which provides the next page in the list of order.",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order object",
+                        "schema": {
+                            "$ref": "#/definitions/OrderResourceList"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing reason for operation failure.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/locations/{location}/orders/{orderName}": {
+            "get": {
+                "tags": ["Orders"],
+                "description": "Gets an order.",
+                "operationId": "GetOrderByName",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/orderNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/LocationParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order object",
+                        "schema": {
+                            "$ref": "#/definitions/OrderResource"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing reason for operation failure.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "OrderResource": {
+            "description": "Specifies the properties or parameters for an order. Order is a grouping of one or more order items.",
+            "required": ["properties"],
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ProxyResource"
+                }
+            ],
+            "properties": {
+                "properties": {
+                    "$ref": "#/definitions/OrderProperties",
+                    "description": "Order properties",
+                    "x-ms-client-flatten": true
+                },
+                "systemData": {
+                    "$ref": "#/definitions/systemData",
+                    "description": "Represents resource creation and update time",
+                    "readOnly": true
+                }
+            }
+        },
+        "OrderProperties": {
+            "description": "Represents order details.",
+            "type": "object",
+            "properties": {
+                "orderItemIds": {
+                    "description": "List of order item ARM Ids which are part of an order.",
+                    "uniqueItems": false,
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "readOnly": true
+                },
+                "currentStage": {
+                    "$ref": "#/definitions/StageDetails",
+                    "description": "Order current status.",
+                    "readOnly": true
+                },
+                "orderStageHistory": {
+                    "description": "Order status history.",
+                    "uniqueItems": false,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StageDetails"
+                    },
+                    "readOnly": true
+                }
+            }
+        },
+        "StageDetails": {
+            "description": "Resource stage details.",
+            "type": "object",
+            "properties": {
+                "stageStatus": {
+                    "description": "Stage status.",
+                    "enum": [
+                        "None",
+                        "InProgress",
+                        "Succeeded",
+                        "Failed",
+                        "Cancelled",
+                        "Cancelling"
+                    ],
+                    "type": "string",
+                    "readOnly": true,
+                    "x-ms-enum": {
+                        "name": "StageStatus",
+                        "modelAsString": true,
+                        "values": [
+                            {
+                                "value": "None",
+                                "description": "No status available yet."
+                            },
+                            {
+                                "value": "InProgress",
+                                "description": "Stage is in progress."
+                            },
+                            {
+                                "value": "Succeeded",
+                                "description": "Stage has succeeded."
+                            },
+                            {
+                                "value": "Failed",
+                                "description": "Stage has failed."
+                            },
+                            {
+                                "value": "Cancelled",
+                                "description": "Stage has been cancelled."
+                            },
+                            {
+                                "value": "Cancelling",
+                                "description": "Stage is cancelling."
+                            }
+                        ]
+                    }
+                },
+                "stageName": {
+                    "description": "Stage name",
+                    "enum": [
+                        "Placed",
+                        "InReview",
+                        "Confirmed",
+                        "ReadyToShip",
+                        "Shipped",
+                        "Delivered",
+                        "InUse",
+                        "ReturnInitiated",
+                        "ReturnPickedUp",
+                        "ReturnedToMicrosoft",
+                        "ReturnCompleted",
+                        "Cancelled"
+                    ],
+                    "type": "string",
+                    "readOnly": true,
+                    "x-ms-enum": {
+                        "name": "StageName",
+                        "modelAsString": true,
+                        "values": [
+                            {
+                                "value": "Placed",
+                                "description": "Currently in draft mode and can still be cancelled"
+                            },
+                            {
+                                "value": "InReview",
+                                "description": "Order is currently in draft mode and can still be cancelled"
+                            },
+                            {
+                                "value": "Confirmed",
+                                "description": "Order is confirmed"
+                            },
+                            {
+                                "value": "ReadyToShip",
+                                "description": "Order is ready to ship"
+                            },
+                            {
+                                "value": "Shipped",
+                                "description": "Order is in transit to customer"
+                            },
+                            {
+                                "value": "Delivered",
+                                "description": "Order is delivered to customer"
+                            },
+                            {
+                                "value": "InUse",
+                                "description": "Order is in use at customer site"
+                            },
+                            {
+                                "value": "ReturnInitiated",
+                                "description": "Return has been initiated by customer."
+                            },
+                            {
+                                "value": "ReturnPickedUp",
+                                "description": "Order is in transit from customer to microsoft."
+                            },
+                            {
+                                "value": "ReturnedToMicrosoft",
+                                "description": "Order has been received back to microsoft."
+                            },
+                            {
+                                "value": "ReturnCompleted",
+                                "description": "Return has now completed."
+                            },
+                            {
+                                "value": "Cancelled",
+                                "description": "Order has been cancelled."
+                            }
+                        ]
+                    }
+                },
+                "displayName": {
+                    "description": "Display name of the resource stage.",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "startTime": {
+                    "format": "date-time",
+                    "description": "Stage start time",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "OrderResourceList": {
+            "description": "List of orders.",
+            "type": "object",
+            "properties": {
+                "value": {
+                    "description": "List of order resources.",
+                    "uniqueItems": false,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OrderResource"
+                    },
+                    "readOnly": true
+                },
+                "nextLink": {
+                    "description": "Link for the next set of order resources.",
+                    "type": "string"
+                }
+            }
+        },
+        "ErrorResponse": {
+            "title": "Error response",
+            "description": "Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.).",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "The error object.",
+                    "$ref": "#/definitions/ErrorDetail"
+                }
+            }
+        },
+        "ErrorDetail": {
+            "description": "The error detail.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "message": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error message."
+                },
+                "target": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error target."
+                },
+                "details": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorDetail"
+                    },
+                    "description": "The error details."
+                },
+                "additionalInfo": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorAdditionalInfo"
+                    },
+                    "description": "The error additional info."
+                }
+            }
+        },
+        "ErrorAdditionalInfo": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The additional info type."
+                },
+                "info": {
+                    "readOnly": true,
+                    "type": "object",
+                    "description": "The additional info."
+                }
+            },
+            "description": "The resource management error additional info."
+        },
+        "systemData": {
+            "description": "Metadata pertaining to creation and last modification of the resource.",
+            "type": "object",
+            "readOnly": true,
+            "properties": {
+                "createdBy": {
+                    "type": "string",
+                    "description": "The identity that created the resource."
+                },
+                "createdByType": {
+                    "type": "string",
+                    "description": "The type of identity that created the resource.",
+                    "enum": ["User", "Application", "ManagedIdentity", "Key"],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of resource creation (UTC)."
+                },
+                "lastModifiedBy": {
+                    "type": "string",
+                    "description": "The identity that last modified the resource."
+                },
+                "lastModifiedByType": {
+                    "type": "string",
+                    "description": "The type of identity that last modified the resource.",
+                    "enum": ["User", "Application", "ManagedIdentity", "Key"],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "lastModifiedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of resource last modification (UTC)"
+                }
+            }
+        },
+        "ProxyResource": {
+            "title": "Proxy Resource",
+            "description": "The resource model definition for a Azure Resource Manager proxy resource. It will not have tags and a location",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "Resource": {
+            "title": "Resource",
+            "description": "Common fields that are returned in the response for all Azure Resource Manager resources",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The name of the resource"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The type of the resource. E.g. \"Microsoft.Compute/virtualMachines\" or \"Microsoft.Storage/storageAccounts\""
+                }
+            },
+            "x-ms-azure-resource": true
+        }
+    },
+    "parameters": {
+        "orderNameParameter": {
+            "name": "orderName",
+            "in": "path",
+            "description": "The name of the order",
+            "required": true,
+            "type": "string",
+            "x-ms-parameter-location": "method"
+        },
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource group. The name is case insensitive.",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method"
+        },
+        "LocationParameter": {
+            "name": "location",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of Azure region.",
+            "minLength": 1,
+            "x-ms-parameter-location": "method"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        }
+    }
+}

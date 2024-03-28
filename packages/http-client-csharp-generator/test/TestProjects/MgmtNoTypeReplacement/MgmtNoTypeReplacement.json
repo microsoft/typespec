@@ -1,0 +1,528 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "NoTypeReplacement",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel1s": {
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel1s"
+                ],
+                "operationId": "NoTypeReplacementModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel1s/{noTypeReplacementModel1sName}": {
+            "put": {
+                "tags": [
+                    "NoTypeReplacementModel1s"
+                ],
+                "operationId": "NoTypeReplacementModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "noTypeReplacementModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel1s"
+                ],
+                "operationId": "NoTypeReplacementModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "noTypeReplacementModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel2s": {
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel2s"
+                ],
+                "operationId": "NoTypeReplacementModel2s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel2ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel2s/{noTypeReplacementModel2sName}": {
+            "put": {
+                "tags": [
+                    "NoTypeReplacementModel2s"
+                ],
+                "operationId": "NoTypeReplacementModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "noTypeReplacementModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel2s"
+                ],
+                "operationId": "NoTypeReplacementModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "noTypeReplacementModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel3s": {
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel3s"
+                ],
+                "operationId": "NoTypeReplacementModel3s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel3ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/noTypeReplacementModel3s/{noTypeReplacementModel3sName}": {
+            "put": {
+                "tags": [
+                    "NoTypeReplacementModel3s"
+                ],
+                "operationId": "NoTypeReplacementModel3s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "noTypeReplacementModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel3"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel3"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "NoTypeReplacementModel3s"
+                ],
+                "operationId": "NoTypeReplacementModel3s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "noTypeReplacementModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoTypeReplacementModel3"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "NoTypeReplacementModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NoTypeReplacementModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "NoTypeReplacementModel1": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "$ref": "#/definitions/SubResourceModel"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "NoTypeReplacementModel2ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NoTypeReplacementModel2"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "NoTypeReplacementModel2": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "$ref": "#/definitions/NoSubResourceModel"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "NoTypeReplacementModel3ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NoTypeReplacementModel3"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "NoTypeReplacementModel3": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "$ref": "#/definitions/MiddleResourceModel"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ]
+        },
+        "MiddleResourceModel": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "$ref": "#/definitions/NoSubResourceModel2"
+                }
+            }
+        },
+        "Resource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "SubResourceModel": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "NoSubResourceModel": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "NoSubResourceModel2": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

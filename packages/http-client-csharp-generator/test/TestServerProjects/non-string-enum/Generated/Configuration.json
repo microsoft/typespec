@@ -1,0 +1,13 @@
+{
+  "output-folder": ".",
+  "namespace": "non_string_enum",
+  "library-name": "NonStringEnumsClient",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "public-clients": true,
+  "skip-csproj-packagereference": true,
+  "generation1-convenience-client": true,
+  "use-model-reader-writer": true
+}

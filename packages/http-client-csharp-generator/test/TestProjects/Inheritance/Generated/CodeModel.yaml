@@ -1,0 +1,900 @@
+!CodeModel 
+info: !Info 
+  description: Schema mapping
+  title: Schema mapping
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BaseClassProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BaseClassWithDiscriminatorProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SomePropertiesSomeProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SomePropertiesSomeOtherProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassThatInheritsFromBaseClassAndRedefinesAPropertyBaseClassProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassThatAlsoDefinesBaseClassPropertyBaseClassProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassThatInheritsFromSomePropertiesAndBaseClassAndRedefinesAPropertyBaseClassProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SeparateClassStringProperty
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_26
+      choices:
+        - !ChoiceValue 
+          value: derived
+          language:
+            default:
+              name: Derived
+              description: ''
+        - !ChoiceValue 
+          value: other
+          language:
+            default:
+              name: Other
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: BaseClassWithEntensibleEnumDiscriminatorEnum
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_21
+      choices:
+        - !ChoiceValue 
+          value: derived
+          language:
+            default:
+              name: Derived
+              description: ''
+        - !ChoiceValue 
+          value: other
+          language:
+            default:
+              name: Other
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: BaseClassWithEnumDiscriminatorEnum
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_30
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_31
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  anyObjects:
+    - !AnyObjectSchema &ref_17
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_2
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_1
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            children: !Relations 
+              all:
+                - !ObjectSchema &ref_11
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  discriminatorValue: ClassThatInheritsFromBaseClassWithDiscriminator
+                  parents: !Relations 
+                    all:
+                      - *ref_1
+                      - *ref_2
+                    immediate:
+                      - *ref_1
+                  serializationFormats:
+                    - json
+                  usage:
+                    - input
+                    - output
+                  language: !Languages 
+                    default:
+                      name: ClassThatInheritsFromBaseClassWithDiscriminator
+                      description: ''
+                      namespace: ''
+                  protocol: !Protocols {}
+                - !ObjectSchema &ref_4
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  discriminatorValue: ClassThatInheritsFromBaseClassWithDiscriminatorAndSomeProperties
+                  parents: !Relations 
+                    all:
+                      - *ref_1
+                      - !ObjectSchema &ref_3
+                        type: object
+                        apiVersions:
+                          - !ApiVersion 
+                            version: 1.0.0
+                        children: !Relations 
+                          all:
+                            - !ObjectSchema &ref_7
+                              type: object
+                              apiVersions:
+                                - !ApiVersion 
+                                  version: 1.0.0
+                              parents: !Relations 
+                                all:
+                                  - *ref_2
+                                  - *ref_3
+                                immediate:
+                                  - *ref_2
+                                  - *ref_3
+                              serializationFormats:
+                                - json
+                              usage:
+                                - input
+                                - output
+                              language: !Languages 
+                                default:
+                                  name: ClassThatInheritsFromBaseClassAndSomeProperties
+                                  description: ''
+                                  namespace: ''
+                              protocol: !Protocols {}
+                            - !ObjectSchema &ref_8
+                              type: object
+                              apiVersions:
+                                - !ApiVersion 
+                                  version: 1.0.0
+                              parents: !Relations 
+                                all:
+                                  - *ref_2
+                                  - *ref_3
+                                immediate:
+                                  - *ref_2
+                                  - *ref_3
+                              serializationFormats:
+                                - json
+                              usage:
+                                - input
+                                - output
+                              language: !Languages 
+                                default:
+                                  name: ClassThatInheritsFromBaseClassAndSomePropertiesWithBaseClassOverride
+                                  description: ''
+                                  namespace: ''
+                              protocol: !Protocols {}
+                            - *ref_4
+                            - !ObjectSchema &ref_5
+                              type: object
+                              apiVersions:
+                                - !ApiVersion 
+                                  version: 1.0.0
+                              children: !Relations 
+                                all:
+                                  - !ObjectSchema &ref_6
+                                    type: object
+                                    apiVersions:
+                                      - !ApiVersion 
+                                        version: 1.0.0
+                                    parents: !Relations 
+                                      all:
+                                        - *ref_5
+                                        - *ref_3
+                                        - *ref_2
+                                      immediate:
+                                        - *ref_5
+                                    serializationFormats:
+                                      - json
+                                    usage:
+                                      - input
+                                      - output
+                                    language: !Languages 
+                                      default:
+                                        name: ClassThatInheritsFromSomePropertiesAndBaseClassAndRedefinesAProperty
+                                        description: ''
+                                        namespace: ''
+                                    protocol: !Protocols {}
+                                immediate:
+                                  - *ref_6
+                              parents: !Relations 
+                                all:
+                                  - *ref_3
+                                  - *ref_2
+                                immediate:
+                                  - *ref_3
+                                  - *ref_2
+                              serializationFormats:
+                                - json
+                              usage:
+                                - input
+                                - output
+                              language: !Languages 
+                                default:
+                                  name: ClassThatInheritsFromSomePropertiesAndBaseClass
+                                  description: ''
+                                  namespace: ''
+                              protocol: !Protocols {}
+                            - *ref_6
+                          immediate:
+                            - *ref_7
+                            - *ref_8
+                            - *ref_4
+                            - *ref_5
+                        properties:
+                          - !Property 
+                            schema: *ref_9
+                            serializedName: SomeProperty
+                            language: !Languages 
+                              default:
+                                name: someProperty
+                                description: ''
+                            protocol: !Protocols {}
+                          - !Property 
+                            schema: *ref_10
+                            serializedName: SomeOtherProperty
+                            language: !Languages 
+                              default:
+                                name: someOtherProperty
+                                description: ''
+                            protocol: !Protocols {}
+                        serializationFormats:
+                          - json
+                        usage:
+                          - input
+                          - output
+                        language: !Languages 
+                          default:
+                            name: SomeProperties
+                            description: ''
+                            namespace: ''
+                        protocol: !Protocols {}
+                      - *ref_2
+                    immediate:
+                      - *ref_1
+                      - *ref_3
+                  serializationFormats:
+                    - json
+                  usage:
+                    - input
+                    - output
+                  language: !Languages 
+                    default:
+                      name: ClassThatInheritsFromBaseClassWithDiscriminatorAndSomeProperties
+                      description: ''
+                      namespace: ''
+                  protocol: !Protocols {}
+              immediate:
+                - *ref_11
+                - *ref_4
+            discriminator: !Discriminator 
+              all:
+                ClassThatInheritsFromBaseClassWithDiscriminator: *ref_11
+                ClassThatInheritsFromBaseClassWithDiscriminatorAndSomeProperties: *ref_4
+              immediate:
+                ClassThatInheritsFromBaseClassWithDiscriminator: *ref_11
+                ClassThatInheritsFromBaseClassWithDiscriminatorAndSomeProperties: *ref_4
+              property: !Property &ref_13
+                schema: *ref_12
+                isDiscriminator: true
+                required: true
+                serializedName: DiscriminatorProperty
+                language: !Languages 
+                  default:
+                    name: discriminatorProperty
+                    description: ''
+                protocol: !Protocols {}
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            properties:
+              - *ref_13
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: BaseClassWithDiscriminator
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          - *ref_7
+          - *ref_8
+          - !ObjectSchema &ref_14
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ClassThatInheritsFromBaseClass
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          - *ref_11
+          - *ref_4
+          - !ObjectSchema &ref_15
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ClassThatInheritsFromBaseClassAndRedefinesAProperty
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          - *ref_5
+          - *ref_6
+        immediate:
+          - *ref_1
+          - *ref_7
+          - *ref_8
+          - *ref_14
+          - *ref_15
+          - *ref_5
+      properties:
+        - !Property 
+          schema: *ref_16
+          serializedName: BaseClassProperty
+          language: !Languages 
+            default:
+              name: baseClassProperty
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeString
+          extensions:
+            x-ms-format: dfe-string
+          language: !Languages 
+            default:
+              name: dfeString
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeDouble
+          extensions:
+            x-ms-format: dfe-float
+          language: !Languages 
+            default:
+              name: dfeDouble
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeBool
+          extensions:
+            x-ms-format: dfe-bool
+          language: !Languages 
+            default:
+              name: dfeBool
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeInt
+          extensions:
+            x-ms-format: dfe-int
+          language: !Languages 
+            default:
+              name: dfeInt
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeObject
+          extensions:
+            x-ms-format: dfe-object
+          language: !Languages 
+            default:
+              name: dfeObject
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeListOfT
+          extensions:
+            x-ms-format: dfe-list-generic
+            x-ms-format-element-type: SeparateClass
+          language: !Languages 
+            default:
+              name: dfeListOfT
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeListOfString
+          extensions:
+            x-ms-format: dfe-list-string
+          language: !Languages 
+            default:
+              name: dfeListOfString
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeKeyValuePairs
+          extensions:
+            x-ms-format: dfe-key-value-pairs
+          language: !Languages 
+            default:
+              name: dfeKeyValuePairs
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeDateTime
+          extensions:
+            x-ms-format: dfe-date-time
+          language: !Languages 
+            default:
+              name: dfeDateTime
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeDuration
+          extensions:
+            x-ms-format: dfe-duration
+          language: !Languages 
+            default:
+              name: dfeDuration
+              description: Any object
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: DfeUri
+          extensions:
+            x-ms-format: dfe-uri
+          language: !Languages 
+            default:
+              name: dfeUri
+              description: Any object
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: BaseClass
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_1
+    - *ref_3
+    - *ref_7
+    - *ref_8
+    - *ref_14
+    - *ref_11
+    - *ref_4
+    - *ref_15
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_18
+          serializedName: BaseClassProperty
+          language: !Languages 
+            default:
+              name: baseClassProperty
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ClassThatAlsoDefinesBaseClassProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_5
+    - *ref_6
+    - !ObjectSchema &ref_19
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_20
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            discriminatorValue: derived
+            parents: !Relations 
+              all:
+                - *ref_19
+              immediate:
+                - *ref_19
+            extensions:
+              x-ms-discriminator-value: derived
+            language: !Languages 
+              default:
+                name: DerivedClassWithEnumDiscriminator
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_20
+      discriminator: !Discriminator 
+        all:
+          derived: *ref_20
+        immediate:
+          derived: *ref_20
+        property: !Property &ref_22
+          schema: *ref_21
+          isDiscriminator: true
+          required: true
+          serializedName: DiscriminatorProperty
+          language: !Languages 
+            default:
+              name: discriminatorProperty
+              description: ''
+          protocol: !Protocols {}
+      properties:
+        - *ref_22
+      language: !Languages 
+        default:
+          name: BaseClassWithEnumDiscriminator
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_20
+    - !ObjectSchema &ref_23
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_24
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            discriminatorValue: derived
+            parents: !Relations 
+              all:
+                - *ref_23
+              immediate:
+                - *ref_23
+            extensions:
+              x-ms-discriminator-value: derived
+            language: !Languages 
+              default:
+                name: DerivedClassWithExtensibleEnumDiscriminator
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          - !ObjectSchema &ref_25
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            discriminatorValue: random value
+            parents: !Relations 
+              all:
+                - *ref_23
+              immediate:
+                - *ref_23
+            extensions:
+              x-ms-discriminator-value: random value
+            language: !Languages 
+              default:
+                name: AnotherDerivedClassWithExtensibleEnumDiscriminator
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_24
+          - *ref_25
+      discriminator: !Discriminator 
+        all:
+          derived: *ref_24
+          random value: *ref_25
+        immediate:
+          derived: *ref_24
+          random value: *ref_25
+        property: !Property &ref_27
+          schema: *ref_26
+          isDiscriminator: true
+          required: true
+          serializedName: DiscriminatorProperty
+          language: !Languages 
+            default:
+              name: discriminatorProperty
+              description: ''
+          protocol: !Protocols {}
+      properties:
+        - *ref_27
+      language: !Languages 
+        default:
+          name: BaseClassWithExtensibleEnumDiscriminator
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_24
+    - *ref_25
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_28
+          serializedName: StringProperty
+          language: !Languages 
+            default:
+              name: stringProperty
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: SeparateClass
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_29
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: mixed
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_29
+        requestMediaTypes:
+          application/json: !Request &ref_33
+            parameters:
+              - !Parameter 
+                schema: *ref_30
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_32
+                schema: *ref_2
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_32
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /op
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_33
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Mixed
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: SchemaMapping
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

@@ -1,0 +1,328 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: AutoRest Swagger BAT File Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: image/png, application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: image/png, application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_5
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: files
+    operations:
+      - !Operation 
+        operationId: files_GetFile
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /files/stream/nonempty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The PNG file
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - image/png
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-csharp-buffer-response: false
+        language: !Languages 
+          default:
+            name: GetFile
+            description: Get file
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: files_GetFileLarge
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /files/stream/verylarge
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The large file
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - image/png
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-csharp-buffer-response: false
+        language: !Languages 
+          default:
+            name: GetFileLarge
+            description: Get a large file
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: files_GetEmptyFile
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /files/stream/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty file stream
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - image/png
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-csharp-buffer-response: false
+        language: !Languages 
+          default:
+            name: GetEmptyFile
+            description: Get empty file
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Files
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATFileService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

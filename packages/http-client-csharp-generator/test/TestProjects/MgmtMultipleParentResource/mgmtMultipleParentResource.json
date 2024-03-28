@@ -1,0 +1,1939 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "RunCommandsClient",
+      "description": "The Run Commands Client.",
+      "version": "2021-03-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+      "https"
+    ],
+    "consumes": [
+      "application/json",
+      "text/json"
+    ],
+    "produces": [
+      "application/json",
+      "text/json"
+    ],
+    "security": [
+      {
+        "azure_auth": [
+          "user_impersonation"
+        ]
+      }
+    ],
+    "securityDefinitions": {
+      "azure_auth": {
+        "type": "oauth2",
+        "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+        "flow": "implicit",
+        "description": "Azure Active Directory OAuth2 Flow",
+        "scopes": {
+          "user_impersonation": "impersonate your user account"
+        }
+      }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/anotherParents/{anotherName}": {
+            "put": {
+                "tags": [
+                    "AnotherParents"
+                ],
+                "operationId": "AnotherParents_CreateOrUpdate",
+                "description": "The operation to create or update the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be created or updated."
+                    },
+                    {
+                        "name": "anotherBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParent"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParent"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "AnotherParents"
+                ],
+                "operationId": "AnotherParents_Update",
+                "description": "The operation to update the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be updated."
+                    },
+                    {
+                        "name": "anotherBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParentUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "AnotherParents"
+                ],
+                "operationId": "AnotherParents_Delete",
+                "description": "The operation to delete the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be deleted."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "AnotherParents"
+                ],
+                "operationId": "AnotherParents_Get",
+                "description": "The operation to get the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine containing the run command."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/anotherParents": {
+            "get": {
+                "tags": [
+                    "AnotherParents"
+                ],
+                "operationId": "AnotherParents_List",
+                "description": "The operation to get all run commands of a Virtual Machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AnotherParentsListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/anotherParents/{anotherName}/children/{childName}": {
+            "put": {
+                "tags": [
+                    "AnotherChildren"
+                ],
+                "operationId": "AnotherChildren_CreateOrUpdate",
+                "description": "The operation to create or update the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be created or updated."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "childBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "AnotherChildren"
+                ],
+                "operationId": "AnotherChildren_Update",
+                "description": "The operation to update the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be updated."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "childBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ChildBodyUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "AnotherChildren"
+                ],
+                "operationId": "AnotherChildren_Delete",
+                "description": "The operation to delete the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine where the run command should be deleted."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "AnotherChildren"
+                ],
+                "operationId": "AnotherChildren_Get",
+                "description": "The operation to get the run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine containing the run command."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/anotherParents/{anotherName}/children": {
+            "get": {
+                "tags": [
+                    "AnotherChildren"
+                ],
+                "operationId": "AnotherChildren_List",
+                "description": "The operation to get all run commands of a Virtual Machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "anotherName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine containing the run command."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBodiesListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents/{theParentName}": {
+            "put": {
+                "tags": [
+                    "TheParents"
+                ],
+                "operationId": "TheParents_CreateOrUpdate",
+                "description": "The operation to create or update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TheParent"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TheParent"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/TheParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "TheParents"
+                ],
+                "operationId": "TheParents_Update",
+                "description": "The operation to update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TheParentUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TheParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "TheParents"
+                ],
+                "operationId": "TheParents_Delete",
+                "description": "The operation to delete the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "TheParents"
+                ],
+                "operationId": "TheParents_Get",
+                "description": "The operation to get the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TheParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents": {
+            "get": {
+                "tags": [
+                    "TheParents"
+                ],
+                "operationId": "TheParents_List",
+                "description": "The operation to get all run commands of an instance in Virtual Machine Scaleset.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TheParentsListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents/{theParentName}/subParents/{instanceId}": {
+            "put": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_CreateOrUpdate",
+                "description": "The operation to create or update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "subBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_Update",
+                "description": "The operation to update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "subBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParentUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_Delete",
+                "description": "The operation to delete the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_Get",
+                "description": "The operation to get the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents/{theParentName}/subParents": {
+            "get": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_List",
+                "description": "The operation to get all run commands of an instance in Virtual Machine Scaleset.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentsListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents/{theParentName}/subParents/{instanceId}/children/{childName}": {
+            "put": {
+                "tags": [
+                    "Children"
+                ],
+                "operationId": "Children_CreateOrUpdate",
+                "description": "The operation to create or update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "childBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "Children"
+                ],
+                "operationId": "Children_Update",
+                "description": "The operation to update the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "childBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ChildBodyUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine RunCommand operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "tags": [
+                    "Children"
+                ],
+                "operationId": "Children_Delete",
+                "description": "The operation to delete the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "Children"
+                ],
+                "operationId": "Children_Get",
+                "description": "The operation to get the VMSS VM run command.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "childName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine run command."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBody"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/theParents/{theParentName}/subParents/{instanceId}/children": {
+            "get": {
+                "tags": [
+                    "Children"
+                ],
+                "operationId": "Children_List",
+                "description": "The operation to get all run commands of an instance in Virtual Machine Scaleset.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "theParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the VM scale set."
+                    },
+                    {
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The instance ID of the virtual machine."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ChildBodiesListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ChildBodyProperties": {
+            "properties": {
+                "asyncExecution": {
+                    "type": "boolean",
+                    "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete.",
+                    "default": false
+                },
+                "runAsUser": {
+                    "type": "string",
+                    "description": "Specifies the user account on the VM when executing the run command."
+                },
+                "runAsPassword": {
+                    "type": "string",
+                    "description": "Specifies the user account password on the VM when executing the run command."
+                },
+                "timeoutInSeconds": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The timeout in seconds to execute the run command."
+                },
+                "outputBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script output stream will be uploaded."
+                },
+                "errorBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script error stream will be uploaded."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine run command."
+        },
+        "SubParentProperties": {
+            "properties": {
+                "asyncExecution": {
+                    "type": "boolean",
+                    "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete.",
+                    "default": false
+                },
+                "runAsUser": {
+                    "type": "string",
+                    "description": "Specifies the user account on the VM when executing the run command."
+                },
+                "runAsPassword": {
+                    "type": "string",
+                    "description": "Specifies the user account password on the VM when executing the run command."
+                },
+                "timeoutInSeconds": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The timeout in seconds to execute the run command."
+                },
+                "outputBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script output stream will be uploaded."
+                },
+                "errorBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script error stream will be uploaded."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine run command."
+        },
+        "SubParent": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/SubParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "SubParentUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/SubParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "SubParentsListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubParent"
+                    },
+                    "description": "The list of run commands"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of run commands."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List run command operation response"
+        },
+        "TheParentProperties": {
+            "properties": {
+                "asyncExecution": {
+                    "type": "boolean",
+                    "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete.",
+                    "default": false
+                },
+                "runAsUser": {
+                    "type": "string",
+                    "description": "Specifies the user account on the VM when executing the run command."
+                },
+                "runAsPassword": {
+                    "type": "string",
+                    "description": "Specifies the user account password on the VM when executing the run command."
+                },
+                "timeoutInSeconds": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The timeout in seconds to execute the run command."
+                },
+                "outputBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script output stream will be uploaded."
+                },
+                "errorBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script error stream will be uploaded."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine run command."
+        },
+        "TheParent": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/TheParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "TheParentUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/TheParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "TheParentsListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TheParent"
+                    },
+                    "description": "The list of run commands"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of run commands."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List run command operation response"
+        },
+        "AnotherParentProperties": {
+            "properties": {
+                "asyncExecution": {
+                    "type": "boolean",
+                    "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete.",
+                    "default": false
+                },
+                "runAsUser": {
+                    "type": "string",
+                    "description": "Specifies the user account on the VM when executing the run command."
+                },
+                "runAsPassword": {
+                    "type": "string",
+                    "description": "Specifies the user account password on the VM when executing the run command."
+                },
+                "timeoutInSeconds": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The timeout in seconds to execute the run command."
+                },
+                "outputBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script output stream will be uploaded."
+                },
+                "errorBlobUri": {
+                    "type": "string",
+                    "description": "Specifies the Azure storage blob where script error stream will be uploaded."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine run command."
+        },
+        "AnotherParent": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/AnotherParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "AnotherParentUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/AnotherParentProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "ChildBody": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/ChildBodyProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "ChildBodyUpdate": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/ChildBodyProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine run command."
+        },
+        "AnotherParentsListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AnotherParent"
+                    },
+                    "description": "The list of run commands"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of run commands."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List run command operation response"
+        },
+        "ChildBodiesListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ChildBody"
+                    },
+                    "description": "The list of run commands"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The uri to fetch the next page of run commands."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List run command operation response"
+        },
+        "ApiErrorBase": {
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "target": {
+                    "type": "string",
+                    "description": "The target of the particular error."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "The error message."
+                }
+            },
+            "description": "Api error base."
+        },
+        "InnerError": {
+            "properties": {
+                "exceptiontype": {
+                    "type": "string",
+                    "description": "The exception type."
+                },
+                "errordetail": {
+                    "type": "string",
+                    "description": "The internal error message or exception dump."
+                }
+            },
+            "description": "Inner error details."
+        },
+        "CloudError": {
+            "x-ms-external": true,
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/ApiError"
+                }
+            },
+            "description": "An error response from the Compute service."
+        },
+        "ApiError": {
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ApiErrorBase"
+                    },
+                    "description": "The Api error details"
+                },
+                "innererror": {
+                    "$ref": "#/definitions/InnerError",
+                    "description": "The Api inner error"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "target": {
+                    "type": "string",
+                    "description": "The target of the particular error."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "The error message."
+                }
+            },
+            "description": "Api error."
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "UpdateResource": {
+            "description": "The Update Resource model definition.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        }
+    },
+    "parameters": {
+      "SubscriptionIdParameter": {
+        "name": "subscriptionId",
+        "in": "path",
+        "required": true,
+        "type": "string",
+        "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+      },
+      "ApiVersionParameter": {
+        "name": "api-version",
+        "in": "query",
+        "required": true,
+        "type": "string",
+        "description": "Client Api Version."
+      }
+    }
+  }

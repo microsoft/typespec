@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetExtendsStringAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetExtendsStringAsync.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response<ExtendsStringAdditionalProperties> response = await client.GetExtendsStringAsync();
+]]></code>
+This sample shows how to call GetExtendsStringAsync with all parameters.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response<ExtendsStringAdditionalProperties> response = await client.GetExtendsStringAsync();
+]]></code></example>
+    </member>
+    <member name="GetExtendsString(CancellationToken)">
+      <example>
+This sample shows how to call GetExtendsString.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response<ExtendsStringAdditionalProperties> response = client.GetExtendsString();
+]]></code>
+This sample shows how to call GetExtendsString with all parameters.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response<ExtendsStringAdditionalProperties> response = client.GetExtendsString();
+]]></code></example>
+    </member>
+    <member name="GetExtendsStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetExtendsStringAsync and parse the result.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response response = await client.GetExtendsStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetExtendsStringAsync with all parameters and parse the result.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response response = await client.GetExtendsStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtendsString(RequestContext)">
+      <example>
+This sample shows how to call GetExtendsString and parse the result.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response response = client.GetExtendsString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetExtendsString with all parameters and parse the result.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+Response response = client.GetExtendsString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(ExtendsStringAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+ExtendsStringAdditionalProperties body = new ExtendsStringAdditionalProperties("<name>");
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+ExtendsStringAdditionalProperties body = new ExtendsStringAdditionalProperties("<name>");
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(ExtendsStringAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+ExtendsStringAdditionalProperties body = new ExtendsStringAdditionalProperties("<name>");
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+ExtendsStringAdditionalProperties body = new ExtendsStringAdditionalProperties("<name>");
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+ExtendsString client = new AdditionalPropertiesClient().GetExtendsStringClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

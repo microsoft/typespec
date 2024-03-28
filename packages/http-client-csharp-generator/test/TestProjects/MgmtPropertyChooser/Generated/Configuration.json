@@ -1,0 +1,27 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtPropertyChooser",
+  "library-name": "MgmtPropertyChooser",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "head-as-boolean": true,
+  "skip-csproj-packagereference": true,
+  "RawAcronymMapping": {
+    "Os": "OS",
+    "Ip": "IP",
+    "Ips": "IPs",
+    "ID": "Id",
+    "IDs": "Ids",
+    "VM": "Vm",
+    "VMs": "Vms",
+    "VMScaleSet": "VmScaleSet",
+    "Ipsec": "IPsec|ipsec",
+    "IPSec": "IPsec|ipsec",
+    "P2s": "P2S|p2s",
+    "P2S": "P2S|p2s"
+  }
+}

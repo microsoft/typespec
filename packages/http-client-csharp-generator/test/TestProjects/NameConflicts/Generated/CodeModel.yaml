@@ -1,0 +1,2779 @@
+!CodeModel 
+info: !Info 
+  description: Resource Flattening for AutoRest
+  title: AutoRest Parameter Flattening
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_116
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAbstract
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAdd
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAlias
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAs
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAscending
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAsync
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassAwait
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassBase
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassBool
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassBreak
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassBy
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassByte
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassCatch
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassChar
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassChecked
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassConst
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassContinue
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Class
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDecimal
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDefault
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDelegate
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDescending
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDo
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDouble
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassDynamic
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_29
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassElse
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassEnum
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_31
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassEvent
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_32
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassExplicit
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_33
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassExtern
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFalse
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_35
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFinally
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_36
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFixed
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_37
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFloat
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_38
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFor
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_39
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassForeach
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_40
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassFrom
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_41
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassGet
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_42
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassGlobal
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_43
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassGoto
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_44
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassGroup
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_45
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassIf
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_46
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassImplicit
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_47
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassIn
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_48
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassInt
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassInterface
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_50
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassInternal
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_51
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassInto
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_52
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassIs
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_53
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassJoin
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_54
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassLet
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_55
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassLock
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_56
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassLong
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_57
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassNameof
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_58
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassNamespace
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_59
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassNew
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_60
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassNull
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_61
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassObject
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_62
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassOn
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_63
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassOperator
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_64
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassOrderby
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_65
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassOut
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_66
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassOverride
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_67
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassParams
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_68
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassPartial
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_69
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassPrivate
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_70
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassProtected
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_71
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassPublic
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_72
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassReadonly
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_73
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassRef
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_74
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassRemove
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_75
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassReturn
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_76
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSbyte
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_77
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSealed
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_78
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSelect
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_79
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSet
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_80
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassShort
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_81
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSizeof
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_82
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassStackalloc
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_83
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassStatic
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_84
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassString
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_85
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassStruct
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_86
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassSwitch
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_87
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassThis
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_88
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassThrow
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_89
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassTrue
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_90
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassTry
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_91
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassTypeof
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_92
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUint
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_93
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUlong
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_94
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUnchecked
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_95
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUnmanaged
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_96
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUnsafe
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_97
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUshort
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_98
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassUsing
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_99
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassValue
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_100
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassVar
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_101
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassVirtual
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_102
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassVoid
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_103
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassVolatile
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_104
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassWhen
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_105
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassWhere
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_106
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassWhile
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_107
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassYield
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_109
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassToString
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_110
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassEquals
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_111
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ClassGetHashCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Struct1
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_112
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: HttpMessageProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_113
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: RequestProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_114
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ResponseProperty
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_108
+      choices:
+        - !ChoiceValue 
+          value: System
+          language:
+            default:
+              name: System
+              description: ''
+        - !ChoiceValue 
+          value: System.Text.Json
+          language:
+            default:
+              name: SystemTextJson
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: SystemEnum
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: ItemValue1
+          language:
+            default:
+              name: ItemValue1
+              description: ''
+        - !ChoiceValue 
+          value: Item
+          language:
+            default:
+              name: Item
+              description: ''
+        - !ChoiceValue 
+          value: ItemValue2
+          language:
+            default:
+              name: ItemValue2
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ItemValue
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_117
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_118
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_128
+      type: constant
+      value: !ConstantValue 
+        value: application/pdf
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationPdf
+          description: Content Type 'application/pdf'
+      protocol: !Protocols {}
+  binaries:
+    - !BinarySchema &ref_129
+      type: binary
+      language: !Languages 
+        default:
+          name: binary
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_1
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_3
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            parents: !Relations 
+              all:
+                - *ref_1
+              immediate:
+                - *ref_1
+            properties:
+              - !Property 
+                schema: *ref_2
+                serializedName: '1'
+                language: !Languages 
+                  default:
+                    name: one
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: Struct
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_3
+      properties:
+        - !Property 
+          schema: *ref_4
+          serializedName: abstract
+          language: !Languages 
+            default:
+              name: abstract
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          serializedName: add
+          language: !Languages 
+            default:
+              name: add
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          serializedName: alias
+          language: !Languages 
+            default:
+              name: alias
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          serializedName: as
+          language: !Languages 
+            default:
+              name: as
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_8
+          serializedName: ascending
+          language: !Languages 
+            default:
+              name: ascending
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          serializedName: async
+          language: !Languages 
+            default:
+              name: async
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          serializedName: await
+          language: !Languages 
+            default:
+              name: await
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_11
+          serializedName: base
+          language: !Languages 
+            default:
+              name: base
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_12
+          serializedName: bool
+          language: !Languages 
+            default:
+              name: bool
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_13
+          serializedName: break
+          language: !Languages 
+            default:
+              name: break
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_14
+          serializedName: by
+          language: !Languages 
+            default:
+              name: by
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_15
+          serializedName: byte
+          language: !Languages 
+            default:
+              name: byte
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_16
+          serializedName: catch
+          language: !Languages 
+            default:
+              name: catch
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          serializedName: char
+          language: !Languages 
+            default:
+              name: char
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_18
+          serializedName: checked
+          language: !Languages 
+            default:
+              name: checked
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          serializedName: const
+          language: !Languages 
+            default:
+              name: const
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_20
+          serializedName: continue
+          language: !Languages 
+            default:
+              name: continue
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_21
+          serializedName: class
+          language: !Languages 
+            default:
+              name: class
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_22
+          serializedName: decimal
+          language: !Languages 
+            default:
+              name: decimal
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          serializedName: default
+          language: !Languages 
+            default:
+              name: default
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_24
+          serializedName: delegate
+          language: !Languages 
+            default:
+              name: delegate
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          serializedName: descending
+          language: !Languages 
+            default:
+              name: descending
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_26
+          serializedName: do
+          language: !Languages 
+            default:
+              name: do
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_27
+          serializedName: double
+          language: !Languages 
+            default:
+              name: double
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_28
+          serializedName: dynamic
+          language: !Languages 
+            default:
+              name: dynamic
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_29
+          serializedName: else
+          language: !Languages 
+            default:
+              name: else
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_30
+          serializedName: enum
+          language: !Languages 
+            default:
+              name: enum
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_31
+          serializedName: event
+          language: !Languages 
+            default:
+              name: event
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_32
+          serializedName: explicit
+          language: !Languages 
+            default:
+              name: explicit
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_33
+          serializedName: extern
+          language: !Languages 
+            default:
+              name: extern
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_34
+          serializedName: 'false'
+          language: !Languages 
+            default:
+              name: 'false'
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_35
+          serializedName: finally
+          language: !Languages 
+            default:
+              name: finally
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_36
+          serializedName: fixed
+          language: !Languages 
+            default:
+              name: fixed
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_37
+          serializedName: float
+          language: !Languages 
+            default:
+              name: float
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_38
+          serializedName: for
+          language: !Languages 
+            default:
+              name: for
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_39
+          serializedName: foreach
+          language: !Languages 
+            default:
+              name: foreach
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_40
+          serializedName: from
+          language: !Languages 
+            default:
+              name: from
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_41
+          serializedName: get
+          language: !Languages 
+            default:
+              name: get
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_42
+          serializedName: global
+          language: !Languages 
+            default:
+              name: global
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_43
+          serializedName: goto
+          language: !Languages 
+            default:
+              name: goto
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_44
+          serializedName: group
+          language: !Languages 
+            default:
+              name: group
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_45
+          serializedName: if
+          language: !Languages 
+            default:
+              name: if
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_46
+          serializedName: implicit
+          language: !Languages 
+            default:
+              name: implicit
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_47
+          serializedName: in
+          language: !Languages 
+            default:
+              name: in
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_48
+          serializedName: int
+          language: !Languages 
+            default:
+              name: int
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_49
+          serializedName: interface
+          language: !Languages 
+            default:
+              name: interface
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_50
+          serializedName: internal
+          language: !Languages 
+            default:
+              name: internal
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_51
+          serializedName: into
+          language: !Languages 
+            default:
+              name: into
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_52
+          serializedName: is
+          language: !Languages 
+            default:
+              name: is
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_53
+          serializedName: join
+          language: !Languages 
+            default:
+              name: join
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_54
+          serializedName: let
+          language: !Languages 
+            default:
+              name: let
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_55
+          serializedName: lock
+          language: !Languages 
+            default:
+              name: lock
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_56
+          serializedName: long
+          language: !Languages 
+            default:
+              name: long
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_57
+          serializedName: nameof
+          language: !Languages 
+            default:
+              name: nameof
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_58
+          serializedName: namespace
+          language: !Languages 
+            default:
+              name: namespace
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_59
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_60
+          serializedName: 'null'
+          language: !Languages 
+            default:
+              name: 'null'
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_61
+          serializedName: object
+          language: !Languages 
+            default:
+              name: object
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_62
+          serializedName: 'on'
+          language: !Languages 
+            default:
+              name: 'on'
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_63
+          serializedName: operator
+          language: !Languages 
+            default:
+              name: operator
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_64
+          serializedName: orderby
+          language: !Languages 
+            default:
+              name: orderby
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_65
+          serializedName: out
+          language: !Languages 
+            default:
+              name: out
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_66
+          serializedName: override
+          language: !Languages 
+            default:
+              name: override
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_67
+          serializedName: params
+          language: !Languages 
+            default:
+              name: params
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_68
+          serializedName: partial
+          language: !Languages 
+            default:
+              name: partial
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_69
+          serializedName: private
+          language: !Languages 
+            default:
+              name: private
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_70
+          serializedName: protected
+          language: !Languages 
+            default:
+              name: protected
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_71
+          serializedName: public
+          language: !Languages 
+            default:
+              name: public
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_72
+          serializedName: readonly
+          language: !Languages 
+            default:
+              name: readonly
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_73
+          serializedName: ref
+          language: !Languages 
+            default:
+              name: ref
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_74
+          serializedName: remove
+          language: !Languages 
+            default:
+              name: remove
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_75
+          serializedName: return
+          language: !Languages 
+            default:
+              name: return
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_76
+          serializedName: sbyte
+          language: !Languages 
+            default:
+              name: sbyte
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_77
+          serializedName: sealed
+          language: !Languages 
+            default:
+              name: sealed
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_78
+          serializedName: select
+          language: !Languages 
+            default:
+              name: select
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_79
+          serializedName: set
+          language: !Languages 
+            default:
+              name: set
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_80
+          serializedName: short
+          language: !Languages 
+            default:
+              name: short
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_81
+          serializedName: sizeof
+          language: !Languages 
+            default:
+              name: sizeof
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_82
+          serializedName: stackalloc
+          language: !Languages 
+            default:
+              name: stackalloc
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_83
+          serializedName: static
+          language: !Languages 
+            default:
+              name: static
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_84
+          serializedName: string
+          language: !Languages 
+            default:
+              name: string
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_85
+          serializedName: struct
+          language: !Languages 
+            default:
+              name: struct
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_86
+          serializedName: switch
+          language: !Languages 
+            default:
+              name: switch
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_87
+          serializedName: this
+          language: !Languages 
+            default:
+              name: this
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_88
+          serializedName: throw
+          language: !Languages 
+            default:
+              name: throw
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_89
+          serializedName: 'true'
+          language: !Languages 
+            default:
+              name: 'true'
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_90
+          serializedName: try
+          language: !Languages 
+            default:
+              name: try
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_91
+          serializedName: typeof
+          language: !Languages 
+            default:
+              name: typeof
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_92
+          serializedName: uint
+          language: !Languages 
+            default:
+              name: uint
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_93
+          serializedName: ulong
+          language: !Languages 
+            default:
+              name: ulong
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_94
+          serializedName: unchecked
+          language: !Languages 
+            default:
+              name: unchecked
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_95
+          serializedName: unmanaged
+          language: !Languages 
+            default:
+              name: unmanaged
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_96
+          serializedName: unsafe
+          language: !Languages 
+            default:
+              name: unsafe
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_97
+          serializedName: ushort
+          language: !Languages 
+            default:
+              name: ushort
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_98
+          serializedName: using
+          language: !Languages 
+            default:
+              name: using
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_99
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_100
+          serializedName: var
+          language: !Languages 
+            default:
+              name: var
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_101
+          serializedName: virtual
+          language: !Languages 
+            default:
+              name: virtual
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_102
+          serializedName: void
+          language: !Languages 
+            default:
+              name: void
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_103
+          serializedName: volatile
+          language: !Languages 
+            default:
+              name: volatile
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_104
+          serializedName: when
+          language: !Languages 
+            default:
+              name: when
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_105
+          serializedName: where
+          language: !Languages 
+            default:
+              name: where
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_106
+          serializedName: while
+          language: !Languages 
+            default:
+              name: while
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_107
+          serializedName: yield
+          language: !Languages 
+            default:
+              name: yield
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_108
+          serializedName: System
+          language: !Languages 
+            default:
+              name: system
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_109
+          serializedName: ToString
+          language: !Languages 
+            default:
+              name: toString
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_110
+          serializedName: Equals
+          language: !Languages 
+            default:
+              name: equals
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_111
+          serializedName: GetHashCode
+          language: !Languages 
+            default:
+              name: getHashCode
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: Class
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_3
+    - !ObjectSchema &ref_133
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_112
+          serializedName: property
+          language: !Languages 
+            default:
+              name: property
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: HttpMessage
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_136
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_113
+          serializedName: property
+          language: !Languages 
+            default:
+              name: property
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: Request
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_139
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_114
+          serializedName: property
+          language: !Languages 
+            default:
+              name: property
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: Response
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_115
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_115
+          - !Parameter &ref_121
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: request
+                description: ''
+                serializedName: request
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_122
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: message
+                description: ''
+                serializedName: message
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_123
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: scope
+                description: ''
+                serializedName: scope
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_124
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: uri
+                description: ''
+                serializedName: uri
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_125
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: pipeline
+                description: ''
+                serializedName: pipeline
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_126
+            schema: *ref_116
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: clientDiagnostics
+                description: ''
+                serializedName: clientDiagnostics
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/json: !Request &ref_120
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_119
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: class
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_118
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_119
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /originalOperation
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_120
+        signatureParameters:
+          - *ref_121
+          - *ref_122
+          - *ref_123
+          - *ref_124
+          - *ref_125
+          - *ref_126
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: AnalyzeBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_115
+        requestMediaTypes:
+          application/json: !Request &ref_132
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_127
+                schema: *ref_116
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_127
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /conflictingLROOverloads
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+          application/pdf: !Request &ref_131
+            parameters:
+              - !Parameter 
+                schema: *ref_128
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Upload file type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_130
+                schema: *ref_129
+                implementation: Method
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: binary
+            signatureParameters:
+              - *ref_130
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpBinaryRequest 
+                path: /conflictingLROOverloads
+                method: post
+                binary: true
+                knownMediaType: binary
+                mediaTypes:
+                  - application/pdf
+                uri: '{$host}'
+        requests:
+          - *ref_131
+          - *ref_132
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: AnalyzeBody
+            description: Analyze body, that could be different media types.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: HttpMessage
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_115
+        requestMediaTypes:
+          application/json: !Request &ref_135
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_134
+                schema: *ref_133
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: httpMessage
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_118
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_134
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /HttpMessage
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_135
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_133
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: HttpMessage
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Request
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_115
+        requestMediaTypes:
+          application/json: !Request &ref_138
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_137
+                schema: *ref_136
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: request
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_118
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_137
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /Request
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_138
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_136
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Request
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Response
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_115
+        requestMediaTypes:
+          application/json: !Request &ref_141
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_140
+                schema: *ref_139
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: response
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_118
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_140
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /Response
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_141
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_139
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Response
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestParameterFlattening
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

@@ -1,0 +1,139 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Model With Converter Usage",
+        "description": "Model With Converter Usage",
+        "version": "1.0.0"
+    },
+    "schemes": [
+        "http"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "paths": {
+        "/op": {
+            "get": {
+                "operationId": "OperationModel",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ModelClass"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelClass"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationStruct/": {
+            "patch": {
+              "operationId": "OperationStruct",
+              "parameters": [
+                {
+                  "name": "body",
+                  "in": "body",
+                  "schema": {
+                    "$ref": "#/definitions/ModelStruct"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "",
+                  "schema": {
+                    "$ref": "#/definitions/ModelStruct"
+                  }
+                }
+              }
+            }
+          }
+    },
+    "definitions": {
+        "ModelClass": {
+            "type": "object",
+            "description": ".",
+            "required": [
+                "Enum_Property"
+            ],
+            "properties": {
+                "String_Property": {
+                    "type": "string"
+                },
+                "Enum_Property": {
+                    "description": "More Letters",
+                    "type": "string",
+                    "enum": [
+                        "A",
+                        "B",
+                        "C"
+                    ],
+                    "x-ms-enum": {
+                        "name": "EnumProperty",
+                        "modelAsString": false
+                    }
+                },
+                "Obj_Property": {
+                    "$ref": "#/definitions/Product"
+                }
+            },
+            "x-csharp-usage": "converter"
+        },
+        "Product": {
+            "type": "object",
+            "description": "The product documentation.",
+            "properties": {
+                "Const_Property": {
+                    "type": "string",
+                    "description": "Constant string"
+                }
+            }
+        },
+        "InputModel": {
+            "type": "object",
+            "description": "The product documentation.",
+            "properties": {
+                "Input_Model_Property": {
+                    "type": "string",
+                    "description": "Constant string"
+                }
+            },
+            "x-csharp-usage": "model,input,converter",
+            "x-csharp-formats": "json"
+        },
+        "OutputModel": {
+            "type": "object",
+            "description": "The product documentation.",
+            "properties": {
+                "Output_Model_Property": {
+                    "type": "string",
+                    "description": "Constant string"
+                }
+            },
+            "x-csharp-usage": "model,output,converter",
+            "x-csharp-formats": "json"
+        },
+        "ModelStruct": {
+            "type": "object",
+            "properties": {
+              "Model_Property": {
+                "type": "string",
+                "description": "."
+              }
+            }
+          }
+    }
+}

@@ -1,0 +1,929 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "SupersetInheritance",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel1s": {
+            "get": {
+                "tags": [
+                    "SupersetModel1s"
+                ],
+                "operationId": "SupersetModel1s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel1ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel1s/{supersetModel1sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel1s"
+                ],
+                "operationId": "SupersetModel1s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel1"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel1"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel1s"
+                ],
+                "operationId": "SupersetModel1s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel1sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel1"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel2s/{supersetModel2sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel2s"
+                ],
+                "operationId": "SupersetModel2s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel2"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel2"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel2s"
+                ],
+                "operationId": "SupersetModel2s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel2sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel2"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel3s/{supersetModel3sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel3s"
+                ],
+                "operationId": "SupersetModel3s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel3"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel3"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel3s"
+                ],
+                "operationId": "SupersetModel3s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel3sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel3"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel4s": {
+            "get": {
+                "tags": [
+                    "SupersetModel4s"
+                ],
+                "operationId": "SupersetModel4s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel4ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel4s/{supersetModel4sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel4s"
+                ],
+                "operationId": "SupersetModel4s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel4sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel4"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel4"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel4s"
+                ],
+                "operationId": "SupersetModel4s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel4sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel4"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel6s": {
+            "get": {
+                "tags": [
+                    "SupersetModel6s"
+                ],
+                "operationId": "SupersetModel6s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel6ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel6s/{supersetModel6sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel6s"
+                ],
+                "operationId": "SupersetModel6s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel6sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel6"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel6"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel6s"
+                ],
+                "operationId": "SupersetModel6s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel6sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel6"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel7s": {
+            "get": {
+                "tags": [
+                    "SupersetModel7s"
+                ],
+                "operationId": "SupersetModel7s_List",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel7ListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/supersetModel7s/{supersetModel7sName}": {
+            "put": {
+                "tags": [
+                    "SupersetModel7s"
+                ],
+                "operationId": "SupersetModel7s_Put",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel7sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel7"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel7"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SupersetModel7s"
+                ],
+                "operationId": "SupersetModel7s_Get",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "supersetModel7sName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SupersetModel7"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "SupersetModel1ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SupersetModel1"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "SupersetModel1": {
+            "description": "This model does not have systemData, but should inherit from Resource.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "SupersetModel2": {
+            "description": "This model does not have id property, it's Non-Resource.",
+            "type": "object",
+            "properties": {
+                "iD": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "SupersetModel3": {
+            "description": "id is integer, the model is Non-Resource.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "SupersetModel4ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SupersetModel4"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "SupersetModel4": {
+            "description": "This model does not have systemData, but should inherit from TrackedResource.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "new": {
+                    "type": "string"
+                }
+            }
+        },
+        "SupersetModel5": {
+            "description": "This model should inherit from SupersetModel4.",
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/SupersetModel4"
+                }
+            ]
+        },
+        "SupersetModel6": {
+            "description": "This model has a common type systemData and should inherit from Resource.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "new": {
+                    "type": "string"
+                },
+                "systemData": {
+                    "description": "Metadata pertaining to creation and last modification of the resource.",
+                    "type": "object",
+                    "readOnly": true,
+                    "properties": {
+                        "createdBy": {
+                            "type": "string",
+                            "description": "The identity that created the resource."
+                        },
+                        "createdByType": {
+                            "type": "string",
+                            "description": "The type of identity that created the resource.",
+                            "enum": [
+                                "User",
+                                "Application",
+                                "ManagedIdentity",
+                                "Key"
+                            ],
+                            "x-ms-enum": {
+                                "name": "createdByType",
+                                "modelAsString": true
+                            }
+                        },
+                        "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "The timestamp of resource creation (UTC)."
+                        },
+                        "lastModifiedBy": {
+                            "type": "string",
+                            "description": "The identity that last modified the resource."
+                        },
+                        "lastModifiedByType": {
+                            "type": "string",
+                            "description": "The type of identity that last modified the resource.",
+                            "enum": [
+                                "User",
+                                "Application",
+                                "ManagedIdentity",
+                                "Key"
+                            ],
+                            "x-ms-enum": {
+                                "name": "createdByType",
+                                "modelAsString": true
+                            }
+                        },
+                        "lastModifiedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "The timestamp of resource last modification (UTC)"
+                        }
+                    }
+                }
+            }
+        },
+        "SupersetModel6ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SupersetModel6"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        },
+        "SupersetModel7": {
+            "description": "This model has a systemData different from common type and should not inherit from Resource.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "new": {
+                    "type": "string"
+                },
+                "systemData": {
+                    "description": "Metadata pertaining to creation and last modification of the resource.",
+                    "type": "object",
+                    "readOnly": true,
+                    "properties": {
+                        "createdBy": {
+                            "type": "string",
+                            "description": "The identity that created the resource."
+                        },
+                        "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "The timestamp of resource creation (UTC)."
+                        },
+                        "lastModifiedBy": {
+                            "type": "string",
+                            "description": "The identity that last modified the resource."
+                        }
+                    }
+                }
+            }
+        },
+        "SupersetModel7ListResult": {
+            "properties": {
+                "value": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SupersetModel7"
+                    },
+                    "description": "Gets the list of storage accounts and their properties."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.",
+                    "readOnly": true
+                }
+            },
+            "description": "The response from the List Storage Accounts operation."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

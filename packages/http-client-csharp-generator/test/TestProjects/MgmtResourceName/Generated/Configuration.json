@@ -1,0 +1,22 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtResourceName",
+  "library-name": "MgmtResourceName",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "head-as-boolean": true,
+  "skip-csproj-packagereference": true,
+  "generate-model-factory": false,
+  "NoResourceSuffix": [
+    "Disk",
+    "Memory"
+  ],
+  "RenameMapping": {
+    "NetworkResource": "Network",
+    "MemoryResource": "Memory"
+  }
+}

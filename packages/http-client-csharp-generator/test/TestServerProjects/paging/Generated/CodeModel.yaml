@@ -1,0 +1,3036 @@
+!CodeModel 
+info: !Info 
+  description: Long-running Operation for AutoRest
+  title: AutoRest Paging Test Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_1
+      type: boolean
+      language: !Languages 
+        default:
+          name: Bool
+          description: simple boolean
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_16
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ProductPropertiesId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_2
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: 30
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductPropertiesName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductResultValueNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductResultNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BodyParamName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: OdataProductResultOdataNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductResultValueWithXMSClientNameNextLink
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_25
+      choices:
+        - !ChoiceValue 
+          value: Succeeded
+          language:
+            default:
+              name: Succeeded
+              description: ''
+        - !ChoiceValue 
+          value: Failed
+          language:
+            default:
+              name: Failed
+              description: ''
+        - !ChoiceValue 
+          value: canceled
+          language:
+            default:
+              name: Canceled
+              description: ''
+        - !ChoiceValue 
+          value: Accepted
+          language:
+            default:
+              name: Accepted
+              description: ''
+        - !ChoiceValue 
+          value: Creating
+          language:
+            default:
+              name: Creating
+              description: ''
+        - !ChoiceValue 
+          value: Created
+          language:
+            default:
+              name: Created
+              description: ''
+        - !ChoiceValue 
+          value: Updating
+          language:
+            default:
+              name: Updating
+              description: ''
+        - !ChoiceValue 
+          value: Updated
+          language:
+            default:
+              name: Updated
+              description: ''
+        - !ChoiceValue 
+          value: Deleting
+          language:
+            default:
+              name: Deleting
+              description: ''
+        - !ChoiceValue 
+          value: Deleted
+          language:
+            default:
+              name: Deleted
+              description: ''
+        - !ChoiceValue 
+          value: OK
+          language:
+            default:
+              name: OK
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: OperationResultStatus
+          description: The status of the request
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_32
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_35
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_42
+      type: constant
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_45
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: '5'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: MaxPageSizeType
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_30
+      type: constant
+      value: !ConstantValue 
+        value: 1.0.0
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion10
+          description: Api Version (1.0.0)
+      protocol: !Protocols {}
+  groups:
+    - !GroupSchema &ref_3
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_39
+              schema: *ref_2
+              groupedBy: !Parameter &ref_5
+                schema: *ref_3
+                implementation: Method
+                language: !Languages 
+                  default:
+                    name: pagingGetMultiplePagesOptions
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: maxresults
+                  description: Sets the maximum number of items to return in the response.
+                  serializedName: maxresults
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: maxresults
+          language: !Languages 
+            default:
+              name: maxresults
+              description: Sets the maximum number of items to return in the response.
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_4
+          originalParameter:
+            - !Parameter &ref_40
+              schema: *ref_4
+              groupedBy: *ref_5
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: timeout
+                  description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+                  serializedName: timeout
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: timeout
+          language: !Languages 
+            default:
+              name: timeout
+              description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: PagingGetMultiplePagesOptions
+          description: Parameter group
+      protocol: !Protocols {}
+    - !GroupSchema &ref_6
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_47
+              schema: *ref_2
+              groupedBy: !Parameter &ref_7
+                schema: *ref_6
+                implementation: Method
+                language: !Languages 
+                  default:
+                    name: pagingGetOdataMultiplePagesOptions
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: maxresults
+                  description: Sets the maximum number of items to return in the response.
+                  serializedName: maxresults
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: maxresults
+          language: !Languages 
+            default:
+              name: maxresults
+              description: Sets the maximum number of items to return in the response.
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_4
+          originalParameter:
+            - !Parameter &ref_48
+              schema: *ref_4
+              groupedBy: *ref_7
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: timeout
+                  description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+                  serializedName: timeout
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: timeout
+          language: !Languages 
+            default:
+              name: timeout
+              description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: PagingGetOdataMultiplePagesOptions
+          description: Parameter group
+      protocol: !Protocols {}
+    - !GroupSchema &ref_8
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_51
+              schema: *ref_2
+              groupedBy: !Parameter &ref_9
+                schema: *ref_8
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: pagingGetMultiplePagesWithOffsetOptions
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: maxresults
+                  description: Sets the maximum number of items to return in the response.
+                  serializedName: maxresults
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: maxresults
+          language: !Languages 
+            default:
+              name: maxresults
+              description: Sets the maximum number of items to return in the response.
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_52
+              schema: *ref_2
+              groupedBy: *ref_9
+              implementation: Method
+              required: true
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: offset
+                  description: Offset of return value
+                  serializedName: offset
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: path
+          required: true
+          serializedName: offset
+          language: !Languages 
+            default:
+              name: offset
+              description: Offset of return value
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_4
+          originalParameter:
+            - !Parameter &ref_53
+              schema: *ref_4
+              groupedBy: *ref_9
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: timeout
+                  description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+                  serializedName: timeout
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: timeout
+          language: !Languages 
+            default:
+              name: timeout
+              description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: PagingGetMultiplePagesWithOffsetOptions
+          description: Parameter group
+      protocol: !Protocols {}
+    - !GroupSchema &ref_11
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_10
+          originalParameter:
+            - !Parameter &ref_61
+              schema: *ref_10
+              groupedBy: !Parameter &ref_12
+                schema: *ref_11
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: customParameterGroup
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              required: true
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: apiVersion
+                  description: Sets the api version to use.
+                  serializedName: api_version
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: query
+            - !Parameter &ref_63
+              schema: *ref_10
+              groupedBy: !Parameter &ref_13
+                schema: *ref_11
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: customParameterGroup
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              required: true
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: apiVersion
+                  description: Sets the api version to use.
+                  serializedName: api_version
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: query
+          required: true
+          serializedName: api_version
+          language: !Languages 
+            default:
+              name: apiVersion
+              description: Sets the api version to use.
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_10
+          originalParameter:
+            - !Parameter &ref_62
+              schema: *ref_10
+              groupedBy: *ref_12
+              implementation: Method
+              required: true
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: tenant
+                  description: Sets the tenant to use.
+                  serializedName: tenant
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: path
+            - !Parameter &ref_64
+              schema: *ref_10
+              groupedBy: *ref_13
+              implementation: Method
+              required: true
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: tenant
+                  description: Sets the tenant to use.
+                  serializedName: tenant
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: path
+          required: true
+          serializedName: tenant
+          language: !Languages 
+            default:
+              name: tenant
+              description: Sets the tenant to use.
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: CustomParameterGroup
+          description: Parameter group
+      protocol: !Protocols {}
+    - !GroupSchema &ref_14
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_67
+              schema: *ref_2
+              groupedBy: !Parameter &ref_15
+                schema: *ref_14
+                implementation: Method
+                language: !Languages 
+                  default:
+                    name: pagingGetMultiplePagesLroOptions
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: maxresults
+                  description: Sets the maximum number of items to return in the response.
+                  serializedName: maxresults
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: maxresults
+          language: !Languages 
+            default:
+              name: maxresults
+              description: Sets the maximum number of items to return in the response.
+          protocol: !Protocols {}
+        - !GroupProperty 
+          schema: *ref_4
+          originalParameter:
+            - !Parameter &ref_68
+              schema: *ref_4
+              groupedBy: *ref_15
+              implementation: Method
+              extensions: {}
+              language: !Languages 
+                default:
+                  name: timeout
+                  description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+                  serializedName: timeout
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          serializedName: timeout
+          language: !Languages 
+            default:
+              name: timeout
+              description: Sets the maximum time that the server can spend processing the request, in seconds. The default is 30 seconds.
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: PagingGetMultiplePagesLroOptions
+          description: Parameter group
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_33
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_26
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: !ObjectSchema &ref_19
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: 1.0.0
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_20
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    properties:
+                      - !Property 
+                        schema: *ref_16
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_17
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: ProductProperties
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                  serializedName: properties
+                  language: !Languages 
+                    default:
+                      name: properties
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+              language: !Languages 
+                default:
+                  name: Product
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ProductResultValue
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_18
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ProductResultValue
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_19
+    - *ref_20
+    - !ObjectSchema &ref_34
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_27
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_19
+            language: !Languages 
+              default:
+                name: ProductResultValues
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: values
+          language: !Languages 
+            default:
+              name: values
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_21
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ProductResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_36
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_22
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: BodyParam
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_50
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_28
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_19
+            language: !Languages 
+              default:
+                name: OdataProductResultValues
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: values
+          language: !Languages 
+            default:
+              name: values
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          serializedName: odata.nextLink
+          language: !Languages 
+            default:
+              name: odataNextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: OdataProductResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_71
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_29
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_19
+            language: !Languages 
+              default:
+                name: ProductResultValueWithXMSClientNameValues
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: values
+          language: !Languages 
+            default:
+              name: indexes
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_24
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ProductResultValueWithXMSClientName
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_25
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: The status of the request
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: OperationResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_26
+    - *ref_27
+    - *ref_28
+    - *ref_29
+globalParameters:
+  - !Parameter &ref_31
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_70
+    schema: *ref_30
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: Paging
+    operations:
+      - !Operation 
+        operationId: Paging_getNoItemNamePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/noitemname
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: A list of products
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetNoItemNamePages
+            description: A paging operation that must return result of the default 'value' node.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getEmptyNextLinkNamePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/emptynextlink
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: A list of products
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetEmptyNextLinkNamePages
+            description: A paging operation that gets an empty next link and should stop after page 1.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getNullNextLinkNamePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/nullnextlink
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: A list of products
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: null
+        language: !Languages 
+          default:
+            name: GetNullNextLinkNamePages
+            description: A paging operation that must ignore any kind of nextLink, and stop after page 1.
+            paging:
+              itemName: values
+              nextLinkName: null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getSinglePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/single
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetSinglePages
+            description: A paging operation that finishes on the first call without a nextlink
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getSinglePagesWithBodyParams
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requestMediaTypes:
+          application/json: !Request &ref_38
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_37
+                schema: *ref_36
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: 'put {''name'': ''body''} to pass the test'
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /paging/single/getWithBodyParams
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_38
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetSinglePagesWithBodyParams
+            description: A paging operation that finishes on the first call with body params without a nextlink
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_firstResponseEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/firstResponseEmpty/1
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: First call returns an empty items list, second (and final) call returns an items list of length 1.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: FirstResponseEmpty
+            description: A paging operation whose first response's items list is empty, but still returns a next link. Second (and final) call, will give you an items list of 1.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_41
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: clientRequestId
+                description: ''
+                serializedName: client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_39
+          - *ref_40
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_5
+            signatureParameters:
+              - *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_41
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePages
+            description: A paging operation that includes a nextLink that has 10 pages
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getWithQueryParams
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_43
+            schema: *ref_2
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredQueryParameter
+                description: A required integer query parameter. Put in value '100' to pass test.
+                serializedName: requiredQueryParameter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_42
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: queryConstant
+                description: A constant. Must be True and will be passed as a query parameter to nextOperationWithQueryParams
+                serializedName: queryConstant
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/getWithQueryParams
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_43
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+            operationName: Paging_nextOperationWithQueryParams
+        language: !Languages 
+          default:
+            name: GetWithQueryParams
+            description: A paging operation that includes a next operation. It has a different query parameter from it's next operation nextOperationWithQueryParams. Returns a ProductResult
+            paging:
+              group: Paging
+              itemName: values
+              member: NextOperationWithQueryParams
+              nextLinkName: nextLink
+              nextLinkOperation: !Operation &ref_46
+                operationId: Paging_nextOperationWithQueryParams
+                apiVersions:
+                  - !ApiVersion 
+                    version: 1.0.0
+                parameters:
+                  - *ref_31
+                  - !Parameter 
+                    schema: *ref_42
+                    implementation: Method
+                    required: true
+                    language: !Languages 
+                      default:
+                        name: queryConstant
+                        description: A constant. Must be True
+                        serializedName: queryConstant
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: query
+                requests:
+                  - !Request 
+                    parameters:
+                      - !Parameter 
+                        schema: *ref_32
+                        implementation: Method
+                        origin: modelerfour:synthesized/accept
+                        required: true
+                        language: !Languages 
+                          default:
+                            name: accept
+                            description: Accept header
+                            serializedName: Accept
+                        protocol: !Protocols 
+                          http: !HttpParameter 
+                            in: header
+                    signatureParameters: []
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: ''
+                    protocol: !Protocols 
+                      http: !HttpRequest 
+                        path: /paging/multiple/nextOperationWithQueryParams
+                        method: get
+                        uri: '{$host}'
+                signatureParameters: []
+                responses:
+                  - !SchemaResponse 
+                    schema: *ref_34
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Initial response with ProvisioningState='Canceled'
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        knownMediaType: json
+                        mediaTypes:
+                          - application/json
+                        statusCodes:
+                          - '200'
+                exceptions:
+                  - !Response 
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Unexpected error
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        statusCodes:
+                          - default
+                extensions:
+                  x-ms-pageable:
+                    itemName: values
+                    nextLinkName: null
+                language: !Languages 
+                  default:
+                    name: NextOperationWithQueryParams
+                    description: Next operation for getWithQueryParams. Pass in next=True to pass test. Returns a ProductResult
+                    paging:
+                      itemName: values
+                      nextLinkName: null
+                protocol: !Protocols {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_duplicateParams
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_44
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: OData filter options. Pass in 'foo'
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/duplicateParams/1
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_44
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: DuplicateParams
+            description: Define `filter` as a query param for all calls. However, the returned next link will also include the `filter` as part of it. Make sure you don't end up duplicating the `filter` param in the url sent.
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_pageWithMaxPageSize
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter 
+            schema: *ref_45
+            implementation: Method
+            language: !Languages 
+              default:
+                name: maxpagesize
+                description: Max page size query param. Don't send
+                serializedName: $maxpagesize
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/maxPageSize
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: PageWithMaxPageSize
+            description: 'Paging with max page size. We don''t want to '
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - *ref_46
+      - !Operation 
+        operationId: Paging_getOdataMultiplePages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_49
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: clientRequestId
+                description: ''
+                serializedName: client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_47
+          - *ref_48
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_7
+            signatureParameters:
+              - *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/odata
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_49
+        responses:
+          - !SchemaResponse 
+            schema: *ref_50
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: odata.nextLink
+        language: !Languages 
+          default:
+            name: GetOdataMultiplePages
+            description: A paging operation that includes a nextLink in odata format that has 10 pages
+            paging:
+              itemName: values
+              nextLinkName: odata.nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesWithOffset
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_54
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: clientRequestId
+                description: ''
+                serializedName: client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_51
+          - *ref_52
+          - *ref_53
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_9
+            signatureParameters:
+              - *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/withpath/{offset}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_54
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesWithOffset
+            description: A paging operation that includes a nextLink that has 10 pages
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesRetryFirst
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/retryfirst
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesRetryFirst
+            description: A paging operation that fails on the first call with 500 and then retries and then get a response including a nextLink that has 10 pages
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesRetrySecond
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/retrysecond
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesRetrySecond
+            description: A paging operation that includes a nextLink that has 10 pages, of which the 2nd call fails first with 500. The client should retry and finish all 10 pages eventually.
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getSinglePagesFailure
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/single/failure
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetSinglePagesFailure
+            description: A paging operation that receives a 400 on the first call
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesFailure
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/failure
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesFailure
+            description: A paging operation that receives a 400 on the second call
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesFailureUri
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/failureuri
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesFailureUri
+            description: A paging operation that receives an invalid nextLink
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesFragmentNextLink
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_55
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: apiVersion
+                description: Sets the api version to use.
+                serializedName: api_version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_56
+            schema: *ref_10
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: tenant
+                description: Sets the tenant to use.
+                serializedName: tenant
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/fragment/{tenant}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_55
+          - *ref_56
+        responses:
+          - !SchemaResponse 
+            schema: *ref_50
+            language: !Languages 
+              default:
+                name: ''
+                description: Paging response with a fragment nextLink
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: odata.nextLink
+            operationName: Paging_nextFragment
+        language: !Languages 
+          default:
+            name: GetMultiplePagesFragmentNextLink
+            description: A paging operation that doesn't return a full URL, just a fragment
+            paging:
+              group: Paging
+              itemName: values
+              member: NextFragment
+              nextLinkName: odata.nextLink
+              nextLinkOperation: !Operation &ref_60
+                operationId: Paging_nextFragment
+                apiVersions:
+                  - !ApiVersion 
+                    version: 1.0.0
+                parameters:
+                  - *ref_31
+                  - !Parameter &ref_57
+                    schema: *ref_10
+                    implementation: Method
+                    required: true
+                    language: !Languages 
+                      default:
+                        name: apiVersion
+                        description: Sets the api version to use.
+                        serializedName: api_version
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: query
+                  - !Parameter &ref_58
+                    schema: *ref_10
+                    implementation: Method
+                    required: true
+                    language: !Languages 
+                      default:
+                        name: tenant
+                        description: Sets the tenant to use.
+                        serializedName: tenant
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: path
+                  - !Parameter &ref_59
+                    schema: *ref_10
+                    implementation: Method
+                    required: true
+                    extensions:
+                      x-ms-skip-url-encoding: true
+                    language: !Languages 
+                      default:
+                        name: nextLink
+                        description: Next link for list operation.
+                        serializedName: nextLink
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: path
+                requests:
+                  - !Request 
+                    parameters:
+                      - !Parameter 
+                        schema: *ref_32
+                        implementation: Method
+                        origin: modelerfour:synthesized/accept
+                        required: true
+                        language: !Languages 
+                          default:
+                            name: accept
+                            description: Accept header
+                            serializedName: Accept
+                        protocol: !Protocols 
+                          http: !HttpParameter 
+                            in: header
+                    signatureParameters: []
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: ''
+                    protocol: !Protocols 
+                      http: !HttpRequest 
+                        path: /paging/multiple/fragment/{tenant}/{nextLink}
+                        method: get
+                        uri: '{$host}'
+                signatureParameters:
+                  - *ref_57
+                  - *ref_58
+                  - *ref_59
+                responses:
+                  - !SchemaResponse 
+                    schema: *ref_50
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Paging response with a fragment nextLink
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        knownMediaType: json
+                        mediaTypes:
+                          - application/json
+                        statusCodes:
+                          - '200'
+                exceptions:
+                  - !Response 
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Unexpected error
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        statusCodes:
+                          - default
+                extensions:
+                  x-ms-pageable:
+                    itemName: values
+                    nextLinkName: odata.nextLink
+                    operationName: Paging_nextFragment
+                language: !Languages 
+                  default:
+                    name: NextFragment
+                    description: A paging operation that doesn't return a full URL, just a fragment
+                    paging:
+                      group: Paging
+                      itemName: values
+                      member: NextFragment
+                      nextLinkName: odata.nextLink
+                      nextLinkOperation: *ref_60
+                protocol: !Protocols {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getMultiplePagesFragmentWithGroupingNextLink
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_12
+            signatureParameters:
+              - *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/fragmentwithgrouping/{tenant}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_50
+            language: !Languages 
+              default:
+                name: ''
+                description: Paging response with a fragment nextLink
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: odata.nextLink
+            operationName: Paging_nextFragmentWithGrouping
+        language: !Languages 
+          default:
+            name: GetMultiplePagesFragmentWithGroupingNextLink
+            description: A paging operation that doesn't return a full URL, just a fragment with parameters grouped
+            paging:
+              group: Paging
+              itemName: values
+              member: NextFragmentWithGrouping
+              nextLinkName: odata.nextLink
+              nextLinkOperation: !Operation &ref_66
+                operationId: Paging_nextFragmentWithGrouping
+                apiVersions:
+                  - !ApiVersion 
+                    version: 1.0.0
+                parameters:
+                  - *ref_31
+                  - *ref_63
+                  - *ref_64
+                  - !Parameter &ref_65
+                    schema: *ref_10
+                    implementation: Method
+                    required: true
+                    extensions:
+                      x-ms-skip-url-encoding: true
+                    language: !Languages 
+                      default:
+                        name: nextLink
+                        description: Next link for list operation.
+                        serializedName: nextLink
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: path
+                requests:
+                  - !Request 
+                    parameters:
+                      - !Parameter 
+                        schema: *ref_32
+                        implementation: Method
+                        origin: modelerfour:synthesized/accept
+                        required: true
+                        language: !Languages 
+                          default:
+                            name: accept
+                            description: Accept header
+                            serializedName: Accept
+                        protocol: !Protocols 
+                          http: !HttpParameter 
+                            in: header
+                      - *ref_13
+                    signatureParameters:
+                      - *ref_13
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: ''
+                    protocol: !Protocols 
+                      http: !HttpRequest 
+                        path: /paging/multiple/fragmentwithgrouping/{tenant}/{nextLink}
+                        method: get
+                        uri: '{$host}'
+                signatureParameters:
+                  - *ref_65
+                responses:
+                  - !SchemaResponse 
+                    schema: *ref_50
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Paging response with a fragment nextLink
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        knownMediaType: json
+                        mediaTypes:
+                          - application/json
+                        statusCodes:
+                          - '200'
+                exceptions:
+                  - !Response 
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Unexpected error
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        statusCodes:
+                          - default
+                extensions:
+                  x-ms-pageable:
+                    itemName: values
+                    nextLinkName: odata.nextLink
+                    operationName: Paging_nextFragmentWithGrouping
+                language: !Languages 
+                  default:
+                    name: NextFragmentWithGrouping
+                    description: A paging operation that doesn't return a full URL, just a fragment
+                    paging:
+                      group: Paging
+                      itemName: values
+                      member: NextFragmentWithGrouping
+                      nextLinkName: odata.nextLink
+                      nextLinkOperation: *ref_66
+                protocol: !Protocols {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_GetMultiplePagesLRO
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - !Parameter &ref_69
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: clientRequestId
+                description: ''
+                serializedName: client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_67
+          - *ref_68
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_15
+            signatureParameters:
+              - *ref_15
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/multiple/lro
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_69
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Operation is in progress.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '202'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetMultiplePagesLRO
+            description: A long-running paging operation that includes a nextLink that has 10 pages
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_appendApiVersion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - *ref_70
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/apiVersion/append/1
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: AppendApiVersion
+            description: A paging operation with api version. When calling the next link, you want to append your client's api version to the next link
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_replaceApiVersion
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+          - *ref_70
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/apiVersion/replace/1
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Canceled'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ReplaceApiVersion
+            description: A paging operation with api version. When calling the next link, you want to reformat it and override the returned api version with your client's api version
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - *ref_60
+      - *ref_66
+      - !Operation 
+        operationId: Paging_getPagingModelWithItemNameWithXMSClientName
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_31
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/itemNameWithXMSClientName
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_71
+            language: !Languages 
+              default:
+                name: ''
+                description: Returns a paging model whose item names are called 'indexes', not 'value'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetPagingModelWithItemNameWithXMSClientName
+            description: A paging operation that returns a paging model whose item name is is overriden by x-ms-client-name 'indexes'.
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Paging
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestPagingTestService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

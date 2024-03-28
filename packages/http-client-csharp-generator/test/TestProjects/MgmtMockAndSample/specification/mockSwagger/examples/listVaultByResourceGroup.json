@@ -1,0 +1,98 @@
+{
+  "parameters": {
+    "$top": 1,
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault",
+            "name": "sample-vault",
+            "type": "Microsoft.KeyVault/vaults",
+            "location": "westus",
+            "tags": {},
+            "systemData": {
+              "createdBy": "keyVaultUser1",
+              "createdByType": "User",
+              "createdAt": "2020-01-01T12:00:00.0000000Z",
+              "lastModifiedBy": "keyVaultUser2",
+              "lastModifiedByType": "User",
+              "lastModifiedAt": "2020-01-01T12:00:00.0000000Z"
+            },
+            "properties": {
+              "sku": {
+                "family": "A",
+                "name": "premium"
+              },
+              "tenantId": "00000000-0000-0000-0000-000000000000",
+              "accessPolicies": [
+                {
+                  "tenantId": "00000000-0000-0000-0000-000000000000",
+                  "objectId": "00000000-0000-0000-0000-000000000000",
+                  "permissions": {
+                    "keys": [
+                      "encrypt",
+                      "decrypt",
+                      "wrapKey",
+                      "unwrapKey",
+                      "sign",
+                      "verify",
+                      "get",
+                      "list",
+                      "create",
+                      "update",
+                      "import",
+                      "delete",
+                      "backup",
+                      "restore",
+                      "recover",
+                      "purge"
+                    ],
+                    "secrets": [
+                      "get",
+                      "list",
+                      "set",
+                      "delete",
+                      "backup",
+                      "restore",
+                      "recover",
+                      "purge"
+                    ],
+                    "certificates": [
+                      "get",
+                      "list",
+                      "delete",
+                      "create",
+                      "import",
+                      "update",
+                      "managecontacts",
+                      "getissuers",
+                      "listissuers",
+                      "setissuers",
+                      "deleteissuers",
+                      "manageissuers",
+                      "recover",
+                      "purge"
+                    ]
+                  }
+                }
+              ],
+              "enabledForDeployment": true,
+              "enabledForDiskEncryption": true,
+              "enabledForTemplateDeployment": true,
+              "enableSoftDelete": true,
+              "hsmPoolResourceId": "00000000-0000-0000-0000-000000000000",
+              "vaultUri": "https://sample-vault.vault.azure.net/",
+              "provisioningState": "Succeeded"
+            }
+          }
+        ],
+        "nextLink": "https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults?api-version=2021-10-01&$skiptoken=dmF1bHQtcGVza3ktanVyeS03MzA3Ng=="
+      }
+    }
+  }
+}

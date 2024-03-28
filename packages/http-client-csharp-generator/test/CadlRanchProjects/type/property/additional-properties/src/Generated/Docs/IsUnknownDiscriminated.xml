@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIsUnknownDiscriminatedAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetIsUnknownDiscriminatedAsync.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response<IsUnknownAdditionalPropertiesDiscriminated> response = await client.GetIsUnknownDiscriminatedAsync();
+]]></code>
+This sample shows how to call GetIsUnknownDiscriminatedAsync with all parameters.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response<IsUnknownAdditionalPropertiesDiscriminated> response = await client.GetIsUnknownDiscriminatedAsync();
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDiscriminated(CancellationToken)">
+      <example>
+This sample shows how to call GetIsUnknownDiscriminated.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response<IsUnknownAdditionalPropertiesDiscriminated> response = client.GetIsUnknownDiscriminated();
+]]></code>
+This sample shows how to call GetIsUnknownDiscriminated with all parameters.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response<IsUnknownAdditionalPropertiesDiscriminated> response = client.GetIsUnknownDiscriminated();
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDiscriminatedAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIsUnknownDiscriminatedAsync and parse the result.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response response = await client.GetIsUnknownDiscriminatedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call GetIsUnknownDiscriminatedAsync with all parameters and parse the result.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response response = await client.GetIsUnknownDiscriminatedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDiscriminated(RequestContext)">
+      <example>
+This sample shows how to call GetIsUnknownDiscriminated and parse the result.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response response = client.GetIsUnknownDiscriminated(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call GetIsUnknownDiscriminated with all parameters and parse the result.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+Response response = client.GetIsUnknownDiscriminated(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IsUnknownAdditionalPropertiesDiscriminated,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+IsUnknownAdditionalPropertiesDiscriminated body = new IsUnknownAdditionalPropertiesDiscriminatedDerived("<name>", 1234);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+IsUnknownAdditionalPropertiesDiscriminated body = new IsUnknownAdditionalPropertiesDiscriminatedDerived("<name>", 1234)
+{
+    Age = 123.45F,
+};
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(IsUnknownAdditionalPropertiesDiscriminated,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+IsUnknownAdditionalPropertiesDiscriminated body = new IsUnknownAdditionalPropertiesDiscriminatedDerived("<name>", 1234);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+IsUnknownAdditionalPropertiesDiscriminated body = new IsUnknownAdditionalPropertiesDiscriminatedDerived("<name>", 1234)
+{
+    Age = 123.45F,
+};
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    name = "<name>",
+    kind = "derived",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    age = 123.45F,
+    name = "<name>",
+    kind = "derived",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    name = "<name>",
+    kind = "derived",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+IsUnknownDiscriminated client = new AdditionalPropertiesClient().GetIsUnknownDiscriminatedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    age = 123.45F,
+    name = "<name>",
+    kind = "derived",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

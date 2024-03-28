@@ -1,0 +1,426 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Url Mutli Collection Format Test Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Get0ItemsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_9
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - !ArraySchema &ref_6
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: ArrayOfGet0ItemsItem
+          description: Array of Get0ItemsItem
+      protocol: !Protocols {}
+    - !ArraySchema &ref_10
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+    - !ArraySchema &ref_12
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_4
+      nullableItems: true
+      language: !Languages 
+        default:
+          name: ArrayOfString
+          description: Array of String
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_5
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: queries
+    operations:
+      - !Operation 
+        operationId: queries_ArrayStringMultiNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+          - !Parameter &ref_8
+            schema: *ref_6
+            implementation: Method
+            extensions:
+              x-nullable: true
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: a null array of string using the multi-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                explode: true
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/multi/string/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_8
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            queries_ArrayStringMultiNull:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ArrayStringMultiNull
+            description: Get a null array of string using the multi-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringMultiEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+          - !Parameter &ref_11
+            schema: *ref_10
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an empty array [] of string using the multi-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                explode: true
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/multi/string/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_11
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameters
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            queries_ArrayStringMultiEmpty:
+              parameters:
+                arrayQuery: ''
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ArrayStringMultiEmpty
+            description: Get an empty array [] of string using the multi-array format
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: queries_ArrayStringMultiValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_5
+          - !Parameter &ref_13
+            schema: *ref_12
+            implementation: Method
+            language: !Languages 
+              default:
+                name: arrayQuery
+                description: an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the mult-array format
+                serializedName: arrayQuery
+            protocol: !Protocols 
+              http: !HttpParameter 
+                explode: true
+                in: query
+                style: form
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /queries/array/multi/string/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_13
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received ?arrayQuery=ArrayQuery1%2cbegin%21%2A%27%28%29%3B%3A%40%20%26%3D%2B%24%2C%2F%3F%23%5B%5Dend%2c%2c
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_9
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            queries_ArrayStringMultiValid:
+              parameters:
+                arrayQuery: ArrayQuery1,begin!*'();:@ &=+$,/?#[]end,,
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: ArrayStringMultiValid
+            description: Get an array of string ['ArrayQuery1', 'begin!*'();:@ &=+$,/?#[]end' , null, ''] using the mult-array format
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Queries
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestUrlMutliCollectionFormatTestService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

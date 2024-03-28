@@ -1,0 +1,214 @@
+!CodeModel 
+info: !Info 
+  title: LlcSubClients
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: CachedParameter
+        description: ''
+        serializedName: cachedParameter
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_2
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Root
+    operations:
+      - !Operation 
+        operationId: Root_GetCachedParameter
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_2
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /root/{cachedParameter}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetCachedParameter
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Root
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Parameter
+    operations:
+      - !Operation 
+        operationId: Parameter_GetSubParameter
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_2
+          - !Parameter &ref_5
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subParameter
+                description: ''
+                serializedName: subParameter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /parameter/{subParameter}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_5
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetSubParameter
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Parameter
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: LlcSubClients
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

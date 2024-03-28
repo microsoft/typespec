@@ -1,0 +1,180 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AdditionalPropertiesClient",
+    "description": "Test Infrastructure for AutoRest",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/ap_operation": {
+      "get": {
+        "operationId": "AP_writeOnly",
+        "description": "Create a Pet which contains more properties than what is defined.",
+        "parameters": [
+          {
+            "name": "createParameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InputAdditionalPropertiesModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Pet which contains more properties than what is defined."
+          },
+          "default": {
+            "description": "Unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "AP_readOnly",
+        "description": "Create a Pet which contains more properties than what is defined.",
+        "responses": {
+          "200": {
+            "description": "A Pet which contains more properties than what is defined.",
+            "schema": {
+              "$ref": "#/definitions/OutputAdditionalPropertiesModel"
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/ap_struct_operation": {
+      "get": {
+        "operationId": "AP_writeOnlyStruct",
+        "description": "Create a Pet which contains more properties than what is defined.",
+        "parameters": [
+          {
+            "name": "createParameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InputAdditionalPropertiesModelStruct"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A Pet which contains more properties than what is defined."
+          },
+          "default": {
+            "description": "Unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "AP_readOnlyStruct",
+        "description": "Create a Pet which contains more properties than what is defined.",
+        "responses": {
+          "200": {
+            "description": "A Pet which contains more properties than what is defined.",
+            "schema": {
+              "$ref": "#/definitions/OutputAdditionalPropertiesModelStruct"
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "InputAdditionalPropertiesModel": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "InputAdditionalPropertiesModelStruct": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "OutputAdditionalPropertiesModel": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "OutputAdditionalPropertiesModelStruct": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>annotations</Nullable>
+    <IncludeManagementSharedCode>true</IncludeManagementSharedCode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\..\..\src\assets\TestFramework\MockTestBase.cs" />
+    <Compile Include="..\..\..\..\src\assets\TestFramework\RecordedTestAttribute.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\MgmtMockAndSample.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="Azure.Identity" />
+  </ItemGroup>
+</Project>

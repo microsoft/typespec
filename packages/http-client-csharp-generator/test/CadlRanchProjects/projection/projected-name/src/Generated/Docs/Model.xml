@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="ClientAsync(ClientModel,CancellationToken)">
+      <example>
+This sample shows how to call ClientAsync.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+ClientModel clientModel = new ClientModel(true);
+Response response = await client.ClientAsync(clientModel);
+]]></code>
+This sample shows how to call ClientAsync with all parameters.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+ClientModel clientModel = new ClientModel(true);
+Response response = await client.ClientAsync(clientModel);
+]]></code></example>
+    </member>
+    <member name="Client(ClientModel,CancellationToken)">
+      <example>
+This sample shows how to call Client.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+ClientModel clientModel = new ClientModel(true);
+Response response = client.Client(clientModel);
+]]></code>
+This sample shows how to call Client with all parameters.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+ClientModel clientModel = new ClientModel(true);
+Response response = client.Client(clientModel);
+]]></code></example>
+    </member>
+    <member name="ClientAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ClientAsync.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.ClientAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ClientAsync with all request content.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.ClientAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Client(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Client.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Client(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Client with all request content.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Client(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="LanguageAsync(CSModel,CancellationToken)">
+      <example>
+This sample shows how to call LanguageAsync.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+CSModel csModel = new CSModel(true);
+Response response = await client.LanguageAsync(csModel);
+]]></code>
+This sample shows how to call LanguageAsync with all parameters.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+CSModel csModel = new CSModel(true);
+Response response = await client.LanguageAsync(csModel);
+]]></code></example>
+    </member>
+    <member name="Language(CSModel,CancellationToken)">
+      <example>
+This sample shows how to call Language.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+CSModel csModel = new CSModel(true);
+Response response = client.Language(csModel);
+]]></code>
+This sample shows how to call Language with all parameters.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+CSModel csModel = new CSModel(true);
+Response response = client.Language(csModel);
+]]></code></example>
+    </member>
+    <member name="LanguageAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call LanguageAsync.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.LanguageAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call LanguageAsync with all request content.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.LanguageAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Language(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Language.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Language(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Language with all request content.
+<code><![CDATA[
+Model client = new ProjectedNameClient().GetModelClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Language(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

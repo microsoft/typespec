@@ -1,0 +1,773 @@
+{
+ "$id": "1",
+ "Name": "Type.Model.Inheritance.EnumDiscriminator",
+ "Description": "Illustrates inheritance with enum discriminator.",
+ "ApiVersions": [],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "DogKind",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "Golden",
+     "Value": "golden",
+     "Description": "Species golden"
+    }
+   ],
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "extensible enum type for discriminator",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  },
+  {
+   "$id": "4",
+   "Kind": "Enum",
+   "Name": "SnakeKind",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "5",
+     "Name": "Cobra",
+     "Value": "cobra",
+     "Description": "Species cobra"
+    }
+   ],
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "fixed enum type for discriminator",
+   "IsExtensible": false,
+   "IsNullable": false,
+   "Usage": "RoundTrip"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "6",
+   "Kind": "Model",
+   "Name": "Dog",
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "Test extensible enum type for discriminator",
+   "IsNullable": false,
+   "DiscriminatorPropertyName": "kind",
+   "Usage": "RoundTrip",
+   "Properties": [
+    {
+     "$id": "7",
+     "Name": "kind",
+     "SerializedName": "kind",
+     "Description": "discriminator property",
+     "Type": {
+      "$ref": "2"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": true
+    },
+    {
+     "$id": "8",
+     "Name": "weight",
+     "SerializedName": "weight",
+     "Description": "Weight of the dog",
+     "Type": {
+      "$id": "9",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "10",
+   "Kind": "Model",
+   "Name": "Snake",
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "Test fixed enum type for discriminator",
+   "IsNullable": false,
+   "DiscriminatorPropertyName": "kind",
+   "Usage": "RoundTrip",
+   "Properties": [
+    {
+     "$id": "11",
+     "Name": "kind",
+     "SerializedName": "kind",
+     "Description": "discriminator property",
+     "Type": {
+      "$ref": "4"
+     },
+     "IsRequired": true,
+     "IsReadOnly": false,
+     "IsDiscriminator": true
+    },
+    {
+     "$id": "12",
+     "Name": "length",
+     "SerializedName": "length",
+     "Description": "Length of the snake",
+     "Type": {
+      "$id": "13",
+      "Kind": "Primitive",
+      "Name": "Int32",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  },
+  {
+   "$id": "14",
+   "Kind": "Model",
+   "Name": "Golden",
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "Golden dog model",
+   "IsNullable": false,
+   "DiscriminatorValue": "golden",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "6"
+   },
+   "Properties": []
+  },
+  {
+   "$id": "15",
+   "Kind": "Model",
+   "Name": "Cobra",
+   "Namespace": "Type.Model.Inheritance.EnumDiscriminator",
+   "Description": "Cobra model",
+   "IsNullable": false,
+   "DiscriminatorValue": "cobra",
+   "Usage": "RoundTrip",
+   "BaseModel": {
+    "$ref": "10"
+   },
+   "Properties": []
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "16",
+   "Name": "EnumDiscriminatorClient",
+   "Description": "Illustrates inheritance with enum discriminator.",
+   "Operations": [
+    {
+     "$id": "17",
+     "Name": "getExtensibleModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Receive model with extensible enum discriminator type.",
+     "Parameters": [
+      {
+       "$id": "18",
+       "Name": "host",
+       "NameInRequest": "host",
+       "Description": "TestServer endpoint",
+       "Type": {
+        "$id": "19",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "20",
+        "Type": {
+         "$id": "21",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "http://localhost:3000"
+       }
+      },
+      {
+       "$id": "22",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "23",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "24",
+        "Type": {
+         "$ref": "23"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "25",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "6"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "26",
+     "Name": "putExtensibleModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Send model with extensible enum discriminator type.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "27",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Description": "Dog to create",
+       "Type": {
+        "$ref": "6"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "28",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "29",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "30",
+        "Type": {
+         "$ref": "29"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "31",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "32",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "33",
+        "Type": {
+         "$ref": "32"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "34",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "35",
+     "Name": "getExtensibleModelMissingDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model omitting the discriminator.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "36",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "37",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "38",
+        "Type": {
+         "$ref": "37"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "39",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "6"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "40",
+     "Name": "getExtensibleModelWrongDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model containing discriminator value never defined.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "41",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "42",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "43",
+        "Type": {
+         "$ref": "42"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "44",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "6"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "45",
+     "Name": "getFixedModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Receive model with fixed enum discriminator type.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "46",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "47",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "48",
+        "Type": {
+         "$ref": "47"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "49",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "50",
+     "Name": "putFixedModel",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Send model with fixed enum discriminator type.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "51",
+       "Name": "input",
+       "NameInRequest": "input",
+       "Description": "Snake to create",
+       "Type": {
+        "$ref": "10"
+       },
+       "Location": "Body",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "52",
+       "Name": "contentType",
+       "NameInRequest": "Content-Type",
+       "Type": {
+        "$id": "53",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": true,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "54",
+        "Type": {
+         "$ref": "53"
+        },
+        "Value": "application/json"
+       }
+      },
+      {
+       "$id": "55",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "56",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "57",
+        "Type": {
+         "$ref": "56"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "58",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "Json",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
+     "RequestMediaTypes": [
+      "application/json"
+     ],
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "59",
+     "Name": "getFixedModelMissingDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model omitting the discriminator.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "60",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "61",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "62",
+        "Type": {
+         "$ref": "61"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "63",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "64",
+     "Name": "getFixedModelWrongDiscriminator",
+     "ResourceName": "EnumDiscriminator",
+     "Description": "Get a model containing discriminator value never defined.",
+     "Parameters": [
+      {
+       "$ref": "18"
+      },
+      {
+       "$id": "65",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "66",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "67",
+        "Type": {
+         "$ref": "66"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "68",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "10"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{host}",
+     "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "69"
+   },
+   "Creatable": true
+  }
+ ]
+}

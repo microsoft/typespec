@@ -1,0 +1,49 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "HeaderCollectionPrefix",
+    "description": "HeaderCollectionPrefix",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/Operation/": {
+      "put": {
+        "operationId": "Operation",
+        "parameters": [
+          {
+            "name": "x-ms-meta",
+            "x-ms-client-name": "metadata",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "x-ms-parameter-location": "method",
+            "description": "Optional. Include this parameter to specify that the queue's metadata be returned as part of the response body. Note that metadata requested with this parameter must be stored in accordance with the naming restrictions imposed by the 2009-09-19 version of the Queue service. Beginning with this version, all metadata names must adhere to the naming conventions for C# identifiers.",
+            "x-ms-header-collection-prefix": "x-ms-meta-"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "x-ms-meta": {
+                "type": "string",
+                "x-ms-client-name": "Metadata",
+                "x-ms-header-collection-prefix": "x-ms-meta-"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

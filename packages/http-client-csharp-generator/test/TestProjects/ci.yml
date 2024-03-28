@@ -1,0 +1,35 @@
+# NOTE: Please refer to https://aka.ms/azsdk/engsys/ci-yaml before editing this file.
+
+trigger:
+  branches:
+    include:
+    - main
+    - hotfix/*
+    - release/*
+  paths:
+    include:
+    - sdk/TestProjects
+    - sdk/TestProjects/ci.yml
+    - sdk/TestProjects/Azure.IoT.DeviceUpdate
+
+pr:
+  branches:
+    include:
+    - main
+    - feature/*
+    - hotfix/*
+    - release/*
+  paths:
+    include:
+    - sdk/TestProjects
+    - sdk/TestProjects/ci.yml
+    - sdk/TestProjects/Azure.IoT.DeviceUpdate
+
+extends:
+  template: /eng/pipelines/templates/stages/archetype-sdk-client.yml
+  parameters:
+    ServiceDirectory: TestProjects
+    ArtifactName: packages
+    Artifacts:
+    - name: Azure.IoT.DeviceUpdate
+      safeName: AzureIoTDeviceUpdate

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetDeploymentAsync(string,string,RequestContext)">
+      <example>
+This sample shows how to call GetDeploymentAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetDeploymentAsync("<projectName>", "<deploymentName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetDeploymentAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+Response response = await client.GetDeploymentAsync("<projectName>", "<deploymentName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDeployment(string,string,RequestContext)">
+      <example>
+This sample shows how to call GetDeployment and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetDeployment("<projectName>", "<deploymentName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetDeployment with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+Response response = client.GetDeployment("<projectName>", "<deploymentName>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDeploymentsAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetDeploymentsAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetDeploymentsAsync("<projectName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetDeploymentsAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+await foreach (BinaryData item in client.GetDeploymentsAsync("<projectName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetDeployments(string,RequestContext)">
+      <example>
+This sample shows how to call GetDeployments and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetDeployments("<projectName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code>
+This sample shows how to call GetDeployments with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Deployments client = new RenameGetListClient(endpoint).GetDeploymentsClient(apiVersion: "2022-05-15-preview");
+
+foreach (BinaryData item in client.GetDeployments("<projectName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

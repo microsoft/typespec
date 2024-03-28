@@ -1,0 +1,276 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Schema mapping",
+    "description": "Schema mapping",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": {
+    "/op": {
+      "put": {
+        "operationId": "mixed",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BaseClass"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/BaseClass"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BaseClass": {
+      "type": "object",
+      "properties": {
+        "BaseClassProperty": { "type": "string" },
+        "DfeString": {
+          "type": "object",
+          "x-ms-format": "dfe-string"
+        },
+        "DfeDouble": {
+          "type": "object",
+          "x-ms-format": "dfe-float"
+        },
+        "DfeBool": {
+          "type": "object",
+          "x-ms-format": "dfe-bool"
+        },
+        "DfeInt": {
+          "type": "object",
+          "x-ms-format": "dfe-int"
+        },
+        "DfeObject": {
+          "type": "object",
+          "x-ms-format": "dfe-object"
+        },
+        "DfeListOfT": {
+          "type": "object",
+          "x-ms-format": "dfe-list-generic",
+          "x-ms-format-element-type": "SeparateClass"
+        },
+        "DfeListOfString": {
+          "type": "object",
+          "x-ms-format": "dfe-list-string"
+        },
+        "DfeKeyValuePairs": {
+          "type": "object",
+          "x-ms-format": "dfe-key-value-pairs"
+        },
+        "DfeDateTime": {
+          "type": "object",
+          "x-ms-format": "dfe-date-time"
+        },
+        "DfeDuration": {
+            "type": "object",
+            "x-ms-format": "dfe-duration"
+        },
+        "DfeUri": {
+            "type": "object",
+            "x-ms-format": "dfe-uri"
+        }
+      }
+    },
+    "BaseClassWithDiscriminator": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClass"
+        }
+      ],
+      "properties": {
+        "DiscriminatorProperty": { "type": "string" }
+      },
+      "discriminator": "DiscriminatorProperty",
+      "required": ["DiscriminatorProperty"]
+    },
+    "SomeProperties": {
+      "type": "object",
+      "properties": {
+        "SomeProperty": { "type": "string" },
+        "SomeOtherProperty": { "type": "string" }
+      }
+    },
+    "ClassThatInheritsFromBaseClassAndSomeProperties": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClass"
+        },
+        {
+          "$ref": "#/definitions/SomeProperties"
+        }
+      ]
+    },
+    "ClassThatInheritsFromBaseClassAndSomePropertiesWithBaseClassOverride": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClass"
+        },
+        {
+          "$ref": "#/definitions/SomeProperties"
+        }
+      ]
+    },
+    "ClassThatInheritsFromBaseClass": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClass"
+        }
+      ]
+    },
+    "ClassThatInheritsFromBaseClassWithDiscriminator": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClassWithDiscriminator"
+        }
+      ]
+    },
+    "ClassThatInheritsFromBaseClassWithDiscriminatorAndSomeProperties": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClassWithDiscriminator"
+        },
+        {
+          "$ref": "#/definitions/SomeProperties"
+        }
+      ]
+    },
+    "ClassThatInheritsFromBaseClassAndRedefinesAProperty": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClass"
+        }
+      ],
+      "properties": {
+        "BaseClassProperty": { "type": "string" }
+      }
+    },
+    "ClassThatAlsoDefinesBaseClassProperty":
+    {
+      "type": "object",
+      "properties": {
+        "BaseClassProperty": { "type": "string" }
+      }
+    },
+    "ClassThatInheritsFromSomePropertiesAndBaseClass": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/SomeProperties"
+        },
+        {
+          "$ref": "#/definitions/BaseClass"
+        }
+      ]
+    },
+    "ClassThatInheritsFromSomePropertiesAndBaseClassAndRedefinesAProperty": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClassThatInheritsFromSomePropertiesAndBaseClass"
+        }
+      ],
+      "properties": {
+        "BaseClassProperty": { "type": "string" }
+      }
+    },
+    "BaseClassWithEnumDiscriminator": {
+      "type": "object",
+      "properties": {
+        "DiscriminatorProperty": {
+          "type": "string",
+          "enum": ["derived", "other"],
+          "x-ms-enum": {
+            "name": "BaseClassWithEnumDiscriminatorEnum",
+            "modelAsString": false
+          }
+        }
+      },
+      "discriminator": "DiscriminatorProperty",
+      "required": ["DiscriminatorProperty"]
+    },
+    "DerivedClassWithEnumDiscriminator": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClassWithEnumDiscriminator"
+        }
+      ],
+      "x-ms-discriminator-value": "derived"
+    },
+    "BaseClassWithExtensibleEnumDiscriminator": {
+      "type": "object",
+      "properties": {
+        "DiscriminatorProperty": {
+          "type": "string",
+          "enum": ["derived", "other"],
+          "x-ms-enum": {
+            "name": "BaseClassWithEntensibleEnumDiscriminatorEnum",
+            "modelAsString": true
+          }
+        }
+      },
+      "discriminator": "DiscriminatorProperty",
+      "required": ["DiscriminatorProperty"]
+    },
+    "DerivedClassWithExtensibleEnumDiscriminator": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClassWithExtensibleEnumDiscriminator"
+        }
+      ],
+      "x-ms-discriminator-value": "derived"
+    },
+    "AnotherDerivedClassWithExtensibleEnumDiscriminator": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseClassWithExtensibleEnumDiscriminator"
+        }
+      ],
+      "x-ms-discriminator-value": "random value"
+    },
+    "SeparateClass": {
+      "type": "object",
+      "properties": {
+        "StringProperty":
+        {
+          "type": "string"
+        },
+        "ModelProperty":
+        {
+          "$ref": "#/definitions/BaseClassWithExtensibleEnumDiscriminator"
+        }
+      }
+    }
+  }
+}

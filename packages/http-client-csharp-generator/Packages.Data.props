@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Dependency versions to mimic azure-sdk-for-net build system. -->
+
+  <!-- Test only dependencies. -->
+  <ItemGroup Condition="'$(IsTestGenerationTestProject)' == 'true' Or '$(IsUnitTestProject)' == 'true'">
+    <PackageReference Update="Moq" Version="[4.18.2]" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(IsTestGenerationTestProject)' == 'true'">
+    <!-- Include the basic related files for the test framework to ensure our generated test code could build here-->
+    <Compile Include="$(FakeAzureCoreTestFrameworkSources)/RecordedTestMode.cs" LinkBase="Shared/TestFramework" />
+    <Compile Include="$(FakeAzureCoreTestFrameworkSources)/RecordedTestBase.cs" LinkBase="Shared/TestFramework" />
+    <Compile Include="$(FakeAzureCoreTestFrameworkSources)/TestEnvironment.cs" LinkBase="Shared/TestFramework" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <PackageReference Update="Azure.Identity" Version="1.10.4" />
+    <PackageReference Update="NUnit3TestAdapter" Version="4.4.2" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+  </ItemGroup>
+
+  <!-- Library only dependencies. -->
+  <ItemGroup Condition="'$(IsTestGenerationSrcProject)' == 'true'">
+    <PackageReference Update="System.Text.Json" Version="4.7.2" />
+  
+    <!-- Include analyzers so that we see issues in this repo before we do a regen preview-->
+    <PackageReference Update="Azure.ClientSdk.Analyzers" Version="0.1.1-dev.20231116.1" PrivateAssets="All" />
+    <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4" PrivateAssets="All" />
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- All csproj dependencies. -->
+  <ItemGroup>
+    <PackageReference Update="NUnit" Version="3.13.2" />
+    <PackageReference Update="System.ClientModel" Version="1.0.0-beta.3" />
+    <PackageReference Update="Azure.Core" Version="1.36.0" />
+    <PackageReference Update="Azure.Core.Experimental" Version="0.1.0-preview.18" />
+    <PackageReference Update="Azure.ResourceManager" Version="1.9.0" />
+    <PackageReference Update="Azure.Core.Expressions.DataFactory" Version="1.0.0-beta.4" />
+    <PackageReference Update="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+    <PackageReference Update="System.Diagnostics.DiagnosticSource" Version="6.0.1" />
+    <PackageReference Update="CommandLineParser" Version="2.9.1" />
+    <PackageReference Update="Humanizer.Core" Version="2.13.14" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.1.0" />
+    <PackageReference Update="System.Text.Json" Version="4.7.2" />
+    <PackageReference Update="YamlDotNet" Version="11.2.1" />
+    <PackageReference Update="System.Memory" Version="4.5.4" />
+    <PackageReference Update="NuGet.Configuration" Version="6.8.0" />
+    <PackageReference Update="Microsoft.Build" Version="16.11.0" />
+  </ItemGroup>
+</Project>

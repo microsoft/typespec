@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="DeleteAsync(string,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-11-30-preview");
+
+Response response = await client.DeleteAsync("<name>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call DeleteAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-11-30-preview");
+
+Response response = await client.DeleteAsync("<name>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete(string,RequestContext)">
+      <example>
+This sample shows how to call Delete.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-11-30-preview");
+
+Response response = client.Delete("<name>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-11-30-preview");
+
+Response response = client.Delete("<name>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ReadAsync(int,RequestContext)">
+      <example>
+This sample shows how to call ReadAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient();
+
+Response response = await client.ReadAsync(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code>
+This sample shows how to call ReadAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient();
+
+Response response = await client.ReadAsync(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("tag").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code></example>
+    </member>
+    <member name="Read(int,RequestContext)">
+      <example>
+This sample shows how to call Read and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient();
+
+Response response = client.Read(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code>
+This sample shows how to call Read with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient();
+
+Response response = client.Read(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("tag").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-07-09");
+
+using RequestContent content = RequestContent.Create(new
+{
+    age = 1234,
+});
+Response response = await client.CreateAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code>
+This sample shows how to call CreateAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-07-09");
+
+using RequestContent content = RequestContent.Create(new
+{
+    tag = "<tag>",
+    age = 1234,
+});
+Response response = await client.CreateAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("tag").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code></example>
+    </member>
+    <member name="Create(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Create and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-07-09");
+
+using RequestContent content = RequestContent.Create(new
+{
+    age = 1234,
+});
+Response response = client.Create(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code>
+This sample shows how to call Create with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Pets client = new MixApiVersionClient(endpoint).GetPetsClient(apiVersion: "2022-07-09");
+
+using RequestContent content = RequestContent.Create(new
+{
+    tag = "<tag>",
+    age = 1234,
+});
+Response response = client.Create(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("tag").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

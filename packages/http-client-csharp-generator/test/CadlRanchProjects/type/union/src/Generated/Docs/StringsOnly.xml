@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetStringsOnlyAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetStringsOnlyAsync.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response<GetResponse> response = await client.GetStringsOnlyAsync();
+]]></code>
+This sample shows how to call GetStringsOnlyAsync with all parameters.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response<GetResponse> response = await client.GetStringsOnlyAsync();
+]]></code></example>
+    </member>
+    <member name="GetStringsOnly(CancellationToken)">
+      <example>
+This sample shows how to call GetStringsOnly.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response<GetResponse> response = client.GetStringsOnly();
+]]></code>
+This sample shows how to call GetStringsOnly with all parameters.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response<GetResponse> response = client.GetStringsOnly();
+]]></code></example>
+    </member>
+    <member name="GetStringsOnlyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringsOnlyAsync and parse the result.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = await client.GetStringsOnlyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetStringsOnlyAsync with all parameters and parse the result.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = await client.GetStringsOnlyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringsOnly(RequestContext)">
+      <example>
+This sample shows how to call GetStringsOnly and parse the result.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = client.GetStringsOnly(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetStringsOnly with all parameters and parse the result.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = client.GetStringsOnly(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="SendAsync(SendRequestProp,CancellationToken)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = await client.SendAsync(SendRequestProp.A);
+]]></code>
+This sample shows how to call SendAsync with all parameters.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = await client.SendAsync(SendRequestProp.A);
+]]></code></example>
+    </member>
+    <member name="Send(SendRequestProp,CancellationToken)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = client.Send(SendRequestProp.A);
+]]></code>
+This sample shows how to call Send with all parameters.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+Response response = client.Send(SendRequestProp.A);
+]]></code></example>
+    </member>
+    <member name="SendAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "a",
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsync with all request content.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "a",
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Send(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "a",
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Send with all request content.
+<code><![CDATA[
+StringsOnly client = new UnionClient().GetStringsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = "a",
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

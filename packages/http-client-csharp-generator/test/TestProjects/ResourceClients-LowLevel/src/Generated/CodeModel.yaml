@@ -1,0 +1,523 @@
+!CodeModel 
+info: !Info 
+  description: >-
+    Based on this swagger, autorest.csharp in data-plane:true mode should generate three clients: top level client `ServiceClient`, `Group` resource client which is subclient of `ServiceClient`, and `Item` resource client which is subclient
+    of `Group`. However, with respect to the partial classes added in `Customizations.cs`, the names of the generated types must be `ResourceServiceClient`, `ResourceGroup` and `Resource`.
+  title: LlcResourceClients
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: ItemsValueItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: ItemsNextLink
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_7
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_3
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-10-19'
+            elementType: *ref_1
+            language: !Languages 
+              default:
+                name: ItemsValue
+                description: Array of ItemsValueItem
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: Items
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_3
+globalParameters:
+  - !Parameter &ref_8
+    schema: *ref_4
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+      x-ms-resource-identifier: true
+    language: !Languages 
+      default:
+        name: GroupId
+        description: Group identifier
+        serializedName: groupId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_9
+    schema: *ref_4
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 1
+      x-ms-resource-identifier: true
+    language: !Languages 
+      default:
+        name: ItemId
+        description: Item identifier
+        serializedName: itemId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_5
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Service
+    operations:
+      - !Operation 
+        operationId: Service_GetParameters
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetParameters
+            description: Method that belongs to the top level service
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Service
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Group
+    operations:
+      - !Operation 
+        operationId: Group_ListGroups
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /groups
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListGroups
+            description: Get all groups. It is defined in `Group` subclient, but must be promoted to the `Service` client.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Group_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+          - *ref_8
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /groups/{groupId}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Get a group. Method should stay in `Group` subclient.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Group
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Item
+    operations:
+      - !Operation 
+        operationId: Item_ListAllItems
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /items
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListAllItems
+            description: Get all items. It is defined in `Item` subclient, but must be promoted to the `Service` client, because it has neither `groupId` nor `itemId` parameters.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Item_ListItems
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+          - *ref_8
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /items/{groupId}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListItems
+            description: Get items in group. It is defined in `Item` subclient, but must be promoted to the `Group` subclient.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Item_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+          - *ref_8
+          - *ref_9
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /items/{groupId}/{itemId}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Get an item. Method should stay in `Item` subclient.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Item
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: LlcResourceClients
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

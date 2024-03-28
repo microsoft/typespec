@@ -1,0 +1,554 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: AutoRest Swagger BAT Form Data Service
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PostContentSchemaFileName
+          description: File name to upload. Name has to be spelled exactly as written here.
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_8
+      type: constant
+      value: !ConstantValue 
+        value: multipart/form-data
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: MultipartFormData
+          description: Content Type 'multipart/form-data'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      value: !ConstantValue 
+        value: application/octet-stream, application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/octet-stream, application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_14
+      type: constant
+      value: !ConstantValue 
+        value: application/octet-stream
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationOctetStream
+          description: Content Type 'application/octet-stream'
+      protocol: !Protocols {}
+  binaries:
+    - !BinarySchema &ref_3
+      type: binary
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: binary
+          description: File to upload.
+      protocol: !Protocols {}
+    - !BinarySchema &ref_15
+      type: binary
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: binary
+          description: ''
+      protocol: !Protocols {}
+    - !BinarySchema &ref_5
+      type: binary
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: binary
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_13
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_3
+          required: true
+          serializedName: fileContent
+          language: !Languages 
+            default:
+              name: fileContent
+              description: File to upload.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          required: true
+          serializedName: fileName
+          language: !Languages 
+            default:
+              name: fileName
+              description: File name to upload. Name has to be spelled exactly as written here.
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Paths1MqqetpFormdataStreamUploadfilePostRequestbodyContentMultipartFormDataSchema
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_6
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_5
+            language: !Languages 
+              default:
+                name: ArrayOfbinary
+                description: Files to upload.
+            protocol: !Protocols {}
+          required: true
+          serializedName: fileContent
+          language: !Languages 
+            default:
+              name: fileContent
+              description: Files to upload.
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Paths1P3Stk3FormdataStreamUploadfilesPostRequestbodyContentMultipartFormDataSchema
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_6
+globalParameters:
+  - !Parameter &ref_7
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: formdata
+    operations:
+      - !Operation 
+        operationId: formdata_UploadFile
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_7
+        requestMediaTypes:
+          multipart/form-data: !Request &ref_12
+            parameters:
+              - !Parameter 
+                schema: *ref_8
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_10
+                schema: *ref_3
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: fileContent
+                    description: File to upload.
+                    serializedName: fileContent
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter &ref_11
+                schema: *ref_4
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: fileName
+                    description: File name to upload. Name has to be spelled exactly as written here.
+                    serializedName: fileName
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_10
+              - *ref_11
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpMultipartRequest 
+                path: /formdata/stream/uploadfile
+                method: post
+                knownMediaType: multipart
+                mediaTypes:
+                  - multipart/form-data
+                multipart: true
+                uri: '{$host}'
+        requests:
+          - *ref_12
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: Serialized file stream
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - application/octet-stream
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: UploadFile
+            description: Upload file
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: formdata_UploadFileViaBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_7
+        requestMediaTypes:
+          application/octet-stream: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_14
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Upload file type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_16
+                schema: *ref_15
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: fileContent
+                    description: File to upload.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: binary
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpBinaryRequest 
+                path: /formdata/stream/uploadfile
+                method: put
+                binary: true
+                knownMediaType: binary
+                mediaTypes:
+                  - application/octet-stream
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: Serialized file stream
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - application/octet-stream
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: UploadFileViaBody
+            description: Upload file
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: formdata_UploadFiles
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_7
+        requestMediaTypes:
+          multipart/form-data: !Request &ref_19
+            parameters:
+              - !Parameter 
+                schema: *ref_8
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_18
+                schema: *ref_6
+                implementation: Method
+                isPartialBody: true
+                required: true
+                language: !Languages 
+                  default:
+                    name: fileContent
+                    description: Files to upload.
+                    serializedName: fileContent
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpMultipartRequest 
+                path: /formdata/stream/uploadfiles
+                method: post
+                knownMediaType: multipart
+                mediaTypes:
+                  - multipart/form-data
+                multipart: true
+                uri: '{$host}'
+        requests:
+          - *ref_19
+        signatureParameters: []
+        responses:
+          - !BinaryResponse 
+            binary: true
+            language: !Languages 
+              default:
+                name: ''
+                description: Serialized file stream
+            protocol: !Protocols 
+              http: !HttpBinaryResponse 
+                knownMediaType: binary
+                mediaTypes:
+                  - application/octet-stream
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: UploadFiles
+            description: Upload multiple files
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Formdata
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATFormDataService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

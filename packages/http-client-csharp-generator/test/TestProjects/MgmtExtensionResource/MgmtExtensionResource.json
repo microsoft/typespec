@@ -1,0 +1,890 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "PolicyClient",
+        "version": "2020-09-01",
+        "description": "To manage and control access to your resources, you can define customized policies and assign them at a scope."
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Network/locations/{location}/CheckDnsNameAvailability": {
+            "get": {
+                "operationId": "CheckDnsNameAvailability",
+                "description": "Checks whether a domain name in the cloudapp.azure.com zone is available for use.",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The location of the domain name."
+                    },
+                    {
+                        "name": "domainNameLabel",
+                        "in": "query",
+                        "required": true,
+                        "type": "string",
+                        "description": "The domain name to be verified. It must conform to the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. Returns whether the DNS name is available.",
+                        "schema": {
+                            "$ref": "#/definitions/DnsNameAvailabilityResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Singleton/subSingletons/default": {
+            "get": {
+                "tags": [
+                    "SubSingletons"
+                ],
+                "operationId": "SubSingletons_Get",
+                "summary": "Singleton that belongs to a subscription.",
+                "description": "Singleton that belongs to a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The singleton object",
+                        "schema": {
+                            "$ref": "#/definitions/SubSingleton"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Singleton/subSingletons/default/execute": {
+            "post": {
+                "tags": [
+                    "SubSingletons"
+                ],
+                "operationId": "SubSingletons_Execute",
+                "summary": "Singleton that belongs to a subscription.",
+                "description": "Singleton that belongs to a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.OrphanedPost/validateSomething": {
+            "post": {
+                "tags": [
+                    "OrphanedPost"
+                ],
+                "operationId": "OrphanedPost_ValidateSomething",
+                "summary": "Validate information for a certificate order.",
+                "description": "Description for Validate information for a certificate order.",
+                "parameters": [
+                    {
+                        "name": "validateSomethingOptions",
+                        "in": "body",
+                        "description": "Information to validate.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ValidateSomethingOptions"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/policyDefinitions/{policyDefinitionName}": {
+            "put": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_CreateOrUpdate",
+                "summary": "Creates or updates a policy definition in a subscription.",
+                "description": "This operation creates or updates a policy definition in the given subscription with the given name.",
+                "x-ms-examples": {
+                    "Create or update a policy definition": {
+                        "$ref": "./examples/createOrUpdatePolicyDefinition.json"
+                    },
+                    "Create or update a policy definition with advanced parameters": {
+                        "$ref": "./examples/createOrUpdatePolicyDefinitionAdvancedParams.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to create."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        },
+                        "description": "The policy definition properties."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created - Returns information about the policy definition.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_Delete",
+                "summary": "Deletes a policy definition in a subscription.",
+                "description": "This operation deletes the policy definition in the given subscription with the given name.",
+                "x-ms-examples": {
+                    "Delete a policy definition": {
+                        "$ref": "./examples/deletePolicyDefinition.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to delete."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "200": {
+                        "description": "OK"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_Get",
+                "summary": "Retrieves a policy definition in a subscription.",
+                "description": "This operation retrieves the policy definition in the given subscription with the given name.",
+                "x-ms-examples": {
+                    "Retrieve a policy definition": {
+                        "$ref": "./examples/getPolicyDefinition.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to get."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns information about the policy definition.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions/{policyDefinitionName}": {
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_GetBuiltIn",
+                "summary": "Retrieves a built-in policy definition.",
+                "description": "This operation retrieves the built-in policy definition with the given name.",
+                "x-ms-examples": {
+                    "Retrieve a built-in policy definition": {
+                        "$ref": "./examples/getBuiltinPolicyDefinition.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the built-in policy definition to get."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns information about the built-in policy definition.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{managementGroupId}/providers/Microsoft.Authorization/policyDefinitions/{policyDefinitionName}": {
+            "put": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_CreateOrUpdateAtManagementGroup",
+                "summary": "Creates or updates a policy definition in a management group.",
+                "description": "This operation creates or updates a policy definition in the given management group with the given name.",
+                "x-ms-examples": {
+                    "Create or update a policy definition at management group level": {
+                        "$ref": "./examples/createOrUpdatePolicyDefinitionAtManagementGroup.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to create."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        },
+                        "description": "The policy definition properties."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ManagementGroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created - Returns information about the policy definition.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_DeleteAtManagementGroup",
+                "summary": "Deletes a policy definition in a management group.",
+                "description": "This operation deletes the policy definition in the given management group with the given name.",
+                "x-ms-examples": {
+                    "Delete a policy definition at management group level": {
+                        "$ref": "./examples/deletePolicyDefinitionAtManagementGroup.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to delete."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ManagementGroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "200": {
+                        "description": "OK"
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_GetAtManagementGroup",
+                "summary": "Retrieve a policy definition in a management group.",
+                "description": "This operation retrieves the policy definition in the given management group with the given name.",
+                "x-ms-examples": {
+                    "Retrieve a policy definition at management group level": {
+                        "$ref": "./examples/getPolicyDefinitionAtManagementGroup.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "policyDefinitionName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the policy definition to get."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ManagementGroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns information about the policy definition.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinition"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/policyDefinitions": {
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_List",
+                "summary": "Retrieves policy definitions in a subscription",
+                "description": "This operation retrieves a list of all the policy definitions in a given subscription that match the optional given $filter. Valid values for $filter are: 'atExactScope()', 'policyType -eq {value}' or 'category eq '{value}''. If $filter is not provided, the unfiltered list includes all policy definitions associated with the subscription, including those that apply directly or from management groups that contain the given subscription. If $filter=atExactScope() is provided, the returned list only includes all policy definitions that at the given subscription. If $filter='policyType -eq {value}' is provided, the returned list only includes all policy definitions whose type match the {value}. Possible policyType values are NotSpecified, BuiltIn, Custom, and Static. If $filter='category -eq {value}' is provided, the returned list only includes all policy definitions whose category match the {value}.",
+                "x-ms-examples": {
+                    "List policy definitions by subscription": {
+                        "$ref": "./examples/listPolicyDefinitions.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/PolicyDefinitionsFilterParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TopParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns an array of policy definitions.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinitionListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Authorization/policyDefinitions": {
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_ListBuiltIn",
+                "summary": "Retrieve built-in policy definitions",
+                "description": "This operation retrieves a list of all the built-in policy definitions that match the optional given $filter. If $filter='policyType -eq {value}' is provided, the returned list only includes all built-in policy definitions whose type match the {value}. Possible policyType values are NotSpecified, BuiltIn, Custom, and Static. If $filter='category -eq {value}' is provided, the returned list only includes all built-in policy definitions whose category match the {value}.",
+                "x-ms-examples": {
+                    "List built-in policy definitions": {
+                        "$ref": "./examples/listBuiltInPolicyDefinitions.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/PolicyDefinitionsFilterParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TopParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns an array of built-in policy definitions.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinitionListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{managementGroupId}/providers/Microsoft.Authorization/policyDefinitions": {
+            "get": {
+                "tags": [
+                    "PolicyDefinitions"
+                ],
+                "operationId": "PolicyDefinitions_ListByManagementGroup",
+                "summary": "Retrieve policy definitions in a management group",
+                "description": "This operation retrieves a list of all the policy definitions in a given management group that match the optional given $filter. Valid values for $filter are: 'atExactScope()', 'policyType -eq {value}' or 'category eq '{value}''. If $filter is not provided, the unfiltered list includes all policy definitions associated with the management group, including those that apply directly or from management groups that contain the given management group. If $filter=atExactScope() is provided, the returned list only includes all policy definitions that at the given management group. If $filter='policyType -eq {value}' is provided, the returned list only includes all policy definitions whose type match the {value}. Possible policyType values are NotSpecified, BuiltIn, Custom, and Static. If $filter='category -eq {value}' is provided, the returned list only includes all policy definitions whose category match the {value}.",
+                "x-ms-examples": {
+                    "List policy definitions by management group": {
+                        "$ref": "./examples/listPolicyDefinitionsByManagementGroup.json"
+                    }
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ManagementGroupIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/PolicyDefinitionsFilterParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TopParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns an array of policy definitions.",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyDefinitionListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CloudError": {
+            "x-ms-external": true,
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/ErrorResponse"
+                }
+            },
+            "description": "An error response from a policy operation."
+        },
+        "ErrorResponse": {
+            "description": "Error response indicates that the service is not able to process the incoming request. The reason is provided in the error message.",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "description": "The details of the error."
+                }
+            }
+        },
+        "PolicyDefinitionProperties": {
+            "properties": {
+                "policyType": {
+                    "type": "string",
+                    "description": "The type of policy definition. Possible values are NotSpecified, BuiltIn, Custom, and Static.",
+                    "enum": [
+                        "NotSpecified",
+                        "BuiltIn",
+                        "Custom",
+                        "Static"
+                    ],
+                    "x-ms-enum": {
+                        "name": "policyType",
+                        "modelAsString": true
+                    }
+                },
+                "mode": {
+                    "type": "string",
+                    "description": "The policy definition mode. Some examples are All, Indexed, Microsoft.KeyVault.Data.",
+                    "default": "Indexed"
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "The display name of the policy definition."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "The policy definition description."
+                },
+                "policyRule": {
+                    "type": "object",
+                    "description": "The policy rule."
+                },
+                "metadata": {
+                    "type": "object",
+                    "description": "The policy definition metadata.  Metadata is an open ended object and is typically a collection of key value pairs."
+                },
+                "parameters": {
+                    "description": "The parameter definitions for parameters used in the policy rule. The keys are the parameter names.",
+                    "$ref": "#/definitions/ParameterDefinitions"
+                }
+            },
+            "description": "The policy definition properties."
+        },
+        "ParameterDefinitionsValue": {
+            "properties": {
+                "type": {
+                    "description": "The data type of the parameter.",
+                    "type": "string",
+                    "enum": [
+                        "String",
+                        "Array",
+                        "Object",
+                        "Boolean",
+                        "Integer",
+                        "Float",
+                        "DateTime"
+                    ],
+                    "x-ms-enum": {
+                        "name": "parameterType",
+                        "modelAsString": true
+                    }
+                },
+                "allowedValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    },
+                    "description": "The allowed values for the parameter."
+                },
+                "defaultValue": {
+                    "type": "object",
+                    "description": "The default value for the parameter if no value is provided."
+                },
+                "metadata": {
+                    "type": "object",
+                    "properties": {
+                        "displayName": {
+                            "type": "string",
+                            "description": "The display name for the parameter."
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "The description of the parameter."
+                        },
+                        "strongType": {
+                            "type": "string",
+                            "description": "Used when assigning the policy definition through the portal. Provides a context aware list of values for the user to choose from."
+                        },
+                        "assignPermissions": {
+                            "type": "boolean",
+                            "description": "Set to true to have Azure portal create role assignments on the resource ID or resource scope value of this parameter during policy assignment. This property is useful in case you wish to assign permissions outside the assignment scope."
+                        }
+                    },
+                    "additionalProperties": {
+                        "type": "object"
+                    },
+                    "description": "General metadata for the parameter."
+                }
+            },
+            "description": "The definition of a parameter that can be provided to the policy."
+        },
+        "ParameterDefinitions": {
+            "description": "The parameter definitions for parameters used in the policy. The keys are the parameter names.",
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/ParameterDefinitionsValue"
+            }
+        },
+        "PolicyDefinition": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/PolicyDefinitionProperties",
+                    "description": "The policy definition properties."
+                },
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The ID of the policy definition."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The name of the policy definition."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The type of the resource (Microsoft.Authorization/policyDefinitions)."
+                }
+            },
+            "description": "The policy definition.",
+            "x-ms-azure-resource": true
+        },
+        "PolicyDefinitionListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PolicyDefinition"
+                    },
+                    "description": "An array of policy definitions."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URL to use for getting the next set of results."
+                }
+            },
+            "description": "List of policy definitions."
+        },
+        "ValidateSomethingOptions": {
+            "properties": {
+                "something": {
+                    "type": "string",
+                    "description": "The something to validate."
+                }
+            },
+            "description": "Validate something options."
+        },
+        "SubSingleton": {
+            "properties": {
+                "something": {
+                    "type": "string",
+                    "description": "The something."
+                },
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The ID of the policy definition."
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The name of the policy definition."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The type of the resource (Microsoft.Authorization/policyDefinitions)."
+                }
+            },
+            "description": "SubSingleton object."
+        },
+        "DnsNameAvailabilityResult": {
+            "properties": {
+                "available": {
+                    "type": "boolean",
+                    "description": "Domain availability (True/False)."
+                }
+            },
+            "description": "Response for the CheckDnsNameAvailability API service call."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the target subscription."
+        },
+        "ManagementGroupIdParameter": {
+            "name": "managementGroupId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the management group.",
+            "x-ms-parameter-location": "method"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "The API version to use for the operation."
+        },
+        "PolicyDefinitionsFilterParameter": {
+            "name": "$filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "The filter to apply on the operation. Valid values for $filter are: 'atExactScope()', 'policyType -eq {value}' or 'category eq '{value}''. If $filter is not provided, no filtering is performed. If $filter=atExactScope() is provided, the returned list only includes all policy definitions that at the given scope. If $filter='policyType -eq {value}' is provided, the returned list only includes all policy definitions whose type match the {value}. Possible policyType values are NotSpecified, BuiltIn, Custom, and Static. If $filter='category -eq {value}' is provided, the returned list only includes all policy definitions whose category match the {value}.",
+            "x-ms-skip-url-encoding": true,
+            "x-ms-parameter-location": "method"
+        },
+        "TopParameter": {
+            "name": "$top",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of records to return. When the $top filter is not provided, it will return 500 records.",
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

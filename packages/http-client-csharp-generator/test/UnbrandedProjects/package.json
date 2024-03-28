@@ -1,0 +1,10 @@
+{
+    "name": "@azure-tools/unbranded-tests",
+    "private": true,
+    "description": "Preserve the dependencies for unbranded tests.",
+    "devDependencies": {
+      "@typespec/openapi": "0.53.0",
+      "@typespec/openapi3": "0.53.0"
+    }
+  }
+  

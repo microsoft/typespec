@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="FourAsync(RequestContext)">
+      <example>
+This sample shows how to call FourAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = await client.FourAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call FourAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = await client.FourAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Four(RequestContext)">
+      <example>
+This sample shows how to call Four and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = client.Four(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Four with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = client.Four(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="FiveAsync(RequestContext)">
+      <example>
+This sample shows how to call FiveAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = await client.FiveAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call FiveAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = await client.FiveAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Five(RequestContext)">
+      <example>
+This sample shows how to call Five and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = client.Five(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Five with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Gamma client = new ClientAndOperationGroupClient(endpoint).GetGammaClient();
+
+Response response = client.Five(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

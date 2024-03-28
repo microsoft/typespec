@@ -1,0 +1,88 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ResourceManagementClient",
+        "version": "2021-04-01",
+        "description": "Provides operations for working with resources and resource groups."
+    },
+    "host": "management.azure.com",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+        {
+            "azure_auth": ["user_impersonation"]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/providers/Microsoft.Resources/calculateTemplateHash": {
+            "post": {
+                "tags": ["Deployments"],
+                "operationId": "Deployments_CalculateTemplateHash",
+                "description": "Calculate the hash of the given template.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "name": "template",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        },
+                        "description": "The template provided to calculate hash."
+                    }
+                ],
+                "x-ms-examples": {
+                    "Calculate template hash": {
+                        "$ref": "./examples/resources/CalculateTemplateHash.json"
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK - Returns the hash.",
+                        "schema": {
+                            "$ref": "#/definitions/TemplateHashResult"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "TemplateHashResult": {
+            "description": "Result of the request to calculate template hash. It contains a string of minified template and its hash.",
+            "properties": {
+                "minifiedTemplate": {
+                    "type": "string",
+                    "description": "The minified template string."
+                },
+                "templateHash": {
+                    "type": "string",
+                    "description": "The template hash."
+                }
+            }
+        }
+    },
+    "parameters": {
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "The API version to use for this operation."
+        }
+    }
+}

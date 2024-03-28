@@ -1,0 +1,134 @@
+!CodeModel 
+info: !Info 
+  description: Model Namespace
+  title: ModelNamespace
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelStatus
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: TestExtensibleEnum
+          description: More Letters
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: TestNonExtensibleEnum
+          description: More Letters
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: Code
+          language: !Languages 
+            default:
+              name: code
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: Status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: TestModel
+          description: .
+          namespace: ''
+      protocol: !Protocols {}
+operationGroups: []
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: ModelNamespace
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

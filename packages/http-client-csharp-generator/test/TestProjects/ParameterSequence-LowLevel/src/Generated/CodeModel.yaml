@@ -1,0 +1,257 @@
+!CodeModel 
+info: !Info 
+  description: Some cool documentation.
+  title: Parameter Sequence
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2014-04-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_3
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_1
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: getItem
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_1
+          - !Parameter &ref_4
+            schema: *ref_2
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: itemName
+                description: item name.
+                serializedName: itemName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_5
+            schema: *ref_2
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: origin
+                description: ''
+                serializedName: origin
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_6
+            schema: *ref_2
+            implementation: Method
+            language: !Languages 
+              default:
+                name: version
+                description: version of the item
+                serializedName: version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_3
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /{itemName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_4
+          - *ref_5
+          - *ref_6
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetItem
+            description: Get item.
+            summary: Get Item
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: selectItem
+        apiVersions:
+          - !ApiVersion 
+            version: 2014-04-01-preview
+        parameters:
+          - *ref_1
+          - !Parameter &ref_7
+            schema: *ref_2
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: itemName
+                description: item name.
+                serializedName: itemName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_8
+            schema: *ref_2
+            implementation: Method
+            language: !Languages 
+              default:
+                name: version
+                description: version of the item
+                serializedName: version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_9
+            schema: *ref_2
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: origin
+                description: ''
+                serializedName: origin
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_3
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /select/{itemName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_7
+          - *ref_8
+          - *ref_9
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: ok
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: SelectItem
+            description: Select item.
+            summary: Select Item
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: ParameterSequence
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

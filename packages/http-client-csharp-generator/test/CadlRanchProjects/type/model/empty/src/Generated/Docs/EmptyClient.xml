@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PutEmptyAsync(EmptyInput,CancellationToken)">
+      <example>
+This sample shows how to call PutEmptyAsync.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInput input = new EmptyInput();
+Response response = await client.PutEmptyAsync(input);
+]]></code>
+This sample shows how to call PutEmptyAsync with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInput input = new EmptyInput();
+Response response = await client.PutEmptyAsync(input);
+]]></code></example>
+    </member>
+    <member name="PutEmpty(EmptyInput,CancellationToken)">
+      <example>
+This sample shows how to call PutEmpty.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInput input = new EmptyInput();
+Response response = client.PutEmpty(input);
+]]></code>
+This sample shows how to call PutEmpty with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInput input = new EmptyInput();
+Response response = client.PutEmpty(input);
+]]></code></example>
+    </member>
+    <member name="PutEmptyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEmptyAsync.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutEmptyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEmptyAsync with all request content.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutEmptyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutEmpty(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEmpty.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutEmpty(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEmpty with all request content.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PutEmpty(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetEmptyAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetEmptyAsync.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response<EmptyOutput> response = await client.GetEmptyAsync();
+]]></code>
+This sample shows how to call GetEmptyAsync with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response<EmptyOutput> response = await client.GetEmptyAsync();
+]]></code></example>
+    </member>
+    <member name="GetEmpty(CancellationToken)">
+      <example>
+This sample shows how to call GetEmpty.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response<EmptyOutput> response = client.GetEmpty();
+]]></code>
+This sample shows how to call GetEmpty with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response<EmptyOutput> response = client.GetEmpty();
+]]></code></example>
+    </member>
+    <member name="GetEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetEmptyAsync and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response response = await client.GetEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response response = await client.GetEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetEmpty and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response response = client.GetEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetEmpty with all parameters and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+Response response = client.GetEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PostRoundTripEmptyAsync(EmptyInputOutput,CancellationToken)">
+      <example>
+This sample shows how to call PostRoundTripEmptyAsync.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInputOutput body = new EmptyInputOutput();
+Response<EmptyInputOutput> response = await client.PostRoundTripEmptyAsync(body);
+]]></code>
+This sample shows how to call PostRoundTripEmptyAsync with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInputOutput body = new EmptyInputOutput();
+Response<EmptyInputOutput> response = await client.PostRoundTripEmptyAsync(body);
+]]></code></example>
+    </member>
+    <member name="PostRoundTripEmpty(EmptyInputOutput,CancellationToken)">
+      <example>
+This sample shows how to call PostRoundTripEmpty.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInputOutput body = new EmptyInputOutput();
+Response<EmptyInputOutput> response = client.PostRoundTripEmpty(body);
+]]></code>
+This sample shows how to call PostRoundTripEmpty with all parameters.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+EmptyInputOutput body = new EmptyInputOutput();
+Response<EmptyInputOutput> response = client.PostRoundTripEmpty(body);
+]]></code></example>
+    </member>
+    <member name="PostRoundTripEmptyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostRoundTripEmptyAsync and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PostRoundTripEmptyAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostRoundTripEmptyAsync with all request content and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PostRoundTripEmptyAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PostRoundTripEmpty(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostRoundTripEmpty and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PostRoundTripEmpty(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PostRoundTripEmpty with all request content and parse the result.
+<code><![CDATA[
+EmptyClient client = new EmptyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.PostRoundTripEmpty(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>
