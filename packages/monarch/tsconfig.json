@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "lib": ["DOM", "ESNext"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
