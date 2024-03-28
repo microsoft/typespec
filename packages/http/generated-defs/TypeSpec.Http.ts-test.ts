@@ -1,6 +1,8 @@
 /** An error here would mean that the decorator is not exported or doesn't have the right name. */
 import {
   $body,
+  $bodyIgnore,
+  $bodyRoot,
   $delete,
   $get,
   $head,
@@ -19,6 +21,8 @@ import {
 } from "@typespec/http";
 import {
   BodyDecorator,
+  BodyIgnoreDecorator,
+  BodyRootDecorator,
   DeleteDecorator,
   GetDecorator,
   HeadDecorator,
@@ -42,6 +46,8 @@ type Decorators = {
   $header: HeaderDecorator;
   $query: QueryDecorator;
   $path: PathDecorator;
+  $bodyRoot: BodyRootDecorator;
+  $bodyIgnore: BodyIgnoreDecorator;
   $get: GetDecorator;
   $put: PutDecorator;
   $post: PostDecorator;
@@ -62,6 +68,8 @@ const _: Decorators = {
   $header,
   $query,
   $path,
+  $bodyRoot,
+  $bodyIgnore,
   $get,
   $put,
   $post,

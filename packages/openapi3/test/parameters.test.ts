@@ -306,6 +306,73 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].post.requestBody, undefined);
   });
 
+  it("using @body ignore any metadata property underneath", async () => {
+    const res = await openApiFor(`@get op read(
+      @body body: {
+        #suppress "@typespec/http/metadata-ignored"
+        @header header: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @query query: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @statusCode code: 201,
+      }
+    ): void;`);
+    expect(res.paths["/"].get.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        header: { type: "string" },
+        query: { type: "string" },
+        code: { type: "number", enum: [201] },
+      },
+      required: ["header", "query", "code"],
+    });
+  });
+
+  describe("request parameters resolving to no property in the body produce no body", () => {
+    it.each(["()", "(@header prop: string)", `(@visibility("none") prop: string)`])(
+      "%s",
+      async (params) => {
+        const res = await openApiFor(`op test${params}: void;`);
+        strictEqual(res.paths["/"].get.requestBody, undefined);
+      }
+    );
+  });
+
+  it("property in body with only metadata properties should still be included", async () => {
+    const res = await openApiFor(`op read(
+        headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+      ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        headers: { type: "object" },
+        name: { type: "string" },
+      },
+      required: ["headers", "name"],
+    });
+  });
+
+  it("property in body with only metadata properties and @bodyIgnore should not be included", async () => {
+    const res = await openApiFor(`op read(
+        @bodyIgnore headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+    ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        name: { type: "string" },
+      },
+      required: ["name"],
+    });
+  });
+
   describe("content type parameter", () => {
     it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
       const res = await openApiFor(

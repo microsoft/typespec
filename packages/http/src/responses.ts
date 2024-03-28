@@ -5,7 +5,6 @@ import {
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
-  isArrayModelType,
   isErrorModel,
   isNullType,
   isVoidType,
@@ -14,19 +13,18 @@ import {
   Operation,
   Program,
   Type,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
+import { resolveBody, ResolvedBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
   getStatusCodesWithDiagnostics,
-  isBody,
   isHeader,
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
+import { gatherMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -88,7 +86,15 @@ function processResponseType(
   responses: ResponseIndex,
   responseType: Type
 ) {
-  const metadata = gatherMetadata(program, diagnostics, responseType, Visibility.Read);
+  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
+  const metadata = gatherMetadata(
+    program,
+    diagnostics,
+    responseType,
+    Visibility.Read,
+    undefined,
+    rootPropertyMap
+  );
 
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
@@ -102,22 +108,27 @@ function processResponseType(
   const headers = getResponseHeaders(program, metadata);
 
   // Get body
-  let bodyType = getResponseBody(program, diagnostics, responseType, metadata);
+  let resolvedBody = diagnostics.pipe(
+    resolveBody(program, responseType, metadata, rootPropertyMap, Visibility.Read, "response")
+  );
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
-    if (bodyType === undefined || isVoidType(bodyType)) {
-      bodyType = undefined;
-      statusCodes.push(204);
-    } else if (isErrorModel(program, responseType)) {
+    if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
+    } else if (isVoidType(responseType)) {
+      resolvedBody = undefined;
+      statusCodes.push(204); // Only special case for 204 is op test(): void;
+    } else if (resolvedBody === undefined || isVoidType(resolvedBody.type)) {
+      resolvedBody = undefined;
+      statusCodes.push(200);
     } else {
       statusCodes.push(200);
     }
   }
 
   // If there is a body but no explicit content types, use application/json
-  if (bodyType && contentTypes.length === 0) {
+  if (resolvedBody && contentTypes.length === 0) {
     contentTypes.push("application/json");
   }
 
@@ -129,12 +140,24 @@ function processResponseType(
       statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
+      description: getResponseDescription(
+        program,
+        operation,
+        responseType,
+        statusCode,
+        resolvedBody
+      ),
       responses: [],
     };
 
-    if (bodyType !== undefined) {
-      response.responses.push({ body: { contentTypes: contentTypes, type: bodyType }, headers });
+    if (resolvedBody !== undefined) {
+      response.responses.push({
+        body: {
+          contentTypes: contentTypes,
+          ...resolvedBody,
+        },
+        headers,
+      });
     } else if (contentTypes.length > 0) {
       diagnostics.add(
         createDiagnostic({
@@ -227,54 +250,12 @@ function getResponseHeaders(
   return responseHeaders;
 }
 
-function getResponseBody(
-  program: Program,
-  diagnostics: DiagnosticCollector,
-  responseType: Type,
-  metadata: Set<ModelProperty>
-): Type | undefined {
-  // non-model or intrinsic/array model -> response body is response type
-  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
-    return responseType;
-  }
-
-  // look for explicit body
-  let bodyProperty: ModelProperty | undefined;
-  for (const property of metadata) {
-    if (isBody(program, property)) {
-      if (bodyProperty) {
-        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: property }));
-      } else {
-        bodyProperty = property;
-      }
-    }
-  }
-  if (bodyProperty) {
-    return bodyProperty.type;
-  }
-
-  // Without an explicit body, response type is response model itself if
-  // there it has at least one non-metadata property, if it is an empty object or if it has derived
-  // models
-  if (responseType.derivedModels.length > 0 || responseType.properties.size === 0) {
-    return responseType;
-  }
-  for (const property of walkPropertiesInherited(responseType)) {
-    if (!isApplicableMetadata(program, property, Visibility.Read)) {
-      return responseType;
-    }
-  }
-
-  // Otherwise, there is no body
-  return undefined;
-}
-
 function getResponseDescription(
   program: Program,
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  bodyType: Type | undefined
+  body: ResolvedBody | undefined
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the
@@ -283,7 +264,7 @@ function getResponseDescription(
   // as the response description. This allows more freedom to change how
   // TypeSpec is expressed in semantically equivalent ways without causing
   // the output to change unnecessarily.
-  if (responseType !== bodyType) {
+  if (body === undefined || body.property) {
     const desc = getDoc(program, responseType);
     if (desc) {
       return desc;

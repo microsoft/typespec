@@ -25,6 +25,8 @@ import {
 import { PlainDataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
 import {
   BodyDecorator,
+  BodyIgnoreDecorator,
+  BodyRootDecorator,
   DeleteDecorator,
   GetDecorator,
   HeadDecorator,
@@ -196,8 +198,27 @@ export const $body: BodyDecorator = (context: DecoratorContext, entity: ModelPro
   context.program.stateSet(HttpStateKeys.body).add(entity);
 };
 
+export const $bodyRoot: BodyRootDecorator = (context: DecoratorContext, entity: ModelProperty) => {
+  context.program.stateSet(HttpStateKeys.bodyRoot).add(entity);
+};
+
+export const $bodyIgnore: BodyIgnoreDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty
+) => {
+  context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
+};
+
 export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.body).has(entity);
+}
+
+export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyRoot).has(entity);
+}
+
+export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
 }
 
 export const $statusCode: StatusCodeDecorator = (

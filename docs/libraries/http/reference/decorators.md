@@ -10,7 +10,10 @@ toc_max_heading_level: 3
 
 ### `@body` {#@TypeSpec.Http.body}
 
-Explicitly specify that this property is to be set as the body
+Explicitly specify that this property type will be exactly the HTTP body.
+
+This means that any properties under `@body` cannot be marked as headers, query parameters, or path parameters.
+If wanting to change the resolution of the body but still mix parameters, use `@bodyRoot`.
 
 ```typespec
 @TypeSpec.Http.body
@@ -30,6 +33,69 @@ None
 op upload(@body image: bytes): void;
 op download(): {
   @body image: bytes;
+};
+```
+
+### `@bodyIgnore` {#@TypeSpec.Http.bodyIgnore}
+
+Specify that this property shouldn't be included in the HTTP body.
+This can be useful when bundling metadata together that would result in an empty property to be included in the body.
+
+```typespec
+@TypeSpec.Http.bodyIgnore
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+op upload(
+  name: string,
+  @bodyIgnore headers: {
+    @header id: string;
+  },
+): void;
+```
+
+### `@bodyRoot` {#@TypeSpec.Http.bodyRoot}
+
+Specify that the body resolution should be resolved from that property.
+By default the body is resolved by including all properties in the operation request/response that are not metadata.
+This allows to nest the body in a property while still allowing to use headers, query parameters, and path parameters in the same model.
+
+```typespec
+@TypeSpec.Http.bodyRoot
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```typespec
+op upload(
+  @bodyRoot user: {
+    name: string;
+    @header id: string;
+  },
+): void;
+op download(): {
+  @bodyRoot user: {
+    name: string;
+    @header id: string;
+  };
 };
 ```
 
