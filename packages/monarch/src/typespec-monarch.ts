@@ -36,7 +36,7 @@ const numericLiteral = `[0-9]+`;
 
 export default {
   defaultToken: "",
-  tokenPostfix: ".bicep",
+  tokenPostfix: ".tsp",
   brackets: [
     { open: "{", close: "}", token: "delimiter.curly" },
     { open: "[", close: "]", token: "delimiter.square" },
