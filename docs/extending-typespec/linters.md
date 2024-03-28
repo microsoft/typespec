@@ -78,8 +78,8 @@ context.reportDiagnostic({
   codefixes: [
     defineCodeFix({
       id: "add-model-suffix",
-      description: "Add 'Model' suffix to model name",
-      apply: (program) => {
+      label: "Add 'Model' suffix to model name",
+      fix: (program) => {
         program.update(model, {
           name: `${model.name}Model`,
         });
