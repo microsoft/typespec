@@ -27,14 +27,13 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "tsc -p . && node ./dist/src/generate-json.js",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi/reference"
   },
   "files": [
     "lib/*.tsp",
