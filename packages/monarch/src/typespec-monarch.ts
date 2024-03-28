@@ -1,6 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 import { languages } from "monaco-editor-core";
 
 const bounded = (text: string) => `\\b${text}\\b`;
@@ -26,7 +23,6 @@ const keywords = [
   "alias",
   "return",
   "void",
-  "never",
   "if",
   "else",
   "projection",
@@ -34,11 +30,8 @@ const keywords = [
   "extern",
   "fn",
 ];
-
-const namedLiterals = ["true", "false", "null"];
-
+const namedLiterals = ["true", "false", "null", "unknown", "never"];
 const nonCommentWs = `[ \\t\\r\\n]`;
-
 const numericLiteral = `[0-9]+`;
 
 export default {
@@ -49,7 +42,7 @@ export default {
     { open: "[", close: "]", token: "delimiter.square" },
     { open: "(", close: ")", token: "delimiter.parenthesis" },
   ],
-  symbols: /[=:;]+/,
+  symbols: /[=:;<>]+/,
   keywords,
   namedLiterals,
   escapes: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|"|\\\${)`,
@@ -85,6 +78,16 @@ export default {
       { regex: `"""`, action: { token: "string.quote", next: "@stringVerbatim" } },
       { regex: `"${notBefore(`""`)}`, action: { token: "string.quote", next: "@stringLiteral" } },
       { regex: numericLiteral, action: { token: "number" } },
+      {
+        regex: identifier,
+        action: {
+          cases: {
+            "@keywords": { token: "keyword" },
+            "@namedLiterals": { token: "keyword" },
+            "@default": { token: "identifier" },
+          },
+        },
+      },
       { regex: `@${identifier}`, action: { token: "tag" } },
       { regex: `#${directive}`, action: { token: "directive" } },
     ],
