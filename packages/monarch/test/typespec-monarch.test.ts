@@ -1,4 +1,4 @@
-import { editor, languages } from "monaco-editor-core";
+import { editor, languages } from "monaco-editor-core/esm/vs/editor/editor.api.js";
 import { beforeAll, it } from "vitest";
 import lang from "../src/typespec-monarch.js";
 
