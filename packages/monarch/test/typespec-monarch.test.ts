@@ -57,8 +57,63 @@ function tokenizeTo(expected: Token[]): TestFunction {
 }
 
 it(
+  `import "@typespec/http";`,
+  tokenizeTo([Token.keyword("import"), Token.stringQuoted("@typespec/http"), Token.default(";")])
+);
+
+it(
+  "using TypeSpec.Http",
+  tokenizeTo([
+    Token.keyword("using"),
+    Token.identifier("TypeSpec"),
+    Token.default("."),
+    Token.identifier("Http"),
+  ])
+);
+it(
+  "namespace Foo {}",
+  tokenizeTo([Token.keyword("namespace"), Token.identifier("Foo"), Token.default("{}")])
+);
+
+it(
+  `namespace Foo {
+    model Bar {}
+  }`,
+  tokenizeTo([
+    Token.keyword("namespace"),
+    Token.identifier("Foo"),
+    Token.default("{"),
+    Token.keyword("model"),
+    Token.identifier("Bar"),
+    Token.default("{}"),
+    Token.default("}"),
+  ])
+);
+
+it(
   "model Foo {}",
   tokenizeTo([Token.keyword("model"), Token.identifier("Foo"), Token.default("{}")])
+);
+
+it(
+  "model Foo is Bar;",
+  tokenizeTo([
+    Token.keyword("model"),
+    Token.identifier("Foo"),
+    Token.keyword("is"),
+    Token.identifier("Bar"),
+    Token.default(";"),
+  ])
+);
+it(
+  "model Foo extends Bar;",
+  tokenizeTo([
+    Token.keyword("model"),
+    Token.identifier("Foo"),
+    Token.keyword("extends"),
+    Token.identifier("Bar"),
+    Token.default(";"),
+  ])
 );
 
 it(
