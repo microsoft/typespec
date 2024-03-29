@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && node ./dist/src/generate-json.js",
+    "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
