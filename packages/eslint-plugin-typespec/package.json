@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typescript-eslint/parser": "^7.4.0",
-    "@typescript-eslint/rule-tester": "~7.2.0",
+    "@typescript-eslint/rule-tester": "~7.4.0",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
@@ -53,6 +53,6 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~7.2.0"
+    "@typescript-eslint/utils": "~7.4.0"
   }
 }
