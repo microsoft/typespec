@@ -1,3 +1,3 @@
 # @typespec/monarch
 
-Provide tokenizer for Monarch for use in monaco-editor.
+Provide tokenizer for Monarch for use in [monaco-editor](https://github.com/microsoft/monaco-editor).
