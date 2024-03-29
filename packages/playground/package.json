@@ -67,8 +67,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.47.0",
-    "@fluentui/react-icons": "^2.0.232",
+    "@fluentui/react-components": "~9.47.2",
+    "@fluentui/react-icons": "^2.0.233",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
@@ -84,12 +84,12 @@
     "monaco-editor": "~0.47.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
-    "swagger-ui-react": "~5.12.0",
+    "swagger-ui-react": "~5.12.3",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
+    "@babel/core": "^7.24.3",
     "@playwright/test": "^1.42.1",
     "@rollup/plugin-commonjs": "~25.0.7",
     "@rollup/plugin-json": "~6.1.0",
@@ -97,8 +97,8 @@
     "@rollup/plugin-typescript": "~11.1.6",
     "@types/debounce": "~1.2.4",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.2.67",
-    "@types/react-dom": "~18.2.22",
+    "@types/react": "~18.2.73",
+    "@types/react-dom": "~18.2.23",
     "@types/swagger-ui": "~3.52.4",
     "@types/swagger-ui-react": "^4.18.3",
     "@typespec/bundler": "workspace:~",
@@ -109,10 +109,10 @@
     "cross-env": "~7.0.3",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "rollup": "~4.13.0",
+    "rollup": "~4.13.2",
     "rollup-plugin-postcss": "~4.0.2",
     "rollup-plugin-visualizer": "~5.12.0",
-    "typescript": "~5.4.2",
-    "vite": "^5.1.6"
+    "typescript": "~5.4.3",
+    "vite": "^5.2.7"
   }
 }

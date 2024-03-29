@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typescript-eslint/parser": "^7.2.0",
+    "@typescript-eslint/parser": "^7.4.0",
     "@typescript-eslint/rule-tester": "~7.2.0",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
@@ -49,7 +49,7 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   },
   "dependencies": {
