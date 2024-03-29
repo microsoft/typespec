@@ -1,4 +1,4 @@
-import { languages } from "monaco-editor-core";
+import type { languages } from "monaco-editor-core";
 
 const bounded = (text: string) => `\\b${text}\\b`;
 const notBefore = (regex: string) => `(?!${regex})`;
@@ -50,7 +50,7 @@ export default {
     root: [{ include: "@expression" }, { include: "@whitespace" }],
     stringVerbatim: [
       { regex: `(|"|"")[^"]`, action: { token: "string" } },
-      { regex: `"""${notBefore(`"`)}`, action: { token: "string.quote", next: "@pop" } },
+      { regex: `"""${notBefore(`"`)}`, action: { token: "string", next: "@pop" } },
     ],
     stringLiteral: [
       { regex: `\\\${`, action: { token: "delimiter.bracket", next: "@bracketCounting" } },
@@ -75,8 +75,8 @@ export default {
       { regex: `\\/\\/.*$`, action: { token: "comment" } },
     ],
     expression: [
-      { regex: `"""`, action: { token: "string.quote", next: "@stringVerbatim" } },
-      { regex: `"${notBefore(`""`)}`, action: { token: "string.quote", next: "@stringLiteral" } },
+      { regex: `"""`, action: { token: "string", next: "@stringVerbatim" } },
+      { regex: `"${notBefore(`""`)}`, action: { token: "string", next: "@stringLiteral" } },
       { regex: numericLiteral, action: { token: "number" } },
       {
         regex: identifier,
