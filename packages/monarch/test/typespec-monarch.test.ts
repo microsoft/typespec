@@ -1,12 +1,30 @@
 import { deepStrictEqual } from "assert";
+import { writeFile } from "fs/promises";
 import type { Token as MonacoToken } from "monaco-editor-core";
 import { editor, languages } from "monaco-editor-core/esm/vs/editor/editor.api.js";
-import { beforeAll, it, type TestFunction } from "vitest";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { afterAll, beforeAll, it, type TestFunction } from "vitest";
 import lang from "../src/typespec-monarch.js";
 
+interface MonacoTestFormat {
+  line: string;
+  tokens: any[];
+}
+
+const lines: MonacoTestFormat[][] = [];
 beforeAll(() => {
+  lines.length = 0;
   languages.register({ id: "typespec" });
   languages.setMonarchTokensProvider("typespec", lang);
+});
+
+afterAll(async () => {
+  // Write the test format expected in monaco-editor repo. You can then copy the content to the test file and update src/basic-languages/typespec/typespec.test.ts
+  await writeFile(
+    resolve(fileURLToPath(import.meta.url), "../../temp/monaco-tests.json"),
+    JSON.stringify(lines, null, 2)
+  );
 });
 
 interface Token {
@@ -46,6 +64,15 @@ function simplifyTokens(text: string, tokens: MonacoToken[][]) {
 
 function tokenize(text: string) {
   const tokensByLine = editor.tokenize(text, "typespec");
+  const textLines = text.split("\n");
+  const group: MonacoTestFormat[] = [];
+  for (const [lineIndex, tokens] of tokensByLine.entries()) {
+    group.push({
+      line: textLines[lineIndex],
+      tokens: tokens.map((x) => ({ startIndex: x.offset, type: x.type })),
+    });
+  }
+  lines.push(group);
   return simplifyTokens(text, tokensByLine);
 }
 
