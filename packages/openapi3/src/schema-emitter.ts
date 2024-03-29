@@ -925,7 +925,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         return { nullable: true };
     }
 
-    throw new Error("Unknown intrinsic type " + name);
+    reportDiagnostic(this.emitter.getProgram(), {
+      code: "invalid-schema",
+      format: { type: name },
+      target: intrinsic,
+    });
+    return {};
   }
 
   programContext(program: Program): Context {

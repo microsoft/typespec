@@ -138,8 +138,8 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "rollup": "~4.13.0",
-    "typescript": "~5.4.2",
+    "rollup": "~4.13.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0",
     "vscode-languageclient": "~9.0.1"
   }
