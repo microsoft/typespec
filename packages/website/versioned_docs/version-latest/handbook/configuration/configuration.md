@@ -425,7 +425,7 @@ You can change the compiler's `output-dir` with `--output-dir` or by setting tha
 To change a specific emitter's output directory, you can set the `emitter-output-dir` option for that emitter:
 
 ```
---option "@typespec/openapi3.output-dir={projectroot}/openapispec"
+--option "@typespec/openapi3.output-dir={project-root}/openapispec"
 
 {project-root}
   openapispec:
