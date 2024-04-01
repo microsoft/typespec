@@ -73,7 +73,6 @@
     "@types/react": "~18.2.73",
     "@types/react-dom": "~18.2.23",
     "@types/swagger-ui": "~3.52.4",
-    "@types/swagger-ui-react": "^4.18.3",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@vitejs/plugin-react": "~4.2.1",
     "@vitest/coverage-v8": "^1.4.0",

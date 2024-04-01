@@ -975,9 +975,6 @@ importers:
       '@types/swagger-ui':
         specifier: ~3.52.4
         version: 3.52.4
-      '@types/swagger-ui-react':
-        specifier: ^4.18.3
-        version: 4.18.3
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
         version: link:../eslint-config-typespec
@@ -8084,12 +8081,6 @@ packages:
 
   /@types/swagger-ui-dist@3.30.4:
     resolution: {integrity: sha512-FeOBc7uj4/lAIh4jkBzorvmNoUU9JgSccyDIRo0E9MJw9KQfSxlwpHCyKGnU9kfV5N5dEdfpY8wm7to3nSwTmA==}
-    dev: true
-
-  /@types/swagger-ui-react@4.18.3:
-    resolution: {integrity: sha512-Mo/R7IjDVwtiFPs84pWvh5pI9iyNGBjmfielxqbOh2Jv+8WVSDVe8Nu25kb5BOuV2xmGS3o33jr6nwDJMBcX+Q==}
-    dependencies:
-      '@types/react': 18.2.73
     dev: true
 
   /@types/swagger-ui@3.52.4:

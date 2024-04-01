@@ -5,7 +5,7 @@ export interface SwaggerUIProps {
   readonly spec: string;
 }
 
-const LazySwaggerUI = lazy(() => import("swagger-ui-react") as any);
+const LazySwaggerUI = lazy(() => import("swagger-ui-dist") as any);
 
 export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   return (
