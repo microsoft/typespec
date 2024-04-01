@@ -66,7 +66,7 @@ export const $extension: ExtensionDecorator = (
   if (diagnostics.length > 0) {
     context.program.reportDiagnostics(diagnostics);
   }
-  // setExtension(context.program, entity, extensionName as ExtensionKey, data);
+  setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
 export function setExtension(
