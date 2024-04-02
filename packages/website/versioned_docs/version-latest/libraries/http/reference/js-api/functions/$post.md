@@ -4,7 +4,7 @@ title: "[F] $post"
 
 ---
 ```ts
-$post(context, entity): void
+$post(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $post(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

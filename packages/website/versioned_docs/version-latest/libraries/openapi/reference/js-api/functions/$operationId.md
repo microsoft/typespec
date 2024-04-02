@@ -6,8 +6,8 @@ title: "[F] $operationId"
 ```ts
 $operationId(
    context, 
-   entity, 
-   opId): void
+   target, 
+   operationId): void
 ```
 
 Set a specific operation ID.
@@ -17,8 +17,8 @@ Set a specific operation ID.
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `context` | `DecoratorContext` | Decorator Context |
-| `entity` | `Operation` | Decorator target |
-| `opId` | `string` | Operation ID. |
+| `target` | `Operation` | - |
+| `operationId` | `string` | - |
 
 ## Returns
 

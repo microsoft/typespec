@@ -6,7 +6,7 @@ title: "[F] $discriminator"
 ```ts
 $discriminator(
    context, 
-   entity, 
+   target, 
    propertyName): void
 ```
 
@@ -15,7 +15,7 @@ $discriminator(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
+| `target` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `propertyName` | `string` |
 
 ## Returns

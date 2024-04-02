@@ -15,7 +15,7 @@ $multipleOf(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Model` |
+| `target` | `Scalar` \| `ModelProperty` |
 | `value` | `number` |
 
 ## Returns

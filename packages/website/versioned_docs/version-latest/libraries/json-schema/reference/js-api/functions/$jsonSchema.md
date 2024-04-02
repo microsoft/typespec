@@ -7,7 +7,7 @@ title: "[F] $jsonSchema"
 $jsonSchema(
    context, 
    target, 
-   baseUriOrId?): void
+   baseUri?): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $jsonSchema(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Namespace` \| [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
-| `baseUriOrId`? | `string` |
+| `target` | `Type` |
+| `baseUri`? | `string` |
 
 ## Returns
 

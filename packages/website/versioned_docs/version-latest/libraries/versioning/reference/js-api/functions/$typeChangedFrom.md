@@ -6,8 +6,8 @@ title: "[F] $typeChangedFrom"
 ```ts
 $typeChangedFrom(
    context, 
-   prop, 
-   v, 
+   target, 
+   version, 
    oldType): void
 ```
 
@@ -16,9 +16,9 @@ $typeChangedFrom(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `prop` | `ModelProperty` |
-| `v` | `EnumMember` |
-| `oldType` | `any` |
+| `target` | `ModelProperty` |
+| `version` | `EnumMember` |
+| `oldType` | `Type` |
 
 ## Returns
 

@@ -15,7 +15,7 @@ setStatusCode(
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `entity` | `Model` \| `ModelProperty` |
+| `entity` | `ModelProperty` \| `Model` |
 | `codes` | `string`[] |
 
 ## Returns

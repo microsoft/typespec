@@ -15,7 +15,7 @@ $maxContains(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Model` \| `ModelProperty` |
+| `target` | `Type` |
 | `value` | `number` |
 
 ## Returns

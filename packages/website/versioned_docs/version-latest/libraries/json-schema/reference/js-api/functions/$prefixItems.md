@@ -15,8 +15,8 @@ $prefixItems(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Model` \| `ModelProperty` |
-| `value` | `Tuple` |
+| `target` | `Type` |
+| `value` | `Type` |
 
 ## Returns
 

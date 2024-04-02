@@ -4,7 +4,7 @@ title: "[F] $head"
 
 ---
 ```ts
-$head(context, entity): void
+$head(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $head(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

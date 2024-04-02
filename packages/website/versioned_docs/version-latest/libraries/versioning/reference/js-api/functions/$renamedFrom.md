@@ -6,8 +6,8 @@ title: "[F] $renamedFrom"
 ```ts
 $renamedFrom(
    context, 
-   t, 
-   v, 
+   target, 
+   version, 
    oldName): void
 ```
 
@@ -16,8 +16,8 @@ $renamedFrom(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `t` |  \| `Model` \| `ModelProperty` \| `Scalar` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` \| `Interface` |
-| `v` | `EnumMember` |
+| `target` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `version` | `EnumMember` |
 | `oldName` | `string` |
 
 ## Returns

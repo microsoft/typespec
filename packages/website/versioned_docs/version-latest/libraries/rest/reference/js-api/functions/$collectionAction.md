@@ -6,7 +6,7 @@ title: "[F] $collectionAction"
 ```ts
 $collectionAction(
    context, 
-   entity, 
+   target, 
    resourceType, 
    name?): void
 ```
@@ -16,7 +16,7 @@ $collectionAction(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 | `resourceType` | `Model` |
 | `name`? | `string` |
 
