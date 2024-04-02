@@ -465,8 +465,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
-    console.log("Variants: ", union.name);
-
     const program = this.emitter.getProgram();
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
@@ -494,7 +492,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
           const enumValue: any[] = [variant.type.value];
-          console.log("JERE", enumValue);
           literalVariantEnumByType[variant.type.kind] = enumValue;
           schemaMembers.push({
             schema: { type: literalType(variant.type), enum: enumValue },
@@ -534,7 +531,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         additionalProps.nullable = true;
       }
 
-      console.log("ASCJH", schema);
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
