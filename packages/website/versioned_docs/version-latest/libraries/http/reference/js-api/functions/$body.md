@@ -4,7 +4,7 @@ title: "[F] $body"
 
 ---
 ```ts
-$body(context, entity): void
+$body(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $body(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` |
+| `target` | `ModelProperty` |
 
 ## Returns
 

@@ -5,7 +5,7 @@ title: "[F] $inspectTypeName"
 ---
 ```ts
 $inspectTypeName(
-   program, 
+   context, 
    target, 
    text): void
 ```
@@ -14,7 +14,7 @@ $inspectTypeName(
 
 | Parameter | Type |
 | :------ | :------ |
-| `program` | [`Program`](../interfaces/Program.md) |
+| `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `text` | `string` |
 

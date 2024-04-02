@@ -4,7 +4,7 @@ title: "[F] $plainData"
 
 ---
 ```ts
-$plainData(context, entity): void
+$plainData(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $plainData(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` |
+| `target` | `Model` |
 
 ## Returns
 

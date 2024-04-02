@@ -6,9 +6,9 @@ title: "[F] $returnTypeChangedFrom"
 ```ts
 $returnTypeChangedFrom(
    context, 
-   op, 
-   v, 
-   oldReturnType): void
+   target, 
+   version, 
+   oldType): void
 ```
 
 ## Parameters
@@ -16,9 +16,9 @@ $returnTypeChangedFrom(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `op` | `Operation` |
-| `v` | `EnumMember` |
-| `oldReturnType` | `any` |
+| `target` | `Operation` |
+| `version` | `EnumMember` |
+| `oldType` | `Type` |
 
 ## Returns
 

@@ -6,7 +6,7 @@ title: "[F] $action"
 ```ts
 $action(
    context, 
-   entity, 
+   target, 
    name?): void
 ```
 
@@ -15,7 +15,7 @@ $action(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 | `name`? | `string` |
 
 ## Returns

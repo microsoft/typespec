@@ -7,8 +7,7 @@ title: "[F] $summary"
 $summary(
    context, 
    target, 
-   text, 
-   sourceObject): void
+   summary): void
 ```
 
 ## Parameters
@@ -17,8 +16,7 @@ $summary(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
-| `text` | `string` |
-| `sourceObject` | [`Type`](../type-aliases/Type.md) |
+| `summary` | `string` |
 
 ## Returns
 

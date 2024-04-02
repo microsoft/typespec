@@ -6,7 +6,7 @@ title: "[F] $path"
 ```ts
 $path(
    context, 
-   entity, 
+   target, 
    paramName?): void
 ```
 
@@ -15,7 +15,7 @@ $path(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` |
+| `target` | `ModelProperty` |
 | `paramName`? | `string` |
 
 ## Returns

@@ -7,7 +7,7 @@ title: "[F] $maxItems"
 $maxItems(
    context, 
    target, 
-   maxItems): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $maxItems(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Model`](../interfaces/Model.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
-| `maxItems` | `number` |
+| `target` | [`Type`](../type-aliases/Type.md) |
+| `value` | `number` |
 
 ## Returns
 

@@ -4,7 +4,7 @@ title: "[F] $get"
 
 ---
 ```ts
-$get(context, entity): void
+$get(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $get(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 
