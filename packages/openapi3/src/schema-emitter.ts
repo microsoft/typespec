@@ -465,13 +465,15 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
+    console.log("Variants: ", union.name);
+
     const program = this.emitter.getProgram();
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return new ObjectBuilder({});
     }
     const variants = Array.from(union.variants.values());
-    const literalVariantEnumByType: Record<string, any> = {};
+    const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
@@ -491,15 +493,15 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = this.emitter.emitTypeReference(variant.type);
-          compilerAssert(
-            enumSchema.kind === "code",
-            "Unexpected enum schema. Should be kind: code"
-          );
-          literalVariantEnumByType[variant.type.kind] = enumSchema.value;
-          schemaMembers.push({ schema: enumSchema.value, type: null });
+          const enumValue: any[] = [variant.type.value];
+          console.log("JERE", enumValue);
+          literalVariantEnumByType[variant.type.kind] = enumValue;
+          schemaMembers.push({
+            schema: { type: literalType(variant.type), enum: enumValue },
+            type: null,
+          });
         } else {
-          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
+          literalVariantEnumByType[variant.type.kind].push(variant.type.value);
         }
       } else {
         const enumSchema = this.emitter.emitTypeReference(variant.type, {
@@ -532,6 +534,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         additionalProps.nullable = true;
       }
 
+      console.log("ASCJH", schema);
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
@@ -941,6 +944,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
 function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
   return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
+}
+
+function literalType(type: StringLiteral | NumericLiteral | BooleanLiteral) {
+  switch (type.kind) {
+    case "String":
+      return "string";
+    case "Number":
+      return "number";
+    case "Boolean":
+      return "boolean";
+  }
 }
 
 function includeDerivedModel(model: Model): boolean {
