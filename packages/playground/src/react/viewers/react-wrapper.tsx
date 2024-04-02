@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
-import { SwaggerUIBundle } from "swagger-ui-dist";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle.js";
 
 export default (props: { spec: string }) => {
   const uiRef = useRef(null);
