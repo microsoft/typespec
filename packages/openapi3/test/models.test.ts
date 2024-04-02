@@ -549,6 +549,7 @@ describe("openapi3: models", () => {
         Dog, Cat
       }
 
+      #suppress "deprecated" "For testing"
       @knownValues(KnownPetType)
       scalar PetType extends string;
       model Pet { type: PetType };
