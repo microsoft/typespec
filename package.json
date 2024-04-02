@@ -35,12 +35,12 @@
     "@chronus/github": "^0.2.2",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
-    "cspell": "^8.6.0",
+    "cspell": "^8.6.1",
     "prettier": "~3.2.5",
     "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.5",
     "syncpack": "^12.3.0",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   },
   "syncpack": {
