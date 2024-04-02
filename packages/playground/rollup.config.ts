@@ -12,6 +12,7 @@ const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json")).
 const dependencies = Object.keys(packageJson.dependencies);
 const external = [
   ...dependencies,
+  "swagger-ui-dist/swagger-ui-es-bundle.js",
   "swagger-ui-dist/swagger-ui.css",
   "@typespec/bundler/vite",
   "react-dom/client",
