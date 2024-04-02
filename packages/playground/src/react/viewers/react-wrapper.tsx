@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+// File exists but not describe in the @types package
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle.js";
