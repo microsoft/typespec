@@ -69,15 +69,11 @@ export const LightTheme: PrismTheme = {
     },
     {
       types: ["deleted"],
-      style: {
-        textDecorationLine: "line-through",
-      },
+      style: {},
     },
     {
       types: ["inserted"],
-      style: {
-        textDecorationLine: "underline",
-      },
+      style: {},
     },
     {
       types: ["italic"],
