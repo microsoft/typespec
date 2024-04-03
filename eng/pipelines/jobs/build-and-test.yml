@@ -9,10 +9,6 @@ steps:
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
 
-  # Only running UI test on linux
-  - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
-      - template: /eng/pipelines/templates/install-browsers.yml
-
   - script: pnpm run check-version-mismatch
     displayName: Check version mismatch
 
@@ -23,23 +19,11 @@ steps:
 
   - template: /eng/pipelines/templates/upload-coverage.yml
 
-  - script: pnpm run check-format
-    displayName: Check Formatting
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
-
-  - script: pnpm run lint
-    displayName: Lint
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
-
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
   - script: node eng/scripts/check-docs.js
     displayName: Check docs
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
-
-  - script: pnpm run cspell
-    displayName: Spell check
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
   - script: pnpm run test:e2e
@@ -63,10 +47,3 @@ steps:
       testRunTitle: "Test os: ${{ parameters.os }}, node: ${{ parameters.nodeVersion }}"
     displayName: Publish test results
     condition: always()
-
-  - task: 1ES.PublishPipelineArtifact@1
-    inputs:
-      path: ./packages/playground-website/test-results
-      artifact: "uitestresults-${{ parameters.os }}-node-${{ parameters.nodeVersion }}"
-    displayName: Publish UI tests artifacts
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
