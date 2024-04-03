@@ -1,4 +1,4 @@
 packages:
-  - packages/*
-  - e2e
-  - !packages/http-client-csharp/*
+  - 'packages/*'
+  - 'e2e'
+  - '!packages/http-client-csharp/*'
