@@ -34,7 +34,6 @@
         "dist/src/**"
     ],
     "dependencies": {
-        "@autorest/csharp": "3.0.0-beta.20230309.1",
         "json-serialize-refs": "0.1.0-0",
         "winston": "^3.8.2"
     },
