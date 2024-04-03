@@ -41,7 +41,7 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi3/reference"

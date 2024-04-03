@@ -32,7 +32,7 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
