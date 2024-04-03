@@ -1,3 +1,6 @@
 packages:
   - packages/*
   - e2e
+
+ignoredPackages:
+  - packages/http-client-csharp
