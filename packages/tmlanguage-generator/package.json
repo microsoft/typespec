@@ -1,6 +1,6 @@
 {
   "name": "tmlanguage-generator",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/microsoft/typespec/tree/main/packages/tmlanguage-generator",
@@ -42,6 +42,6 @@
     "@typespec/eslint-config-typespec": "workspace:~",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2"
+    "typescript": "~5.4.3"
   }
 }

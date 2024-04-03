@@ -17,9 +17,9 @@ Assert that the input type has one of the kinds provided
 | Type parameter |
 | :------ |
 | `TKind` extends (
-  \| `"Model"`
-  \| `"ModelProperty"`
   \| `"Scalar"`
+  \| `"ModelProperty"`
+  \| `"Model"`
   \| `"Interface"`
   \| `"Enum"`
   \| `"EnumMember"`

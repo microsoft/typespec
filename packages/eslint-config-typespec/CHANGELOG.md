@@ -1,5 +1,16 @@
 # Change Log - @typespec/eslint-config-typespec
 
+## 0.55.0
+
+### Bug Fixes
+
+- [#2122](https://github.com/microsoft/typespec/pull/2122) Ignore `generated-defs` folder
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
 ## 0.54.0
 
 ### Bug Fixes

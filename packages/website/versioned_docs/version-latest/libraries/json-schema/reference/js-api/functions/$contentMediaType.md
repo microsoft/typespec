@@ -15,7 +15,7 @@ $contentMediaType(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `StringLiteral` \| `ModelProperty` |
+| `target` | `Scalar` \| `ModelProperty` |
 | `value` | `string` |
 
 ## Returns

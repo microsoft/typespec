@@ -1,6 +1,6 @@
 {
   "name": "@typespec/eslint-plugin",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
   "homepage": "https://typespec.io",
@@ -41,18 +41,18 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typescript-eslint/parser": "^7.2.0",
-    "@typescript-eslint/rule-tester": "~7.2.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "@typescript-eslint/rule-tester": "~7.4.0",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~7.2.0"
+    "@typescript-eslint/utils": "~7.4.0"
   }
 }

@@ -6,7 +6,7 @@ title: "[F] $resource"
 ```ts
 $resource(
    context, 
-   entity, 
+   target, 
    collectionName): void
 ```
 
@@ -23,7 +23,7 @@ name of `widgets`.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` |
+| `target` | `Model` |
 | `collectionName` | `string` |
 
 ## Returns

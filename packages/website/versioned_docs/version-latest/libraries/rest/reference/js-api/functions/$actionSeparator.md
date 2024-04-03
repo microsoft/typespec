@@ -20,7 +20,7 @@ $actionSeparator(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` \| `ModelProperty` \| `Operation` |
+| `entity` | `ModelProperty` \| `Model` \| `Operation` |
 | `separator` | `"/"` \| `":"` \| `"/:"` |
 
 ## Returns

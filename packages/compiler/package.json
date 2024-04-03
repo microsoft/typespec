@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -82,7 +82,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.23.5",
+    "@babel/code-frame": "~7.24.2",
     "ajv": "~8.12.0",
     "change-case": "~5.4.3",
     "globby": "~14.0.1",
@@ -116,7 +116,7 @@
     "source-map-support": "~0.5.21",
     "tmlanguage-generator": "workspace:~",
     "ts-node": "~10.9.2",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.0.0"

@@ -6,8 +6,8 @@ title: "[F] $segmentOf"
 ```ts
 $segmentOf(
    context, 
-   entity, 
-   resourceType): void
+   target, 
+   type): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $segmentOf(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
-| `resourceType` | `Model` |
+| `target` | `Operation` |
+| `type` | `Model` |
 
 ## Returns
 

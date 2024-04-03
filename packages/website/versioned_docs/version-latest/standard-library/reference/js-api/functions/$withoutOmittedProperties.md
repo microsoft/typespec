@@ -7,7 +7,7 @@ title: "[F] $withoutOmittedProperties"
 $withoutOmittedProperties(
    context, 
    target, 
-   omitProperties): void
+   omit): void
 ```
 
 ## Parameters
@@ -16,7 +16,7 @@ $withoutOmittedProperties(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
-| `omitProperties` | [`StringLiteral`](../interfaces/StringLiteral.md) \| [`Union`](../interfaces/Union.md) |
+| `omit` | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 

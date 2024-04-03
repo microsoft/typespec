@@ -16,7 +16,7 @@ $useAuth(
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Interface` \| `Namespace` \| `Operation` |
-| `authConfig` | `Model` \| `Tuple` \| `Union` |
+| `authConfig` | `Type` |
 
 ## Returns
 

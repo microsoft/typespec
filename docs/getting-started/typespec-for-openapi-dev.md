@@ -228,7 +228,7 @@ The fields in an OpenAPI operation object are specified with the following TypeS
 | `callbacks`               |                                            | Not currently supported.                             |
 | `deprecated`              | `@deprecated` decorator                    |                                                      |
 | `security`                |                                            | Not currently supported.                             |
-| `servers`                 |                                            | Not currently supported.                             |
+| `servers`                 | `@server` decorator                        | Can be specified multiple times.                     |
 
 ### Tags
 

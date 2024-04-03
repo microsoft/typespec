@@ -16,7 +16,7 @@ $list(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
-| `listedType`? | [`Type`](../type-aliases/Type.md) |
+| `listedType`? | [`Model`](../interfaces/Model.md) |
 
 ## Returns
 

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
@@ -76,7 +76,7 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   }
 }

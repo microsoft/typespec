@@ -6,7 +6,7 @@ title: "[F] $readsResource"
 ```ts
 $readsResource(
    context, 
-   entity, 
+   target, 
    resourceType): void
 ```
 
@@ -15,7 +15,7 @@ $readsResource(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 | `resourceType` | `Model` |
 
 ## Returns

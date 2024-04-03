@@ -137,6 +137,10 @@ export function createProjectionMembers(checker: Checker): {
         });
       },
     },
+    Scalar: {
+      ...createBaseMembers(),
+      ...createNameableMembers(),
+    },
     Union: {
       ...createBaseMembers(),
       ...createNameableMembers(),

@@ -15,7 +15,7 @@ $contains(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Model` \| `ModelProperty` |
+| `target` | `Type` |
 | `value` | `Type` |
 
 ## Returns
