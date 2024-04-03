@@ -1,11 +1,12 @@
 import { FunctionComponent, Suspense, lazy } from "react";
+import "swagger-ui-dist/swagger-ui.css";
 import style from "./swagger-ui.module.css";
 
 export interface SwaggerUIProps {
   readonly spec: string;
 }
 
-const LazySwaggerUI = lazy(() => import("swagger-ui-react") as any);
+const LazySwaggerUI = lazy(() => import("./react-wrapper.js"));
 
 export const SwaggerUI: FunctionComponent<SwaggerUIProps> = (props) => {
   return (

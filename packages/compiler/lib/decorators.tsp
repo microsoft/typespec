@@ -321,6 +321,7 @@ extern dec friendlyName(target: unknown, name: valueof string, formatArgs?: unkn
  * }
  * ```
  */
+#deprecated "This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator."
 extern dec knownValues(target: string | numeric | ModelProperty, values: Enum);
 
 /**
@@ -366,6 +367,7 @@ extern dec overload(target: Operation, overloadbase: Operation);
  * }
  * ```
  */
+#deprecated "Use `@encodedName` instead for changing the name over the wire."
 extern dec projectedName(
   target: unknown,
   targetName: valueof string,

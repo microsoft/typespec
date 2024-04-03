@@ -39,6 +39,59 @@ describe("typespec-autorest: multipart", () => {
     });
   });
 
+  it("part of type union `bytes | {content: bytes}` produce `type: string, format: binary`", async () => {
+    const res = await openApiFor(
+      `
+      op upload(@header contentType: "multipart/form-data", profileImage: bytes | {content: bytes}): void;
+      `
+    );
+    const op = res.paths["/"].post;
+    deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+      schema: {
+        type: "object",
+        properties: {
+          profileImage: {
+            anyOf: [
+              {
+                type: "string",
+                format: "binary",
+              },
+              {
+                type: "object",
+                properties: {
+                  content: { type: "string", format: "byte" },
+                },
+                required: ["content"],
+              },
+            ],
+          },
+        },
+        required: ["profileImage"],
+      },
+    });
+  });
+
+  it("part of union type doesn't conflict if used in json as well`", async () => {
+    const res = await openApiFor(
+      `
+      union  MyUnion {string, int32}
+      op upload(@header contentType: "multipart/form-data", profileImage: MyUnion): void;
+      `
+    );
+    const op = res.paths["/"].post;
+    deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+      schema: {
+        type: "object",
+        properties: {
+          profileImage: {
+            $ref: "#/components/schemas/MyUnion",
+          },
+        },
+        required: ["profileImage"],
+      },
+    });
+  });
+
   it("part of type `bytes[]` produce `type: array, items: {type: string, format: binary}`", async () => {
     const res = await openApiFor(
       `

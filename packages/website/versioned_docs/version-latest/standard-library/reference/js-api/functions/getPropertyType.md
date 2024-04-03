@@ -13,7 +13,7 @@ Return the type of the property or the model itself.
 
 | Parameter | Type |
 | :------ | :------ |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
 
 ## Returns
 

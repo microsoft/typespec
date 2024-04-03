@@ -4,7 +4,7 @@ title: "[F] $autoRoute"
 
 ---
 ```ts
-$autoRoute(context, entity): void
+$autoRoute(context, target): void
 ```
 
 `@autoRoute` enables automatic route generation for an operation or interface.
@@ -18,7 +18,7 @@ auto-generated routes.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Interface` \| `Operation` |
+| `target` | `Interface` \| `Operation` |
 
 ## Returns
 

@@ -12,7 +12,7 @@ $withUpdateableProperties(context, target): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Type`](../type-aliases/Type.md) |
+| `target` | [`Model`](../interfaces/Model.md) |
 
 ## Returns
 

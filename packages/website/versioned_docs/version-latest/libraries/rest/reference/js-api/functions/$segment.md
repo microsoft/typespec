@@ -22,7 +22,7 @@ path parameter's name field.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` \| `ModelProperty` \| `Operation` |
+| `entity` | `ModelProperty` \| `Model` \| `Operation` |
 | `name` | `string` |
 
 ## Returns

@@ -7,7 +7,7 @@ title: "[F] $returnsDoc"
 $returnsDoc(
    context, 
    target, 
-   text): void
+   doc): void
 ```
 
 ## Parameters
@@ -16,7 +16,7 @@ $returnsDoc(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
-| `text` | `string` |
+| `doc` | `string` |
 
 ## Returns
 

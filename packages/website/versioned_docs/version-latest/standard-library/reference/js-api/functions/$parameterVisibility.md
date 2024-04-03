@@ -6,7 +6,7 @@ title: "[F] $parameterVisibility"
 ```ts
 $parameterVisibility(
    context, 
-   entity, ...
+   target, ...
    visibilities): void
 ```
 
@@ -15,7 +15,7 @@ $parameterVisibility(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`Operation`](../interfaces/Operation.md) |
+| `target` | [`Operation`](../interfaces/Operation.md) |
 | ...`visibilities` | `string`[] |
 
 ## Returns

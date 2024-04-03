@@ -6,8 +6,8 @@ title: "[F] $info"
 ```ts
 $info(
    context, 
-   entity, 
-   model): void
+   target, 
+   additionalInfo): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $info(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Namespace` |
-| `model` | `Model` |
+| `target` | `Namespace` |
+| `additionalInfo` | `Type` |
 
 ## Returns
 

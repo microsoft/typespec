@@ -1,5 +1,44 @@
 # Change Log - @typespec/compiler
 
+## 0.55.0
+
+### Bug Fixes
+
+- [#3018](https://github.com/microsoft/typespec/pull/3018) Grammar: Fix comments in template params not tokenized
+- [#3052](https://github.com/microsoft/typespec/pull/3052) Fix: Union template declaration were incorrectly being finished in projection
+- [#2983](https://github.com/microsoft/typespec/pull/2983) Warnings converted to error with `warn-as-error` do not prevent compilation from moving to the next stage like regular warnings
+- [#3041](https://github.com/microsoft/typespec/pull/3041) Improve relability of application of codefixes in IDE, often it would not do anything
+- [#3069](https://github.com/microsoft/typespec/pull/3069) TmLanguage: Fix tokenization of escaped identifiers, enums and unions
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+### Features
+
+- [#2992](https://github.com/microsoft/typespec/pull/2992) Enable the use of `@encode` for model properties that have a union type. This supports cases like `@encode("rfc3339") prop: utcDateTime | null`
+- [#3053](https://github.com/microsoft/typespec/pull/3053) Experimental projection: Add support for scalars
+
+### Deprecations
+
+- [#3094](https://github.com/microsoft/typespec/pull/3094) Deprecate `@knownValues` decorator. Use a named union of string literal with a string variant to achieve the same result without a decorator
+
+Example:
+```diff
+-enum FooKV { a, b, c}
+-@knownValues(FooKV)
+-scalar foo extends string;
++union Foo { "a", "b", "c", string }
+```
+- [#2910](https://github.com/microsoft/typespec/pull/2910) Deprecate `@projectedName` decorator. `@encodedName` should be used instead.
+
+Example:
+```diff
+-@projectedName("json", "exp")
++@encodedName("application/json", "exp")
+```
+
+
 ## 0.54.0
 
 ### Bug Fixes
@@ -481,7 +520,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
 - Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
-- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
+- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parameter.
 - Fix typing and export format command
 - **Api Breaking** Multiple `@service` per specs are now allowed.
 - Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name

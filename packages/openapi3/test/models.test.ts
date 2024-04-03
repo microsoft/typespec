@@ -26,6 +26,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "xJson")
         x: int32;
       };`
@@ -60,6 +61,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
+        #suppress "deprecated" "for testing"
         @encodedName("application/json", "xJson")
         @projectedName("json", "projectedJson")
         x: int32;
@@ -547,6 +549,7 @@ describe("openapi3: models", () => {
         Dog, Cat
       }
 
+      #suppress "deprecated" "For testing"
       @knownValues(KnownPetType)
       scalar PetType extends string;
       model Pet { type: PetType };

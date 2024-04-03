@@ -26,7 +26,12 @@ export const SamplesDropdown: FunctionComponent<SamplesDropdownProps> = ({
     [onSelectedSampleNameChange]
   );
   return (
-    <Select className="sample-dropdown" onChange={handleSelected} value={selectedSampleName ?? ""}>
+    <Select
+      className="sample-dropdown"
+      onChange={handleSelected}
+      value={selectedSampleName ?? ""}
+      aria-label="Select a sample"
+    >
       <option value="" disabled>
         Select sample...
       </option>

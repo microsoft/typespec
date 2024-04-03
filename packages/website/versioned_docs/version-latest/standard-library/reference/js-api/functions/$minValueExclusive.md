@@ -7,7 +7,7 @@ title: "[F] $minValueExclusive"
 $minValueExclusive(
    context, 
    target, 
-   minValueExclusive): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $minValueExclusive(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `minValueExclusive` | `number` |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `value` | `number` |
 
 ## Returns
 

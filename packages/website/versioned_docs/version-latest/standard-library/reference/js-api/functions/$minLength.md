@@ -7,7 +7,7 @@ title: "[F] $minLength"
 $minLength(
    context, 
    target, 
-   minLength): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $minLength(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `minLength` | `number` |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `value` | `number` |
 
 ## Returns
 

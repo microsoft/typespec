@@ -1,6 +1,6 @@
 {
   "name": "@typespec/protobuf",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library and emitter for Protobuf (gRPC)",
   "homepage": "https://github.com/microsoft/typespec",
@@ -19,12 +19,17 @@
     "grpc"
   ],
   "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
   "type": "module",
   "tspMain": "lib/proto.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
+    "build": "npm run gen-extern-signature && tsc -p .",
     "watch": "tsc -p . --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
@@ -41,13 +46,13 @@
     "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/eslint-plugin": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "micromatch": "^4.0.5",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.3",
+    "vitest": "^1.4.0"
   }
 }

@@ -1,5 +1,20 @@
 # Change Log - @typespec/openapi3
 
+## 0.55.0
+
+### Bug Fixes
+
+- [#3077](https://github.com/microsoft/typespec/pull/3077) Do not crash if using an unsupported intrinsic type
+- [#2967](https://github.com/microsoft/typespec/pull/2967) Fix crash: emit `{nullable: true}` when trying to emit `null` in openapi3
+- [#3013](https://github.com/microsoft/typespec/pull/3013) Fix: OpenAPI3 not marking part of bytes or something else as `format: binary`
+- [#3090](https://github.com/microsoft/typespec/pull/3090) Fix: Literal unions with the same variants keep adding duplicate entries
+- [#3049](https://github.com/microsoft/typespec/pull/3049) Fix visibility naming conflict when a model used with `extends` was used in different visibility.
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
 ## 0.54.0
 
 ### Bump dependencies
