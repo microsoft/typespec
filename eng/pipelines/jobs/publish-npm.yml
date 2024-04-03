@@ -33,13 +33,13 @@ jobs:
         env:
           NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
-      - ${{ if eq(parameters.publishGithubRelease, true) }}
-        - script: |
-            echo "Publish summary:"
-            cat ./publish-summary.json
-          displayName: Log publish summary
+      - ${{ if eq(parameters.publishGithubRelease, true) }}:
+          - script: |
+              echo "Publish summary:"
+              cat ./publish-summary.json
+            displayName: Log publish summary
 
-        - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
-          displayName: Create github releases
-          env:
-            GITHUB_TOKEN: $(azuresdk-github-pat)
+          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+            displayName: Create github releases
+            env:
+              GITHUB_TOKEN: $(azuresdk-github-pat)
