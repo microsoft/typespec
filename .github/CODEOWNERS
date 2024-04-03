@@ -1,1 +1,8 @@
-* @bterlson @markcowl @allenjzhang @timotheeguerin
+######################
+# CSharp
+######################
+/packages/http-client-csharp                @m-nash @lirenhe @ArthurMa1978
+/packages/http-client-csharp-generator      @m-nash @lirenhe @ArthurMa1978
+
+# Catch all
+*                                           @bterlson @markcowl @allenjzhang @timotheeguerin
