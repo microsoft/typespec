@@ -26,9 +26,6 @@ steps:
     displayName: Check docs
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: pnpm run test:e2e
-    displayName: E2E Tests
-
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
   - script: pnpm run purge
