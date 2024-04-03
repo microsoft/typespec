@@ -4,6 +4,8 @@ trigger:
   - main
   # For patch releases
   - release/*
+  # TODO: remove before merging
+  - publish-improvements
 
 pr: none
 
@@ -38,27 +40,8 @@ extends:
 
               - template: /eng/pipelines/templates/upload-coverage.yml
 
-              - script: pnpm run pack:all
+              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
                 displayName: Pack packages
-
-              - pwsh: |
-                  echo "Updating config"
-                  pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-                  echo "Publishing"
-                  pnpm chronus publish  "./temp/artifacts/*.tgz" --access public  --engine npm --report-summary ./publish-summary.json
-                name: Publish
-                env:
-                  NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
-
-              - script: |
-                  echo "Publish summary:"
-                  cat ./publish-summary.json
-                displayName: Log publish summary
-
-              - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
-                displayName: Create github releases
-                env:
-                  GITHUB_TOKEN: $(azuresdk-github-pat)
 
               - task: CopyFiles@2
                 inputs:
@@ -78,6 +61,23 @@ extends:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
                   inlineScript: node ./eng/scripts/upload-bundler-packages.js
+                            - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+                displayName: Bump version to prerelease targets
+
+              - script: npm run gen-manifest
+                displayName: Regen manifest for compiler
+                workingDirectory: ./packages/compiler
+
+              # Update version for next version publish
+              - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+                displayName: Bump version to prerelease targets
+
+              - script: npm run gen-manifest
+                displayName: Regen manifest for compiler
+                workingDirectory: ./packages/compiler
+
+              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
+                displayName: Pack next packages
 
               - task: AzureCLI@1
                 displayName: "Publish playground"
@@ -95,8 +95,13 @@ extends:
             templateContext:
               outputs:
                 - output: pipelineArtifact
-                  path: $(Build.SourcesDirectory)/temp/artifacts
-                  artifact: packages
+                  path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
+                  artifact: npm-packages-stable
+                  displayName: Publish packages(.tgz) as pipeline artifacts
+
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/npm-packages-next
+                  artifact: npm-packages-next
                   displayName: Publish packages(.tgz) as pipeline artifacts
 
                 - output: pipelineArtifact
@@ -109,40 +114,20 @@ extends:
                   artifact: vs-extension-unsigned
                   displayName: Publish VS extension(.vsix) as pipeline artifacts
 
-      - stage: publish_dev_npm
-        displayName: Publish Dev Packages
+      - stage: publish_npm
+        displayName: Publish Npm Packages
         dependsOn: build
         jobs:
-          - job: npm_dev
-            displayName: Npm publish dev version
-            condition: eq(variables['Build.SourceBranch'], 'refs/heads/main') # Only publish -dev on main branch.
+          - template: ./jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-stable
+              tag: latest
+              publishGithubRelease: true
 
-            variables:
-              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-
-            steps:
-              - template: /eng/pipelines/templates/install.yml
-              - template: /eng/pipelines/templates/build.yml
-
-              - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
-                displayName: Bump version to prerelease targets
-
-              - script: npm run gen-manifest
-                displayName: Regen manifest for compiler
-                workingDirectory: ./packages/compiler
-
-              - pwsh: |
-                  echo "Updating config"
-                  pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-                  echo "Publishing"
-                  pnpm -r publish --access public --no-git-checks --tag next
-
-                # Chronus doesn't support tag yet.
-                # pnpm chronus publish --tag next  --access public --report-summary ./publish-summary.json
-
-                name: Publish
-                env:
-                  NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+          - template: ./jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-next
+              tag: next
 
       - stage: publish_vscode
         displayName: Publish VSCode extension
