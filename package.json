@@ -6,7 +6,6 @@
   "scripts": {
     "build": "pnpm build:all && pnpm gen-compiler-extern-signature",
     "build:all": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build  && pnpm gen-compiler-extern-signature",
-    "check-format": "pnpm run prettier --check",
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
@@ -14,6 +13,7 @@
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
     "fix-version-mismatch": "syncpack fix-mismatches",
     "format": "pnpm run prettier --write",
+    "format:check": "pnpm run prettier --check",
     "gen-compiler-extern-signature": "pnpm run -r --filter \"@typespec/compiler\"  gen-extern-signature",
     "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
