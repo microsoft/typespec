@@ -1,5 +1,9 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+
 pr:
   - main
   - release/*
