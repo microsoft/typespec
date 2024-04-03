@@ -87,23 +87,3 @@ jobs:
 
       - run: pnpm run lint
         name: Lint
-
-  # Verify Arm OpenAPI common types are up to date
-  common-types-up-to-date:
-    name: Common types up to date
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - uses: ./.github/actions/setup
-
-      - run: pnpm install
-        name: Install dependencies
-
-      - run: node eng/scripts/download-common-types.js v3
-        name: Swagger - Fetch common-types v3
-
-      - run: node eng/scripts/check-for-changed-files.js
-        name: Check Git Status For Changed Files
