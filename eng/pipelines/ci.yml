@@ -113,13 +113,13 @@ extends:
         displayName: Publish Npm Packages
         dependsOn: build
         jobs:
-          - template: ./jobs/publish-npm.yml
+          - template: /eng/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-stable
               tag: latest
               publishGithubRelease: true
 
-          - template: ./jobs/publish-npm.yml
+          - template: /eng/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-next
               tag: next
