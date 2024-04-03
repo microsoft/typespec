@@ -57,7 +57,7 @@
     "preview": "npm run build && vite preview",
     "start": "vite",
     "test": "echo 'no tests'",
-    "test-official": "echo 'no tests'",
+    "test:ci": "echo 'no tests'",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },

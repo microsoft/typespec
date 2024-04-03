@@ -18,7 +18,7 @@ steps:
 
   - template: /eng/pipelines/templates/build.yml
 
-  - script: pnpm run test-official
+  - script: pnpm run test:ci
     displayName: Test
 
   - template: /eng/pipelines/templates/upload-coverage.yml
