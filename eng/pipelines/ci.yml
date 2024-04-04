@@ -25,8 +25,8 @@ extends:
           os: windows
 
         jobs:
-          - job: npm_stable
-            displayName: Npm publish
+          - job: build
+            displayName: Build
 
             variables:
               TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
@@ -44,12 +44,14 @@ extends:
                 displayName: Pack packages
 
               - task: CopyFiles@2
+                displayName: "Copy VSCode extension .vsix to artifact directory"
                 inputs:
                   SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
                   Contents: "*.vsix"
                   TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
               - task: CopyFiles@2
+                displayName: "Copy VS extension .vsix to artifact directory"
                 inputs:
                   SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
                   Contents: "*.vsix"
@@ -92,12 +94,12 @@ extends:
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
                   artifact: npm-packages-stable
-                  displayName: Publish packages(.tgz) as pipeline artifacts
+                  displayName: Publish npm stable packages(.tgz) as pipeline artifacts
 
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)/npm-packages-next
                   artifact: npm-packages-next
-                  displayName: Publish packages(.tgz) as pipeline artifacts
+                  displayName: Publish npm next packages(.tgz) as pipeline artifacts
 
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)/vscode-extension
