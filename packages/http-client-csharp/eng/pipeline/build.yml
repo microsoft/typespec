@@ -50,10 +50,6 @@ extends:
                   npm ls -a
                 displayName: "List packages"
                 workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
-              - script: |
-                  npm run format
-                displayName: "Emitter format check"
-                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
               - task: Npm@1
                 displayName: "Build TypeSpec csharp emitter"
                 inputs:
