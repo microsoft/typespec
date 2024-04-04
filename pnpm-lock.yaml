@@ -10,6 +10,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
     devDependencies:
       '@chronus/chronus':
         specifier: ^0.8.3
