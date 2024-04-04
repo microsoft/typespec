@@ -2,6 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export interface ExternalDocs {
-    url: string;
-    description?: string;
+  url: string;
+  description?: string;
 }

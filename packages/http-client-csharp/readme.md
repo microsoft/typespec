@@ -6,6 +6,7 @@ This is a TypeSpec library that will emit a .NET SDK from TypeSpec.
 
 Install [Node.js](https://nodejs.org/download/) 16 or above. (Verify by `node --version`)
 Install [**.NET 8.0 SDK**](https://dotnet.microsoft.com/download/dotnet/8.0) for your specific platform. (or a higher version)
+
 ## Getting started
 
 ### Initialize TypeSpec Project
@@ -26,12 +27,6 @@ e.g.
 
 ```cmd
 npx tsp compile main.tsp --emit @typespec/http-client-csharp
-### Generate .NET client
-
-or
-
-```cmd
-npx tsp compile client.tsp --emit @typespec/http-client-csharp
 ```
 
 ## Configuration
@@ -53,6 +48,7 @@ options:
 ```
 
 **Supported Emitter options**:
+
 - `namespace` define the client library namespace. e.g. MyService.Namespace.
 - `emitter-output-dir` define the output dire path which will store the generated code.
 - `generate-protocol-methods` indicate if you want to generate **protocol method** for every operation or not. The default value is true.

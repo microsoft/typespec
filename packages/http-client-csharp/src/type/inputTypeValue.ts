@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export interface InputTypeValue {
-    Name: string;
-    Value: string;
-    Description?: string;
+  Name: string;
+  Value: string;
+  Description?: string;
 }

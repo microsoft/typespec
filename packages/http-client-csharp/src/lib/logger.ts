@@ -4,17 +4,17 @@
 import * as winston from "winston";
 
 export enum LoggerLevel {
-    ERROR = "error",
-    WARN = "warn",
-    INFO = "info",
-    DEBUG = "debug",
-    VERBOSE = "verbose"
+  ERROR = "error",
+  WARN = "warn",
+  INFO = "info",
+  DEBUG = "debug",
+  VERBOSE = "verbose",
 }
 
 export var logger: winston.Logger = winston.createLogger({
-    transports: [
-        new winston.transports.Console({
-            level: LoggerLevel.INFO
-        })
-    ]
+  transports: [
+    new winston.transports.Console({
+      level: LoggerLevel.INFO,
+    }),
+  ],
 });

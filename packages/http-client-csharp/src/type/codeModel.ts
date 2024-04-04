@@ -6,11 +6,11 @@ import { InputClient } from "./inputClient.js";
 import { InputEnumType, InputModelType } from "./inputType.js";
 
 export interface CodeModel {
-    Name: string;
-    Description?: string;
-    ApiVersions: string[];
-    Enums: InputEnumType[];
-    Models: InputModelType[];
-    Clients: InputClient[];
-    Auth?: InputAuth;
+  Name: string;
+  Description?: string;
+  ApiVersions: string[];
+  Enums: InputEnumType[];
+  Models: InputModelType[];
+  Clients: InputClient[];
+  Auth?: InputAuth;
 }

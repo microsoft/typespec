@@ -2,6 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export interface InputApiKeyAuth {
-    Name: string;
-    Prefix?: string;
+  Name: string;
+  Prefix?: string;
 }

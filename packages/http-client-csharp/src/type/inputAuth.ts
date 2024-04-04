@@ -5,6 +5,6 @@ import { InputApiKeyAuth } from "./inputApiKeyAuth.js";
 import { InputOAuth2Auth } from "./inputOAuth2Auth.js";
 
 export interface InputAuth {
-    ApiKey?: InputApiKeyAuth;
-    OAuth2?: InputOAuth2Auth;
+  ApiKey?: InputApiKeyAuth;
+  OAuth2?: InputOAuth2Auth;
 }

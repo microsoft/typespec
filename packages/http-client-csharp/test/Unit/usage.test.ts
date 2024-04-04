@@ -1,24 +1,24 @@
 import { TestHost } from "@typespec/compiler/testing";
-import assert, { deepStrictEqual } from "assert";
-import {
-    createEmitterContext,
-    createEmitterTestHost,
-    createNetSdkContext,
-    typeSpecCompile
-} from "./utils/TestUtil.js";
 import { getAllHttpServices } from "@typespec/http";
+import assert from "assert";
 import { getUsages } from "../../src/lib/model.js";
+import {
+  createEmitterContext,
+  createEmitterTestHost,
+  createNetSdkContext,
+  typeSpecCompile,
+} from "./utils/TestUtil.js";
 
 describe("Test getUsages", () => {
-    let runner: TestHost;
+  let runner: TestHost;
 
-    beforeEach(async () => {
-        runner = await createEmitterTestHost();
-    });
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
 
-    it("Get usage for body parameter type", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for body parameter type", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             model Foo {
                 @doc("name of the Foo")
@@ -26,18 +26,18 @@ describe("Test getUsages", () => {
             }
             op test(@path id: string, @body foo: Foo): void;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("Foo"));
+  });
 
-    it("Get usage for response body", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for response body", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             model Foo {
                 @doc("name of the Foo")
@@ -45,18 +45,18 @@ describe("Test getUsages", () => {
             }
             op test(@path id: string): Foo;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.outputs.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.outputs.includes("Foo"));
+  });
 
-    it("Get usage for the model in both input and output", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for the model in both input and output", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             model Foo {
                 @doc("name of the Foo")
@@ -64,18 +64,18 @@ describe("Test getUsages", () => {
             }
             op test(@path id: string, @body foo: Foo): Foo;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.roundTrips.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.roundTrips.includes("Foo"));
+  });
 
-    it("Get usage for the model which is used in two operations", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for the model which is used in two operations", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             model Foo {
                 @doc("name of the Foo")
@@ -84,18 +84,18 @@ describe("Test getUsages", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): Foo;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.roundTrips.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.roundTrips.includes("Foo"));
+  });
 
-    it("Get usage for the model as the template argument", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for the model as the template argument", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model template.")
             model TemplateModel<T> {
                 @doc("name of the model.")
@@ -109,19 +109,19 @@ describe("Test getUsages", () => {
             }
             op test(@path id: string, @body foo: TemplateModel<Foo>): void;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("TemplateModelFoo"));
-        assert(usages.inputs.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("TemplateModelFoo"));
+    assert(usages.inputs.includes("Foo"));
+  });
 
-    it("Test the usage inheritance between base model and derived model", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage inheritance between base model and derived model", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a base model.")
             model BaseModel {
                 @doc("name of the model.")
@@ -135,21 +135,21 @@ describe("Test getUsages", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): BaseModel;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        // verify that the baseModel will not apply the usage of derived model.
-        assert(usages.outputs.includes("BaseModel"));
-        // verify that the derived model will inherit the usage of base model
-        assert(usages.roundTrips.includes("Foo"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    // verify that the baseModel will not apply the usage of derived model.
+    assert(usages.outputs.includes("BaseModel"));
+    // verify that the derived model will inherit the usage of base model
+    assert(usages.roundTrips.includes("Foo"));
+  });
 
-    it("Test the usage inheritance between base model and derived model which has model property", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage inheritance between base model and derived model which has model property", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This a model of a property in base model")
             model propertyModel {
                 @doc("name of the model.")
@@ -170,23 +170,23 @@ describe("Test getUsages", () => {
             op test(@path id: string, @body foo: Foo): void;
             op test2(@path id: string): BaseModel;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        // verify that the baseModel will not apply the usage of derived model.
-        assert(usages.outputs.includes("BaseModel"));
-        // verify that the derived model will inherit the usage of base model
-        assert(usages.roundTrips.includes("Foo"));
-        //verify that the property model of base model will inherit the usage of the derived model
-        assert(usages.roundTrips.includes("propertyModel"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    // verify that the baseModel will not apply the usage of derived model.
+    assert(usages.outputs.includes("BaseModel"));
+    // verify that the derived model will inherit the usage of base model
+    assert(usages.roundTrips.includes("Foo"));
+    //verify that the property model of base model will inherit the usage of the derived model
+    assert(usages.roundTrips.includes("propertyModel"));
+  });
 
-    it("Test the usage of models spread alias", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of models spread alias", async () => {
+    const program = await typeSpecCompile(
+      `
             alias FooAlias = {
                 @path id: string;
                 @doc("name of the Foo")
@@ -194,18 +194,18 @@ describe("Test getUsages", () => {
             };
             op test(...FooAlias): void;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("TestRequest"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("TestRequest"));
+  });
 
-    it("Test the usage of body parameter of azure core operation.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of body parameter of azure core operation.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             @resource("items")
             model Foo {
@@ -239,21 +239,21 @@ describe("Test getUsages", () => {
                 addItems is ResourceAction<Foo, BatchCreateFooListItemsRequest, BatchCreateTextListItemsResponse>;
             }
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("BatchCreateFooListItemsRequest"));
-        assert(usages.inputs.includes("FooInfo"));
-        assert(usages.outputs.includes("BatchCreateTextListItemsResponse"));
-    });
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("BatchCreateFooListItemsRequest"));
+    assert(usages.inputs.includes("FooInfo"));
+    assert(usages.outputs.includes("BatchCreateTextListItemsResponse"));
+  });
 
-    it("Test the usage of body parameter and return type of azure core resource operation.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of body parameter and return type of azure core resource operation.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             @resource("items")
             model Foo {
@@ -270,20 +270,20 @@ describe("Test getUsages", () => {
                 createFoo is ResourceCreateOrUpdate<Foo>;
             }
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
-        );
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.roundTrips.includes("Foo"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.roundTrips.includes("Foo"));
+  });
 
-    it("Test the usage of body polymorphism type in azure core resource operation.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of body polymorphism type in azure core resource operation.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             @resource("items")
             model Foo {
@@ -324,21 +324,21 @@ describe("Test getUsages", () => {
                 >;
             }
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
-        );
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("BaseModelWithDiscriminator"));
-        assert(usages.inputs.includes("DerivedModelWithDiscriminatorA"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("BaseModelWithDiscriminator"));
+    assert(usages.inputs.includes("DerivedModelWithDiscriminatorA"));
+  });
 
-    it("Test the usage of response polymorphism type in azure core resource operation.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of response polymorphism type in azure core resource operation.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             @resource("items")
             model Foo {
@@ -388,22 +388,22 @@ describe("Test getUsages", () => {
                 >;
             }
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
-        );
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: true }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.outputs.includes("BaseModelWithDiscriminator"));
-        assert(usages.outputs.includes("DerivedModelWithDiscriminatorA"));
-        assert(usages.outputs.includes("NestedModel"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.outputs.includes("BaseModelWithDiscriminator"));
+    assert(usages.outputs.includes("DerivedModelWithDiscriminatorA"));
+    assert(usages.outputs.includes("NestedModel"));
+  });
 
-    it("Get usage for the model which is renamed by projected name", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Get usage for the model which is renamed by projected name", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("This is a model.")
             @projectedName("azure", "FooRenamed")
             model Foo {
@@ -412,18 +412,18 @@ describe("Test getUsages", () => {
             }
             op test(@path id: string, @body foo: Foo): Foo;
       `,
-            runner
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.roundTrips.includes("FooRenamed"));
-    });
+      runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.roundTrips.includes("FooRenamed"));
+  });
 
-    it("Test the usage of enum which is renamed via @projectedName.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of enum which is renamed via @projectedName.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("fixed string enum")
             @projectedName("azure", "SimpleEnumRenamed")
             enum SimpleEnum {
@@ -437,20 +437,20 @@ describe("Test getUsages", () => {
 
             op test(@path id: SimpleEnum): void;
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsAzureCoreNeeded: false }
-        );
+      runner,
+      { IsNamespaceNeeded: true, IsAzureCoreNeeded: false }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("SimpleEnumRenamed"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("SimpleEnumRenamed"));
+  });
 
-    it("Test the usage of model which is renamed via @clientName.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of model which is renamed via @clientName.", async () => {
+    const program = await typeSpecCompile(
+      `
             @doc("A model plan to rename")
             @clientName("RenamedModel")
             model ModelToRename {
@@ -459,20 +459,20 @@ describe("Test getUsages", () => {
 
             op test(@body body: ModelToRename): void;
       `,
-            runner,
-            { IsNamespaceNeeded: true, IsTCGCNeeded: true }
-        );
+      runner,
+      { IsNamespaceNeeded: true, IsTCGCNeeded: true }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const usages = getUsages(sdkContext, services[0].operations);
-        assert(usages.inputs.includes("RenamedModel"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const usages = getUsages(sdkContext, services[0].operations);
+    assert(usages.inputs.includes("RenamedModel"));
+  });
 
-    it("Test the usage of return type of a customized LRO operation.", async () => {
-        const program = await typeSpecCompile(
-            `
+  it("Test the usage of return type of a customized LRO operation.", async () => {
+    const program = await typeSpecCompile(
+      `
 #suppress "@azure-tools/typespec-azure-core/documentation-required" "MUST fix in next version"
 @doc("The status of the processing job.")
 @lroStatus
@@ -611,19 +611,19 @@ interface LegacyLro {
     >;
   }
       `,
-            runner,
-            {
-                IsNamespaceNeeded: true,
-                IsAzureCoreNeeded: true,
-                IsTCGCNeeded: true
-            }
-        );
+      runner,
+      {
+        IsNamespaceNeeded: true,
+        IsAzureCoreNeeded: true,
+        IsTCGCNeeded: true,
+      }
+    );
 
-        const context = createEmitterContext(program);
-        const sdkContext = createNetSdkContext(context);
-        const [services] = getAllHttpServices(program);
-        const convenienceOperations = services[0].operations.slice(1);
-        const usages = getUsages(sdkContext, convenienceOperations);
-        assert(usages.outputs.includes("RadiologyInsightsInferenceResult"));
-    });
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const convenienceOperations = services[0].operations.slice(1);
+    const usages = getUsages(sdkContext, convenienceOperations);
+    assert(usages.outputs.includes("RadiologyInsightsInferenceResult"));
+  });
 });

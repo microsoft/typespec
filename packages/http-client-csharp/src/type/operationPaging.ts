@@ -4,8 +4,8 @@
 import { InputOperation } from "./inputOperation.js";
 
 export interface OperationPaging {
-    NextLinkName?: string;
-    ItemName?: string;
-    NextLinkOperation?: InputOperation;
-    NextLinkOperationRef?: (p: any) => void;
+  NextLinkName?: string;
+  ItemName?: string;
+  NextLinkOperation?: InputOperation;
+  NextLinkOperationRef?: (p: any) => void;
 }

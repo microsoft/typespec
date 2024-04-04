@@ -6,11 +6,11 @@ import { InputParameter } from "./inputParameter.js";
 import { Protocols } from "./protocols.js";
 
 export interface InputClient {
-    Name: string;
-    Description?: string;
-    Operations: InputOperation[];
-    Protocol?: Protocols;
-    Parent?: string;
-    Creatable: boolean;
-    Parameters?: InputParameter[];
+  Name: string;
+  Description?: string;
+  Operations: InputOperation[];
+  Protocol?: Protocols;
+  Parent?: string;
+  Creatable: boolean;
+  Parameters?: InputParameter[];
 }

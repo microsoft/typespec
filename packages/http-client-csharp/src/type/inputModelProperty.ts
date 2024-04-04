@@ -4,11 +4,11 @@
 import { InputType } from "./inputType.js";
 
 export interface InputModelProperty {
-    Name: string;
-    SerializedName: string;
-    Description: string;
-    Type: InputType;
-    IsRequired: boolean;
-    IsReadOnly: boolean;
-    IsDiscriminator?: boolean;
+  Name: string;
+  SerializedName: string;
+  Description: string;
+  Type: InputType;
+  IsRequired: boolean;
+  IsReadOnly: boolean;
+  IsDiscriminator?: boolean;
 }

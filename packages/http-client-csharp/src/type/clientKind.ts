@@ -2,6 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export enum ClientKind {
-    SdkClient = "SdkClient",
-    SdkOperationGroup = "SdkOperationGroup"
+  SdkClient = "SdkClient",
+  SdkOperationGroup = "SdkOperationGroup",
 }
