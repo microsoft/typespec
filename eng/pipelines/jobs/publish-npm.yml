@@ -29,7 +29,7 @@ jobs:
           echo "Updating config"
           pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
           echo "Publishing at tag ${{ parameters.tag }}"
-          # pnpm chronus publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz" --tag ${{ parameters.tag }}  --access public  --engine npm --report-summary ./publish-summary.json
+          pnpm chronus publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz" --tag ${{ parameters.tag }}  --access public  --engine npm --report-summary ./publish-summary.json
         displayName: Publish
         env:
           NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
