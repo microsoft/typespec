@@ -13,7 +13,7 @@ pr:
       - packages/http-client-csharp
 
 extends:
-  template: /eng/pipelines/1es-redirect.yml
+  template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
       BlobFeedUrl: https://azuresdkartifacts.blob.core.windows.net/azure-sdk-tools/index.json
