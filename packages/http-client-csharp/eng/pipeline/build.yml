@@ -1,12 +1,16 @@
 trigger:
   branches:
+    include: -main
+  paths:
     include:
-      - packages/http-client-csharp/*
+      - packages/http-client-csharp
 
 pr:
   branches:
+    include: -main
+  paths:
     include:
-      - packages/http-client-csharp/*
+      - packages/http-client-csharp
 
 extends:
   template: /eng/pipelines/1es-redirect.yml
