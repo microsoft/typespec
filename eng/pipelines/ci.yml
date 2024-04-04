@@ -114,6 +114,12 @@ extends:
       - stage: publish_npm
         displayName: Publish Npm Packages
         dependsOn: build
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
         jobs:
           - template: /eng/pipelines/jobs/publish-npm.yml
             parameters:
