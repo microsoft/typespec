@@ -11,8 +11,9 @@ jobs:
   - job: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     pool:
-      name: azsdk-pool-mms-ubuntu-2204-general
-      vmImage: ubuntu-22.04
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
 
     steps:
       - download: current
