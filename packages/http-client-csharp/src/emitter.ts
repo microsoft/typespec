@@ -27,7 +27,7 @@ import { logger, LoggerLevel } from "./lib/logger.js";
 import { tspOutputFileName, configurationFileName } from "./constants.js";
 
 export const $lib = createTypeSpecLibrary({
-    name: "@azure-tools/typespec-csharp",
+    name: "@typespec/http-client-csharp",
     diagnostics: {
         "No-APIVersion": {
             severity: "error",
@@ -67,7 +67,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         // Write out the dotnet model to the output path
         const sdkContext = createSdkContext(
             context,
-            "@azure-tools/typespec-csharp"
+            "@typespec/http-client-csharp"
         );
         const root = createModel(sdkContext);
         if (
