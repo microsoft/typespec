@@ -41,7 +41,7 @@
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/json-schema/reference"
