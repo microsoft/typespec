@@ -1,13 +1,15 @@
 trigger:
   branches:
-    include: -main
+    include:
+      - main
   paths:
     include:
       - packages/http-client-csharp
 
 pr:
   branches:
-    include: -main
+    include:
+      - main
   paths:
     include:
       - packages/http-client-csharp
