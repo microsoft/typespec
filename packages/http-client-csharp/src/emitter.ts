@@ -13,7 +13,6 @@ import {
 
 import fs, { existsSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
-import path from "node:path";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/clientModelBuilder.js";
 import { LoggerLevel, logger } from "./lib/logger.js";
@@ -80,18 +79,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         ? resolvePath(outputFolder, "Generated")
         : resolvePath(outputFolder, "src", "Generated");
 
-      //resolve shared folders based on generator path override
-      const resolvedSharedFolders: string[] = [];
-      const sharedFolders = [
-        resolvePath(options.csharpGeneratorPath, "..", "Generator.Shared"),
-        resolvePath(options.csharpGeneratorPath, "..", "Azure.Core.Shared"),
-      ];
-      for (const sharedFolder of sharedFolders) {
-        resolvedSharedFolders.push(
-          path.relative(generatedFolder, sharedFolder).replaceAll("\\", "/")
-        );
-      }
-
       if (!fs.existsSync(generatedFolder)) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
@@ -107,7 +94,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "output-folder": ".",
         namespace: namespace,
         "library-name": options["library-name"] ?? namespace,
-        "shared-source-folders": resolvedSharedFolders ?? [],
         "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "keep-non-overloadable-protocol-signature":
@@ -130,8 +116,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "head-as-boolean": options["head-as-boolean"],
         "deserialize-null-collection-as-null-value":
           options["deserialize-null-collection-as-null-value"],
-        flavor:
-          options["flavor"] ?? (namespace.toLowerCase().startsWith("azure.") ? "azure" : undefined),
+        flavor: options["flavor"],
         //only emit these if they are not the default values
         "generate-sample-project":
           options["generate-sample-project"] === true
@@ -140,7 +125,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "generate-test-project":
           options["generate-test-project"] === false ? undefined : options["generate-test-project"],
         "use-model-reader-writer": options["use-model-reader-writer"] ?? true,
-        "azure-arm": sdkContext.arm === false ? undefined : sdkContext.arm,
       };
 
       await program.host.writeFile(

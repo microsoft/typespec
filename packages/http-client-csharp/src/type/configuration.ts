@@ -6,8 +6,6 @@ export interface Configuration {
   namespace: string;
   "library-name": string | null;
   flavor?: string;
-  "azure-arm"?: boolean;
-  "shared-source-folders": string[];
   "single-top-level-client"?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "model-namespace"?: boolean;
