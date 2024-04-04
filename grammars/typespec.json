@@ -62,6 +62,30 @@
       "name": "constant.language.tsp",
       "match": "\\b(true|false)\\b"
     },
+    "const-statement": {
+      "name": "meta.const-statement.typespec",
+      "begin": "\\b(const)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        },
+        "2": {
+          "name": "variable.name.tsp"
+        }
+      },
+      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "patterns": [
+        {
+          "include": "#type-annotation"
+        },
+        {
+          "include": "#operator-assignment"
+        },
+        {
+          "include": "#expression"
+        }
+      ]
+    },
     "decorator": {
       "name": "meta.decorator.typespec",
       "begin": "((@)\\b[_$[:alpha:]]([_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)",
@@ -724,7 +748,7 @@
           "include": "#directive"
         },
         {
-          "include": "#model-spread-property"
+          "include": "#spread-operator"
         },
         {
           "include": "#punctuation-comma"
@@ -733,7 +757,7 @@
     },
     "object-literal-property": {
       "name": "meta.object-literal-property.typespec",
-      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b)\\s*(:))",
+      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*(:))",
       "beginCaptures": {
         "1": {
           "name": "variable.name.tsp"
@@ -1098,6 +1122,9 @@
         },
         {
           "include": "#alias-statement"
+        },
+        {
+          "include": "#const-statement"
         },
         {
           "include": "#namespace-statement"

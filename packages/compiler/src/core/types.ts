@@ -868,6 +868,7 @@ export enum SyntaxKind {
   ObjectLiteralProperty,
   ObjectLiteralSpreadProperty,
   TupleLiteral,
+  ConstStatement,
 }
 
 export const enum NodeFlags {
@@ -1052,6 +1053,7 @@ export type Statement =
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
+  | ConstStatementNode
   | EmptyStatementNode
   | InvalidStatementNode
   | ProjectionStatementNode;
@@ -1273,6 +1275,13 @@ export interface EnumSpreadMemberNode extends BaseNode {
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.AliasStatement;
   readonly value: Expression;
+  readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+}
+
+export interface ConstStatementNode extends BaseNode, DeclarationNode {
+  readonly kind: SyntaxKind.ConstStatement;
+  readonly value: Expression;
+  readonly type?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 

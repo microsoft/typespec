@@ -20,6 +20,7 @@ import {
   BlockComment,
   BooleanLiteralNode,
   Comment,
+  ConstStatementNode,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
@@ -462,6 +463,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
           item = parseAliasStatement(pos);
+          break;
+        case Token.ConstKeyword:
+          reportInvalidDecorators(decorators, "const statement");
+          item = parseConstStatement(pos);
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -1131,6 +1136,29 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       value,
       ...finishNode(pos),
     };
+  }
+
+  function parseConstStatement(pos: number): ConstStatementNode {
+    parseExpected(Token.ConstKeyword);
+    const id = parseIdentifier();
+    const type = parseOptionalTypeAnnotation();
+    parseExpected(Token.Equals);
+    const value = parseExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.ConstStatement,
+      id,
+      value,
+      type,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseOptionalTypeAnnotation(): Expression | undefined {
+    if (parseOptional(Token.Colon)) {
+      return parseExpression();
+    }
+    return undefined;
   }
 
   function parseExpression(): Expression {
@@ -3361,6 +3389,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
+    case SyntaxKind.ConstStatement:
+      return visitNode(cb, node.id) || visitNode(cb, node.value) || visitNode(cb, node.type);
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
         visitEach(cb, node.modifiers) ||

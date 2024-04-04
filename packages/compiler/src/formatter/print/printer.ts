@@ -10,6 +10,7 @@ import {
   BlockComment,
   BooleanLiteralNode,
   Comment,
+  ConstStatementNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
@@ -384,6 +385,8 @@ export function printNode(
       );
     case SyntaxKind.TupleLiteral:
       return printTupleLiteral(path as AstPath<TupleLiteralNode>, options, print);
+    case SyntaxKind.ConstStatement:
+      return printConstStatement(path as AstPath<ConstStatementNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -415,6 +418,7 @@ export function printTypeSpecScript(
   body.push(printStatementSequence(path, options, print, "statements"));
   return body;
 }
+
 export function printAliasStatement(
   path: AstPath<AliasStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -423,6 +427,17 @@ export function printAliasStatement(
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
   return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
+}
+
+export function printConstStatement(
+  path: AstPath<ConstStatementNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const id = path.call(print, "id");
+  const type = node.type ? [": ", path.call(print, "type")] : "";
+  return ["const ", id, type, " = ", path.call(print, "value"), ";"];
 }
 
 function printTemplateParameters<T extends Node>(

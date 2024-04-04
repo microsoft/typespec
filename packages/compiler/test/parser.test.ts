@@ -223,20 +223,34 @@ describe("compiler: parser", () => {
     parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
+  describe("const statements", () => {
+    parseEach([
+      `const a = 123;`,
+      `const a: Info = 123;`,
+      `const a: {inline: string} = #{inline: "abc"};`,
+      `const a: string | int32 = int32;`,
+    ]);
+    parseErrorEach([
+      [`const = 123;`, [/Identifier expected/]],
+      [`const a`, [{ message: "'=' expected." }]],
+      [`const a =`, [/Expression expected./]],
+    ]);
+  });
+
   describe("object literals", () => {
     parseEach([
-      `alias A = #{a: "abc"};`,
-      `alias A = #{a: "abc", b: "def"};`,
-      `alias A = #{a: "abc", ...B};`,
-      `alias A = #{a: "abc", ...B, c: "ghi"};`,
+      `const A = #{a: "abc"};`,
+      `const A = #{a: "abc", b: "def"};`,
+      `const A = #{a: "abc", ...B};`,
+      `const A = #{a: "abc", ...B, c: "ghi"};`,
     ]);
   });
 
   describe("tuple literals", () => {
     parseEach([
-      `alias A = #["abc"];`,
-      `alias A = #["abc", 123];`,
-      `alias A = #["abc", 123, #{nested: true}];`,
+      `const A = #["abc"];`,
+      `const A = #["abc", 123];`,
+      `const A = #["abc", 123, #{nested: true}];`,
     ]);
   });
 

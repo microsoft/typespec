@@ -240,6 +240,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.FunctionDeclarationStatement:
         classify(node.id, SemanticTokenKind.Function);
         break;
+      case SyntaxKind.ConstStatement:
+        classify(node.id, SemanticTokenKind.Variable);
+        break;
       case SyntaxKind.FunctionParameter:
         classify(node.id, SemanticTokenKind.Parameter);
         break;

@@ -50,6 +50,7 @@ const Token = {
     to: createToken("to", "keyword.other.tsp"),
     from: createToken("from", "keyword.other.tsp"),
     valueof: createToken("valueof", "keyword.other.tsp"),
+    const: createToken("const", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
 
@@ -1062,14 +1063,40 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("const", () => {
+      it("without type annotation", async () => {
+        const tokens = await tokenize("const foo = 123;");
+        deepStrictEqual(tokens, [
+          Token.keywords.const,
+          Token.identifiers.variable("foo"),
+          Token.operators.assignment,
+          Token.literals.numeric("123"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+
+      it("with type annotation", async () => {
+        const tokens = await tokenize("const foo: int32 = 123;");
+        deepStrictEqual(tokens, [
+          Token.keywords.const,
+          Token.identifiers.variable("foo"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("int32"),
+          Token.operators.assignment,
+          Token.literals.numeric("123"),
+          Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
     describe("object literals", () => {
       it("empty", async () => {
-        const tokens = await tokenizeWithAlias("#{}");
+        const tokens = await tokenizeWithConst("#{}");
         deepStrictEqual(tokens, [Token.punctuation.openHashBrace, Token.punctuation.closeBrace]);
       });
 
       it("single prop", async () => {
-        const tokens = await tokenizeWithAlias(`#{name: "John"}`);
+        const tokens = await tokenizeWithConst(`#{name: "John"}`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBrace,
           Token.identifiers.variable("name"),
@@ -1080,7 +1107,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("multiple prop", async () => {
-        const tokens = await tokenizeWithAlias(`#{name: "John", age: 21}`);
+        const tokens = await tokenizeWithConst(`#{name: "John", age: 21}`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBrace,
           Token.identifiers.variable("name"),
@@ -1095,7 +1122,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("spreading prop", async () => {
-        const tokens = await tokenizeWithAlias(`#{name: "John", ...Common}`);
+        const tokens = await tokenizeWithConst(`#{name: "John", ...Common}`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBrace,
           Token.identifiers.variable("name"),
@@ -1109,7 +1136,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("nested prop", async () => {
-        const tokens = await tokenizeWithAlias(`#{prop: #{age: 21}}`);
+        const tokens = await tokenizeWithConst(`#{prop: #{age: 21}}`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBrace,
           Token.identifiers.variable("prop"),
@@ -1126,7 +1153,7 @@ function testColorization(description: string, tokenize: Tokenize) {
 
     describe("tuple literals", () => {
       it("empty", async () => {
-        const tokens = await tokenizeWithAlias("#[]");
+        const tokens = await tokenizeWithConst("#[]");
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBracket,
           Token.punctuation.closeBracket,
@@ -1134,7 +1161,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("single value", async () => {
-        const tokens = await tokenizeWithAlias(`#["John"]`);
+        const tokens = await tokenizeWithConst(`#["John"]`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBracket,
           Token.literals.stringQuoted("John"),
@@ -1143,7 +1170,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("multiple values", async () => {
-        const tokens = await tokenizeWithAlias(`#["John", 21]`);
+        const tokens = await tokenizeWithConst(`#["John", 21]`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBracket,
           Token.literals.stringQuoted("John"),
@@ -1154,7 +1181,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
 
       it("nested tuple", async () => {
-        const tokens = await tokenizeWithAlias(`#[#[21]]`);
+        const tokens = await tokenizeWithConst(`#[#[21]]`);
         deepStrictEqual(tokens, [
           Token.punctuation.openHashBracket,
           Token.punctuation.openHashBracket,
@@ -1512,9 +1539,13 @@ function testColorization(description: string, tokenize: Tokenize) {
     });
   });
 
-  async function tokenizeWithAlias(text: string) {
-    const common = [Token.keywords.alias, Token.identifiers.type("T"), Token.operators.assignment];
-    const tokens = await tokenize(`alias T = ${text}`);
+  async function tokenizeWithConst(text: string) {
+    const common = [
+      Token.keywords.const,
+      Token.identifiers.variable("a"),
+      Token.operators.assignment,
+    ];
+    const tokens = await tokenize(`const a = ${text}`);
     for (let i = 0; i < common.length; i++) {
       deepStrictEqual(tokens[i], common[i]);
     }

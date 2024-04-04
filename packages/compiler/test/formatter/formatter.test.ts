@@ -2807,4 +2807,28 @@ alias T = """
       });
     });
   });
+
+  describe("const", () => {
+    it("format const without type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  =   123;
+`,
+        expected: `
+const a = 123;
+`,
+      });
+    });
+
+    it("format const with type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  : in32=   123;
+`,
+        expected: `
+const a: in32 = 123;
+`,
+      });
+    });
+  });
 });

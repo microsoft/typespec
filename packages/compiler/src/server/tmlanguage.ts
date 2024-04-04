@@ -478,6 +478,7 @@ const objectLiteralProperty: BeginEndRule = {
   end: universalEnd,
   patterns: [token, expression],
 };
+
 const objectLiteral: BeginEndRule = {
   key: "object-literal",
   scope: meta,
@@ -489,7 +490,7 @@ const objectLiteral: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.curlybrace.close.tsp" },
   },
-  patterns: [token, objectLiteralProperty, directive, modelSpreadProperty, punctuationComma],
+  patterns: [token, objectLiteralProperty, directive, spreadExpression, punctuationComma],
 };
 
 const modelHeritage: BeginEndRule = {
@@ -631,6 +632,17 @@ const aliasStatement: BeginEndRule = {
   },
   end: universalEnd,
   patterns: [typeParameters, operatorAssignment, expression],
+};
+const constStatement: BeginEndRule = {
+  key: "const-statement",
+  scope: meta,
+  begin: `\\b(const)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "variable.name.tsp" },
+  },
+  end: universalEnd,
+  patterns: [typeAnnotation, operatorAssignment, expression],
 };
 
 const namespaceName: BeginEndRule = {
@@ -981,6 +993,7 @@ statement.patterns = [
   interfaceStatement,
   enumStatement,
   aliasStatement,
+  constStatement,
   namespaceStatement,
   operationStatement,
   importStatement,

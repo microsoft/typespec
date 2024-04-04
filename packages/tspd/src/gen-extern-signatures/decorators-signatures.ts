@@ -3,6 +3,7 @@ import {
   FunctionParameter,
   IntrinsicScalarName,
   Model,
+  ParamConstraintUnion,
   Program,
   Scalar,
   SyntaxKind,
@@ -114,7 +115,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
   }
 
-  function getRestTSParmeterType(type: Type | ValueType) {
+  function getRestTSParmeterType(type: Type | ValueType | ParamConstraintUnion) {
     if (type.kind === "Value") {
       if (type.target.kind === "Model" && isArrayModelType(program, type.target)) {
         return `(${getValueTSType(type.target.indexer.value)})[]`;
@@ -129,7 +130,10 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     return `${getTSParmeterType(type.indexer.value)}[]`;
   }
 
-  function getTSParmeterType(type: Type | ValueType, isTarget?: boolean): string {
+  function getTSParmeterType(
+    type: Type | ValueType | ParamConstraintUnion,
+    isTarget?: boolean
+  ): string {
     if (type.kind === "Value") {
       return getValueTSType(type.target);
     }
