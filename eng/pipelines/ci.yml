@@ -112,6 +112,12 @@ extends:
       - stage: publish_dev_npm
         displayName: Publish Dev Packages
         dependsOn: build
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
         jobs:
           - job: npm_dev
             displayName: Npm publish dev version
