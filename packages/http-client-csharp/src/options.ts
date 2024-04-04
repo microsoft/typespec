@@ -1,4 +1,3 @@
-import { dllFilePath } from "@autorest/csharp";
 import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
@@ -51,7 +50,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "new-project": { type: "boolean", nullable: true },
     csharpGeneratorPath: {
       type: "string",
-      default: dllFilePath,
+      default: "fake-location",
       nullable: true,
     },
     "clear-output-folder": { type: "boolean", nullable: true },
@@ -120,7 +119,7 @@ const defaultOptions = {
   logFile: "log.json",
   skipSDKGeneration: false,
   "new-project": false,
-  csharpGeneratorPath: dllFilePath,
+  csharpGeneratorPath: "fake-location",
   "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,

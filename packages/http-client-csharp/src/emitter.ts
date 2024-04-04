@@ -11,7 +11,6 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 
-import { execSync } from "child_process";
 import fs, { existsSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import path from "node:path";
@@ -159,21 +158,22 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           : "";
         const debugFlag = options.debug ?? false ? " --debug" : "";
 
-        const command = `dotnet --roll-forward Major ${resolvePath(
-          options.csharpGeneratorPath
-        )} --project-path ${outputFolder} ${newProjectOption} ${existingProjectOption} --clear-output-folder ${
-          options["clear-output-folder"]
-        }${debugFlag}`;
-        logger.info(command);
-
-        try {
-          execSync(command, { stdio: "inherit" });
-        } catch (error: any) {
-          if (error.message) logger.info(error.message);
-          if (error.stderr) logger.error(error.stderr);
-          if (error.stdout) logger.verbose(error.stdout);
-          throw error;
-        }
+        logger.info("TODO connect the dotnet generator");
+        //const command = `dotnet --roll-forward Major ${resolvePath(
+        //  options.csharpGeneratorPath
+        //)} --project-path ${outputFolder} ${newProjectOption} ${existingProjectOption} --clear-output-folder ${
+        //  options["clear-output-folder"]
+        //}${debugFlag}`;
+        //logger.info(command);
+        //
+        //try {
+        //  execSync(command, { stdio: "inherit" });
+        //} catch (error: any) {
+        //  if (error.message) logger.info(error.message);
+        //  if (error.stderr) logger.error(error.stderr);
+        //  if (error.stdout) logger.verbose(error.stdout);
+        //  throw error;
+        //}
       }
 
       if (!options["save-inputs"]) {

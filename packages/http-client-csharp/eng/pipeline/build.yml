@@ -1,0 +1,62 @@
+trigger:
+  branches:
+    include:
+      - packages/http-client-csharp/*
+
+pr:
+  branches:
+    include:
+      - packages/http-client-csharp/*
+
+extends:
+  template: /eng/pipelines/1es-redirect.yml
+  parameters:
+    variables:
+      BlobFeedUrl: https://azuresdkartifacts.blob.core.windows.net/azure-sdk-tools/index.json
+      OfficialBuildId: $(Build.BuildNumber)
+      nugetMultiFeedWarnLevel: "none"
+
+    BinSkimSettings:
+      enabled: false
+      justificationForDisabling: 'Binskim is consistently crashing with "Fatal error. System.AccessViolationException: Attempted to read or write protected memory. This is often an indication that other memory is corrupt." blocking a production pipeline'
+
+    stages:
+      - stage: "Build_and_Test"
+        pool:
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSVMIMAGE)
+          os: windows
+        jobs:
+          - job: Build
+            timeoutInMinutes: 120
+            steps:
+              - checkout: self
+                fetchDepth: 1
+              - checkout: azure-sdk-tools
+                fetchDepth: 1
+              - task: NodeTool@0
+                displayName: "Install Node 18.x"
+                inputs:
+                  versionSpec: "18.x"
+              - script: |
+                  npm ci
+                displayName: "Install packages"
+                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+              - script: |
+                  npm ls -a
+                displayName: "List packages"
+                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+              - script: |
+                  npm run format
+                displayName: "Emitter format check"
+                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+              - task: Npm@1
+                displayName: "Build TypeSpec csharp emitter"
+                inputs:
+                  command: custom
+                  customCommand: run build
+                  workingDir: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+              - script: |
+                  npm run test --prefix typespec/packages/http-client-csharp
+                displayName: "Unit Test"
+                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
