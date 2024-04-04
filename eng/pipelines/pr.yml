@@ -1,5 +1,9 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+
 pr:
   - main
   - release/*
@@ -10,10 +14,10 @@ extends:
     variables:
       - template: /eng/pipelines/templates/variables/globals.yml@self
     stages:
-      - stage: Build
+      - stage: CI
         jobs:
-          - job: Build_And_Test_Windows
-            displayName: Build And Test Windows
+          - job: windows
+            displayName: Windows
 
             variables:
               TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
@@ -38,8 +42,8 @@ extends:
                   nodeVersion: $(nodeVersion)
                   os: linux
 
-          - job: Build_And_Test_Linux
-            displayName: Build And Test Linux
+          - job: linux
+            displayName: Linux
 
             variables:
               TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
@@ -65,6 +69,7 @@ extends:
                   os: linux
 
           - template: /eng/pipelines/jobs/publish-artifacts.yml
+          - template: /eng/pipelines/jobs/e2e.yml
 
           - job: docker_build
             pool:

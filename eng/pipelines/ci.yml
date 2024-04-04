@@ -33,7 +33,7 @@ extends:
               - template: /eng/pipelines/templates/install.yml
               - template: /eng/pipelines/templates/build.yml
 
-              - script: pnpm run test-official
+              - script: pnpm run test:ci
                 displayName: Test
 
               - template: /eng/pipelines/templates/upload-coverage.yml
@@ -112,6 +112,12 @@ extends:
       - stage: publish_dev_npm
         displayName: Publish Dev Packages
         dependsOn: build
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
         jobs:
           - job: npm_dev
             displayName: Npm publish dev version
