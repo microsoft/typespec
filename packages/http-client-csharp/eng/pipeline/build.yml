@@ -21,8 +21,6 @@ extends:
             steps:
               - checkout: self
                 fetchDepth: 1
-              - checkout: azure-sdk-tools
-                fetchDepth: 1
               - task: NodeTool@0
                 displayName: "Install Node 18.x"
                 inputs:
@@ -30,18 +28,18 @@ extends:
               - script: |
                   npm ci
                 displayName: "Install packages"
-                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
               - script: |
                   npm ls -a
                 displayName: "List packages"
-                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
               - task: Npm@1
                 displayName: "Build TypeSpec csharp emitter"
                 inputs:
                   command: custom
                   customCommand: run build
-                  workingDir: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+                  workingDir: $(Build.SourcesDirectory)/packages/http-client-csharp
               - script: |
-                  npm run test --prefix typespec/packages/http-client-csharp
+                  npm run test --prefix packages/http-client-csharp
                 displayName: "Unit Test"
-                workingDirectory: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
