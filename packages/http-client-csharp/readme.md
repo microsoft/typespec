@@ -26,7 +26,7 @@ Include @azure-tools/typespec-csharp dependencies in `package.json`
 
 Run `npm install` to install the dependency
 
-### Generate .NET SDK
+### Generate .NET client
 
 Run command `npx tsp compile --emit @azure-tools/typespec-csharp <path-to-typespec-file>`
 
