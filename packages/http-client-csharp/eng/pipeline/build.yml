@@ -40,6 +40,6 @@ extends:
                   customCommand: run build
                   workingDir: $(Build.SourcesDirectory)/packages/http-client-csharp
               - script: |
-                  npm run test --prefix packages/http-client-csharp
+                  npm run test
                 displayName: "Unit Test"
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
