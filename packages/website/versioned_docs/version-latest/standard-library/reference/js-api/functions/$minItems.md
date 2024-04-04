@@ -7,7 +7,7 @@ title: "[F] $minItems"
 $minItems(
    context, 
    target, 
-   minItems): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $minItems(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`Model`](../interfaces/Model.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
-| `minItems` | `number` |
+| `target` | [`Type`](../type-aliases/Type.md) |
+| `value` | `number` |
 
 ## Returns
 

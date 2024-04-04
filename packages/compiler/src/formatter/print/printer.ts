@@ -259,6 +259,8 @@ export function printNode(
       return "model";
     case SyntaxKind.ProjectionModelPropertySelector:
       return "modelproperty";
+    case SyntaxKind.ProjectionScalarSelector:
+      return "scalar";
     case SyntaxKind.ProjectionOperationSelector:
       return "op";
     case SyntaxKind.ProjectionUnionSelector:

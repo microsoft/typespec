@@ -4,7 +4,7 @@ title: "[F] $statusCode"
 
 ---
 ```ts
-$statusCode(context, entity): void
+$statusCode(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $statusCode(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` |
+| `target` | `ModelProperty` |
 
 ## Returns
 

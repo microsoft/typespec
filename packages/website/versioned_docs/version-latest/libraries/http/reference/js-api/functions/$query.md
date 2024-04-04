@@ -6,7 +6,7 @@ title: "[F] $query"
 ```ts
 $query(
    context, 
-   entity, 
+   target, 
    queryNameOrOptions?): void
 ```
 
@@ -15,8 +15,8 @@ $query(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` |
-| `queryNameOrOptions`? | `StringLiteral` \| `Model` |
+| `target` | `ModelProperty` |
+| `queryNameOrOptions`? | `Type` |
 
 ## Returns
 

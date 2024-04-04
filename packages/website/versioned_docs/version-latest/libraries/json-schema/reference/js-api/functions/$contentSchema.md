@@ -15,7 +15,7 @@ $contentSchema(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `StringLiteral` \| `ModelProperty` |
+| `target` | `Scalar` \| `ModelProperty` |
 | `value` | `Type` |
 
 ## Returns

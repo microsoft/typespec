@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
@@ -38,7 +38,7 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -58,10 +58,10 @@
     "react-is": "~18.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
+    "@babel/core": "^7.24.3",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.2.67",
-    "@types/react-dom": "~18.2.22",
+    "@types/react": "~18.2.73",
+    "@types/react-dom": "~18.2.23",
     "@typespec/compiler": "workspace:~",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
@@ -69,7 +69,7 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   }
 }

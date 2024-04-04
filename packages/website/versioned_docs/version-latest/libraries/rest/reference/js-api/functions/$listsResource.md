@@ -6,7 +6,7 @@ title: "[F] $listsResource"
 ```ts
 $listsResource(
    context, 
-   entity, 
+   target, 
    resourceType): void
 ```
 
@@ -15,7 +15,7 @@ $listsResource(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 | `resourceType` | `Model` |
 
 ## Returns

@@ -1,0 +1,60 @@
+{
+  "name": "@typespec/monarch",
+  "private": true,
+  "version": "0.54.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library providing OpenAPI concepts",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "devDependencies": {
+    "@types/node": "~18.11.19",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/eslint-plugin": "workspace:~",
+    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/ui": "^1.4.0",
+    "c8": "^9.1.0",
+    "eslint": "^8.57.0",
+    "happy-dom": "^14.3.9",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.4.3",
+    "vitest": "^1.4.0"
+  },
+  "dependencies": {
+    "monaco-editor-core": "^0.47.0"
+  }
+}

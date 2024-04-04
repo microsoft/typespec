@@ -24,7 +24,7 @@ export const ProblemPane: FunctionComponent<ProblemPaneProps> = ({
         onClick={onHeaderClick}
         collaped={collapsed}
       />
-      <div className={style["problem-content"]}>
+      <div className={style["problem-content"]} aria-hidden={collapsed}>
         <ProblemPaneContent
           compilationState={compilationState}
           onDiagnosticSelected={onDiagnosticSelected}

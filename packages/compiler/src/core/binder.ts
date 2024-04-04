@@ -383,6 +383,9 @@ export function createBinder(program: Program): Binder {
         case SyntaxKind.ProjectionModelPropertySelector:
           selectorString = "modelproperty";
           break;
+        case SyntaxKind.ProjectionScalarSelector:
+          selectorString = "scalar";
+          break;
         case SyntaxKind.ProjectionOperationSelector:
           selectorString = "op";
           break;

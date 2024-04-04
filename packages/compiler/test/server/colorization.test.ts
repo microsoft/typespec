@@ -10,6 +10,7 @@ import { TypeSpecScope } from "../../src/server/tmlanguage.js";
 import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { findTestPackageRoot } from "../../src/testing/test-utils.js";
+import { deepEquals } from "../../src/utils/index.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -32,6 +33,8 @@ const Token = {
   keywords: {
     model: createToken("model", "keyword.other.tsp"),
     scalar: createToken("scalar", "keyword.other.tsp"),
+    enum: createToken("enum", "keyword.other.tsp"),
+    union: createToken("union", "keyword.other.tsp"),
     operation: createToken("op", "keyword.other.tsp"),
     namespace: createToken("namespace", "keyword.other.tsp"),
     interface: createToken("interface", "keyword.other.tsp"),
@@ -769,6 +772,124 @@ function testColorization(description: string, tokenize: Tokenize) {
       ]);
     });
 
+    describe("enums", () => {
+      it("simple enum", async () => {
+        const tokens = await tokenize("enum Foo {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with simple members", async () => {
+        const tokens = await tokenize("enum Direction { up, down}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with escaped identifiers", async () => {
+        const tokens = await tokenize("enum Direction { `North West`, `North West`}");
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("`North West`"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("`North West`"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("enum with string values", async () => {
+        const tokens = await tokenize(`enum Direction { up: "Up", down: "Down"}`);
+        deepStrictEqual(tokens, [
+          Token.keywords.enum,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("union statements", () => {
+      it("simple union", async () => {
+        const tokens = await tokenize("union Foo {}");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with unamed variants", async () => {
+        const tokens = await tokenize(`union Direction { "up", string, 123 }`);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.literals.stringQuoted("up"),
+          Token.punctuation.comma,
+          Token.identifiers.type("string"),
+          Token.punctuation.comma,
+          Token.literals.numeric("123"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with named variants", async () => {
+        const tokens = await tokenize(`union Direction { up: "Up", down: "Down" }`);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("up"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Up"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("down"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("Down"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("union with named variants with escaped identifier", async () => {
+        const tokens = await tokenize(
+          `union Direction { \`north east\`: "North East", \`north west\`: "North West" }`
+        );
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Direction"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("`north east`"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("North East"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("`north west`"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("North West"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");
@@ -1133,6 +1254,49 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.comment.block("          "),
             Token.comment.block("*/"),
           ]);
+        });
+
+        describe("in template parameters", () => {
+          it.each([
+            [
+              "alias",
+              `alias Foo<T // comment
+                > = T`,
+            ],
+            [
+              "model",
+              `model Foo<T // comment
+                > {}`,
+            ],
+            [
+              "union",
+              `union Foo<T // comment
+                > {}`,
+            ],
+            [
+              "interface",
+              `interface Foo<T // comment
+                > {}`,
+            ],
+            [
+              "operation",
+              `op foo<T // comment
+                >(): void;`,
+            ],
+          ])("%s", async () => {
+            const tokens = await tokenize(`alias Foo<T // comment
+            > = T`);
+
+            const index = tokens.findIndex((x) =>
+              deepEquals(x, Token.punctuation.typeParameters.begin)
+            );
+            deepStrictEqual(tokens.slice(index, index + 4), [
+              Token.punctuation.typeParameters.begin,
+              Token.identifiers.type("T"),
+              Token.comment.line("// comment"),
+              Token.punctuation.typeParameters.end,
+            ]);
+          });
         });
       });
     }

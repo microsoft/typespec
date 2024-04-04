@@ -1829,6 +1829,59 @@ describe("versioning: logic", () => {
     }
   });
 
+  describe("scalars", () => {
+    it("can be renamed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedScalar(
+        ["v1", "v2"],
+        `
+        @renamedFrom(Versions.v2, "oldTest")
+        scalar test;`
+      );
+
+      strictEqual(v1.name, "oldTest");
+      strictEqual(v2.name, "test");
+    });
+
+    it("can be added", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedScalar(["v1", "v2"], `@added(Versions.v2) scalar test;`);
+      strictEqual(v1.kind, "Intrinsic");
+      strictEqual((v1 as any as IntrinsicType).name, "never");
+      strictEqual(v2.kind, "Scalar");
+    });
+
+    it("can be removed", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedScalar(["v1", "v2"], `@removed(Versions.v2) scalar test;`);
+
+      strictEqual(v1.kind, "Scalar");
+      strictEqual(v2.kind, "Intrinsic");
+      strictEqual((v2 as any as IntrinsicType).name, "never");
+    });
+
+    async function versionedScalar(versions: string[], scalarCode: string) {
+      const { test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { ${versions.map((t) => JSON.stringify(t)).join(" , ")} }
+
+        @test ${scalarCode}
+      `)) as { test: Scalar };
+
+      return {
+        source: test,
+        projections: versions.map((v) => {
+          return project(test, v);
+        }),
+      };
+    }
+  });
+
   function assertModelProjectsTo(types: [Model, string][], target: Model) {
     types.forEach(([m, version]) => {
       const projection = project(m, version, "from");

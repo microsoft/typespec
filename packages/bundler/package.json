@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://typespec.io",
@@ -32,7 +32,7 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -50,7 +50,7 @@
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.0",
-    "rollup": "~4.13.0",
+    "rollup": "~4.13.2",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
@@ -62,8 +62,8 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
-    "vite": "^5.1.6",
+    "typescript": "~5.4.3",
+    "vite": "^5.2.7",
     "vitest": "^1.4.0"
   }
 }

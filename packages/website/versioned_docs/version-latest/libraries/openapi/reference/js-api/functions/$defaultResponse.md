@@ -4,7 +4,7 @@ title: "[F] $defaultResponse"
 
 ---
 ```ts
-$defaultResponse(context, entity): void
+$defaultResponse(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $defaultResponse(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` |
+| `target` | `Model` |
 
 ## Returns
 

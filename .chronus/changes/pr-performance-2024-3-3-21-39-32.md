@@ -1,10 +1,9 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: dependencies
+changeKind: internal
 packages:
   - "@typespec/bundler"
   - "@typespec/compiler"
-  - "@typespec/eslint-config-typespec"
   - "@typespec/eslint-plugin"
   - "@typespec/html-program-viewer"
   - "@typespec/http"
@@ -17,9 +16,7 @@ packages:
   - "@typespec/prettier-plugin-typespec"
   - "@typespec/protobuf"
   - "@typespec/rest"
-  - tmlanguage-generator
-  - typespec-vscode
   - "@typespec/versioning"
 ---
 
-Update dependencies
+Ci improvements

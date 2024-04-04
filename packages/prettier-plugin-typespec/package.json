@@ -1,12 +1,12 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
     "test": "vitest run",
-    "test-official": "vitest run",
+    "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"
   },
   "author": "Microsoft Corporation",
@@ -21,7 +21,7 @@
     "@rollup/plugin-replace": "~5.0.5",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "rollup": "~4.13.0",
+    "rollup": "~4.13.2",
     "vitest": "^1.4.0"
   },
   "files": [

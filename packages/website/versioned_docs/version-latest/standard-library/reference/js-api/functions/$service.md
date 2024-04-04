@@ -16,7 +16,7 @@ $service(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Namespace`](../interfaces/Namespace.md) |
-| `options`? | [`Model`](../interfaces/Model.md) |
+| `options`? | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 
