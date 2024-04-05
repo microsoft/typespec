@@ -48,7 +48,7 @@ export default tsEslint.config(
         "warn",
         { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
       ],
-      // "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-floating-promises": "error",
 
       // This rule is bugged https://github.com/typescript-eslint/typescript-eslint/issues/6538
       "@typescript-eslint/no-misused-promises": "off",
@@ -56,7 +56,7 @@ export default tsEslint.config(
       /**
        * Unicorn
        */
-      // "deprecation/deprecation": ["warn"],
+      "deprecation/deprecation": ["warn"],
 
       /**
        * Unicorn
