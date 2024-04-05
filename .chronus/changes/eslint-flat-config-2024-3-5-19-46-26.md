@@ -19,6 +19,7 @@ packages:
   - tmlanguage-generator
   - typespec-vscode
   - "@typespec/versioning"
+  - "typespec-vs"
 ---
 
 Migrate to eslint flat config
