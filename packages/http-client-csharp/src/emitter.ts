@@ -176,5 +176,3 @@ function deleteFile(filePath: string) {
 function prettierOutput(output: string) {
   return output + "\n";
 }
-
-console.log("FOR TESTING REMOVE THIS SHOULD FAIL CI");
