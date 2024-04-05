@@ -15,7 +15,7 @@ if (Test-Path "$packageRoot/node_modules") {
     Remove-Item -Recurse -Force "$packageRoot/node_modules"
 }
 
-Push-Location "$packageRoot/packages/http-client-csharp"
+Push-Location "$packageRoot"
 try {
     if (Test-Path "./node_modules") {
         Remove-Item -Recurse -Force "./node_modules"
