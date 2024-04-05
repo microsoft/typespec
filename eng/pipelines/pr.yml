@@ -3,19 +3,19 @@ trigger:
     include:
       - main
       - gh-readonly-queue/* # Used to trigger for GitHub merge queues
-  # Not doing this until check enforcer is added https://github.com/microsoft/typespec/issues/3117
-  # paths:
-  #   exclude:
-  #     - packages/http-client-csharp
+  paths:
+    exclude:
+      - packages/http-client-csharp
 
 pr:
   branches:
     include:
       - main
       - release/*
-  paths:
-    exclude:
-      - packages/http-client-csharp
+  # Not doing this until check enforcer is added https://github.com/microsoft/typespec/issues/3117
+  # paths:
+  #   exclude:
+  #     - packages/http-client-csharp
 
 extends:
   template: /eng/pipelines/templates/1es-redirect.yml
