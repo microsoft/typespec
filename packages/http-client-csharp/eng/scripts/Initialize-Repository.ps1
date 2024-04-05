@@ -7,15 +7,15 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
-$root = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
-. "$root/eng/scripts/CommandInvocation-Helpers.ps1"
+$packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
+. "$packageRoot/../../eng/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
-if (Test-Path "$root/node_modules") {
-    Remove-Item -Recurse -Force "$root/node_modules"
+if (Test-Path "$packageRoot/node_modules") {
+    Remove-Item -Recurse -Force "$packageRoot/node_modules"
 }
 
-Push-Location "$root/packages/http-client-csharp"
+Push-Location "$packageRoot/packages/http-client-csharp"
 try {
     if (Test-Path "./node_modules") {
         Remove-Item -Recurse -Force "./node_modules"
