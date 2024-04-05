@@ -14,7 +14,7 @@ export interface Numeric {
   readonly isInteger: boolean;
 
   /** @internal */
-  readonly _d: InternalData;
+  readonly [InternalDataSym]: InternalData;
 }
 
 /** @internal */
@@ -37,6 +37,9 @@ const InvalidNumericError = class extends Error {
   code = "InvalidNumeric";
 };
 
+/** @internal */
+export const InternalDataSym = Symbol.for("NumericInternalData");
+
 /**
  * Represent any possible numeric value
  */
@@ -45,7 +48,7 @@ export function Numeric(stringValue: string): Numeric {
 
   const isInteger = data.d === 0;
   const obj = {
-    _d: data,
+    [InternalDataSym]: data,
     isInteger,
   };
   // We are explicitly not using a class here due to version mismatch between the compiler and the runtime that could happen and break instanceof checks.
@@ -128,7 +131,7 @@ function parse(original: string): InternalData {
   return { n, e: exp, s: sign, d: decimal };
 }
 
-function stringify(value: Numeric["_d"]) {
+function stringify(value: InternalData) {
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
   const extra = value.e > n.length ? "0".repeat(value.e - n.length) : "";
@@ -163,31 +166,31 @@ const compare = (a: InternalData, b: InternalData): 0 | 1 | -1 => {
 
 const NumericPrototype = {
   toString: function (this: Numeric) {
-    return stringify(this._d);
+    return stringify(this[InternalDataSym]);
   },
   asNumber: function (this: Numeric) {
-    const num = Number(stringify(this._d));
-    return equals(this._d, Numeric(num.toString())._d) ? num : null;
+    const num = Number(stringify(this[InternalDataSym]));
+    return equals(this[InternalDataSym], Numeric(num.toString())[InternalDataSym]) ? num : null;
   },
   asBigInt: function (this: Numeric) {
-    return this.isInteger ? this._d.n : null;
+    return this.isInteger ? this[InternalDataSym].n : null;
   },
   equals: function (this: Numeric, other: Numeric) {
-    return equals(this._d, other._d);
+    return equals(this[InternalDataSym], other[InternalDataSym]);
   },
   lt: function (this: Numeric, other: Numeric) {
-    return compare(this._d, other._d) === -1;
+    return compare(this[InternalDataSym], other[InternalDataSym]) === -1;
   },
   lte: function (this: Numeric, other: Numeric) {
-    return compare(this._d, other._d) <= 0;
+    return compare(this[InternalDataSym], other[InternalDataSym]) <= 0;
   },
   gt: function (this: Numeric, other: Numeric) {
-    return compare(this._d, other._d) === 1;
+    return compare(this[InternalDataSym], other[InternalDataSym]) === 1;
   },
   gte: function (this: Numeric, other: Numeric) {
-    return compare(this._d, other._d) >= 0;
+    return compare(this[InternalDataSym], other[InternalDataSym]) >= 0;
   },
 };
 NumericPrototype.toString = function (this: Numeric) {
-  return stringify(this._d);
+  return stringify(this[InternalDataSym]);
 };

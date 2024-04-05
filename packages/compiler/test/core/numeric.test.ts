@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { Numeric } from "../../src/core/numeric.js";
+import { InternalDataSym, Numeric } from "../../src/core/numeric.js";
 
 describe("parsing", () => {
   function expectNumericData(value: string, n: bigint, e: number, sign: 1 | -1 = 1) {
     const numeric = Numeric(value);
-    expect(numeric._d.n).toEqual(n);
-    expect(numeric._d.s).toEqual(sign);
-    expect(numeric._d.e).toEqual(e);
-    expect(numeric._d.d).toEqual(Math.max(n.toString().length - e, 0));
+    expect(numeric[InternalDataSym].n).toEqual(n);
+    expect(numeric[InternalDataSym].s).toEqual(sign);
+    expect(numeric[InternalDataSym].e).toEqual(e);
+    expect(numeric[InternalDataSym].d).toEqual(Math.max(n.toString().length - e, 0));
   }
 
   describe("invalid number", () => {
