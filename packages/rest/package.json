@@ -58,14 +58,12 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
-
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",
     "vitest": "^1.4.0"

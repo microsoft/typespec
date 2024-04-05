@@ -60,7 +60,6 @@
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",
     "vite": "^5.2.7",

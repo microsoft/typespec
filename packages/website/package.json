@@ -63,7 +63,6 @@
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "dotenv": "~16.4.5",
-    
     "file-loader": "~6.2.0",
     "mermaid": "~10.9.0",
     "monaco-editor-webpack-plugin": "~7.1.0",

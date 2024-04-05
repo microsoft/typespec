@@ -17,7 +17,6 @@
     "@rushstack/eslint-patch": "1.10.1",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
-    
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-deprecation": "^2.0.0",
     "eslint-plugin-unicorn": "^51.0.1",
