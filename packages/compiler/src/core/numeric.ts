@@ -1,42 +1,41 @@
 interface Numeric {
   // (value: string): Numeric;
   /**
-   * Return the value as JavaScript number.
-   * @throws if the value is not representable as number(not representable in a float64/double)
+   * Return the value as JavaScript number or null if it cannot be represented without loosing precision.
    */
   asNumber(): number | null;
   asBigInt(): bigint | null;
-  asString(): string;
+  toString(): string;
   equals(value: Numeric): boolean;
   gt(value: Numeric): boolean;
   lt(value: Numeric): boolean;
   gte(value: Numeric): boolean;
   lte(value: Numeric): boolean;
 
+  readonly isInteger: boolean;
+
   /** @internal */
-  _d: {
-    n: bigint;
-    /** @internal */
-    shift: number;
-    /** @internal */
-    d: bigint;
-  };
+  _d: InternalData;
 }
 
-export interface InvalidNumbericError extends Error {
+/** @internal */
+interface InternalData {
+  /** Digits as a big it */
+  n: bigint;
+  /** Exponent */
+  e: number;
+  /** Number of decimal digits */
+  d: number;
+  /** Sign */
+  s: 1 | -1;
+}
+
+export interface InvalidNumericError extends Error {
   code: "InvalidNumeric";
 }
 
-/** Error emitted when calling `asNumber()` on a numeric that is to large */
-export interface InvalidNumberError extends Error {
-  code: "InvalidNumber";
-}
-
-const InvalidNumbericError = class extends Error {
+const InvalidNumericError = class extends Error {
   code = "InvalidNumeric";
-};
-const InvalidNumberError = class extends Error {
-  code = "InvalidNumber";
 };
 
 /**
@@ -44,114 +43,45 @@ const InvalidNumberError = class extends Error {
  * @returns
  */
 export function Numeric(stringValue: string): Numeric {
-  let i: number;
-  let n: bigint;
-  let shift = 0;
-  let d: bigint = 0n;
-
-  if ((i = stringValue.search(/e/i)) > 0) {
-    let start = 0;
-    while (start < stringValue.length - 1) {
-      if (stringValue[start] === "0") {
-        start++;
-      } else {
-        break;
-      }
-    }
-    const base = stringValue.slice(start, i);
-    const positive = stringValue[i + 1] !== "-";
-    const exponent = parseInt(stringValue.slice(positive ? i + 1 : i + 2), 10);
-
-    if (positive) {
-      n = BigInt(base) * 10n ** BigInt(exponent);
-      d = 0n;
-    } else {
-      if (exponent < base.length) {
-        n = BigInt(base.slice(0, exponent));
-        d = BigInt(base.slice(exponent));
-      } else {
-        n = 0n;
-        shift += exponent - base.length;
-
-        d = BigInt(base);
-      }
-    }
-  } else if ((i = stringValue.search(/\./)) > 0) {
-    let start = 0;
-    let end = stringValue.length - 1;
-    while (start < stringValue.length - 1) {
-      if (stringValue[start] === "0") {
-        start++;
-      } else {
-        break;
-      }
-    }
-    while (end > start) {
-      if (stringValue[end] === "0") {
-        end--;
-      } else {
-        break;
-      }
-    }
-
-    const decimalDigits = stringValue.slice(i + 1, end + 1);
-    n = BigInt(stringValue.slice(start, i));
-    for (let i = 0; i < decimalDigits.length; i++) {
-      if (decimalDigits[i] !== "0") {
-        break;
-      }
-      shift++;
-    }
-    d = BigInt(decimalDigits);
-  } else {
-    // hex, octal, binary or integer
-    n = BigInt(stringValue);
-    d = 0n;
-    shift = 0;
-  }
-
-  const equals = (value: Numeric) =>
-    value._d.n === n && value._d.shift === shift && value._d.d === d;
+  const data = parse(stringValue);
+  const equals = (value: Numeric) => value._d.n === data.n && value._d.e === data.e;
 
   const compare = (val: Numeric): 0 | 1 | -1 => {
     const other = val._d;
-    if (n < other.n) {
+    if (data.s < other.s) {
       return -1;
-    } else if (n > other.n) {
+    } else if (data.s > other.s) {
+      return 1;
+    }
+    if (data.e < other.e) {
+      return -1;
+    } else if (data.e > other.e) {
       return 1;
     }
 
-    if (d === 0n) {
-      if (other.d === 0n) {
-        return 0;
-      }
-      return -1;
-    } else if (other.d === 0n) {
-      return 1;
+    let a = data.n;
+    let b = other.n;
+    if (data.d < other.d) {
+      a *= 10n ** BigInt(other.d - data.d);
+    } else {
+      b *= 10n ** BigInt(data.d - other.d);
     }
-
-    if (shift > other.shift) {
-      return -1;
-    } else if (shift < other.shift) {
-      return 1;
-    }
-    if (d < other.d) {
-      return -1;
-    } else if (d > other.d) {
-      return 1;
-    }
+    if (a < b) return -1;
+    if (a > b) return 1;
     return 0;
   };
-  const data = { n, shift, d };
+
+  const isInteger = data.d === 0;
   return {
     _d: data,
-    asString: () => stringify(data),
+    isInteger,
+    toString: () => stringify(data),
     asNumber: () => {
       const num = Number(stringify(data));
       return equals(Numeric(num.toString())) ? num : null;
     },
     asBigInt: () => {
-      return d === 0n ? n : null;
+      return isInteger ? data.n : null;
     },
     equals,
     lt: (value) => compare(value) === -1,
@@ -161,7 +91,80 @@ export function Numeric(stringValue: string): Numeric {
   };
 }
 
+function parse(original: string): InternalData {
+  let stringValue = original;
+  let start = 0;
+  let sign: 1 | -1 = 1;
+  let n: bigint;
+  let exp: number | undefined;
+  let decimal: number;
+  if (stringValue[0] === "-") {
+    start = 1;
+    sign = -1;
+  }
+  const second = stringValue[start + 1]?.toLowerCase();
+  if (stringValue[start] === "0" && (second === "b" || second === "x" || second === "o")) {
+    try {
+      n = BigInt(stringValue.slice(start));
+      exp = n.toString().length;
+      decimal = 0;
+    } catch {
+      throw new InvalidNumericError(`Invalid numeric value: ${original}`);
+    }
+  } else {
+    // Skip leading 0.
+    while (stringValue[start] === "0") {
+      start++;
+    }
+    const decimalPointIndex = stringValue.indexOf(".");
+    const adjustedPointIndex = decimalPointIndex - start;
+    // Decimal point?
+    if (decimalPointIndex !== -1) {
+      exp = adjustedPointIndex;
+      stringValue = stringValue.replace(".", "");
+    }
+
+    let i: number;
+
+    if ((i = stringValue.search(/e/i)) > 0) {
+      // Determine exponent.
+      if (exp === undefined) {
+        exp = i - start;
+      }
+      exp += Number(stringValue.slice(i + 1));
+      stringValue = stringValue.slice(start, i);
+    } else if (exp === undefined) {
+      // Integer.
+      exp = stringValue.length - start;
+      stringValue = stringValue.slice(start);
+    } else {
+      stringValue = stringValue.slice(start);
+    }
+
+    let end = stringValue.length;
+    while (stringValue[end - 1] === "0") {
+      end--;
+      if (end < adjustedPointIndex) {
+        // if we are looking at a zero before the decimal point, we need to decrease the exponent
+        exp++;
+      }
+    }
+    try {
+      stringValue = stringValue.slice(0, end);
+      n = BigInt(stringValue);
+      decimal = n === 0n ? 0 : Math.max(stringValue.length - exp, 0);
+    } catch {
+      throw new InvalidNumericError(`Invalid numeric value: ${original}`);
+    }
+  }
+
+  return { n, e: exp, s: sign, d: decimal };
+}
+
 function stringify(value: Numeric["_d"]) {
-  const decimalStr = value.d === 0n ? "" : `.${"0".repeat(value.shift)}${value.d}`;
-  return `${value.n}${decimalStr}`;
+  const n = value.n.toString();
+  const sign = value.s === -1 ? "-" : "";
+  const extra = value.e > n.length ? "0".repeat(value.e - n.length) : "";
+  const decimal = value.e < n.length ? "." + n.slice(value.e) : "";
+  return sign + n.slice(0, value.e) + extra + decimal;
 }
