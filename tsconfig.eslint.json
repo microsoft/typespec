@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  // Need to be explicit here or get into OOM issues https://github.com/typescript-eslint/typescript-eslint/issues/1192
+  "include": ["packages/**/*.ts"], 
+}
