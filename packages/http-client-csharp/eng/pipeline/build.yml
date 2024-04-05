@@ -4,8 +4,9 @@ trigger:
       - main
       - gh-readonly-queue/* # Used to trigger for GitHub merge queues
   paths:
-    exclude:
-      - packages/http-client-csharp
+    include:
+      - packages/http-client-csharp/
+      - eng/emitters/
 
 pr:
   branches:
@@ -13,8 +14,9 @@ pr:
       - main
       - release/*
   paths:
-    exclude:
-      - packages/http-client-csharp
+    include:
+      - packages/http-client-csharp/
+      - eng/emitters/
 
 parameters:
   - name: UseTypeSpecNext
