@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { BodyMediaType } from "./bodyMediaType.js";
-import { InputParameter } from "./inputParameter.js";
-import { OperationLongRunning } from "./operationLongRunning.js";
-import { OperationPaging } from "./operationPaging.js";
-import { OperationResponse } from "./operationResponse.js";
-import { RequestMethod } from "./requestMethod.js";
+import { BodyMediaType } from "./body-media-type.js";
+import { InputParameter } from "./input-parameter.js";
+import { OperationLongRunning } from "./operation-long-running.js";
+import { OperationPaging } from "./operation-paging.js";
+import { OperationResponse } from "./operation-response.js";
+import { RequestMethod } from "./request-method.js";
 
 export interface Paging {
   NextLinkName?: string;

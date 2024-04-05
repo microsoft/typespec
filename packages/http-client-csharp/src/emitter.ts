@@ -11,10 +11,10 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 
-import fs, { existsSync } from "fs";
+import fs from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
-import { createModel } from "./lib/clientModelBuilder.js";
+import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel, logger } from "./lib/logger.js";
 import {
   NetEmitterOptions,
@@ -135,12 +135,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       if (options.skipSDKGeneration !== true) {
         const csProjFile = resolvePath(outputFolder, `${configurations["library-name"]}.csproj`);
         logger.info(`Checking if ${csProjFile} exists`);
-        const newProjectOption =
-          options["new-project"] || !existsSync(csProjFile) ? "--new-project" : "";
-        const existingProjectOption = options["existing-project-folder"]
-          ? `--existing-project-folder ${options["existing-project-folder"]}`
-          : "";
-        const debugFlag = options.debug ?? false ? " --debug" : "";
 
         logger.info("TODO connect the dotnet generator");
         //const command = `dotnet --roll-forward Major ${resolvePath(

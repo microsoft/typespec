@@ -3,7 +3,7 @@
 
 import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { DecoratedType, Operation, Type } from "@typespec/compiler";
-import { ExternalDocs } from "../type/externalDocs.js";
+import { ExternalDocs } from "../type/external-docs.js";
 
 const externalDocsKey = Symbol("externalDocs");
 export function getExternalDocs(context: SdkContext, entity: Type): ExternalDocs | undefined {
