@@ -2,6 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import assert from "assert";
 import isEqual from "lodash.isequal";
+import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/clientModelBuilder.js";
 import { InputIntrinsicTypeKind } from "../../src/type/inputIntrinsicTypeKind.js";
 import { InputModelProperty } from "../../src/type/inputModelProperty.js";

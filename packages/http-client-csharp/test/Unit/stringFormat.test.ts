@@ -2,6 +2,7 @@ import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import assert from "assert";
 import isEqual from "lodash.isequal";
+import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
 import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/inputType.js";

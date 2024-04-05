@@ -1,6 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import isEqual from "lodash.isequal";
+import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/clientModelBuilder.js";
 import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
 import { InputTypeKind } from "../../src/type/inputTypeKind.js";

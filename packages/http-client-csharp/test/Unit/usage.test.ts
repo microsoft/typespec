@@ -1,6 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import assert from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getUsages } from "../../src/lib/model.js";
 import {
   createEmitterContext,
