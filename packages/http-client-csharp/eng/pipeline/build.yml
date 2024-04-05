@@ -53,6 +53,6 @@ extends:
       ${{ if eq(parameters.RunUnitTests, true) }}:
         Unit:
           TestArguments: -UnitTests
-    PackagePath: packages/http-client-csharp
+    PackagePath: /packages/http-client-csharp
 
     PublishDependsOnTest: false
