@@ -17,11 +17,14 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:watch": "vitest -w",
@@ -32,7 +35,7 @@
     "format": "pnpm -w format:dir packages/http-client-csharp"
   },
   "files": [
-    "dist/src/**"
+    "dist/**"
   ],
   "dependencies": {
     "json-serialize-refs": "0.1.0-0",
