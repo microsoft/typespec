@@ -204,7 +204,7 @@ function resolveSamples(config: SampleSnapshotTestOptions): Sample[] {
   walk("");
   return samples;
 
-  async function walk(relativeDir: string) {
+  function walk(relativeDir: string) {
     if (excludes.has(relativeDir)) {
       return;
     }
