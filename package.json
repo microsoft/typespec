@@ -18,7 +18,7 @@
     "format:check": "prettier . --check",
     "format:dir": "prettier --write",
     "gen-compiler-extern-signature": "pnpm run -r --filter \"@typespec/compiler\"  gen-extern-signature",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
     "pack:all": "chronus pack --pack-destination ./temp/artifacts",
