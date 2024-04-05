@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
-. "$packageRoot/../../eng/scripts/CommandInvocation-Helpers.ps1"
+. "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
 if (Test-Path "$packageRoot/node_modules") {
