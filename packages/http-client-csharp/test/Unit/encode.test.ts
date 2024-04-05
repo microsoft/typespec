@@ -1,7 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
-import assert from "assert";
-import isEqual from "lodash.isequal";
+import assert, { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
 import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/inputType.js";
@@ -46,15 +46,13 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationISO8601,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationISO8601,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      operation.Parameters[0].Type
     );
   });
 
@@ -83,15 +81,13 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationSeconds,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationSeconds,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      operation.Parameters[0].Type
     );
   });
 
@@ -120,15 +116,13 @@ describe("Test encode duration", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationSecondsFloat,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationSecondsFloat,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      operation.Parameters[0].Type
     );
   });
 
@@ -151,15 +145,13 @@ describe("Test encode duration", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const durationProperty = modelMap.get("ISO8601DurationProperty");
     assert(durationProperty !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationISO8601,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        durationProperty.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationISO8601,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      durationProperty.Properties[0].Type
     );
   });
 
@@ -182,15 +174,13 @@ describe("Test encode duration", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const durationProperty = modelMap.get("ISO8601DurationProperty");
     assert(durationProperty !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationISO8601,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        durationProperty.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationISO8601,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      durationProperty.Properties[0].Type
     );
   });
 
@@ -213,15 +203,13 @@ describe("Test encode duration", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const durationProperty = modelMap.get("Int32SecondsDurationProperty");
     assert(durationProperty !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationSeconds,
-          IsNullable: false,
-        },
-        durationProperty.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationSeconds,
+        IsNullable: false,
+      },
+      durationProperty.Properties[0].Type
     );
   });
 
@@ -244,15 +232,13 @@ describe("Test encode duration", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const durationProperty = modelMap.get("FloatSecondsDurationProperty");
     assert(durationProperty !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.DurationSecondsFloat,
-          IsNullable: false,
-        },
-        durationProperty.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.DurationSecondsFloat,
+        IsNullable: false,
+      },
+      durationProperty.Properties[0].Type
     );
   });
 });

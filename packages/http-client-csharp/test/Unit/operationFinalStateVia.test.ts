@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 import { FinalStateValue } from "@azure-tools/typespec-azure-core";
 import assert from "assert";
-import { describe } from "mocha";
+import { describe, it } from "vitest";
 import {
   OperationFinalStateVia,
   convertLroFinalStateVia,
