@@ -150,7 +150,7 @@ stages:
   # Test stage
   # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
   # Will only run if the parameter `TestMatrix` is not empty.
-  # The contents of the artficact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
+  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
   - ${{ if ne(length(parameters.TestMatrix), 0) }}:
       - stage: Test
         dependsOn: Build

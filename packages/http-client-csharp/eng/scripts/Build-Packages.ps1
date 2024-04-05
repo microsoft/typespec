@@ -26,7 +26,7 @@ if ($BuildNumber) {
 
     $emitterVersion = "$emitterVersion$versionTag.$BuildNumber"
     Write-Host "Setting output variable 'emitterVersion' to $emitterVersion"
-    Write-Host "##vso[task.setvariable variable=emitterVersion;isoutput=true]$emitterVersion"
+    Write-Host "##vso[task.setvariable variable=emitterVersion;isOutput=true]$emitterVersion"
 }
 
 # build and pack the emitter
