@@ -4,7 +4,8 @@ interface Numeric {
    * Return the value as JavaScript number.
    * @throws if the value is not representable as number(not representable in a float64/double)
    */
-  asNumber(): number;
+  asNumber(): number | null;
+  asBigInt(): bigint | null;
   asString(): string;
   equals(value: Numeric): boolean;
   gt(value: Numeric): boolean;
@@ -13,11 +14,13 @@ interface Numeric {
   lte(value: Numeric): boolean;
 
   /** @internal */
-  n: bigint;
-  /** @internal */
-  shift: number;
-  /** @internal */
-  d: bigint;
+  _d: {
+    n: bigint;
+    /** @internal */
+    shift: number;
+    /** @internal */
+    d: bigint;
+  };
 }
 
 export interface InvalidNumbericError extends Error {
@@ -47,9 +50,17 @@ export function Numeric(stringValue: string): Numeric {
   let d: bigint = 0n;
 
   if ((i = stringValue.search(/e/i)) > 0) {
-    const base = stringValue.slice(0, i);
+    let start = 0;
+    while (start < stringValue.length - 1) {
+      if (stringValue[start] === "0") {
+        start++;
+      } else {
+        break;
+      }
+    }
+    const base = stringValue.slice(start, i);
     const positive = stringValue[i + 1] !== "-";
-    const exponent = parseInt(stringValue.slice(positive ? i + 1 : i), 10);
+    const exponent = parseInt(stringValue.slice(positive ? i + 1 : i + 2), 10);
 
     if (positive) {
       n = BigInt(base) * 10n ** BigInt(exponent);
@@ -60,12 +71,7 @@ export function Numeric(stringValue: string): Numeric {
         d = BigInt(base.slice(exponent));
       } else {
         n = 0n;
-        for (let i = 0; i < base.length; i++) {
-          if (base[i] !== "0") {
-            break;
-          }
-          shift++;
-        }
+        shift += exponent - base.length;
 
         d = BigInt(base);
       }
@@ -104,8 +110,11 @@ export function Numeric(stringValue: string): Numeric {
     shift = 0;
   }
 
-  const equals = (value: Numeric) => value.n === n && value.shift === shift && value.d === d;
-  const compare = (other: Numeric): 0 | 1 | -1 => {
+  const equals = (value: Numeric) =>
+    value._d.n === n && value._d.shift === shift && value._d.d === d;
+
+  const compare = (val: Numeric): 0 | 1 | -1 => {
+    const other = val._d;
     if (n < other.n) {
       return -1;
     } else if (n > other.n) {
@@ -133,22 +142,16 @@ export function Numeric(stringValue: string): Numeric {
     }
     return 0;
   };
+  const data = { n, shift, d };
   return {
-    shift,
-    n,
-    d,
-    asString: () => {
-      const decimalStr = d === 0n ? "" : `.${"0".repeat(shift)}${d}`;
-      return `${n}${decimalStr}`;
-    },
+    _d: data,
+    asString: () => stringify(data),
     asNumber: () => {
-      if (Number.isSafeInteger(stringValue)) {
-        return Number(stringValue);
-      } else {
-        throw new InvalidNumberError(
-          `Number "${stringValue}" is too large to be represented as a number`
-        );
-      }
+      const num = Number(stringify(data));
+      return equals(Numeric(num.toString())) ? num : null;
+    },
+    asBigInt: () => {
+      return d === 0n ? n : null;
     },
     equals,
     lt: (value) => compare(value) === -1,
@@ -156,4 +159,9 @@ export function Numeric(stringValue: string): Numeric {
     gt: (value) => compare(value) === 1,
     gte: (value) => compare(value) >= 0,
   };
+}
+
+function stringify(value: Numeric["_d"]) {
+  const decimalStr = value.d === 0n ? "" : `.${"0".repeat(value.shift)}${value.d}`;
+  return `${value.n}${decimalStr}`;
 }
