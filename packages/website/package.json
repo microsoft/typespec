@@ -50,7 +50,6 @@
     "@types/node": "~18.11.19",
     "@types/react": "~18.2.73",
     "@typespec/compiler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@typespec/json-schema": "workspace:~",

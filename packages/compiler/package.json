@@ -104,7 +104,6 @@
     "@types/semver": "^7.5.8",
     "@types/sinon": "~17.0.3",
     "@types/yargs": "~17.0.32",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",

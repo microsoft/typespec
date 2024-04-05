@@ -39,7 +39,6 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@types/plist": "~3.0.5",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3"
   }

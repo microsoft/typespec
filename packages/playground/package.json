@@ -101,7 +101,6 @@
     "@types/react-dom": "~18.2.23",
     "@types/swagger-ui-dist": "~3.30.4",
     "@typespec/bundler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@vitejs/plugin-react": "~4.2.1",
     "c8": "^9.1.0",
     "copyfiles": "~2.4.1",

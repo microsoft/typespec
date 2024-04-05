@@ -55,7 +55,6 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
