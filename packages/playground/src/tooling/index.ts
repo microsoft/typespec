@@ -34,5 +34,5 @@ export async function buildSamples_experimental(
     `declare const samples: Record<string, PlaygroundSample>;`,
     `export default samples;`,
   ].join("\n");
-  await writeFile(resolvePath(dir, getBaseFileName(output)) + ".d.ts", dts);
+  await writeFile(resolvePath(dir, getBaseFileName(output)).replace(/\.js$/, ".d.ts"), dts);
 }
