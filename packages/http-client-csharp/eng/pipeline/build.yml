@@ -28,10 +28,6 @@ parameters:
     type: boolean
     default: true
 
-pool:
-  name: azsdk-pool-mms-win-2022-general
-  vmImage: windows-2022
-
 name: $(Date:yyyyMMdd).$(Rev:r)
 
 extends:
