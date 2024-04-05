@@ -1,6 +1,5 @@
 import { TestHost } from "@typespec/compiler/testing";
-import assert, { deepStrictEqual } from "assert";
-import isEqual from "lodash.isequal";
+import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/clientModelBuilder.js";
 import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
@@ -36,15 +35,13 @@ describe("Test GetInputType for scalar", () => {
       root.Clients[0].Operations[0].Parameters[0].Type.Name,
       InputPrimitiveTypeKind.AzureLocation
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.AzureLocation,
-          IsNullable: false,
-        },
-        root.Clients[0].Operations[0].Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.AzureLocation,
+        IsNullable: false,
+      },
+      root.Clients[0].Operations[0].Parameters[0].Type
     );
   });
 });
