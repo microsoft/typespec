@@ -1,5 +1,4 @@
-interface Numeric {
-  // (value: string): Numeric;
+export interface Numeric {
   /**
    * Return the value as JavaScript number or null if it cannot be represented without loosing precision.
    */
@@ -40,55 +39,23 @@ const InvalidNumericError = class extends Error {
 
 /**
  * Represent any possible numeric value
- * @returns
  */
 export function Numeric(stringValue: string): Numeric {
   const data = parse(stringValue);
-  const equals = (value: Numeric) => value._d.n === data.n && value._d.e === data.e;
-
-  const compare = (val: Numeric): 0 | 1 | -1 => {
-    const other = val._d;
-    if (data.s < other.s) {
-      return -1;
-    } else if (data.s > other.s) {
-      return 1;
-    }
-    if (data.e < other.e) {
-      return -1;
-    } else if (data.e > other.e) {
-      return 1;
-    }
-
-    let a = data.n;
-    let b = other.n;
-    if (data.d < other.d) {
-      a *= 10n ** BigInt(other.d - data.d);
-    } else {
-      b *= 10n ** BigInt(data.d - other.d);
-    }
-    if (a < b) return -1;
-    if (a > b) return 1;
-    return 0;
-  };
 
   const isInteger = data.d === 0;
-  return {
+  const obj = {
     _d: data,
     isInteger,
-    toString: () => stringify(data),
-    asNumber: () => {
-      const num = Number(stringify(data));
-      return equals(Numeric(num.toString())) ? num : null;
-    },
-    asBigInt: () => {
-      return isInteger ? data.n : null;
-    },
-    equals,
-    lt: (value) => compare(value) === -1,
-    lte: (value) => compare(value) <= 0,
-    gt: (value) => compare(value) === 1,
-    gte: (value) => compare(value) >= 0,
   };
+  // We are explicitly not using a class here due to version mismatch between the compiler and the runtime that could happen and break instanceof checks.
+  const numeric = setTypedProptotype(obj, NumericPrototype);
+  return Object.freeze(numeric);
+}
+
+function setTypedProptotype<T extends object, P extends object>(obj: T, prototype: P): T & P {
+  Object.setPrototypeOf(obj, NumericPrototype);
+  return obj as any;
 }
 
 function parse(original: string): InternalData {
@@ -168,3 +135,59 @@ function stringify(value: Numeric["_d"]) {
   const decimal = value.e < n.length ? "." + n.slice(value.e) : "";
   return sign + n.slice(0, value.e) + extra + decimal;
 }
+const equals = (a: InternalData, b: InternalData) => a.n === b.n && a.e === b.e;
+
+const compare = (a: InternalData, b: InternalData): 0 | 1 | -1 => {
+  if (a.s < b.s) {
+    return -1;
+  } else if (a.s > b.s) {
+    return 1;
+  }
+  if (a.e < b.e) {
+    return -1;
+  } else if (a.e > b.e) {
+    return 1;
+  }
+
+  let aN = a.n;
+  let bN = b.n;
+  if (a.d < b.d) {
+    aN *= 10n ** BigInt(b.d - a.d);
+  } else {
+    bN *= 10n ** BigInt(a.d - b.d);
+  }
+  if (aN < bN) return -1;
+  if (aN > bN) return 1;
+  return 0;
+};
+
+const NumericPrototype = {
+  toString: function (this: Numeric) {
+    return stringify(this._d);
+  },
+  asNumber: function (this: Numeric) {
+    const num = Number(stringify(this._d));
+    return equals(this._d, Numeric(num.toString())._d) ? num : null;
+  },
+  asBigInt: function (this: Numeric) {
+    return this.isInteger ? this._d.n : null;
+  },
+  equals: function (this: Numeric, other: Numeric) {
+    return equals(this._d, other._d);
+  },
+  lt: function (this: Numeric, other: Numeric) {
+    return compare(this._d, other._d) === -1;
+  },
+  lte: function (this: Numeric, other: Numeric) {
+    return compare(this._d, other._d) <= 0;
+  },
+  gt: function (this: Numeric, other: Numeric) {
+    return compare(this._d, other._d) === 1;
+  },
+  gte: function (this: Numeric, other: Numeric) {
+    return compare(this._d, other._d) >= 0;
+  },
+};
+NumericPrototype.toString = function (this: Numeric) {
+  return stringify(this._d);
+};
