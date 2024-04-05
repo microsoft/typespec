@@ -91,9 +91,6 @@ stages:
                 -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
               workingDirectory: $(selfRepositoryPath)
 
-            displayName: If failed, push changes
-            condition: failed()
-            workingDirectory: $(selfRepositoryPath)
         templateContext:
           outputs:
             - output: pipelineArtifact
