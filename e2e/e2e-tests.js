@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @ts-check
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";

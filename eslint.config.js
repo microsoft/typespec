@@ -1,5 +1,7 @@
 // @ts-check
 import eslint from "@eslint/js";
+import deprecation from "eslint-plugin-deprecation";
+import unicorn from "eslint-plugin-unicorn";
 import vitest from "eslint-plugin-vitest";
 import { dirname } from "path";
 import tsEslint from "typescript-eslint";
@@ -7,7 +9,18 @@ import { fileURLToPath } from "url";
 
 export default tsEslint.config(
   {
-    ignores: ["**/dist/**/*", "**/.temp/**/*"],
+    ignores: [
+      "**/dist/**/*",
+      "**/.temp/**/*",
+      "**/generated-defs/*",
+      "**/website/build/**/*",
+      "**/.docusaurus/**/*",
+      "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      // TODO: enable
+      "**/.scripts/**/*",
+      "eng/scripts/**/*",
+      "packages/*/scripts/**/*",
+    ],
   },
   eslint.configs.recommended,
   ...tsEslint.configs.recommended,
@@ -17,6 +30,10 @@ export default tsEslint.config(
         project: "./tsconfig.json",
         tsconfigRootDir: dirname(fileURLToPath(import.meta.url)),
       },
+    },
+    plugins: {
+      deprecation,
+      unicorn,
     },
     rules: {
       /**
@@ -31,7 +48,7 @@ export default tsEslint.config(
         "warn",
         { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
       ],
-      "@typescript-eslint/no-floating-promises": "error",
+      // "@typescript-eslint/no-floating-promises": "error",
 
       // This rule is bugged https://github.com/typescript-eslint/typescript-eslint/issues/6538
       "@typescript-eslint/no-misused-promises": "off",
@@ -39,7 +56,7 @@ export default tsEslint.config(
       /**
        * Unicorn
        */
-      "deprecation/deprecation": ["warn"],
+      // "deprecation/deprecation": ["warn"],
 
       /**
        * Unicorn
@@ -54,6 +71,7 @@ export default tsEslint.config(
       "no-constant-condition": "off",
       "no-case-declarations": "off",
       "no-ex-assign": "off",
+      "no-undef": "off",
       "prefer-const": [
         "warn",
         {

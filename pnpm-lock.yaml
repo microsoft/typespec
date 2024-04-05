@@ -24,7 +24,7 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
       '@types/node':
-        specifier: ^20.12.2
+        specifier: ^20.12.4
         version: 20.12.4
       '@typescript-eslint/parser':
         specifier: ^7.4.0
