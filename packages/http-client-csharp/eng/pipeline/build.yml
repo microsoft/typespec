@@ -1,5 +1,20 @@
-trigger: none
-pr: none
+trigger:
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
+pr:
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
 
 extends:
   template: /eng/pipelines/templates/1es-redirect.yml
