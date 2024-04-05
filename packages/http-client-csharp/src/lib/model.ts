@@ -95,7 +95,7 @@ export function mapTypeSpecTypeToCSharpInputTypeKind(
     case "Enum":
       return InputPrimitiveTypeKind.Enum;
     case "Number":
-      let numberValue = typespecType.value;
+      const numberValue = typespecType.value;
       if (numberValue % 1 === 0) {
         return InputPrimitiveTypeKind.Int32;
       }
@@ -735,7 +735,7 @@ export function getInputType(
   }
 
   function getInputTypeForUnion(union: Union): InputUnionType | InputType {
-    var clientType = getClientType(context, union);
+    const clientType = getClientType(context, union);
     if (clientType.kind === "enum" && clientType.isFixed === false) {
       return fromSdkEnumType(clientType, context, enums);
     }
@@ -812,7 +812,7 @@ export function getUsages(
   for (const type of usages.types) {
     let typeName = "";
     if ("name" in type) typeName = type.name ?? "";
-    let effectiveType = type;
+    const effectiveType = type;
     if (type.kind === "Enum") {
       typeName = getTypeName(context, type);
     }
@@ -820,7 +820,7 @@ export function getUsages(
       typeName = getTypeName(context, effectiveType as Model);
     }
     if (type.kind === "Union") {
-      let clientType = getClientType(context, type);
+      const clientType = getClientType(context, type);
       if (clientType.kind === "enum" && clientType.isFixed === false) {
         typeName = clientType.generatedName || clientType.name;
       }
@@ -848,7 +848,7 @@ export function getUsages(
   for (const op of ops) {
     const resourceOperation = getResourceOperation(program, op.operation);
     if (!op.parameters.body?.parameter && op.parameters.body?.type) {
-      var effectiveBodyType = undefined;
+      let effectiveBodyType = undefined;
       const affectTypes: Set<string> = new Set<string>();
       effectiveBodyType = getEffectiveSchemaType(context, op.parameters.body.type);
       if (effectiveBodyType.kind === "Model") {
@@ -913,7 +913,7 @@ export function getUsages(
     // iterate all models to find if it contains literal type properties
     for (const [name, model] of modelMap) {
       // get the usage of this model
-      let usage = usagesMap.get(name);
+      const usage = usagesMap.get(name);
       for (const prop of model.Properties) {
         const type = prop.Type;
         if (!isInputLiteralType(type)) continue;

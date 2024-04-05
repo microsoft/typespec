@@ -89,7 +89,7 @@ export function loadOperation(
   } else if (typespecParameters.body?.type) {
     const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
     if (effectiveBodyType.kind === "Model") {
-      let bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
+      const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
       if (effectiveBodyType.name === "") {
         bodyParameter.Kind = InputOperationParameterKind.Spread;
       }
@@ -98,7 +98,7 @@ export function loadOperation(
       if (isInputModelType(bodyParameter.Type) && bodyParameter.Type.Name === "") {
         // give body type a name
         bodyParameter.Type.Name = `${capitalize(op.name)}Request`;
-        var bodyModelType = bodyParameter.Type as InputModelType;
+        const bodyModelType = bodyParameter.Type as InputModelType;
         bodyModelType.Usage = Usage.Input;
         // update models cache
         models.delete("");
@@ -336,7 +336,7 @@ export function loadOperation(
       return undefined;
     }
 
-    var bodyType = undefined;
+    let bodyType = undefined;
     if (
       op.verb !== "delete" &&
       metadata.finalResult !== undefined &&

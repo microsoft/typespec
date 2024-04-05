@@ -17,7 +17,7 @@ export function fromSdkEnumType(
   enums: Map<string, InputEnumType>,
   addToCollection: boolean = true
 ): InputEnumType {
-  let enumName = enumType.generatedName || enumType.name;
+  const enumName = enumType.generatedName || enumType.name;
   let inputEnumType = enums.get(enumName);
   if (inputEnumType === undefined) {
     const newInputEnumType: InputEnumType = {

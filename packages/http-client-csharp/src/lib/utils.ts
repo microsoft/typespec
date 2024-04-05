@@ -36,10 +36,10 @@ export function getTypeName(
   context: SdkContext,
   type: Model | Enum | EnumMember | ModelProperty | Scalar | Operation
 ): string {
-  var name = getLibraryName(context, type);
+  const name = getLibraryName(context, type);
   if (type.kind !== "Model") return name;
   if (type.name === name) {
-    var templateName = getNameForTemplate(type);
+    const templateName = getNameForTemplate(type);
     if (templateName === "") {
       const sdkModel = getSdkModel(context, type as Model);
       return sdkModel.generatedName || sdkModel.name;

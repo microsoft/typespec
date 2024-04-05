@@ -182,7 +182,7 @@ export function createModelForService(
   ) {
     const dpgOperationGroups = listOperationGroups(sdkContext, client as SdkClient);
     for (const dpgGroup of dpgOperationGroups) {
-      var subClient = emitClient(dpgGroup, client);
+      const subClient = emitClient(dpgGroup, client);
       clients.push(subClient);
       addChildClients(context, dpgGroup, clients);
     }
@@ -193,12 +193,12 @@ export function createModelForService(
       return client.name;
     }
 
-    var pathParts = client.groupPath.split(".");
+    const pathParts = client.groupPath.split(".");
     if (pathParts?.length >= 3) {
       return pathParts.slice(pathParts.length - 2).join("");
     }
 
-    var clientName = getLibraryName(sdkContext, client.type);
+    const clientName = getLibraryName(sdkContext, client.type);
     if (
       clientName === "Models" &&
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
