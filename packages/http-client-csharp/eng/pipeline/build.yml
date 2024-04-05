@@ -33,7 +33,7 @@ pool:
 name: $(Date:yyyyMMdd).$(Rev:r)
 
 extends:
-  template: /eng/emitters/pipelines/templates/archetype-autorest-preview.yml
+  template: /eng/emitters/pipelines/templates/archetype-preview.yml
   parameters:
     BuildPrereleaseVersion: true
     ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
