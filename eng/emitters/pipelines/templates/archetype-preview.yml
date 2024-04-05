@@ -1,9 +1,3 @@
-extends:
-  ${{ if and(parameters.Use1ESOfficial, eq(variables['System.TeamProject'], 'internal')) }}:
-    template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
-  ${{ else }}:
-    template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
-
 parameters:
   # Whether to build alpha versions of the packages. This is passed as a flag to the build script.
   - name: BuildPrereleaseVersion
@@ -49,152 +43,158 @@ parameters:
   - name: PackagePath
     type: string
 
-stages:
-  # Build stage
-  # Responsible for building the autorest generator and typespec emitter packages
-  # Produces the artifact `build_artifacts` which contains the following:
-  #   emitter-package.json: Will be used to generate the emitter-package-lock.json file and placed in the `/eng` folder
-  #                         of the sdk repository.
-  #   overrides.json: Contains npm package version overrides for the emitter and generator
-  #   packages/: Contains the packages to publish
-  - stage: Build
-    variables:
-      selfRepositoryPath: $(Build.SourcesDirectory)
-    jobs:
-      - job: Build
-        steps:
-          # Validate parameters and fail early if invalid
-          - ${{ each package in parameters.Packages }}:
-              - ${{ if notIn(package.type, 'npm', 'nuget') }}:
-                  - script: |
-                      echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
-                      exit 1
-                    displayName: "Unsupported package type"
-                    condition: always()
+extends:
+  ${{ if and(parameters.Use1ESOfficial, eq(variables['System.TeamProject'], 'internal')) }}:
+    template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  ${{ else }}:
+    template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
 
-          - checkout: self
+  stages:
+    # Build stage
+    # Responsible for building the autorest generator and typespec emitter packages
+    # Produces the artifact `build_artifacts` which contains the following:
+    #   emitter-package.json: Will be used to generate the emitter-package-lock.json file and placed in the `/eng` folder
+    #                         of the sdk repository.
+    #   overrides.json: Contains npm package version overrides for the emitter and generator
+    #   packages/: Contains the packages to publish
+    - stage: Build
+      variables:
+        selfRepositoryPath: $(Build.SourcesDirectory)
+      jobs:
+        - job: Build
+          steps:
+            # Validate parameters and fail early if invalid
+            - ${{ each package in parameters.Packages }}:
+                - ${{ if notIn(package.type, 'npm', 'nuget') }}:
+                    - script: |
+                        echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
+                        exit 1
+                      displayName: "Unsupported package type"
+                      condition: always()
 
-          - ${{ parameters.AdditionalInitializeSteps }}
+            - checkout: self
 
-          - task: PowerShell@2
-            displayName: "Run initialize script"
-            inputs:
-              pwsh: true
-              filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Initialize-Repository.ps1
-              arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-              workingDirectory: $(selfRepositoryPath)
+            - ${{ parameters.AdditionalInitializeSteps }}
 
-          - task: PowerShell@2
-            displayName: "Run build script"
-            name: ci_build
-            inputs:
-              pwsh: true
-              filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Build-Packages.ps1
-              arguments: >
-                -BuildNumber "$(Build.BuildNumber)"
-                -Output "$(Build.ArtifactStagingDirectory)"
-                -PublishInternal:$${{ parameters.PublishInternal }}
-                -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
-              workingDirectory: $(selfRepositoryPath)
+            - task: PowerShell@2
+              displayName: "Run initialize script"
+              inputs:
+                pwsh: true
+                filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Initialize-Repository.ps1
+                arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                workingDirectory: $(selfRepositoryPath)
 
-        templateContext:
-          outputs:
-            - output: pipelineArtifact
-              path: $(Build.ArtifactStagingDirectory)
-              artifact: build_artifacts
+            - task: PowerShell@2
+              displayName: "Run build script"
+              name: ci_build
+              inputs:
+                pwsh: true
+                filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Build-Packages.ps1
+                arguments: >
+                  -BuildNumber "$(Build.BuildNumber)"
+                  -Output "$(Build.ArtifactStagingDirectory)"
+                  -PublishInternal:$${{ parameters.PublishInternal }}
+                  -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
+                workingDirectory: $(selfRepositoryPath)
 
-  # Publish stage
-  # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
-  # Produces the artifact `publish_artifacts` which contains the following:
-  #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
-  #                              be placed in the `/eng` folder of the sdk repository.
-  - stage: Publish
-    dependsOn:
-      - Build
-      - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
-          - Test
-    variables:
-      toolsRepositoryPath: $(Build.SourcesDirectory)
-      buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-    jobs:
-      - job: Publish
-        steps:
-          - checkout: self
-
-          - download: current
-            artifact: build_artifacts
-            displayName: Download build artifacts
-
-          # Create authenticated .npmrc file for publishing
-          - ${{ if eq(parameters.PublishInternal, 'true') }}:
-              - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                parameters:
-                  npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
-          - ${{ else }}:
-              - pwsh: |
-                  "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                displayName: Authenticate .npmrc for npmjs.org
-                workingDirectory: $(buildArtifactsPath)/packages
-
-          # per package, publishing using appropriate tool
-          - ${{ each package in parameters.Packages }}:
-              - ${{ if eq(package.type, 'npm') }}:
-                  - pwsh: |
-                      $file = Resolve-Path "${{ package.file }}"
-                      Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                      npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                    displayName: Publish ${{ package.name }}
-                    workingDirectory: $(buildArtifactsPath)/packages
-
-        templateContext:
-          outputs:
-            - output: pipelineArtifact
-              path: $(Build.ArtifactStagingDirectory)
-              artifact: publish_artifacts
-
-  # Test stage
-  # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
-  # Will only run if the parameter `TestMatrix` is not empty.
-  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
-  - ${{ if ne(length(parameters.TestMatrix), 0) }}:
-      - stage: Test
-        dependsOn: Build
-        variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-        jobs:
-          - job: Test
-            strategy:
-              matrix: ${{ parameters.TestMatrix }}
-            variables:
-              buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-            steps:
-              - checkout: self
-
-              - download: current
+          templateContext:
+            outputs:
+              - output: pipelineArtifact
+                path: $(Build.ArtifactStagingDirectory)
                 artifact: build_artifacts
-                displayName: Download build artifacts
 
-              - ${{ parameters.AdditionalInitializeSteps }}
+    # Publish stage
+    # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
+    # Produces the artifact `publish_artifacts` which contains the following:
+    #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
+    #                              be placed in the `/eng` folder of the sdk repository.
+    - stage: Publish
+      dependsOn:
+        - Build
+        - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
+            - Test
+      variables:
+        toolsRepositoryPath: $(Build.SourcesDirectory)
+        buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+      jobs:
+        - job: Publish
+          steps:
+            - checkout: self
 
-              - task: PowerShell@2
-                displayName: "Run initialize script"
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Initialize-Repository.ps1
-                  arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
-                  workingDirectory: $(selfRepositoryPath)
+            - download: current
+              artifact: build_artifacts
+              displayName: Download build artifacts
 
-              - task: PowerShell@2
-                displayName: "Run test script"
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Test-Packages.ps1
-                  arguments: $(TestArguments)
-                  workingDirectory: $(selfRepositoryPath)
+            # Create authenticated .npmrc file for publishing
+            - ${{ if eq(parameters.PublishInternal, 'true') }}:
+                - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+                  parameters:
+                    npmrcPath: $(buildArtifactsPath)/packages/.npmrc
+                    registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
+            - ${{ else }}:
+                - pwsh: |
+                    "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
+                  displayName: Authenticate .npmrc for npmjs.org
+                  workingDirectory: $(buildArtifactsPath)/packages
 
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: test_artifacts_$(System.JobName)
+            # per package, publishing using appropriate tool
+            - ${{ each package in parameters.Packages }}:
+                - ${{ if eq(package.type, 'npm') }}:
+                    - pwsh: |
+                        $file = Resolve-Path "${{ package.file }}"
+                        Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+                        npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+                      displayName: Publish ${{ package.name }}
+                      workingDirectory: $(buildArtifactsPath)/packages
+
+          templateContext:
+            outputs:
+              - output: pipelineArtifact
+                path: $(Build.ArtifactStagingDirectory)
+                artifact: publish_artifacts
+
+    # Test stage
+    # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
+    # Will only run if the parameter `TestMatrix` is not empty.
+    # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
+    - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+        - stage: Test
+          dependsOn: Build
+          variables:
+            selfRepositoryPath: $(Build.SourcesDirectory)
+          jobs:
+            - job: Test
+              strategy:
+                matrix: ${{ parameters.TestMatrix }}
+              variables:
+                buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+              steps:
+                - checkout: self
+
+                - download: current
+                  artifact: build_artifacts
+                  displayName: Download build artifacts
+
+                - ${{ parameters.AdditionalInitializeSteps }}
+
+                - task: PowerShell@2
+                  displayName: "Run initialize script"
+                  inputs:
+                    pwsh: true
+                    filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Initialize-Repository.ps1
+                    arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
+                    workingDirectory: $(selfRepositoryPath)
+
+                - task: PowerShell@2
+                  displayName: "Run test script"
+                  inputs:
+                    pwsh: true
+                    filePath: $(selfRepositoryPath)${{parameters.PackagePath}}/eng/scripts/Test-Packages.ps1
+                    arguments: $(TestArguments)
+                    workingDirectory: $(selfRepositoryPath)
+
+              templateContext:
+                outputs:
+                  - output: pipelineArtifact
+                    path: $(Build.ArtifactStagingDirectory)
+                    artifact: test_artifacts_$(System.JobName)
