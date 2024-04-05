@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { InputEnumTypeValue } from "./inputEnumTypeValue.js";
-import { InputIntrinsicTypeKind } from "./inputIntrinsicTypeKind.js";
-import { InputModelProperty } from "./inputModelProperty.js";
-import { InputPrimitiveTypeKind } from "./inputPrimitiveTypeKind.js";
-import { InputTypeKind } from "./inputTypeKind.js";
+import { InputEnumTypeValue } from "./input-enum-type-value.js";
+import { InputIntrinsicTypeKind } from "./input-intrinsic-type-kind.js";
+import { InputModelProperty } from "./input-model-property.js";
+import { InputPrimitiveTypeKind } from "./input-primitive-type-kind.js";
+import { InputTypeKind } from "./input-type-kind.js";
 
 export interface InputType {
   Name: string;

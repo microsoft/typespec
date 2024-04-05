@@ -2,19 +2,19 @@ import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
 import assert, { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { createModel } from "../../src/lib/clientModelBuilder.js";
-import { InputIntrinsicTypeKind } from "../../src/type/inputIntrinsicTypeKind.js";
-import { InputModelProperty } from "../../src/type/inputModelProperty.js";
-import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
-import { InputDictionaryType, InputEnumType, InputModelType } from "../../src/type/inputType.js";
-import { InputTypeKind } from "../../src/type/inputTypeKind.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputIntrinsicTypeKind } from "../../src/type/input-intrinsic-type-kind.js";
+import { InputModelProperty } from "../../src/type/input-model-property.js";
+import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../../src/type/input-type-kind.js";
+import { InputDictionaryType, InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
   navigateModels,
   typeSpecCompile,
-} from "./utils/TestUtil.js";
+} from "./utils/test-util.js";
 
 describe("Discriminator property", () => {
   let runner: TestHost;

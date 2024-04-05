@@ -58,3 +58,6 @@ extends:
                   npm run test
                 displayName: "Unit Test"
                 workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - script: npm lint
+                displayName: "Lint"
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

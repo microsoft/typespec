@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { BodyMediaType } from "./bodyMediaType.js";
-import { HttpResponseHeader } from "./httpResponseHeader.js";
-import { InputType } from "./inputType.js";
+import { BodyMediaType } from "./body-media-type.js";
+import { HttpResponseHeader } from "./http-response-header.js";
+import { InputType } from "./input-type.js";
 
 export interface OperationResponse {
   StatusCodes: number[];

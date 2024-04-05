@@ -47,14 +47,14 @@ import {
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
-import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
 import { fromSdkEnumType } from "../type/converter.js";
-import { FormattedType } from "../type/formattedType.js";
-import { InputEnumTypeValue } from "../type/inputEnumTypeValue.js";
-import { InputIntrinsicTypeKind } from "../type/inputIntrinsicTypeKind.js";
-import { InputModelProperty } from "../type/inputModelProperty.js";
-import { InputPrimitiveTypeKind } from "../type/inputPrimitiveTypeKind.js";
+import { FormattedType } from "../type/formatted-type.js";
+import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
+import { InputIntrinsicTypeKind } from "../type/input-intrinsic-type-kind.js";
+import { InputModelProperty } from "../type/input-model-property.js";
+import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../type/input-type-kind.js";
 import {
   InputDictionaryType,
   InputEnumType,
@@ -71,9 +71,8 @@ import {
   isInputListType,
   isInputLiteralType,
   isInputModelType,
-} from "../type/inputType.js";
-import { InputTypeKind } from "../type/inputTypeKind.js";
-import { LiteralTypeContext } from "../type/literalTypeContext.js";
+} from "../type/input-type.js";
+import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { Usage } from "../type/usage.js";
 import { logger } from "./logger.js";
 import { capitalize, getFullNamespaceString, getTypeName } from "./utils.js";
@@ -313,6 +312,8 @@ export function getInputType(
       // it's a base typespec "primitive" that corresponds directly to an c# data type.
       // In such cases, we don't want to emit a ref and instead just
       // emit the base type directly.
+      // TODO: verify this is good might be a bug
+      // eslint-disable-next-line no-fallthrough
       default:
         const sdkType = getClientType(context, type);
         return {
@@ -534,6 +535,8 @@ export function getInputType(
         Kind: InputTypeKind.Model,
         Name: name,
         Namespace: getFullNamespaceString(m.namespace),
+        // TODO: stop using deprecated field
+        // eslint-disable-next-line deprecation/deprecation
         Accessibility: isInternal(context, m) ? "internal" : getAccess(context, m),
         Deprecated: getDeprecated(program, m),
         Description: getDoc(program, m),
@@ -846,7 +849,6 @@ export function getUsages(
   }
 
   for (const op of ops) {
-    const resourceOperation = getResourceOperation(program, op.operation);
     if (!op.parameters.body?.parameter && op.parameters.body?.type) {
       let effectiveBodyType = undefined;
       const affectTypes: Set<string> = new Set<string>();

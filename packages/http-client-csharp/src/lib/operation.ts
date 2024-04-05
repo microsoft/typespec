@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-
+// TODO: stop using deprecated API
+/* eslint:disable deprecated */
 import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
   SdkContext,
@@ -23,13 +24,14 @@ import {
 import { HttpOperation, HttpOperationParameter, HttpOperationResponse } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
-import { BodyMediaType, typeToBodyMediaType } from "../type/bodyMediaType.js";
-import { collectionFormatToDelimMap } from "../type/collectionFormat.js";
-import { HttpResponseHeader } from "../type/httpResponseHeader.js";
-import { InputConstant } from "../type/inputConstant.js";
-import { InputOperation } from "../type/inputOperation.js";
-import { InputOperationParameterKind } from "../type/inputOperationParameterKind.js";
-import { InputParameter } from "../type/inputParameter.js";
+import { BodyMediaType, typeToBodyMediaType } from "../type/body-media-type.js";
+import { collectionFormatToDelimMap } from "../type/collection-format.js";
+import { HttpResponseHeader } from "../type/http-response-header.js";
+import { InputConstant } from "../type/input-constant.js";
+import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
+import { InputOperation } from "../type/input-operation.js";
+import { InputParameter } from "../type/input-parameter.js";
+import { InputTypeKind } from "../type/input-type-kind.js";
 import {
   InputEnumType,
   InputListType,
@@ -38,14 +40,13 @@ import {
   isInputLiteralType,
   isInputModelType,
   isInputUnionType,
-} from "../type/inputType.js";
-import { InputTypeKind } from "../type/inputTypeKind.js";
-import { convertLroFinalStateVia } from "../type/operationFinalStateVia.js";
-import { OperationLongRunning } from "../type/operationLongRunning.js";
-import { OperationPaging } from "../type/operationPaging.js";
-import { OperationResponse } from "../type/operationResponse.js";
-import { RequestLocation, requestLocationMap } from "../type/requestLocation.js";
-import { RequestMethod, parseHttpRequestMethod } from "../type/requestMethod.js";
+} from "../type/input-type.js";
+import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
+import { OperationLongRunning } from "../type/operation-long-running.js";
+import { OperationPaging } from "../type/operation-paging.js";
+import { OperationResponse } from "../type/operation-response.js";
+import { RequestLocation, requestLocationMap } from "../type/request-location.js";
+import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js";
 import { Usage } from "../type/usage.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
 import { logger } from "./logger.js";

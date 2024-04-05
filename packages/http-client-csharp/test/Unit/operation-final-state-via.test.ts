@@ -6,7 +6,7 @@ import { describe, it } from "vitest";
 import {
   OperationFinalStateVia,
   convertLroFinalStateVia,
-} from "../../src/type/operationFinalStateVia.js";
+} from "../../src/type/operation-final-state-via.js";
 
 describe("convertLroFinalStateVia()", () => {
   describe("normal inputs", () => {
