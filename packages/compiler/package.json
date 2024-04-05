@@ -78,8 +78,8 @@
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@babel/code-frame": "~7.24.2",
@@ -109,7 +109,7 @@
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    "eslint": "^8.57.0",
+    
     "grammarkdown": "~3.3.2",
     "rimraf": "~5.0.5",
     "sinon": "~17.0.1",

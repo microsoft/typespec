@@ -106,7 +106,7 @@
     "c8": "^9.1.0",
     "copyfiles": "~2.4.1",
     "cross-env": "~7.0.3",
-    "eslint": "^8.57.0",
+    
     "rimraf": "~5.0.5",
     "rollup": "~4.13.2",
     "rollup-plugin-postcss": "~4.0.2",

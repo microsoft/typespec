@@ -32,8 +32,8 @@
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/protobuf/reference"
   },
   "peerDependencies": {
@@ -43,13 +43,12 @@
     "@types/micromatch": "^4.0.6",
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
-    "@typespec/eslint-plugin": "workspace:~",
+
     "@typespec/tspd": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    "eslint": "^8.57.0",
+    
     "micromatch": "^4.0.5",
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",

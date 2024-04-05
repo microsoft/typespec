@@ -25,8 +25,8 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "files": [
     "dist/**",
@@ -40,7 +40,7 @@
     "@types/node": "~18.11.19",
     "@types/plist": "~3.0.5",
     "@typespec/eslint-config-typespec": "workspace:~",
-    "eslint": "^8.57.0",
+    
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3"
   }
