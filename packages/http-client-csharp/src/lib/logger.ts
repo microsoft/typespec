@@ -11,7 +11,7 @@ export enum LoggerLevel {
   VERBOSE = "verbose",
 }
 
-export var logger: winston.Logger = winston.createLogger({
+export const logger: winston.Logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
       level: LoggerLevel.INFO,

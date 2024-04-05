@@ -1,18 +1,18 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { getAllHttpServices } from "@typespec/http";
-import assert from "assert";
-import isEqual from "lodash.isequal";
+import assert, { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
-import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/inputType.js";
-import { InputTypeKind } from "../../src/type/inputTypeKind.js";
+import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../../src/type/input-type-kind.js";
+import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
   navigateModels,
   typeSpecCompile,
-} from "./utils/TestUtil.js";
+} from "./utils/test-util.js";
 
 describe("Test string format", () => {
   let runner: TestHost;
@@ -42,15 +42,13 @@ describe("Test string format", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Uri,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Uri,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      operation.Parameters[0].Type
     );
   });
 
@@ -73,15 +71,13 @@ describe("Test string format", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const foo = modelMap.get("Foo");
     assert(foo !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Uri,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        foo.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Uri,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      foo.Properties[0].Type
     );
   });
 
@@ -106,15 +102,13 @@ describe("Test string format", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Uri,
-          IsNullable: false,
-        },
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Uri,
+        IsNullable: false,
+      },
+      operation.Parameters[0].Type
     );
   });
 
@@ -138,15 +132,13 @@ describe("Test string format", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const foo = modelMap.get("Foo");
     assert(foo !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Uri,
-          IsNullable: false,
-        },
-        foo.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Uri,
+        IsNullable: false,
+      },
+      foo.Properties[0].Type
     );
   });
 
@@ -171,15 +163,13 @@ describe("Test string format", () => {
       modelMap,
       enumMap
     );
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Guid,
-          IsNullable: false,
-        },
-        operation.Parameters[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Guid,
+        IsNullable: false,
+      },
+      operation.Parameters[0].Type
     );
   });
 
@@ -203,15 +193,13 @@ describe("Test string format", () => {
     navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
     const foo = modelMap.get("Foo");
     assert(foo !== undefined);
-    assert(
-      isEqual(
-        {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.Guid,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        foo.Properties[0].Type
-      )
+    deepStrictEqual(
+      {
+        Kind: InputTypeKind.Primitive,
+        Name: InputPrimitiveTypeKind.Guid,
+        IsNullable: false,
+      } as InputPrimitiveType,
+      foo.Properties[0].Type
     );
   });
 });
