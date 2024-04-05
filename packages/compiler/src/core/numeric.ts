@@ -29,13 +29,9 @@ interface InternalData {
   readonly s: 1 | -1;
 }
 
-export interface InvalidNumericError extends Error {
-  code: "InvalidNumeric";
+export class InvalidNumericError extends Error {
+  readonly code = "InvalidNumeric";
 }
-
-const InvalidNumericError = class extends Error {
-  code = "InvalidNumeric";
-};
 
 /** @internal */
 export const InternalDataSym = Symbol.for("NumericInternalData");
