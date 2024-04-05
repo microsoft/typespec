@@ -1,11 +1,15 @@
 # Continuous Integration
 
 trigger:
-  - main
-  # For patch releases
-  - release/*
-  # TODO: remove before merging
-  - publish-improvements
+  branches:
+    include:
+      - main
+      # For patch releases
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
 
 pr: none
 

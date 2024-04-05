@@ -1,8 +1,13 @@
 name: PR Tools
 trigger: none
 pr:
-  - main
-  - release/*
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
 
 extends:
   template: /eng/pipelines/templates/1es-redirect.yml

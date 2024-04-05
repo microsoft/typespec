@@ -54,3 +54,6 @@ versionPolicies:
       - "@typespec/library-linter"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
+
+ignore:
+  - "@typespec/http-client-csharp"
