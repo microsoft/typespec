@@ -5,13 +5,18 @@ import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { getDoc, Type } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { NetEmitterOptions } from "../options.js";
-import { InputConstant } from "../type/inputConstant.js";
-import { InputOperationParameterKind } from "../type/inputOperationParameterKind.js";
-import { InputParameter } from "../type/inputParameter.js";
-import { InputPrimitiveTypeKind } from "../type/inputPrimitiveTypeKind.js";
-import { InputEnumType, InputModelType, InputPrimitiveType, InputType } from "../type/inputType.js";
-import { InputTypeKind } from "../type/inputTypeKind.js";
-import { RequestLocation } from "../type/requestLocation.js";
+import { InputConstant } from "../type/input-constant.js";
+import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
+import { InputParameter } from "../type/input-parameter.js";
+import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../type/input-type-kind.js";
+import {
+  InputEnumType,
+  InputModelType,
+  InputPrimitiveType,
+  InputType,
+} from "../type/input-type.js";
+import { RequestLocation } from "../type/request-location.js";
 import { getFormattedType, getInputType } from "./model.js";
 
 export interface TypeSpecServer {

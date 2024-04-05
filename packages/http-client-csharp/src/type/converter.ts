@@ -6,9 +6,9 @@ import {
 import { Enum, UsageFlags } from "@typespec/compiler";
 import { setUsage } from "../lib/model.js";
 import { getFullNamespaceString } from "../lib/utils.js";
-import { InputEnumTypeValue } from "./inputEnumTypeValue.js";
-import { InputEnumType } from "./inputType.js";
-import { InputTypeKind } from "./inputTypeKind.js";
+import { InputEnumTypeValue } from "./input-enum-type-value.js";
+import { InputTypeKind } from "./input-type-kind.js";
+import { InputEnumType } from "./input-type.js";
 import { Usage } from "./usage.js";
 
 export function fromSdkEnumType(
@@ -17,7 +17,7 @@ export function fromSdkEnumType(
   enums: Map<string, InputEnumType>,
   addToCollection: boolean = true
 ): InputEnumType {
-  let enumName = enumType.generatedName || enumType.name;
+  const enumName = enumType.generatedName || enumType.name;
   let inputEnumType = enums.get(enumName);
   if (inputEnumType === undefined) {
     const newInputEnumType: InputEnumType = {

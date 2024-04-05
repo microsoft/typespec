@@ -1,3 +1,21 @@
+trigger:
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
+pr:
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
 parameters:
   - name: UseTypeSpecNext
     displayName: Use TypeSpec "next" version

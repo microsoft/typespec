@@ -112,7 +112,6 @@ words:
   - WINDOWSVMIMAGE
   - xlarge
   - xplat
-  - isequal # only needed until https://github.com/microsoft/typespec/issues/3108 is resolved
   - TCGC
 ignorePaths:
   - "**/node_modules/**"
