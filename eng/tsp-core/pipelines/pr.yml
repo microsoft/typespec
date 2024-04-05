@@ -3,9 +3,10 @@ trigger:
     include:
       - main
       - gh-readonly-queue/* # Used to trigger for GitHub merge queues
-  paths:
-    exclude:
-      - packages/http-client-csharp
+  # Not doing this until check enforcer is added https://github.com/microsoft/typespec/issues/3117
+  # paths:
+  #   exclude:
+  #     - packages/http-client-csharp
 
 pr:
   branches:
