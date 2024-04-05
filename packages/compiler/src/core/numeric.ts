@@ -14,19 +14,19 @@ export interface Numeric {
   readonly isInteger: boolean;
 
   /** @internal */
-  _d: InternalData;
+  readonly _d: InternalData;
 }
 
 /** @internal */
 interface InternalData {
   /** Digits as a big it */
-  n: bigint;
+  readonly n: bigint;
   /** Exponent */
-  e: number;
+  readonly e: number;
   /** Number of decimal digits */
-  d: number;
+  readonly d: number;
   /** Sign */
-  s: 1 | -1;
+  readonly s: 1 | -1;
 }
 
 export interface InvalidNumericError extends Error {
