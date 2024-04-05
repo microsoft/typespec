@@ -70,7 +70,7 @@ export function getTypeScriptProjectRules(root) {
     },
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.eslint.json",
+        project: "./tsconfig.json",
         tsconfigRootDir: root,
       },
     },
