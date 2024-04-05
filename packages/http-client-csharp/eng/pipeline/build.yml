@@ -1,45 +1,38 @@
-trigger: none
-pr: none
+parameters:
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec "next" version
+    type: boolean
+    default: false
+  - name: RunUnitTests
+    displayName: Run unit tests
+    type: boolean
+    default: true
+
+pool:
+  name: azsdk-pool-mms-win-2022-general
+  vmImage: windows-2022
+
+name: $(Date:yyyyMMdd).$(Rev:r)
 
 extends:
-  template: /eng/pipelines/templates/1es-redirect.yml
+  template: /eng/emitters/pipelines/templates/archetype-autorest-preview.yml
   parameters:
-    variables:
-      BlobFeedUrl: https://azuresdkartifacts.blob.core.windows.net/azure-sdk-tools/index.json
-      OfficialBuildId: $(Build.BuildNumber)
-      nugetMultiFeedWarnLevel: "none"
+    BuildPrereleaseVersion: true
+    ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
+      # In scheduled builds, we always use the "next" version of TypeSpec
+      UseTypeSpecNext: true
+    ${{ else }}:
+      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+    EmitterPackageJsonPath: packages/http-client-csharp/package.json
+    PublishInternal: true
+    Packages:
+      - name: emitter
+        file: typespec-http-client-csharp-*.tgz
+        type: npm
+    TestMatrix:
+      ${{ if eq(parameters.RunUnitTests, true) }}:
+        Unit:
+          TestArguments: -UnitTests
+    PackagePath: packages/http-client-csharp
 
-    stages:
-      - stage: "Build_and_Test"
-        pool:
-          name: $(WINDOWSPOOL)
-          image: $(WINDOWSVMIMAGE)
-          os: windows
-        jobs:
-          - job: Build
-            timeoutInMinutes: 120
-            steps:
-              - checkout: self
-                fetchDepth: 1
-              - task: NodeTool@0
-                displayName: "Install Node 18.x"
-                inputs:
-                  versionSpec: "18.x"
-              - script: |
-                  npm ci
-                displayName: "Install packages"
-                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
-              - script: |
-                  npm ls -a
-                displayName: "List packages"
-                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
-              - task: Npm@1
-                displayName: "Build TypeSpec csharp emitter"
-                inputs:
-                  command: custom
-                  customCommand: run build
-                  workingDir: $(Build.SourcesDirectory)/packages/http-client-csharp
-              - script: |
-                  npm run test
-                displayName: "Unit Test"
-                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+    PublishDependsOnTest: false
