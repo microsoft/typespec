@@ -14,7 +14,7 @@ steps:
         New-Item -Path $parentFolder -ItemType Directory | Out-Null
       }
 
-      $content = "registry=${{ parameters.registryUrl }}`n`nalways-auth=true"
+      $content = "registry=${{ parameters.registryUrl }}`n`n" + "always-auth=true"
       $content | Out-File '${{ parameters.npmrcPath }}'
     displayName: "Create .npmrc"
   - task: npmAuthenticate@0
