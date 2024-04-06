@@ -1,4 +1,4 @@
-import { getBaseFileName, getDirectoryPath, resolvePath } from "@typespec/compiler";
+import { getDirectoryPath } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { PlaygroundSample } from "../types.js";
 import { PlaygroundSampleConfig } from "./types.js";
@@ -24,15 +24,14 @@ export async function buildSamples_experimental(
     };
   }
 
-  const content = `export default ${JSON.stringify(resolvedSamples, null, 2)};`;
   const dir = getDirectoryPath(output);
   await mkdir(dir, { recursive: true });
-  await writeFile(output, content);
+  // await writeFile(output, content);
 
   const dts = [
     `import type { PlaygroundSample } from "@typespec/playground";`,
-    `declare const samples: Record<string, PlaygroundSample>;`,
+    `const samples: Record<string, PlaygroundSample> = ${JSON.stringify(resolvedSamples, null, 2)};`,
     `export default samples;`,
   ].join("\n");
-  await writeFile(resolvePath(dir, getBaseFileName(output)).replace(/\.js$/, ".d.ts"), dts);
+  await writeFile(output, dts);
 }
