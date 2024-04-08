@@ -40,7 +40,7 @@ extends:
     ${{ else }}:
       UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
     EmitterPackageJsonPath: packages/http-client-csharp/package.json
-    PublishInternal: true
+    PublishInternal: false
     Packages:
       - name: emitter
         file: typespec-http-client-csharp-*.tgz
