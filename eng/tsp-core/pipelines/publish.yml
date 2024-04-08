@@ -65,7 +65,7 @@ extends:
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
-                  inlineScript: node ./eng/scripts/upload-bundler-packages.js
+                  inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
 
               # Update version for next version publish
               - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .

@@ -60,7 +60,7 @@ extends:
                       --source "./packages/website/build/" \
                       --overwrite
 
-              - script: node eng/scripts/create-tryit-comment.js
+              - script: node eng/tsp-core/scripts/create-tryit-comment.js
                 displayName: Check already commented
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
