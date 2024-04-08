@@ -37,6 +37,8 @@ try {
 
     Invoke-LoggedCommand "npm ls -a" -GroupOutput
 
+    Write-Host "artifactStagingDirectory: $env:Build_ArtifactStagingDirectory"
+    Write-Host "BuildArtifactsPath: $BuildArtifactsPath"
     $artifactStagingDirectory = $env:Build_ArtifactStagingDirectory
     if ($artifactStagingDirectory -and !$BuildArtifactsPath) {
         $lockFilesPath = "$artifactStagingDirectory/lock-files"
