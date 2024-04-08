@@ -4,6 +4,19 @@ title: Guide
 
 # Xml Library
 
+## Default encoding of scalars
+
+As in Json we need to have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
+
+| Scalar Type      | Default Encoding  | Encoding name                           |
+| ---------------- | ----------------- | --------------------------------------- |
+| `utcDateTime`    | `xs:dateTime`     | `TypeSpec.Xml.Encoding.xmlDateTime`     |
+| `offsetDateTime` | `xs:dateTime`     | `TypeSpec.Xml.Encoding.xmlDateTime`     |
+| `plainDate`      | `xs:date`         | `TypeSpec.Xml.Encoding.xmlDate`         |
+| `plainTime`      | `xs:time`         | `TypeSpec.Xml.Encoding.xmlTim`          |
+| `duration`       | `xs:duration`     | `TypeSpec.Xml.Encoding.xmlDuration`     |
+| `bytes`          | `xs:base64Binary` | `TypeSpec.Xml.Encoding.xmlBase64Binary` |
+
 ## Examples
 
 ### 1. Array of primitive types
