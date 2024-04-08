@@ -32,6 +32,8 @@ extends:
         name: azsdk-pool-mms-win-2022-general
         image: azsdk-pool-mms-win-2022-1espt
         os: windows
+      credscan:
+        suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppression.json
       psscriptanalyzer:
         compiled: true
         break: true
