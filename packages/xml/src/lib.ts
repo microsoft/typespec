@@ -45,6 +45,6 @@ export const {
       description: "Mark a model property as to be serialized without a node wrapping the content.",
     },
     ns: { description: "Namespace data" },
-    nsDeclaration: { description: "Mark an enum as declarting Xml Namespaces" },
+    nsDeclaration: { description: "Mark an enum that declares Xml Namespaces" },
   },
 } as const);
