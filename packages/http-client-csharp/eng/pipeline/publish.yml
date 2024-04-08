@@ -13,7 +13,7 @@ extends:
   parameters:
     BuildPrereleaseVersion: false
     UseTypeSpecNext: false
-    Publish: "public"
+    Publish: "internal"
     PublishDependsOnTest: true
     PackagePath: /packages/http-client-csharp
     EmitterPackageJsonPath: packages/http-client-csharp/package.json
