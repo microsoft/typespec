@@ -10,7 +10,6 @@ trigger:
     exclude:
       - packages/http-client-csharp
 
-
 pr: none
 
 extends:
