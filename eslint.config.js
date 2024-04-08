@@ -120,6 +120,7 @@ export default tsEslint.config(
       // TODO: enable
       "**/.scripts/**/*",
       "eng/tsp-core/scripts/**/*",
+      "eng/common/scripts/**/*",
       "packages/*/scripts/**/*",
     ],
   },
