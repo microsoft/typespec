@@ -1,12 +1,12 @@
 import {
   $encodedName,
-  DecoratorContext,
-  Enum,
-  ModelProperty,
-  Program,
-  Type,
+  type DecoratorContext,
+  type Enum,
+  type ModelProperty,
+  type Program,
+  type Type,
 } from "@typespec/compiler";
-import {
+import type {
   AttributeDecorator,
   NameDecorator,
   NsDeclarationsDecorator,
@@ -14,7 +14,7 @@ import {
   UnwrappedDecorator,
 } from "../generated-defs/TypeSpec.Xml.js";
 import { XmlStateKeys, reportDiagnostic } from "./lib.js";
-import { XmlNamespace } from "./types.js";
+import type { XmlNamespace } from "./types.js";
 
 export const namespace = "TypeSpec.Xml";
 

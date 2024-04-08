@@ -1,5 +1,5 @@
-import { Model, ModelProperty, resolveEncodedName } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { resolveEncodedName, type Model, type ModelProperty } from "@typespec/compiler";
+import { expectDiagnostics, type BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getNs, isAttribute, isUnwrapped } from "../src/decorators.js";
 import { createXmlTestRunner } from "./test-host.js";
