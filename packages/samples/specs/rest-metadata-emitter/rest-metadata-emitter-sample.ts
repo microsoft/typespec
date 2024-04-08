@@ -235,7 +235,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
         // If it's never in the payload, it is only ever communicated in
         // metadata: header/path/query param, or status code.
         remarks.push("Metadata only");
-      } else if (inPayloadVisibilities.length == visibilities.size) {
+      } else if (inPayloadVisibilities.length === visibilities.size) {
         // it's always in the payload, common case.
       } else {
         // it's in the payload for certain visibilities only.
