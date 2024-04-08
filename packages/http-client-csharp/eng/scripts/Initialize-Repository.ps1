@@ -37,9 +37,9 @@ try {
 
     Invoke-LoggedCommand "npm ls -a" -GroupOutput
 
-    Write-Host "artifactStagingDirectory: $env:Build_ArtifactStagingDirectory"
+    Write-Host "artifactStagingDirectory: $env:BUILD_ARTIFACTSTAGINGDIRECTORY"
     Write-Host "BuildArtifactsPath: $BuildArtifactsPath"
-    $artifactStagingDirectory = $env:Build_ArtifactStagingDirectory
+    $artifactStagingDirectory = $env:BUILD_ARTIFACTSTAGINGDIRECTORY
     if ($artifactStagingDirectory -and !$BuildArtifactsPath) {
         $lockFilesPath = "$artifactStagingDirectory/lock-files"
         New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
