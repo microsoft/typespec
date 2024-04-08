@@ -8,8 +8,9 @@ parameters:
     type: boolean
 
   # Whether to publish to the internal feed.
-  - name: PublishInternal
-    type: boolean
+  - name: Publish
+    type: string
+    default: "none"
 
   # Path to the emitter package's package.json file. If specified, it will be used to generate emitter-package.json in the artifact `build_artifacts`.
   - name: EmitterPackageJsonPath
@@ -75,6 +76,11 @@ extends:
         jobs:
           - job: Build
             steps:
+              - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
+                  - script: |
+                      echo "Publish parameter has unsupported type: '${{ parameters.Publish }}'"
+                      echo "Supported types are 'none', 'internal', 'public'"
+                      exit 1
               # Validate parameters and fail early if invalid
               - ${{ each package in parameters.Packages }}:
                   - ${{ if notIn(package.type, 'npm', 'nuget') }}:
@@ -105,7 +111,7 @@ extends:
                   arguments: >
                     -BuildNumber "$(Build.BuildNumber)"
                     -Output "$(Build.ArtifactStagingDirectory)"
-                    -PublishInternal:$${{ parameters.PublishInternal }}
+                    -PublishType:"${{ parameters.Publish }}"
                     -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
                   workingDirectory: $(selfRepositoryPath)
 
@@ -120,7 +126,7 @@ extends:
       # Produces the artifact `publish_artifacts` which contains the following:
       #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
       #                              be placed in the `/eng` folder of the sdk repository.
-      - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+      - ${{ if ne(parameters.Publish, 'none') }}:
           - stage: Publish
             dependsOn:
               - Build
@@ -143,7 +149,7 @@ extends:
                     displayName: Download build artifacts
 
                   # Create authenticated .npmrc file for publishing
-                  - ${{ if eq(parameters.PublishInternal, 'true') }}:
+                  - ${{ if eq(parameters.Publish, 'internal') }}:
                       - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
                         parameters:
                           npmrcPath: $(buildArtifactsPath)/packages/.npmrc

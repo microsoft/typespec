@@ -4,7 +4,7 @@ param(
     [string] $BuildNumber,
     [string] $Output,
     [switch] $Prerelease,
-    [switch] $PublishInternal
+    [string] $PublishType
 )
 
 $ErrorActionPreference = 'Stop'
@@ -54,7 +54,7 @@ finally
     Pop-Location
 }
 
-if ($PublishInternal) {
+if ($PublishType -eq "internal") {
     $feedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry"
 
     $overrides = @{

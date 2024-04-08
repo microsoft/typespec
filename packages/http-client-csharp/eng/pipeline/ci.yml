@@ -1,52 +1,27 @@
-trigger:
-  branches:
-    include:
-      - main
-      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
-  paths:
-    include:
-      - packages/http-client-csharp/
-      - eng/emitters/
+trigger: none
 
 pr:
   branches:
     include:
       - main
-      - release/*
   paths:
     include:
       - packages/http-client-csharp/
       - eng/emitters/
-
-parameters:
-  - name: UseTypeSpecNext
-    displayName: Use TypeSpec "next" version
-    type: boolean
-    default: false
-  - name: RunUnitTests
-    displayName: Run unit tests
-    type: boolean
-    default: true
+      - eng/common/
 
 extends:
-  template: /eng/emitters/pipelines/templates/archetype-preview.yml
+  template: /eng/emitters/pipelines/templates/archetype-emitter.yml
   parameters:
     BuildPrereleaseVersion: true
-    ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
-      # In scheduled builds, we always use the "next" version of TypeSpec
-      UseTypeSpecNext: true
-    ${{ else }}:
-      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+    UseTypeSpecNext: false
+    Publish: "none"
+    PackagePath: /packages/http-client-csharp
     EmitterPackageJsonPath: packages/http-client-csharp/package.json
-    PublishInternal: true
     Packages:
       - name: emitter
         file: typespec-http-client-csharp-*.tgz
         type: npm
     TestMatrix:
-      ${{ if eq(parameters.RunUnitTests, true) }}:
-        Unit:
-          TestArguments: -UnitTests
-    PackagePath: /packages/http-client-csharp
-
-    PublishDependsOnTest: false
+      Unit:
+        TestArguments: -UnitTests
