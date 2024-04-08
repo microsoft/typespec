@@ -68,6 +68,10 @@ extends:
       - stage: Build
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
         jobs:
           - job: Build
             steps:
@@ -124,6 +128,10 @@ extends:
         variables:
           toolsRepositoryPath: $(Build.SourcesDirectory)
           buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
         jobs:
           - job: Publish
             steps:
@@ -170,6 +178,10 @@ extends:
             dependsOn: Build
             variables:
               selfRepositoryPath: $(Build.SourcesDirectory)
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
             jobs:
               - job: Test
                 strategy:
