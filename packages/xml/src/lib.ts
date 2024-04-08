@@ -40,7 +40,7 @@ export const {
     },
   },
   state: {
-    attribute: { description: "Mark a model property as to be serialized as xml attribute" },
+    attribute: { description: "Mark a model property to be serialized as xml attribute" },
     unwrapped: {
       description: "Mark a model property to be serialized without a node wrapping the content.",
     },
