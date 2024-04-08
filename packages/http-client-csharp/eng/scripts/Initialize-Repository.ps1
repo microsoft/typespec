@@ -11,10 +11,6 @@ $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
-if (Test-Path "$packageRoot/node_modules") {
-    Remove-Item -Recurse -Force "$packageRoot/node_modules"
-}
-
 Push-Location "$packageRoot"
 try {
     if (Test-Path "./node_modules") {
