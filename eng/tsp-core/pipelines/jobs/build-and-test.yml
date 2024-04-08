@@ -22,7 +22,7 @@ steps:
   - script: node eng/common/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: node eng/commmon/scripts/check-docs.js
+  - script: node eng/common/scripts/check-docs.js
     displayName: Check docs
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
