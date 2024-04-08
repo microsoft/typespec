@@ -12,13 +12,13 @@ import {
   Operation,
   Scalar,
 } from "@typespec/compiler";
-import { InputConstant } from "../type/inputConstant.js";
-import { InputOperationParameterKind } from "../type/inputOperationParameterKind.js";
-import { InputParameter } from "../type/inputParameter.js";
-import { InputPrimitiveTypeKind } from "../type/inputPrimitiveTypeKind.js";
-import { InputPrimitiveType, InputType } from "../type/inputType.js";
-import { InputTypeKind } from "../type/inputTypeKind.js";
-import { RequestLocation } from "../type/requestLocation.js";
+import { InputConstant } from "../type/input-constant.js";
+import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
+import { InputParameter } from "../type/input-parameter.js";
+import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../type/input-type-kind.js";
+import { InputPrimitiveType, InputType } from "../type/input-type.js";
+import { RequestLocation } from "../type/request-location.js";
 
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -36,10 +36,10 @@ export function getTypeName(
   context: SdkContext,
   type: Model | Enum | EnumMember | ModelProperty | Scalar | Operation
 ): string {
-  var name = getLibraryName(context, type);
+  const name = getLibraryName(context, type);
   if (type.kind !== "Model") return name;
   if (type.name === name) {
-    var templateName = getNameForTemplate(type);
+    const templateName = getNameForTemplate(type);
     if (templateName === "") {
       const sdkModel = getSdkModel(context, type as Model);
       return sdkModel.generatedName || sdkModel.name;

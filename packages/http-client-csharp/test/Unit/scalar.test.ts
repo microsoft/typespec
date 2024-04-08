@@ -1,15 +1,15 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { createModel } from "../../src/lib/clientModelBuilder.js";
-import { InputPrimitiveTypeKind } from "../../src/type/inputPrimitiveTypeKind.js";
-import { InputTypeKind } from "../../src/type/inputTypeKind.js";
+import { createModel } from "../../src/lib/client-model-builder.js";
+import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
+import { InputTypeKind } from "../../src/type/input-type-kind.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
   typeSpecCompile,
-} from "./utils/TestUtil.js";
+} from "./utils/test-util.js";
 
 describe("Test GetInputType for scalar", () => {
   let runner: TestHost;
