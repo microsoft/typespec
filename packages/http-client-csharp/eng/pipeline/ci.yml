@@ -28,8 +28,6 @@ parameters:
     type: boolean
     default: true
 
-name: $(Date:yyyyMMdd).$(Rev:r)
-
 extends:
   template: /eng/emitters/pipelines/templates/archetype-preview.yml
   parameters:

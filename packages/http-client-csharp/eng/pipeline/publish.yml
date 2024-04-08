@@ -1,0 +1,20 @@
+trigger: none
+pr: none
+
+extends:
+  template: /eng/emitters/pipelines/templates/archetype-preview.yml
+  parameters:
+    BuildPrereleaseVersion: true
+    UseTypeSpecNext: false
+    EmitterPackageJsonPath: packages/http-client-csharp/package.json
+    PublishInternal: false
+    Packages:
+      - name: emitter
+        file: typespec-http-client-csharp-*.tgz
+        type: npm
+    TestMatrix:
+      Unit:
+        TestArguments: -UnitTests
+    PackagePath: /packages/http-client-csharp
+
+    PublishDependsOnTest: true

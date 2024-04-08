@@ -120,54 +120,55 @@ extends:
       # Produces the artifact `publish_artifacts` which contains the following:
       #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
       #                              be placed in the `/eng` folder of the sdk repository.
-      - stage: Publish
-        dependsOn:
-          - Build
-          - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
-              - Test
-        variables:
-          toolsRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-        pool:
-          name: $(LINUXPOOL)
-          image: $(LINUXVMIMAGE)
-          os: linux
-        jobs:
-          - job: Publish
-            steps:
-              - checkout: self
+      - ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+          - stage: Publish
+            dependsOn:
+              - Build
+              - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
+                  - Test
+            variables:
+              toolsRepositoryPath: $(Build.SourcesDirectory)
+              buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+            jobs:
+              - job: Publish
+                steps:
+                  - checkout: self
 
-              - download: current
-                artifact: build_artifacts
-                displayName: Download build artifacts
+                  - download: current
+                    artifact: build_artifacts
+                    displayName: Download build artifacts
 
-              # Create authenticated .npmrc file for publishing
-              - ${{ if eq(parameters.PublishInternal, 'true') }}:
-                  - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                    parameters:
-                      npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                      registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
-              - ${{ else }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
-
-              # per package, publishing using appropriate tool
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if eq(package.type, 'npm') }}:
+                  # Create authenticated .npmrc file for publishing
+                  - ${{ if eq(parameters.PublishInternal, 'true') }}:
+                      - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+                        parameters:
+                          npmrcPath: $(buildArtifactsPath)/packages/.npmrc
+                          registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
+                  - ${{ else }}:
                       - pwsh: |
-                          $file = Resolve-Path "${{ package.file }}"
-                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }}
+                          "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
+                        displayName: Authenticate .npmrc for npmjs.org
                         workingDirectory: $(buildArtifactsPath)/packages
 
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: publish_artifacts
+                  # per package, publishing using appropriate tool
+                  - ${{ each package in parameters.Packages }}:
+                      - ${{ if eq(package.type, 'npm') }}:
+                          - pwsh: |
+                              $file = Resolve-Path "${{ package.file }}"
+                              Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
+                              npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
+                            displayName: Publish ${{ package.name }}
+                            workingDirectory: $(buildArtifactsPath)/packages
+
+                templateContext:
+                  outputs:
+                    - output: pipelineArtifact
+                      path: $(Build.ArtifactStagingDirectory)
+                      artifact: publish_artifacts
 
       # Test stage
       # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
