@@ -53,7 +53,7 @@ export function Numeric(stringValue: string): Numeric {
 }
 
 function setTypedProptotype<T extends object, P extends object>(obj: T, prototype: P): T & P {
-  Object.setPrototypeOf(obj, NumericPrototype);
+  Object.setPrototypeOf(obj, prototype);
   return obj as any;
 }
 
