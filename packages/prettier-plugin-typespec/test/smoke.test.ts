@@ -1,7 +1,7 @@
 // Simple smoke test verifying the plugin is able to be loaded via prettier.
-const prettier = require("prettier");
-const { strictEqual } = require("assert");
-const { resolve } = require("path");
+import { strictEqual } from "assert";
+import { resolve } from "path";
+import prettier from "prettier";
 import { describe, it } from "vitest";
 
 describe("prettier-plugin: smoke test", () => {

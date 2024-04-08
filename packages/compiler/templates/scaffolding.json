@@ -35,8 +35,8 @@
         "skipGeneration": true
       },
       {
-        "path": "library-ts/.eslintrc.yml",
-        "destination": ".eslintrc.yml"
+        "path": "library-ts/eslint.config.js",
+        "destination": "eslint.config.js"
       },
       {
         "path": "library-ts/lib/decorators.tsp.mu",
@@ -111,8 +111,8 @@
         "skipGeneration": true
       },
       {
-        "path": "emitter-ts/.eslintrc.yml",
-        "destination": ".eslintrc.yml"
+        "path": "emitter-ts/eslint.config.js",
+        "destination": "eslint.config.js"
       },
       {
         "path": "emitter-ts/package.json",
