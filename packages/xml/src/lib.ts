@@ -42,7 +42,7 @@ export const {
   state: {
     attribute: { description: "Mark a model property as to be serialized as xml attribute" },
     unwrapped: {
-      description: "Mark a model property as to be serialized without a node wrapping the content.",
+      description: "Mark a model property to be serialized without a node wrapping the content.",
     },
     ns: { description: "Namespace data" },
     nsDeclaration: { description: "Mark an enum that declares Xml Namespaces" },
