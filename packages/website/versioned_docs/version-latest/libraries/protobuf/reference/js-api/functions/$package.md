@@ -5,7 +5,7 @@ title: "[F] $package"
 ---
 ```ts
 $package(
-   ctx, 
+   context, 
    target, 
    details?): void
 ```
@@ -16,9 +16,9 @@ Declare a Protobuf package.
 
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
-| `ctx` | `DecoratorContext` | decorator context |
+| `context` | `DecoratorContext` | - |
 | `target` | `Namespace` | target decorator namespace |
-| `details`? | `Model` | - |
+| `details`? | `Type` | - |
 
 ## Returns
 

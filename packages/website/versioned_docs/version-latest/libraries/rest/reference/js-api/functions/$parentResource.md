@@ -6,8 +6,8 @@ title: "[F] $parentResource"
 ```ts
 $parentResource(
    context, 
-   entity, 
-   parentType): void
+   target, 
+   parent): void
 ```
 
 `@parentResource` marks a model with a reference to its parent resource type
@@ -23,8 +23,8 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
-| `parentType` | `Model` |
+| `target` | `Model` |
+| `parent` | `Model` |
 
 ## Returns
 

@@ -1,60 +1,90 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
 pr:
-  - main
-  - release/*
+  branches:
+    include:
+      - main
+      - release/*
+  # Not doing this until check enforcer is added https://github.com/microsoft/typespec/issues/3117
+  # paths:
+  #   exclude:
+  #     - packages/http-client-csharp
 
-variables:
-  - template: templates/variables/globals.yml
-
-jobs:
-  - job: Build_And_Test
-    displayName: Build And Test
-
+extends:
+  template: /eng/pipelines/templates/1es-redirect.yml
+  parameters:
     variables:
-      TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+      - template: /eng/pipelines/templates/variables/globals.yml@self
+    stages:
+      - stage: CI
+        jobs:
+          - job: windows
+            displayName: Windows
 
-    strategy:
-      matrix:
-        # Node 18
-        "Linux - Node 18.x":
-          pool: azsdk-pool-mms-ubuntu-2004-general
-          imageName: ubuntu-20.04
-          nodeVersion: 18.x
+            variables:
+              TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-        "Windows - Node 18.x":
-          pool: azsdk-pool-mms-win-2022-general
-          imageName: windows-2022
-          nodeVersion: 18.x
+            strategy:
+              matrix:
+                "Node 18.x":
+                  nodeVersion: 18.x
 
-        # Node 20
-        "Linux - Node 20.x":
-          pool: azsdk-pool-mms-ubuntu-2004-general
-          imageName: ubuntu-20.04
-          nodeVersion: 20.x
+                "Node 20.x":
+                  nodeVersion: 20.x
 
-        "Windows - Node 20.x":
-          pool: azsdk-pool-mms-win-2022-general
-          imageName: windows-2022
-          nodeVersion: 20.x
+            pool:
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
+              os: windows
 
-    pool:
-      name: $(pool)
-      vmImage: $(imageName)
+            steps:
+              - template: /eng/pipelines/jobs/build-and-test.yml
+                parameters:
+                  nodeVersion: $(nodeVersion)
+                  os: linux
 
-    steps:
-      - template: ./jobs/build-and-test.yml
-        parameters:
-          nodeVersion: $(nodeVersion)
-          poolName: $(pool)
+          - job: linux
+            displayName: Linux
 
-  - template: ./jobs/publish-artifacts.yml
+            variables:
+              TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-  - job: docker_build
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-    steps:
-      - script: docker build -f ./docker/Dockerfile .
-        displayName: Docker build
+            strategy:
+              matrix:
+                "Node 18.x":
+                  nodeVersion: 18.x
+
+                "Node 20.x":
+                  nodeVersion: 20.x
+
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+
+            steps:
+              - template: /eng/pipelines/jobs/build-and-test.yml
+                parameters:
+                  nodeVersion: $(nodeVersion)
+                  os: linux
+
+          - template: /eng/pipelines/jobs/publish-artifacts.yml
+          - template: /eng/pipelines/jobs/e2e.yml
+
+          - job: docker_build
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+            steps:
+              - script: docker build -f ./docker/Dockerfile .
+                displayName: Docker build

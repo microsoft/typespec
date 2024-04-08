@@ -53,7 +53,7 @@ private #applyConstraints(type, schema): void
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` |  \| `Model` \| `ModelProperty` \| `Scalar` \| `Enum` \| `Union` |
+| `type` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Enum` \| `Union` |
 | `schema` | `ObjectBuilder`<`unknown`\> |
 
 #### Returns

@@ -22,7 +22,6 @@
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
-    "samples/**/*.js",
-    "samples/**/*.d.ts"
+    "samples/dist/samples.ts"
   ]
 }

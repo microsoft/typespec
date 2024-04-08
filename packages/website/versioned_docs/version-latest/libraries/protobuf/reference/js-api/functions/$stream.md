@@ -5,7 +5,7 @@ title: "[F] $stream"
 ---
 ```ts
 $stream(
-   ctx, 
+   context, 
    target, 
    mode): void
 ```
@@ -14,9 +14,9 @@ $stream(
 
 | Parameter | Type |
 | :------ | :------ |
-| `ctx` | `DecoratorContext` |
+| `context` | `DecoratorContext` |
 | `target` | `Operation` |
-| `mode` | `EnumMember` |
+| `mode` | `Type` |
 
 ## Returns
 

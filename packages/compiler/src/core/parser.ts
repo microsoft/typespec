@@ -82,6 +82,7 @@ import {
   ProjectionNode,
   ProjectionOperationSelectorNode,
   ProjectionParameterDeclarationNode,
+  ProjectionScalarSelectorNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
@@ -2377,6 +2378,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
+    | ProjectionScalarSelectorNode
     | ProjectionModelPropertySelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
@@ -2390,7 +2392,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       Token.OpKeyword,
       Token.InterfaceKeyword,
       Token.UnionKeyword,
-      Token.EnumKeyword
+      Token.EnumKeyword,
+      Token.ScalarKeyword
     );
 
     switch (selectorTok) {
@@ -2444,6 +2447,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         nextToken();
         return {
           kind: SyntaxKind.ProjectionEnumSelector,
+          ...finishNode(pos),
+        };
+      case Token.ScalarKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionScalarSelector,
           ...finishNode(pos),
         };
       default:
@@ -3374,6 +3383,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionModelPropertySelector:
+    case SyntaxKind.ProjectionScalarSelector:
     case SyntaxKind.ProjectionUnionSelector:
     case SyntaxKind.ProjectionUnionVariantSelector:
     case SyntaxKind.ProjectionInterfaceSelector:

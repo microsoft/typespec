@@ -3,6 +3,9 @@ parameters:
   - name: nodeVersion
     type: string
     default: 20.x
+  - name: pnpmStorePath
+    type: string
+    default: $(Pipeline.Workspace)/.pnpm-store
 
 steps:
   - task: NodeTool@0
@@ -16,8 +19,18 @@ steps:
     inputs:
       version: 8.0.x
 
-  - script: npm install -g pnpm@8.13.1
+  - task: Cache@2
+    inputs:
+      key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
+      path: ${{ parameters.pnpmStorePath }}
+    displayName: Cache pnpm store
+
+  - script: |
+      corepack enable
+      corepack prepare pnpm@latest-8 --activate
     displayName: Install pnpm
+  - script: pnpm config set store-dir ${{ parameters.pnpmStorePath }}
+    displayName: Setup pnpm cache dir
 
   - script: |
       echo "Node:"

@@ -6,7 +6,7 @@ title: "[F] $resourceLocation"
 ```ts
 $resourceLocation(
    context, 
-   entity, 
+   target, 
    resourceType): void
 ```
 
@@ -15,7 +15,7 @@ $resourceLocation(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` |
+| `target` | `Scalar` |
 | `resourceType` | `Model` |
 
 ## Returns

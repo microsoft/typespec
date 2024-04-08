@@ -174,6 +174,7 @@ title: "[P] JS API"
 - [ProjectionParameterDeclarationNode](interfaces/ProjectionParameterDeclarationNode.md)
 - [ProjectionReferenceNode](interfaces/ProjectionReferenceNode.md)
 - [ProjectionRelationalExpressionNode](interfaces/ProjectionRelationalExpressionNode.md)
+- [ProjectionScalarSelectorNode](interfaces/ProjectionScalarSelectorNode.md)
 - [ProjectionStatementNode](interfaces/ProjectionStatementNode.md)
 - [ProjectionTupleExpressionNode](interfaces/ProjectionTupleExpressionNode.md)
 - [ProjectionUnaryExpressionNode](interfaces/ProjectionUnaryExpressionNode.md)

@@ -4,7 +4,7 @@ title: "[F] $patch"
 
 ---
 ```ts
-$patch(context, entity): void
+$patch(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $patch(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

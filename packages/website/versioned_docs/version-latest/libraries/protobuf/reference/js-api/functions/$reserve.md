@@ -5,7 +5,7 @@ title: "[F] $reserve"
 ---
 ```ts
 $reserve(
-   ctx, 
+   context, 
    target, ...
    reservations): void
 ```
@@ -14,9 +14,9 @@ $reserve(
 
 | Parameter | Type |
 | :------ | :------ |
-| `ctx` | `DecoratorContext` |
-| `target` | `Model` |
-| ...`reservations` | readonly (`string` \| `number` \| `Type`)[] |
+| `context` | `DecoratorContext` |
+| `target` | `Type` |
+| ...`reservations` | `unknown`[] |
 
 ## Returns
 

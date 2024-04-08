@@ -6,8 +6,8 @@ title: "[F] $actionSegment"
 ```ts
 $actionSegment(
    context, 
-   entity, 
-   name): void
+   target, 
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $actionSegment(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
-| `name` | `string` |
+| `target` | `Operation` |
+| `value` | `string` |
 
 ## Returns
 

@@ -1,0 +1,46 @@
+parameters:
+  - name: artifactName
+    type: string
+  - name: tag
+    type: string
+  - name: publishGithubRelease
+    type: boolean
+    default: false
+
+jobs:
+  - job: publish_npm_${{ parameters.tag }}
+    displayName: Publish Npm (${{ parameters.tag }})
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: Download Npm Packages
+
+      - template: ../templates/install.yml
+
+      - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
+        displayName: List files in artifact
+
+      - script: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing at tag ${{ parameters.tag }}"
+          pnpm chronus publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz" --tag ${{ parameters.tag }}  --access public  --engine npm --report-summary ./publish-summary.json
+        displayName: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+
+      - ${{ if eq(parameters.publishGithubRelease, true) }}:
+          - script: |
+              echo "Publish summary:"
+              cat ./publish-summary.json
+            displayName: Log publish summary
+
+          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+            displayName: Create github releases
+            env:
+              GITHUB_TOKEN: $(azuresdk-github-pat)

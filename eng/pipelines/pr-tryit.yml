@@ -1,69 +1,77 @@
 name: PR Tools
 trigger: none
 pr:
-  - main
-  - release/*
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
 
-variables:
-  - template: templates/variables/globals.yml
-
-jobs:
-  - job: publish_playground
-    displayName: Publish playground
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
+extends:
+  template: /eng/pipelines/templates/1es-redirect.yml
+  parameters:
     variables:
-      TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
-    steps:
-      - checkout: self
-        persistCredentials: true
+      - template: /eng/pipelines/templates/variables/globals.yml@self
+    stages:
+      - stage: publish_playground
+        displayName: Publish playground
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: publish_playground
+            displayName: Publish playground
+            variables:
+              TYPESPEC_WEBSITE_BASE_PATH: "prs/$(System.PullRequest.PullRequestNumber)/"
+            steps:
+              - checkout: self
+                persistCredentials: true
 
-      - template: ./templates/install.yml
+              - template: /eng/pipelines/templates/install.yml
 
-      - template: ./templates/build.yml
+              - template: /eng/pipelines/templates/build.yml
 
-      - task: AzureCLI@1
-        displayName: "Publish playground to PR endpoint"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "cadlplayground" \
-              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-              --source "./packages/playground-website/dist/" \
-              --overwrite
+              - task: AzureCLI@1
+                displayName: "Publish playground to PR endpoint"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az storage blob upload-batch \
+                      --destination \$web \
+                      --account-name "cadlplayground" \
+                      --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+                      --source "./packages/playground-website/dist/" \
+                      --overwrite
 
-      - task: AzureCLI@1
-        displayName: "Publish website to PR endpoint"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "tspwebsitepr" \
-              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-              --source "./packages/website/build/" \
-              --overwrite
+              - task: AzureCLI@1
+                displayName: "Publish website to PR endpoint"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az storage blob upload-batch \
+                      --destination \$web \
+                      --account-name "tspwebsitepr" \
+                      --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+                      --source "./packages/website/build/" \
+                      --overwrite
 
-      - script: node eng/scripts/create-tryit-comment.js
-        displayName: Check already commented
-        env:
-          GH_TOKEN: $(azuresdk-github-pat)
+              - script: node eng/scripts/create-tryit-comment.js
+                displayName: Check already commented
+                env:
+                  GH_TOKEN: $(azuresdk-github-pat)
 
-  - job: change_comment
-    displayName: Describe changes on PR
-    condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-    steps:
-      - checkout: self
+          - job: change_comment
+            displayName: Describe changes on PR
+            condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
+            steps:
+              - checkout: self
 
-      - script: npx -p @chronus/github-pr-commenter@0.3.0 chronus-github-pr-commenter verify
-        displayName: Make comment about changes
-        env:
-          GITHUB_TOKEN: $(azuresdk-github-pat)
+              - script: npx -p @chronus/github-pr-commenter@0.3.0 chronus-github-pr-commenter verify
+                displayName: Make comment about changes
+                env:
+                  GITHUB_TOKEN: $(azuresdk-github-pat)

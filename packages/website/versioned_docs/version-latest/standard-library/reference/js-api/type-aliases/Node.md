@@ -37,6 +37,7 @@ type Node:
   | ProjectionExpression
   | ProjectionModelSelectorNode
   | ProjectionModelPropertySelectorNode
+  | ProjectionScalarSelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
   | ProjectionEnumSelectorNode

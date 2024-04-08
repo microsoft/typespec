@@ -33,7 +33,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
-    "test-official": "vitest run --reporter=junit --reporter=default",
+    "test:ci": "vitest run --reporter=junit --reporter=default",
     "test:regen": "cross-env RECORD=true vitest run",
     "regen-samples": "cross-env RECORD=true vitest run"
   },
@@ -55,15 +55,13 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
-    "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.2",
+    "typescript": "~5.4.3",
     "vitest": "^1.4.0"
   }
 }

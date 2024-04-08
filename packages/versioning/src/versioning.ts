@@ -707,6 +707,7 @@ export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
     t.kind === "Interface" ||
     t.kind === "Model" ||
     t.kind === "Union" ||
+    t.kind === "Scalar" ||
     t.kind === "Enum"
   ) {
     if (t.namespace) {

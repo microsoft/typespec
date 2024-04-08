@@ -1,5 +1,16 @@
 # Change Log - @typespec/playground
 
+## 0.2.1
+
+### Bug Fixes
+
+- [#3031](https://github.com/microsoft/typespec/pull/3031) Add `aria` attributes for accessibility
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
 ## 0.2.0
 
 ### Bug Fixes

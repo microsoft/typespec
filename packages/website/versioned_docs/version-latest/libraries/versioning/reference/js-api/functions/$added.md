@@ -6,8 +6,8 @@ title: "[F] $added"
 ```ts
 $added(
    context, 
-   t, 
-   v): void
+   target, 
+   version): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $added(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `t` |  \| `Model` \| `ModelProperty` \| `Scalar` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` \| `Interface` |
-| `v` | `EnumMember` |
+| `target` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `version` | `EnumMember` |
 
 ## Returns
 

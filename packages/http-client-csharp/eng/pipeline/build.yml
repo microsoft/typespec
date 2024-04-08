@@ -1,0 +1,60 @@
+trigger:
+  branches:
+    include:
+      - main
+      - gh-readonly-queue/* # Used to trigger for GitHub merge queues
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
+pr:
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
+extends:
+  template: /eng/pipelines/templates/1es-redirect.yml
+  parameters:
+    variables:
+      BlobFeedUrl: https://azuresdkartifacts.blob.core.windows.net/azure-sdk-tools/index.json
+      OfficialBuildId: $(Build.BuildNumber)
+      nugetMultiFeedWarnLevel: "none"
+
+    stages:
+      - stage: "Build_and_Test"
+        pool:
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSVMIMAGE)
+          os: windows
+        jobs:
+          - job: Build
+            timeoutInMinutes: 120
+            steps:
+              - checkout: self
+                fetchDepth: 1
+              - task: NodeTool@0
+                displayName: "Install Node 18.x"
+                inputs:
+                  versionSpec: "18.x"
+              - script: |
+                  npm ci
+                displayName: "Install packages"
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - script: |
+                  npm ls -a
+                displayName: "List packages"
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - task: Npm@1
+                displayName: "Build TypeSpec csharp emitter"
+                inputs:
+                  command: custom
+                  customCommand: run build
+                  workingDir: $(Build.SourcesDirectory)/packages/http-client-csharp
+              - script: |
+                  npm run test
+                displayName: "Unit Test"
+                workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

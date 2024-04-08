@@ -15,4 +15,7 @@ export const defaultTypeSpecVitestConfig = {
     },
     watchExclude: [],
   },
+  build: {
+    outDir: "dummy", // Workaround for bug https://github.com/vitest-dev/vitest/issues/5429
+  },
 };

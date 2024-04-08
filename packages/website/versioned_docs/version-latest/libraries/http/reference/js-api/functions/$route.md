@@ -6,9 +6,9 @@ title: "[F] $route"
 ```ts
 $route(
    context, 
-   entity, 
+   target, 
    path, 
-   parameters?): void
+   options?): void
 ```
 
 `@route` defines the relative route URI for the target operation
@@ -24,9 +24,9 @@ it will be used as a prefix to the route URI of the operation.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
+| `target` | `Interface` \| `Namespace` \| `Operation` |
 | `path` | `string` |
-| `parameters`? | `Model` |
+| `options`? | `Type` |
 
 ## Returns
 
