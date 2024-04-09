@@ -38,7 +38,7 @@ parameters:
     type: string
 
 jobs:
-  - job: ${{ parametersOs }} - ${{ parameters.NodeVersion }}
+  - job: ${{ parameters.Os }} - ${{ parameters.NodeVersion }}
     ${{ if eq(parameters.Os, 'linux') }}:
       pool:
         name: $(LINUXPOOL)
