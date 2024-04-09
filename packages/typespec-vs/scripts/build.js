@@ -1,4 +1,5 @@
 // @ts-check
+/* eslint-disable no-console */
 import {
   ensureDotnetVersion,
   getVisualStudioMsBuildPath,

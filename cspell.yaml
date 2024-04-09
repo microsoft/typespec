@@ -112,6 +112,7 @@ words:
   - WINDOWSVMIMAGE
   - xlarge
   - xplat
+  - TCGC
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

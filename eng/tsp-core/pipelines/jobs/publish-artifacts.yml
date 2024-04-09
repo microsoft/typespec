@@ -1,0 +1,39 @@
+jobs:
+  - job: publish_artifacts
+    displayName: Publish Artifacts
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'PullRequest'))
+
+    variables:
+      TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - checkout: self
+        submodules: true
+
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+        parameters:
+          nodeVersion: "20.x"
+      - template: /eng/tsp-core/pipelines/templates/build.yml
+
+      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
+        displayName: Bump version to prerelease targets
+
+      - script: npm run gen-manifest
+        displayName: Regen manifest for compiler
+        workingDirectory: ./packages/compiler
+
+      - script: pnpm run pack:all
+        displayName: Pack packages
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Build.SourcesDirectory)/temp/artifacts
+          artifact: packages
+          displayName: Publish packages(.tgz) as pipeline artifacts

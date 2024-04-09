@@ -1,0 +1,46 @@
+parameters:
+  - name: nodeVersion
+    type: string
+  - name: os
+    type: string
+
+steps:
+  - template: /eng/tsp-core/pipelines/templates/install.yml
+    parameters:
+      nodeVersion: ${{ parameters.nodeVersion }}
+
+  - script: pnpm run check-version-mismatch
+    displayName: Check version mismatch
+
+  - template: /eng/tsp-core/pipelines/templates/build.yml
+
+  - script: pnpm run test:ci
+    displayName: Test
+
+  - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
+
+  - script: node eng/common/scripts/check-for-changed-files.js
+    displayName: Check Git Status For Changed Files
+
+  - script: node eng/common/scripts/check-docs.js
+    displayName: Check docs
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+
+  # Unlink node_modules folders to significantly improve performance of subsequent tasks
+  # which need to walk the directory tree (and are hardcoded to follow symlinks).
+  - script: pnpm run purge
+    displayName: "Purge dependencies"
+    condition: always()
+
+  # It's important for performance to pass "packages" as "searchFolder" to avoid looking under root "node_modules".
+  # PublishTestResults.searchFolder only supports absolute paths, not relative.
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      searchFolder: "$(System.DefaultWorkingDirectory)/packages"
+      testResultsFiles: "*/test-results.xml"
+      mergeTestResults: true
+      failTaskOnFailedTests: true
+      testRunTitle: "Test os: ${{ parameters.os }}, node: ${{ parameters.nodeVersion }}"
+    displayName: Publish test results
+    condition: always()
