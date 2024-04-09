@@ -40,6 +40,9 @@ export const InternalDataSym = Symbol.for("NumericInternalData");
  * Represent any possible numeric value
  */
 export function Numeric(stringValue: string): Numeric {
+  if (new.target) {
+    throw new Error("Cannot use new with Numeric()");
+  }
   const data = parse(stringValue);
 
   const isInteger = data.d === 0;

@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { InternalDataSym, Numeric } from "../../src/core/numeric.js";
 
+describe("instantiate", () => {
+  it("with Numeric()", () => {
+    const numeric = Numeric("123");
+    expect(numeric.toString()).toEqual("123");
+  });
+  it("prevent new Numeric()", () => {
+    // @ts-expect-error 'new' expression, whose target lacks a construct signature
+    expect(() => new Numeric("123")).toThrow("Cannot use new with Numeric()");
+  });
+});
 describe("parsing", () => {
   function expectNumericData(value: string, n: bigint, e: number, sign: 1 | -1 = 1) {
     const numeric = Numeric(value);
