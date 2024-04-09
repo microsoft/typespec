@@ -53,7 +53,7 @@ parameters:
     default: {}
 
 extends:
-  template: /eng/emitters/pipelines/templates/1es-redirect.yml
+  template: /eng/common/pipelines/templates/1es-redirect.yml
 
   parameters:
     Use1ESOfficial: ${{ parameters.Use1ESOfficial }}
