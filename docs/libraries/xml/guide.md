@@ -23,21 +23,12 @@ As in Json we have some [default handling](https://typespec.io/docs/libraries/ht
 
 <table>
 <tr>
-  <td>Scenario</td>
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 1.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 1.1:**
-
-- ❌ ItemsName
-- ❌ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -78,14 +69,6 @@ Pet:
 
 <!-- --------------------------------------------------  SCENARIO 1.2 ------------------------------------------------------------ -->
 <tr>
-<td>
-
-**Scenario 1.2:**
-
-- ❌ ItemsName
-- ✅ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -133,14 +116,6 @@ Pet:
 <tr>
 <td>
 
-**Scenario 1.3:**
-
-- ✅ ItemsName
-- ❌ Wrapped
-
-</td>
-<td>
-
 ```tsp
 @encodedName("application/xml", "ItemsName")
 scalar tag extends string;
@@ -186,14 +161,6 @@ Pet:
 
 <!-- ----------------------------------------------------  SCENARIO 1.4 ---------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 1.4:**
-
-- ✅ ItemsName
-- ✅ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -249,21 +216,12 @@ Pet:
 
 <table>
 <tr>
-  <td>Scenario</td>
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 2.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 2.1:**
-
-- ❌ ItemsName
-- ❌ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -317,14 +275,6 @@ Pet:
 
 <!-- --------------------------------------------------  SCENARIO 2.2 ------------------------------------------------------------ -->
 <tr>
-<td>
-
-**Scenario 2.2:**
-
-- ❌ ItemsName
-- ✅ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -384,14 +334,6 @@ Pet:
 <tr>
 <td>
 
-**Scenario 2.3:**
-
-- ✅ ItemsName
-- ❌ Wrapped
-
-</td>
-<td>
-
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
@@ -448,14 +390,6 @@ Tag:
 
 <!-- ----------------------------------------------------  SCENARIO 2.4 ---------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 2.4:**
-
-- ✅ ItemsName
-- ✅ Wrapped
-
-</td>
 <td>
 
 ```tsp
@@ -517,20 +451,13 @@ Pet:
 
 <table>
 <tr>
-  <td>Scenario</td>
+  
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 3.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 3.1:**
-
-No annotations
-
-</td>
 <td>
 
 ```tsp
@@ -575,15 +502,6 @@ Author:
 
 <!-- ---------------------------------------------------  SCENARIO 3.2  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 3.2:**
-
-Nested model has xml encoded name.
-
-_⚠️ no op in serialization of Book_
-
-</td>
 <td>
 
 ```tsp
@@ -634,13 +552,6 @@ Author:
 
 <!-- ---------------------------------------------------  SCENARIO 3.3  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 3.2:**
-
-Property has encoded name
-
-</td>
 <td>
 
 ```tsp
@@ -695,20 +606,13 @@ Author:
 
 <table>
 <tr>
-  <td>Scenario</td>
+  
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 4.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 4.1:**
-
-Convert a property to an attribute
-
-</td>
 <td>
 
 ```tsp
@@ -759,20 +663,13 @@ Book:
 
 <table>
 <tr>
-  <td>Scenario</td>
+  
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 5.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 5.1:**
-
-On model
-
-</td>
 <td>
 
 ```tsp
@@ -818,13 +715,6 @@ Book:
 
 <!-- ---------------------------------------------------  SCENARIO 5.2  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 5.2:**
-
-On model and properties
-
-</td>
 <td>
 
 ```tsp
@@ -886,20 +776,13 @@ Book:
 
 <table>
 <tr>
-  <td>Scenario</td>
+  
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 6.1:**
-
-On model
-
-</td>
 <td>
 
 ```tsp
@@ -950,13 +833,6 @@ Book:
 
 <!-- ---------------------------------------------------  SCENARIO 6.2  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 6.2:**
-
-On model and properties
-
-</td>
 <td>
 
 ```tsp
@@ -1024,18 +900,13 @@ Book:
 
 <table>
 <tr>
-  <td>Scenario</td>
+  
   <td>TypeSpec</td>
   <td>Xml</td>
   <td>OpenAPI3</td>
 </tr>
 <!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
 <tr>
-<td>
-
-**Scenario 6.1:**
-
-</td>
 <td>
 
 ```tsp
