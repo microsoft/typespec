@@ -1,0 +1,44 @@
+- steps:
+  - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
+      - script: |
+          echo "Publish parameter has unsupported type: '${{ parameters.Publish }}'"
+          echo "Supported types are 'none', 'internal', 'public'"
+          exit 1
+  # Validate parameters and fail early if invalid
+  - ${{ each package in parameters.Packages }}:
+      - ${{ if notIn(package.type, 'npm', 'nuget') }}:
+          - script: |
+              echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
+              exit 1
+            displayName: "Unsupported package type"
+            condition: always()
+
+  - checkout: self
+
+  - ${{ parameters.AdditionalInitializeSteps }}
+
+  - task: PowerShell@2
+    displayName: "Run initialize script"
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
+      arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+      workingDirectory: $(selfRepositoryPath)
+
+  - task: PowerShell@2
+    displayName: "Run build script"
+    name: ci_build
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
+      arguments: >
+        -BuildNumber "$(Build.BuildNumber)"
+        -Output "$(Build.ArtifactStagingDirectory)"
+        -PublishType:"${{ parameters.Publish }}"
+        -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
+      workingDirectory: $(selfRepositoryPath)
+templateContext:
+  outputs:
+    - output: pipelineArtifact
+      path: $(Build.ArtifactStagingDirectory)
+      artifact: build_artifacts

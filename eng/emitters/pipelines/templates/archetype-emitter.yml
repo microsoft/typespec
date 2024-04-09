@@ -69,57 +69,21 @@ extends:
       - stage: Build
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
-        pool:
-          name: $(LINUXPOOL)
-          image: $(LINUXVMIMAGE)
-          os: linux
         jobs:
-          - job: Build
+          - job: Linux
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
             steps:
-              - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
-                  - script: |
-                      echo "Publish parameter has unsupported type: '${{ parameters.Publish }}'"
-                      echo "Supported types are 'none', 'internal', 'public'"
-                      exit 1
-              # Validate parameters and fail early if invalid
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if notIn(package.type, 'npm', 'nuget') }}:
-                      - script: |
-                          echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
-                          exit 1
-                        displayName: "Unsupported package type"
-                        condition: always()
-
-              - checkout: self
-
-              - ${{ parameters.AdditionalInitializeSteps }}
-
-              - task: PowerShell@2
-                displayName: "Run initialize script"
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-                  arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-                  workingDirectory: $(selfRepositoryPath)
-
-              - task: PowerShell@2
-                displayName: "Run build script"
-                name: ci_build
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
-                  arguments: >
-                    -BuildNumber "$(Build.BuildNumber)"
-                    -Output "$(Build.ArtifactStagingDirectory)"
-                    -PublishType:"${{ parameters.Publish }}"
-                    -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
-                  workingDirectory: $(selfRepositoryPath)
-
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: build_artifacts
+              - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - job: Windows
+            pool:
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
+              os: windows
+            steps:
+              - template: /eng/emitters/pipelines/templates/jobs/build.yml
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
