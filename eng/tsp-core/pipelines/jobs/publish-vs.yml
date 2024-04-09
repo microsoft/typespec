@@ -13,7 +13,7 @@ jobs:
         artifact: vs-extension-unsigned
         displayName: Download VS extension(.vsix) from pipeline artifacts
 
-      - template: /eng/pipelines/templates/sign-vsix.yml
+      - template: /eng/tsp-core/pipelines/templates/sign-vsix.yml
         parameters:
           path: $(Pipeline.Workspace)/vs-extension-unsigned
           pattern: "*.vsix"

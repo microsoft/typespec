@@ -3,9 +3,10 @@ trigger:
     include:
       - main
       - gh-readonly-queue/* # Used to trigger for GitHub merge queues
-  paths:
-    exclude:
-      - packages/http-client-csharp
+  # Not doing this until check enforcer is added https://github.com/microsoft/typespec/issues/3117
+  # paths:
+  #   exclude:
+  #     - packages/http-client-csharp
 
 pr:
   branches:
@@ -18,10 +19,10 @@ pr:
   #     - packages/http-client-csharp
 
 extends:
-  template: /eng/pipelines/templates/1es-redirect.yml
+  template: /eng/tsp-core/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: /eng/pipelines/templates/variables/globals.yml@self
+      - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
     stages:
       - stage: CI
         jobs:
@@ -46,7 +47,7 @@ extends:
               os: windows
 
             steps:
-              - template: /eng/pipelines/jobs/build-and-test.yml
+              - template: /eng/tsp-core/pipelines/jobs/build-and-test.yml
                 parameters:
                   nodeVersion: $(nodeVersion)
                   os: linux
@@ -72,13 +73,13 @@ extends:
               os: linux
 
             steps:
-              - template: /eng/pipelines/jobs/build-and-test.yml
+              - template: /eng/tsp-core/pipelines/jobs/build-and-test.yml
                 parameters:
                   nodeVersion: $(nodeVersion)
                   os: linux
 
-          - template: /eng/pipelines/jobs/publish-artifacts.yml
-          - template: /eng/pipelines/jobs/e2e.yml
+          - template: /eng/tsp-core/pipelines/jobs/publish-artifacts.yml
+          - template: /eng/tsp-core/pipelines/jobs/e2e.yml
 
           - job: docker_build
             pool:

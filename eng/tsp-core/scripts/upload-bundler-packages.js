@@ -2,8 +2,8 @@
 import {
   bundleAndUploadPackages,
   getPackageVersion,
-} from "../../packages/bundle-uploader/dist/src/index.js";
-import { repoRoot } from "./helpers.js";
+} from "../../../packages/bundle-uploader/dist/src/index.js";
+import { repoRoot } from "../../common/scripts/helpers.js";
 
 await bundleAndUploadPackages({
   repoRoot: repoRoot,

@@ -13,10 +13,10 @@ trigger:
 pr: none
 
 extends:
-  template: /eng/pipelines/templates/1es-redirect.yml
+  template: /eng/tsp-core/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: /eng/pipelines/templates/variables/globals.yml@self
+      - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
 
     stages:
       - stage: build
@@ -35,13 +35,13 @@ extends:
               TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
             steps:
-              - template: /eng/pipelines/templates/install.yml
-              - template: /eng/pipelines/templates/build.yml
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/build.yml
 
               - script: pnpm run test:ci
                 displayName: Test
 
-              - template: /eng/pipelines/templates/upload-coverage.yml
+              - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
 
               - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
                 displayName: Pack packages
@@ -65,7 +65,7 @@ extends:
                 inputs:
                   azureSubscription: "Azure SDK Engineering System"
                   scriptLocation: inlineScript
-                  inlineScript: node ./eng/scripts/upload-bundler-packages.js
+                  inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
 
               # Update version for next version publish
               - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
@@ -124,13 +124,13 @@ extends:
           os: linux
 
         jobs:
-          - template: /eng/pipelines/jobs/publish-npm.yml
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-stable
               tag: latest
               publishGithubRelease: true
 
-          - template: /eng/pipelines/jobs/publish-npm.yml
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               artifactName: npm-packages-next
               tag: next
@@ -139,13 +139,13 @@ extends:
         displayName: Publish VSCode extension
         dependsOn: build
         jobs:
-          - template: /eng/pipelines/jobs/publish-vscode.yml
+          - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
 
       - stage: publish_vs
         displayName: Publish VS extension
         dependsOn: build
         jobs:
-          - template: /eng/pipelines/jobs/publish-vs.yml
+          - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
 
       - stage: docker
         displayName: Docker
