@@ -81,6 +81,7 @@ extends:
                   PackagePath: ${{ parameters.PackagePath }}
                   NodeVersion: 20.x
                   Os: linux
+          - job:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
                   BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
@@ -91,6 +92,7 @@ extends:
                   PackagePath: ${{ parameters.PackagePath }}
                   NodeVersion: 18.x
                   Os: linux
+          - job:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
                   BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
@@ -101,6 +103,7 @@ extends:
                   PackagePath: ${{ parameters.PackagePath }}
                   NodeVersion: 20.x
                   Os: windows
+          - job:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
                   BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
