@@ -44,7 +44,6 @@ versionPolicies:
       - "@typespec/openapi3"
       - "@typespec/protobuf"
       - "@typespec/prettier-plugin-typespec"
-      - "@typespec/eslint-config-typespec"
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/json-schema"
