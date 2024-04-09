@@ -70,18 +70,7 @@ extends:
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
-          - job: Linux
-            strategy:
-              matrix:
-                "Node 18.x":
-                  nodeVersion: 18.x
-                "Node 20.x":
-                  nodeVersion: 20.x
-            pool:
-              name: $(LINUXPOOL)
-              image: $(LINUXVMIMAGE)
-              os: linux
-            steps:
+          - job:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
                   BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
@@ -90,24 +79,8 @@ extends:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   Packages: ${{ parameters.Packages }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  nodeVersion: $(nodeVersion)
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: build_artifacts
-          - job: Windows
-            strategy:
-              matrix:
-                "Node 18.x":
-                  nodeVersion: 18.x
-                "Node 20.x":
-                  nodeVersion: 20.x
-            pool:
-              name: $(WINDOWSPOOL)
-              image: $(WINDOWSVMIMAGE)
-              os: windows
-            steps:
+                  NodeVersion: 20.x
+                  Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
                   BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
@@ -116,7 +89,28 @@ extends:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   Packages: ${{ parameters.Packages }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  nodeVersion: $(nodeVersion)
+                  NodeVersion: 18.x
+                  Os: linux
+              - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                parameters:
+                  BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+                  Publish: ${{ parameters.Publish }}
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  Packages: ${{ parameters.Packages }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 20.x
+                  Os: windows
+              - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                parameters:
+                  BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+                  Publish: ${{ parameters.Publish }}
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  Packages: ${{ parameters.Packages }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 18.x
+                  Os: windows
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
@@ -188,12 +182,6 @@ extends:
               os: linux
             jobs:
               - job: Linux
-                strategy:
-                  matrix:
-                    "Node 18.x":
-                      nodeVersion: 18.x
-                    "Node 20.x":
-                      nodeVersion: 20.x
                 pool:
                   name: $(LINUXPOOL)
                   image: $(LINUXVMIMAGE)
@@ -205,22 +193,13 @@ extends:
                     parameters:
                       AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                       PackagePath: ${{ parameters.PackagePath }}
-                      nodeVersion: $(nodeVersion)
-                # if the node version is 20.x then output in templateContext
-                # this is to ensure that the pipeline artifact is created only once
-                - ${{ if eq(nodeVersion, '20.x') }}:
-                    templateContext:
-                      outputs:
-                        - output: pipelineArtifact
-                          path: $(Build.ArtifactStagingDirectory)
-                          artifact: test_artifacts_$(System.JobName)
+                      NodeVersion: $(nodeVersion)
+                templateContext:
+                  outputs:
+                    - output: pipelineArtifact
+                      path: $(Build.ArtifactStagingDirectory)
+                      artifact: test_artifacts_$(System.JobName)
               - job: Windows
-                strategy:
-                  matrix:
-                    "Node 18.x":
-                      nodeVersion: 18.x
-                    "Node 20.x":
-                      nodeVersion: 20.x
                 pool:
                   name: $(WINDOWSPOOL)
                   image: $(WINDOWSVMIMAGE)
@@ -232,4 +211,4 @@ extends:
                     parameters:
                       AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                       PackagePath: ${{ parameters.PackagePath }}
-                      nodeVersion: $(nodeVersion)
+                      NodeVersion: $(nodeVersion)
