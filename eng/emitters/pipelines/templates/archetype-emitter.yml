@@ -68,12 +68,15 @@ extends:
       #   packages/: Contains the packages to publish
       - stage: Build
         variables:
-          -template: /eng/common/pipelines/templates/variables/node-matrix.yml@self
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
           - job: Linux
             strategy:
-              matrix: ${{ NodeMatrix }}
+              matrix:
+                "Node 18.x":
+                  nodeVersion: 18.x
+                "Node 20.x":
+                  nodeVersion: 20.x
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
@@ -87,6 +90,7 @@ extends:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   Packages: ${{ parameters.Packages }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  nodeVersion: $(nodeVersion)
             templateContext:
               outputs:
                 - output: pipelineArtifact
@@ -94,7 +98,11 @@ extends:
                   artifact: build_artifacts
           - job: Windows
             strategy:
-              matrix: ${{ NodeMatrix }}
+              matrix:
+                "Node 18.x":
+                  nodeVersion: 18.x
+                "Node 20.x":
+                  nodeVersion: 20.x
             pool:
               name: $(WINDOWSPOOL)
               image: $(WINDOWSVMIMAGE)
@@ -108,6 +116,7 @@ extends:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   Packages: ${{ parameters.Packages }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  nodeVersion: $(nodeVersion)
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`

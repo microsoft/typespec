@@ -1,6 +1,0 @@
-variables:
-  NodeMatrix:
-    "Node 18.x":
-      nodeVersion: 18.x
-    "Node 20.x":
-      nodeVersion: 20.x

@@ -29,6 +29,11 @@ parameters:
   - name: PackagePath
     type: string
 
+  # Node version
+  #  Currently not installing node in this template, but keeping this parameter for future use
+  - name: NodeVersion
+    type: string
+
 steps:
   - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
       - script: |
