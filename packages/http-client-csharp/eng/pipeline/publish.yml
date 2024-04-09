@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-csharp/
+
+pr: none
+
+extends:
+  template: /eng/emitters/pipelines/templates/archetype-emitter.yml
+  parameters:
+    BuildPrereleaseVersion: false
+    UseTypeSpecNext: false
+    Publish: "internal"
+    PublishDependsOnTest: true
+    PackagePath: /packages/http-client-csharp
+    EmitterPackageJsonPath: packages/http-client-csharp/package.json
+    Packages:
+      - name: emitter
+        file: typespec-http-client-csharp-*.tgz
+        type: npm
+    TestMatrix:
+      Unit:
+        TestArguments: -UnitTests

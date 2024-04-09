@@ -5,24 +5,24 @@ parameters:
     type: string
 
 steps:
-  - template: /eng/pipelines/templates/install.yml
+  - template: /eng/tsp-core/pipelines/templates/install.yml
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
 
   - script: pnpm run check-version-mismatch
     displayName: Check version mismatch
 
-  - template: /eng/pipelines/templates/build.yml
+  - template: /eng/tsp-core/pipelines/templates/build.yml
 
   - script: pnpm run test:ci
     displayName: Test
 
-  - template: /eng/pipelines/templates/upload-coverage.yml
+  - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
 
-  - script: node eng/scripts/check-for-changed-files.js
+  - script: node eng/common/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
-  - script: node eng/scripts/check-docs.js
+  - script: node eng/common/scripts/check-docs.js
     displayName: Check docs
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 

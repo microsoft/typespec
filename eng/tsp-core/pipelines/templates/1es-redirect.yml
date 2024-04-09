@@ -26,7 +26,7 @@ extends:
       skipBuildTagsForGitHubPullRequests: true
     sdl:
       credscan:
-        suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppression.json
+        suppressionsFile: $(Build.SourcesDirectory)/eng/common/CredScanSuppression.json
       sourceAnalysisPool:
         name: azsdk-pool-mms-win-2022-general
         image: azsdk-pool-mms-win-2022-1espt
@@ -40,7 +40,7 @@ extends:
               ${{ if ne(pair.key, 'variables') }}:
                 ${{ pair.key }}: ${{ pair.value }}
             variables:
-              - template: /eng/pipelines/templates/variables/image.yml@self
+              - template: /eng/common/pipelines/variables/image.yml@self
               - ${{ each variable in parameters.variables }}:
                   - ${{ if variable.key }}:
                       # turn objects into name/value lists
