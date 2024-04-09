@@ -73,7 +73,7 @@ extends:
         jobs:
           - job: Linux
             strategy:
-              matrix: ${{ parameters.NodeMatrix }}
+              matrix: $(NodeMatrix)
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
@@ -94,7 +94,7 @@ extends:
                   artifact: build_artifacts
           - job: Windows
             strategy:
-              matrix: ${{ parameters.NodeMatrix }}
+              matrix: $(NodeMatrix)
             pool:
               name: $(WINDOWSPOOL)
               image: $(WINDOWSVMIMAGE)
