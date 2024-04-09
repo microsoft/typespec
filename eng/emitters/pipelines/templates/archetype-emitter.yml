@@ -77,6 +77,11 @@ extends:
               os: linux
             steps:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)
+                  artifact: build_artifacts
           - job: Windows
             pool:
               name: $(WINDOWSPOOL)
