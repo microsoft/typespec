@@ -135,7 +135,7 @@ extern dec unwrapped(target: ModelProperty);
 
 /**
  * Specify the XML namespace for this element. It can be used in 2 different ways:
- * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify the default namespace for the element
+ * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify both namespace and prefix
  * 2. `@Xml.ns(Namespaces.ns1)` - Using an enum marked with `@nsDeclaration`
  *
  * @param ns Provide the namespace URI or the enum member where it is defined.
