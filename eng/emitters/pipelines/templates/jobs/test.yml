@@ -1,0 +1,39 @@
+parameters:
+  # Custom steps to run in the Build and Test stages after the repositories are cloned.
+  - name: AdditionalInitializeSteps
+    type: stepList
+    default: []
+
+  # Location of emitter package path
+  - name: PackagePath
+    type: string
+
+  # Node version
+  #  Currently not installing node in this template, but keeping this parameter for future use
+  - name: NodeVersion
+    type: string
+
+steps:
+  - checkout: self
+
+  - download: current
+    artifact: build_artifacts
+    displayName: Download build artifacts
+
+  - ${{ parameters.AdditionalInitializeSteps }}
+
+  - task: PowerShell@2
+    displayName: "Run initialize script"
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
+      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
+      workingDirectory: $(selfRepositoryPath)
+
+  - task: PowerShell@2
+    displayName: "Run test script"
+    inputs:
+      pwsh: true
+      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
+      arguments: $(TestArguments)
+      workingDirectory: $(selfRepositoryPath)

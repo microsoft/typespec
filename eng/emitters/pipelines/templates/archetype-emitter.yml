@@ -187,38 +187,49 @@ extends:
               image: $(LINUXVMIMAGE)
               os: linux
             jobs:
-              - job: Test
+              - job: Linux
                 strategy:
-                  matrix: ${{ parameters.TestMatrix }}
+                  matrix:
+                    "Node 18.x":
+                      nodeVersion: 18.x
+                    "Node 20.x":
+                      nodeVersion: 20.x
+                pool:
+                  name: $(LINUXPOOL)
+                  image: $(LINUXVMIMAGE)
+                  os: linux
                 variables:
                   buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
                 steps:
-                  - checkout: self
-
-                  - download: current
-                    artifact: build_artifacts
-                    displayName: Download build artifacts
-
-                  - ${{ parameters.AdditionalInitializeSteps }}
-
-                  - task: PowerShell@2
-                    displayName: "Run initialize script"
-                    inputs:
-                      pwsh: true
-                      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-                      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
-                      workingDirectory: $(selfRepositoryPath)
-
-                  - task: PowerShell@2
-                    displayName: "Run test script"
-                    inputs:
-                      pwsh: true
-                      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-                      arguments: $(TestArguments)
-                      workingDirectory: $(selfRepositoryPath)
-
-                templateContext:
-                  outputs:
-                    - output: pipelineArtifact
-                      path: $(Build.ArtifactStagingDirectory)
-                      artifact: test_artifacts_$(System.JobName)
+                  - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      nodeVersion: $(nodeVersion)
+                # if the node version is 20.x then output in templateContext
+                # this is to ensure that the pipeline artifact is created only once
+                - ${{ if eq(nodeVersion, '20.x') }}:
+                    templateContext:
+                      outputs:
+                        - output: pipelineArtifact
+                          path: $(Build.ArtifactStagingDirectory)
+                          artifact: test_artifacts_$(System.JobName)
+              - job: Windows
+                strategy:
+                  matrix:
+                    "Node 18.x":
+                      nodeVersion: 18.x
+                    "Node 20.x":
+                      nodeVersion: 20.x
+                pool:
+                  name: $(WINDOWSPOOL)
+                  image: $(WINDOWSVMIMAGE)
+                  os: windows
+                variables:
+                  buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+                steps:
+                  - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      nodeVersion: $(nodeVersion)
