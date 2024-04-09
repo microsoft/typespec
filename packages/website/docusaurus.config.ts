@@ -1,4 +1,3 @@
-// @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
@@ -9,6 +8,7 @@ import { resolve } from "path";
 import { themes } from "prism-react-renderer";
 
 function getMajorMinorVersion(pkgJsonPath): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const version = require(pkgJsonPath).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;
@@ -269,7 +269,7 @@ const config: Config = {
     prism: {
       theme: LightTheme,
       darkTheme: themes.oneDark,
-      additionalLanguages: ["http", "shell-session", "protobuf"],
+      additionalLanguages: ["http", "shell-session", "protobuf", "diff"],
     },
     mermaid: {},
     algolia: {

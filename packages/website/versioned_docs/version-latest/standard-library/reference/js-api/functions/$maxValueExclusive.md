@@ -7,7 +7,7 @@ title: "[F] $maxValueExclusive"
 $maxValueExclusive(
    context, 
    target, 
-   maxValueExclusive): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $maxValueExclusive(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `maxValueExclusive` | `number` |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `value` | `number` |
 
 ## Returns
 

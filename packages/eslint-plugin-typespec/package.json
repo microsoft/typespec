@@ -1,6 +1,6 @@
 {
   "name": "@typespec/eslint-plugin",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
   "homepage": "https://typespec.io",
@@ -27,9 +27,9 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "files": [
     "lib/*.tsp",
@@ -41,9 +41,9 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typescript-eslint/parser": "^7.4.0",
-    "@typescript-eslint/rule-tester": "~7.4.0",
-    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typescript-eslint/parser": "^7.5.0",
+    "@typescript-eslint/rule-tester": "~7.5.0",
+    "@typescript-eslint/types": "^7.5.0",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
@@ -53,6 +53,6 @@
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~7.4.0"
+    "@typescript-eslint/utils": "^7.5.0"
   }
 }

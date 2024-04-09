@@ -6,8 +6,8 @@ title: "[F] $useRef"
 ```ts
 $useRef(
    context, 
-   entity, 
-   refUrl): void
+   target, 
+   ref): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $useRef(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Model` \| `ModelProperty` |
-| `refUrl` | `string` |
+| `target` | `ModelProperty` \| `Model` |
+| `ref` | `string` |
 
 ## Returns
 

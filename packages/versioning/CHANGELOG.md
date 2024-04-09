@@ -1,5 +1,16 @@
 # Change Log - @typespec/versioning
 
+## 0.55.0
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+### Features
+
+- [#3053](https://github.com/microsoft/typespec/pull/3053) Add support for versioning of scalars(Added, removed, renamed)
+
+
 ## 0.54.0
 
 ### Bump dependencies

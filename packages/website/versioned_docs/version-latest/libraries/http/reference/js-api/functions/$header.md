@@ -6,7 +6,7 @@ title: "[F] $header"
 ```ts
 $header(
    context, 
-   entity, 
+   target, 
    headerNameOrOptions?): void
 ```
 
@@ -15,8 +15,8 @@ $header(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` |
-| `headerNameOrOptions`? | `StringLiteral` \| `Model` |
+| `target` | `ModelProperty` |
+| `headerNameOrOptions`? | `Type` |
 
 ## Returns
 

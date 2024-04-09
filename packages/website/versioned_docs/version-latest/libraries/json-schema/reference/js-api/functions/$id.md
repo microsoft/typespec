@@ -7,7 +7,7 @@ title: "[F] $id"
 $id(
    context, 
    target, 
-   value): void
+   id): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $id(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Model` \| `Scalar` \| `Enum` \| `Union` |
-| `value` | `string` |
+| `target` | `Type` |
+| `id` | `string` |
 
 ## Returns
 

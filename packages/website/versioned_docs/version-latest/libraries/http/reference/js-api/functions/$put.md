@@ -4,7 +4,7 @@ title: "[F] $put"
 
 ---
 ```ts
-$put(context, entity): void
+$put(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $put(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

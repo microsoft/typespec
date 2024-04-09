@@ -1,5 +1,12 @@
 # Change Log - @typespec/protobuf
 
+## 0.55.0
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
 ## 0.54.0
 
 ### Bump dependencies

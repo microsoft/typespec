@@ -16,7 +16,7 @@ validateDecoratorTargetIntrinsic(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `decoratorName` | `string` |
 | `expectedType` | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md)[] |
 

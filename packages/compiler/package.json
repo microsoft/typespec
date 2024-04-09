@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -73,13 +73,13 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@babel/code-frame": "~7.24.2",
@@ -104,12 +104,10 @@
     "@types/semver": "^7.5.8",
     "@types/sinon": "~17.0.3",
     "@types/yargs": "~17.0.32",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",
-    "eslint": "^8.57.0",
     "grammarkdown": "~3.3.2",
     "rimraf": "~5.0.5",
     "sinon": "~17.0.1",

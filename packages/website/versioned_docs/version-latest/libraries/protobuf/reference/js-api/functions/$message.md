@@ -4,15 +4,15 @@ title: "[F] $message"
 
 ---
 ```ts
-$message(ctx, target): void
+$message(context, target): void
 ```
 
 ## Parameters
 
 | Parameter | Type |
 | :------ | :------ |
-| `ctx` | `DecoratorContext` |
-| `target` | `Model` |
+| `context` | `DecoratorContext` |
+| `target` | `Type` |
 
 ## Returns
 
