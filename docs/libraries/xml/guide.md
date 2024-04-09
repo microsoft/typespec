@@ -6,7 +6,7 @@ title: Guide
 
 ## Default encoding of scalars
 
-As in Json we need to have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
+As in Json we have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
 
 | Scalar Type      | Default Encoding  | Encoding name                           |
 | ---------------- | ----------------- | --------------------------------------- |
