@@ -5,7 +5,8 @@ using TypeSpec.Reflection;
 namespace TypeSpec.Xml;
 
 /**
- * Provide the name of the XML element or attribute. This is just a syntactic sugar for `@encodedName("application/xml", value)`
+ * Provide the name of the XML element or attribute. This means the same thing as
+ `@encodedName("application/xml", value)`
  *
  * @param name The name of the XML element or attribute
  *
