@@ -78,12 +78,12 @@ extends:
             steps:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
-                  BuildPrereleaseVersion: $(BuildPrereleaseVersion)
-                  UseTypeSpecNext: $(UseTypeSpecNext)
-                  Publish: $(Publish)
-                  AdditionalInitializeSteps: $(AdditionalInitializeSteps)
-                  Packages: $(Packages)
-                  PackagePath: $(PackagePath)
+                  BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+                  Publish: ${{ parameters.Publish }}
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  Packages: ${{ parameters.Packages }}
+                  PackagePath: ${{ parameters.PackagePath }}
             templateContext:
               outputs:
                 - output: pipelineArtifact
@@ -97,12 +97,12 @@ extends:
             steps:
               - template: /eng/emitters/pipelines/templates/jobs/build.yml
                 parameters:
-                  BuildPrereleaseVersion: $(BuildPrereleaseVersion)
-                  UseTypeSpecNext: $(UseTypeSpecNext)
-                  Publish: $(Publish)
-                  AdditionalInitializeSteps: $(AdditionalInitializeSteps)
-                  Packages: $(Packages)
-                  PackagePath: $(PackagePath)
+                  BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+                  Publish: ${{ parameters.Publish }}
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  Packages: ${{ parameters.Packages }}
+                  PackagePath: ${{ parameters.PackagePath }}
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
