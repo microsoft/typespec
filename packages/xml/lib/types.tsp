@@ -4,7 +4,7 @@ namespace TypeSpec.Xml;
  * Known Xml encodings
  */
 enum Encoding {
-  /** Corespond to a field of schema 	xs:dateTime */
+  /** Corresponds to a field of schema 	xs:dateTime */
   xmlDateTime,
 
   /** Corespond to a field of schema 	xs:date */
