@@ -8,4 +8,5 @@ export {
   isAttribute,
   isUnwrapped,
 } from "./decorators.js";
-export type { XmlNamespace } from "./types.js";
+export { getXmlEncoding } from "./encoding.js";
+export type { XmlEncodeData, XmlEncoding, XmlNamespace } from "./types.js";
