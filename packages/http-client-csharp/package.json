@@ -55,8 +55,6 @@
     "@azure-tools/typespec-client-generator-core": "0.40.0",
     "@types/node": "~18.13.0",
     "@typespec/compiler": "0.54.0",
-    "@typespec/eslint-config-typespec": "0.54.0",
-    "@typespec/eslint-plugin": "0.54.0",
     "@typespec/http": "0.54.0",
     "@typespec/json-schema": "0.54.0",
     "@typespec/library-linter": "0.54.0",
