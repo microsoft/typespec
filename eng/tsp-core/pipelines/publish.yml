@@ -13,7 +13,7 @@ trigger:
 pr: none
 
 extends:
-  template: /eng/tsp-core/pipelines/templates/1es-redirect.yml
+  template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
