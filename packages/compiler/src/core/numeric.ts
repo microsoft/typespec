@@ -41,7 +41,7 @@ export const InternalDataSym = Symbol.for("NumericInternalData");
  */
 export function Numeric(stringValue: string): Numeric {
   if (new.target) {
-    throw new Error("Cannot use new with Numeric()");
+    throw new Error("Numeric is not a constructor");
   }
   const data = parse(stringValue);
 
