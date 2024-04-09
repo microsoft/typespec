@@ -55,7 +55,8 @@ model Blob {
 
 ### `@name` {#@TypeSpec.Xml.name}
 
-Provide the name of the XML element or attribute. This is just a syntactic sugar for `@encodedName("application/xml", value)`
+Provide the name of the XML element or attribute. This means the same thing as
+`@encodedName("application/xml", value)`
 
 ```typespec
 @TypeSpec.Xml.name(name: valueof string)
@@ -94,8 +95,8 @@ model Book {
 
 Specify the XML namespace for this element. It can be used in 2 different ways:
 
-1. `@ns("http://www.example.com/namespace", "ns1")` - specify the default namespace for the element
-2. `@Xml.ns(Namespaces.ns1)` - Using an enum marked with `@nsDeclaration`
+1. `@ns("http://www.example.com/namespace", "ns1")` - specify both namespace and prefix
+2. `@Xml.ns(Namespaces.ns1)` - pass a member of an enum decorated with `@nsDeclaration`
 
 ```typespec
 @TypeSpec.Xml.ns(ns: string | EnumMember, prefix?: valueof string)
@@ -107,10 +108,10 @@ Specify the XML namespace for this element. It can be used in 2 different ways:
 
 #### Parameters
 
-| Name   | Type                   | Description                                                                  |
-| ------ | ---------------------- | ---------------------------------------------------------------------------- |
-| ns     | `string \| EnumMember` | Provide the namespace URI or the enum member where it is defined.            |
-| prefix | `valueof string`       | Provide the name prefix if the namespace parameter was provided as a string. |
+| Name   | Type                   | Description                                                                       |
+| ------ | ---------------------- | --------------------------------------------------------------------------------- |
+| ns     | `string \| EnumMember` | The namespace URI or a member of an enum decorated with `@nsDeclaration`.         |
+| prefix | `valueof string`       | The namespace prefix. Required if the namespace parameter was passed as a string. |
 
 #### Examples
 
@@ -164,7 +165,7 @@ None
 
 ### `@unwrapped` {#@TypeSpec.Xml.unwrapped}
 
-Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be included.
+Specify that the target property shouldn't create a wrapper node. This can be used to flatten list nodes into the model node or to include raw text in the model node.
 It cannot be used with `@attribute`.
 
 ```typespec
