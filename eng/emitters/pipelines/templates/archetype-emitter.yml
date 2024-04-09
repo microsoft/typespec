@@ -71,6 +71,7 @@ extends:
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
           - job: Linux
+            strategy: /eng/common/pipelines/strategies/node-versions.yml
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
@@ -90,6 +91,7 @@ extends:
                   path: $(Build.ArtifactStagingDirectory)
                   artifact: build_artifacts
           - job: Windows
+            strategy: /eng/common/pipelines/strategies/node-versions.yml
             pool:
               name: $(WINDOWSPOOL)
               image: $(WINDOWSVMIMAGE)
