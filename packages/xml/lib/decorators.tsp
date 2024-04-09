@@ -138,7 +138,7 @@ extern dec unwrapped(target: ModelProperty);
  * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify both namespace and prefix
  * 2. `@Xml.ns(Namespaces.ns1)` - pass a member of an enum decorated with `@nsDeclaration`
  *
- * @param ns Provide the namespace URI or the enum member where it is defined.
+ * @param ns The namespace URI or a member of an enum decorated with `@nsDeclaration`.
  * @param prefix Provide the name prefix if the namespace parameter was provided as a string.
  *
  * @example With strings
