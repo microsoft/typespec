@@ -1,0 +1,34 @@
+trigger: none
+pr: none
+
+parameters:
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec "next" version
+    type: boolean
+    default: false
+  - name: RunUnitTests
+    displayName: Run unit tests
+    type: boolean
+    default: true
+
+extends:
+  template: /eng/emitters/pipelines/templates/archetype-emitter.yml
+  parameters:
+    BuildPrereleaseVersion: true
+    ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
+      # In scheduled builds, we always use the "next" version of TypeSpec
+      UseTypeSpecNext: true
+    ${{ else }}:
+      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+    Publish: "internal"
+    PublishDependsOnTest: false
+    PackagePath: /packages/http-client-csharp
+    EmitterPackageJsonPath: packages/http-client-csharp/package.json
+    Packages:
+      - name: emitter
+        file: typespec-http-client-csharp-*.tgz
+        type: npm
+    TestMatrix:
+      ${{ if eq(parameters.RunUnitTests, true) }}:
+        Unit:
+          TestArguments: -UnitTests

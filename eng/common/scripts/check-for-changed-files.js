@@ -1,5 +1,5 @@
 // @ts-check
-import { run } from "./legacy-helpers.js";
+import { run } from "../../tsp-core/scripts/legacy-helpers.js";
 
 const proc = run("git", ["status", "--porcelain"], {
   encoding: "utf-8",
