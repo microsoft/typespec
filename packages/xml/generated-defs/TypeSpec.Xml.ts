@@ -1,7 +1,8 @@
 import type { DecoratorContext, Enum, ModelProperty, Type } from "@typespec/compiler";
 
 /**
- * Provide the name of the XML element or attribute. This is just a syntactic sugar for `@encodedName("application/xml", value)`
+ * Provide the name of the XML element or attribute. This means the same thing as
+ *  `@encodedName("application/xml", value)`
  *
  * @param name The name of the XML element or attribute
  * @example
@@ -56,7 +57,7 @@ export type NameDecorator = (context: DecoratorContext, target: Type, name: stri
 export type AttributeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be included.
+ * Specify that the target property shouldn't create a wrapper node. This can be used to flatten list nodes into the model node or to include raw text in the model node.
  * It cannot be used with `@attribute`.
  *
  * @example Array property default
@@ -124,11 +125,11 @@ export type UnwrappedDecorator = (context: DecoratorContext, target: ModelProper
 
 /**
  * Specify the XML namespace for this element. It can be used in 2 different ways:
- * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify the default namespace for the element
- * 2. `@Xml.ns(Namespaces.ns1)` - Using an enum marked with `@nsDeclaration`
+ * 1. `@ns("http://www.example.com/namespace", "ns1")` - specify both namespace and prefix
+ * 2. `@Xml.ns(Namespaces.ns1)` - pass a member of an enum decorated with `@nsDeclaration`
  *
- * @param ns Provide the namespace URI or the enum member where it is defined.
- * @param prefix Provide the name prefix if the namespace parameter was provided as a string.
+ * @param ns The namespace URI or a member of an enum decorated with `@nsDeclaration`.
+ * @param prefix The namespace prefix. Required if the namespace parameter was passed as a string.
  * @example With strings
  *
  * ```tsp
