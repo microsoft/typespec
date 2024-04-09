@@ -68,11 +68,12 @@ extends:
       #   packages/: Contains the packages to publish
       - stage: Build
         variables:
+          -template: /eng/common/pipelines/templates/variables/node-matrix.yml@self
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
           - job: Linux
             strategy:
-              -template: /eng/common/pipelines/templates/strategies/node-versions.yml
+              matrix: ${{ parameters.NodeMatrix }}
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
@@ -93,7 +94,7 @@ extends:
                   artifact: build_artifacts
           - job: Windows
             strategy:
-              -template: /eng/common/pipelines/templates/strategies/node-versions.yml
+              matrix: ${{ parameters.NodeMatrix }}
             pool:
               name: $(WINDOWSPOOL)
               image: $(WINDOWSVMIMAGE)
