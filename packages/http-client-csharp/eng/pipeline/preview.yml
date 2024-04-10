@@ -28,7 +28,5 @@ extends:
       - name: emitter
         file: typespec-http-client-csharp-*.tgz
         type: npm
-    TestMatrix:
-      ${{ if eq(parameters.RunUnitTests, true) }}:
-        Unit:
-          TestArguments: -UnitTests
+    ${{ if eq(parameters.RunUnitTests, true) }}:
+      UnitTestArgs: -UnitTests

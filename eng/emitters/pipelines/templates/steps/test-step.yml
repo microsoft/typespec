@@ -13,6 +13,10 @@ parameters:
   - name: NodeVersion
     type: string
 
+  # Arguments needed to run unit tests
+  - name: UnitTestArgs
+    type: string
+
 steps:
   - checkout: self
 
@@ -35,5 +39,5 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-      arguments: -UnitTests
+      arguments: ${{ parameters.UnitTestArgs }}
       workingDirectory: $(selfRepositoryPath)

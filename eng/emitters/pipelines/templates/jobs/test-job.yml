@@ -8,6 +8,10 @@ parameters:
   - name: PackagePath
     type: string
 
+  # Arguments needed to run unit tests
+  - name: UnitTestArgs
+    type: string
+
   # Node version
   - name: NodeVersion
     type: string
@@ -34,6 +38,7 @@ jobs:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: $(nodeVersion)
+          UnitTestArgs: ${{ parameters.UnitTestArgs }}
     # if the node version is 20.x and os is linux then output in templateContext
     # this is to ensure that the pipeline artifact is created only once
     ${{ if and(eq(parameters.NodeVersion, '20.x'), eq(parameters.Os, 'linux')) }}:

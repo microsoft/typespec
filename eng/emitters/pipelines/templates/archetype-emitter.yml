@@ -30,6 +30,10 @@ parameters:
     type: object
     default: []
 
+  # Arguments needed to run unit tests
+  - name: UnitTestArgs
+    type: string
+
   # Indicates the build matrix to use for post-build autorest validation
   - name: TestMatrix
     type: object
@@ -181,23 +185,27 @@ extends:
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 20.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 18.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 20.x
                   Os: windows
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
+                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 18.x
                   Os: windows
