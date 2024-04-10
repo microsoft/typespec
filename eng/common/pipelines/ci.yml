@@ -1,10 +1,20 @@
 stages:
-  - stage: Init
+  - stage: InitStage
+    displayName: Initialize
     jobs:
-      - job: Init
+      - job: InitJob
+        displayName: Initialize
         steps:
           - pwsh: |
               # emit a pipeline output variable called RunCSharp
+              Write-Host "Setting RunCSharp to true"
               Write-Host "##vso[task.setvariable variable=RunCSharp;isOutput=true]true"
+              Write-Host "Setting RunPython to true"
               Write-Host "##vso[task.setvariable variable=RunPython;isOutput=true]true"
-  - stage
+            name: InitStep
+            displayName: Initialize
+
+  - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
+    parameters:
+      DependsOn: InitStage
+      Condition: eq(stageDependencies.InitStage.InitJob.outputs['InitStep.RunCSharp'], 'true')

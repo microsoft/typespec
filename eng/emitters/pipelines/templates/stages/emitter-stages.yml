@@ -22,6 +22,10 @@ parameters:
     type: stepList
     default: []
 
+  # String to add to the end of stage names.
+  - name: StageSuffix
+    type: string
+
   # List of packages to publish. Each package is an object with the following properties:
   #   name: The name of the package. This is used to determine the name of the file to publish.
   #   type: The type of package. Currently supported values are 'npm' and 'nuget'.
@@ -49,9 +53,13 @@ parameters:
   - name: PackagePath
     type: string
 
-  - name: StageCondition
+  - name: Condition
     type: string
     default: true
+
+  - name: DependsOn
+    type: object
+    default: []
 
 stages:
   # Build stage
@@ -61,8 +69,10 @@ stages:
   #                         of the sdk repository.
   #   overrides.json: Contains npm package version overrides for the emitter and generator
   #   packages/: Contains the packages to publish
-  - stage: Build
-    condition: ${{ parameters.StageCondition }}
+  - stage: Build_${{ parameters.StageSuffix }}
+    displayName: Build ${{ parameters.StageSuffix }}
+    condition: and(succeeded(), ${{ parameters.Condition }})
+    dependsOn: ${{ parameters.DependsOn }}
     variables:
       selfRepositoryPath: $(Build.SourcesDirectory)
     jobs:
@@ -114,12 +124,14 @@ stages:
   #   emitter-package-lock.json: Created by calling `npm install` using `build_artifacts/emitter-package.json` and will
   #                              be placed in the `/eng` folder of the sdk repository.
   - ${{ if ne(parameters.Publish, 'none') }}:
-      - stage: Publish
-        condition: and(succeeding(), ${{ parameters.StageCondition }})
+      - stage: Publish_${{ parameters.StageSuffix }}
+        displayName: Publish ${{ parameters.StageSuffix }}
+        condition: and(succeeded(), ${{ parameters.Condition }})
         dependsOn:
-          - Build
+          - ${{ parameters.DependsOn }}
+          - Build_${{ parameters.StageSuffix }}
           - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
-              - Test
+              - Test_${{ parameters.StageSuffix }}
         variables:
           toolsRepositoryPath: $(Build.SourcesDirectory)
           buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
@@ -169,9 +181,12 @@ stages:
   # Will only run if the parameter `TestMatrix` is not empty.
   # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
   - ${{ if or(parameters.UnitTestArgs, ne(length(parameters.TestMatrix), 0)) }}:
-      - stage: Test
-        condition: and(succeeding(), ${{ parameters.StageCondition }})
-        dependsOn: Build
+      - stage: Test_${{ parameters.StageSuffix }}
+        displayName: Test ${{ parameters.StageSuffix }}
+        condition: and(succeeded(), ${{ parameters.Condition }})
+        dependsOn:
+          - ${{ parameters.DependsOn }}
+          - Build_${{ parameters.StageSuffix }}
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
           buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
