@@ -6,4 +6,5 @@ jobs:
   - job: foo
     steps:
       - script: |
-        echo "Running dummy - ${{ parameters.bar }}"
+          echo "Running dummy - ${{ parameters.bar }}"
+        displayName: Run dummy
