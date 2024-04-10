@@ -12,9 +12,6 @@ pr:
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
-
   parameters:
     stages:
       - template: /packages/http-client-csharp/eng/pipeline/templates\ci-stages.yml
-        parameters:
-          StageCondition: true
