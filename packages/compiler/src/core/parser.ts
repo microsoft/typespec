@@ -1088,7 +1088,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[]
   ): ScalarConstructorNode {
-    reportInvalidDecorators(decorators, "spread property");
+    reportInvalidDecorators(decorators, "scalar member");
 
     parseExpected(Token.InitKeyword);
     const id = parseIdentifier();
