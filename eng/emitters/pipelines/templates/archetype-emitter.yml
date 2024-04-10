@@ -70,46 +70,9 @@ extends:
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - template: /eng/emitters/pipelines/templates/jobs/dummy.yml
             parameters:
-              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
-              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-              Publish: ${{ parameters.Publish }}
-              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-              Packages: ${{ parameters.Packages }}
-              PackagePath: ${{ parameters.PackagePath }}
-              NodeVersion: 20.x
-              Os: linux
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
-            parameters:
-              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
-              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-              Publish: ${{ parameters.Publish }}
-              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-              Packages: ${{ parameters.Packages }}
-              PackagePath: ${{ parameters.PackagePath }}
-              NodeVersion: 18.x
-              Os: linux
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
-            parameters:
-              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
-              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-              Publish: ${{ parameters.Publish }}
-              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-              Packages: ${{ parameters.Packages }}
-              PackagePath: ${{ parameters.PackagePath }}
-              NodeVersion: 20.x
-              Os: windows
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
-            parameters:
-              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
-              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-              Publish: ${{ parameters.Publish }}
-              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-              Packages: ${{ parameters.Packages }}
-              PackagePath: ${{ parameters.PackagePath }}
-              NodeVersion: 18.x
-              Os: windows
+              bar: baz
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`

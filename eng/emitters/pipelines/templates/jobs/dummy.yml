@@ -1,0 +1,11 @@
+parameters:
+  - name: bar
+    type: string
+
+jobs:
+  - job: foo
+    steps:
+      - step: echo
+        - script: |
+          echo "Running dummy - ${{ parameters.bar }}"
+          exit 0
