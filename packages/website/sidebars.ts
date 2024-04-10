@@ -141,6 +141,7 @@ const sidebars: SidebarsConfig = {
         createLibraryReferenceStructure("versioning", "Versioning", false, [
           "libraries/versioning/guide",
         ]),
+        createLibraryReferenceStructure("xml", "Xml", false, ["libraries/xml/guide"]),
       ],
     },
     {
