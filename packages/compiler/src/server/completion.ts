@@ -42,16 +42,18 @@ export async function resolveCompletion(
   context: CompletionContext,
   node: Node | undefined
 ): Promise<CompletionList> {
-  const completions: CompletionList = {
-    isIncomplete: false,
-    items: [],
-  };
-  if (node === undefined) {
-    addKeywordCompletion("root", completions);
+  if (
+    node === undefined ||
+    node.kind === SyntaxKind.InvalidStatement ||
+    (node.kind === SyntaxKind.Identifier &&
+      (node.parent?.kind === SyntaxKind.TypeSpecScript ||
+        node.parent?.kind === SyntaxKind.NamespaceStatement))
+  ) {
+    addKeywordCompletion("root", context.completions);
   } else {
     switch (node.kind) {
       case SyntaxKind.NamespaceStatement:
-        addKeywordCompletion("namespace", completions);
+        addKeywordCompletion("namespace", context.completions);
         break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
@@ -64,7 +66,8 @@ export async function resolveCompletion(
         break;
     }
   }
-  return completions;
+
+  return context.completions;
 }
 
 interface KeywordArea {
