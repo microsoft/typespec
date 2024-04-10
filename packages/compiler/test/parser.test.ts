@@ -237,6 +237,18 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("call expressions", () => {
+    parseEach([
+      `const a = int8(123);`,
+      `const a = utcDateTime.fromISO("abc");`,
+      `const a = utcDateTime.fromISO("abc", "def");`,
+    ]);
+    parseErrorEach([
+      [`const a = int8(123;`, [{ message: "')' expected." }]],
+      [`const a = utcDateTime.fromISO(;`, [{ message: "Expression expected." }]],
+    ]);
+  });
+
   describe("object literals", () => {
     parseEach([
       `const A = #{a: "abc"};`,

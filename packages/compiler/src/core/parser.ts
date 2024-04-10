@@ -1265,7 +1265,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): TypeReferenceNode | CallExpressionNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
-    if (parseOptional(Token.OpenParen)) {
+    if (token() === Token.OpenParen) {
       return {
         kind: SyntaxKind.CallExpression,
         target,
