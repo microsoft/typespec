@@ -175,6 +175,7 @@ extends:
             dependsOn: Build
             variables:
               selfRepositoryPath: $(Build.SourcesDirectory)
+              buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
             jobs:
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
