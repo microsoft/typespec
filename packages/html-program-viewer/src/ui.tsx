@@ -282,6 +282,7 @@ const ModelPropertyUI: FunctionComponent<{ type: ModelProperty }> = ({ type }) =
         optional: "value",
         sourceProperty: "ref",
         default: "value",
+        defaultValue: "value",
       }}
     />
   );
