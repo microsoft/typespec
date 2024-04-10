@@ -1386,6 +1386,39 @@ importers:
         specifier: ~5.4.3
         version: 5.4.3
 
+  packages/xml:
+    devDependencies:
+      '@types/node':
+        specifier: ~18.11.19
+        version: 18.11.19
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^1.4.0
+        version: 1.4.0(vitest@1.4.0)
+      '@vitest/ui':
+        specifier: ^1.4.0
+        version: 1.4.0(vitest@1.4.0)
+      c8:
+        specifier: ^9.1.0
+        version: 9.1.0
+      rimraf:
+        specifier: ~5.0.5
+        version: 5.0.5
+      typescript:
+        specifier: ~5.4.3
+        version: 5.4.3
+      vitest:
+        specifier: ^1.4.0
+        version: 1.4.0(@types/node@18.11.19)(@vitest/ui@1.4.0)(happy-dom@14.3.9)
+
 packages:
 
   /@aashutoshrathi/word-wrap@1.2.6:
