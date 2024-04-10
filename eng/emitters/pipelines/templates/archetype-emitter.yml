@@ -30,6 +30,11 @@ parameters:
     type: object
     default: []
 
+  # Arguments needed to run unit tests
+  - name: UnitTestArgs
+    type: string
+    default: ""
+
   # Indicates the build matrix to use for post-build autorest validation
   - name: TestMatrix
     type: object
@@ -69,57 +74,48 @@ extends:
       - stage: Build
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
-        pool:
-          name: $(LINUXPOOL)
-          image: $(LINUXVMIMAGE)
-          os: linux
         jobs:
-          - job: Build
-            steps:
-              - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
-                  - script: |
-                      echo "Publish parameter has unsupported type: '${{ parameters.Publish }}'"
-                      echo "Supported types are 'none', 'internal', 'public'"
-                      exit 1
-              # Validate parameters and fail early if invalid
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if notIn(package.type, 'npm', 'nuget') }}:
-                      - script: |
-                          echo "Package ${{ package.name }} has unsupported type: ${{ package.type }}"
-                          exit 1
-                        displayName: "Unsupported package type"
-                        condition: always()
-
-              - checkout: self
-
-              - ${{ parameters.AdditionalInitializeSteps }}
-
-              - task: PowerShell@2
-                displayName: "Run initialize script"
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-                  arguments: -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-                  workingDirectory: $(selfRepositoryPath)
-
-              - task: PowerShell@2
-                displayName: "Run build script"
-                name: ci_build
-                inputs:
-                  pwsh: true
-                  filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
-                  arguments: >
-                    -BuildNumber "$(Build.BuildNumber)"
-                    -Output "$(Build.ArtifactStagingDirectory)"
-                    -PublishType:"${{ parameters.Publish }}"
-                    -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
-                  workingDirectory: $(selfRepositoryPath)
-
-            templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)
-                  artifact: build_artifacts
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+            parameters:
+              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              Publish: ${{ parameters.Publish }}
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              Packages: ${{ parameters.Packages }}
+              PackagePath: ${{ parameters.PackagePath }}
+              NodeVersion: 20.x
+              Os: linux
+              EmitArtifacts: true # Emit artifacts only for the first job
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+            parameters:
+              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              Publish: ${{ parameters.Publish }}
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              Packages: ${{ parameters.Packages }}
+              PackagePath: ${{ parameters.PackagePath }}
+              NodeVersion: 18.x
+              Os: linux
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+            parameters:
+              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              Publish: ${{ parameters.Publish }}
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              Packages: ${{ parameters.Packages }}
+              PackagePath: ${{ parameters.PackagePath }}
+              NodeVersion: 20.x
+              Os: windows
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
+            parameters:
+              BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              Publish: ${{ parameters.Publish }}
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              Packages: ${{ parameters.Packages }}
+              PackagePath: ${{ parameters.PackagePath }}
+              NodeVersion: 18.x
+              Os: windows
 
       # Publish stage
       # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
@@ -180,48 +176,40 @@ extends:
       # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
       # Will only run if the parameter `TestMatrix` is not empty.
       # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
-      - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+      - ${{ if or(parameters.UnitTestArgs, ne(length(parameters.TestMatrix), 0)) }}:
           - stage: Test
             dependsOn: Build
             variables:
               selfRepositoryPath: $(Build.SourcesDirectory)
-            pool:
-              name: $(LINUXPOOL)
-              image: $(LINUXVMIMAGE)
-              os: linux
+              buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
             jobs:
-              - job: Test
-                strategy:
-                  matrix: ${{ parameters.TestMatrix }}
-                variables:
-                  buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-                steps:
-                  - checkout: self
-
-                  - download: current
-                    artifact: build_artifacts
-                    displayName: Download build artifacts
-
-                  - ${{ parameters.AdditionalInitializeSteps }}
-
-                  - task: PowerShell@2
-                    displayName: "Run initialize script"
-                    inputs:
-                      pwsh: true
-                      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-                      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
-                      workingDirectory: $(selfRepositoryPath)
-
-                  - task: PowerShell@2
-                    displayName: "Run test script"
-                    inputs:
-                      pwsh: true
-                      filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-                      arguments: $(TestArguments)
-                      workingDirectory: $(selfRepositoryPath)
-
-                templateContext:
-                  outputs:
-                    - output: pipelineArtifact
-                      path: $(Build.ArtifactStagingDirectory)
-                      artifact: test_artifacts_$(System.JobName)
+              - ${{ if parameters.UnitTestArgs }}:
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 20.x
+                      Os: linux
+                      EmitArtifacts: true # Emit artifacts only for the first job
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 18.x
+                      Os: linux
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 20.x
+                      Os: windows
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 18.x
+                      Os: windows

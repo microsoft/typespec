@@ -21,6 +21,4 @@ extends:
       - name: emitter
         file: typespec-http-client-csharp-*.tgz
         type: npm
-    TestMatrix:
-      Unit:
-        TestArguments: -UnitTests
+    UnitTestArgs: -UnitTests
