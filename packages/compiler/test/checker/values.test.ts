@@ -60,31 +60,31 @@ async function diagnoseValueType(code: string, other?: string): Promise<readonly
 describe("object literals", () => {
   it("no properties", async () => {
     const object = await compileValueType(`#{}`);
-    strictEqual(object.kind, "ObjectLiteral");
+    strictEqual(object.valueKind, "ObjectValue");
     strictEqual(object.properties.size, 0);
   });
 
   it("single property", async () => {
     const object = await compileValueType(`#{name: "John"}`);
-    strictEqual(object.kind, "ObjectLiteral");
+    strictEqual(object.valueKind, "ObjectValue");
     strictEqual(object.properties.size, 1);
-    const nameProp = object.properties.get("name");
-    strictEqual(nameProp?.kind, "String");
+    const nameProp = object.properties.get("name")?.value;
+    strictEqual(nameProp?.valueKind, "StringValue");
     strictEqual(nameProp.value, "John");
   });
 
   it("multiple property", async () => {
     const object = await compileValueType(`#{name: "John", age: 21}`);
-    strictEqual(object.kind, "ObjectLiteral");
+    strictEqual(object.valueKind, "ObjectValue");
     strictEqual(object.properties.size, 2);
 
-    const nameProp = object.properties.get("name");
-    strictEqual(nameProp?.kind, "String");
+    const nameProp = object.properties.get("name")?.value;
+    strictEqual(nameProp?.valueKind, "StringValue");
     strictEqual(nameProp.value, "John");
 
-    const ageProp = object.properties.get("age");
-    strictEqual(ageProp?.kind, "Number");
-    strictEqual(ageProp.value, 21);
+    const ageProp = object.properties.get("age")?.value;
+    strictEqual(ageProp?.valueKind, "NumericValue");
+    strictEqual(ageProp.value.asNumber(), 21);
   });
 
   describe("spreading", () => {
@@ -93,16 +93,16 @@ describe("object literals", () => {
         `#{...Common, age: 21}`,
         `alias Common = #{ name: "John" };`
       );
-      strictEqual(object.kind, "ObjectLiteral");
+      strictEqual(object.valueKind, "ObjectValue");
       strictEqual(object.properties.size, 2);
 
-      const nameProp = object.properties.get("name");
-      strictEqual(nameProp?.kind, "String");
+      const nameProp = object.properties.get("name")?.value;
+      strictEqual(nameProp?.valueKind, "StringValue");
       strictEqual(nameProp.value, "John");
 
-      const ageProp = object.properties.get("age");
-      strictEqual(ageProp?.kind, "Number");
-      strictEqual(ageProp.value, 21);
+      const ageProp = object.properties.get("age")?.value;
+      strictEqual(ageProp?.valueKind, "NumericValue");
+      strictEqual(ageProp.value.asNumber(), 21);
     });
 
     it("override properties defined before if there is a name conflict", async () => {
@@ -110,10 +110,10 @@ describe("object literals", () => {
         `#{name: "John", age: 21, ...Common, }`,
         `alias Common = #{ name: "Common" };`
       );
-      strictEqual(object.kind, "ObjectLiteral");
+      strictEqual(object.valueKind, "ObjectValue");
 
-      const nameProp = object.properties.get("name");
-      strictEqual(nameProp?.kind, "String");
+      const nameProp = object.properties.get("name")?.value;
+      strictEqual(nameProp?.valueKind, "StringValue");
       strictEqual(nameProp.value, "Common");
     });
 
@@ -122,10 +122,10 @@ describe("object literals", () => {
         `#{...Common, name: "John", age: 21 }`,
         `alias Common = #{ name: "John" };`
       );
-      strictEqual(object.kind, "ObjectLiteral");
+      strictEqual(object.valueKind, "ObjectValue");
 
-      const nameProp = object.properties.get("name");
-      strictEqual(nameProp?.kind, "String");
+      const nameProp = object.properties.get("name")?.value;
+      strictEqual(nameProp?.valueKind, "StringValue");
       strictEqual(nameProp.value, "John");
     });
 
@@ -143,17 +143,17 @@ describe("object literals", () => {
 
   describe("valid property types", () => {
     it.each([
-      ["String", `"John"`],
-      ["Number", "21"],
+      ["StringValue", `"John"`],
+      ["NumericValue", "21"],
       ["Boolean", "true"],
       ["EnumMember", "Direction.up", "enum Direction { up, down }"],
-      ["ObjectLiteral", `#{nested: "foo"}`],
-      ["TupleLiteral", `#["foo"]`],
+      ["ObjectValue", `#{nested: "foo"}`],
+      ["ArrayValue", `#["foo"]`],
     ])("%s", async (kind, type, other?) => {
       const object = await compileValueType(`#{prop: ${type}}`, other);
-      strictEqual(object.kind, "ObjectLiteral");
-      const nameProp = object.properties.get("prop");
-      strictEqual(nameProp?.kind, kind);
+      strictEqual(object.valueKind, "ObjectValue");
+      const nameProp = object.properties.get("prop")?.value;
+      strictEqual(nameProp?.valueKind, kind);
     });
   });
 
@@ -195,46 +195,46 @@ describe("object literals", () => {
 describe("tuple literals", () => {
   it("no values", async () => {
     const object = await compileValueType(`#[]`);
-    strictEqual(object.kind, "TupleLiteral");
+    strictEqual(object.valueKind, "ArrayValue");
     strictEqual(object.values.length, 0);
   });
 
   it("single value", async () => {
     const object = await compileValueType(`#["John"]`);
-    strictEqual(object.kind, "TupleLiteral");
+    strictEqual(object.valueKind, "ArrayValue");
     strictEqual(object.values.length, 1);
     const first = object.values[0];
-    strictEqual(first.kind, "String");
+    strictEqual(first.valueKind, "StringValue");
     strictEqual(first.value, "John");
   });
 
   it("multiple property", async () => {
     const object = await compileValueType(`#["John", 21]`);
-    strictEqual(object.kind, "TupleLiteral");
+    strictEqual(object.valueKind, "ArrayValue");
     strictEqual(object.values.length, 2);
 
     const nameProp = object.values[0];
-    strictEqual(nameProp?.kind, "String");
+    strictEqual(nameProp?.valueKind, "StringValue");
     strictEqual(nameProp.value, "John");
 
     const ageProp = object.values[1];
-    strictEqual(ageProp?.kind, "Number");
+    strictEqual(ageProp?.valueKind, "NumericValue");
     strictEqual(ageProp.value, 21);
   });
 
   describe("valid property types", () => {
     it.each([
-      ["String", `"John"`],
-      ["Number", "21"],
+      ["StringValue", `"John"`],
+      ["NumericValue", "21"],
       ["Boolean", "true"],
       ["EnumMember", "Direction.up", "enum Direction { up, down }"],
-      ["ObjectLiteral", `#{nested: "foo"}`],
-      ["TupleLiteral", `#["foo"]`],
+      ["ObjectValue", `#{nested: "foo"}`],
+      ["ArrayValue", `#["foo"]`],
     ])("%s", async (kind, type, other?) => {
       const object = await compileValueType(`#[${type}]`, other);
-      strictEqual(object.kind, "TupleLiteral");
+      strictEqual(object.valueKind, "ArrayValue");
       const nameProp = object.values[0];
-      strictEqual(nameProp?.kind, kind);
+      strictEqual(nameProp?.valueKind, kind);
     });
   });
 

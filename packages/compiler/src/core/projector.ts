@@ -2,12 +2,7 @@ import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Program, ProjectedProgram, createStateAccessors, isProjectedProgram } from "./program.js";
-import {
-  getParentTemplateNode,
-  isNeverType,
-  isTemplateInstance,
-  isValueOnly,
-} from "./type-utils.js";
+import { getParentTemplateNode, isNeverType, isTemplateInstance, isValue } from "./type-utils.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
@@ -27,7 +22,6 @@ import {
   Union,
   UnionVariant,
   Value,
-  ValueOnly,
 } from "./types.js";
 
 /**
@@ -102,10 +96,10 @@ export function createProjector(
   return projectedProgram;
 
   function projectType(type: Type): Type;
-  function projectType(type: ValueOnly): ValueOnly;
+  function projectType(type: Value): Value;
   function projectType(type: Type | Value): Type | Value;
   function projectType(type: Type | Value): Type | Value {
-    if (isValueOnly(type)) {
+    if (isValue(type)) {
       return type;
     }
     if (projectedTypes.has(type)) {

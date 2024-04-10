@@ -1,20 +1,20 @@
-import { isValueType, stringTemplateToString, typespecTypeToJson } from "./index.js";
+import { isValue, typespecTypeToJson } from "./index.js";
 import type {
-  BooleanLiteral,
+  ArrayValue,
+  BooleanValue,
   Diagnostic,
   MarshalledValue,
   Model,
-  NumericLiteral,
-  ObjectLiteral,
-  StringLiteral,
+  NumericValue,
+  ObjectValue,
+  StringValue,
   Tuple,
-  TupleLiteral,
   Type,
   Value,
 } from "./types.js";
 
 export function tryMarshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
-  if (isValueType(type)) {
+  if (isValue(type)) {
     return marshallTypeForJS(type);
   }
   return type as any;
@@ -24,44 +24,44 @@ export function tryMarshallTypeForJS<T extends Type | Value>(type: T): Marshalle
 export function marshallTypeForJSWithLegacyCast<T extends Value | Model | Tuple>(
   type: T
 ): [MarshalledValue<T> | undefined, readonly Diagnostic[]] {
-  switch (type.kind) {
-    case "Model":
-    case "Tuple":
-      return typespecTypeToJson(type, type) as any;
-    default:
-      return [marshallTypeForJS(type) as any, []];
+  if ("kind" in type) {
+    return typespecTypeToJson(type, type) as any;
+  } else {
+    return [marshallTypeForJS(type) as any, []];
   }
 }
 export function marshallTypeForJS<T extends Value>(type: T): MarshalledValue<T> {
-  switch (type.kind) {
-    case "Boolean":
-    case "String":
-    case "Number":
-      return literalTypeToValue(type) as any;
-    case "StringTemplate":
-      return stringTemplateToString(type)[0] as any;
-    case "ObjectLiteral":
-      return objectLiteralToValue(type) as any;
-    case "TupleLiteral":
-      return tupleLiteralToValue(type) as any;
-    case "EnumMember":
+  switch (type.valueKind) {
+    case "BooleanValue":
+    case "StringValue":
+    case "NumericValue":
+      return primitiveValueToJs(type) as any;
+    case "ObjectValue":
+      return objectValueToJs(type) as any;
+    case "ArrayValue":
+      return arrayValueToJs(type) as any;
+    case "EnumMemberValue":
+      return type.value as any;
+    case "NullValue":
+      return null as any;
+    case "ScalarValue":
       return type as any;
   }
 }
 
-function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLiteral>(
+function primitiveValueToJs<T extends NumericValue | StringValue | BooleanValue>(
   type: T
 ): MarshalledValue<T> {
   return type.value as any;
 }
 
-function objectLiteralToValue(type: ObjectLiteral) {
+function objectValueToJs(type: ObjectValue) {
   const result: Record<string, unknown> = {};
   for (const [key, value] of type.properties) {
-    result[key] = marshallTypeForJS(value);
+    result[key] = marshallTypeForJS(value.value);
   }
   return result;
 }
-function tupleLiteralToValue(type: TupleLiteral) {
+function arrayValueToJs(type: ArrayValue) {
   return type.values.map(marshallTypeForJS);
 }

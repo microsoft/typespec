@@ -903,6 +903,12 @@ const diagnostics = {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
+  "circular-const": {
+    severity: "error",
+    messages: {
+      default: paramMessage`const '${"name"}' recursively references itself.`,
+    },
+  },
   "circular-prop": {
     severity: "error",
     messages: {

@@ -5,6 +5,7 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
+  ConstStatementNode,
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
@@ -271,6 +272,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
         break;
+      case SyntaxKind.ConstStatement:
+        bindConstStatement(node);
+        break;
       case SyntaxKind.EnumStatement:
         bindEnumStatement(node);
         break;
@@ -473,6 +477,9 @@ export function createBinder(program: Program): Binder {
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
+  function bindConstStatement(node: ConstStatementNode) {
+    declareSymbol(node, SymbolFlags.Const);
+  }
 
   function bindEnumStatement(node: EnumStatementNode) {
     declareSymbol(node, SymbolFlags.Enum);
@@ -603,6 +610,7 @@ function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ConstStatement:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:

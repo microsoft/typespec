@@ -1,19 +1,23 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import { TypeEmitter } from "../emitter-framework/type-emitter.js";
-import { AssetEmitter } from "../emitter-framework/types.js";
-import { YamlPathTarget, YamlScript } from "../yaml/types.js";
-import { ModuleResolutionResult } from "./module-resolver.js";
-import { Program } from "./program.js";
+import type { TypeEmitter } from "../emitter-framework/type-emitter.js";
+import type { AssetEmitter } from "../emitter-framework/types.js";
+import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
+import type { ModuleResolutionResult } from "./module-resolver.js";
+import type { Numeric } from "./numeric.js";
+import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
 
 // prettier-ignore
-export type MarshalledValue<Type>  = 
-  Type extends StringLiteral ? string
-  : Type extends NumericLiteral ? number
-  : Type extends BooleanLiteral ? boolean
-  : Type extends ObjectLiteral ? Record<string, unknown>
-  : Type extends TupleLiteral ? unknown[]
-  : Type
+export type MarshalledValue<Value>  = 
+Value extends StringValue ? string
+  : Value extends NumericValue ? number
+  : Value extends BooleanValue ? boolean
+  : Value extends ObjectValue ? Record<string, unknown>
+  : Value extends ArrayValue ? unknown[]
+  : Value extends EnumMemberValue ? EnumMember
+  : Value extends NullValue ? null
+  : Value extends ScalarValue ? Value
+  : Value
 
 /**
  * Type System types
@@ -96,47 +100,30 @@ export interface TemplatedTypeBase {
  */
 export type Entity = Type | Value | ValueType | ParamConstraintUnion;
 
-/** Entities that can be used as both values and values. */
-export type TypeAndValue =
-  | StringLiteral
-  | StringTemplate
-  | NumericLiteral
+export type Type =
   | BooleanLiteral
-  | EnumMember;
-
-/**
- * Entities that can only be used as value.
- */
-export type ValueOnly = ObjectLiteral | TupleLiteral;
-
-/** Entities that can be used as types only */
-export type TypeOnly =
+  | Decorator
+  | Enum
+  | EnumMember
+  | FunctionParameter
+  | FunctionType
+  | Interface
+  | IntrinsicType
   | Model
   | ModelProperty
-  | Scalar
-  | Interface
-  | Enum
-  | TemplateParameter
   | Namespace
+  | NumericLiteral
+  | ObjectType
   | Operation
+  | Projection
+  | Scalar
+  | StringLiteral
+  | StringTemplate
   | StringTemplateSpan
+  | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant
-  | IntrinsicType
-  | FunctionType
-  | Decorator
-  | FunctionParameter
-  | ObjectType
-  | Projection;
-
-/** Entities that can be used as types */
-export type Type = TypeAndValue | TypeOnly;
-
-/**
- * Entities that can be used as values.
- */
-export type Value = TypeAndValue | ValueOnly;
+  | UnionVariant;
 
 export type StdTypes = {
   // Models
@@ -312,21 +299,74 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  default?: Type | Value;
+  default?: Type;
+  defaultValue?: Value;
   model?: Model;
 }
 
-export interface ObjectLiteral {
-  kind: "ObjectLiteral";
-  node: ObjectLiteralNode;
-  properties: Map<string, Value>;
+//#region Values
+export type Value =
+  | ScalarValue
+  | NumericValue
+  | StringValue
+  | BooleanValue
+  | ObjectValue
+  | ArrayValue
+  | EnumMemberValue
+  | NullValue;
+
+interface BaseValue {
+  valueKind: string;
+  type: Type; // Every value has a type. That type could be something completely different(much wider type)
 }
 
-export interface TupleLiteral {
-  kind: "TupleLiteral";
+export interface ObjectValue extends BaseValue {
+  valueKind: "ObjectValue";
+  node: ObjectLiteralNode;
+  properties: Map<string, ObjectValuePropertyDescriptor>;
+}
+
+export interface ObjectValuePropertyDescriptor {
+  name: string;
+  value: Value;
+}
+
+export interface ArrayValue extends BaseValue {
+  valueKind: "ArrayValue";
   node: TupleLiteralNode;
   values: Value[];
 }
+
+export interface ScalarValue extends BaseValue {
+  valueKind: "ScalarValue";
+  scalar: Scalar; // We need to keep a reference of what scalar this is.
+  value: { name: string; args: Value[] }; // e.g. for utcDateTime(2020,12,01)
+}
+export interface NumericValue extends BaseValue {
+  valueKind: "NumericValue";
+  scalar: Scalar | undefined;
+  value: Numeric;
+}
+export interface StringValue extends BaseValue {
+  valueKind: "StringValue";
+  scalar: Scalar | undefined;
+  value: string;
+}
+export interface BooleanValue extends BaseValue {
+  valueKind: "BooleanValue";
+  scalar: Scalar | undefined;
+  value: boolean;
+}
+export interface EnumMemberValue extends BaseValue {
+  valueKind: "EnumMemberValue";
+  value: EnumMember;
+}
+export interface NullValue extends BaseValue {
+  valueKind: "NullValue";
+  value: null;
+}
+
+//#endregion Values
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
@@ -728,12 +768,13 @@ export const enum SymbolFlags {
   SourceFile            = 1 << 21,
   Declaration           = 1 << 22,
   Implementation        = 1 << 23,
+  Const                 = 1 << 24,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 24,
+  LateBound = 1 << 25,
 
   ExportContainer = Namespace | SourceFile,
   /**
@@ -1075,6 +1116,7 @@ export type Declaration =
   | ProjectionLambdaParameterDeclarationNode
   | EnumStatementNode
   | AliasStatementNode
+  | ConstStatementNode
   | DecoratorDeclarationStatementNode
   | FunctionDeclarationStatementNode;
 

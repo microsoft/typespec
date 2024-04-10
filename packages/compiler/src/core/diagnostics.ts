@@ -83,7 +83,7 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target)) {
+  if (!("kind" in target) && !("valueKind" in target)) {
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;
@@ -94,7 +94,7 @@ export function getSourceLocation(
     }
 
     return getSourceLocationOfNode(target.declarations[0], options);
-  } else if (typeof target.kind === "number") {
+  } else if ("kind" in target && typeof target.kind === "number") {
     // node
     return getSourceLocationOfNode(target as Node, options);
   } else {

@@ -14,7 +14,7 @@ import {
   IntrinsicType,
   isDeclaredInNamespace,
   isTemplateInstance,
-  isValueOnly,
+  isValue,
   Model,
   ModelProperty,
   Namespace,
@@ -538,8 +538,8 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function mapToProto(t: Model, relativeSource: Model | Operation): ProtoMap {
     const [keyType, valueType] = t.templateMapper!.args;
 
-    compilerAssert(!isValueOnly(keyType), "Cannot be a value type");
-    compilerAssert(!isValueOnly(valueType), "Cannot be a value type");
+    compilerAssert(!isValue(keyType), "Cannot be a value type");
+    compilerAssert(!isValue(valueType), "Cannot be a value type");
     // A map's value cannot be another map.
     if (isMap(program, keyType)) {
       reportDiagnostic(program, {
@@ -562,7 +562,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {
     const valueType = (t as Model).templateMapper!.args[0];
-    compilerAssert(!isValueOnly(valueType), "Cannot be a value type");
+    compilerAssert(!isValue(valueType), "Cannot be a value type");
 
     // Nested arrays are not supported.
     if (isArray(valueType)) {

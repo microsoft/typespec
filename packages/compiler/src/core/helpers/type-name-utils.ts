@@ -1,6 +1,6 @@
 import { printId } from "../../formatter/print/printer.js";
-import { isTemplateInstance } from "../type-utils.js";
-import {
+import { isTemplateInstance, isValue } from "../type-utils.js";
+import type {
   Entity,
   Enum,
   Interface,
@@ -12,6 +12,7 @@ import {
   Scalar,
   Type,
   Union,
+  Value,
 } from "../types.js";
 
 export interface TypeNameOptions {
@@ -20,10 +21,6 @@ export interface TypeNameOptions {
 }
 
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
-  return getEntityName(type, options);
-}
-
-export function getEntityName(type: Entity, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -58,17 +55,45 @@ export function getEntityName(type: Entity, options?: TypeNameOptions): string {
       return type.value.toString();
     case "Intrinsic":
       return type.name;
-    case "Value":
-      return `valueof ${getTypeName(type.target, options)}`;
-    case "ParamConstraintUnion":
-      return type.options.map((x) => getEntityName(x, options)).join(" | ");
-    case "ObjectLiteral":
-      return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getEntityName(value, options)}`).join(", ")}}`;
-    case "TupleLiteral":
-      return `#[${type.values.map((x) => getEntityName(x, options)).join(", ")}]`;
+    default:
+      return `(unnamed type)`;
   }
+}
 
-  return `(unnamed type)`;
+function getValuePreview(value: Value, options?: TypeNameOptions): string {
+  switch (value.valueKind) {
+    case "ObjectValue":
+      return `#{${[...value.properties.entries()].map(([name, value]) => `${name}: ${getValuePreview(value.value, options)}`).join(", ")}}`;
+    case "ArrayValue":
+      return `#[${value.values.map((x) => getValuePreview(x, options)).join(", ")}]`;
+    case "StringValue":
+      return `"${value.value}"`;
+    case "BooleanValue":
+      return `${value.value}`;
+    case "NumericValue":
+      return `${value.value.toString()}`;
+    case "EnumMemberValue":
+      return getTypeName(value.value);
+    case "NullValue":
+      return "null";
+    case "ScalarValue":
+      return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
+  }
+}
+
+export function getEntityName(entity: Entity, options?: TypeNameOptions): string {
+  if (isValue(entity)) {
+    return getValuePreview(entity, options);
+  } else {
+    switch (entity.kind) {
+      case "Value":
+        return `valueof ${getTypeName(entity.target, options)}`;
+      case "ParamConstraintUnion":
+        return entity.options.map((x) => getEntityName(x, options)).join(" | ");
+      default:
+        return getTypeName(entity, options);
+    }
+  }
 }
 
 export function isStdNamespace(namespace: Namespace): boolean {

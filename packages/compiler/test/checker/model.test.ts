@@ -133,7 +133,7 @@ describe("compiler: models", () => {
         `
       );
       const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-      deepStrictEqual(foo.default?.kind, "TupleLiteral");
+      deepStrictEqual(foo.defaultValue?.valueKind, "ArrayValue");
     });
 
     it(`foo?: {name: string} = #{name: "abc"}`, async () => {
@@ -144,7 +144,7 @@ describe("compiler: models", () => {
         `
       );
       const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-      deepStrictEqual(foo.default?.kind, "ObjectLiteral");
+      deepStrictEqual(foo.defaultValue?.valueKind, "ObjectValue");
     });
   });
 
@@ -481,8 +481,9 @@ describe("compiler: models", () => {
 
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateMapper?.args);
-      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].kind, "Scalar");
-      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].name, "string");
+      ok("kind" in Pet.derivedModels[1].templateMapper!.args[0]);
+      strictEqual(Pet.derivedModels[1].templateMapper.args[0].kind, "Scalar");
+      strictEqual(Pet.derivedModels[1].templateMapper.args[0].name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);

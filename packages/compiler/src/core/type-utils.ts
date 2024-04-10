@@ -1,4 +1,3 @@
-import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { Program } from "./program.js";
 import {
   Entity,
@@ -20,59 +19,34 @@ import {
   TypeMapper,
   UnknownType,
   Value,
-  ValueOnly,
   VoidType,
 } from "./types.js";
 
-export function isErrorType(type: Entity): type is ErrorType {
+export function isErrorType(type: Type): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-export function isVoidType(type: Entity): type is VoidType {
+export function isVoidType(type: Type): type is VoidType {
   return type.kind === "Intrinsic" && type.name === "void";
 }
 
-export function isNeverType(type: Entity): type is NeverType {
+export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-export function isUnknownType(type: Entity): type is UnknownType {
+export function isUnknownType(type: Type): type is UnknownType {
   return type.kind === "Intrinsic" && type.name === "unknown";
 }
 
-export function isNullType(type: Entity): type is NullType {
+export function isNullType(type: Type): type is NullType {
   return type.kind === "Intrinsic" && type.name === "null";
 }
 
-const valueTypes = new Set([
-  "String",
-  "Number",
-  "Boolean",
-  "EnumMember",
-  "ObjectLiteral",
-  "TupleLiteral",
-]);
-
-export function isValueType(type: Entity): type is Value {
-  if (isNullType(type as any)) {
-    return true;
-  }
-  if (type.kind === "StringTemplate") {
-    const [valid] = isStringTemplateSerializable(type);
-    return valid;
-  }
-
-  return valueTypes.has(type.kind);
+export function isType(entity: Entity): entity is Type {
+  return "kind" in entity;
 }
-
-export function isValueOnly(type: Entity): type is ValueOnly {
-  switch (type.kind) {
-    case "ObjectLiteral":
-    case "TupleLiteral":
-      return true;
-    default:
-      return false;
-  }
+export function isValue(entity: Entity): entity is Value {
+  return "valueKind" in entity;
 }
 
 /**

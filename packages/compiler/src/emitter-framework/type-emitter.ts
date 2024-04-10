@@ -780,6 +780,9 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     let unspeakable = false;
 
     const parameterNames = declarationType.templateMapper.args.map((t) => {
+      if (!("kind" in t)) {
+        return undefined;
+      }
       switch (t.kind) {
         case "Model":
         case "Scalar":
