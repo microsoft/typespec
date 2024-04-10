@@ -5,7 +5,6 @@ parameters:
 jobs:
   - job: foo
     steps:
-      - step: echo
-        - script: |
-          echo "Running dummy - ${{ parameters.bar }}"
-          exit 0
+      - script: |
+        echo "Running dummy - ${{ parameters.bar }}"
+        exit 0
