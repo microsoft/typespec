@@ -70,7 +70,7 @@ extends:
         variables:
           selfRepositoryPath: $(Build.SourcesDirectory)
         jobs:
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
             parameters:
               BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
               UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -80,7 +80,7 @@ extends:
               PackagePath: ${{ parameters.PackagePath }}
               NodeVersion: 20.x
               Os: linux
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
             parameters:
               BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
               UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -90,7 +90,7 @@ extends:
               PackagePath: ${{ parameters.PackagePath }}
               NodeVersion: 18.x
               Os: linux
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
             parameters:
               BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
               UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -100,7 +100,7 @@ extends:
               PackagePath: ${{ parameters.PackagePath }}
               NodeVersion: 20.x
               Os: windows
-          - template: /eng/emitters/pipelines/templates/jobs/build.yml
+          - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
             parameters:
               BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
               UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -175,39 +175,28 @@ extends:
             dependsOn: Build
             variables:
               selfRepositoryPath: $(Build.SourcesDirectory)
-            pool:
-              name: $(LINUXPOOL)
-              image: $(LINUXVMIMAGE)
-              os: linux
             jobs:
-              - job: Linux
-                pool:
-                  name: $(LINUXPOOL)
-                  image: $(LINUXVMIMAGE)
-                  os: linux
-                variables:
-                  buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-                steps:
-                  - template: /eng/emitters/pipelines/templates/steps/test.yml
-                    parameters:
-                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                      PackagePath: ${{ parameters.PackagePath }}
-                      NodeVersion: $(nodeVersion)
-                templateContext:
-                  outputs:
-                    - output: pipelineArtifact
-                      path: $(Build.ArtifactStagingDirectory)
-                      artifact: test_artifacts_$(System.JobName)
-              - job: Windows
-                pool:
-                  name: $(WINDOWSPOOL)
-                  image: $(WINDOWSVMIMAGE)
-                  os: windows
-                variables:
-                  buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-                steps:
-                  - template: /eng/emitters/pipelines/templates/steps/test.yml
-                    parameters:
-                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                      PackagePath: ${{ parameters.PackagePath }}
-                      NodeVersion: $(nodeVersion)
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 20.x
+                  Os: linux
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 18.x
+                  Os: linux
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 20.x
+                  Os: windows
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  NodeVersion: 18.x
+                  Os: windows

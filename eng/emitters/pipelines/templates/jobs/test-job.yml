@@ -1,0 +1,44 @@
+parameters:
+  # Custom steps to run in the Build and Test stages after the repositories are cloned.
+  - name: AdditionalInitializeSteps
+    type: stepList
+    default: []
+
+  # Location of emitter package path
+  - name: PackagePath
+    type: string
+
+  # Node version
+  - name: NodeVersion
+    type: string
+
+  # Operation system to use
+  - name: Os
+    type: string
+
+jobs:
+  - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
+    ${{ if eq(parameters.Os, 'linux') }}:
+      pool:
+        name: $(LINUXPOOL)
+        image: $(LINUXVMIMAGE)
+        os: linux
+    ${{ else }}:
+      pool:
+        name: $(WINDOWSPOOL)
+        image: $(WINDOWSVMIMAGE)
+        os: windows
+      steps:
+        - template: /eng/emitters/pipelines/templates/steps/test-step.yml
+          parameters:
+            AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+            PackagePath: ${{ parameters.PackagePath }}
+            NodeVersion: $(nodeVersion)
+    # if the node version is 20.x and os is linux then output in templateContext
+    # this is to ensure that the pipeline artifact is created only once
+    ${{ if and(eq(parameters.NodeVersion, '20.x'), eq(parameters.Os, 'linux')) }}:
+      templateContext:
+        outputs:
+          - output: pipelineArtifact
+            path: $(Build.ArtifactStagingDirectory)
+            artifact: test_artifacts_$(System.JobName)
