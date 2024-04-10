@@ -7,4 +7,3 @@ jobs:
     steps:
       - script: |
         echo "Running dummy - ${{ parameters.bar }}"
-        exit 0
