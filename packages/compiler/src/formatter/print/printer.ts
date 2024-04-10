@@ -60,6 +60,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnaryExpressionNode,
   ReturnExpressionNode,
+  ScalarConstructorNode,
   ScalarStatementNode,
   Statement,
   StringLiteralNode,
@@ -172,6 +173,8 @@ export function printNode(
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
     case SyntaxKind.ScalarStatement:
       return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
+    case SyntaxKind.ScalarConstructor:
+      return printScalarConstructor(path as AstPath<ScalarConstructorNode>, options, print);
     case SyntaxKind.AliasStatement:
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
@@ -1177,6 +1180,7 @@ function shouldWrapMemberInNewLines(
     | ModelSpreadPropertyNode
     | EnumMemberNode
     | EnumSpreadMemberNode
+    | ScalarConstructorNode
     | UnionVariantNode
     | ProjectionModelPropertyNode
     | ProjectionModelSpreadPropertyNode
@@ -1190,6 +1194,7 @@ function shouldWrapMemberInNewLines(
     (node.kind !== SyntaxKind.ModelSpreadProperty &&
       node.kind !== SyntaxKind.ProjectionModelSpreadProperty &&
       node.kind !== SyntaxKind.EnumSpreadMember &&
+      node.kind !== SyntaxKind.ScalarConstructor &&
       node.kind !== SyntaxKind.ObjectLiteralProperty &&
       node.kind !== SyntaxKind.ObjectLiteralSpreadProperty &&
       shouldDecoratorBreakLine(path as any, options, {
@@ -1289,7 +1294,7 @@ function isModelExpressionInBlock(
   }
 }
 
-export function printScalarStatement(
+function printScalarStatement(
   path: AstPath<ScalarStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
@@ -1301,14 +1306,56 @@ export function printScalarStatement(
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
     : "";
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
+
+  const members = shouldPrintBody ? [" ", printScalarBody(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     "scalar ",
     id,
     template,
     group(indent(["", heritage])),
-    ";",
+    members,
   ];
+}
+
+function printScalarBody(
+  path: AstPath<ScalarStatementNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const hasProperties = node.members && node.members.length > 0;
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  if (!hasProperties && !nodeHasComments) {
+    return "{}";
+  }
+  const body = [joinMembersInBlock(path, "members", options, print, ";", hardline)];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  return group(["{", indent(body), hardline, "}"]);
+}
+
+function printScalarConstructor(
+  path: AstPath<ScalarConstructorNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const id = path.call(print, "id");
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters")
+        )
+      ),
+      softline,
+    ]),
+  ];
+  return ["init ", id, "(", parameters, ")"];
 }
 
 export function printNamespaceStatement(

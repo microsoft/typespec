@@ -93,6 +93,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
   ProjectionUnionVariantSelectorNode,
+  ScalarConstructorNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -220,6 +221,16 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
     allowedStatementKeyword: Token.OpKeyword,
+  } as const;
+
+  export const ScalarMembers = {
+    ...PropertiesBase,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: false,
+    allowedStatementKeyword: Token.InitKeyword,
   } as const;
 
   export const UnionVariants = {
@@ -573,6 +584,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
           item = parseAliasStatement(pos);
+          break;
+        case Token.ConstKeyword:
+          reportInvalidDecorators(decorators, "const statement");
+          item = parseConstStatement(pos);
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -1040,12 +1055,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const templateParameters = parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
+    const members = parseScalarMembers();
 
     return {
       kind: SyntaxKind.ScalarStatement,
       id,
       templateParameters,
       extends: optionalExtends,
+      members,
       decorators,
       ...finishNode(pos),
     };
@@ -1056,6 +1073,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       return parseReferenceExpression();
     }
     return undefined;
+  }
+
+  function parseScalarMembers(): readonly ScalarConstructorNode[] {
+    if (token() === Token.Semicolon) {
+      nextToken();
+      return [];
+    } else {
+      return parseList(ListKind.ScalarMembers, parseScalarMember);
+    }
+  }
+
+  function parseScalarMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ScalarConstructorNode {
+    reportInvalidDecorators(decorators, "spread property");
+
+    parseExpected(Token.InitKeyword);
+    const id = parseIdentifier();
+    const parameters = parseFunctionParameters();
+    return {
+      kind: SyntaxKind.ScalarConstructor,
+      id,
+      parameters,
+      ...finishNode(pos),
+    };
   }
 
   function parseEnumStatement(
@@ -3396,8 +3439,11 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.members) ||
         visitNode(cb, node.extends)
       );
+    case SyntaxKind.ScalarConstructor:
+      return visitNode(cb, node.id) || visitEach(cb, node.parameters);
     case SyntaxKind.UnionStatement:
       return (
         visitEach(cb, node.decorators) ||

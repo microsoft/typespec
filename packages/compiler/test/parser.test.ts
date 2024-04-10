@@ -162,12 +162,15 @@ describe("compiler: parser", () => {
       `namespace Foo { 
         scalar uuid extends string;}
         `,
+      `scalar uuid {
+        init fromString(def: string)
+      }`,
+      `scalar bar extends uuid {
+        init fromOther(abc: string)
+      }`,
     ]);
 
-    parseErrorEach([
-      ["scalar uuid extends string { }", [/Statement expected./]],
-      ["scalar uuid is string;", [/Statement expected./]],
-    ]);
+    parseErrorEach([["scalar uuid is string;", [{ message: "';', or '{' expected." }]]]);
   });
 
   describe("interface statements", () => {

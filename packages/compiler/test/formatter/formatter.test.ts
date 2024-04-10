@@ -820,6 +820,37 @@ scalar Foo;
 `,
       });
     });
+
+    it("format with constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+}
+`,
+      });
+    });
+    it("format with multiple constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string);  init fromBar(
+      value:      string, other: string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+  init fromBar(value: string, other: string);
+}
+`,
+      });
+    });
   });
   describe("comments", () => {
     it("format comment at position 0", async () => {
@@ -1007,6 +1038,42 @@ model Foo {
 model Foo {
   // empty model 1
   // empty model 2
+}
+`,
+      });
+    });
+
+    it("format empty scalar with comment inside", async () => {
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar
+}
+`,
+      });
+
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar 1
+
+
+     // empty scalar 2
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar 1
+  // empty scalar 2
 }
 `,
       });

@@ -911,6 +911,7 @@ export enum SyntaxKind {
   TupleLiteral,
   ConstStatement,
   CallExpression,
+  ScalarConstructor,
 }
 
 export const enum NodeFlags {
@@ -1010,6 +1011,7 @@ export type Node =
   | ObjectLiteralNode
   | ObjectLiteralPropertyNode
   | ObjectLiteralSpreadPropertyNode
+  | ScalarConstructorNode
   | TupleLiteralNode;
 
 /**
@@ -1271,7 +1273,16 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
+  readonly members: readonly ScalarConstructorNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+}
+
+// TODO: should this be ScalarConstructorDeclarationNode?
+export interface ScalarConstructorNode extends BaseNode {
+  readonly kind: SyntaxKind.ScalarConstructor;
+  readonly id: IdentifierNode;
+  readonly parameters: FunctionParameterNode[];
+  readonly parent?: ScalarStatementNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {

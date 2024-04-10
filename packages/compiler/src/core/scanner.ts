@@ -126,6 +126,7 @@ export enum Token {
   FnKeyword,
   ValueOfKeyword,
   ConstKeyword,
+  InitKeyword,
   // Add new statement keyword above
 
   /** @internal */ __EndStatementKeyword,
@@ -249,6 +250,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.FnKeyword, "'fn'"],
   [Token.ValueOfKeyword, "'valueof'"],
   [Token.ConstKeyword, "'const'"],
+  [Token.InitKeyword, "'init'"],
   [Token.ExtendsKeyword, "'extends'"],
   [Token.TrueKeyword, "'true'"],
   [Token.FalseKeyword, "'false'"],
@@ -280,6 +282,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["fn", Token.FnKeyword],
   ["valueof", Token.ValueOfKeyword],
   ["const", Token.ConstKeyword],
+  ["init", Token.InitKeyword],
   ["true", Token.TrueKeyword],
   ["false", Token.FalseKeyword],
   ["return", Token.ReturnKeyword],
