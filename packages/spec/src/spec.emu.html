@@ -476,7 +476,7 @@ ArrayExpressionOrHigher :
 
 PrimaryExpression :
     Literal
-    ReferenceExpression
+    CallOrReferenceExpression
     ParenthesizedExpression
     ObjectLiteral
     TupleLiteral
@@ -488,7 +488,13 @@ Literal :
     BooleanLiteral
     NumericLiteral
 
-ReferenceExpression :
+CallOrReferenceExpression :
+    CallExpression
+    ReferenceExpression
+CallExpression
+    IdentifierOrMemberExpression CallArguments
+
+ReferenceExpression
     IdentifierOrMemberExpression TemplateArguments?
 
 ReferenceExpressionList :
@@ -546,6 +552,10 @@ Decorator :
 
 DecoratorArguments :
     `(` ExpressionList? `)`
+
+CallExpression :
+    IdentifierOrMemberExpression `(` ExpressionList? `)`
+
 
 AugmentDecoratorStatement :
     `@@` IdentifierOrMemberExpression DecoratorArguments?

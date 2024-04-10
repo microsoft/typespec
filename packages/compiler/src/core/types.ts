@@ -910,6 +910,7 @@ export enum SyntaxKind {
   ObjectLiteralSpreadProperty,
   TupleLiteral,
   ConstStatement,
+  CallExpression,
 }
 
 export const enum NodeFlags {
@@ -1095,6 +1096,7 @@ export type Statement =
   | FunctionDeclarationStatementNode
   | AugmentDecoratorStatementNode
   | ConstStatementNode
+  | CallExpressionNode
   | EmptyStatementNode
   | InvalidStatementNode
   | ProjectionStatementNode;
@@ -1174,6 +1176,7 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
+  | CallExpressionNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
@@ -1325,6 +1328,11 @@ export interface ConstStatementNode extends BaseNode, DeclarationNode {
   readonly value: Expression;
   readonly type?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
+}
+export interface CallExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.CallExpression;
+  readonly target: MemberExpressionNode | IdentifierNode;
+  readonly arguments: Expression[];
 }
 
 export interface InvalidStatementNode extends BaseNode {

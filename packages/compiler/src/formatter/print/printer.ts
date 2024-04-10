@@ -9,6 +9,7 @@ import {
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
+  CallExpressionNode,
   Comment,
   ConstStatementNode,
   DecoratorDeclarationStatementNode,
@@ -387,6 +388,8 @@ export function printNode(
       return printTupleLiteral(path as AstPath<TupleLiteralNode>, options, print);
     case SyntaxKind.ConstStatement:
       return printConstStatement(path as AstPath<ConstStatementNode>, options, print);
+    case SyntaxKind.CallExpression:
+      return printCallExpression(path as AstPath<CallExpressionNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -438,6 +441,15 @@ export function printConstStatement(
   const id = path.call(print, "id");
   const type = node.type ? [": ", path.call(print, "type")] : "";
   return ["const ", id, type, " = ", path.call(print, "value"), ";"];
+}
+
+export function printCallExpression(
+  path: AstPath<CallExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const args = printCallOrDecoratorArgs(path, options, print);
+  return [path.call(print, "target"), args];
 }
 
 function printTemplateParameters<T extends Node>(
@@ -590,7 +602,7 @@ export function printDecorator(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const args = printDecoratorArgs(path, options, print);
+  const args = printCallOrDecoratorArgs(path, options, print);
   return ["@", path.call(print, "target"), args];
 }
 
@@ -653,8 +665,8 @@ export function printDirective(
   return ["#", path.call(print, "target"), " ", args];
 }
 
-function printDecoratorArgs(
-  path: AstPath<DecoratorExpressionNode>,
+function printCallOrDecoratorArgs(
+  path: AstPath<DecoratorExpressionNode | CallExpressionNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {

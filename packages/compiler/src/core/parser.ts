@@ -19,6 +19,7 @@ import {
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
+  CallExpressionNode,
   Comment,
   ConstStatementNode,
   DeclarationNode,
@@ -186,6 +187,11 @@ namespace ListKind {
   } as const;
 
   export const DecoratorArguments = {
+    ...OperationParameters,
+    invalidAnnotationTarget: "expression",
+  } as const;
+
+  export const FunctionArguments = {
     ...OperationParameters,
     invalidAnnotationTarget: "expression",
   } as const;
@@ -1251,6 +1257,30 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
+    return parseReferenceExpressionInternal(target, pos);
+  }
+
+  function parseCallOrReferenceExpression(
+    message?: keyof CompilerDiagnostics["token-expected"]
+  ): TypeReferenceNode | CallExpressionNode {
+    const pos = tokenPos();
+    const target = parseIdentifierOrMemberExpression(message);
+    if (parseOptional(Token.OpenParen)) {
+      return {
+        kind: SyntaxKind.CallExpression,
+        target,
+        arguments: parseList(ListKind.FunctionArguments, parseExpression),
+        ...finishNode(pos),
+      };
+    }
+
+    return parseReferenceExpressionInternal(target, pos);
+  }
+
+  function parseReferenceExpressionInternal(
+    target: IdentifierNode | MemberExpressionNode,
+    pos: number
+  ): TypeReferenceNode {
     const args = parseOptionalList(ListKind.TemplateArguments, parseTemplateArgument);
 
     return {
@@ -1485,7 +1515,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ValueOfKeyword:
           return parseValueOfExpression();
         case Token.Identifier:
-          return parseReferenceExpression();
+          return parseCallOrReferenceExpression();
         case Token.StringLiteral:
           return parseStringLiteral();
         case Token.StringTemplateHead:
@@ -3302,6 +3332,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.arguments)
       );
     case SyntaxKind.DecoratorExpression:
+      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.CallExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.DirectiveExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
