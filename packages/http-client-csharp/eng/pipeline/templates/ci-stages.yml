@@ -1,0 +1,19 @@
+parameters:
+  - name: StageCondidion
+    type: string
+    default: true
+
+stages:
+  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+    parameters:
+      BuildPrereleaseVersion: true
+      UseTypeSpecNext: false
+      Publish: "none"
+      PackagePath: /packages/http-client-csharp
+      EmitterPackageJsonPath: packages/http-client-csharp/package.json
+      Packages:
+        - name: emitter
+          file: typespec-http-client-csharp-*.tgz
+          type: npm
+      UnitTestArgs: -UnitTests
+      StageCondidion: ${{ parameters.StageCondidion }}

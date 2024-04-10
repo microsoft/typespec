@@ -1,0 +1,10 @@
+stages:
+  - stage: Init
+    jobs:
+      - job: Init
+        steps:
+          - pwsh: |
+              # emit a pipeline output variable called RunCSharp
+              Write-Host "##vso[task.setvariable variable=RunCSharp;isOutput=true]true"
+              Write-Host "##vso[task.setvariable variable=RunPython;isOutput=true]true"
+  - stage

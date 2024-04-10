@@ -11,15 +11,10 @@ pr:
       - eng/common/
 
 extends:
-  template: /eng/emitters/pipelines/templates/archetype-emitter.yml
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
   parameters:
-    BuildPrereleaseVersion: true
-    UseTypeSpecNext: false
-    Publish: "none"
-    PackagePath: /packages/http-client-csharp
-    EmitterPackageJsonPath: packages/http-client-csharp/package.json
-    Packages:
-      - name: emitter
-        file: typespec-http-client-csharp-*.tgz
-        type: npm
-    UnitTestArgs: -UnitTests
+    stages:
+      - template: /packages/http-client-csharp/eng/pipeline/templates\ci-stages.yml
+        parameters:
+          StageCondition: true
