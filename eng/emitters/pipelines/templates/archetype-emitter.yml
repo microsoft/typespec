@@ -33,6 +33,7 @@ parameters:
   # Arguments needed to run unit tests
   - name: UnitTestArgs
     type: string
+    default: ""
 
   # Indicates the build matrix to use for post-build autorest validation
   - name: TestMatrix
@@ -84,6 +85,7 @@ extends:
               PackagePath: ${{ parameters.PackagePath }}
               NodeVersion: 20.x
               Os: linux
+              EmitArtifacts: true # Emit artifacts only for the first job
           - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
             parameters:
               BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
@@ -174,38 +176,40 @@ extends:
       # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
       # Will only run if the parameter `TestMatrix` is not empty.
       # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
-      - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+      - ${{ if or(parameters.UnitTestArgs, ne(length(parameters.TestMatrix), 0)) }}:
           - stage: Test
             dependsOn: Build
             variables:
               selfRepositoryPath: $(Build.SourcesDirectory)
               buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
             jobs:
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 20.x
-                  Os: linux
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 18.x
-                  Os: linux
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 20.x
-                  Os: windows
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 18.x
-                  Os: windows
+              - ${{ if parameters.UnitTestArgs }}:
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 20.x
+                      Os: linux
+                      EmitArtifacts: true # Emit artifacts only for the first job
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 18.x
+                      Os: linux
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 20.x
+                      Os: windows
+                  - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                    parameters:
+                      AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                      PackagePath: ${{ parameters.PackagePath }}
+                      UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                      NodeVersion: 18.x
+                      Os: windows

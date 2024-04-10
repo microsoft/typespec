@@ -20,6 +20,11 @@ parameters:
   - name: Os
     type: string
 
+  # Emit artifacts
+  - name: EmitArtifacts
+    type: boolean
+    default: false
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -39,9 +44,7 @@ jobs:
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: $(nodeVersion)
           UnitTestArgs: ${{ parameters.UnitTestArgs }}
-    # if the node version is 20.x and os is linux then output in templateContext
-    # this is to ensure that the pipeline artifact is created only once
-    ${{ if and(eq(parameters.NodeVersion, '20.x'), eq(parameters.Os, 'linux')) }}:
+    ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:
           - output: pipelineArtifact
