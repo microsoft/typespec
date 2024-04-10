@@ -28,12 +28,12 @@ jobs:
         name: $(WINDOWSPOOL)
         image: $(WINDOWSVMIMAGE)
         os: windows
-      steps:
-        - template: /eng/emitters/pipelines/templates/steps/test-step.yml
-          parameters:
-            AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-            PackagePath: ${{ parameters.PackagePath }}
-            NodeVersion: $(nodeVersion)
+    steps:
+      - template: /eng/emitters/pipelines/templates/steps/test-step.yml
+        parameters:
+          AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+          PackagePath: ${{ parameters.PackagePath }}
+          NodeVersion: $(nodeVersion)
     # if the node version is 20.x and os is linux then output in templateContext
     # this is to ensure that the pipeline artifact is created only once
     ${{ if and(eq(parameters.NodeVersion, '20.x'), eq(parameters.Os, 'linux')) }}:
