@@ -331,10 +331,24 @@ IsModelHeritage :
     `is` Expression
 
 ScalarStatement :
-    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends `;`
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `;`
+    DecoratorList? `scalar` Identifier TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
 
 ScalarExtends :
     `extends` Expression
+
+ScalarBody : 
+  ScalarMemberList `;`?
+
+ScalarBody : 
+  ScalarMemberList `;`?
+
+ScalarMemberList : 
+  ScalarMember
+  ScalarMemberList `;` ScalarMember
+
+ScalarMember:
+  `init` Identifier `(` FunctionParameterList? `)`
 
 ExtendsModelHeritage :
     `extends` Expression
