@@ -34,7 +34,7 @@
     },
     "augment-decorator-statement": {
       "name": "meta.augment-decorator-statement.typespec",
-      "begin": "((@@)\\b[_$[:alpha:]]([_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)",
+      "begin": "((@@)\\b[_$[:alpha:]](?:[_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)",
       "beginCaptures": {
         "1": {
           "name": "entity.name.tag.tsp"
@@ -62,6 +62,35 @@
       "name": "constant.language.tsp",
       "match": "\\b(true|false)\\b"
     },
+    "callExpression": {
+      "name": "meta.callExpression.typespec",
+      "begin": "(\\b[_$[:alpha:]](?:[_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)\\s*(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.tsp"
+        },
+        "2": {
+          "name": "punctuation.parenthesis.open.tsp"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.tsp"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#punctuation-comma"
+        }
+      ]
+    },
     "const-statement": {
       "name": "meta.const-statement.typespec",
       "begin": "\\b(const)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
@@ -88,7 +117,7 @@
     },
     "decorator": {
       "name": "meta.decorator.typespec",
-      "begin": "((@)\\b[_$[:alpha:]]([_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)",
+      "begin": "((@)\\b[_$[:alpha:]](?:[_$[:alnum:]]|\\.[_$[:alpha:]])*\\b)",
       "beginCaptures": {
         "1": {
           "name": "entity.name.tag.tsp"
@@ -366,6 +395,9 @@
         },
         {
           "include": "#model-expression"
+        },
+        {
+          "include": "#callExpression"
         },
         {
           "include": "#identifier-expression"
@@ -1034,6 +1066,56 @@
       "name": "punctuation.terminator.statement.tsp",
       "match": ";"
     },
+    "scalar-body": {
+      "name": "meta.scalar-body.typespec",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.open.tsp"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.close.tsp"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#directive"
+        },
+        {
+          "include": "#scalar-constructor"
+        },
+        {
+          "include": "#punctuation-semicolon"
+        }
+      ]
+    },
+    "scalar-constructor": {
+      "name": "meta.scalar-constructor.typespec",
+      "begin": "\\b(init)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.tsp"
+        },
+        "2": {
+          "name": "entity.name.function.tsp"
+        }
+      },
+      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#operation-parameters"
+        }
+      ]
+    },
     "scalar-extends": {
       "name": "meta.scalar-extends.typespec",
       "begin": "\\b(extends)\\b",
@@ -1054,10 +1136,13 @@
     },
     "scalar-statement": {
       "name": "meta.scalar-statement.typespec",
-      "begin": "\\b(scalar)\\b",
+      "begin": "\\b(scalar)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
           "name": "keyword.other.tsp"
+        },
+        "2": {
+          "name": "entity.name.type.tsp"
         }
       },
       "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
@@ -1072,7 +1157,7 @@
           "include": "#scalar-extends"
         },
         {
-          "include": "#expression"
+          "include": "#scalar-body"
         }
       ]
     },

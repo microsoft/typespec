@@ -216,6 +216,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.ScalarStatement:
         classify(node.id, SemanticTokenKind.Type);
         break;
+      case SyntaxKind.ScalarConstructor:
+        classify(node.id, SemanticTokenKind.Function);
+        break;
       case SyntaxKind.EnumStatement:
         classify(node.id, SemanticTokenKind.Enum);
         break;
@@ -253,7 +256,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.DecoratorExpression:
         classifyReference(node.target, SemanticTokenKind.Macro);
         break;
-
+      case SyntaxKind.CallExpression:
+        classifyReference(node.target, SemanticTokenKind.Function);
+        break;
       case SyntaxKind.TypeReference:
         classifyReference(node.target);
         break;

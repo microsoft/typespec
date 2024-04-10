@@ -33,6 +33,7 @@ const Token = {
   keywords: {
     model: createToken("model", "keyword.other.tsp"),
     scalar: createToken("scalar", "keyword.other.tsp"),
+    init: createToken("init", "keyword.other.tsp"),
     enum: createToken("enum", "keyword.other.tsp"),
     union: createToken("union", "keyword.other.tsp"),
     operation: createToken("op", "keyword.other.tsp"),
@@ -749,6 +750,24 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.semicolon,
         ]);
       });
+
+      it("scalar with constructor", async () => {
+        const tokens = await tokenize("scalar foo { init fromFoo(value: string); }");
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("foo"),
+          Token.punctuation.openBrace,
+          Token.keywords.init,
+          Token.identifiers.functionName("fromFoo"),
+          Token.punctuation.openParen,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeParen,
+          Token.punctuation.semicolon,
+          Token.punctuation.closeBrace,
+        ]);
+      });
     });
 
     it("named template argument list", async () => {
@@ -1085,6 +1104,17 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.assignment,
           Token.literals.numeric("123"),
           Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("call expressions", () => {
+      it("without parameters", async () => {
+        const tokens = await tokenizeWithConst("foo()");
+        deepStrictEqual(tokens, [
+          Token.identifiers.functionName("foo"),
+          Token.punctuation.openParen,
+          Token.punctuation.closeParen,
         ]);
       });
     });

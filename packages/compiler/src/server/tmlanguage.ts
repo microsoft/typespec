@@ -63,7 +63,7 @@ const beforeIdentifier = `(?=${identifierStart})`;
 const escapedIdentifier = "`(?:[^`\\\\]|\\\\.)*`";
 const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
-const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
+const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
@@ -265,6 +265,21 @@ const parenthesizedExpression: BeginEndRule = {
     "0": { scope: "punctuation.parenthesis.close.tsp" },
   },
   patterns: [expression, punctuationComma],
+};
+
+const callExpression: BeginEndRule = {
+  key: "callExpression",
+  scope: meta,
+  begin: `(${qualifiedIdentifier})\\s*(\\()`,
+  beginCaptures: {
+    "1": { scope: "entity.name.function.tsp" },
+    "2": { scope: "punctuation.parenthesis.open.tsp" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.tsp" },
+  },
+  patterns: [token, expression, punctuationComma],
 };
 
 const decorator: BeginEndRule = {
@@ -520,6 +535,20 @@ const modelStatement: BeginEndRule = {
   ],
 };
 
+const operationParameters: BeginEndRule = {
+  key: "operation-parameters",
+  scope: meta,
+  begin: "\\(",
+  beginCaptures: {
+    "0": { scope: "punctuation.parenthesis.open.tsp" },
+  },
+  end: "\\)",
+  endCaptures: {
+    "0": { scope: "punctuation.parenthesis.close.tsp" },
+  },
+  patterns: [token, decorator, modelProperty, spreadExpression, punctuationComma],
+};
+
 const scalarExtends: BeginEndRule = {
   key: "scalar-extends",
   scope: meta,
@@ -531,19 +560,46 @@ const scalarExtends: BeginEndRule = {
   patterns: [expression, punctuationComma],
 };
 
+const scalarConstructor: BeginEndRule = {
+  key: "scalar-constructor",
+  scope: meta,
+  begin: `\\b(init)\\b\\s+(${identifier})`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.function.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, operationParameters],
+};
+
+const scalarBody: BeginEndRule = {
+  key: "scalar-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [token, directive, scalarConstructor, punctuationSemicolon],
+};
+
 const scalarStatement: BeginEndRule = {
   key: "scalar-statement",
   scope: meta,
-  begin: "\\b(scalar)\\b",
+  begin: `\\b(scalar)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: universalEnd,
   patterns: [
     token,
     typeParameters,
     scalarExtends, // before expression or `extends` will look like type name
-    expression, // enough to match name, type parameters, and body.
+    scalarBody,
   ],
 };
 
@@ -633,6 +689,7 @@ const aliasStatement: BeginEndRule = {
   end: universalEnd,
   patterns: [typeParameters, operatorAssignment, expression],
 };
+
 const constStatement: BeginEndRule = {
   key: "const-statement",
   scope: meta,
@@ -676,20 +733,6 @@ const namespaceStatement: BeginEndRule = {
   },
   end: `((?<=\\})|${universalEnd})`,
   patterns: [token, namespaceName, namespaceBody],
-};
-
-const operationParameters: BeginEndRule = {
-  key: "operation-parameters",
-  scope: meta,
-  begin: "\\(",
-  beginCaptures: {
-    "0": { scope: "punctuation.parenthesis.open.tsp" },
-  },
-  end: "\\)",
-  endCaptures: {
-    "0": { scope: "punctuation.parenthesis.close.tsp" },
-  },
-  patterns: [token, decorator, modelProperty, spreadExpression, punctuationComma],
 };
 
 const operationHeritage: BeginEndRule = {
@@ -979,6 +1022,7 @@ expression.patterns = [
   tupleLiteral,
   tupleExpression,
   modelExpression,
+  callExpression,
   identifierExpression,
 ];
 
