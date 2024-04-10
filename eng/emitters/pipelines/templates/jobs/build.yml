@@ -50,7 +50,7 @@ jobs:
         image: $(WINDOWSVMIMAGE)
         os: windows
     steps:
-      - template: /eng/emitters/pipelines/templates/jobs/build.yml
+      - template: /eng/emitters/pipelines/templates/steps/build.yml
         parameters:
           BuildPrereleaseVersion: ${{ parameters.BuildPrereleaseVersion }}
           UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}

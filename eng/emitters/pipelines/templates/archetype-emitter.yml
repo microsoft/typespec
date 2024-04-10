@@ -151,7 +151,7 @@ extends:
                 variables:
                   buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
                 steps:
-                  - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                  - template: /eng/emitters/pipelines/templates/steps/test.yml
                     parameters:
                       AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                       PackagePath: ${{ parameters.PackagePath }}
@@ -169,7 +169,7 @@ extends:
                 variables:
                   buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
                 steps:
-                  - template: /eng/emitters/pipelines/templates/jobs/build.yml
+                  - template: /eng/emitters/pipelines/templates/steps/test.yml
                     parameters:
                       AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                       PackagePath: ${{ parameters.PackagePath }}
