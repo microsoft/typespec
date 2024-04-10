@@ -35,5 +35,5 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-      arguments: $(TestArguments)
+      arguments: -UnitTests
       workingDirectory: $(selfRepositoryPath)
