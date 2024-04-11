@@ -3303,13 +3303,14 @@ export function createChecker(program: Program): Checker {
     return value;
   }
 
-  // TODO: should those be called eval?
-  function checkCallExpression(
+  function checkCallExpressionTarget(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined
-  ): Value | undefined {
+  ): ScalarConstructor | Scalar | undefined {
     const target = checkTypeReference(node.target, mapper);
-    if (target.kind !== "Scalar" && target.kind !== "ScalarConstructor") {
+    if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
+      return target;
+    } else {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "non-callable",
@@ -3319,13 +3320,52 @@ export function createChecker(program: Program): Checker {
       );
       return undefined;
     }
+  }
 
+  /** Check the arguments of the call expression are a single value of the given syntax. */
+  function checkPrimitiveArg<T extends SyntaxKind>(
+    node: CallExpressionNode,
+    kind: T
+  ): (Node & { kind: T }) | undefined {
+    if (node.arguments.length !== 1) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-primitive-init",
+          target: node.target,
+        })
+      );
+      return undefined;
+    }
+    const arg = node.arguments[0];
+    if (arg.kind !== kind) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-primitive-init",
+          messageId: "invalidArg",
+          format: { actual: SyntaxKind[arg.kind], expected: SyntaxKind[kind] },
+          target: arg,
+        })
+      );
+      return undefined;
+    }
+    return arg as any;
+  }
+
+  // TODO: should those be called eval?
+  function checkCallExpression(
+    node: CallExpressionNode,
+    mapper: TypeMapper | undefined
+  ): Value | undefined {
+    const target = checkCallExpressionTarget(node, mapper);
+    if (target === undefined) {
+      return;
+    }
     if (target.kind === "ScalarConstructor") {
       const args = node.arguments.map((x) => getValueForNode(x, mapper)).filter(isDefined);
       return {
         valueKind: "ScalarValue",
         value: {
-          name: "abc",
+          name: target.name,
           args,
         },
         scalar: target.scalar,
@@ -3333,39 +3373,14 @@ export function createChecker(program: Program): Checker {
       };
     }
 
-    const checkPrimitiveArg = <T extends SyntaxKind>(kind: T): (Node & { kind: T }) | undefined => {
-      if (node.arguments.length !== 1) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-primitive-init",
-            target: node.target,
-          })
-        );
-        return undefined;
-      }
-      const arg = node.arguments[0];
-      if (arg.kind !== kind) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "invalid-primitive-init",
-            messageId: "invalidArg",
-            format: { actual: SyntaxKind[arg.kind], expected: SyntaxKind[kind] },
-            target: arg,
-          })
-        );
-        return undefined;
-      }
-      return arg as any;
-    };
-
     if (areScalarsRelated(target, getStdType("string"))) {
-      const arg = checkPrimitiveArg(SyntaxKind.StringLiteral);
+      const arg = checkPrimitiveArg(node, SyntaxKind.StringLiteral);
       return arg ? checkStringValue(arg, target) : undefined;
     } else if (areScalarsRelated(target, getStdType("numeric"))) {
-      const arg = checkPrimitiveArg(SyntaxKind.NumericLiteral);
+      const arg = checkPrimitiveArg(node, SyntaxKind.NumericLiteral);
       return arg ? checkNumericValue(arg, target) : undefined;
     } else if (areScalarsRelated(target, getStdType("boolean"))) {
-      const arg = checkPrimitiveArg(SyntaxKind.BooleanLiteral);
+      const arg = checkPrimitiveArg(node, SyntaxKind.BooleanLiteral);
       return arg ? checkBooleanValue(arg, target) : undefined;
     } else {
       reportCheckerDiagnostic(
