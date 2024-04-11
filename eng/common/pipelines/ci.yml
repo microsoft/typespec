@@ -2,7 +2,7 @@ trigger: none
 pr:
   branches:
     include:
-      - checkEnforcer
+      - main
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
