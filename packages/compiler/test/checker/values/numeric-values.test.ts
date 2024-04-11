@@ -48,6 +48,15 @@ describe("implicit type", () => {
     });
   });
 
+  it("doesn't pick scalar if const has no type", async () => {
+    const value = await compileValueType(`a`, `const a = 123;`);
+    strictEqual(value.valueKind, "NumericValue");
+    strictEqual(value.type.kind, "Number");
+    strictEqual(value.type.valueAsString, "123");
+    strictEqual(value.scalar, undefined);
+    strictEqual(value.value.asNumber(), 123);
+  });
+
   it("instantiate if there is a single numeric option", async () => {
     const value = await compileValueType(`a`, `const a: int32 | string = 123;`);
     strictEqual(value.valueKind, "NumericValue");

@@ -19,6 +19,7 @@ import {
   getEntityName,
   getNamespaceFullName,
   getTypeName,
+  stringTemplateToString,
 } from "./helpers/index.js";
 import { marshallTypeForJSWithLegacyCast, tryMarshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
@@ -681,7 +682,7 @@ export function createChecker(program: Program): Checker {
     return typeOrValue;
   }
 
-  function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | undefined {
+  function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | null {
     switch (node.kind) {
       case SyntaxKind.ObjectLiteral:
         return checkObjectLiteral(node, mapper);
@@ -690,7 +691,8 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.StringLiteral:
-        return checkStringValue(node, constraint);
+      case SyntaxKind.StringTemplateExpression:
+        return checkStringValue(node, mapper, constraint);
       case SyntaxKind.NumericLiteral:
         return checkNumericValue(node, constraint);
       case SyntaxKind.BooleanLiteral:
@@ -707,7 +709,7 @@ export function createChecker(program: Program): Checker {
             target: node,
           })
         );
-        return undefined;
+        return null;
     }
   }
 
@@ -752,7 +754,7 @@ export function createChecker(program: Program): Checker {
           : checkBooleanLiteral(node);
       case SyntaxKind.StringLiteral:
         return constraint?.kind === "Value"
-          ? checkStringValue(node, constraint.target)
+          ? checkStringValue(node, mapper, constraint.target)
           : checkStringLiteral(node);
       case SyntaxKind.TupleExpression:
         return checkTupleExpression(node, mapper);
@@ -1257,7 +1259,7 @@ export function createChecker(program: Program): Checker {
     sym: Sym,
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined
-  ): Value | undefined {
+  ): Value | null {
     // TODO: use common checkTypeOrValueReferenceSymbol
     if (sym.flags & SymbolFlags.Const) {
       return getValueForNode(sym.declarations[0], mapper);
@@ -1269,7 +1271,7 @@ export function createChecker(program: Program): Checker {
         target: node,
       })
     );
-    return undefined;
+    return null;
   }
   /**
    * Check and resolve the type for the given symbol + node.
@@ -1292,7 +1294,7 @@ export function createChecker(program: Program): Checker {
     }
 
     const result = checkTypeOrValueReferenceSymbol(sym, node, mapper, instantiateTemplates);
-    if (result === undefined || isValue(result)) {
+    if (result === null || isValue(result)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
       return errorType;
     }
@@ -1304,7 +1306,7 @@ export function createChecker(program: Program): Checker {
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     instantiateTemplates = true
-  ): Type | Value | undefined {
+  ): Type | Value | null {
     if (sym.flags & SymbolFlags.Const) {
       return getValueForNode(sym.declarations[0], mapper);
     }
@@ -3181,7 +3183,7 @@ export function createChecker(program: Program): Checker {
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const value = getValueForNode(prop.value, mapper);
-        if (value !== undefined) {
+        if (value !== null) {
           properties.set(prop.id.sv, { name: prop.id.sv, value: value });
         }
       } else {
@@ -3226,14 +3228,14 @@ export function createChecker(program: Program): Checker {
   function checkObjectSpreadProperty(
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined
-  ): ObjectValue | undefined {
+  ): ObjectValue | null {
     const value = getValueForNode(targetNode, mapper);
-    if (value === undefined) {
-      return undefined;
+    if (value === null) {
+      return null;
     }
     if (value.valueKind !== "ObjectValue") {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-object", target: targetNode }));
-      return undefined;
+      return null;
     }
 
     return value;
@@ -3261,7 +3263,7 @@ export function createChecker(program: Program): Checker {
   function inferScalarForPrimitiveValue(
     base: Scalar,
     type: Type | undefined,
-    node: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+    literalType: Type
   ): Scalar | undefined {
     if (type === undefined) {
       return undefined;
@@ -3275,23 +3277,18 @@ export function createChecker(program: Program): Checker {
       case "Union":
         let found = undefined;
         for (const variant of type.variants.values()) {
-          const scalar = inferScalarForPrimitiveValue(base, variant.type, node);
+          const scalar = inferScalarForPrimitiveValue(base, variant.type, literalType);
           if (scalar) {
             if (found) {
               reportCheckerDiagnostic(
                 createDiagnostic({
                   code: "ambiguous-scalar-type",
                   format: {
-                    value:
-                      node.kind === SyntaxKind.StringLiteral
-                        ? `"${node.value}"`
-                        : node.kind === SyntaxKind.NumericLiteral
-                          ? node.valueAsString
-                          : node.value.toString(),
+                    value: getTypeName(literalType),
                     types: [found, scalar].map((x) => x.name).join(", "),
                     example: found.name,
                   },
-                  target: node,
+                  target: literalType,
                 })
               );
               return undefined;
@@ -3306,32 +3303,50 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkStringValue(node: StringLiteralNode, type: Type | undefined): StringValue {
-    const scalar = inferScalarForPrimitiveValue(getStdType("string"), type, node);
+  function checkStringValue(
+    node: StringLiteralNode | StringTemplateExpressionNode,
+    mapper: TypeMapper | undefined,
+    type: Type | undefined
+  ): StringValue {
+    let literalType: StringLiteral | StringTemplate;
+    let value: string;
+    if (node.kind === SyntaxKind.StringTemplateExpression) {
+      literalType = checkStringTemplateExpresion(node, mapper);
+      const [result, diagnostics] = stringTemplateToString(literalType);
+      value = result;
+      reportCheckerDiagnostics(diagnostics);
+    } else {
+      literalType = getLiteralType(node);
+      value = literalType.value;
+    }
+    const scalar = inferScalarForPrimitiveValue(getStdType("string"), type, literalType);
     return {
       valueKind: "StringValue",
-      value: node.value,
-      type: getLiteralType(node),
+      value,
+      type: type ?? literalType,
       scalar,
     };
   }
 
   function checkNumericValue(node: NumericLiteralNode, type: Type | undefined): NumericValue {
-    const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, node);
+    const literalType = getLiteralType(node);
+
+    const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, literalType);
     return {
       valueKind: "NumericValue",
       value: Numeric(node.valueAsString),
-      type: getLiteralType(node),
+      type: literalType,
       scalar,
     };
   }
 
   function checkBooleanValue(node: BooleanLiteralNode, type: Type | undefined): BooleanValue {
-    const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, node);
+    const literalType = getLiteralType(node);
+    const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, literalType);
     return {
       valueKind: "BooleanValue",
       value: node.value,
-      type: getLiteralType(node),
+      type: type ?? literalType,
       scalar,
     };
   }
@@ -3346,10 +3361,10 @@ export function createChecker(program: Program): Checker {
   function checkValueReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined
-  ): Value | undefined {
+  ): Value | null {
     const sym = resolveTypeReferenceSym(node, mapper);
     if (!sym) {
-      return undefined;
+      return null;
     }
 
     const value = checkValueReferenceSymbol(sym, node, mapper);
@@ -3359,7 +3374,7 @@ export function createChecker(program: Program): Checker {
   function checkCallExpressionTarget(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined
-  ): ScalarConstructor | Scalar | undefined {
+  ): ScalarConstructor | Scalar | null {
     const target = checkTypeReference(node.target, mapper);
     if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
       return target;
@@ -3371,7 +3386,7 @@ export function createChecker(program: Program): Checker {
           target: node.target,
         })
       );
-      return undefined;
+      return null;
     }
   }
 
@@ -3380,7 +3395,7 @@ export function createChecker(program: Program): Checker {
     node: CallExpressionNode,
     scalar: Scalar,
     valueKind: T["valueKind"]
-  ): T | undefined {
+  ): T | null {
     if (node.arguments.length !== 1) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -3388,12 +3403,12 @@ export function createChecker(program: Program): Checker {
           target: node.target,
         })
       );
-      return undefined;
+      return null;
     }
     const argNode = node.arguments[0];
     const value = getValueForNode(argNode, undefined);
-    if (value === undefined) {
-      return undefined; // error should already have been reported above.
+    if (value === null) {
+      return null; // error should already have been reported above.
     }
     if (value.valueKind !== valueKind) {
       reportCheckerDiagnostic(
@@ -3404,10 +3419,10 @@ export function createChecker(program: Program): Checker {
           target: argNode,
         })
       );
-      return undefined;
+      return null;
     }
     if (!checkValueOfType(value, scalar, argNode)) {
-      return undefined;
+      return null;
     }
     return { ...value, scalar, type: scalar } as any;
   }
@@ -3416,18 +3431,21 @@ export function createChecker(program: Program): Checker {
   function checkCallExpression(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined
-  ): Value | undefined {
+  ): Value | null {
     const target = checkCallExpressionTarget(node, mapper);
-    if (target === undefined) {
-      return;
+    if (target === null) {
+      return null;
     }
     if (target.kind === "ScalarConstructor") {
-      const args = node.arguments.map((x) => getValueForNode(x, mapper)).filter(isDefined);
+      const args = node.arguments.map((x) => getValueForNode(x, mapper));
+      if (args.some((x) => x === null)) {
+        return null;
+      }
       return {
         valueKind: "ScalarValue",
         value: {
           name: target.name,
-          args,
+          args: args as Value[],
         },
         scalar: target.scalar,
         type: target,
@@ -3448,7 +3466,7 @@ export function createChecker(program: Program): Checker {
           target: node.target,
         })
       );
-      return undefined;
+      return null;
     }
   }
 
@@ -4596,9 +4614,9 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function checkConst(node: ConstStatementNode): Value | undefined {
+  function checkConst(node: ConstStatementNode): Value | null {
     const links = getSymbolLinks(node.symbol);
-    if (links.value) {
+    if (links.value !== undefined) {
       return links.value;
     }
 
@@ -4613,14 +4631,15 @@ export function createChecker(program: Program): Checker {
           target: node,
         })
       );
-      return undefined;
+      return null;
     }
 
     pendingResolutions.start(symId, ResolutionKind.Value);
     const value = getValueForNode(node.value, undefined, type);
     pendingResolutions.finish(symId, ResolutionKind.Value);
-    if (value === undefined) {
-      return undefined;
+    if (value === null || (type && !checkValueOfType(value, type, node.id))) {
+      links.value = null;
+      return links.value;
     }
     links.value = type ? { ...value, type } : { ...value };
     return links.value;

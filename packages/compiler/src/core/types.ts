@@ -744,7 +744,7 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 
   /** For const statements the value of the const */
-  value?: Value;
+  value?: Value | null;
 }
 
 /**
