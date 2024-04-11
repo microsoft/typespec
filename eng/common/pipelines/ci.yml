@@ -33,7 +33,7 @@ extends:
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
 
       # Run core stages if RunCore == true
-      - template: /eng/tsp-core/pipelines/templates/stages/ci-stages.yml
+      - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
