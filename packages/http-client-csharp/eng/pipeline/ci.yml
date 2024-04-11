@@ -1,14 +1,6 @@
 trigger: none
 
-pr:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - packages/http-client-csharp/
-      - eng/emitters/
-      - eng/common/
+pr: none
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
