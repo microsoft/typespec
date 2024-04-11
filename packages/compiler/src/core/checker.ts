@@ -5842,6 +5842,7 @@ export function createChecker(program: Program): Checker {
           kind: "Number",
           value,
           valueAsString,
+          numericValue: Numeric(valueAsString),
         });
         break;
     }
@@ -6410,6 +6411,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function isNumericLiteralRelatedTo(source: NumericLiteral, target: Scalar) {
+    return isNumericAssignableToNumericScalar(source.numericValue, target);
+  }
+
+  function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
     // if the target does not derive from numeric, then it can't be assigned a numeric literal
     if (!areScalarsRelated(target, getStdType("numeric"))) {
       return false;
@@ -6429,13 +6434,17 @@ export function createChecker(program: Program): Checker {
     if (target.name === "decimal") return true;
     if (target.name === "decimal128") return true;
 
-    const isInt = Number.isInteger(source.value);
+    const isInt = source.isInteger;
     if (target.name === "integer") return isInt;
     if (target.name === "float") return true;
 
     if (!(target.name in numericRanges)) return false;
     const [low, high, options] = numericRanges[target.name];
-    return source.value >= low && source.value <= high && (!options.int || isInt);
+    return (
+      source.gte(Numeric(low.toString())) &&
+      source.lte(Numeric(high.toString())) &&
+      (!options.int || isInt)
+    );
   }
 
   function isModelRelatedTo(
@@ -6791,21 +6800,22 @@ function isAnonymous(type: Type) {
   return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
-const numericRanges: Record<
-  string,
-  [min: number | bigint, max: number | bigint, options: { int: boolean }]
-> = {
-  int64: [BigInt("-9223372036854775807"), BigInt("9223372036854775808"), { int: true }],
-  int32: [-2147483648, 2147483647, { int: true }],
-  int16: [-32768, 32767, { int: true }],
-  int8: [-128, 127, { int: true }],
-  uint64: [0, BigInt("18446744073709551615"), { int: true }],
-  uint32: [0, 4294967295, { int: true }],
-  uint16: [0, 65535, { int: true }],
-  uint8: [0, 255, { int: true }],
-  safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
-  float32: [-3.4e38, 3.4e38, { int: false }],
-  float64: [-Number.MAX_VALUE, Number.MAX_VALUE, { int: false }],
+const numericRanges: Record<string, [min: Numeric, max: Numeric, options: { int: boolean }]> = {
+  int64: [Numeric("-9223372036854775807"), Numeric("9223372036854775808"), { int: true }],
+  int32: [Numeric("-2147483648"), Numeric("2147483647"), { int: true }],
+  int16: [Numeric("-32768"), Numeric("32767"), { int: true }],
+  int8: [Numeric("-128"), Numeric("127"), { int: true }],
+  uint64: [Numeric("0"), Numeric("18446744073709551615"), { int: true }],
+  uint32: [Numeric("0"), Numeric("4294967295"), { int: true }],
+  uint16: [Numeric("0"), Numeric("65535"), { int: true }],
+  uint8: [Numeric("0"), Numeric("255"), { int: true }],
+  safeint: [
+    Numeric(Number.MIN_SAFE_INTEGER.toString()),
+    Numeric(Number.MAX_SAFE_INTEGER.toString()),
+    { int: true },
+  ],
+  float32: [Numeric("-3.4e38"), Numeric("3.4e38"), { int: false }],
+  float64: [Numeric(`${-Number.MAX_VALUE}`), Numeric(Number.MAX_VALUE.toString()), { int: false }],
 };
 
 /**

@@ -561,7 +561,8 @@ export interface StringLiteral extends BaseType {
 export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
-  value: number;
+  value: number; // TODO: should we deprecate this?
+  numericValue: Numeric;
   valueAsString: string;
 }
 

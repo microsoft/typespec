@@ -458,8 +458,7 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  // Need to handle bigint in TypeSpec. https://github.com/Azure/typespec-azure/issues/506
-  describe.skip("int64 target", () => {
+  describe("int64 target", () => {
     it("can assign int64", async () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
     });

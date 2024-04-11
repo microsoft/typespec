@@ -51,6 +51,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "String":
       return `"${type.value}"`;
     case "Number":
+      return type.valueAsString;
     case "Boolean":
       return type.value.toString();
     case "Intrinsic":
