@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseUsage } from "./utils.js";
+import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
 
 const numericScalars = [
   "numeric",
@@ -36,14 +36,33 @@ describe("instantiate with constructor", () => {
   });
 });
 
-describe("instantiate from implicit const type", () => {
-  it.each(numericScalars)("%s", async (scalarName) => {
-    const value = await compileValueType(`a`, `const a:${scalarName} = 123;`);
+describe("implicit type", () => {
+  describe("instantiate when type is scalar", () => {
+    it.each(numericScalars)("%s", async (scalarName) => {
+      const value = await compileValueType(`a`, `const a:${scalarName} = 123;`);
+      strictEqual(value.valueKind, "NumericValue");
+      strictEqual(value.type.kind, "Scalar");
+      strictEqual(value.type.name, scalarName);
+      strictEqual(value.scalar?.name, scalarName);
+      strictEqual(value.value.asNumber(), 123);
+    });
+  });
+
+  it("instantiate if there is a single numeric option", async () => {
+    const value = await compileValueType(`a`, `const a: int32 | string = 123;`);
     strictEqual(value.valueKind, "NumericValue");
-    strictEqual(value.type.kind, "Scalar");
-    strictEqual(value.type.name, scalarName);
-    strictEqual(value.scalar?.name, scalarName);
+    strictEqual(value.type.kind, "Union");
+    strictEqual(value.scalar?.name, "int32");
     strictEqual(value.value.asNumber(), 123);
+  });
+
+  it("emit diagnostics if there is multiple numeric choices", async () => {
+    const diagnostics = await diagnoseValueType(`a`, `const a: int32 | int64 = 123;`);
+    expectDiagnostics(diagnostics, {
+      code: "ambiguous-scalar-type",
+      message:
+        "Value 123 type is ambiguous between int32, int64. To resolve be explicit when instantiating this value(e.g. 'int32(123)')",
+    });
   });
 });
 

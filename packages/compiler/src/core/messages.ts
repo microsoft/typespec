@@ -432,7 +432,7 @@ const diagnostics = {
   "ambiguous-scalar-type": {
     severity: "error",
     messages: {
-      default: paramMessage`Value ${"value"} type is ambiguous between ${"types"}. To resolve be explicit when instantiating this value(e.g. ${"example"}(${"value"})).`,
+      default: paramMessage`Value ${"value"} type is ambiguous between ${"types"}. To resolve be explicit when instantiating this value(e.g. '${"example"}(${"value"})').`,
     },
   },
   unassignable: {
