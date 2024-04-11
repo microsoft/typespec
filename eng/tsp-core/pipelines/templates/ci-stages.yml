@@ -1,6 +1,6 @@
 stages:
   - stage: Build_Core
-    displayName: Build Core
+    displayName: Core - Build
     dependsOn: InitStage
     condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
     variables:
