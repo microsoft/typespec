@@ -9,7 +9,7 @@ parameters:
 stages:
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
     parameters:
-      StageSuffix: csharp
+      StagePrefix: CSharp
       BuildPrereleaseVersion: true
       UseTypeSpecNext: false
       Publish: "none"
