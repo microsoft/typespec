@@ -788,6 +788,8 @@ export function createChecker(program: Program): Checker {
         return checkTupleLiteral(node, mapper);
       case SyntaxKind.ConstStatement:
         return checkConst(node) ?? errorType; // TODO: do we want that?
+      case SyntaxKind.CallExpression:
+        return checkCallExpression(node, mapper) ?? errorType; // TODO: do we want that?
       default:
         return errorType;
     }
@@ -3323,10 +3325,11 @@ export function createChecker(program: Program): Checker {
   }
 
   /** Check the arguments of the call expression are a single value of the given syntax. */
-  function checkPrimitiveArg<T extends SyntaxKind>(
+  function checkPrimitiveArg<T extends NumericValue | BooleanValue | StringValue>(
     node: CallExpressionNode,
-    kind: T
-  ): (Node & { kind: T }) | undefined {
+    scalar: Scalar,
+    valueKind: T["valueKind"]
+  ): T | undefined {
     if (node.arguments.length !== 1) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -3336,19 +3339,26 @@ export function createChecker(program: Program): Checker {
       );
       return undefined;
     }
-    const arg = node.arguments[0];
-    if (arg.kind !== kind) {
+    const argNode = node.arguments[0];
+    const value = getValueForNode(argNode, undefined);
+    if (value === undefined) {
+      return undefined; // error should already have been reported above.
+    }
+    if (value.valueKind !== valueKind) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "invalid-primitive-init",
           messageId: "invalidArg",
-          format: { actual: SyntaxKind[arg.kind], expected: SyntaxKind[kind] },
-          target: arg,
+          format: { actual: value.valueKind, expected: valueKind },
+          target: argNode,
         })
       );
       return undefined;
     }
-    return arg as any;
+    if (!checkValueOfType(value, scalar, argNode)) {
+      return undefined;
+    }
+    return { ...value, scalar } as any;
   }
 
   // TODO: should those be called eval?
@@ -3374,14 +3384,11 @@ export function createChecker(program: Program): Checker {
     }
 
     if (areScalarsRelated(target, getStdType("string"))) {
-      const arg = checkPrimitiveArg(node, SyntaxKind.StringLiteral);
-      return arg ? checkStringValue(arg, target) : undefined;
+      return checkPrimitiveArg(node, target, "StringValue");
     } else if (areScalarsRelated(target, getStdType("numeric"))) {
-      const arg = checkPrimitiveArg(node, SyntaxKind.NumericLiteral);
-      return arg ? checkNumericValue(arg, target) : undefined;
+      return checkPrimitiveArg(node, target, "NumericValue");
     } else if (areScalarsRelated(target, getStdType("boolean"))) {
-      const arg = checkPrimitiveArg(node, SyntaxKind.BooleanLiteral);
-      return arg ? checkBooleanValue(arg, target) : undefined;
+      return checkPrimitiveArg(node, target, "BooleanValue");
     } else {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -6020,6 +6027,18 @@ export function createChecker(program: Program): Checker {
     return related;
   }
 
+  function checkValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    const [related, diagnostics] = isValueOfType(source, target, diagnosticTarget);
+    if (!related) {
+      reportCheckerDiagnostics(diagnostics);
+    }
+    return related;
+  }
+
   /**
    * Check if the source type can be assigned to the target type.
    * @param source Source type
@@ -6455,11 +6474,15 @@ export function createChecker(program: Program): Checker {
 
     if (!(target.name in numericRanges)) return false;
     const [low, high, options] = numericRanges[target.name];
-    return (
-      source.gte(Numeric(low.toString())) &&
-      source.lte(Numeric(high.toString())) &&
-      (!options.int || isInt)
+    console.log(
+      "HJEre",
+      low.toString(),
+      high.toString(),
+      source.toString(),
+      source.gte(low),
+      source.lte(high)
     );
+    return source.gte(low) && source.lte(high) && (!options.int || isInt);
   }
 
   function isModelRelatedTo(

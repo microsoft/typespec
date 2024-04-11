@@ -37,6 +37,13 @@ export class InvalidNumericError extends Error {
 export const InternalDataSym = Symbol.for("NumericInternalData");
 
 /**
+ * Check if the given arg is a Numeric
+ */
+export function isNumeric(arg: unknown): arg is Numeric {
+  return typeof arg === "object" && arg !== null && InternalDataSym in arg;
+}
+
+/**
  * Represent any possible numeric value
  */
 export function Numeric(stringValue: string): Numeric {
