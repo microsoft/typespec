@@ -3358,7 +3358,7 @@ export function createChecker(program: Program): Checker {
     if (!checkValueOfType(value, scalar, argNode)) {
       return undefined;
     }
-    return { ...value, scalar } as any;
+    return { ...value, scalar, type: scalar } as any;
   }
 
   // TODO: should those be called eval?
@@ -6474,14 +6474,6 @@ export function createChecker(program: Program): Checker {
 
     if (!(target.name in numericRanges)) return false;
     const [low, high, options] = numericRanges[target.name];
-    console.log(
-      "HJEre",
-      low.toString(),
-      high.toString(),
-      source.toString(),
-      source.gte(low),
-      source.lte(high)
-    );
     return source.gte(low) && source.lte(high) && (!options.int || isInt);
   }
 
@@ -6839,7 +6831,7 @@ function isAnonymous(type: Type) {
 }
 
 const numericRanges: Record<string, [min: Numeric, max: Numeric, options: { int: boolean }]> = {
-  int64: [Numeric("-9223372036854775807"), Numeric("9223372036854775808"), { int: true }],
+  int64: [Numeric("-9223372036854775808"), Numeric("9223372036854775807"), { int: true }],
   int32: [Numeric("-2147483648"), Numeric("2147483647"), { int: true }],
   int16: [Numeric("-32768"), Numeric("32767"), { int: true }],
   int8: [Numeric("-128"), Numeric("127"), { int: true }],
