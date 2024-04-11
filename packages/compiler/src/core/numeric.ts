@@ -152,10 +152,11 @@ const compare = (a: InternalData, b: InternalData): 0 | 1 | -1 => {
   } else if (a.s > b.s) {
     return 1;
   }
+  const neg = a.s;
   if (a.e < b.e) {
-    return -1;
+    return (-1 * neg) as any;
   } else if (a.e > b.e) {
-    return 1;
+    return (1 * neg) as any;
   }
 
   let aN = a.n;
@@ -165,8 +166,8 @@ const compare = (a: InternalData, b: InternalData): 0 | 1 | -1 => {
   } else {
     bN *= 10n ** BigInt(a.d - b.d);
   }
-  if (aN < bN) return -1;
-  if (aN > bN) return 1;
+  if (aN < bN) return (-1 * neg) as any;
+  if (aN > bN) return (1 * neg) as any;
   return 0;
 };
 
