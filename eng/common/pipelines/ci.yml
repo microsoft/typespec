@@ -1,20 +1,33 @@
-stages:
-  - stage: InitStage
-    displayName: Initialize
-    jobs:
-      - job: InitJob
-        displayName: Initialize
-        steps:
-          - pwsh: |
-              # emit a pipeline output variable called RunCSharp
-              Write-Host "Setting RunCSharp to true"
-              Write-Host "##vso[task.setvariable variable=RunCSharp;isOutput=true]true"
-              Write-Host "Setting RunPython to true"
-              Write-Host "##vso[task.setvariable variable=RunPython;isOutput=true]true"
-            name: InitStep
-            displayName: Initialize
+trigger: none
+pr:
+  branches:
+    include:
+      - checkEnforcer
 
-  - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
-    parameters:
-      DependsOn: InitStage
-      Condition: eq(stageDependencies.InitStage.InitJob.outputs['InitStep.RunCSharp'], 'true')
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+  parameters:
+    stages:
+      - stage: InitStage
+        displayName: Initialize
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: InitJob
+            displayName: Initialize
+            steps:
+              - pwsh: |
+                  # emit a pipeline output variable called RunCSharp
+                  Write-Host "Setting RunCSharp to true"
+                  Write-Host "##vso[task.setvariable variable=RunCSharp;isOutput=true]true"
+                  Write-Host "Setting RunPython to true"
+                  Write-Host "##vso[task.setvariable variable=RunPython;isOutput=true]true"
+                name: InitStep
+                displayName: Initialize
+
+      - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
