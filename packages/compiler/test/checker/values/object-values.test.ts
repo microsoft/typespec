@@ -77,11 +77,11 @@ describe("spreading", () => {
   it("emit diagnostic is spreading a model", async () => {
     const diagnostics = await diagnoseValueType(
       `#{...Common, age: 21}`,
-      `const Common = { name: "John" };`
+      `alias Common = { name: "John" };`
     );
     expectDiagnostics(diagnostics, {
       code: "expect-value",
-      message: "? refers to a type, but is being used as a value here.",
+      message: "(anonymous model) refers to a type, but is being used as a value here.",
     });
   });
 
@@ -102,7 +102,8 @@ describe("valid property types", () => {
     ["StringValue", `"John"`],
     ["NumericValue", "21"],
     ["BooleanValue", "true"],
-    ["EnumMember", "Direction.up", "enum Direction { up, down }"],
+    ["NullValue", "null"],
+    ["EnumValue", "Direction.up", "enum Direction { up, down }"],
     ["ObjectValue", `#{nested: "foo"}`],
     ["ArrayValue", `#["foo"]`],
   ])("%s", async (kind, type, other?) => {

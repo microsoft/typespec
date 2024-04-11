@@ -5,7 +5,12 @@ import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-iden
 import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
 import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
+import {
+  ProjectionError,
+  compilerAssert,
+  ignoreDiagnostics,
+  reportDeprecated,
+} from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   TypeNameOptions,
@@ -63,6 +68,7 @@ import {
   EnumMember,
   EnumMemberNode,
   EnumStatementNode,
+  EnumValue,
   ErrorType,
   Expression,
   FunctionDeclarationStatementNode,
@@ -96,6 +102,8 @@ import {
   NeverType,
   Node,
   NodeFlags,
+  NullType,
+  NullValue,
   NumericLiteral,
   NumericLiteralNode,
   NumericValue,
@@ -680,59 +688,49 @@ export function createChecker(program: Program): Checker {
   }
 
   function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | null {
-    const entity = getTypeOrValueForNode(node, mapper, constraint);
+    let entity = getTypeOrValueForNodeInternal(node, mapper);
     if (entity === null || isValue(entity)) {
       return entity;
     }
-    // Some type can be converted to value in the right context
-    switch (entity.kind) {
-      case "String":
-      case "StringTemplate":
-        return checkStringValue(entity, mapper, constraint);
-      case "Number":
-        return checkNumericValue(entity, constraint);
-      case "Boolean":
-        return checkBooleanValue(entity, constraint);
-      default:
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "expect-value",
-            format: { name: getTypeName(entity) },
-            target: node,
-          })
-        );
-        return null;
+    entity = tryUsingValueOfType(entity, mapper, constraint);
+    if (entity === null || isValue(entity)) {
+      return entity;
     }
-    // switch (node.kind) {
-    //   case SyntaxKind.ObjectLiteral:
-    //     return checkObjectValue(node, mapper);
-    //   case SyntaxKind.TupleLiteral:
-    //     return checkTupleValue(node, mapper);
-    //   case SyntaxKind.ConstStatement:
-    //     return checkConst(node);
-    //   case SyntaxKind.StringLiteral:
-    //   case SyntaxKind.StringTemplateExpression:
-    //     return checkStringValue(node, mapper, constraint);
-    //   case SyntaxKind.NumericLiteral:
-    //     return checkNumericValue(node, constraint);
-    //   case SyntaxKind.BooleanLiteral:
-    //     return checkBooleanValue(node, constraint);
-    //   case SyntaxKind.TypeReference:
-    //     return checkValueReference(node, mapper);
-    //   case SyntaxKind.CallExpression:
-    //     return checkCallExpression(node, mapper);
-    //   default:
-    //     reportCheckerDiagnostic(
-    //       createDiagnostic({
-    //         code: "expect-value",
-    //         format: { name: "?" }, // TODO: better message
-    //         target: node,
-    //       })
-    //     );
-    //     return null;
-    // }
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "expect-value",
+        format: { name: getTypeName(entity) },
+        target: node,
+      })
+    );
+    return null;
   }
 
+  function tryUsingValueOfType(
+    type: Type,
+    mapper: TypeMapper | undefined,
+    constraint: Type | undefined
+  ): Type | Value | null {
+    switch (type.kind) {
+      case "String":
+      case "StringTemplate":
+        return checkStringValue(type, mapper, constraint);
+      case "Number":
+        return checkNumericValue(type, constraint);
+      case "Boolean":
+        return checkBooleanValue(type, constraint);
+      case "EnumMember":
+        return checkEnumValue(type, constraint);
+      case "Intrinsic":
+        switch (type.name) {
+          case "null":
+            return checkNullValue(type as any, constraint);
+        }
+        return type;
+      default:
+        return type;
+    }
+  }
   /**
    * Gets a type or value depending on the node and current constraint.
    * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
@@ -750,15 +748,7 @@ export function createChecker(program: Program): Checker {
 
     const valueConstraint = extractValueOfConstraints(constraint);
     if (valueConstraint) {
-      switch (entity.kind) {
-        case "String":
-        case "StringTemplate":
-          return checkStringValue(entity, mapper, valueConstraint);
-        case "Number":
-          return checkNumericValue(entity, valueConstraint);
-        case "Boolean":
-          return checkBooleanValue(entity, valueConstraint);
-      }
+      return tryUsingValueOfType(entity, mapper, valueConstraint);
     }
 
     return entity;
@@ -3297,6 +3287,26 @@ export function createChecker(program: Program): Checker {
     };
   }
 
+  function findTypesMatching(base: Type, constraint: Type): Type[] {
+    if (constraint.kind === base.kind) {
+      if (ignoreDiagnostics(isTypeAssignableTo(base, constraint, base))) {
+        return [constraint];
+      }
+      return [];
+    } else if (constraint.kind === "Union") {
+      const matches: Type[] = [];
+      for (const variant of constraint.variants.values()) {
+        const subMatches = findTypesMatching(base, variant.type);
+        for (const match of subMatches) {
+          matches.push(match);
+        }
+      }
+      return matches;
+    } else {
+      return [];
+    }
+  }
+
   function inferScalarForPrimitiveValue(
     base: Scalar,
     type: Type | undefined,
@@ -3310,7 +3320,7 @@ export function createChecker(program: Program): Checker {
         if (areScalarsRelated(type, base)) {
           return type;
         }
-        return undefined; // TODO: do i need to report an error here
+        return undefined;
       case "Union":
         let found = undefined;
         for (const variant of type.variants.values()) {
@@ -3379,6 +3389,31 @@ export function createChecker(program: Program): Checker {
       value: literalType.value,
       type: type ?? literalType,
       scalar,
+    };
+  }
+
+  function checkNullValue(literalType: NullType, type: Type | undefined): NullValue | null {
+    if (
+      type !== undefined &&
+      !ignoreDiagnostics(isTypeAssignableTo(literalType, type, literalType))
+    ) {
+      return null;
+    }
+    return {
+      valueKind: "NullValue",
+      type: type ?? literalType,
+      value: null,
+    };
+  }
+
+  function checkEnumValue(literalType: EnumMember, type: Type | undefined): EnumValue | null {
+    if (type !== undefined && !findTypesMatching(literalType, type)) {
+      return null;
+    }
+    return {
+      valueKind: "EnumValue",
+      type: type ?? literalType,
+      value: literalType,
     };
   }
 

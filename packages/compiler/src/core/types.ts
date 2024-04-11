@@ -14,7 +14,7 @@ Value extends StringValue ? string
   : Value extends BooleanValue ? boolean
   : Value extends ObjectValue ? Record<string, unknown>
   : Value extends ArrayValue ? unknown[]
-  : Value extends EnumMemberValue ? EnumMember
+  : Value extends EnumValue ? EnumMember
   : Value extends NullValue ? null
   : Value extends ScalarValue ? Value
   : Value
@@ -313,7 +313,7 @@ export type Value =
   | BooleanValue
   | ObjectValue
   | ArrayValue
-  | EnumMemberValue
+  | EnumValue
   | NullValue;
 
 interface BaseValue {
@@ -358,8 +358,8 @@ export interface BooleanValue extends BaseValue {
   scalar: Scalar | undefined;
   value: boolean;
 }
-export interface EnumMemberValue extends BaseValue {
-  valueKind: "EnumMemberValue";
+export interface EnumValue extends BaseValue {
+  valueKind: "EnumValue";
   value: EnumMember;
 }
 export interface NullValue extends BaseValue {

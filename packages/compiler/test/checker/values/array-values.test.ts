@@ -29,15 +29,16 @@ it("multiple property", async () => {
 
   const ageProp = object.values[1];
   strictEqual(ageProp?.valueKind, "NumericValue");
-  strictEqual(ageProp.value, 21);
+  strictEqual(ageProp.value.asNumber(), 21);
 });
 
 describe("valid property types", () => {
   it.each([
     ["StringValue", `"John"`],
     ["NumericValue", "21"],
-    ["Boolean", "true"],
-    ["EnumMember", "Direction.up", "enum Direction { up, down }"],
+    ["BooleanValue", "true"],
+    ["NullValue", "null"],
+    ["EnumValue", "Direction.up", "enum Direction { up, down }"],
     ["ObjectValue", `#{nested: "foo"}`],
     ["ArrayValue", `#["foo"]`],
   ])("%s", async (kind, type, other?) => {
