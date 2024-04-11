@@ -690,11 +690,11 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.StringLiteral:
-        return checkStringValue(node, undefined);
+        return checkStringValue(node, constraint);
       case SyntaxKind.NumericLiteral:
-        return checkNumericValue(node, undefined);
+        return checkNumericValue(node, constraint);
       case SyntaxKind.BooleanLiteral:
-        return checkBooleanValue(node, undefined);
+        return checkBooleanValue(node, constraint);
       case SyntaxKind.TypeReference:
         return checkValueReference(node, mapper);
       case SyntaxKind.CallExpression:
@@ -744,15 +744,15 @@ export function createChecker(program: Program): Checker {
         return checkOperation(node, mapper);
       case SyntaxKind.NumericLiteral:
         return constraint?.kind === "Value"
-          ? checkNumericValue(node, undefined)
+          ? checkNumericValue(node, constraint.target)
           : checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
         return constraint?.kind === "Value"
-          ? checkBooleanValue(node, undefined)
+          ? checkBooleanValue(node, constraint.target)
           : checkBooleanLiteral(node);
       case SyntaxKind.StringLiteral:
         return constraint?.kind === "Value"
-          ? checkStringValue(node, undefined)
+          ? checkStringValue(node, constraint.target)
           : checkStringLiteral(node);
       case SyntaxKind.TupleExpression:
         return checkTupleExpression(node, mapper);
@@ -3258,7 +3258,56 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkStringValue(node: StringLiteralNode, scalar: Scalar | undefined): StringValue {
+  function inferScalarForPrimitiveValue(
+    base: Scalar,
+    type: Type | undefined,
+    node: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+  ): Scalar | undefined {
+    if (type === undefined) {
+      return undefined;
+    }
+    switch (type.kind) {
+      case "Scalar":
+        if (areScalarsRelated(type, base)) {
+          return type;
+        }
+        return undefined; // TODO: do i need to report an error here
+      case "Union":
+        let found = undefined;
+        for (const variant of type.variants.values()) {
+          const scalar = inferScalarForPrimitiveValue(base, variant.type, node);
+          if (scalar) {
+            if (found) {
+              reportCheckerDiagnostic(
+                createDiagnostic({
+                  code: "ambiguous-scalar-type",
+                  format: {
+                    value:
+                      node.kind === SyntaxKind.StringLiteral
+                        ? `"${node.value}"`
+                        : node.kind === SyntaxKind.NumericLiteral
+                          ? node.valueAsString
+                          : node.value.toString(),
+                    types: [found, scalar].map((x) => x.name).join(", "),
+                    example: found.name,
+                  },
+                  target: node,
+                })
+              );
+              return undefined;
+            } else {
+              found = scalar;
+            }
+          }
+        }
+        return found;
+      default:
+        return undefined;
+    }
+  }
+
+  function checkStringValue(node: StringLiteralNode, type: Type | undefined): StringValue {
+    const scalar = inferScalarForPrimitiveValue(getStdType("string"), type, node);
     return {
       valueKind: "StringValue",
       value: node.value,
@@ -3267,7 +3316,8 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkNumericValue(node: NumericLiteralNode, scalar: Scalar | undefined): NumericValue {
+  function checkNumericValue(node: NumericLiteralNode, type: Type | undefined): NumericValue {
+    const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, node);
     return {
       valueKind: "NumericValue",
       value: Numeric(node.valueAsString),
@@ -3276,7 +3326,8 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkBooleanValue(node: BooleanLiteralNode, scalar: Scalar | undefined): BooleanValue {
+  function checkBooleanValue(node: BooleanLiteralNode, type: Type | undefined): BooleanValue {
+    const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, node);
     return {
       valueKind: "BooleanValue",
       value: node.value,
@@ -4561,7 +4612,7 @@ export function createChecker(program: Program): Checker {
     }
 
     pendingResolutions.start(symId, ResolutionKind.Value);
-    const value = getValueForNode(node.value, undefined);
+    const value = getValueForNode(node.value, undefined, type);
     pendingResolutions.finish(symId, ResolutionKind.Value);
     if (value === undefined) {
       return undefined;

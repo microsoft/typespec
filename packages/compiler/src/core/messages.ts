@@ -429,6 +429,12 @@ const diagnostics = {
       invalidArg: paramMessage`Expected a single argument of type ${"expected"} but got ${"actual"}.`,
     },
   },
+  "ambiguous-scalar-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Value ${"value"} type is ambiguous between ${"types"}. To resolve be explicit when instantiating this value(e.g. ${"example"}(${"value"})).`,
+    },
+  },
   unassignable: {
     severity: "error",
     messages: {

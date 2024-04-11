@@ -3,29 +3,42 @@ import { describe, it } from "vitest";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
 import { compileValueType, diagnoseUsage } from "./utils.js";
 
-describe("instantiate from numeric literal", () => {
-  it.each([
-    "numeric",
-    // Integers
-    "integer",
-    "int8",
-    "int16",
-    "int32",
-    "int64",
-    "safeint",
-    "uint8",
-    "uint16",
-    "uint32",
-    "uint64",
-    // Floats
-    "float",
-    "float32",
-    "float64",
-    // Decimals
-    "decimal",
-    "decimal128",
-  ])("%s", async (scalarName) => {
+const numericScalars = [
+  "numeric",
+  // Integers
+  "integer",
+  "int8",
+  "int16",
+  "int32",
+  "int64",
+  "safeint",
+  "uint8",
+  "uint16",
+  "uint32",
+  "uint64",
+  // Floats
+  "float",
+  "float32",
+  "float64",
+  // Decimals
+  "decimal",
+  "decimal128",
+];
+
+describe("instantiate with constructor", () => {
+  it.each(numericScalars)("%s", async (scalarName) => {
     const value = await compileValueType(`${scalarName}(123)`);
+    strictEqual(value.valueKind, "NumericValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, scalarName);
+    strictEqual(value.scalar?.name, scalarName);
+    strictEqual(value.value.asNumber(), 123);
+  });
+});
+
+describe("instantiate from implicit const type", () => {
+  it.each(numericScalars)("%s", async (scalarName) => {
+    const value = await compileValueType(`a`, `const a:${scalarName} = 123;`);
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, scalarName);
@@ -225,7 +238,7 @@ describe("instantiate from another smaller numeric type", () => {
     ["int8", "integer"],
     ["int8", "numeric"],
     // uint8
-    // ["uint8", "int16"],
+    // ["uint8", "int16"], https://github.com/microsoft/typespec/issues/3156
     // ["uint8", "int32"],
     // ["uint8", "int64"],
     ["uint8", "integer"],
