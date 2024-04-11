@@ -43,7 +43,7 @@ export function isNullType(type: Type): type is NullType {
 }
 
 export function isType(entity: Entity): entity is Type {
-  return "kind" in entity;
+  return "kind" in entity && entity.kind !== "Value" && entity.kind !== "ParamConstraintUnion";
 }
 export function isValue(entity: Entity): entity is Value {
   return "valueKind" in entity;

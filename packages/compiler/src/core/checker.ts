@@ -1,12 +1,5 @@
 import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
-import {
-  MultiKeyMap,
-  Mutable,
-  createRekeyableMap,
-  isArray,
-  isDefined,
-  mutate,
-} from "../utils/misc.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
@@ -277,7 +270,7 @@ export interface Checker {
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
 
   /** @internal */
-  getTypeOrValueForNode(node: Node): Type | Value;
+  getTypeOrValueForNode(node: Node): Type | Value | null;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -671,6 +664,9 @@ export function createChecker(program: Program): Checker {
 
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
     const typeOrValue = getTypeOrValueForNode(node, mapper, undefined);
+    if (typeOrValue === null) {
+      return errorType;
+    }
     if (isValue(typeOrValue)) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -684,41 +680,113 @@ export function createChecker(program: Program): Checker {
   }
 
   function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | null {
-    switch (node.kind) {
-      case SyntaxKind.ObjectLiteral:
-        return checkObjectLiteral(node, mapper);
-      case SyntaxKind.TupleLiteral:
-        return checkTupleLiteral(node, mapper);
-      case SyntaxKind.ConstStatement:
-        return checkConst(node);
-      case SyntaxKind.StringLiteral:
-      case SyntaxKind.StringTemplateExpression:
-        return checkStringValue(node, mapper, constraint);
-      case SyntaxKind.NumericLiteral:
-        return checkNumericValue(node, constraint);
-      case SyntaxKind.BooleanLiteral:
-        return checkBooleanValue(node, constraint);
-      case SyntaxKind.TypeReference:
-        return checkValueReference(node, mapper);
-      case SyntaxKind.CallExpression:
-        return checkCallExpression(node, mapper);
+    const entity = getTypeOrValueForNode(node, mapper, constraint);
+    if (entity === null || isValue(entity)) {
+      return entity;
+    }
+    // Some type can be converted to value in the right context
+    switch (entity.kind) {
+      case "String":
+      case "StringTemplate":
+        return checkStringValue(entity, mapper, constraint);
+      case "Number":
+        return checkNumericValue(entity, constraint);
+      case "Boolean":
+        return checkBooleanValue(entity, constraint);
       default:
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "expect-value",
-            format: { name: "?" }, // TODO: better message
+            format: { name: getTypeName(entity) },
             target: node,
           })
         );
         return null;
     }
+    // switch (node.kind) {
+    //   case SyntaxKind.ObjectLiteral:
+    //     return checkObjectValue(node, mapper);
+    //   case SyntaxKind.TupleLiteral:
+    //     return checkTupleValue(node, mapper);
+    //   case SyntaxKind.ConstStatement:
+    //     return checkConst(node);
+    //   case SyntaxKind.StringLiteral:
+    //   case SyntaxKind.StringTemplateExpression:
+    //     return checkStringValue(node, mapper, constraint);
+    //   case SyntaxKind.NumericLiteral:
+    //     return checkNumericValue(node, constraint);
+    //   case SyntaxKind.BooleanLiteral:
+    //     return checkBooleanValue(node, constraint);
+    //   case SyntaxKind.TypeReference:
+    //     return checkValueReference(node, mapper);
+    //   case SyntaxKind.CallExpression:
+    //     return checkCallExpression(node, mapper);
+    //   default:
+    //     reportCheckerDiagnostic(
+    //       createDiagnostic({
+    //         code: "expect-value",
+    //         format: { name: "?" }, // TODO: better message
+    //         target: node,
+    //       })
+    //     );
+    //     return null;
+    // }
   }
 
+  /**
+   * Gets a type or value depending on the node and current constraint.
+   * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
+   * This means that if the constraint is `string | valueof string` passing `"abc"` will send the value `"abc"` and not the type `"abc"`.
+   */
   function getTypeOrValueForNode(
     node: Node,
     mapper?: TypeMapper,
     constraint?: Type | ValueType | ParamConstraintUnion | undefined
-  ): Type | Value {
+  ): Type | Value | null {
+    const entity = getTypeOrValueForNodeInternal(node, mapper, constraint);
+    if (entity === null || isValue(entity)) {
+      return entity;
+    }
+
+    const valueConstraint = extractValueOfConstraints(constraint);
+    if (valueConstraint) {
+      switch (entity.kind) {
+        case "String":
+        case "StringTemplate":
+          return checkStringValue(entity, mapper, valueConstraint);
+        case "Number":
+          return checkNumericValue(entity, valueConstraint);
+        case "Boolean":
+          return checkBooleanValue(entity, valueConstraint);
+      }
+    }
+
+    return entity;
+  }
+
+  /** Extact the type constraint a value should match. */
+  function extractValueOfConstraints(
+    constraint: Type | ValueType | ParamConstraintUnion | undefined
+  ): Type | undefined {
+    if (constraint === undefined || isType(constraint)) {
+      return undefined;
+    }
+    if (constraint.kind === "Value") {
+      return constraint.target;
+    } else {
+      const valueOfOptions = constraint.options
+        .filter((x): x is ValueType => x.kind === "Value")
+        .map((x) => x.target);
+      return createUnion(valueOfOptions);
+    }
+  }
+
+  /** Do not call to be used inside getTypeOrValueForNode */
+  function getTypeOrValueForNodeInternal(
+    node: Node,
+    mapper?: TypeMapper,
+    constraint?: Type | ValueType | ParamConstraintUnion | undefined
+  ): Type | Value | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(node, mapper);
@@ -746,17 +814,11 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.OperationStatement:
         return checkOperation(node, mapper);
       case SyntaxKind.NumericLiteral:
-        return constraint?.kind === "Value"
-          ? checkNumericValue(node, constraint.target)
-          : checkNumericLiteral(node);
+        return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
-        return constraint?.kind === "Value"
-          ? checkBooleanValue(node, constraint.target)
-          : checkBooleanLiteral(node);
+        return checkBooleanLiteral(node);
       case SyntaxKind.StringLiteral:
-        return constraint?.kind === "Value"
-          ? checkStringValue(node, mapper, constraint.target)
-          : checkStringLiteral(node);
+        return checkStringLiteral(node);
       case SyntaxKind.TupleExpression:
         return checkTupleExpression(node, mapper);
       case SyntaxKind.StringTemplateExpression:
@@ -786,13 +848,13 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.UnknownKeyword:
         return unknownType;
       case SyntaxKind.ObjectLiteral:
-        return checkObjectLiteral(node, mapper);
+        return checkObjectValue(node, mapper);
       case SyntaxKind.TupleLiteral:
-        return checkTupleLiteral(node, mapper);
+        return checkTupleValue(node, mapper);
       case SyntaxKind.ConstStatement:
-        return checkConst(node) ?? errorType; // TODO: do we want that?
+        return checkConst(node);
       case SyntaxKind.CallExpression:
-        return checkCallExpression(node, mapper) ?? errorType; // TODO: do we want that?
+        return checkCallExpression(node, mapper);
       default:
         return errorType;
     }
@@ -935,7 +997,7 @@ export function createChecker(program: Program): Checker {
     function visit(node: Node) {
       const type = getTypeOrValueForNode(node);
       let hasError = false;
-      if ("kind" in type && type.kind === "TemplateParameter") {
+      if (type !== null && "kind" in type && type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
           if (type.node.symbol === templateParameters[i].symbol) {
             reportCheckerDiagnostic(
@@ -1008,7 +1070,7 @@ export function createChecker(program: Program): Checker {
   function checkTemplateArgument(
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined
-  ): Type | Value {
+  ): Type | Value | null {
     return getTypeOrValueForNode(node.argument, mapper);
   }
 
@@ -1121,7 +1183,7 @@ export function createChecker(program: Program): Checker {
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
       function deferredCheck(): [Node, Type | Value] {
-        return [arg, getTypeOrValueForNode(arg.argument, mapper)];
+        return [arg, getTypeOrValueForNode(arg.argument, mapper) ?? errorType];
       }
 
       if (arg.name) {
@@ -3163,10 +3225,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkObjectLiteral(
-    node: ObjectLiteralNode,
-    mapper: TypeMapper | undefined
-  ): ObjectValue {
+  function checkObjectValue(node: ObjectLiteralNode, mapper: TypeMapper | undefined): ObjectValue {
     return {
       valueKind: "ObjectValue",
       node: node,
@@ -3199,33 +3258,6 @@ export function createChecker(program: Program): Checker {
     return properties;
   }
 
-  function checkIsValue(type: Type | Value, diagnosticTarget: DiagnosticTarget): type is Value {
-    if (!isValue(type)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "expect-value",
-          format: { name: getTypeName(type) },
-          target: diagnosticTarget,
-        })
-      );
-      return false;
-    }
-    return true;
-  }
-
-  function checkIsType(type: Type | Value, diagnosticTarget: DiagnosticTarget): type is Type {
-    if (!isType(type)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "value-in-type",
-          target: diagnosticTarget,
-        })
-      );
-      return false;
-    }
-    return true;
-  }
-
   function checkObjectSpreadProperty(
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined
@@ -3242,21 +3274,25 @@ export function createChecker(program: Program): Checker {
     return value;
   }
 
-  function checkTupleLiteral(node: TupleLiteralNode, mapper: TypeMapper | undefined): ArrayValue {
-    const values = node.values
-      .map((itemNode) => {
-        const type = getTypeOrValueForNode(itemNode, mapper);
-        if (checkIsValue(type, itemNode)) {
-          return type;
-        } else {
-          return undefined; // TODO: do we want to omit this or include an error type?
-        }
-      })
-      .filter(isDefined);
+  function checkTupleValue(
+    node: TupleLiteralNode,
+    mapper: TypeMapper | undefined
+  ): ArrayValue | null {
+    let hasError = false;
+    const values = node.values.map((itemNode) => {
+      const value = getValueForNode(itemNode, mapper);
+      if (value === null) {
+        hasError = true;
+      }
+      return value;
+    });
+    if (hasError) {
+      return null;
+    }
     return {
       valueKind: "ArrayValue",
       node: node,
-      values,
+      values: values as any,
       type: null as any, // TODO: fix
     };
   }
@@ -3305,19 +3341,16 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkStringValue(
-    node: StringLiteralNode | StringTemplateExpressionNode,
+    literalType: StringLiteral | StringTemplate,
     mapper: TypeMapper | undefined,
     type: Type | undefined
   ): StringValue {
-    let literalType: StringLiteral | StringTemplate;
     let value: string;
-    if (node.kind === SyntaxKind.StringTemplateExpression) {
-      literalType = checkStringTemplateExpresion(node, mapper);
+    if (literalType.kind === "StringTemplate") {
       const [result, diagnostics] = stringTemplateToString(literalType);
       value = result;
       reportCheckerDiagnostics(diagnostics);
     } else {
-      literalType = getLiteralType(node);
       value = literalType.value;
     }
     const scalar = inferScalarForPrimitiveValue(getStdType("string"), type, literalType);
@@ -3329,24 +3362,21 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkNumericValue(node: NumericLiteralNode, type: Type | undefined): NumericValue {
-    const literalType = getLiteralType(node);
-
+  function checkNumericValue(literalType: NumericLiteral, type: Type | undefined): NumericValue {
     const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, literalType);
     return {
       valueKind: "NumericValue",
-      value: Numeric(node.valueAsString),
+      value: Numeric(literalType.valueAsString),
       type: literalType,
       scalar,
     };
   }
 
-  function checkBooleanValue(node: BooleanLiteralNode, type: Type | undefined): BooleanValue {
-    const literalType = getLiteralType(node);
+  function checkBooleanValue(literalType: BooleanLiteral, type: Type | undefined): BooleanValue {
     const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, literalType);
     return {
       valueKind: "BooleanValue",
-      value: node.value,
+      value: literalType.value,
       type: type ?? literalType,
       scalar,
     };
@@ -4219,7 +4249,7 @@ export function createChecker(program: Program): Checker {
 
   function checkDefault(defaultNode: Node, type: Type): Type | Value {
     const defaultType = getTypeOrValueForNode(defaultNode, undefined);
-    if (isErrorType(type)) {
+    if (defaultType === null || isErrorType(type)) {
       return errorType;
     }
     if (!isDefaultValue(defaultType)) {
@@ -4340,7 +4370,7 @@ export function createChecker(program: Program): Checker {
       return [
         false,
         node.arguments.map((argNode): DecoratorArgument => {
-          const type = getTypeOrValueForNode(argNode, mapper);
+          const type = getTypeOrValueForNode(argNode, mapper) ?? errorType;
           return {
             value: type,
             jsValue: type,
@@ -4403,8 +4433,9 @@ export function createChecker(program: Program): Checker {
             const argNode = node.arguments[i];
             if (argNode) {
               const arg = getTypeOrValueForNode(argNode, mapper, parameter.type);
-
               if (
+                arg !== null &&
+                !(isType(arg) && isErrorType(arg)) &&
                 checkArgumentAssignable(
                   arg,
                   parameter.type.kind === "Value" ? { kind: "Value", target: restType } : restType,
@@ -4427,7 +4458,11 @@ export function createChecker(program: Program): Checker {
       const argNode = node.arguments[index];
       if (argNode) {
         const arg = getTypeOrValueForNode(argNode, mapper, parameter.type);
-        if (checkArgumentAssignable(arg, parameter.type, argNode)) {
+        if (
+          arg !== null &&
+          !(isType(arg) && isErrorType(arg)) &&
+          checkArgumentAssignable(arg, parameter.type, argNode)
+        ) {
           resolvedArgs.push({
             value: arg,
             node: argNode,
