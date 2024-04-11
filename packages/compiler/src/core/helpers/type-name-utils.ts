@@ -73,7 +73,7 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
       return `${value.value}`;
     case "NumericValue":
       return `${value.value.toString()}`;
-    case "EnumMemberValue":
+    case "EnumValue":
       return getTypeName(value.value);
     case "NullValue":
       return "null";

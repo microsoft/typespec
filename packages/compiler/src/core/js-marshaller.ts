@@ -40,7 +40,7 @@ export function marshallTypeForJS<T extends Value>(type: T): MarshalledValue<T> 
       return objectValueToJs(type) as any;
     case "ArrayValue":
       return arrayValueToJs(type) as any;
-    case "EnumMemberValue":
+    case "EnumValue":
       return type.value as any;
     case "NullValue":
       return null as any;

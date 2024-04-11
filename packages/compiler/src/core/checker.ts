@@ -840,7 +840,7 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ObjectLiteral:
         return checkObjectValue(node, mapper);
       case SyntaxKind.TupleLiteral:
-        return checkTupleValue(node, mapper);
+        return checkArrayValue(node, mapper);
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.CallExpression:
@@ -3216,12 +3216,41 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkObjectValue(node: ObjectLiteralNode, mapper: TypeMapper | undefined): ObjectValue {
+    const properties = checkObjectLiteralProperties(node, mapper);
     return {
       valueKind: "ObjectValue",
       node: node,
-      properties: checkObjectLiteralProperties(node, mapper),
-      type: null as any, // TODO: fix
+      properties,
+      type: createTypeForObjectValue(properties),
     };
+  }
+
+  function createTypeForObjectValue(properties: Map<string, ObjectValuePropertyDescriptor>): Model {
+    return createAndFinishType({
+      kind: "Model",
+      name: "",
+      properties: createRekeyableMap<string, ModelProperty>(
+        [...properties.entries()].map(([name, prop]) => [
+          name,
+          createModelPropertyForObjectPropertyDescriptor(prop),
+        ])
+      ),
+      decorators: [],
+      derivedModels: [],
+    });
+  }
+
+  function createModelPropertyForObjectPropertyDescriptor(
+    prop: ObjectValuePropertyDescriptor
+  ): ModelProperty {
+    return createAndFinishType({
+      kind: "ModelProperty",
+      node: undefined!,
+      optional: false,
+      name: prop.name,
+      type: prop.value.type,
+      decorators: [],
+    });
   }
 
   function checkObjectLiteralProperties(
@@ -3264,7 +3293,7 @@ export function createChecker(program: Program): Checker {
     return value;
   }
 
-  function checkTupleValue(
+  function checkArrayValue(
     node: TupleLiteralNode,
     mapper: TypeMapper | undefined
   ): ArrayValue | null {
@@ -3283,8 +3312,16 @@ export function createChecker(program: Program): Checker {
       valueKind: "ArrayValue",
       node: node,
       values: values as any,
-      type: null as any, // TODO: fix
+      type: createTypeForArrayValue(values as any),
     };
+  }
+
+  function createTypeForArrayValue(values: Value[]): Tuple {
+    return createAndFinishType({
+      kind: "Tuple",
+      node: undefined!,
+      values: values.map((x) => x.type),
+    });
   }
 
   function findTypesMatching(base: Type, constraint: Type): Type[] {
