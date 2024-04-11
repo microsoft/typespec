@@ -137,6 +137,7 @@ import {
   ScalarConstructor,
   ScalarConstructorNode,
   ScalarStatementNode,
+  ScalarValue,
   StdTypeName,
   StdTypes,
   StringLiteral,
@@ -3382,7 +3383,7 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "non-callable",
-          format: { typeKind: target.kind },
+          format: { type: target.kind },
           target: node.target,
         })
       );
@@ -3427,6 +3428,104 @@ export function createChecker(program: Program): Checker {
     return { ...value, scalar, type: scalar } as any;
   }
 
+  function createScalarValue(
+    node: CallExpressionNode,
+    mapper: TypeMapper | undefined,
+    declaration: ScalarConstructor
+  ): ScalarValue | null {
+    let hasError = false;
+
+    const minArgs = declaration.parameters.filter((x) => !x.optional && !x.rest).length ?? 0;
+    const maxArgs = declaration.parameters[declaration.parameters.length - 1]?.rest
+      ? undefined
+      : declaration.parameters.length;
+
+    if (
+      node.arguments.length < minArgs ||
+      (maxArgs !== undefined && node.arguments.length > maxArgs)
+    ) {
+      // In the case we have too little args then this decorator is not applicable.
+      // If there is too many args then we can still run the decorator as long as the args are valid.
+      if (node.arguments.length < minArgs) {
+        hasError = true;
+      }
+
+      if (maxArgs === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-argument-count",
+            messageId: "atLeast",
+            format: { actual: node.arguments.length.toString(), expected: minArgs.toString() },
+            target: node,
+          })
+        );
+      } else {
+        const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-argument-count",
+            format: { actual: node.arguments.length.toString(), expected },
+            target: node,
+          })
+        );
+      }
+    }
+
+    const resolvedArgs: Value[] = [];
+
+    for (const [index, parameter] of declaration.parameters.entries()) {
+      if (parameter.rest) {
+        const restType =
+          parameter.type.kind === "ParamConstraintUnion" || parameter.type.kind === "Value" // TODO: change if we change this to not be a FunctionParameter
+            ? undefined
+            : getIndexType(parameter.type);
+        if (restType) {
+          for (let i = index; i < node.arguments.length; i++) {
+            const argNode = node.arguments[i];
+            if (argNode) {
+              const arg = getValueForNode(argNode, mapper, restType);
+              if (arg === null) {
+                hasError = true;
+                continue;
+              }
+              if (checkValueOfType(arg, restType, argNode)) {
+                resolvedArgs.push(arg);
+              } else {
+                hasError = true;
+              }
+            }
+          }
+        }
+        break;
+      }
+      const argNode = node.arguments[index];
+      if (argNode) {
+        const arg = getValueForNode(argNode, mapper, parameter.type as any); // TODO: change if we change this to not be a FunctionParameter
+        if (arg === null) {
+          hasError = true;
+          continue;
+        }
+        if (checkValueOfType(arg, parameter.type as any, argNode)) {
+          resolvedArgs.push(arg);
+        } else {
+          hasError = true;
+        }
+      }
+    }
+    if (hasError) {
+      return null;
+    }
+    return {
+      valueKind: "ScalarValue",
+      value: {
+        name: declaration.name,
+        args: resolvedArgs,
+      },
+      scalar: declaration.scalar,
+      type: declaration.scalar,
+    };
+  }
+
   // TODO: should those be called eval?
   function checkCallExpression(
     node: CallExpressionNode,
@@ -3437,19 +3536,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     if (target.kind === "ScalarConstructor") {
-      const args = node.arguments.map((x) => getValueForNode(x, mapper));
-      if (args.some((x) => x === null)) {
-        return null;
-      }
-      return {
-        valueKind: "ScalarValue",
-        value: {
-          name: target.name,
-          args: args as Value[],
-        },
-        scalar: target.scalar,
-        type: target,
-      };
+      return createScalarValue(node, mapper, target);
     }
 
     if (areScalarsRelated(target, getStdType("string"))) {

@@ -797,7 +797,7 @@ export const enum SymbolFlags {
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface | Scalar,
-  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
+  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ScalarMember,
 }
 
 /**

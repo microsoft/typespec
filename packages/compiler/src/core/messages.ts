@@ -413,7 +413,7 @@ const diagnostics = {
   "non-callable": {
     severity: "error",
     messages: {
-      default: paramMessage`Type ${"typeKind"} is not is not callable.`,
+      default: paramMessage`Type ${"type"} is not is not callable.`,
     },
   },
   "named-init-required": {
