@@ -250,7 +250,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       const suggestions: monaco.languages.CompletionItem[] = [];
       for (const item of result.items) {
         let itemRange = range;
-        let insertText = item.insertText!;
+        let insertText = item.insertText ?? item.label;
         if (item.textEdit && "range" in item.textEdit) {
           itemRange = LspToMonaco.range(item.textEdit.range);
           insertText = item.textEdit.newText;
