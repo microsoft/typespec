@@ -39,9 +39,10 @@ function getTypeSignature(type: Type | ValueType): string {
     case "Model":
     case "Namespace":
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
+    case "ScalarConstructor":
+      return fence(`init ${getTypeSignature(type.scalar)}.${type.name}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
-
     case "Function":
       return fence(getFunctionSignature(type));
     case "Operation":

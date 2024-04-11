@@ -53,6 +53,9 @@ export async function resolveCompletion(
       case SyntaxKind.NamespaceStatement:
         addKeywordCompletion("namespace", completions);
         break;
+      case SyntaxKind.ScalarStatement:
+        addKeywordCompletion("scalar", completions);
+        break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
         addIdentifierCompletion(context, node);
@@ -72,6 +75,7 @@ interface KeywordArea {
   namespace?: boolean;
   model?: boolean;
   identifier?: boolean;
+  scalar?: boolean;
 }
 
 const keywords = [
@@ -90,6 +94,7 @@ const keywords = [
   ["op", { root: true, namespace: true }],
   ["dec", { root: true, namespace: true }],
   ["fn", { root: true, namespace: true }],
+  ["const", { root: true, namespace: true }],
 
   // On model `model Foo <keyword> ...`
   ["extends", { model: true }],
@@ -104,6 +109,9 @@ const keywords = [
 
   // Modifiers
   ["extern", { root: true, namespace: true }],
+
+  // Scalars
+  ["init", { scalar: true }],
 ] as const;
 
 function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {

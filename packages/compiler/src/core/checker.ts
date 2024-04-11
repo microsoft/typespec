@@ -51,6 +51,7 @@ import {
   BooleanLiteral,
   BooleanLiteralNode,
   BooleanValue,
+  CallExpressionNode,
   CodeFix,
   ConstStatementNode,
   DecoratedType,
@@ -132,6 +133,8 @@ import {
   ReturnExpressionNode,
   ReturnRecord,
   Scalar,
+  ScalarConstructor,
+  ScalarConstructorNode,
   ScalarStatementNode,
   StdTypeName,
   StdTypes,
@@ -659,6 +662,8 @@ export function createChecker(program: Program): Checker {
         return checkOperation(node, mapper, containerType as Interface);
       case SyntaxKind.UnionVariant:
         return checkUnionVariant(node, mapper);
+      case SyntaxKind.ScalarConstructor:
+        return checkScalarConstructor(node, mapper, containerType as Scalar);
     }
   }
 
@@ -685,13 +690,15 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.StringLiteral:
-        return checkStringValue(node);
+        return checkStringValue(node, undefined);
       case SyntaxKind.NumericLiteral:
-        return checkNumericValue(node);
+        return checkNumericValue(node, undefined);
       case SyntaxKind.BooleanLiteral:
-        return checkBooleanValue(node);
+        return checkBooleanValue(node, undefined);
       case SyntaxKind.TypeReference:
         return checkValueReference(node, mapper);
+      case SyntaxKind.CallExpression:
+        return checkCallExpression(node, mapper);
       default:
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -736,11 +743,17 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.OperationStatement:
         return checkOperation(node, mapper);
       case SyntaxKind.NumericLiteral:
-        return constraint?.kind === "Value" ? checkNumericValue(node) : checkNumericLiteral(node);
+        return constraint?.kind === "Value"
+          ? checkNumericValue(node, undefined)
+          : checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
-        return constraint?.kind === "Value" ? checkBooleanValue(node) : checkBooleanLiteral(node);
+        return constraint?.kind === "Value"
+          ? checkBooleanValue(node, undefined)
+          : checkBooleanLiteral(node);
       case SyntaxKind.StringLiteral:
-        return constraint?.kind === "Value" ? checkStringValue(node) : checkStringLiteral(node);
+        return constraint?.kind === "Value"
+          ? checkStringValue(node, undefined)
+          : checkStringLiteral(node);
       case SyntaxKind.TupleExpression:
         return checkTupleExpression(node, mapper);
       case SyntaxKind.StringTemplateExpression:
@@ -3243,30 +3256,30 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkStringValue(node: StringLiteralNode): StringValue {
+  function checkStringValue(node: StringLiteralNode, scalar: Scalar | undefined): StringValue {
     return {
       valueKind: "StringValue",
       value: node.value,
       type: getLiteralType(node),
-      scalar: undefined,
+      scalar,
     };
   }
 
-  function checkNumericValue(node: NumericLiteralNode): NumericValue {
+  function checkNumericValue(node: NumericLiteralNode, scalar: Scalar | undefined): NumericValue {
     return {
       valueKind: "NumericValue",
       value: Numeric(node.valueAsString),
       type: getLiteralType(node),
-      scalar: undefined,
+      scalar,
     };
   }
 
-  function checkBooleanValue(node: BooleanLiteralNode): BooleanValue {
+  function checkBooleanValue(node: BooleanLiteralNode, scalar: Scalar | undefined): BooleanValue {
     return {
       valueKind: "BooleanValue",
       value: node.value,
       type: getLiteralType(node),
-      scalar: undefined,
+      scalar,
     };
   }
 
@@ -3288,6 +3301,82 @@ export function createChecker(program: Program): Checker {
 
     const value = checkValueReferenceSymbol(sym, node, mapper);
     return value;
+  }
+
+  // TODO: should those be called eval?
+  function checkCallExpression(
+    node: CallExpressionNode,
+    mapper: TypeMapper | undefined
+  ): Value | undefined {
+    const target = checkTypeReference(node.target, mapper);
+    if (target.kind !== "Scalar" && target.kind !== "ScalarConstructor") {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "non-callable",
+          format: { typeKind: target.kind },
+          target: node.target,
+        })
+      );
+      return undefined;
+    }
+
+    if (target.kind === "ScalarConstructor") {
+      const args = node.arguments.map((x) => getValueForNode(x, mapper)).filter(isDefined);
+      return {
+        valueKind: "ScalarValue",
+        value: {
+          name: "abc",
+          args,
+        },
+        scalar: target.scalar,
+        type: target,
+      };
+    }
+
+    const checkPrimitiveArg = <T extends SyntaxKind>(kind: T): (Node & { kind: T }) | undefined => {
+      if (node.arguments.length !== 1) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-primitive-init",
+            target: node.target,
+          })
+        );
+        return undefined;
+      }
+      const arg = node.arguments[0];
+      if (arg.kind !== kind) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-primitive-init",
+            messageId: "invalidArg",
+            format: { actual: SyntaxKind[arg.kind], expected: SyntaxKind[kind] },
+            target: arg,
+          })
+        );
+        return undefined;
+      }
+      return arg as any;
+    };
+
+    if (areScalarsRelated(target, getStdType("string"))) {
+      const arg = checkPrimitiveArg(SyntaxKind.StringLiteral);
+      return arg ? checkStringValue(arg, target) : undefined;
+    } else if (areScalarsRelated(target, getStdType("numeric"))) {
+      const arg = checkPrimitiveArg(SyntaxKind.NumericLiteral);
+      return arg ? checkNumericValue(arg, target) : undefined;
+    } else if (areScalarsRelated(target, getStdType("boolean"))) {
+      const arg = checkPrimitiveArg(SyntaxKind.BooleanLiteral);
+      return arg ? checkBooleanValue(arg, target) : undefined;
+    } else {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "named-init-required",
+          format: { typeKind: target.kind },
+          target: node.target,
+        })
+      );
+      return undefined;
+    }
   }
 
   function createUnion(options: Type[]): Union {
@@ -3386,6 +3475,15 @@ export function createChecker(program: Program): Checker {
               const name = prop.id.sv;
               bindMember(name, prop, SymbolFlags.ModelProperty);
             }
+          }
+          break;
+        case SyntaxKind.ScalarStatement:
+          if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
+            resolveAndCopyMembers(node.extends);
+          }
+          for (const member of node.members) {
+            const name = member.id.sv;
+            bindMember(name, member, SymbolFlags.ScalarMember);
           }
           break;
         case SyntaxKind.ModelExpression:
@@ -3592,6 +3690,11 @@ export function createChecker(program: Program): Checker {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
           lateBindMember(prop, SymbolFlags.ModelProperty);
+        }
+        break;
+      case "Scalar":
+        for (const member of type.constructors.values()) {
+          lateBindMember(member, SymbolFlags.Member);
         }
         break;
       case "Enum":
@@ -4262,10 +4365,12 @@ export function createChecker(program: Program): Checker {
       kind: "Scalar",
       name: node.id.sv,
       node: node,
+      constructors: new Map(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedScalars: [],
     });
+    checkScalarConstructors(type, node, type.constructors, mapper);
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -4331,6 +4436,58 @@ export function createChecker(program: Program): Checker {
     }
 
     return extendsType;
+  }
+
+  function checkScalarConstructors(
+    parentScalar: Scalar,
+    node: ScalarStatementNode,
+    constructors: Map<string, ScalarConstructor>,
+    mapper: TypeMapper | undefined
+  ) {
+    for (const member of node.members) {
+      const constructor = checkScalarConstructor(member, mapper, parentScalar);
+      if (constructors.has(constructor.name as string)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "constructor-duplicate",
+            format: { name: constructor.name.toString() },
+            target: member,
+          })
+        );
+        continue;
+      }
+      constructors.set(constructor.name, constructor);
+    }
+  }
+
+  function checkScalarConstructor(
+    node: ScalarConstructorNode,
+    mapper: TypeMapper | undefined,
+    parentScalar: Scalar
+  ): ScalarConstructor {
+    const name = node.id.sv;
+    const links = getSymbolLinksForMember(node);
+    if (links && links.declaredType && mapper === undefined) {
+      // we're not instantiating this union variant and we've already checked it
+      return links.declaredType as ScalarConstructor;
+    }
+
+    const member: ScalarConstructor = createType({
+      kind: "ScalarConstructor",
+      scalar: parentScalar,
+      name,
+      node,
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+    });
+    linkMapper(member, mapper);
+    if (shouldCreateTypeForTemplate(node.parent!, mapper)) {
+      finishType(member);
+    }
+    if (links) {
+      linkType(links, member, mapper);
+    }
+
+    return finishType(member);
   }
 
   function checkAlias(node: AliasStatementNode, mapper: TypeMapper | undefined): Type {

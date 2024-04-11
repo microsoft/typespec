@@ -105,12 +105,22 @@ scalar plainTime;
 /**
  * An instant in coordinated universal time (UTC)"
  */
-scalar utcDateTime;
+scalar utcDateTime {
+  /**
+   * Create a date from an ISO string.
+   */
+  init fromISO(value: string);
+}
 
 /**
  * A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"
  */
-scalar offsetDateTime;
+scalar offsetDateTime {
+  /**
+   * Create a date from an ISO string.
+   */
+  init fromISO(value: string);
+}
 
 /**
  * A duration/time period. e.g 5s, 10h

@@ -117,6 +117,7 @@ export type Type =
   | Operation
   | Projection
   | Scalar
+  | ScalarConstructor
   | StringLiteral
   | StringTemplate
   | StringTemplateSpan
@@ -387,11 +388,21 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
    */
   derivedScalars: Scalar[];
 
+  constructors: Map<string, ScalarConstructor>;
   /**
-   * Late-bound symbol of this model type.
+   * Late-bound symbol of this scalar type.
    * @internal
    */
   symbol?: Sym;
+}
+
+// TODO: should we just call that Constructor or NamedConstructor for future proof?
+export interface ScalarConstructor extends BaseType {
+  kind: "ScalarConstructor";
+  node: ScalarConstructorNode;
+  name: string;
+  scalar: Scalar;
+  parameters: FunctionParameter[];
 }
 
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -769,18 +780,19 @@ export const enum SymbolFlags {
   Declaration           = 1 << 22,
   Implementation        = 1 << 23,
   Const                 = 1 << 24,
+  ScalarMember          = 1 << 25,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 25,
+  LateBound = 1 << 26,
 
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
-  MemberContainer = Model | Enum | Union | Interface,
+  MemberContainer = Model | Enum | Union | Interface | Scalar,
   Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
 }
 
@@ -1039,9 +1051,10 @@ export type MemberNode =
   | ModelPropertyNode
   | EnumMemberNode
   | OperationStatementNode
-  | UnionVariantNode;
+  | UnionVariantNode
+  | ScalarConstructorNode;
 
-export type MemberContainerType = Model | Enum | Interface | Union;
+export type MemberContainerType = Model | Enum | Interface | Union | Scalar;
 
 /**
  * Type that can be used as members of a container type.

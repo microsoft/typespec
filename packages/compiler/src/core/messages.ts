@@ -410,6 +410,25 @@ const diagnostics = {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
     },
   },
+  "non-callable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type ${"typeKind"} is not is not callable.`,
+    },
+  },
+  "named-init-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Only scalar deriving from 'string', 'numeric' or 'boolean' can be instantited without a named constructor.`,
+    },
+  },
+  "invalid-primitive-init": {
+    severity: "error",
+    messages: {
+      default: `Instantiating scalar deriving from 'string', 'numeric' or 'boolean' can only take a single argument.`,
+      invalidArg: paramMessage`Expected a single argument of type ${"expected"} but got ${"actual"}.`,
+    },
+  },
   unassignable: {
     severity: "error",
     messages: {
@@ -475,6 +494,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Enum already has a member named ${"name"}`,
+    },
+  },
+  "constructor-duplicate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`A constructor already exists with name ${"name"}`,
     },
   },
   "spread-enum": {
