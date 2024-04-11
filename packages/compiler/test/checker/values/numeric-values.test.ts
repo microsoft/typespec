@@ -61,7 +61,7 @@ describe("implicit type", () => {
     expectDiagnostics(diagnostics, {
       code: "ambiguous-scalar-type",
       message:
-        "Value 123 type is ambiguous between int32, int64. To resolve be explicit when instantiating this value(e.g. 'int32(123)')",
+        "Value 123 type is ambiguous between int32, int64. To resolve be explicit when instantiating this value(e.g. 'int32(123)').",
     });
   });
 });

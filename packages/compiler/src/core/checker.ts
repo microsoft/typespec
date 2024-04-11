@@ -4597,6 +4597,11 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkConst(node: ConstStatementNode): Value | undefined {
+    const links = getSymbolLinks(node.symbol);
+    if (links.value) {
+      return links.value;
+    }
+
     const type = node.type ? getTypeForNode(node.type, undefined) : undefined;
 
     const symId = getSymbolId(node.symbol);
@@ -4617,7 +4622,8 @@ export function createChecker(program: Program): Checker {
     if (value === undefined) {
       return undefined;
     }
-    return type ? { ...value, type } : { ...value };
+    links.value = type ? { ...value, type } : { ...value };
+    return links.value;
   }
 
   function checkEnum(node: EnumStatementNode, mapper: TypeMapper | undefined): Type {

@@ -738,10 +738,13 @@ export interface Sym {
 export interface SymbolLinks {
   type?: Type;
 
-  // for types which can be instantiated, we split `type` into declaredType and
-  // a map of instantiations.
+  /** For types that can be instanitated this is the type of the declaration */
   declaredType?: Type;
+  /** For types that can be instanitated those are the types per instantiation */
   instantiations?: TypeInstantiationMap;
+
+  /** For const statements the value of the const */
+  value?: Value;
 }
 
 /**
