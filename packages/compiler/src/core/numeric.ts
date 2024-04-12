@@ -142,9 +142,8 @@ function parse(original: string): InternalData {
 function stringify(value: InternalData) {
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
-  const extra = value.e > n.length ? "0".repeat(value.e - n.length) : "";
   const decimal = value.e < n.length ? "." + n.slice(value.e) : "";
-  return sign + n.slice(0, value.e) + extra + decimal;
+  return sign + n.slice(0, value.e) + decimal;
 }
 const equals = (a: InternalData, b: InternalData) => a.n === b.n && a.e === b.e;
 
