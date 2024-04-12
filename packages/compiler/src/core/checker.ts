@@ -5561,7 +5561,7 @@ export function createChecker(program: Program): Checker {
       isArrayModelType(program, target) &&
       source.kind === "Model"
     ) {
-      return areIndexAreCompatible(
+      return hasIndexAndIsAssignableTo(
         source,
         target as Model & { indexer: ModelIndexer },
         diagnosticTarget,
@@ -5766,7 +5766,7 @@ export function createChecker(program: Program): Checker {
 
       // For anonymous models we don't need an indexer
       if (source.name !== "" && target.indexer.key.name !== "integer") {
-        const [related, indexDiagnostics] = areIndexAreCompatible(
+        const [related, indexDiagnostics] = hasIndexAndIsAssignableTo(
           source,
           target as any,
           diagnosticTarget,
@@ -5809,7 +5809,8 @@ export function createChecker(program: Program): Checker {
     return [Related.true, []];
   }
 
-  function areIndexAreCompatible(
+  /** Check that the source model has an index, the index key match and the value of the source index is assignable to the target index. */
+  function hasIndexAndIsAssignableTo(
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget,
