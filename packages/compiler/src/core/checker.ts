@@ -273,7 +273,7 @@ export interface Checker {
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
 
   /** @internal */
-  getTypeOrValueForNode(node: Node): Type | Value | null;
+  getValueForNode(node: Node): Value | null;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -430,7 +430,7 @@ export function createChecker(program: Program): Checker {
     isStdType,
     getStdType,
     resolveTypeReference,
-    getTypeOrValueForNode,
+    getValueForNode,
   };
 
   const projectionMembers = createProjectionMembers(checker);

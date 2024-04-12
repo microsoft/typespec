@@ -267,6 +267,7 @@ const ScalarUI: FunctionComponent<{ type: Scalar }> = ({ type }) => {
       properties={{
         baseScalar: "ref",
         derivedScalars: "ref",
+        constructors: "nested",
       }}
     />
   );

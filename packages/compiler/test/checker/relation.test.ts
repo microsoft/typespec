@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
-  AliasStatementNode,
+  ConstStatementNode,
   Diagnostic,
   FunctionParameterNode,
   Model,
@@ -74,14 +74,14 @@ describe("compiler: checker: type relations", () => {
     ${commonCode ?? ""}
     extern dec mock(target: unknown, target: ${target});
 
-    alias Source = ${cursor}${source};
+    const Source = ${cursor}${source};
    `);
     await runner.compile(code);
-    const alias: AliasStatementNode | undefined = runner.program.sourceFiles
+    const constStatement = runner.program.sourceFiles
       .get(resolveVirtualPath("main.tsp"))
-      ?.statements.find((x): x is AliasStatementNode => x.kind === SyntaxKind.AliasStatement);
-    ok(alias);
-    const sourceProp = runner.program.checker.getTypeOrValueForNode(alias.value);
+      ?.statements.find((x): x is ConstStatementNode => x.kind === SyntaxKind.ConstStatement);
+    ok(constStatement);
+    const sourceProp = runner.program.checker.getValueForNode(constStatement.value);
     ok(sourceProp, `Could not find source type for ${source}`);
     const decDeclaration = runner.program
       .getGlobalNamespaceType()
@@ -92,7 +92,7 @@ describe("compiler: checker: type relations", () => {
     const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
       sourceProp,
       targetProp,
-      alias.value
+      constStatement.value
     );
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
@@ -463,9 +463,9 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
     });
 
-    it("can assign numeric literal between -9223372036854775807 and 9223372036854775808", async () => {
-      await expectTypeAssignable({ source: "-9223372036854775807", target: "int64" });
-      await expectTypeAssignable({ source: "9223372036854775808", target: "int64" });
+    it("can assign numeric literal between -9223372036854775808 and 9223372036854775807", async () => {
+      await expectTypeAssignable({ source: "-9223372036854775808", target: "int64" });
+      await expectTypeAssignable({ source: "9223372036854775807", target: "int64" });
     });
 
     it("emit diagnostic when numeric literal is out of range large", async () => {
@@ -1127,11 +1127,11 @@ describe("compiler: checker: type relations", () => {
   describe("Value constraint", () => {
     describe("valueof string", () => {
       it("can assign string literal", async () => {
-        await expectTypeAssignable({ source: `"foo bar"`, target: "valueof string" });
+        await checkValueAssignable({ source: `"foo bar"`, target: "string" });
       });
 
       it("cannot assign numeric literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `123`, target: "valueof string" },
           {
             code: "unassignable",
@@ -1153,11 +1153,11 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof boolean", () => {
       it("can assign boolean literal", async () => {
-        await expectTypeAssignable({ source: `true`, target: "valueof boolean" });
+        await expectValueAssignable({ source: `true`, target: "valueof boolean" });
       });
 
       it("cannot assign numeric literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `123`, target: "valueof boolean" },
           {
             code: "unassignable",
@@ -1179,7 +1179,7 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof int16", () => {
       it("can assign int16 literal", async () => {
-        await expectTypeAssignable({ source: `12`, target: "valueof int16" });
+        await expectValueAssignable({ source: `12`, target: "valueof int16" });
       });
 
       it("can assign valueof int8", async () => {
@@ -1187,17 +1187,17 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign int too large", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `123456`, target: "valueof int16" },
           {
             code: "unassignable",
-            message: "Type '123456' is not assignable to type 'valueof int16'",
+            message: "Type '123456' is not assignable to type 'int16'",
           }
         );
       });
 
       it("cannot assign float", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `12.6`, target: "valueof int16" },
           {
             code: "unassignable",
@@ -1207,7 +1207,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign string literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `"foo bar"`, target: "valueof int16" },
           {
             code: "unassignable",
@@ -1229,11 +1229,11 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof float32", () => {
       it("can assign float32 literal", async () => {
-        await expectTypeAssignable({ source: `12.6`, target: "valueof float32" });
+        await expectValueAssignable({ source: `12.6`, target: "valueof float32" });
       });
 
       it("cannot assign string literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           { source: `"foo bar"`, target: "valueof float32" },
           {
             code: "unassignable",
@@ -1518,14 +1518,14 @@ describe("compiler: checker: type relations", () => {
 
     describe("can assign types or values when constraint accept both", () => {
       it.each([
-        ["{}", "(valueof unknown) | unknown"],
         ["#{}", "(valueof unknown) | unknown"],
-        ["{}", "(valueof {}) | {}"],
         ["#{}", "(valueof {}) | {}"],
       ])(`%s => %s`, async (source, target) => {
         await expectValueAssignable({ source, target });
       });
       it.each([
+        ["{}", "(valueof unknown) | unknown"],
+        ["{}", "(valueof {}) | {}"],
         ["(valueof {}) | {}", "(valueof {}) | {} | (valueof []) | []"],
         ["(valueof {}) | {}", "(valueof {}) | {}"],
       ])(`%s => %s`, async (source, target) => {
