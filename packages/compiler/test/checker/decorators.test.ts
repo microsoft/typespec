@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { setTypeSpecNamespace } from "../../src/core/index.js";
+import { numericRanges, setTypeSpecNamespace } from "../../src/core/index.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
   BasicTestRunner,
@@ -333,23 +333,49 @@ describe("compiler: checker: decorators", () => {
       });
 
       describe("passing a numeric literal", () => {
-        it.each([
-          ["int8", "number"],
-          ["uint8", "number"],
-          ["int16", "number"],
-          ["uint16", "number"],
-          ["int32", "number"],
-          ["uint32", "number"],
+        const explicit: Required<Record<keyof typeof numericRanges, string>> = {
+          int8: "number",
+          uint8: "number",
+          int16: "number",
+          uint16: "number",
+          int32: "number",
+          uint32: "number",
+          safeint: "number",
+          float32: "number",
+          float64: "number",
           // Unsafe to convert to JS Number
-          ["int64", "Numeric"],
-        ])("valueof %s marshal to a %s", async (type, expectedKind) => {
-          const arg = await testCallDecorator(`valueof ${type}`, `123`);
-          if (expectedKind === "number") {
-            strictEqual(arg, 123);
-          } else {
-            deepStrictEqual(arg, Numeric("123"));
+          int64: "Numeric",
+          uint64: "Numeric",
+        };
+
+        const others = [
+          ["integer", "Numeric"],
+          ["numeric", "Numeric"],
+          ["float", "Numeric"],
+          ["decimal", "Numeric"],
+          ["decimal128", "Numeric"],
+
+          // Union of safe numeric
+          ["int8 | int16", "number", "int8(123)"],
+
+          // Union of unsafe numeric
+          ["int64 | decimal128", "Numeric", "int8(123)"],
+
+          // Union of safe and unsafe numeric
+          ["int64 | float64", "Numeric", "int8(123)"],
+        ];
+
+        it.each([...Object.entries(explicit), ...others])(
+          "valueof %s marshal to a %s",
+          async (type, expectedKind, cstr) => {
+            const arg = await testCallDecorator(`valueof ${type}`, cstr ?? `123`);
+            if (expectedKind === "number") {
+              strictEqual(arg, 123);
+            } else {
+              deepStrictEqual(arg, Numeric("123"));
+            }
           }
-        });
+        );
       });
 
       describe("passing a boolean literal", () => {

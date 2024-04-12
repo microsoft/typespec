@@ -60,7 +60,7 @@ function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
   if (type === undefined) return true;
   switch (type.kind) {
     case "Scalar":
-      return numericRanges[type.name][2].isJsNumber;
+      return numericRanges[type.name as keyof typeof numericRanges]?.[2].isJsNumber;
     case "Union":
       return [...type.variants.values()].every((x) => canNumericConstraintBeJsNumber(x.type));
     default:

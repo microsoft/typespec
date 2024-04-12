@@ -845,7 +845,6 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.UnknownKeyword:
         return unknownType;
       case SyntaxKind.ObjectLiteral:
-        console.trace("Checking", valueConstraint);
         return checkObjectValue(node, mapper, valueConstraint);
       case SyntaxKind.TupleLiteral:
         return checkArrayValue(node, mapper, valueConstraint);
@@ -6773,7 +6772,7 @@ export function createChecker(program: Program): Checker {
     if (target.name === "float") return true;
 
     if (!(target.name in numericRanges)) return false;
-    const [low, high, options] = numericRanges[target.name];
+    const [low, high, options] = numericRanges[target.name as keyof typeof numericRanges];
     return source.gte(low) && source.lte(high) && (!options.int || isInt);
   }
 
@@ -7130,10 +7129,7 @@ function isAnonymous(type: Type) {
   return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
 
-export const numericRanges: Record<
-  string,
-  [min: Numeric, max: Numeric, options: { int: boolean; isJsNumber: boolean }]
-> = {
+export const numericRanges = {
   int64: [
     Numeric("-9223372036854775808"),
     Numeric("9223372036854775807"),
@@ -7142,7 +7138,7 @@ export const numericRanges: Record<
   int32: [Numeric("-2147483648"), Numeric("2147483647"), { int: true, isJsNumber: true }],
   int16: [Numeric("-32768"), Numeric("32767"), { int: true, isJsNumber: true }],
   int8: [Numeric("-128"), Numeric("127"), { int: true, isJsNumber: true }],
-  uint64: [Numeric("0"), Numeric("18446744073709551615"), { int: true, isJsNumber: true }],
+  uint64: [Numeric("0"), Numeric("18446744073709551615"), { int: true, isJsNumber: false }],
   uint32: [Numeric("0"), Numeric("4294967295"), { int: true, isJsNumber: true }],
   uint16: [Numeric("0"), Numeric("65535"), { int: true, isJsNumber: true }],
   uint8: [Numeric("0"), Numeric("255"), { int: true, isJsNumber: true }],
@@ -7157,7 +7153,10 @@ export const numericRanges: Record<
     Numeric(Number.MAX_VALUE.toString()),
     { int: false, isJsNumber: true },
   ],
-};
+} as const satisfies Record<
+  string,
+  [min: Numeric, max: Numeric, options: { int: boolean; isJsNumber: boolean }]
+>;
 
 /**
  * Find all named models that could have been the source of the given
