@@ -704,6 +704,7 @@ export function createChecker(program: Program): Checker {
     return null;
   }
 
+  /** In certain context for types that can also be value if the constraint allows it we try to use it as a value instead of a type. */
   function tryUsingValueOfType(
     type: Type,
     constraint: CheckValueConstraint | undefined,
@@ -719,6 +720,8 @@ export function createChecker(program: Program): Checker {
         return checkBooleanValue(type, constraint, node);
       case "EnumMember":
         return checkEnumValue(type, constraint, node);
+      case "UnionVariant":
+        return tryUsingValueOfType(type.type, constraint, node);
       case "Intrinsic":
         switch (type.name) {
           case "null":
