@@ -19,7 +19,7 @@ extends:
             displayName: Initialize
             steps:
               - pwsh: |
-                  get-childitem env:
+                  Get-ChildItem env: | Format-List
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
                 name: InitStep

@@ -106,7 +106,7 @@ $root = [TreeNode]::new('Root')
 Write-Host "Checking for changes in current branch compared to $TargetBranch"
 $result = git diff --name-only $TargetBranch"..."
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "'git diff --name-only $TargetBranch...' failed, exiting..."
+    Write-Host "##[error] 'git diff --name-only $TargetBranch...' failed, exiting..."
     exit 1  # Exit with a non-zero exit code to indicate failure
 }
 $result | ForEach-Object {
