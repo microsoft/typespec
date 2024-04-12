@@ -96,7 +96,7 @@ class TreeNode {
 $root = [TreeNode]::new('Root')
 
 # add all changed files to the tree
-git diff --name-only main... | ForEach-Object {
+git diff --name-only HEAD $(git merge-base HEAD main) | ForEach-Object {
     $root.Add($_)
 }
 
