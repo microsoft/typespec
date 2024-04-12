@@ -20,7 +20,7 @@ extends:
             steps:
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
-                name: ci_analyze_changes
+                name: InitStep
                 inputs:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
