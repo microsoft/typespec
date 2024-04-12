@@ -358,8 +358,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
-    if (prop.default) {
-      additionalProps.default = getDefaultValue(program, prop.type, prop.default);
+    if (prop.defaultValue) {
+      additionalProps.default = getDefaultValue(program, prop.defaultValue);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -980,47 +980,24 @@ const B = {
   },
 } as const;
 
-export function getDefaultValue(program: Program, type: Type, defaultType: Type | Value): any {
-  switch (defaultType.kind) {
-    case "String":
+export function getDefaultValue(program: Program, defaultType: Value): any {
+  switch (defaultType.valueKind) {
+    case "StringValue":
       return defaultType.value;
-    case "Number":
+    case "NumericValue":
+      return defaultType.value.asNumber() ?? undefined;
+    case "BooleanValue":
       return defaultType.value;
-    case "Boolean":
-      return defaultType.value;
-    case "Tuple":
-    case "TupleLiteral":
-      compilerAssert(
-        type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-        "setting tuple default to non-tuple value"
-      );
-
-      if (type.kind === "Tuple") {
-        return defaultType.values.map((defaultTupleValue, index) =>
-          getDefaultValue(program, type.values[index], defaultTupleValue)
-        );
-      } else {
-        return defaultType.values.map((defaultTuplevalue) =>
-          getDefaultValue(program, type.indexer!.value, defaultTuplevalue)
-        );
-      }
-
-    case "Intrinsic":
-      return isNullType(defaultType)
-        ? null
-        : reportDiagnostic(program, {
-            code: "invalid-default",
-            format: { type: defaultType.kind },
-            target: defaultType,
-          });
-    case "EnumMember":
-      return defaultType.value ?? defaultType.name;
-    case "UnionVariant":
-      return getDefaultValue(program, type, defaultType.type);
+    case "ArrayValue":
+      return defaultType.values.map((x) => getDefaultValue(program, x));
+    case "NullValue":
+      return null;
+    case "EnumValue":
+      return defaultType.value.value ?? defaultType.value.name;
     default:
       reportDiagnostic(program, {
         code: "invalid-default",
-        format: { type: defaultType.kind },
+        format: { type: defaultType.valueKind },
         target: defaultType,
       });
   }

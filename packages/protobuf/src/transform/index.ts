@@ -1041,6 +1041,7 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
 
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
+    case SyntaxKind.ObjectLiteralProperty:
       return node.id;
     case SyntaxKind.ModelSpreadProperty:
       return node;

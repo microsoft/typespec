@@ -390,7 +390,7 @@ function createOAPIEmitter(
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(program, prop.type, prop.default) : "",
+          default: prop.defaultValue ? getDefaultValue(program, prop.defaultValue) : "",
           description: getDoc(program, prop),
         };
 
@@ -1276,8 +1276,8 @@ function createOAPIEmitter(
       return undefined;
     }
     const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
-    if (param.default) {
-      schema.default = getDefaultValue(program, param.type, param.default);
+    if (param.defaultValue) {
+      schema.default = getDefaultValue(program, param.defaultValue);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
