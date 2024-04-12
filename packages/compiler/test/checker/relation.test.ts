@@ -1191,7 +1191,7 @@ describe("compiler: checker: type relations", () => {
           { source: `123456`, target: "valueof int16" },
           {
             code: "unassignable",
-            message: "Type '123456' is not assignable to type 'int16'",
+            message: "Type '123456' is not assignable to type 'valueof int16'",
           }
         );
       });
