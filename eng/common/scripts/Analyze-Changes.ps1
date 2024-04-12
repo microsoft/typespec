@@ -68,24 +68,24 @@ class TreeNode {
 
     # Check if anything outside of emitter packages exists
     [bool] AnythingOutsideIsolatedPackagesExists($isolatedPackages) {
-        $currentNode = $this
-
-        if ($currentNode.Children.Count -eq 0) {
+        if ($this.Children.Count -eq 0) {
             return $false
         }
 
         # if anything in first level is not 'packages', return true
-        if ($currentNode.Children[0].Name -ne 'packages') {
-            return $true
+        foreach ($child in $this.Children) {
+            if ($child.Name -ne 'packages') {
+                return $true
+            }
         }
 
-        $currentNode = $currentNode.Children['packages']
-
-        # if anything in second level is not an emitter package, return true
-        if ($currentNode.Children.Count -eq 0) {
+        $packagesNode = $this.Children | Where-Object { $_.Name -eq "packages" }
+        if (-not $packagesNode) {
             return $false
         }
-        foreach ($child in $currentNode.Children) {
+        
+        # if anything in second level is not an emitter package, return true
+        foreach ($child in $packagesNode.Children) {
             if ($child.Name -notin $isolatedPackages.Keys) {
                 return $true
             }
