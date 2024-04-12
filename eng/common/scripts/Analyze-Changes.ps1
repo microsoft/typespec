@@ -104,14 +104,17 @@ $root = [TreeNode]::new('Root')
 
 # add all changed files to the tree
 Write-Host "Checking for changes in current branch compared to $TargetBranch"
-$result = git diff --name-only $TargetBranch"..."
+$result = git diff --name-only HEAD (git merge-base HEAD $TargetBranch)
 if ($LASTEXITCODE -ne 0) {
     Write-Host "##[error] 'git diff --name-only $TargetBranch...' failed, exiting..."
     exit 1  # Exit with a non-zero exit code to indicate failure
 }
+Write-Host "##[group]Files changed in this pr"
 $result | ForEach-Object {
+    Write-Host $_
     $root.Add($_)
 }
+Write-Host "##[endgroup]"
 
 # exit early if no changes detected
 if ($root.Children.Count -eq 0) {
