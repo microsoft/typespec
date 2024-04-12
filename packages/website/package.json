@@ -58,6 +58,7 @@
     "@typespec/playground-website": "workspace:*",
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
+    "@typespec/xml": "workspace:~",
     "@typespec/spec": "workspace:*",
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",

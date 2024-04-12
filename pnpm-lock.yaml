@@ -1355,6 +1355,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      '@typespec/xml':
+        specifier: workspace:~
+        version: link:../xml
       dotenv:
         specifier: ~16.4.5
         version: 16.4.5
