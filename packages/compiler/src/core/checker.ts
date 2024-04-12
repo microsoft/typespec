@@ -4316,31 +4316,6 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  // TODO: remove?
-  function isDefaultValue(type: Type | Value): boolean {
-    if (isType(type)) {
-      if (type.kind === "UnionVariant") {
-        return isValue(type.type);
-      }
-      if (type.kind === "Tuple" && type.node.kind === SyntaxKind.TupleExpression) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "deprecated",
-            codefixes: [createTupleToLiteralCodeFix(type.node)],
-            format: {
-              message:
-                "Using a tuple as a default value is deprecated. Use a tuple literal instead. `#[]`",
-            },
-            target: type.node,
-          })
-        );
-        return true;
-      }
-    }
-
-    return isValue(type);
-  }
-
   function checkDefaultValue(defaultNode: Node, type: Type): Value | null {
     if (isErrorType(type)) {
       // if the prop type is an error we don't need to validate again.
@@ -4351,17 +4326,6 @@ export function createChecker(program: Program): Checker {
       type,
     });
     if (defaultValue === null) {
-      return null;
-    }
-    if (!isDefaultValue(defaultValue)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "unsupported-default",
-          // TODO: fix this
-          format: { type: (defaultValue as any).kind },
-          target: defaultNode,
-        })
-      );
       return null;
     }
     const [related, diagnostics] = isValueOfType(defaultValue, type, defaultNode);

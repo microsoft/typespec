@@ -1385,7 +1385,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("can assign a tuple (LEGACY)", async () => {
-        await expectValueAssignable({
+        await expectTypeAssignable({
           source: `["foo"]`,
           target: "valueof string[]",
         });
