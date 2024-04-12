@@ -304,7 +304,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
+          message: `Argument '{ shared: "yes" }' is not assignable to parameter of type '{ shared: boolean }'`,
         },
       ]);
     });

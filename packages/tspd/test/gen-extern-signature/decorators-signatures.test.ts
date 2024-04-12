@@ -148,8 +148,8 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
       ["valueof boolean", "boolean"],
       ["valueof int32", "number"],
       ["valueof int8", "number"],
-      ["valueof uint64", "number"],
-      ["valueof int64", "number"],
+      ["valueof uint64", "Numeric"],
+      ["valueof int64", "Numeric"],
       [`valueof "abc"`, `"abc"`],
       [`valueof 123`, `123`],
       [`valueof true`, `true`],
@@ -159,7 +159,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});`,
         expected: `
-${importLine(["Type"])}
+${importLine(["Type", ...(expected === "Numeric" ? ["Numeric"] : [])])}
 
 export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${expected}) => void;
     `,
@@ -207,8 +207,8 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args:
       ["valueof boolean[]", "boolean[]"],
       ["valueof int32[]", "number[]"],
       ["valueof int8[]", "number[]"],
-      ["valueof uint64[]", "number[]"],
-      ["valueof int64[]", "number[]"],
+      ["valueof uint64[]", "Numeric[]"],
+      ["valueof int64[]", "Numeric[]"],
       [`valueof "abc"[]`, `"abc"[]`],
       [`valueof 123[]`, `123[]`],
       [`valueof true[]`, `true[]`],
@@ -218,7 +218,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args:
       await expectSignatures({
         code: `extern dec simple(target, ...args: ${ref});`,
         expected: `
-${importLine(["Type"])}
+${importLine(["Type", ...(expected === "Numeric[]" ? ["Numeric"] : [])])}
 
 export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: ${expected}) => void;
     `,
