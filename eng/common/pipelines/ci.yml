@@ -19,7 +19,7 @@ extends:
             displayName: Initialize
             steps:
               - pwsh: |
-                ls $env
+                ls env
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
                 name: InitStep
