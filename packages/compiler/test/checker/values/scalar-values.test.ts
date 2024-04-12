@@ -72,8 +72,8 @@ describe("instantiate with named constructor", () => {
   it("emit warning if passing wrong type to constructor", async () => {
     const diagnostics = await diagnoseValueType(`ipv4.fromString(123)`, ipv4Code);
     expectDiagnostics(diagnostics, {
-      code: "unassignable",
-      message: "Type '123' is not assignable to type 'string'",
+      code: "invalid-argument",
+      message: "Argument '123' is not assignable to parameter of type 'string'",
     });
   });
 
@@ -131,8 +131,8 @@ describe("instantiate with named constructor", () => {
         `
       );
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '123' is not assignable to type 'string'",
+        code: "invalid-argument",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
   });
@@ -175,8 +175,8 @@ describe("instantiate with named constructor", () => {
         `
       );
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '123' is not assignable to type 'string'",
+        code: "invalid-argument",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
   });

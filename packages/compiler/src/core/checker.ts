@@ -5,12 +5,7 @@ import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-iden
 import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
 import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import {
-  ProjectionError,
-  compilerAssert,
-  ignoreDiagnostics,
-  reportDeprecated,
-} from "./diagnostics.js";
+import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   TypeNameOptions,
@@ -687,12 +682,16 @@ export function createChecker(program: Program): Checker {
     return typeOrValue;
   }
 
-  function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | null {
+  function getValueForNode(
+    node: Node,
+    mapper?: TypeMapper,
+    constraint?: CheckValueConstraint
+  ): Value | null {
     let entity = getTypeOrValueForNodeInternal(node, mapper, constraint);
     if (entity === null || isValue(entity)) {
       return entity;
     }
-    entity = tryUsingValueOfType(entity, mapper, constraint, node);
+    entity = tryUsingValueOfType(entity, constraint, node);
     if (entity === null || isValue(entity)) {
       return entity;
     }
@@ -708,16 +707,9 @@ export function createChecker(program: Program): Checker {
 
   function tryUsingValueOfType(
     type: Type,
-    mapper: TypeMapper | undefined,
-    constraint: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): Type | Value | null {
-    if (
-      constraint !== undefined &&
-      !ignoreDiagnostics(isTypeAssignableTo(type, type, constraint))
-    ) {
-      return null;
-    }
     switch (type.kind) {
       case "String":
       case "StringTemplate":
@@ -738,6 +730,15 @@ export function createChecker(program: Program): Checker {
         return type;
     }
   }
+
+  interface CheckConstraint {
+    kind: "argument" | "assignment";
+    constraint: Type | ValueType | ParamConstraintUnion;
+  }
+  interface CheckValueConstraint {
+    kind: "argument" | "assignment";
+    type: Type;
+  }
   /**
    * Gets a type or value depending on the node and current constraint.
    * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
@@ -746,7 +747,7 @@ export function createChecker(program: Program): Checker {
   function getTypeOrValueForNode(
     node: Node,
     mapper?: TypeMapper,
-    constraint?: Type | ValueType | ParamConstraintUnion | undefined
+    constraint?: CheckConstraint | undefined
   ): Type | Value | null {
     const valueConstraint = extractValueOfConstraints(constraint);
     const entity = getTypeOrValueForNodeInternal(node, mapper, valueConstraint);
@@ -755,7 +756,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (valueConstraint) {
-      return tryUsingValueOfType(entity, mapper, valueConstraint, node);
+      return tryUsingValueOfType(entity, valueConstraint, node);
     }
 
     return entity;
@@ -763,18 +764,18 @@ export function createChecker(program: Program): Checker {
 
   /** Extact the type constraint a value should match. */
   function extractValueOfConstraints(
-    constraint: Type | ValueType | ParamConstraintUnion | undefined
-  ): Type | undefined {
-    if (constraint === undefined || isType(constraint)) {
+    constraint: CheckConstraint | undefined
+  ): CheckValueConstraint | undefined {
+    if (constraint === undefined || isType(constraint.constraint)) {
       return undefined;
     }
-    if (constraint.kind === "Value") {
-      return constraint.target;
+    if (constraint.constraint.kind === "Value") {
+      return { kind: constraint.kind, type: constraint.constraint.target };
     } else {
-      const valueOfOptions = constraint.options
+      const valueOfOptions = constraint.constraint.options
         .filter((x): x is ValueType => x.kind === "Value")
         .map((x) => x.target);
-      return createUnion(valueOfOptions);
+      return { kind: constraint.kind, type: createUnion(valueOfOptions) };
     }
   }
 
@@ -782,7 +783,7 @@ export function createChecker(program: Program): Checker {
   function getTypeOrValueForNodeInternal(
     node: Node,
     mapper?: TypeMapper,
-    valueConstraint?: Type | undefined
+    valueConstraint?: CheckValueConstraint | undefined
   ): Type | Value | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -3225,18 +3226,18 @@ export function createChecker(program: Program): Checker {
   function checkObjectValue(
     node: ObjectLiteralNode,
     mapper: TypeMapper | undefined,
-    type: Type | undefined
+    constraint: CheckValueConstraint | undefined
   ): ObjectValue | null {
     const properties = checkObjectLiteralProperties(node, mapper);
     const preciseType = createTypeForObjectValue(properties);
-    if (type && !checkTypeAssignable(preciseType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
     return {
       valueKind: "ObjectValue",
       node: node,
       properties,
-      type: type ?? preciseType,
+      type: constraint ? constraint.type : preciseType,
     };
   }
 
@@ -3311,7 +3312,7 @@ export function createChecker(program: Program): Checker {
   function checkArrayValue(
     node: TupleLiteralNode,
     mapper: TypeMapper | undefined,
-    type: Type | undefined
+    constraint: CheckValueConstraint | undefined
   ): ArrayValue | null {
     let hasError = false;
     const values = node.values.map((itemNode) => {
@@ -3326,7 +3327,7 @@ export function createChecker(program: Program): Checker {
     }
 
     const preciseType = createTypeForArrayValue(values as any);
-    if (type && !checkTypeAssignable(preciseType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
 
@@ -3334,7 +3335,7 @@ export function createChecker(program: Program): Checker {
       valueKind: "ArrayValue",
       node: node,
       values: values as any,
-      type: type ?? preciseType,
+      type: constraint ? constraint.type : preciseType,
     };
   }
 
@@ -3391,10 +3392,10 @@ export function createChecker(program: Program): Checker {
 
   function checkStringValue(
     literalType: StringLiteral | StringTemplate,
-    type: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): StringValue | null {
-    if (type && !checkTypeAssignable(literalType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
     let value: string;
@@ -3405,98 +3406,90 @@ export function createChecker(program: Program): Checker {
     } else {
       value = literalType.value;
     }
-    const scalar = inferScalarForPrimitiveValue(getStdType("string"), type, literalType);
+    const scalar = inferScalarForPrimitiveValue(
+      getStdType("string"),
+      constraint?.type,
+      literalType
+    );
     return {
       valueKind: "StringValue",
       value,
-      type: type ?? literalType,
+      type: constraint ? constraint.type : literalType,
       scalar,
     };
   }
 
   function checkNumericValue(
     literalType: NumericLiteral,
-    type: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): NumericValue | null {
-    if (type && !checkTypeAssignable(literalType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, literalType);
+    const scalar = inferScalarForPrimitiveValue(
+      getStdType("numeric"),
+      constraint?.type,
+      literalType
+    );
     return {
       valueKind: "NumericValue",
       value: Numeric(literalType.valueAsString),
-      type: literalType,
+      type: constraint ? constraint.type : literalType,
       scalar,
     };
   }
 
   function checkBooleanValue(
     literalType: BooleanLiteral,
-    type: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): BooleanValue | null {
-    if (type && !checkTypeAssignable(literalType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, literalType);
+    const scalar = inferScalarForPrimitiveValue(
+      getStdType("boolean"),
+      constraint?.type,
+      literalType
+    );
     return {
       valueKind: "BooleanValue",
       value: literalType.value,
-      type: type ?? literalType,
+      type: constraint ? constraint.type : literalType,
       scalar,
     };
   }
 
   function checkNullValue(
     literalType: NullType,
-    type: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): NullValue | null {
-    if (type && !checkTypeAssignable(literalType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
 
     return {
       valueKind: "NullValue",
-      type: type ?? literalType,
+      type: constraint ? constraint.type : literalType,
       value: null,
     };
   }
 
   function checkEnumValue(
     literalType: EnumMember,
-    type: Type | undefined,
+    constraint: CheckValueConstraint | undefined,
     node: Node
   ): EnumValue | null {
-    if (type && !checkTypeAssignable(literalType, type, node)) {
+    if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
     return {
       valueKind: "EnumValue",
-      type: type ?? literalType,
+      type: constraint ? constraint.type : literalType,
       value: literalType,
     };
-  }
-
-  /**
-   * Check and resolve a type for the given type reference node.
-   * @param node Node.
-   * @param mapper Type mapper for template instantiation context.
-   * @param instantiateTemplate If templated type should be instantiated if they haven't yet.
-   * @returns Resolved type.
-   */
-  function checkValueReference(
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined
-  ): Value | null {
-    const sym = resolveTypeReferenceSym(node, mapper);
-    if (!sym) {
-      return null;
-    }
-
-    const value = checkValueReferenceSymbol(sym, node, mapper);
-    return value;
   }
 
   function checkCallExpressionTarget(
@@ -3610,7 +3603,7 @@ export function createChecker(program: Program): Checker {
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
-              const arg = getValueForNode(argNode, mapper, restType);
+              const arg = getValueForNode(argNode, mapper, { kind: "argument", type: restType });
               if (arg === null) {
                 hasError = true;
                 continue;
@@ -3627,7 +3620,10 @@ export function createChecker(program: Program): Checker {
       }
       const argNode = node.arguments[index];
       if (argNode) {
-        const arg = getValueForNode(argNode, mapper, parameter.type as any); // TODO: change if we change this to not be a FunctionParameter
+        const arg = getValueForNode(argNode, mapper, {
+          kind: "argument",
+          type: parameter.type as any, // TODO: change if we change this to not be a FunctionParameter
+        });
         if (arg === null) {
           hasError = true;
           continue;
@@ -4534,7 +4530,10 @@ export function createChecker(program: Program): Checker {
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
-              const arg = getTypeOrValueForNode(argNode, mapper, perParamType);
+              const arg = getTypeOrValueForNode(argNode, mapper, {
+                kind: "argument",
+                constraint: perParamType,
+              });
               if (
                 arg !== null &&
                 !(isType(arg) && isErrorType(arg)) &&
@@ -4545,7 +4544,10 @@ export function createChecker(program: Program): Checker {
                   node: argNode,
                   jsValue: resolveDecoratorArgJsValue(
                     arg,
-                    extractValueOfConstraints(parameter.type)
+                    extractValueOfConstraints({
+                      kind: "argument",
+                      constraint: parameter.type,
+                    })
                   ),
                 });
               } else {
@@ -4558,7 +4560,10 @@ export function createChecker(program: Program): Checker {
       }
       const argNode = node.arguments[index];
       if (argNode) {
-        const arg = getTypeOrValueForNode(argNode, mapper, parameter.type);
+        const arg = getTypeOrValueForNode(argNode, mapper, {
+          kind: "argument",
+          constraint: parameter.type,
+        });
         if (
           arg !== null &&
           !(isType(arg) && isErrorType(arg)) &&
@@ -4567,7 +4572,13 @@ export function createChecker(program: Program): Checker {
           resolvedArgs.push({
             value: arg,
             node: argNode,
-            jsValue: resolveDecoratorArgJsValue(arg, extractValueOfConstraints(parameter.type)),
+            jsValue: resolveDecoratorArgJsValue(
+              arg,
+              extractValueOfConstraints({
+                kind: "argument",
+                constraint: parameter.type,
+              })
+            ),
           });
         } else {
           hasError = true;
@@ -4581,10 +4592,13 @@ export function createChecker(program: Program): Checker {
     return type.kind === "Model" ? type.indexer?.value : undefined;
   }
 
-  function resolveDecoratorArgJsValue(value: Type | Value, valueConstraint: Type | undefined) {
+  function resolveDecoratorArgJsValue(
+    value: Type | Value,
+    valueConstraint: CheckValueConstraint | undefined
+  ) {
     if (valueConstraint !== undefined) {
       if (isValue(value) || value.kind === "Model" || value.kind === "Tuple") {
-        const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value, valueConstraint);
+        const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value, valueConstraint.type);
         reportCheckerDiagnostics(diagnostics);
         return res ?? value;
       } else {
@@ -4858,7 +4872,7 @@ export function createChecker(program: Program): Checker {
     }
 
     pendingResolutions.start(symId, ResolutionKind.Value);
-    const value = getValueForNode(node.value, undefined, type);
+    const value = getValueForNode(node.value, undefined, type && { kind: "assignment", type });
     pendingResolutions.finish(symId, ResolutionKind.Value);
     if (value === null || (type && !checkValueOfType(value, type, node.id))) {
       links.value = null;
@@ -6306,6 +6320,40 @@ export function createChecker(program: Program): Checker {
     parts.push(current.sv);
 
     return parts.reverse().join(".");
+  }
+
+  /**
+   * Check if the source type can be assigned to the target type and emit diagnostics
+   * @param source Type of a value
+   * @param constraint
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   */
+  function checkTypeOfValueMatchConstraint(
+    source: Entity,
+    constraint: CheckValueConstraint,
+    diagnosticTarget: DiagnosticTarget
+  ): boolean {
+    if (constraint.type === undefined) {
+      console.trace("Ab");
+    }
+    const [related, diagnostics] = isTypeAssignableTo(source, constraint.type, diagnosticTarget);
+    if (!related) {
+      if (constraint.kind === "argument") {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "invalid-argument",
+            format: {
+              value: getEntityName(source),
+              expected: getEntityName(constraint.type),
+            },
+            target: diagnosticTarget,
+          })
+        );
+      } else {
+        reportCheckerDiagnostics(diagnostics);
+      }
+    }
+    return related;
   }
 
   /**
