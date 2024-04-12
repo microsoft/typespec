@@ -222,7 +222,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+        message: `Argument '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -267,7 +267,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+        message: `Argument '123' is not assignable to parameter of type 'string'`,
       });
     });
 
@@ -320,7 +320,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+        message: `Argument '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -347,7 +347,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+        message: `Argument '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -520,7 +520,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'valueof string'",
+          message: "Argument '4' is not assignable to parameter of type 'string'",
         },
       ]);
     });

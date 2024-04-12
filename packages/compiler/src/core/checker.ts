@@ -1161,8 +1161,8 @@ export function createChecker(program: Program): Checker {
       checkArgument: (() => [Node, Type | Value]) | null;
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
-      decls.map(function (decl) {
-        const declaredType = getTypeOrValueForNode(decl)! as TemplateParameter;
+      decls.map((decl) => {
+        const declaredType = getTypeForNode(decl)! as TemplateParameter;
 
         positional.push(declaredType);
         params.set(decl.id.sv, declaredType);
@@ -1180,8 +1180,15 @@ export function createChecker(program: Program): Checker {
     let named = false;
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
-      function deferredCheck(): [Node, Type | Value] {
-        return [arg, getTypeOrValueForNode(arg.argument, mapper) ?? errorType];
+      function deferredCheck(param: TemplateParameter): () => [Node, Type | Value] {
+        return () => [
+          arg,
+          getTypeOrValueForNode(
+            arg.argument,
+            mapper,
+            param.constraint && { kind: "argument", constraint: param.constraint }
+          ) ?? errorType,
+        ];
       }
 
       if (arg.name) {
@@ -1217,7 +1224,7 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        initMap.get(param)!.checkArgument = deferredCheck;
+        initMap.get(param)!.checkArgument = deferredCheck(param);
       } else {
         if (named) {
           reportCheckerDiagnostic(
@@ -1243,7 +1250,7 @@ export function createChecker(program: Program): Checker {
 
         const param = positional[idx];
 
-        initMap.get(param)!.checkArgument ??= deferredCheck;
+        initMap.get(param)!.checkArgument ??= deferredCheck(param);
       }
     }
 
