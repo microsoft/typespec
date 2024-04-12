@@ -23,7 +23,8 @@ extends:
                 name: ci_analyze_changes
                 inputs:
                   pwsh: true
-                  filePath: /eng/common/scripts/Analyze-Changes.ps1
+                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
+                  workingDirectory: $(Build.SourcesDirectory)
 
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
