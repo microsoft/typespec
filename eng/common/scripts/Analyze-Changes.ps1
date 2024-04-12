@@ -125,11 +125,16 @@ if ($root.Children.Count -eq 0) {
 # set global flag to run all if common files are changed
 $runAll = $root.PathExists('eng/common')
 
+# set global isolated package flag to run if any eng/emiters files changed
+$runIsolated = $root.PathExists('eng/emitters')
+
 # no need to check individual packages if runAll is true
 if (-not $runAll) {
-    # set each isolated package flag
-    foreach ($package in $isolatedPackages.Values) {
-        $package.RunValue = $root.PathExists($package)
+    if (-not $runIsolated) {
+        # set each isolated package flag
+        foreach ($package in $isolatedPackages.Values) {
+            $package.RunValue = $root.PathExists($package)
+        }
     }
 
     # set runCore to true if none of the 
@@ -144,7 +149,7 @@ if ($runAll -or $runCore) {
 
 # foreach isolated package, set log commands if the RunValue is true
 foreach ($package in $isolatedPackages.Values) {
-    if ($runAll -or $package.RunValue) {
+    if ($runAll -or $runIsolated -or $package.RunValue) {
         $variable = $package.RunVariable
         Write-Host "Setting $variable to true"
         Write-Host "##vso[task.setvariable variable=$variable;isOutput=true]true"
