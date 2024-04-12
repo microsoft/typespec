@@ -1,3 +1,10 @@
+#Requires -Version 7.0
+
+param(
+    [string] $GitRef
+)
+
+# Represents an isolated package which has its own stages in typespec - ci pipeline
 class IsolatedPackage {
     [string] $Path
     [string] $RunVariable
@@ -96,7 +103,7 @@ class TreeNode {
 $root = [TreeNode]::new('Root')
 
 # add all changed files to the tree
-git diff --name-only HEAD $(git merge-base HEAD main) | ForEach-Object {
+git diff --name-only $GitRef"..." | ForEach-Object {
     $root.Add($_)
 }
 
