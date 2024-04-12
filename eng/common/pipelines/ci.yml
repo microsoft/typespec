@@ -18,8 +18,6 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - run: git pull --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
-                name: Get ${{ github.event.pull_request.base.ref }} ref for ${{ github.ref}}, evt ${{ github.event_name }}
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
                 name: InitStep
