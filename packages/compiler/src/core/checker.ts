@@ -6821,7 +6821,6 @@ export function createChecker(program: Program): Checker {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
         if (!prop.optional) {
-          console.trace("HERer");
           diagnostics.push(
             createDiagnostic({
               code: "missing-property",

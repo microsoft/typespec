@@ -77,7 +77,6 @@ describe("compiler: checker: type relations", () => {
     const Source = ${cursor}${source};
    `);
 
-    console.log("Code", code);
     await runner.compile(code);
     const constStatement = runner.program.sourceFiles
       .get(resolveVirtualPath("main.tsp"))
