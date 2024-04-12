@@ -578,7 +578,7 @@ describe("compiler: checker: type relations", () => {
         { source: `3.4e40`, target: "float32" },
         {
           code: "unassignable",
-          message: "Type '3.4e+40' is not assignable to type 'float32'",
+          message: "Type '3.4e40' is not assignable to type 'float32'",
         }
       );
     });

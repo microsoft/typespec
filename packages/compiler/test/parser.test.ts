@@ -170,7 +170,7 @@ describe("compiler: parser", () => {
       }`,
     ]);
 
-    parseErrorEach([["scalar uuid is string;", [{ message: "';', or '{' expected." }]]]);
+    parseErrorEach([["scalar uuid is string;", [{ message: "'{' expected." }]]]);
   });
 
   describe("interface statements", () => {
