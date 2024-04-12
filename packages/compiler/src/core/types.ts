@@ -10,7 +10,7 @@ import type { TokenFlags } from "./scanner.js";
 // prettier-ignore
 export type MarshalledValue<Value>  = 
 Value extends StringValue ? string
-  : Value extends NumericValue ? number
+  : Value extends NumericValue ? number | Numeric
   : Value extends BooleanValue ? boolean
   : Value extends ObjectValue ? Record<string, unknown>
   : Value extends ArrayValue ? unknown[]
@@ -30,7 +30,7 @@ export interface DecoratorArgument {
   /**
    * Marshalled value for use in Javascript.
    */
-  jsValue: Type | Value | Record<string, unknown> | unknown[] | string | number | boolean;
+  jsValue: Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric;
   node?: Node;
 }
 

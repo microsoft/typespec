@@ -1,6 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { setTypeSpecNamespace } from "../../src/core/index.js";
+import { Numeric } from "../../src/core/numeric.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -332,9 +333,22 @@ describe("compiler: checker: decorators", () => {
       });
 
       describe("passing a numeric literal", () => {
-        it("valueof int32 cast the value to a JS number", async () => {
-          const arg = await testCallDecorator("valueof int32", `123`);
-          strictEqual(arg, 123);
+        it.each([
+          ["int8", "number"],
+          ["uint8", "number"],
+          ["int16", "number"],
+          ["uint16", "number"],
+          ["int32", "number"],
+          ["uint32", "number"],
+          // Unsafe to convert to JS Number
+          ["int64", "Numeric"],
+        ])("valueof %s marshal to a %s", async (type, expectedKind) => {
+          const arg = await testCallDecorator(`valueof ${type}`, `123`);
+          if (expectedKind === "number") {
+            strictEqual(arg, 123);
+          } else {
+            deepStrictEqual(arg, Numeric("123"));
+          }
         });
       });
 

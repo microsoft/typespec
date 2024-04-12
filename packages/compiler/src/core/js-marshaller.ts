@@ -1,13 +1,15 @@
-import { isValue, typespecTypeToJson } from "./index.js";
+import { numericRanges } from "./checker.js";
+import { typespecTypeToJson } from "./decorator-utils.js";
+import { compilerAssert } from "./diagnostics.js";
+import { Numeric } from "./numeric.js";
+import { isValue } from "./type-utils.js";
 import type {
   ArrayValue,
-  BooleanValue,
   Diagnostic,
   MarshalledValue,
   Model,
   NumericValue,
   ObjectValue,
-  StringValue,
   Tuple,
   Type,
   Value,
@@ -15,27 +17,32 @@ import type {
 
 export function tryMarshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
   if (isValue(type)) {
-    return marshallTypeForJS(type);
+    return marshallTypeForJS(type, undefined);
   }
   return type as any;
 }
 
 /** Legacy version that will cast models to object literals and tuple to tuple literals */
 export function marshallTypeForJSWithLegacyCast<T extends Value | Model | Tuple>(
-  type: T
+  entity: T,
+  valueConstraint: Type
 ): [MarshalledValue<T> | undefined, readonly Diagnostic[]] {
-  if ("kind" in type) {
-    return typespecTypeToJson(type, type) as any;
+  if ("kind" in entity) {
+    return typespecTypeToJson(entity, entity) as any;
   } else {
-    return [marshallTypeForJS(type) as any, []];
+    return [marshallTypeForJS(entity, valueConstraint) as any, []];
   }
 }
-export function marshallTypeForJS<T extends Value>(type: T): MarshalledValue<T> {
+export function marshallTypeForJS<T extends Value>(
+  type: T,
+  valueConstraint: Type | undefined
+): MarshalledValue<T> {
   switch (type.valueKind) {
     case "BooleanValue":
     case "StringValue":
+      return type.value as any;
     case "NumericValue":
-      return primitiveValueToJs(type) as any;
+      return numericValueToJs(type, valueConstraint) as any;
     case "ObjectValue":
       return objectValueToJs(type) as any;
     case "ArrayValue":
@@ -49,19 +56,38 @@ export function marshallTypeForJS<T extends Value>(type: T): MarshalledValue<T> 
   }
 }
 
-function primitiveValueToJs<T extends NumericValue | StringValue | BooleanValue>(
-  type: T
-): MarshalledValue<T> {
-  return type.value as any;
+function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
+  if (type === undefined) return true;
+  switch (type.kind) {
+    case "Scalar":
+      return numericRanges[type.name][2].isJsNumber;
+    case "Union":
+      return [...type.variants.values()].every((x) => canNumericConstraintBeJsNumber(x.type));
+    default:
+      return true;
+  }
+}
+
+function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined): number | Numeric {
+  const canBeANumber = canNumericConstraintBeJsNumber(valueConstraint);
+  if (canBeANumber) {
+    const asNumber = type.value.asNumber();
+    compilerAssert(
+      asNumber !== null,
+      `Numeric value '${type.value.toString()}' is not a able to convert to a number without loosing precision.`
+    );
+    return asNumber;
+  }
+  return type.value;
 }
 
 function objectValueToJs(type: ObjectValue) {
   const result: Record<string, unknown> = {};
   for (const [key, value] of type.properties) {
-    result[key] = marshallTypeForJS(value.value);
+    result[key] = marshallTypeForJS(value.value, undefined);
   }
   return result;
 }
 function arrayValueToJs(type: ArrayValue) {
-  return type.values.map(marshallTypeForJS);
+  return type.values.map((x) => marshallTypeForJS(x, undefined));
 }
