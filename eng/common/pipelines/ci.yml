@@ -18,8 +18,6 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - pwsh: |
-                  Get-ChildItem env: | Format-List
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
                 name: InitStep
