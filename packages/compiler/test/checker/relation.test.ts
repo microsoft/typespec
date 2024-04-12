@@ -1384,13 +1384,6 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("can assign a tuple (LEGACY)", async () => {
-        await expectTypeAssignable({
-          source: `["foo"]`,
-          target: "valueof string[]",
-        });
-      });
-
       // Disabled for now as this is allowed for backcompat
       it.skip("cannot assign a tuple", async () => {
         await expectValueNotAssignable(

@@ -722,6 +722,8 @@ export function createChecker(program: Program): Checker {
         return checkEnumValue(type, constraint, node);
       case "UnionVariant":
         return tryUsingValueOfType(type.type, constraint, node);
+      case "Tuple":
+        return legacy_tryUsingTupleAsArrayValue(type, constraint?.type, node);
       case "Intrinsic":
         switch (type.name) {
           case "null":
@@ -730,6 +732,57 @@ export function createChecker(program: Program): Checker {
         return type;
       default:
         return type;
+    }
+  }
+
+  // Legacy behavior to smooth transition to array values.
+  function legacy_tryUsingTupleAsArrayValue(
+    tuple: Tuple,
+    type: Type | undefined,
+    node: Node
+  ): ArrayValue | null {
+    if (
+      tuple.node.kind === SyntaxKind.TupleExpression &&
+      (type === undefined || checkTypeAssignable(tuple, type, node))
+    ) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createTupleToLiteralCodeFix(tuple.node)],
+          format: {
+            message:
+              "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+          },
+          target: tuple.node,
+        })
+      );
+    }
+    if (type?.kind === "Model" && isArrayModelType(program, type)) {
+      return {
+        valueKind: "ArrayValue",
+        type,
+        node: tuple.node as any,
+        values: tuple.values
+          .map((x) =>
+            tryUsingValueOfType(x, { kind: "assignment", type: type.indexer.value }, node)
+          )
+          .filter((x): x is Value => x !== null),
+      };
+    } else {
+      return {
+        valueKind: "ArrayValue",
+        type: type ?? tuple,
+        node: tuple.node as any,
+        values: tuple.values
+          .map((x, i) =>
+            tryUsingValueOfType(
+              x,
+              type?.kind === "Tuple" ? { kind: "assignment", type: type.values[i] } : undefined,
+              node
+            )
+          )
+          .filter((x): x is Value => x !== null),
+      };
     }
   }
 
@@ -6593,25 +6646,6 @@ export function createChecker(program: Program): Checker {
 
     // LEGACY BEHAVIOR - Goal here is to all models instead of object literal and tuple instead of tuple literals to get a smooth migration of decorators
     if (
-      isSourceAType &&
-      source.kind === "Tuple" &&
-      source.node.kind === SyntaxKind.TupleExpression &&
-      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
-        Related.true
-    ) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          codefixes: [createTupleToLiteralCodeFix(source.node)],
-          format: {
-            message:
-              "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
-          },
-          target: source.node,
-        })
-      );
-      return [Related.true, []];
-    } else if (
       isSourceAType &&
       source.kind === "Model" &&
       source.node?.kind === SyntaxKind.ModelExpression &&

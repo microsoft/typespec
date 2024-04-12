@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/index.js";
 import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
 
@@ -78,6 +78,36 @@ describe("emit diagnostic when used in", () => {
     expectDiagnostics(diagnostics, {
       code: "value-in-type",
       message: "A value cannot be used as a type.",
+      pos,
+    });
+  });
+});
+
+describe("(LEGACY) case tuple to array value", () => {
+  it("cast the value", async () => {
+    const value = await compileValueType(
+      "a",
+      `
+        #suppress "deprecated" "for testing"
+        const a: string[] = ["foo", "bar"];`
+    );
+
+    strictEqual(value.valueKind, "ArrayValue");
+    expect(value.values).toHaveLength(2);
+    strictEqual(value.values[0].valueKind, "StringValue");
+    strictEqual(value.values[0].value, "foo");
+    strictEqual(value.values[1].valueKind, "StringValue");
+    strictEqual(value.values[1].value, "bar");
+  });
+  it("emit a warning diagnostic", async () => {
+    const { diagnostics, pos } = await diagnoseUsage(`
+    const a: string[] = ┆["foo"];
+  `);
+
+    expectDiagnostics(diagnostics, {
+      code: "deprecated",
+      message:
+        "Deprecated: Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
       pos,
     });
   });
