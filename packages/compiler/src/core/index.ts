@@ -19,6 +19,7 @@ export {
 } from "./library.js";
 export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
+export { Numeric, isNumeric } from "./numeric.js";
 export * from "./options.js";
 export { getPositionBeforeTrivia } from "./parser-utils.js";
 export * from "./parser.js";

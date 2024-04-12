@@ -1,4 +1,4 @@
-import { Entity, getEntityName, isValue, resolvePath } from "@typespec/compiler";
+import { Entity, getEntityName, isType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -188,11 +188,7 @@ export class MarkdownRenderer {
   }
 
   ref(type: Entity): string {
-    const namedType =
-      type.kind !== "Value" &&
-      type.kind !== "ParamConstraintUnion" &&
-      !isValue(type) &&
-      this.refDoc.getNamedTypeRefDoc(type);
+    const namedType = isType(type) && this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
       return link(
         inlinecode(namedType.name),
@@ -201,7 +197,7 @@ export class MarkdownRenderer {
     }
 
     // So we don't show (anonymous model) until this gets improved.
-    if (type.kind === "Model" && type.name === "" && type.properties.size > 0) {
+    if ("kind" in type && type.kind === "Model" && type.name === "" && type.properties.size > 0) {
       return inlinecode("{...}");
     }
     return inlinecode(

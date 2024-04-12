@@ -22,24 +22,24 @@ import {
   VoidType,
 } from "./types.js";
 
-export function isErrorType(type: Type): type is ErrorType {
-  return type.kind === "Intrinsic" && type.name === "ErrorType";
+export function isErrorType(type: Entity): type is ErrorType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-export function isVoidType(type: Type): type is VoidType {
-  return type.kind === "Intrinsic" && type.name === "void";
+export function isVoidType(type: Entity): type is VoidType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "void";
 }
 
-export function isNeverType(type: Type): type is NeverType {
-  return type.kind === "Intrinsic" && type.name === "never";
+export function isNeverType(type: Entity): type is NeverType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "never";
 }
 
-export function isUnknownType(type: Type): type is UnknownType {
-  return type.kind === "Intrinsic" && type.name === "unknown";
+export function isUnknownType(type: Entity): type is UnknownType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "unknown";
 }
 
-export function isNullType(type: Type): type is NullType {
-  return type.kind === "Intrinsic" && type.name === "null";
+export function isNullType(type: Entity): type is NullType {
+  return "kind" in type && type.kind === "Intrinsic" && type.name === "null";
 }
 
 export function isType(entity: Entity): entity is Type {

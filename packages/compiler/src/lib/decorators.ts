@@ -43,6 +43,7 @@ import {
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
+  Numeric,
   StdTypeName,
   getDiscriminatedUnion,
   getTypeName,
@@ -528,13 +529,13 @@ const minLengthValuesKey = createStateSymbol("minLengthValues");
 export const $minLength: MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minLength: number
+  minLength: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
   if (
     !validateTargetingAString(context, target, "@minLength") ||
-    !validateRange(context, minLength, getMaxLength(context.program, target))
+    !validateRange(context, minLength, getMaxLengthAsNumeric(context.program, target))
   ) {
     return;
   }
@@ -542,8 +543,17 @@ export const $minLength: MinLengthDecorator = (
   context.program.stateMap(minLengthValuesKey).set(target, minLength);
 };
 
-export function getMinLength(program: Program, target: Type): number | undefined {
+/**
+ * Get the minimum length of a string type as a {@link Numeric} value.
+ * @param program Current program
+ * @param target Type with the `@minLength` decorator
+ */
+export function getMinLengthAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(minLengthValuesKey).get(target);
+}
+
+export function getMinLength(program: Program, target: Type): number | undefined {
+  return getMinLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @maxLength decorator ---------------------
@@ -553,13 +563,13 @@ const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 export const $maxLength: MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxLength: number
+  maxLength: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
   if (
     !validateTargetingAString(context, target, "@maxLength") ||
-    !validateRange(context, getMinLength(context.program, target), maxLength)
+    !validateRange(context, getMinLengthAsNumeric(context.program, target), maxLength)
   ) {
     return;
   }
@@ -568,6 +578,16 @@ export const $maxLength: MaxLengthDecorator = (
 };
 
 export function getMaxLength(program: Program, target: Type): number | undefined {
+  return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
+}
+
+// TODO: better name?
+/**
+ * Get the maximum length of a string type as a {@link Numeric} value.
+ * @param program Current program
+ * @param target Type with the `@maxLength` decorator
+ */
+export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(maxLengthValuesKey).get(target);
 }
 
@@ -578,7 +598,7 @@ const minItemsValuesKey = createStateSymbol("minItems");
 export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
   target: Type,
-  minItems: number
+  minItems: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
@@ -593,15 +613,19 @@ export const $minItems: MinItemsDecorator = (
     });
   }
 
-  if (!validateRange(context, minItems, getMaxItems(context.program, target))) {
+  if (!validateRange(context, minItems, getMaxItemsAsNumeric(context.program, target))) {
     return;
   }
 
   context.program.stateMap(minItemsValuesKey).set(target, minItems);
 };
 
-export function getMinItems(program: Program, target: Type): number | undefined {
+export function getMinItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(minItemsValuesKey).get(target);
+}
+
+export function getMinItems(program: Program, target: Type): number | undefined {
+  return getMinItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @maxLength decorator ---------------------
@@ -611,7 +635,7 @@ const maxItemsValuesKey = createStateSymbol("maxItems");
 export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type,
-  maxItems: number
+  maxItems: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
@@ -625,15 +649,19 @@ export const $maxItems: MaxItemsDecorator = (
       target: context.decoratorTarget,
     });
   }
-  if (!validateRange(context, getMinItems(context.program, target), maxItems)) {
+  if (!validateRange(context, getMinItemsAsNumeric(context.program, target), maxItems)) {
     return;
   }
 
   context.program.stateMap(maxItemsValuesKey).set(target, maxItems);
 };
 
-export function getMaxItems(program: Program, target: Type): number | undefined {
+export function getMaxItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(maxItemsValuesKey).get(target);
+}
+
+export function getMaxItems(program: Program, target: Type): number | undefined {
+  return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @minValue decorator ---------------------
@@ -643,7 +671,7 @@ const minValuesKey = createStateSymbol("minValues");
 export const $minValue: MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minValue: number
+  minValue: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minValue);
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
@@ -657,7 +685,8 @@ export const $minValue: MinValueDecorator = (
     !validateRange(
       context,
       minValue,
-      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+      getMaxValueAsNumeric(context.program, target) ??
+        getMaxValueExclusiveAsNumeric(context.program, target)
     )
   ) {
     return;
@@ -665,8 +694,11 @@ export const $minValue: MinValueDecorator = (
   program.stateMap(minValuesKey).set(target, minValue);
 };
 
-export function getMinValue(program: Program, target: Type): number | undefined {
+export function getMinValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(minValuesKey).get(target);
+}
+export function getMinValue(program: Program, target: Type): number | undefined {
+  return getMinValueAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @maxValue decorator ---------------------
@@ -676,7 +708,7 @@ const maxValuesKey = createStateSymbol("maxValues");
 export const $maxValue: MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxValue: number
+  maxValue: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
@@ -688,7 +720,8 @@ export const $maxValue: MaxValueDecorator = (
   if (
     !validateRange(
       context,
-      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      getMinValueAsNumeric(context.program, target) ??
+        getMinValueExclusiveAsNumeric(context.program, target),
       maxValue
     )
   ) {
@@ -697,8 +730,11 @@ export const $maxValue: MaxValueDecorator = (
   program.stateMap(maxValuesKey).set(target, maxValue);
 };
 
-export function getMaxValue(program: Program, target: Type): number | undefined {
+export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(maxValuesKey).get(target);
+}
+export function getMaxValue(program: Program, target: Type): number | undefined {
+  return getMaxValueAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @minValueExclusive decorator ---------------------
@@ -708,7 +744,7 @@ const minValueExclusiveKey = createStateSymbol("minValueExclusive");
 export const $minValueExclusive: MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  minValueExclusive: number
+  minValueExclusive: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
@@ -722,7 +758,8 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
     !validateRange(
       context,
       minValueExclusive,
-      getMaxValue(context.program, target) ?? getMaxValueExclusive(context.program, target)
+      getMaxValueAsNumeric(context.program, target) ??
+        getMaxValueExclusiveAsNumeric(context.program, target)
     )
   ) {
     return;
@@ -730,8 +767,11 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
   program.stateMap(minValueExclusiveKey).set(target, minValueExclusive);
 };
 
-export function getMinValueExclusive(program: Program, target: Type): number | undefined {
+export function getMinValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(minValueExclusiveKey).get(target);
+}
+export function getMinValueExclusive(program: Program, target: Type): number | undefined {
+  return getMinValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @maxValueExclusive decorator ---------------------
@@ -741,7 +781,7 @@ const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
 export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  maxValueExclusive: number
+  maxValueExclusive: Numeric
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
@@ -753,7 +793,8 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   if (
     !validateRange(
       context,
-      getMinValue(context.program, target) ?? getMinValueExclusive(context.program, target),
+      getMinValueAsNumeric(context.program, target) ??
+        getMinValueExclusiveAsNumeric(context.program, target),
       maxValueExclusive
     )
   ) {
@@ -762,8 +803,11 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   program.stateMap(maxValueExclusiveKey).set(target, maxValueExclusive);
 };
 
-export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
+export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(maxValueExclusiveKey).get(target);
+}
+export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
+  return getMaxValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 // -- @secret decorator ---------------------
@@ -1441,14 +1485,15 @@ export function hasProjectedName(program: Program, target: Type, projectionName:
 
 function validateRange(
   context: DecoratorContext,
-  min: number | undefined,
-  max: number | undefined
+  min: Numeric | undefined,
+  max: Numeric | undefined
 ): boolean {
   if (min === undefined || max === undefined) {
     return true;
   }
+  if (min.gt(max)) {
+    console.log("Min", min, max);
 
-  if (min > max) {
     reportDiagnostic(context.program, {
       code: "invalid-range",
       format: { start: min.toString(), end: max.toString() },

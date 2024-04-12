@@ -33,7 +33,7 @@ describe("compiler: range limiting decorators", () => {
   });
 
   describe("@minValue, @maxValue", () => {
-    it("applies @minLength and @maxLength decorators on ints", async () => {
+    it("applies on ints", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2)
@@ -47,7 +47,7 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxValue(runner.program, floorProp), 10);
     });
 
-    it("applies @minLength and @maxLength decorators on float", async () => {
+    it("applies on float", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2.5)
@@ -61,7 +61,7 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxValue(runner.program, percentProp), 32.9);
     });
 
-    it("applies @minLength and @maxLength decorators on nullable numeric", async () => {
+    it("applies on nullable numeric", async () => {
       const { Foo } = (await runner.compile(`
         @test model Foo {
           @minValue(2.5)

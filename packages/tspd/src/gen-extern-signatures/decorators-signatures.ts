@@ -194,21 +194,22 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }): string {
     switch (scalar.name) {
       case "numeric":
+      case "decimal":
+      case "decimal128":
+      case "float":
       case "integer":
+      case "int64":
+      case "uint64":
+        return useCompilerType("Numeric");
       case "int8":
       case "int16":
       case "int32":
-      case "int64":
       case "safeint":
       case "uint8":
       case "uint16":
       case "uint32":
-      case "uint64":
-      case "float":
       case "float64":
       case "float32":
-      case "decimal":
-      case "decimal128":
         return "number";
       case "string":
       case "url":

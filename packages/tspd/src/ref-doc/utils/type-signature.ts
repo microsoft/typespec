@@ -50,6 +50,8 @@ export function getTypeSignature(type: Type | ValueType): string {
       return `(intrinsic) ${type.name}`;
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
+    case "ScalarConstructor":
+      return `(scalar constructor) ${getTypeName(type)}`;
     case "StringTemplate":
       return `(string template)\n${getStringTemplateSignature(type)}`;
     case "StringTemplateSpan":
