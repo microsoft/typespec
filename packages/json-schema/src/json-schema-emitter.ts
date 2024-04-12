@@ -37,7 +37,6 @@ import {
   typespecTypeToJson,
   Union,
   UnionVariant,
-  Value,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -182,7 +181,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return result;
   }
 
-  #getDefaultValue(type: Type, defaultType: Type | Value): any {
+  #getDefaultValue(type: Type, defaultType: Type): any {
     const program = this.emitter.getProgram();
 
     switch (defaultType.kind) {
