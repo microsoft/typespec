@@ -1,5 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
 import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
@@ -103,6 +103,7 @@ describe("compiler: models", () => {
     ]);
   });
 
+  // TODO: update to test new defaultValue
   describe("assign default values", () => {
     const testCases: [string, string, any][] = [
       ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
@@ -121,7 +122,7 @@ describe("compiler: models", () => {
           `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual({ ...foo.default }, expectedValue);
+        expect({ ...foo.default }).toMatchObject(expectedValue);
       });
     }
 
@@ -183,13 +184,13 @@ describe("compiler: models", () => {
     testHost.addTypeSpecFile("main.tsp", source);
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
-      code: "unsupported-default",
-      message: "Default must be have a value type but has type 'TemplateParameter'.",
+      code: "expect-value",
+      message: "D refers to a type, but is being used as a value here.",
       pos,
     });
   });
 
-  it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
+  it(`doesn't emit additional diagnostic when type is an error`, async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `

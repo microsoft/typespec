@@ -89,7 +89,7 @@ describe("compiler: scalars", () => {
       ok(p);
       expectIdenticalTypes(p.type, S);
       strictEqual(p.defaultValue?.valueKind, "NumericValue");
-      strictEqual(p.defaultValue.value, 42);
+      strictEqual(p.defaultValue.value.asNumber(), 42);
     });
 
     it("allows custom boolean scalar to have a default value", async () => {

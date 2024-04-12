@@ -4285,7 +4285,13 @@ export function createChecker(program: Program): Checker {
     } else {
       pendingResolutions.start(symId, ResolutionKind.Type);
       type.type = getTypeForNode(prop.value, mapper);
-      type.default = prop.default && (checkDefault(prop.default, type.type) as any); // TODO: fix;
+      if (prop.default) {
+        const defaultValue = checkDefaultValue(prop.default, type.type);
+        if (defaultValue !== null) {
+          type.defaultValue = defaultValue;
+          type.default = checkLegacyDefault(prop.default);
+        }
+      }
       if (links) {
         linkType(links, type, mapper);
       }
@@ -4323,6 +4329,7 @@ export function createChecker(program: Program): Checker {
     };
   }
 
+  // TODO: remove?
   function isDefaultValue(type: Type | Value): boolean {
     if (isType(type)) {
       if (type.kind === "UnionVariant") {
@@ -4347,31 +4354,46 @@ export function createChecker(program: Program): Checker {
     return isValue(type);
   }
 
-  function checkDefault(defaultNode: Node, type: Type): Type | Value {
-    const defaultType = getTypeOrValueForNode(defaultNode, undefined);
-    if (defaultType === null || isErrorType(type)) {
-      return errorType;
+  function checkDefaultValue(defaultNode: Node, type: Type): Value | null {
+    if (isErrorType(type)) {
+      // if the prop type is an error we don't need to validate again.
+      return null;
     }
-    if (!isDefaultValue(defaultType)) {
+    const defaultValue = getValueForNode(defaultNode, undefined, {
+      kind: "assignment",
+      type,
+    });
+    if (defaultValue === null) {
+      return null;
+    }
+    if (!isDefaultValue(defaultValue)) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
           // TODO: fix this
-          format: { type: (defaultType as any).kind },
+          format: { type: (defaultValue as any).kind },
           target: defaultNode,
         })
       );
-      return errorType;
+      return null;
     }
-    const [related, diagnostics] = isValue(defaultType)
-      ? isValueOfType(defaultType, type, defaultNode)
-      : isTypeAssignableTo(defaultType, type, defaultNode);
+    const [related, diagnostics] = isValueOfType(defaultValue, type, defaultNode);
     if (!related) {
       reportCheckerDiagnostics(diagnostics);
-      return errorType;
+      return null;
     } else {
-      return defaultType;
+      return defaultValue;
     }
+  }
+  /** Fill in the legacy `.default` property.
+   * We do do checking here we just keep existing behavior.
+   */
+  function checkLegacyDefault(defaultNode: Node): Type | undefined {
+    const resolved = getTypeOrValueForNode(defaultNode, undefined);
+    if (resolved === null || !isType(resolved)) {
+      return undefined;
+    }
+    return resolved;
   }
 
   function checkDecorator(
