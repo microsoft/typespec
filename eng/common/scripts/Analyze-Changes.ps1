@@ -1,7 +1,7 @@
 #Requires -Version 7.0
 
 param(
-    [string] $GitRef
+    [string] $TargetBranch
 )
 
 # Represents an isolated package which has its own stages in typespec - ci pipeline
@@ -103,7 +103,8 @@ class TreeNode {
 $root = [TreeNode]::new('Root')
 
 # add all changed files to the tree
-git diff --name-only $GitRef"..." | ForEach-Object {
+Write-Host "Checking for changes in current branch compared to $TargetBranch"
+git diff --name-only $TargetBranch"..." | ForEach-Object {
     $root.Add($_)
 }
 
@@ -116,13 +117,16 @@ if ($root.Children.Count -eq 0) {
 # set global flag to run all if common files are changed
 $runAll = $root.PathExists('eng/common')
 
-# set each emitter package flag
-foreach ($package in $isolatedPackages.Values) {
-    $package.RunValue = $root.PathExists($package)
-}
+# no need to check individual packages if runAll is true
+if (-not $runAll) {
+    # set each isolated package flag
+    foreach ($package in $isolatedPackages.Values) {
+        $package.RunValue = $root.PathExists($package)
+    }
 
-# set runCore to true if none of the 
-$runCore = $root.AnythingOutsideIsolatedPackagesExists($isolatedPackages)
+    # set runCore to true if none of the 
+    $runCore = $root.AnythingOutsideIsolatedPackagesExists($isolatedPackages)
+}
 
 # set log commands
 if ($runAll -or $runCore) {
@@ -130,7 +134,7 @@ if ($runAll -or $runCore) {
     Write-Host "##vso[task.setvariable variable=RunCore;isOutput=true]true"
 }
 
-# foreach emitter package, set log commands if the 3rd element is true
+# foreach isolated package, set log commands if the RunValue is true
 foreach ($package in $isolatedPackages.Values) {
     if ($runAll -or $package.RunValue) {
         $variable = $package.RunVariable
