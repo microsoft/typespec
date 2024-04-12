@@ -85,7 +85,7 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '{ name: 123 } is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
+            "Argument '{ name: 123 }' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
@@ -172,7 +172,7 @@ describe("http: decorators", () => {
         },
         {
           code: "invalid-argument",
-          message: `Argument '{name: 123}' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
+          message: `Argument '{ name: 123 }' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
         },
         {
           code: "invalid-argument",
@@ -359,7 +359,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'valueof string'",
+          message: "Argument '123' is not assignable to parameter of type 'string'",
         },
       ]);
     });
@@ -551,7 +551,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -563,7 +563,7 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
+        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
