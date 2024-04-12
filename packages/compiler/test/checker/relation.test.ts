@@ -708,6 +708,19 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("type with spread indexer allow other properties to no match index", async () => {
+      await expectTypeAssignable({
+        source: "{age: int32, other: string}",
+        target: "Foo",
+        commonCode: `
+        model Foo {
+          age: int32;
+          ...Record<string>;
+        }
+      `,
+      });
+    });
+
     it("emit diagnostic assigning other type", async () => {
       await expectTypeNotAssignable(
         { source: `string`, target: "Record<string>" },
