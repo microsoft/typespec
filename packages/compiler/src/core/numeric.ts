@@ -119,14 +119,16 @@ function parse(original: string): InternalData {
 
     let end = stringValue.length;
     while (stringValue[end - 1] === "0") {
-      end--;
       if (end < adjustedPointIndex) {
         // if we are looking at a zero before the decimal point, we need to decrease the exponent
         exp++;
+      } else {
+        end--;
       }
     }
     try {
       stringValue = stringValue.slice(0, end);
+      stringValue = stringValue + "0".repeat(Math.max(exp - stringValue.length, 0)); // add remaining zeros for cases like 3e30
       n = BigInt(stringValue);
       decimal = n === 0n ? 0 : Math.max(stringValue.length - exp, 0);
     } catch {
@@ -140,9 +142,8 @@ function parse(original: string): InternalData {
 function stringify(value: InternalData) {
   const n = value.n.toString();
   const sign = value.s === -1 ? "-" : "";
-  const extra = value.e > n.length ? "0".repeat(value.e - n.length) : "";
   const decimal = value.e < n.length ? "." + n.slice(value.e) : "";
-  return sign + n.slice(0, value.e) + extra + decimal;
+  return sign + n.slice(0, value.e) + decimal;
 }
 const equals = (a: InternalData, b: InternalData) => a.n === b.n && a.e === b.e;
 
@@ -161,6 +162,7 @@ const compare = (a: InternalData, b: InternalData): 0 | 1 | -1 => {
 
   let aN = a.n;
   let bN = b.n;
+
   if (a.d < b.d) {
     aN *= 10n ** BigInt(b.d - a.d);
   } else {
