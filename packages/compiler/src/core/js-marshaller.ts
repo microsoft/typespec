@@ -2,7 +2,6 @@ import { numericRanges } from "./checker.js";
 import { typespecTypeToJson } from "./decorator-utils.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Numeric } from "./numeric.js";
-import { isValue } from "./type-utils.js";
 import type {
   ArrayValue,
   Diagnostic,
@@ -14,13 +13,6 @@ import type {
   Type,
   Value,
 } from "./types.js";
-
-export function tryMarshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
-  if (isValue(type)) {
-    return marshallTypeForJS(type, undefined);
-  }
-  return type as any;
-}
 
 /** Legacy version that will cast models to object literals and tuple to tuple literals */
 export function marshallTypeForJSWithLegacyCast<T extends Value | Model | Tuple>(

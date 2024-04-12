@@ -19,7 +19,7 @@ import {
   getTypeName,
   stringTemplateToString,
 } from "./helpers/index.js";
-import { marshallTypeForJSWithLegacyCast, tryMarshallTypeForJS } from "./js-marshaller.js";
+import { marshallTypeForJSWithLegacyCast } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { Numeric } from "./numeric.js";
 import {
@@ -6178,7 +6178,7 @@ export function createChecker(program: Program): Checker {
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
     return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...args.map(tryMarshallTypeForJS));
+      ref.value!({ program }, ...args.map(unsafe_projectionArgumentMarshalForJS));
       return voidType;
     });
   }
@@ -6205,7 +6205,7 @@ export function createChecker(program: Program): Checker {
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
       const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...args.map(tryMarshallTypeForJS));
+        const retval = ref.value!(program, ...args.map(unsafe_projectionArgumentMarshalForJS));
         return marshalProjectionReturn(retval, { functionName: node.sv });
       });
       return t;
@@ -7677,3 +7677,18 @@ const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
   checkTemplateTypes: true,
 };
+
+/**
+ * Convert LEGACY for projection.
+ * THIS IS BROKEN. Some decorators will not receive the correct type.
+ * It has been broken since the introduction of valueof.
+ * As projection as put on hold as long as versioning works we are in a good state.
+ */
+function unsafe_projectionArgumentMarshalForJS(arg: Type): any {
+  if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
+    return arg.value;
+  } else if (arg.kind === "StringTemplate") {
+    return stringTemplateToString(arg)[0];
+  }
+  return arg as any;
+}
