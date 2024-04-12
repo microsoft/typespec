@@ -9,11 +9,18 @@ import {
 
 export async function diagnoseUsage(
   code: string
-): Promise<{ diagnostics: readonly Diagnostic[]; pos: number }> {
+): Promise<{ diagnostics: readonly Diagnostic[]; pos: number; end?: number }> {
   const runner = await createTestRunner();
-  const { source, pos } = extractCursor(code);
+  let end;
+
+  let { source, pos } = extractCursor(code);
+  if (source.includes("┆")) {
+    const endMatch = extractCursor(source);
+    source = endMatch.source;
+    end = endMatch.pos;
+  }
   const diagnostics = await runner.diagnose(source);
-  return { diagnostics, pos };
+  return { diagnostics, pos, end };
 }
 
 export async function compileAndDiagnoseValueType(

@@ -688,11 +688,11 @@ export function createChecker(program: Program): Checker {
   }
 
   function getValueForNode(node: Node, mapper?: TypeMapper, constraint?: Type): Value | null {
-    let entity = getTypeOrValueForNodeInternal(node, mapper);
+    let entity = getTypeOrValueForNodeInternal(node, mapper, constraint);
     if (entity === null || isValue(entity)) {
       return entity;
     }
-    entity = tryUsingValueOfType(entity, mapper, constraint);
+    entity = tryUsingValueOfType(entity, mapper, constraint, node);
     if (entity === null || isValue(entity)) {
       return entity;
     }
@@ -709,22 +709,29 @@ export function createChecker(program: Program): Checker {
   function tryUsingValueOfType(
     type: Type,
     mapper: TypeMapper | undefined,
-    constraint: Type | undefined
+    constraint: Type | undefined,
+    node: Node
   ): Type | Value | null {
+    if (
+      constraint !== undefined &&
+      !ignoreDiagnostics(isTypeAssignableTo(type, type, constraint))
+    ) {
+      return null;
+    }
     switch (type.kind) {
       case "String":
       case "StringTemplate":
-        return checkStringValue(type, mapper, constraint);
+        return checkStringValue(type, constraint, node);
       case "Number":
-        return checkNumericValue(type, constraint);
+        return checkNumericValue(type, constraint, node);
       case "Boolean":
-        return checkBooleanValue(type, constraint);
+        return checkBooleanValue(type, constraint, node);
       case "EnumMember":
-        return checkEnumValue(type, constraint);
+        return checkEnumValue(type, constraint, node);
       case "Intrinsic":
         switch (type.name) {
           case "null":
-            return checkNullValue(type as any, constraint);
+            return checkNullValue(type as any, constraint, node);
         }
         return type;
       default:
@@ -741,14 +748,14 @@ export function createChecker(program: Program): Checker {
     mapper?: TypeMapper,
     constraint?: Type | ValueType | ParamConstraintUnion | undefined
   ): Type | Value | null {
-    const entity = getTypeOrValueForNodeInternal(node, mapper, constraint);
+    const valueConstraint = extractValueOfConstraints(constraint);
+    const entity = getTypeOrValueForNodeInternal(node, mapper, valueConstraint);
     if (entity === null || isValue(entity)) {
       return entity;
     }
 
-    const valueConstraint = extractValueOfConstraints(constraint);
     if (valueConstraint) {
-      return tryUsingValueOfType(entity, mapper, valueConstraint);
+      return tryUsingValueOfType(entity, mapper, valueConstraint, node);
     }
 
     return entity;
@@ -775,7 +782,7 @@ export function createChecker(program: Program): Checker {
   function getTypeOrValueForNodeInternal(
     node: Node,
     mapper?: TypeMapper,
-    constraint?: Type | ValueType | ParamConstraintUnion | undefined
+    valueConstraint?: Type | undefined
   ): Type | Value | null {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
@@ -838,9 +845,10 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.UnknownKeyword:
         return unknownType;
       case SyntaxKind.ObjectLiteral:
-        return checkObjectValue(node, mapper);
+        console.trace("Checking", valueConstraint);
+        return checkObjectValue(node, mapper, valueConstraint);
       case SyntaxKind.TupleLiteral:
-        return checkArrayValue(node, mapper);
+        return checkArrayValue(node, mapper, valueConstraint);
       case SyntaxKind.ConstStatement:
         return checkConst(node);
       case SyntaxKind.CallExpression:
@@ -3215,13 +3223,21 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkObjectValue(node: ObjectLiteralNode, mapper: TypeMapper | undefined): ObjectValue {
+  function checkObjectValue(
+    node: ObjectLiteralNode,
+    mapper: TypeMapper | undefined,
+    type: Type | undefined
+  ): ObjectValue | null {
     const properties = checkObjectLiteralProperties(node, mapper);
+    const preciseType = createTypeForObjectValue(properties);
+    if (type && !checkTypeAssignable(preciseType, type, node)) {
+      return null;
+    }
     return {
       valueKind: "ObjectValue",
       node: node,
       properties,
-      type: createTypeForObjectValue(properties),
+      type: type ?? preciseType,
     };
   }
 
@@ -3295,7 +3311,8 @@ export function createChecker(program: Program): Checker {
 
   function checkArrayValue(
     node: TupleLiteralNode,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
+    type: Type | undefined
   ): ArrayValue | null {
     let hasError = false;
     const values = node.values.map((itemNode) => {
@@ -3308,11 +3325,17 @@ export function createChecker(program: Program): Checker {
     if (hasError) {
       return null;
     }
+
+    const preciseType = createTypeForArrayValue(values as any);
+    if (type && !checkTypeAssignable(preciseType, type, node)) {
+      return null;
+    }
+
     return {
       valueKind: "ArrayValue",
       node: node,
       values: values as any,
-      type: createTypeForArrayValue(values as any),
+      type: type ?? preciseType,
     };
   }
 
@@ -3322,26 +3345,6 @@ export function createChecker(program: Program): Checker {
       node: undefined!,
       values: values.map((x) => x.type),
     });
-  }
-
-  function findTypesMatching(base: Type, constraint: Type): Type[] {
-    if (constraint.kind === base.kind) {
-      if (ignoreDiagnostics(isTypeAssignableTo(base, constraint, base))) {
-        return [constraint];
-      }
-      return [];
-    } else if (constraint.kind === "Union") {
-      const matches: Type[] = [];
-      for (const variant of constraint.variants.values()) {
-        const subMatches = findTypesMatching(base, variant.type);
-        for (const match of subMatches) {
-          matches.push(match);
-        }
-      }
-      return matches;
-    } else {
-      return [];
-    }
   }
 
   function inferScalarForPrimitiveValue(
@@ -3389,9 +3392,12 @@ export function createChecker(program: Program): Checker {
 
   function checkStringValue(
     literalType: StringLiteral | StringTemplate,
-    mapper: TypeMapper | undefined,
-    type: Type | undefined
-  ): StringValue {
+    type: Type | undefined,
+    node: Node
+  ): StringValue | null {
+    if (type && !checkTypeAssignable(literalType, type, node)) {
+      return null;
+    }
     let value: string;
     if (literalType.kind === "StringTemplate") {
       const [result, diagnostics] = stringTemplateToString(literalType);
@@ -3409,7 +3415,14 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkNumericValue(literalType: NumericLiteral, type: Type | undefined): NumericValue {
+  function checkNumericValue(
+    literalType: NumericLiteral,
+    type: Type | undefined,
+    node: Node
+  ): NumericValue | null {
+    if (type && !checkTypeAssignable(literalType, type, node)) {
+      return null;
+    }
     const scalar = inferScalarForPrimitiveValue(getStdType("numeric"), type, literalType);
     return {
       valueKind: "NumericValue",
@@ -3419,7 +3432,14 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkBooleanValue(literalType: BooleanLiteral, type: Type | undefined): BooleanValue {
+  function checkBooleanValue(
+    literalType: BooleanLiteral,
+    type: Type | undefined,
+    node: Node
+  ): BooleanValue | null {
+    if (type && !checkTypeAssignable(literalType, type, node)) {
+      return null;
+    }
     const scalar = inferScalarForPrimitiveValue(getStdType("boolean"), type, literalType);
     return {
       valueKind: "BooleanValue",
@@ -3429,13 +3449,15 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkNullValue(literalType: NullType, type: Type | undefined): NullValue | null {
-    if (
-      type !== undefined &&
-      !ignoreDiagnostics(isTypeAssignableTo(literalType, type, literalType))
-    ) {
+  function checkNullValue(
+    literalType: NullType,
+    type: Type | undefined,
+    node: Node
+  ): NullValue | null {
+    if (type && !checkTypeAssignable(literalType, type, node)) {
       return null;
     }
+
     return {
       valueKind: "NullValue",
       type: type ?? literalType,
@@ -3443,8 +3465,12 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function checkEnumValue(literalType: EnumMember, type: Type | undefined): EnumValue | null {
-    if (type !== undefined && !findTypesMatching(literalType, type)) {
+  function checkEnumValue(
+    literalType: EnumMember,
+    type: Type | undefined,
+    node: Node
+  ): EnumValue | null {
+    if (type && !checkTypeAssignable(literalType, type, node)) {
       return null;
     }
     return {
