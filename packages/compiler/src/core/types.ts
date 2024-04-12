@@ -247,7 +247,8 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
     | ModelStatementNode
     | ModelExpressionNode
     | IntersectionExpressionNode
-    | ProjectionModelExpressionNode;
+    | ProjectionModelExpressionNode
+    | ObjectLiteralNode;
   namespace?: Namespace;
   indexer?: ModelIndexer;
 
@@ -293,7 +294,8 @@ export interface ModelProperty extends BaseType, DecoratedType {
     | ModelPropertyNode
     | ModelSpreadPropertyNode
     | ProjectionModelPropertyNode
-    | ProjectionModelSpreadPropertyNode;
+    | ProjectionModelSpreadPropertyNode
+    | ObjectLiteralPropertyNode;
   name: string;
   type: Type;
   // when spread or intersection operators make new property types,
@@ -328,6 +330,7 @@ export interface ObjectValue extends BaseValue {
 }
 
 export interface ObjectValuePropertyDescriptor {
+  node: ObjectLiteralPropertyNode;
   name: string;
   value: Value;
 }
@@ -596,7 +599,7 @@ export interface StringTemplateSpanValue extends BaseType {
 
 export interface Tuple extends BaseType {
   kind: "Tuple";
-  node: TupleExpressionNode;
+  node: TupleExpressionNode | TupleLiteralNode;
   values: Type[];
 }
 

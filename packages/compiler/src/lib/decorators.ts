@@ -1492,8 +1492,6 @@ function validateRange(
     return true;
   }
   if (min.gt(max)) {
-    console.log("Min", min, max);
-
     reportDiagnostic(context.program, {
       code: "invalid-range",
       format: { start: min.toString(), end: max.toString() },

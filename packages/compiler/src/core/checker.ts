@@ -39,7 +39,6 @@ import {
 import {
   AliasStatementNode,
   ArrayExpressionNode,
-  ArrayModelType,
   ArrayValue,
   AugmentDecoratorStatementNode,
   BooleanLiteral,
@@ -1323,24 +1322,6 @@ export function createChecker(program: Program): Checker {
     return finalMap;
   }
 
-  function checkValueReferenceSymbol(
-    sym: Sym,
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined
-  ): Value | null {
-    // TODO: use common checkTypeOrValueReferenceSymbol
-    if (sym.flags & SymbolFlags.Const) {
-      return getValueForNode(sym.declarations[0], mapper);
-    }
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "expect-value",
-        format: { name: sym.name },
-        target: node,
-      })
-    );
-    return null;
-  }
   /**
    * Check and resolve the type for the given symbol + node.
    * @param sym Symbol
@@ -3236,7 +3217,7 @@ export function createChecker(program: Program): Checker {
     constraint: CheckValueConstraint | undefined
   ): ObjectValue | null {
     const properties = checkObjectLiteralProperties(node, mapper);
-    const preciseType = createTypeForObjectValue(properties);
+    const preciseType = createTypeForObjectValue(node, properties);
     if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
@@ -3248,27 +3229,33 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function createTypeForObjectValue(properties: Map<string, ObjectValuePropertyDescriptor>): Model {
-    return createAndFinishType({
+  function createTypeForObjectValue(
+    node: ObjectLiteralNode,
+    properties: Map<string, ObjectValuePropertyDescriptor>
+  ): Model {
+    const model = createType({
       kind: "Model",
       name: "",
-      properties: createRekeyableMap<string, ModelProperty>(
-        [...properties.entries()].map(([name, prop]) => [
-          name,
-          createModelPropertyForObjectPropertyDescriptor(prop),
-        ])
-      ),
+      node,
+      properties: createRekeyableMap<string, ModelProperty>(),
       decorators: [],
       derivedModels: [],
     });
+
+    for (const prop of properties.values()) {
+      model.properties.set(prop.name, createModelPropertyForObjectPropertyDescriptor(prop, model));
+    }
+    return finishType(model);
   }
 
   function createModelPropertyForObjectPropertyDescriptor(
-    prop: ObjectValuePropertyDescriptor
+    prop: ObjectValuePropertyDescriptor,
+    parentModel: Model
   ): ModelProperty {
     return createAndFinishType({
       kind: "ModelProperty",
-      node: undefined!,
+      node: prop.node,
+      model: parentModel,
       optional: false,
       name: prop.name,
       type: prop.value.type,
@@ -3286,13 +3273,13 @@ export function createChecker(program: Program): Checker {
       if ("id" in prop) {
         const value = getValueForNode(prop.value, mapper);
         if (value !== null) {
-          properties.set(prop.id.sv, { name: prop.id.sv, value: value });
+          properties.set(prop.id.sv, { name: prop.id.sv, value: value, node: prop });
         }
       } else {
         const targetType = checkObjectSpreadProperty(prop.target, mapper);
         if (targetType) {
           for (const [name, value] of targetType.properties) {
-            properties.set(name, value);
+            properties.set(name, { ...value });
           }
         }
       }
@@ -3333,7 +3320,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
 
-    const preciseType = createTypeForArrayValue(values as any);
+    const preciseType = createTypeForArrayValue(node, values as any);
     if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
     }
@@ -3346,10 +3333,10 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function createTypeForArrayValue(values: Value[]): Tuple {
+  function createTypeForArrayValue(node: TupleLiteralNode, values: Value[]): Tuple {
     return createAndFinishType({
       kind: "Tuple",
-      node: undefined!,
+      node,
       values: values.map((x) => x.type),
     });
   }
@@ -4335,7 +4322,7 @@ export function createChecker(program: Program): Checker {
       if (type.kind === "UnionVariant") {
         return isValue(type.type);
       }
-      if (type.kind === "Tuple") {
+      if (type.kind === "Tuple" && type.node.kind === SyntaxKind.TupleExpression) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "deprecated",
@@ -6362,9 +6349,6 @@ export function createChecker(program: Program): Checker {
     constraint: CheckValueConstraint,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
-    if (constraint.type === undefined) {
-      console.trace("Ab");
-    }
     const [related, diagnostics] = isTypeAssignableTo(source, constraint.type, diagnosticTarget);
     if (!related) {
       if (constraint.kind === "argument") {
@@ -6644,6 +6628,7 @@ export function createChecker(program: Program): Checker {
     if (
       isSourceAType &&
       source.kind === "Tuple" &&
+      source.node.kind === SyntaxKind.TupleExpression &&
       isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
         Related.true
     ) {
@@ -6836,6 +6821,7 @@ export function createChecker(program: Program): Checker {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
         if (!prop.optional) {
+          console.trace("HERer");
           diagnostics.push(
             createDiagnostic({
               code: "missing-property",
@@ -6884,105 +6870,35 @@ export function createChecker(program: Program): Checker {
           diagnostics.push(...indexDiagnostics);
         }
       }
-    }
-
-    return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
-  }
-
-  function isObjectLiteralOfModelType(
-    source: ObjectValue,
-    target: Model,
-    diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
-    relationCache.set([source, target], Related.maybe);
-    const diagnostics: Diagnostic[] = [];
-    const remainingProperties = new Map(source.properties);
-    for (const prop of walkPropertiesInherited(target)) {
-      const sourceProperty = source.properties.get(prop.name);
-      if (sourceProperty === undefined) {
-        if (!prop.optional) {
+    } else if (shouldCheckExcessProperties(source)) {
+      for (const [propName, prop] of remainingProperties) {
+        if (shouldCheckExcessProperty(prop)) {
           diagnostics.push(
             createDiagnostic({
-              code: "missing-property",
+              code: "unexpected-property",
               format: {
-                propertyName: prop.name,
-                sourceType: getEntityName(source),
-                targetType: getEntityName(target),
+                propertyName: propName,
+                type: getEntityName(target),
               },
-              target: source,
+              target: prop,
             })
           );
         }
-      } else {
-        remainingProperties.delete(prop.name);
-        const [related, propDiagnostics] = isValueOfTypeInternal(
-          sourceProperty.value,
-          prop.type,
-          diagnosticTarget,
-          relationCache
-        );
-        if (!related) {
-          diagnostics.push(...propDiagnostics);
-        }
       }
     }
 
-    if (target.indexer) {
-      const [_, indexerDiagnostics] = arePropertiesAssignableToIndexer(
-        remainingProperties as any, // TODO: fix
-        target.indexer.value,
-        diagnosticTarget,
-        relationCache
-      );
-      diagnostics.push(...indexerDiagnostics);
-    } else {
-      for (const [propName] of remainingProperties) {
-        diagnostics.push(
-          createDiagnostic({
-            code: "unexpected-property",
-            format: {
-              propertyName: propName,
-              type: getEntityName(target),
-            },
-            target: getObjectLiteralPropertyNode(source, propName),
-          })
-        );
-      }
-    }
     return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
   }
-  function getObjectLiteralPropertyNode(
-    object: ObjectValue,
-    propertyName: string
-  ): DiagnosticTarget {
-    return (
-      object.node.properties.find(
-        (x) => x.kind === SyntaxKind.ObjectLiteralProperty && x.id.sv === propertyName
-      ) ?? object.node
-    );
+
+  /** If we should check for excess properties on the given model. */
+  function shouldCheckExcessProperties(model: Model) {
+    return model.node?.kind === SyntaxKind.ObjectLiteral;
   }
-
-  function isTupleLiteralOfArrayType(
-    source: ArrayValue,
-    target: ArrayModelType,
-    diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Entity, Entity], Related>
-  ): [Related, readonly Diagnostic[]] {
-    relationCache.set([source, target], Related.maybe);
-    for (const value of source.values) {
-      const [related, diagnostics] = isValueOfTypeInternal(
-        value,
-        target.indexer.value,
-        diagnosticTarget,
-        relationCache
-      );
-      if (!related) {
-        return [Related.false, diagnostics];
-      }
-    }
-
-    return [Related.true, []];
+  /** If we should check for this specific property */
+  function shouldCheckExcessProperty(prop: ModelProperty) {
+    return (
+      prop.node?.kind === SyntaxKind.ObjectLiteralProperty && prop.node.parent === prop.model?.node
+    );
   }
 
   function getProperty(model: Model, name: string): ModelProperty | undefined {

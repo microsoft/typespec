@@ -76,13 +76,17 @@ describe("compiler: checker: type relations", () => {
 
     const Source = ${cursor}${source};
    `);
+
+    console.log("Code", code);
     await runner.compile(code);
     const constStatement = runner.program.sourceFiles
       .get(resolveVirtualPath("main.tsp"))
-      ?.statements.find((x): x is ConstStatementNode => x.kind === SyntaxKind.ConstStatement);
+      ?.statements.find(
+        (x): x is ConstStatementNode => x.kind === SyntaxKind.ConstStatement && x.id.sv === "Source"
+      );
     ok(constStatement);
-    const sourceProp = runner.program.checker.getValueForNode(constStatement.value);
-    ok(sourceProp, `Could not find source type for ${source}`);
+    const value = runner.program.checker.getValueForNode(constStatement.value);
+    ok(value, `Could not find source type for ${source}`);
     const decDeclaration = runner.program
       .getGlobalNamespaceType()
       .decoratorDeclarations.get("mock");
@@ -90,7 +94,7 @@ describe("compiler: checker: type relations", () => {
     ok(targetProp, `Could not find target type for ${target}`);
 
     const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
-      sourceProp,
+      value,
       targetProp,
       constStatement.value
     );
@@ -1313,18 +1317,31 @@ describe("compiler: checker: type relations", () => {
         );
       });
 
-      it("emit diagnostic when using extra properties", async () => {
-        await expectValueNotAssignable(
-          {
-            source: `#{name: "foo", ┆notDefined: "bar"}`,
+      describe("excess properties", () => {
+        it("emit diagnostic when using extra properties", async () => {
+          await expectValueNotAssignable(
+            {
+              source: `#{name: "foo", ┆notDefined: "bar"}`,
+              target: "valueof Info",
+              commonCode: `model Info { name: string }`,
+            },
+            {
+              code: "unexpected-property",
+              message: `Object literal may only specify known properties, and 'notDefined' does not exist in type 'Info'.`,
+            }
+          );
+        });
+
+        it("don't emit diagnostic when the extra props are spread into it", async () => {
+          await expectValueAssignable({
+            source: `#{name: "foo", ...common}`,
             target: "valueof Info",
-            commonCode: `model Info { name: string }`,
-          },
-          {
-            code: "unexpected-property",
-            message: `Object literal may only specify known properties, and 'notDefined' does not exist in type 'Info'.`,
-          }
-        );
+            commonCode: `
+              const common = #{notDefined: "bar"};
+              model Info { name: string }
+              `,
+          });
+        });
       });
 
       it("cannot assign a tuple literal", async () => {
