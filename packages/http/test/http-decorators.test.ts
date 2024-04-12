@@ -85,12 +85,11 @@ describe("http: decorators", () => {
         {
           code: "invalid-argument",
           message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
+            "Argument '{ name: 123 } is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
+          message: `Argument '{ format: "invalid" }' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'`,
         },
       ]);
     });
@@ -173,13 +172,11 @@ describe("http: decorators", () => {
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
+          message: `Argument '{name: 123}' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
+          message: `Argument '{ format: "invalid" }' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
         },
       ]);
     });

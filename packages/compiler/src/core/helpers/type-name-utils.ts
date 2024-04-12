@@ -158,7 +158,10 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   }
 
   if (model.name === "") {
-    return nsPrefix + "(anonymous model)";
+    return (
+      nsPrefix +
+      `{ ${[...model.properties.values()].map((prop) => `${prop.name}: ${getTypeName(prop.type, options)}`).join(", ")} }`
+    );
   }
   const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (isTemplateInstance(model)) {

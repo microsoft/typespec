@@ -800,8 +800,7 @@ describe("compiler: checker: type relations", () => {
         { source: `{foo: "abc"}`, target: `{foo: string, bar: string}` },
         {
           code: "missing-property",
-          message:
-            "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+          message: `Property 'bar' is missing on type '{ foo: "abc" }' but required in '{ foo: string, bar: string }'`,
         }
       );
     });
@@ -897,8 +896,8 @@ describe("compiler: checker: type relations", () => {
       await expectTypeNotAssignable(
         { source: `{}`, target: "string[]" },
         {
-          code: "missing-index",
-          message: "Index signature for type 'integer' is missing in type '{}'.",
+          code: "unassignable",
+          message: "Type '{}' is not assignable to type 'string[]'",
         }
       );
     });
@@ -1066,7 +1065,7 @@ describe("compiler: checker: type relations", () => {
 
         expectDiagnostics(diagnostics, {
           code: "missing-property",
-          message: `Property 'a' is missing on type '(anonymous model)' but required in '(anonymous model)'`,
+          message: `Property 'a' is missing on type '{ b: string }' but required in '{ a: string }'`,
         });
       });
 
@@ -1337,7 +1336,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "unassignable",
-            message: `Type '#["foo"]' is not assignable to type 'Info'`,
+            message: `Type '["foo"]' is not assignable to type 'Info'`,
           }
         );
       });
@@ -1398,7 +1397,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "unassignable",
-            message: `Type '#{name: "foo"}' is not assignable to type 'string[]'`,
+            message: `Type '{ name: "foo" }' is not assignable to type 'string[]'`,
           }
         );
       });
@@ -1431,7 +1430,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: [
-              `Type '#["foo"]' is not assignable to type '[string, string]'`,
+              `Type '["foo"]' is not assignable to type '[string, string]'`,
               "  Source has 1 element(s) but target requires 2.",
             ].join("\n"),
           }
@@ -1447,7 +1446,7 @@ describe("compiler: checker: type relations", () => {
           {
             code: "unassignable",
             message: [
-              `Type '#["a", "b", "c"]' is not assignable to type '[string, string]'`,
+              `Type '["a", "b", "c"]' is not assignable to type '[string, string]'`,
               "  Source has 3 element(s) but target requires 2.",
             ].join("\n"),
           }

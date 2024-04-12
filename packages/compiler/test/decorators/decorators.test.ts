@@ -857,7 +857,7 @@ describe("compiler: built-in decorators", () => {
         {
           code: "missing-property",
           message:
-            "Property 'param' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+            "Property 'param' is missing on type '{ foo: boolean }' but required in '{ param: string | int32 }'",
           severity: "error",
         },
         {

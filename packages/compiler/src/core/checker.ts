@@ -6583,12 +6583,17 @@ export function createChecker(program: Program): Checker {
       isArrayModelType(program, target) &&
       source.kind === "Model"
     ) {
-      return hasIndexAndIsAssignableTo(
-        source,
-        target as Model & { indexer: ModelIndexer },
-        diagnosticTarget,
-        relationCache
-      );
+      if (isArrayModelType(program, source)) {
+        return hasIndexAndIsAssignableTo(
+          source,
+          target as Model & { indexer: ModelIndexer },
+          diagnosticTarget,
+          relationCache
+        );
+      } else {
+        // For other models just fallback to unassignable
+        return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+      }
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
     } else if (
@@ -6720,46 +6725,6 @@ export function createChecker(program: Program): Checker {
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     return isTypeAssignableToInternal(source.type, target, diagnosticTarget, relationCache);
-    // TODO: cleanup
-    // if (isUnknownType(target)) return [Related.true, []];
-    // if (source.valueKind === "NullValue") {
-    //   return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
-    // }
-    // if (target.kind === "Union") {
-    //   for (const option of target.variants.values()) {
-    //     const [related] = isValueOfTypeInternal(
-    //       source,
-    //       option.type,
-    //       diagnosticTarget,
-    //       relationCache
-    //     );
-    //     if (related) {
-    //       return [Related.true, []];
-    //     }
-    //   }
-    // }
-
-    // switch (source.valueKind) {
-    //   case "ObjectValue":
-    //     if (target.kind === "Model" && !isArrayModelType(program, target)) {
-    //       return isObjectLiteralOfModelType(source, target, diagnosticTarget, relationCache);
-    //     }
-    //     break;
-    //   case "ArrayValue":
-    //     if (target.kind === "Model" && isArrayModelType(program, target)) {
-    //       return isTupleLiteralOfArrayType(source, target, diagnosticTarget, relationCache);
-    //     } else if (target.kind === "Tuple") {
-    //       return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
-    //     }
-    //     break;
-    //   case "StringValue":
-    //   case "NumericValue":
-    //   case "BooleanValue":
-    //   case "EnumMemberValue":
-    //     return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
-    // }
-
-    // return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {

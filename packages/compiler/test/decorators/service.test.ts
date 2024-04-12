@@ -64,8 +64,7 @@ describe("compiler: service", () => {
 
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
-      message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'ServiceOptions'",
+      message: "Argument '{ title: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 
@@ -103,7 +102,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '(anonymous model)' is not assignable to parameter of type 'ServiceOptions'",
+        "Argument '{ version: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 });
