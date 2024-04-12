@@ -5,6 +5,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  Numeric,
   Program,
   Scalar,
   Tuple,
@@ -123,13 +124,16 @@ const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
 export const $multipleOf: MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => {
   context.program.stateMap(multipleOfKey).set(target, value);
 };
 
-export function getMultipleOf(program: Program, target: Type) {
+export function getMultipleOfAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(multipleOfKey).get(target);
+}
+export function getMultipleOf(program: Program, target: Type): number | undefined {
+  return getMultipleOfAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 const idKey = createStateSymbol("JsonSchema.id");
