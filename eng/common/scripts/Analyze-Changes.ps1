@@ -104,7 +104,12 @@ $root = [TreeNode]::new('Root')
 
 # add all changed files to the tree
 Write-Host "Checking for changes in current branch compared to $TargetBranch"
-git diff --name-only $TargetBranch"..." | ForEach-Object {
+$result = git diff --name-only $TargetBranch"..."
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "'git diff --name-only $TargetBranch...' failed, exiting..."
+    exit 1  # Exit with a non-zero exit code to indicate failure
+}
+$result | ForEach-Object {
     $root.Add($_)
 }
 
