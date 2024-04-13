@@ -34,8 +34,8 @@
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.8.3",
-    "@chronus/github": "^0.2.2",
+    "@chronus/chronus": "^0.9.0",
+    "@chronus/github": "^0.3.0",
     "@eslint/js": "^8.57.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@types/node": "~18.11.19",
@@ -46,8 +46,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-deprecation": "^2.0.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-unicorn": "^51.0.1",
-    "eslint-plugin-vitest": "^0.4.1",
+    "eslint-plugin-unicorn": "^52.0.0",
+    "eslint-plugin-vitest": "^0.5.2",
     "prettier": "~3.2.5",
     "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.5",

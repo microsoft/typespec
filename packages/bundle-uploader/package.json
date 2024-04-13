@@ -37,7 +37,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure/identity": "~4.0.1",
+    "@azure/identity": "~4.1.0",
     "@azure/storage-blob": "~12.17.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@typespec/bundler": "workspace:~",
