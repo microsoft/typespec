@@ -15,37 +15,51 @@ import {
 
 // cspell:ignore 𐌰𐌲𐌰𐌲𐌰𐌲
 
-describe("compiler: server: completion", () => {
-  it("completes globals", async () => {
-    const completions = await complete(
-      `
-      model M {
-        s: ┆
-      }
-      `
-    );
-    check(completions, [
-      {
-        label: "int32",
-        insertText: "int32",
-        kind: CompletionItemKind.Unit,
-        documentation: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\nscalar int32\n```",
-        },
-      },
-      {
-        label: "Record",
-        insertText: "Record",
-        kind: CompletionItemKind.Class,
-        documentation: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\nmodel Record<Element>\n```",
-        },
-      },
-    ]);
-  });
+describe("complete statement keywords", () => {
+  describe.each([
+    // Top level only
+    ["import", false],
+    ["using", false],
+    // Namespace and top level
+    ["model", true],
+    ["op", true],
+    ["extern", true],
+    ["dec", true],
+    ["alias", true],
+    ["namespace", true],
+    ["import", true],
+    ["interface", true],
+    ["scalar", true],
+    ["union", true],
+    ["enum", true],
+    ["fn", true],
+  ])("%s", (keyword, inNamespace) => {
+    describe.each(inNamespace ? ["top level", "namespace"] : ["top level"])("%s", () => {
+      it("complete with no text", async () => {
+        const completions = await complete(`┆`);
 
+        check(completions, [
+          {
+            label: keyword,
+            kind: CompletionItemKind.Keyword,
+          },
+        ]);
+      });
+      it("complete with start of keyword", async () => {
+        const completions = await complete(`${keyword.slice(0, 1)}┆`);
+
+        check(completions, [
+          {
+            label: keyword,
+            kind: CompletionItemKind.Keyword,
+          },
+        ]);
+      });
+    });
+  });
+});
+
+describe("imports", () => {
   describe("library imports", () => {
     async function testCompleteLibrary(code: string) {
       const { source, pos, end } = extractSquiggles(code);
@@ -243,7 +257,38 @@ describe("compiler: server: completion", () => {
       });
     });
   });
+});
 
+describe("identifiers", () => {
+  it("builtin types", async () => {
+    const completions = await complete(
+      `
+      model M {
+        s: ┆
+      }
+      `
+    );
+    check(completions, [
+      {
+        label: "int32",
+        insertText: "int32",
+        kind: CompletionItemKind.Unit,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nscalar int32\n```",
+        },
+      },
+      {
+        label: "Record",
+        insertText: "Record",
+        kind: CompletionItemKind.Class,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nmodel Record<Element>\n```",
+        },
+      },
+    ]);
+  });
   it("completes decorators on namespaces", async () => {
     const completions = await complete(
       `
@@ -1013,87 +1058,83 @@ describe("compiler: server: completion", () => {
       check(completions, []);
     });
   });
-
-  function check(
-    list: CompletionList,
-    expectedItems: CompletionItem[],
-    options?: {
-      allowAdditionalCompletions?: boolean;
-      fullDocs?: boolean;
-    }
-  ) {
-    options = {
-      allowAdditionalCompletions: true,
-      fullDocs: false,
-      ...options,
-    };
-
-    ok(!list.isIncomplete, "list should not be incomplete.");
-
-    const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
-    strictEqual(
-      expectedMap.size,
-      expectedItems.length,
-      "Duplicate labels in expected completions."
-    );
-
-    const actualMap = new Map(list.items.map((i) => [i.label, i]));
-    strictEqual(actualMap.size, list.items.length, "Duplicate labels in actual completions.");
-
-    for (const expected of expectedItems) {
-      const actual = actualMap.get(expected.label);
-
-      // Unless given the fullDocs option, tests only give their expectation for the first
-      // markdown paragraph.
-      if (
-        !options.fullDocs &&
-        typeof actual?.documentation === "object" &&
-        actual.documentation.value.indexOf("\n\n") > 0
-      ) {
-        actual.documentation = {
-          kind: MarkupKind.Markdown,
-          value: actual.documentation.value.substring(
-            0,
-            actual.documentation.value.indexOf("\n\n")
-          ),
-        };
-      }
-
-      ok(actual, `Expected completion item not found: '${expected.label}'.`);
-      deepStrictEqual(actual, expected);
-      actualMap.delete(actual.label);
-      expectedMap.delete(expected.label);
-    }
-
-    const expectedRemaining = Array.from(expectedMap.values());
-    deepStrictEqual(expectedRemaining, [], "Not all expected completions were found.");
-
-    if (!options.allowAdditionalCompletions) {
-      const actualRemaining = Array.from(actualMap.values());
-      deepStrictEqual(actualRemaining, [], "Extra completions were found.");
-    }
-  }
-
-  async function complete(
-    sourceWithCursor: string,
-    jsSourceFile?: { name: string; js: Record<string, any> },
-    additionalFiles?: Record<string, string>
-  ): Promise<CompletionList> {
-    const { source, pos } = extractCursor(sourceWithCursor);
-    const testHost = await createTestServerHost();
-    if (jsSourceFile) {
-      testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);
-    }
-    if (additionalFiles) {
-      for (const [key, value] of Object.entries(additionalFiles)) {
-        testHost.addTypeSpecFile(key, value);
-      }
-    }
-    testHost.addTypeSpecFile("main.tsp", 'import "./test/test.tsp";');
-    const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
-    return await testHost.server.complete({
-      textDocument,
-      position: textDocument.positionAt(pos),
-    });
-  }
 });
+
+function check(
+  list: CompletionList,
+  expectedItems: CompletionItem[],
+  options?: {
+    allowAdditionalCompletions?: boolean;
+    fullDocs?: boolean;
+  }
+) {
+  options = {
+    allowAdditionalCompletions: true,
+    fullDocs: false,
+    ...options,
+  };
+
+  ok(!list.isIncomplete, "list should not be incomplete.");
+
+  const expectedMap = new Map(expectedItems.map((i) => [i.label, i]));
+  strictEqual(expectedMap.size, expectedItems.length, "Duplicate labels in expected completions.");
+
+  const actualMap = new Map(list.items.map((i) => [i.label, i]));
+  strictEqual(actualMap.size, list.items.length, "Duplicate labels in actual completions.");
+
+  for (const expected of expectedItems) {
+    const actual = actualMap.get(expected.label);
+
+    // Unless given the fullDocs option, tests only give their expectation for the first
+    // markdown paragraph.
+    if (
+      !options.fullDocs &&
+      typeof actual?.documentation === "object" &&
+      actual.documentation.value.indexOf("\n\n") > 0
+    ) {
+      actual.documentation = {
+        kind: MarkupKind.Markdown,
+        value: actual.documentation.value.substring(0, actual.documentation.value.indexOf("\n\n")),
+      };
+    }
+
+    ok(
+      actual,
+      `Expected completion item not found: '${expected.label}'. Available: ${list.items.map((x) => x.label).join(", ")}`
+    );
+    deepStrictEqual(actual, expected);
+    actualMap.delete(actual.label);
+    expectedMap.delete(expected.label);
+  }
+
+  const expectedRemaining = Array.from(expectedMap.values());
+  deepStrictEqual(expectedRemaining, [], "Not all expected completions were found.");
+
+  if (!options.allowAdditionalCompletions) {
+    const actualRemaining = Array.from(actualMap.values());
+    deepStrictEqual(actualRemaining, [], "Extra completions were found.");
+  }
+}
+
+async function complete(
+  sourceWithCursor: string,
+  jsSourceFile?: { name: string; js: Record<string, any> },
+  additionalFiles?: Record<string, string>
+): Promise<CompletionList> {
+  const { source, pos } = extractCursor(sourceWithCursor);
+  const testHost = await createTestServerHost();
+  if (jsSourceFile) {
+    testHost.addJsFile(jsSourceFile.name, jsSourceFile.js);
+  }
+  if (additionalFiles) {
+    for (const [key, value] of Object.entries(additionalFiles)) {
+      testHost.addTypeSpecFile(key, value);
+    }
+  }
+  testHost.addTypeSpecFile("main.tsp", 'import "./test/test.tsp";');
+  const textDocument = testHost.addOrUpdateDocument("test/test.tsp", source);
+  return await testHost.server.complete({
+    textDocument,
+    position: textDocument.positionAt(pos),
+  });
+}
