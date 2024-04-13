@@ -18,13 +18,15 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - pwsh: |
-                  Write-Host "Setting RunCore to true"
-                  Write-Host "##vso[task.setvariable variable=RunCore;isOutput=true]true"
-                  Write-Host "Setting RunCSharp to true"
-                  Write-Host "##vso[task.setvariable variable=RunCSharp;isOutput=true]true"
+              - task: PowerShell@2
+                displayName: "Analyze PR changes"
                 name: InitStep
-                displayName: Initialize
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
+                  arguments: >
+                    -TargetBranch $(System.PullRequest.TargetBranch)
+                  workingDirectory: $(Build.SourcesDirectory)
 
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
