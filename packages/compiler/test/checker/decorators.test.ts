@@ -1,6 +1,7 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { numericRanges, setTypeSpecNamespace } from "../../src/core/index.js";
+import { setTypeSpecNamespace } from "../../src/core/index.js";
+import { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
   BasicTestRunner,

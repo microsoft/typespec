@@ -1,6 +1,6 @@
-import { numericRanges } from "./checker.js";
 import { typespecTypeToJson } from "./decorator-utils.js";
 import { compilerAssert } from "./diagnostics.js";
+import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
 import type {
   ArrayValue,

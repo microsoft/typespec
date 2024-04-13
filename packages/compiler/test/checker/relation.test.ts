@@ -1293,14 +1293,6 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("can assign a model (LEGACY)", async () => {
-        await expectTypeAssignable({
-          source: `{name: "foo"}`,
-          target: "valueof Info",
-          commonCode: `model Info { name: string }`,
-        });
-      });
-
       // Disabled for now as this is allowed for backcompat
       it.skip("cannot assign a model ", async () => {
         await expectTypeNotAssignable(

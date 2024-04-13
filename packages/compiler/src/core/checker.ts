@@ -16,6 +16,7 @@ import {
 } from "./helpers/index.js";
 import { marshallTypeForJSWithLegacyCast } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
+import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,
@@ -708,7 +709,8 @@ export function createChecker(program: Program): Checker {
   function tryUsingValueOfType(
     type: Type,
     constraint: CheckValueConstraint | undefined,
-    node: Node
+    node: Node,
+    options: { legacyTupleAndModelCast?: boolean } = {}
   ): Type | Value | null {
     switch (type.kind) {
       case "String":
@@ -723,7 +725,13 @@ export function createChecker(program: Program): Checker {
       case "UnionVariant":
         return tryUsingValueOfType(type.type, constraint, node);
       case "Tuple":
-        return legacy_tryUsingTupleAsArrayValue(type, constraint?.type, node);
+        return options.legacyTupleAndModelCast
+          ? legacy_tryUsingTupleAsArrayValue(type, constraint?.type, node)
+          : type;
+      case "Model":
+        return options.legacyTupleAndModelCast
+          ? legacy_tryUsingModelAsObjectValue(type, constraint?.type, node)
+          : type;
       case "Intrinsic":
         switch (type.name) {
           case "null":
@@ -735,55 +743,116 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  // Legacy behavior to smooth transition to object values.
+  function legacy_tryUsingModelAsObjectValue(
+    model: Model,
+    type: Type | undefined,
+    node: Node
+  ): Model | ObjectValue | null {
+    if (model.node?.kind !== SyntaxKind.ModelExpression) {
+      return model; // we only want to convert model expressions
+    }
+
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "deprecated",
+        codefixes: [createModelToLiteralCodeFix(model.node)],
+        format: {
+          message:
+            "Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+        },
+        target: model.node,
+      })
+    );
+
+    const value: ObjectValue = {
+      valueKind: "ObjectValue",
+      type: type ?? model,
+      node: model.node as any,
+      properties: new Map(),
+    };
+
+    for (const prop of model.properties.values()) {
+      const propValue = tryUsingValueOfType(
+        prop.type,
+        { kind: "assignment", type: prop.type },
+        node,
+        { legacyTupleAndModelCast: true }
+      );
+      if (propValue == null) {
+        return null;
+      } else if (!isValue(propValue)) {
+        return model;
+      }
+      value.properties.set(prop.name, {
+        name: prop.name,
+        value: propValue,
+        node: prop.node as any,
+      });
+    }
+
+    if (type !== undefined && !checkTypeAssignable(model, type, node)) {
+      return null;
+    }
+
+    return value;
+  }
+
   // Legacy behavior to smooth transition to array values.
   function legacy_tryUsingTupleAsArrayValue(
     tuple: Tuple,
     type: Type | undefined,
     node: Node
-  ): ArrayValue | null {
-    if (
-      tuple.node.kind === SyntaxKind.TupleExpression &&
-      (type === undefined || checkTypeAssignable(tuple, type, node))
-    ) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          codefixes: [createTupleToLiteralCodeFix(tuple.node)],
-          format: {
-            message:
-              "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
-          },
-          target: tuple.node,
-        })
+  ): Tuple | ArrayValue | null {
+    if (tuple.node.kind !== SyntaxKind.TupleExpression) {
+      return tuple; // we won't convert dynamic tuples to array values
+    }
+
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "deprecated",
+        codefixes: [createTupleToLiteralCodeFix(tuple.node)],
+        format: {
+          message: "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+        },
+        target: tuple.node,
+      })
+    );
+
+    const values: Value[] = [];
+    for (const [index, item] of tuple.values.entries()) {
+      const itemType =
+        type?.kind === "Model" && isArrayModelType(program, type)
+          ? type.indexer.value
+          : type?.kind === "Tuple"
+            ? type.values[index]
+            : undefined;
+      const value = tryUsingValueOfType(
+        item,
+        itemType && { kind: "assignment", type: itemType },
+        node,
+        {
+          legacyTupleAndModelCast: true,
+        }
       );
+      if (value === null) {
+        return null;
+      } else if (!isValue(value)) {
+        return tuple;
+      }
+      values.push(value);
     }
-    if (type?.kind === "Model" && isArrayModelType(program, type)) {
-      return {
-        valueKind: "ArrayValue",
-        type,
-        node: tuple.node as any,
-        values: tuple.values
-          .map((x) =>
-            tryUsingValueOfType(x, { kind: "assignment", type: type.indexer.value }, node)
-          )
-          .filter((x): x is Value => x !== null),
-      };
-    } else {
-      return {
-        valueKind: "ArrayValue",
-        type: type ?? tuple,
-        node: tuple.node as any,
-        values: tuple.values
-          .map((x, i) =>
-            tryUsingValueOfType(
-              x,
-              type?.kind === "Tuple" ? { kind: "assignment", type: type.values[i] } : undefined,
-              node
-            )
-          )
-          .filter((x): x is Value => x !== null),
-      };
+
+    if (type !== undefined && !checkTypeAssignable(tuple, type, node)) {
+      return null;
     }
+
+    return {
+      valueKind: "ArrayValue",
+      type: type ?? tuple,
+      node: tuple.node as any,
+      values,
+    };
   }
 
   interface CheckConstraint {
@@ -811,7 +880,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (valueConstraint) {
-      return tryUsingValueOfType(entity, valueConstraint, node);
+      return tryUsingValueOfType(entity, valueConstraint, node, { legacyTupleAndModelCast: true });
     }
 
     return entity;
@@ -1356,7 +1425,7 @@ export function createChecker(program: Program): Checker {
             ? finalMap.get(param.constraint)!
             : param.constraint;
 
-        if (!checkTypeAssignable(type, constraint, argNode)) {
+        if (isErrorType(type) || !checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
           const effectiveType =
             param.constraint?.kind === "Value" || param.constraint.kind === "ParamConstraintUnion"
@@ -6644,28 +6713,6 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    // LEGACY BEHAVIOR - Goal here is to all models instead of object literal and tuple instead of tuple literals to get a smooth migration of decorators
-    if (
-      isSourceAType &&
-      source.kind === "Model" &&
-      source.node?.kind === SyntaxKind.ModelExpression &&
-      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
-        Related.true
-    ) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "deprecated",
-          codefixes: [createModelToLiteralCodeFix(source.node)],
-          format: {
-            message:
-              "Using a model as a value is deprecated. Use an object literal instead(with #{}).",
-          },
-          target: source,
-        })
-      );
-      return [Related.true, []];
-    }
-
     if (!isValue(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
@@ -7078,35 +7125,6 @@ export function createChecker(program: Program): Checker {
 function isAnonymous(type: Type) {
   return !("name" in type) || typeof type.name !== "string" || !type.name;
 }
-
-export const numericRanges = {
-  int64: [
-    Numeric("-9223372036854775808"),
-    Numeric("9223372036854775807"),
-    { int: true, isJsNumber: false },
-  ],
-  int32: [Numeric("-2147483648"), Numeric("2147483647"), { int: true, isJsNumber: true }],
-  int16: [Numeric("-32768"), Numeric("32767"), { int: true, isJsNumber: true }],
-  int8: [Numeric("-128"), Numeric("127"), { int: true, isJsNumber: true }],
-  uint64: [Numeric("0"), Numeric("18446744073709551615"), { int: true, isJsNumber: false }],
-  uint32: [Numeric("0"), Numeric("4294967295"), { int: true, isJsNumber: true }],
-  uint16: [Numeric("0"), Numeric("65535"), { int: true, isJsNumber: true }],
-  uint8: [Numeric("0"), Numeric("255"), { int: true, isJsNumber: true }],
-  safeint: [
-    Numeric(Number.MIN_SAFE_INTEGER.toString()),
-    Numeric(Number.MAX_SAFE_INTEGER.toString()),
-    { int: true, isJsNumber: true },
-  ],
-  float32: [Numeric("-3.4e38"), Numeric("3.4e38"), { int: false, isJsNumber: true }],
-  float64: [
-    Numeric(`${-Number.MAX_VALUE}`),
-    Numeric(Number.MAX_VALUE.toString()),
-    { int: false, isJsNumber: true },
-  ],
-} as const satisfies Record<
-  string,
-  [min: Numeric, max: Numeric, options: { int: boolean; isJsNumber: boolean }]
->;
 
 /**
  * Find all named models that could have been the source of the given

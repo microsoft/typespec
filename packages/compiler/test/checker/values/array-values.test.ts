@@ -1,6 +1,7 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { expectDiagnostics } from "../../../src/testing/index.js";
+import { Model, isValue } from "../../../src/index.js";
+import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
 import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
 
 it("no values", async () => {
@@ -83,15 +84,20 @@ describe("emit diagnostic when used in", () => {
   });
 });
 
-describe("(LEGACY) case tuple to array value", () => {
-  it("cast the value", async () => {
-    const value = await compileValueType(
-      "a",
+describe("(LEGACY) cast tuple to array value", () => {
+  it("create the value", async () => {
+    const runner = await createTestRunner();
+    const { Test } = (await runner.compile(
       `
-        #suppress "deprecated" "for testing"
-        const a: string[] = ["foo", "bar"];`
-    );
+        @test model Test<T extends valueof string[]> {}
 
+        #suppress "deprecated" "for testing"
+        alias A = Test<["foo", "bar"]>;
+      `
+    )) as { Test: Model };
+
+    const value = Test.templateMapper?.args[0];
+    ok(value && isValue(value));
     strictEqual(value.valueKind, "ArrayValue");
     expect(value.values).toHaveLength(2);
     strictEqual(value.values[0].valueKind, "StringValue");
@@ -99,9 +105,11 @@ describe("(LEGACY) case tuple to array value", () => {
     strictEqual(value.values[1].valueKind, "StringValue");
     strictEqual(value.values[1].value, "bar");
   });
+
   it("emit a warning diagnostic", async () => {
     const { diagnostics, pos } = await diagnoseUsage(`
-    const a: string[] = ┆["foo"];
+      model Test<T extends valueof string[]> {}
+      alias A = Test<┆["foo"]>;
   `);
 
     expectDiagnostics(diagnostics, {
@@ -110,5 +118,37 @@ describe("(LEGACY) case tuple to array value", () => {
         "Deprecated: Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
       pos,
     });
+  });
+
+  it("emit a error if element in tuple expression are not castable to value", async () => {
+    const { diagnostics, pos } = await diagnoseUsage(`
+      model Test<T extends valueof string[]> {}
+
+      #suppress "deprecated" "for testing"
+      alias A = Test<┆[string]>;
+  `);
+
+    expectDiagnostics(diagnostics, {
+      code: "unassignable",
+      message: "Type '[string]' is not assignable to type 'valueof string[]'",
+      pos,
+    });
+  });
+
+  it("emit a error if element in tuple expression are not assignable", async () => {
+    const { diagnostics, pos } = await diagnoseUsage(`
+      model Test<T extends valueof string[]> {}
+
+      alias A = Test<┆[123]>;
+  `);
+
+    expectDiagnostics(diagnostics, [
+      { code: "deprecated" }, // deprecated diagnostic still emitted
+      {
+        code: "unassignable",
+        message: "Type '123' is not assignable to type 'string'",
+        pos,
+      },
+    ]);
   });
 });

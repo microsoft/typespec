@@ -1,6 +1,7 @@
-import { strictEqual } from "assert";
-import { describe, it } from "vitest";
-import { expectDiagnostics } from "../../../src/testing/index.js";
+import { ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
+import { Model, isValue } from "../../../src/index.js";
+import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
 import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
 
 it("no properties", async () => {
@@ -145,5 +146,63 @@ describe("emit diagnostic when used in", () => {
       message: "A value cannot be used as a type.",
       pos,
     });
+  });
+});
+
+describe("(LEGACY) cast model to object value", () => {
+  it("create the value", async () => {
+    const runner = await createTestRunner();
+    const { Test } = (await runner.compile(
+      `
+        @test model Test<T extends valueof {a: string, b: string}> {}
+
+        #suppress "deprecated" "for testing"
+        alias A = Test<{a: "foo", b: "bar"}>;
+      `
+    )) as { Test: Model };
+
+    const value = Test.templateMapper?.args[0];
+    ok(value && isValue(value));
+    strictEqual(value.valueKind, "ObjectValue");
+    expect(value.properties).toHaveLength(2);
+    const a = value.properties.get("a")?.value;
+    ok(a);
+    strictEqual(a.valueKind, "StringValue");
+    strictEqual(a.value, "foo");
+    const b = value.properties.get("b")?.value;
+    ok(b);
+    strictEqual(b.valueKind, "StringValue");
+    strictEqual(b.value, "bar");
+  });
+
+  it("emit a warning diagnostic", async () => {
+    const { diagnostics, pos } = await diagnoseUsage(`
+      model Test<T extends valueof {a: string}> {}
+      alias A = Test<┆{a: "b"}>;
+  `);
+
+    expectDiagnostics(diagnostics, {
+      code: "deprecated",
+      message:
+        "Deprecated: Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+      pos,
+    });
+  });
+
+  it("emit a error if element in model expression are not castable to value", async () => {
+    const { diagnostics, pos } = await diagnoseUsage(`
+      model Test<T extends valueof {a: string}> {}
+
+      alias A = Test<┆{a: string}>;
+  `);
+
+    expectDiagnostics(diagnostics, [
+      { code: "deprecated" }, // deprecated diagnostic still emitted
+      {
+        code: "unassignable",
+        message: "Type '{ a: string }' is not assignable to type 'valueof { a: string }'",
+        pos,
+      },
+    ]);
   });
 });
