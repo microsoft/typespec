@@ -54,19 +54,17 @@ class FixtureFS {
   }
 }
 
-describe.skip("compiler: watch", () => {
+describe("compiler: watch", () => {
+  let watcher: ProjectWatcher;
+  let fixtures: FixtureFS;
+  let changes: [WatchEventType, string][];
+
   beforeAll(async () => {
     try {
       await rm(fixtureRoot, { recursive: true });
     } catch {}
     await mkdir(fixtureRoot, { recursive: true });
-  });
 
-  let watcher: ProjectWatcher;
-  let fixtures: FixtureFS;
-  let changes: [WatchEventType, string][];
-
-  beforeAll(() => {
     fixtures = new FixtureFS();
     changes = [];
     watcher = createWatcher((evt, name) => {
