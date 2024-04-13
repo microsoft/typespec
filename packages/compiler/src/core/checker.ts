@@ -4710,7 +4710,7 @@ export function createChecker(program: Program): Checker {
     valueConstraint: CheckValueConstraint | undefined
   ) {
     if (valueConstraint !== undefined) {
-      if (isValue(value) || value.kind === "Model" || value.kind === "Tuple") {
+      if (isValue(value)) {
         const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value, valueConstraint.type);
         reportCheckerDiagnostics(diagnostics);
         return res ?? value;

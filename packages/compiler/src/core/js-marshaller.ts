@@ -1,4 +1,3 @@
-import { typespecTypeToJson } from "./decorator-utils.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
@@ -6,24 +5,18 @@ import type {
   ArrayValue,
   Diagnostic,
   MarshalledValue,
-  Model,
   NumericValue,
   ObjectValue,
-  Tuple,
   Type,
   Value,
 } from "./types.js";
 
 /** Legacy version that will cast models to object literals and tuple to tuple literals */
-export function marshallTypeForJSWithLegacyCast<T extends Value | Model | Tuple>(
-  entity: T,
+export function marshallTypeForJSWithLegacyCast<T extends Value>(
+  value: Value,
   valueConstraint: Type
 ): [MarshalledValue<T> | undefined, readonly Diagnostic[]] {
-  if ("kind" in entity) {
-    return typespecTypeToJson(entity, entity) as any;
-  } else {
-    return [marshallTypeForJS(entity, valueConstraint) as any, []];
-  }
+  return [marshallTypeForJS(value, valueConstraint) as any, []];
 }
 export function marshallTypeForJS<T extends Value>(
   type: T,
