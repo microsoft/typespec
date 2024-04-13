@@ -685,13 +685,14 @@ export function createChecker(program: Program): Checker {
   function getValueForNode(
     node: Node,
     mapper?: TypeMapper,
-    constraint?: CheckValueConstraint
+    constraint?: CheckValueConstraint,
+    options: { legacyTupleAndModelCast?: boolean } = {}
   ): Value | null {
     let entity = getTypeOrValueForNodeInternal(node, mapper, constraint);
     if (entity === null || isValue(entity)) {
       return entity;
     }
-    entity = tryUsingValueOfType(entity, constraint, node);
+    entity = tryUsingValueOfType(entity, constraint, node, options);
     if (entity === null || isValue(entity)) {
       return entity;
     }
@@ -4446,10 +4447,15 @@ export function createChecker(program: Program): Checker {
       // if the prop type is an error we don't need to validate again.
       return null;
     }
-    const defaultValue = getValueForNode(defaultNode, undefined, {
-      kind: "assignment",
-      type,
-    });
+    const defaultValue = getValueForNode(
+      defaultNode,
+      undefined,
+      {
+        kind: "assignment",
+        type,
+      },
+      { legacyTupleAndModelCast: true }
+    );
     if (defaultValue === null) {
       return null;
     }
@@ -4461,7 +4467,9 @@ export function createChecker(program: Program): Checker {
       return defaultValue;
     }
   }
-  /** Fill in the legacy `.default` property.
+
+  /**
+   * Fill in the legacy `.default` property.
    * We do do checking here we just keep existing behavior.
    */
   function checkLegacyDefault(defaultNode: Node): Type | undefined {
