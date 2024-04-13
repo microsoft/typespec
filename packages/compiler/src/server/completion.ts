@@ -56,7 +56,7 @@ export async function resolveCompletion(
         addKeywordCompletion("namespace", context.completions);
         break;
       case SyntaxKind.ScalarStatement:
-        addKeywordCompletion("scalar", completions);
+        addKeywordCompletion("scalar", context.completions);
         break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
