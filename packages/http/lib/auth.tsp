@@ -212,7 +212,7 @@ model ClientCredentialsFlow {
  * https://server.com/.well-known/openid-configuration
  * ```
  */
-model OpenIdConnectAuth<ConnectUrl extends valueof string> {
+model OpenIdConnectAuth<ConnectUrl extends string> {
   /** Auth type */
   type: AuthType.openIdConnect;
 
