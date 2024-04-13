@@ -41,18 +41,18 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typescript-eslint/parser": "^7.5.0",
+    "@typescript-eslint/parser": "^7.6.0",
     "@typescript-eslint/rule-tester": "~7.5.0",
-    "@typescript-eslint/types": "^7.5.0",
-    "@vitest/coverage-v8": "^1.4.0",
-    "@vitest/ui": "^1.4.0",
+    "@typescript-eslint/types": "^7.6.0",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.4.3",
-    "vitest": "^1.4.0"
+    "typescript": "~5.4.5",
+    "vitest": "^1.5.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^7.5.0"
+    "@typescript-eslint/utils": "^7.6.0"
   }
 }
