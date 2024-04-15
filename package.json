@@ -34,7 +34,7 @@
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.10.0",
+    "@chronus/chronus": "^0.10.1",
     "@chronus/github": "^0.3.2",
     "@eslint/js": "^8.57.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
