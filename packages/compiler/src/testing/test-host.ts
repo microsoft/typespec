@@ -42,7 +42,7 @@ function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions
 ): CompilerHost {
-  const libDirs = [resolveVirtualPath(".tsp/lib")];
+  const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
   }

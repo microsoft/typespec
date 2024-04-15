@@ -28,7 +28,7 @@ export const NodeHost: CompilerHost = {
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
-    return [joinPaths(rootDir, "lib")];
+    return [joinPaths(rootDir, "lib/std")];
   },
   stat(path: string) {
     return stat(path);

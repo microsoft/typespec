@@ -356,9 +356,6 @@ export function createChecker(program: Program): Checker {
 
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
-    // the TypeSpec namespace binding will be absent if we've passed
-    // the no-std-lib option.
-    // the first declaration here is the JS file for the TypeSpec script.
     initializeTypeSpecIntrinsics();
     for (const file of program.sourceFiles.values()) {
       addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
