@@ -393,8 +393,8 @@ export function formatComment(
 ): string {
   function getNextLine(target: string): string {
     for (let i = lineLength - 1; i > 0; i--) {
-      if ([" ", ".", "?", "-", ",", ";"].includes(target.charAt(i))) {
-        return `/// ${text.substring(0, i)}`;
+      if ([" ", ".", "?", ",", ";"].includes(target.charAt(i))) {
+        return `/// ${text.substring(0, i).replaceAll("\n", " ")}`;
       }
     }
 
