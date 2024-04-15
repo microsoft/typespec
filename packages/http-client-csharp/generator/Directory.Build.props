@@ -1,0 +1,50 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
+    <RepoEngPath>$(MSBuildThisFileDirectory)../eng</RepoEngPath>
+    <IsTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestProject>
+    <CentralPackagesFile>$(MSBuildThisFileDirectory)Packages.Data.props</CentralPackagesFile>
+    <ShouldUseCentralVersions Condition="'$(ShouldUseCentralVersions)' == ''">true</ShouldUseCentralVersions>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+    <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageIconPath>$(RepoEngPath)/images/$(PackageIcon)</PackageIconPath>
+  </PropertyGroup>
+
+  <!-- Setup default project properties -->
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <PlatformName Condition="'$(PlatformName)' == ''">$(Platform)</PlatformName>
+  </PropertyGroup>
+
+  <!-- Setup common output paths -->
+  <PropertyGroup>
+    <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(RepoRoot)artifacts\</ArtifactsDir>
+    <ArtifactsObjDir>$(ArtifactsDir)obj\</ArtifactsObjDir>
+    <ArtifactsBinDir>$(ArtifactsDir)bin\</ArtifactsBinDir>
+    <ArtifactsPackagesDir>$(ArtifactsDir)packages\$(Configuration)\</ArtifactsPackagesDir>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <OutDirName Condition="'$(OutDirName)' == ''">$(MSBuildProjectName)</OutDirName>
+
+    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$([System.IO.Path]::GetFullPath('$(ArtifactsBinDir)$(OutDirName)\'))</BaseOutputPath>
+    <OutputPath Condition="'$(PlatformName)' == 'AnyCPU'">$(BaseOutputPath)$(Configuration)\</OutputPath>
+    <OutputPath Condition="'$(PlatformName)' != 'AnyCPU'">$(BaseOutputPath)$(PlatformName)\$(Configuration)\</OutputPath>
+
+    <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$([System.IO.Path]::GetFullPath('$(ArtifactsObjDir)$(OutDirName)\'))</BaseIntermediateOutputPath>
+    <IntermediateOutputPath Condition="'$(PlatformName)' == 'AnyCPU'">$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <IntermediateOutputPath Condition="'$(PlatformName)' != 'AnyCPU'">$(BaseIntermediateOutputPath)$(PlatformName)\$(Configuration)\</IntermediateOutputPath>
+
+    <PackageOutputPath>$(ArtifactsPackagesDir)</PackageOutputPath>
+    <CodeAnalysisRuleSet>$(RepoEngPath)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+    <PublicSign>false</PublicSign>
+    <ImportDefaultReferences>false</ImportDefaultReferences>
+    <LangVersion>12.0</LangVersion>
+  </PropertyGroup>
+
+</Project>

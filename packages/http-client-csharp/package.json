@@ -23,8 +23,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p tsconfig.build.json",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "build": "tsc -p ./emitter/tsconfig.build.json",
+    "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:watch": "vitest -w",
@@ -35,7 +35,8 @@
     "format": "pnpm -w format:dir packages/http-client-csharp"
   },
   "files": [
-    "dist/**"
+    "emitter/dist/**",
+    "generator/artifacts/bin/release/8.0/**"
   ],
   "dependencies": {
     "json-serialize-refs": "0.1.0-0",
@@ -66,6 +67,7 @@
     "c8": "^9.1.0",
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",
-    "vitest": "^1.4.0"
+    "vitest": "^1.4.0",
+    "@typespec/http-client-csharp-generator-clientModel": "file:generator/artifacts/bin/Microsoft.Generator.CSharp.ClientModel/Debug/net8.0/"
   }
 }
