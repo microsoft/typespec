@@ -2,7 +2,7 @@ import {
   SdkContext,
   SdkEnumType,
   SdkEnumValueType,
-  UsageFlags
+  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { Enum } from "@typespec/compiler";
 import { setUsage } from "../lib/model.js";
