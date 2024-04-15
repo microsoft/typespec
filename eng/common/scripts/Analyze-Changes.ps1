@@ -104,14 +104,10 @@ function Get-ActiveVariables($changes) {
     $root = [TreeNode]::new('Root')
     $variables = @()
 
-    Write-Host "##[group]Files changed in this pr"
     $changes | ForEach-Object {
-        Write-Host "  - $_"
         $root.Add($_)
     }
     
-    Write-Host "##[endgroup]"
-
     # exit early if no changes detected
     if ($root.Children.Count -eq 0) {
         Write-Host "##[error] No changes detected"
@@ -129,7 +125,7 @@ function Get-ActiveVariables($changes) {
         if (-not $runIsolated) {
             # set each isolated package flag
             foreach ($package in $isolatedPackages.Values) {
-                $package.RunValue = $root.PathExists($package)
+                $package.RunValue = $root.PathExists($package.Path)
             }
         }
 
@@ -156,6 +152,12 @@ function Get-ActiveVariables($changes) {
 # add all changed files to the tree
 Write-Host "Checking for changes in current branch compared to $TargetBranch"
 $changes = git diff --name-only origin/$TargetBranch...
+
+Write-Host "##[group]Files changed in this pr"
+$changes | ForEach-Object {
+    Write-Host "  - $_"
+}
+Write-Host "##[endgroup]"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "##[error] 'git diff --name-only origin/$TargetBranch...' failed, exiting..."
