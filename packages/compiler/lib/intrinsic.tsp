@@ -1,3 +1,5 @@
+import "../dist/src/lib/intrinsic-decorators.js";
+
 // This file contains all the intrinsic types of typespec. Everything here will always be loaded
 namespace TypeSpec;
 
@@ -122,20 +124,6 @@ scalar duration;
  * Boolean with `true` and `false` values.
  */
 scalar boolean;
-
-/**
- * Represent a 32-bit unix timestamp datetime with 1s of granularity.
- * It measures time by the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
- */
-@encode("unixTimestamp", int32)
-scalar unixTimestamp32 extends utcDateTime;
-
-/**
- * Represent a model
- */
-// Deprecated June 2023 sprint
-#deprecated "object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
-model object {}
 
 /**
  * @dev Array model type, equivalent to `Element[]`

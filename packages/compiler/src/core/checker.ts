@@ -1,4 +1,5 @@
-import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
+import { $docFromComment, isArrayModelType } from "../lib/decorators.js";
+import { getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
