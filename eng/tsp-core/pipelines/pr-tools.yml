@@ -15,8 +15,8 @@ extends:
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
     stages:
-      - stage: publish_playground
-        displayName: Publish playground
+      - stage: pr_tools
+        displayName: PR Tools
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -71,7 +71,7 @@ extends:
             steps:
               - checkout: self
 
-              - script: npx -p @chronus/github-pr-commenter@0.3.0 chronus-github-pr-commenter verify
+              - script: npx -p @chronus/github-pr-commenter@0.4.0 chronus-github-pr-commenter verify
                 displayName: Make comment about changes
                 env:
                   GITHUB_TOKEN: $(azuresdk-github-pat)
