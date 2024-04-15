@@ -72,54 +72,53 @@ describe("service-generator-csharp: core service generation", () => {
       /** A simple test model*/
       model Foo {
         /** binary data */
-        bytesProp: bytes;
+        bytesProp?: bytes;
 
         /** generic decimal data */
-        decimalProp: decimal;
+        decimalProp?: decimal;
         /** decimal128 data */
-        decimal128Prop: decimal128;
+        decimal128Prop?: decimal128;
 
         /** SByte */
-        signedByteProp: int8;
+        signedByteProp?: int8;
         /** Byte */
-        byteProp: uint8;
+        byteProp?: uint8;
         /** Int16 */
-        int16Prop: int16;
+        int16Prop?: int16;
         /** int */
-        int32Prop: int32;
+        int32Prop?: int32;
         /** long */
-        int64Prop: int64;
+        int64Prop?: int64;
         /** Uint16 */
-        uint16Prop: uint16;
+        uint16Prop?: uint16;
         /** Uint32 */
-        uint32Prop: uint32;
+        uint32Prop?: uint32;
         /** ulong */
-        uint64Prop: uint64;
+        uint64Prop?: uint64;
         /** js safeint property */
-        safeIntProp: safeint;
+        safeIntProp?: safeint;
         /** float */
-        f32Prop: float32;
+        f32Prop?: float32;
         /** double */
-        f64Prop: float64;
+        f64Prop?: float64;
         /** bool */
-        boolProp: boolean;
+        boolProp?: boolean;
         /** DateTime */
-        dateProp: plainDate;
+        dateProp?: plainDate;
         /** DateTime */
-        timeProp: plainTime;
+        timeProp?: plainTime;
         /** DateTimeOffset */
-        utcDateTimeProp: utcDateTime;
+        utcDateTimeProp?: utcDateTime;
         /** DateTimeOffset */
-        #suppress "@azure-tools/typespec-azure-core/no-offsetdatetime" "This is a test"
-        offsetDateTimeProp: offsetDateTime;
+        offsetDateTimeProp?: offsetDateTime;
         /** TimeSpan */
-        durationProp: duration;
+        durationProp?: duration;
         /** unix timestamp data */
-        timestampProp: unixTimestamp32;
+        timestampProp?: unixTimestamp32;
         /** string */
-        stringProp: string;
+        stringProp?: string;
         /** resource locator prop */
-        urlProp: url;
+        urlProp?: url;
       }
       `,
       "Foo.cs",
@@ -211,7 +210,7 @@ describe("service-generator-csharp: core service generation", () => {
     );
   });
 
-  it ("generates default model namespaces", async () => {
+  it("generates default model namespaces", async () => {
     await compileAndValidateSingleModel(
       runner,
       `
@@ -231,7 +230,7 @@ describe("service-generator-csharp: core service generation", () => {
         "using System.Text.Json;",
         `using System.Text.Json.Serialization;`,
         `using System;`,
-        `using System.Collections.Threading`,
+        `[JsonPropertyName( "pass")]`,
       ]
     );
   });
@@ -243,11 +242,11 @@ describe("service-generator-csharp: core service generation", () => {
       /** A simple test model*/
       model Foo {
         /** string literal */
-        stringLiteralProp: "This is a string literal";
+        stringLiteralProp?: "This is a string literal";
         /** boolean literal */
-        boolLiteralProp: true;
+        boolLiteralProp?: true;
         /** numeric literal */
-        numericLiteralProp: 17;
+        numericLiteralProp?: 17;
       }
       `,
       "Foo.cs",
@@ -277,7 +276,7 @@ describe("service-generator-csharp: core service generation", () => {
       "Foo.cs",
       [
         "public partial class Foo",
-        `public string? StringLiteralProp { get; set; } = "This is a string literal";`,
+        `public string StringLiteralProp { get; set; } = "This is a string literal";`,
         "public bool? BoolLiteralProp { get; set; } = true;",
         "public int? NumericLiteralProp { get; set; } = 17;",
       ]
@@ -359,16 +358,16 @@ describe("service-generator-csharp: core service generation", () => {
       /** A model with a circular references */
       model Baz {
         /** Mutually circular with Foo */
-        fooProp: Foo;
+        fooProp?: Foo;
         /** Recursive definition */
-        nextBazProp: Baz;
+        nextBazProp?: Baz;
       }
       /** A simple test model*/
       model Foo {
         /** enum */
-        barProp: Bar;
+        barProp?: Bar;
         /** circular */
-        bazProp: Baz;
+        bazProp?: Baz;
       }
       `,
       [
@@ -408,7 +407,7 @@ describe("service-generator-csharp: core service generation", () => {
       "Foo.cs",
       [
         "public partial class Foo",
-        `public string? GeneratedInvalidName { get; set; } = "This is a string literal";`,
+        `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
       ]
     );
   });

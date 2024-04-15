@@ -106,7 +106,7 @@ export class BooleanValue extends CSharpValue {
 }
 
 export class NullValue extends CSharpValue {
-  value?: null;
+  value?: null = null;
   public emitValue(scope?: Scope<string> | undefined): string {
     return "null";
   }

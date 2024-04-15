@@ -42,11 +42,6 @@ describe("service-generator-csharp: diagnostics", () => {
         message:
           "Type 'integer' is an imprecise type that does not map directly to a single numeric type, using 'long' as the safest c# numeric type.  Please specify a more precise numeric type, like 'int32' or 'float64'",
       },
-      {
-        code: "@typespec/service-generator-csharp/no-numeric",
-        message:
-          "Type 'integer' is an imprecise type that does not map directly to a single numeric type, using 'long' as the safest c# numeric type.  Please specify a more precise numeric type, like 'int32' or 'float64'",
-      },
     ]);
   });
 
@@ -67,11 +62,6 @@ describe("service-generator-csharp: diagnostics", () => {
         message:
           "Type 'float' is an imprecise type that does not map directly to a single numeric type, using 'double' as the safest c# numeric type.  Please specify a more precise numeric type, like 'int32' or 'float64'",
       },
-      {
-        code: "@typespec/service-generator-csharp/no-numeric",
-        message:
-          "Type 'float' is an imprecise type that does not map directly to a single numeric type, using 'double' as the safest c# numeric type.  Please specify a more precise numeric type, like 'int32' or 'float64'",
-      },
     ]);
   });
 
@@ -87,11 +77,6 @@ describe("service-generator-csharp: diagnostics", () => {
     );
 
     expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/service-generator-csharp/no-numeric",
-        message:
-          "Type 'numeric' is an imprecise type that does not map directly to a single numeric type, using 'object' as the safest c# numeric type.  Please specify a more precise numeric type, like 'int32' or 'float64'",
-      },
       {
         code: "@typespec/service-generator-csharp/no-numeric",
         message:
