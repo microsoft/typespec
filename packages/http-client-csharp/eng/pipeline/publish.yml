@@ -13,7 +13,7 @@ extends:
 
   parameters:
     stages:
-      - tempate: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: false
           UseTypeSpecNext: false
