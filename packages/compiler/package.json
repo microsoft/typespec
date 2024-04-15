@@ -19,7 +19,7 @@
   ],
   "type": "module",
   "main": "dist/src/index.js",
-  "tspMain": "lib/main.tsp",
+  "tspMain": "lib/std/main.tsp",
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
