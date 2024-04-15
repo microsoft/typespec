@@ -224,7 +224,7 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "*" },
-    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },
+    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "**" },
   ],
 };
 
