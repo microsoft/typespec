@@ -84,7 +84,7 @@
     "monaco-editor": "~0.47.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
-    "swagger-ui-dist": "^5.15.1",
+    "swagger-ui-dist": "^5.15.2",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11"
   },
@@ -106,7 +106,7 @@
     "copyfiles": "~2.4.1",
     "cross-env": "~7.0.3",
     "rimraf": "~5.0.5",
-    "rollup": "~4.14.2",
+    "rollup": "~4.14.3",
     "rollup-plugin-postcss": "~4.0.2",
     "rollup-plugin-visualizer": "~5.12.0",
     "typescript": "~5.4.5",

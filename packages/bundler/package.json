@@ -50,7 +50,7 @@
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.0",
-    "rollup": "~4.14.2",
+    "rollup": "~4.14.3",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
