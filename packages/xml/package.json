@@ -1,6 +1,6 @@
 {
   "name": "@typespec/xml",
-  "version": "0.54.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing xml bindings",
   "homepage": "https://typespec.io",
