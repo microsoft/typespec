@@ -383,7 +383,7 @@ export interface MetadataInfo {
    *
    * When the type of a property is emptied by visibility, the property
    * itself is also removed.
-   * @deprecated This produce inconsistent behaviors and should be avoided.
+   * @deprecated This produces inconsistent behaviors and should be avoided.
    */
   isEmptied(type: Type | undefined, visibility: Visibility): boolean;
 
