@@ -16,8 +16,8 @@ alias Template<T extends string> = "Foo ${T} bar";
 
 /** Example of string template with template parameters */
 @doc("Animal named: ${T}")
-model Animal<T extends string> {
-  kind: T;
+model Animal<T extends valueof string> {
+  named: string;
 }
 
 model Cat is Animal<"Cat">;
