@@ -15,9 +15,9 @@
     "declaration": true,
     "stripInternal": true,
     "noEmitHelpers": false,
-    "target": "es2019",
+    "target": "ES2022",
     "types": ["node"],
-    "lib": ["es2019", "DOM"],
+    "lib": ["es2022", "DOM"],
     "experimentalDecorators": true,
     "newLine": "LF"
   }

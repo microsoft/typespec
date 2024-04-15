@@ -12,23 +12,25 @@ parameters:
     default: true
 
 extends:
-  template: /eng/emitters/pipelines/templates/archetype-emitter.yml
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
   parameters:
-    BuildPrereleaseVersion: true
-    ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
-      # In scheduled builds, we always use the "next" version of TypeSpec
-      UseTypeSpecNext: true
-    ${{ else }}:
-      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-    Publish: "internal"
-    PublishDependsOnTest: false
-    PackagePath: /packages/http-client-csharp
-    EmitterPackageJsonPath: packages/http-client-csharp/package.json
-    Packages:
-      - name: emitter
-        file: typespec-http-client-csharp-*.tgz
-        type: npm
-    TestMatrix:
-      ${{ if eq(parameters.RunUnitTests, true) }}:
-        Unit:
-          TestArguments: -UnitTests
+    stages:
+      - tempate: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
+            # In scheduled builds, we always use the "next" version of TypeSpec
+            UseTypeSpecNext: true
+          ${{ else }}:
+            UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+          Publish: "internal"
+          PublishDependsOnTest: false
+          PackagePath: /packages/http-client-csharp
+          EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          Packages:
+            - name: emitter
+              file: typespec-http-client-csharp-*.tgz
+              type: npm
+          ${{ if eq(parameters.RunUnitTests, true) }}:
+            UnitTestArgs: -UnitTests

@@ -67,8 +67,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.47.2",
-    "@fluentui/react-icons": "^2.0.233",
+    "@fluentui/react-components": "~9.47.5",
+    "@fluentui/react-icons": "^2.0.235",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
     "@typespec/html-program-viewer": "workspace:~",
@@ -84,21 +84,21 @@
     "monaco-editor": "~0.47.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
-    "swagger-ui-dist": "^5.13.0",
+    "swagger-ui-dist": "^5.15.2",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.3",
-    "@playwright/test": "^1.42.1",
+    "@babel/core": "^7.24.4",
+    "@playwright/test": "^1.43.1",
     "@rollup/plugin-commonjs": "~25.0.7",
     "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
     "@types/debounce": "~1.2.4",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.2.73",
-    "@types/react-dom": "~18.2.23",
+    "@types/react": "~18.2.78",
+    "@types/react-dom": "~18.2.25",
     "@types/swagger-ui-dist": "~3.30.4",
     "@typespec/bundler": "workspace:~",
     "@vitejs/plugin-react": "~4.2.1",
@@ -106,10 +106,10 @@
     "copyfiles": "~2.4.1",
     "cross-env": "~7.0.3",
     "rimraf": "~5.0.5",
-    "rollup": "~4.13.2",
+    "rollup": "~4.14.3",
     "rollup-plugin-postcss": "~4.0.2",
     "rollup-plugin-visualizer": "~5.12.0",
-    "typescript": "~5.4.3",
-    "vite": "^5.2.7"
+    "typescript": "~5.4.5",
+    "vite": "^5.2.8"
   }
 }

@@ -1,0 +1,41 @@
+trigger: none
+pr:
+  branches:
+    include:
+      - main
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+  parameters:
+    stages:
+      - stage: InitStage
+        displayName: Initialize
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+        jobs:
+          - job: InitJob
+            displayName: Initialize
+            steps:
+              - task: PowerShell@2
+                displayName: "Analyze PR changes"
+                name: InitStep
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
+                  arguments: >
+                    -TargetBranch $(System.PullRequest.TargetBranch)
+                  workingDirectory: $(Build.SourcesDirectory)
+
+      # Run csharp stages if RunCSharp == true
+      - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
+
+      # Run core stages if RunCore == true
+      - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])

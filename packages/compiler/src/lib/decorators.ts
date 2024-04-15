@@ -808,17 +808,35 @@ export const $encode: EncodeDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $encode);
 
+  const encodingStr = computeEncoding(encoding);
+  if (encodingStr === undefined) {
+    return;
+  }
   const encodeData: EncodeData = {
-    encoding:
-      typeof encoding === "string"
-        ? encoding
-        : (encoding as any).value?.toString() ?? (encoding as any).name,
+    encoding: encodingStr,
     type: encodeAs ?? context.program.checker.getStdType("string"),
   };
   const targetType = getPropertyType(target);
   validateEncodeData(context, targetType, encodeData);
   context.program.stateMap(encodeKey).set(target, encodeData);
 };
+function computeEncoding(encoding: string | Type) {
+  if (typeof encoding === "string") {
+    return encoding;
+  }
+  switch (encoding.kind) {
+    case "String":
+      return encoding.value;
+    case "EnumMember":
+      if (encoding.value && typeof encoding.value === "string") {
+        return encoding.value;
+      } else {
+        return getTypeName(encoding);
+      }
+    default:
+      return undefined;
+  }
+}
 
 function validateEncodeData(context: DecoratorContext, target: Type, encodeData: EncodeData) {
   function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {

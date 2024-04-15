@@ -1,0 +1,24 @@
+parameters:
+  - name: Condition
+    type: string
+    default: true
+  - name: DependsOn
+    type: object
+    default: []
+
+stages:
+  - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+    parameters:
+      StagePrefix: CSharp
+      BuildPrereleaseVersion: true
+      UseTypeSpecNext: false
+      Publish: "none"
+      PackagePath: /packages/http-client-csharp
+      EmitterPackageJsonPath: packages/http-client-csharp/package.json
+      Packages:
+        - name: emitter
+          file: typespec-http-client-csharp-*.tgz
+          type: npm
+      UnitTestArgs: -UnitTests
+      Condition: ${{ parameters.Condition }}
+      DependsOn: ${{ parameters.DependsOn }}
