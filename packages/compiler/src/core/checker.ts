@@ -5556,8 +5556,12 @@ export function createChecker(program: Program): Checker {
           }),
         ],
       ];
-    } else if (target.kind === "Model" && target.indexer !== undefined && source.kind === "Model") {
-      return isIndexerValid(
+    } else if (
+      target.kind === "Model" &&
+      isArrayModelType(program, target) &&
+      source.kind === "Model"
+    ) {
+      return hasIndexAndIsAssignableTo(
         source,
         target as Model & { indexer: ModelIndexer },
         diagnosticTarget,
@@ -5718,6 +5722,8 @@ export function createChecker(program: Program): Checker {
   ): [Related, Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     const diagnostics: Diagnostic[] = [];
+    const remainingProperties = new Map(source.properties);
+
     for (const prop of walkPropertiesInherited(target)) {
       const sourceProperty = getProperty(source, prop.name);
       if (sourceProperty === undefined) {
@@ -5735,6 +5741,8 @@ export function createChecker(program: Program): Checker {
           );
         }
       } else {
+        remainingProperties.delete(prop.name);
+
         const [related, propDiagnostics] = isTypeAssignableToInternal(
           sourceProperty.type,
           prop.type,
@@ -5746,6 +5754,30 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
+
+    if (target.indexer) {
+      const [_, indexerDiagnostics] = arePropertiesAssignableToIndexer(
+        remainingProperties,
+        target.indexer.value,
+        diagnosticTarget,
+        relationCache
+      );
+      diagnostics.push(...indexerDiagnostics);
+
+      // For anonymous models we don't need an indexer
+      if (source.name !== "" && target.indexer.key.name !== "integer") {
+        const [related, indexDiagnostics] = hasIndexAndIsAssignableTo(
+          source,
+          target as any,
+          diagnosticTarget,
+          relationCache
+        );
+        if (!related) {
+          diagnostics.push(...indexDiagnostics);
+        }
+      }
+    }
+
     return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
   }
 
@@ -5756,73 +5788,55 @@ export function createChecker(program: Program): Checker {
     );
   }
 
-  function isIndexerValid(
-    source: Model,
-    target: Model & { indexer: ModelIndexer },
+  function arePropertiesAssignableToIndexer(
+    properties: Map<string, ModelProperty>,
+    indexerConstaint: Type,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Type, Type], Related>
   ): [Related, readonly Diagnostic[]] {
-    // Model expressions should be able to be assigned.
-    if (source.name === "" && target.indexer.key.name !== "integer") {
-      return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget, relationCache);
-    } else {
-      if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
-        return [
-          Related.false,
-          [
-            createDiagnostic({
-              code: "missing-index",
-              format: {
-                indexType: getTypeName(target.indexer.key),
-                sourceType: getTypeName(source),
-              },
-              target: diagnosticTarget,
-            }),
-          ],
-        ];
-      }
-      return isTypeAssignableToInternal(
-        source.indexer.value!,
-        target.indexer.value,
+    for (const prop of properties.values()) {
+      const [related, diagnostics] = isTypeAssignableToInternal(
+        prop.type,
+        indexerConstaint,
         diagnosticTarget,
         relationCache
-      );
-    }
-  }
-  /**
-   * @param constraintType Type of the constraints(All properties must have this type).
-   * @param type Type of the model that should be respecting the constraint.
-   * @param diagnosticTarget Diagnostic target unless something better can be inferred.
-   */
-  function isIndexConstraintValid(
-    constraintType: Type,
-    type: Model,
-    diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
-  ): [Related, readonly Diagnostic[]] {
-    for (const prop of type.properties.values()) {
-      const [related, diagnostics] = isTypeAssignableTo(
-        prop.type,
-        constraintType,
-        diagnosticTarget
       );
       if (!related) {
         return [Related.false, diagnostics];
       }
     }
 
-    if (type.baseModel) {
-      const [related, diagnostics] = isIndexConstraintValid(
-        constraintType,
-        type.baseModel,
-        diagnosticTarget,
-        relationCache
-      );
-      if (!related) {
-        return [Related.false, diagnostics];
-      }
-    }
     return [Related.true, []];
+  }
+
+  /** Check that the source model has an index, the index key match and the value of the source index is assignable to the target index. */
+  function hasIndexAndIsAssignableTo(
+    source: Model,
+    target: Model & { indexer: ModelIndexer },
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+  ): [Related, readonly Diagnostic[]] {
+    if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
+      return [
+        Related.false,
+        [
+          createDiagnostic({
+            code: "missing-index",
+            format: {
+              indexType: getTypeName(target.indexer.key),
+              sourceType: getTypeName(source),
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    }
+    return isTypeAssignableToInternal(
+      source.indexer.value!,
+      target.indexer.value,
+      diagnosticTarget,
+      relationCache
+    );
   }
 
   function isTupleAssignableToTuple(
