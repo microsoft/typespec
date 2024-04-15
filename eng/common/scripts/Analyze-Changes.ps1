@@ -99,57 +99,57 @@ class TreeNode {
     }
 }
 
-function ProcessChanges($changes) {
-  # initialize tree
-  $root = [TreeNode]::new('Root')
+function Get-ActiveVariables($changes) {
+    # initialize tree
+    $root = [TreeNode]::new('Root')
+    $variables = @()
 
-  Write-Host "##[group]Files changed in this pr"
-  $changes | ForEach-Object {
-      Write-Host "  - $_"
-      $root.Add($_)
-  }
-  
-  Write-Host "##[endgroup]"
+    Write-Host "##[group]Files changed in this pr"
+    $changes | ForEach-Object {
+        Write-Host "  - $_"
+        $root.Add($_)
+    }
+    
+    Write-Host "##[endgroup]"
 
-  # exit early if no changes detected
-  if ($root.Children.Count -eq 0) {
-      Write-Host "##[error] No changes detected"
-      exit 1
-  }
+    # exit early if no changes detected
+    if ($root.Children.Count -eq 0) {
+        Write-Host "##[error] No changes detected"
+        exit 1
+    }
 
-  # set global flag to run all if common files are changed
-  $runAll = $root.PathExists('eng/common')
+    # set global flag to run all if common files are changed
+    $runAll = $root.PathExists('eng/common')
 
-  # set global isolated package flag to run if any eng/emiters files changed
-  $runIsolated = $root.PathExists('eng/emitters')
+    # set global isolated package flag to run if any eng/emiters files changed
+    $runIsolated = $root.PathExists('eng/emitters')
 
-  # no need to check individual packages if runAll is true
-  if (-not $runAll) {
-      if (-not $runIsolated) {
-          # set each isolated package flag
-          foreach ($package in $isolatedPackages.Values) {
-              $package.RunValue = $root.PathExists($package)
-          }
-      }
+    # no need to check individual packages if runAll is true
+    if (-not $runAll) {
+        if (-not $runIsolated) {
+            # set each isolated package flag
+            foreach ($package in $isolatedPackages.Values) {
+                $package.RunValue = $root.PathExists($package)
+            }
+        }
 
-      # set runCore to true if none of the 
-      $runCore = $root.AnythingOutsideIsolatedPackagesExists($isolatedPackages)
-  }
+        # set runCore to true if none of the 
+        $runCore = $root.AnythingOutsideIsolatedPackagesExists($isolatedPackages)
+    }
 
-  # set log commands
-  if ($runAll -or $runCore) {
-      Write-Host "Setting RunCore to true"
-      Write-Host "##vso[task.setvariable variable=RunCore;isOutput=true]true"
-  }
+    # set log commands
+    if ($runAll -or $runCore) {
+        $variables += "RunCore"
+    }
 
-  # foreach isolated package, set log commands if the RunValue is true
-  foreach ($package in $isolatedPackages.Values) {
-      if ($runAll -or $runIsolated -or $package.RunValue) {
-          $variable = $package.RunVariable
-          Write-Host "Setting $variable to true"
-          Write-Host "##vso[task.setvariable variable=$variable;isOutput=true]true"
-      }
-  }
+    # foreach isolated package, set log commands if the RunValue is true
+    foreach ($package in $isolatedPackages.Values) {
+        if ($runAll -or $runIsolated -or $package.RunValue) {
+            $variables += $package.RunVariable
+        }
+    }
+
+    return $variables
 }
 
 
@@ -162,4 +162,8 @@ if ($LASTEXITCODE -ne 0) {
     exit 1  # Exit with a non-zero exit code to indicate failure
 }
 
-ProcessChanges $changes
+$variables = Get-ActiveVariables $changes
+foreach ($variable in $variables) {
+    Write-Host "Setting $variable to true"
+    Write-Host "##vso[task.setvariable variable=$variable;isOutput=true]true"
+}
