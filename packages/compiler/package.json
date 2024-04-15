@@ -54,7 +54,7 @@
     "tsp-server": "cmd/tsp-server.js"
   },
   "files": [
-    "lib/*.tsp",
+    "lib/**/*.tsp",
     "dist/**",
     "templates/**",
     "entrypoints",
