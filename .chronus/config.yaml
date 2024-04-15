@@ -56,3 +56,7 @@ changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 ignore:
   - "@typespec/http-client-csharp"
+
+changedFiles:
+  - "!**/*.md"
+  - "!**/*.test.ts"
