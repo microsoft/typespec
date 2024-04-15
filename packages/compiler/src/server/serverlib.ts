@@ -672,7 +672,7 @@ export function createServer(host: ServerHost): Server {
       const { script, document, program } = result;
       const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
-      await resolveCompletion(
+      return await resolveCompletion(
         {
           program,
           file: script,
@@ -682,6 +682,7 @@ export function createServer(host: ServerHost): Server {
         node
       );
     }
+
     return completions;
   }
 
