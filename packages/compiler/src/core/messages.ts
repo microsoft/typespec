@@ -663,6 +663,13 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "mixed-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    },
+  },
   "non-literal-string-template": {
     severity: "error",
     messages: {

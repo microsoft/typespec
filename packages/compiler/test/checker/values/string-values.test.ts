@@ -63,6 +63,13 @@ describe("string templates", () => {
     strictEqual(value.scalar?.name, "string");
     strictEqual(value.value, "one abc def");
   });
+
+  it("interpolate another const", async () => {
+    const value = await compileValueType(`string("one \${a} def")`, `const a = "abc";`);
+    strictEqual(value.valueKind, "StringValue");
+    strictEqual(value.value, "one abc def");
+  });
+
   it("emit error if string template is not serializable to string", async () => {
     const diagnostics = await diagnoseValueType(`string("one \${boolean} def")`);
     expectDiagnostics(diagnostics, {

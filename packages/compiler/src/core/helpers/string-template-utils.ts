@@ -24,6 +24,11 @@ export function stringTemplateToString(
             return String(x.type.value);
           case "StringTemplate":
             return diagnostics.pipe(stringTemplateToString(x.type));
+          case "TemplateParameter":
+            if (x.type.constraint && x.type.constraint.kind === "Value") {
+              return "";
+            }
+          // eslint-disable-next-line no-fallthrough
           default:
             diagnostics.add(
               createDiagnostic({

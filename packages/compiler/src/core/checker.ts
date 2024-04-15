@@ -2987,19 +2987,75 @@ export function createChecker(program: Program): Checker {
   function checkStringTemplateExpresion(
     node: StringTemplateExpressionNode,
     mapper: TypeMapper | undefined
-  ): StringTemplate {
-    const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
-    for (const span of node.spans) {
-      spans.push(createTemplateSpanValue(span.expression, mapper));
-      spans.push(createTemplateSpanLiteral(span.literal));
+  ): StringTemplate | StringValue | null {
+    let hasType = false;
+    let hasValue = false;
+    const spanTypeOrValues = node.spans.map(
+      (span) => [span, getTypeOrValueForNode(span.expression, mapper)] as const
+    );
+    for (const [_, typeOrValue] of spanTypeOrValues) {
+      if (typeOrValue !== null) {
+        if (isValue(typeOrValue)) {
+          hasValue = true;
+        } else {
+          hasType = true;
+        }
+      }
     }
-    const type = createType({
-      kind: "StringTemplate",
-      node,
-      spans,
-    });
 
-    return type;
+    if (hasType && hasValue) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "mixed-string-template",
+          target: node,
+        })
+      );
+    }
+
+    if (hasValue) {
+      let str = node.head.value;
+      for (const [span, typeOrValue] of spanTypeOrValues) {
+        compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
+        str += stringifyValueForTemplate(typeOrValue);
+        str += span.literal.value;
+      }
+      return checkStringValue(createLiteralType(str), undefined, node); // TODO: constraint
+    } else {
+      const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
+
+      for (const [span, typeOrValue] of spanTypeOrValues) {
+        if (typeOrValue !== null) {
+          if (isValue(typeOrValue)) {
+            hasValue = true;
+          } else {
+            hasType = true;
+            spans.push(createTemplateSpanValue(span.expression, typeOrValue));
+          }
+        }
+        spans.push(createTemplateSpanLiteral(span.literal));
+      }
+      return createType({
+        kind: "StringTemplate",
+        node,
+        spans,
+      });
+    }
+  }
+  function stringifyValueForTemplate(value: Value): string {
+    switch (value.valueKind) {
+      case "StringValue":
+      case "NumericValue":
+      case "BooleanValue":
+        return value.value.toString();
+      default:
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "non-literal-string-template",
+            target: value,
+          })
+        );
+        return `[${value.valueKind}]`;
+    }
   }
 
   function createTemplateSpanLiteral(
@@ -3013,15 +3069,12 @@ export function createChecker(program: Program): Checker {
     });
   }
 
-  function createTemplateSpanValue(
-    node: Expression,
-    mapper: TypeMapper | undefined
-  ): StringTemplateSpanValue {
+  function createTemplateSpanValue(node: Expression, type: Type): StringTemplateSpanValue {
     return createType({
       kind: "StringTemplateSpan",
       node: node,
       isInterpolated: true,
-      type: getTypeForNode(node, mapper),
+      type: type,
     });
   }
 
