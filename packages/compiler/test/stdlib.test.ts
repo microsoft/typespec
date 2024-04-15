@@ -1,4 +1,5 @@
 import { beforeEach, describe, it } from "vitest";
+import { CompilerOptions } from "../src/index.js";
 import { expectDiagnosticEmpty } from "../src/testing/index.js";
 import { createTestRunner } from "../src/testing/test-host.js";
 import { BasicTestRunner } from "../src/testing/types.js";
@@ -23,34 +24,37 @@ const intrinsicTypes = [
 ];
 
 describe("with stdlib", () => {
+  const options: CompilerOptions = { nostdlib: false };
   it("compiles", async () => {
-    const diagnostics = await runner.diagnose(`model Bar {}`, { nostdlib: false });
+    const diagnostics = await runner.diagnose(`model Bar {}`, options);
     expectDiagnosticEmpty(diagnostics);
   });
 
   describe("can use intrinsic types", () => {
     it.each(intrinsicTypes)("%s", async (type) => {
-      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, { nostdlib: true });
+      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, options);
       expectDiagnosticEmpty(diagnostics);
     });
   });
   describe("can stdlib types", () => {
     it.each(["url", "unixTimestamp32"])("%s", async (type) => {
-      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, { nostdlib: true });
+      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, options);
       expectDiagnosticEmpty(diagnostics);
     });
   });
 });
 
 describe("without stdlib(--nostdlib)", () => {
+  const options: CompilerOptions = { nostdlib: true };
+
   it("compiles", async () => {
-    const diagnostics = await runner.diagnose(`model Bar {}`, { nostdlib: true });
+    const diagnostics = await runner.diagnose(`model Bar {}`, options);
     expectDiagnosticEmpty(diagnostics);
   });
 
   describe("can use intrinsic types", () => {
     it.each(intrinsicTypes)("%s", async (type) => {
-      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, { nostdlib: true });
+      const diagnostics = await runner.diagnose(`model Foo { name: ${type}; }`, options);
       expectDiagnosticEmpty(diagnostics);
     });
   });
