@@ -104,7 +104,9 @@ export async function createBrowserHost(
     },
 
     getLibDirs() {
-      if(virtualFs.has(resolveVirtualPath("/test/node_modules/@typespec/compiler/lib/std/main.tsp"))) {
+      if (
+        virtualFs.has(resolveVirtualPath("/test/node_modules/@typespec/compiler/lib/std/main.tsp"))
+      ) {
         return [resolveVirtualPath("/test/node_modules/@typespec/compiler/lib/std")];
       } else {
         // To load older version of the compiler < 0.55.0
