@@ -12,8 +12,8 @@ importers:
   .:
     devDependencies:
       '@chronus/chronus':
-        specifier: ^0.10.0
-        version: 0.10.0
+        specifier: ^0.10.1
+        version: 0.10.1
       '@chronus/github':
         specifier: ^0.3.2
         version: 0.3.2
@@ -3116,6 +3116,30 @@ packages:
 
   /@chronus/chronus@0.10.0:
     resolution: {integrity: sha512-fXbHVoNRCstGgOLwq7J5/zyYUtVzMkormJjlYUqz9rLvR0D0kk7y/F0M8oippdLk7fLS6KS1JmM9AmRfMGnJBw==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      globby: 14.0.1
+      is-unicode-supported: 2.0.0
+      micromatch: 4.0.5
+      pacote: 17.0.7
+      picocolors: 1.0.0
+      pluralize: 8.0.0
+      prompts: 2.4.2
+      semver: 7.6.0
+      source-map-support: 0.5.21
+      std-env: 3.7.0
+      yaml: 2.4.1
+      yargs: 17.7.2
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+    dev: true
+
+  /@chronus/chronus@0.10.1:
+    resolution: {integrity: sha512-1LoobD4mq8J5uECTfIcu/SDPhAvduzw4CAwX97MdEve9/pwe+uSZUb2o9W8k1Wgzg3581ht5/Ox+RDdfLIorCQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:
