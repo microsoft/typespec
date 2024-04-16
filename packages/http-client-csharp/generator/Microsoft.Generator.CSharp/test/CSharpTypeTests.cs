@@ -140,7 +140,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase(typeof(IDictionary<string, int?>))]
         [TestCase(typeof(IDictionary<int?, string>))]
         [TestCase(typeof(IDictionary<IDictionary<int, string>, IDictionary<string, int>>))]
-        public void TypesAreNotEqualWhenNullibilityIsDifferent(Type type)
+        public void TypesAreNotEqualWhenNullabilityIsDifferent(Type type)
         {
             var cst = new CSharpType(type);
             var nullableCst = new CSharpType(type, isNullable: true);
@@ -315,8 +315,8 @@ namespace Microsoft.Generator.CSharp.Tests
         public void InitializationType_ReadOnlyMemory()
         {
             var arguments = typeof(int);
-            var cSharpTypee = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
-            var actual = cSharpTypee.InitializationType;
+            var cSharpType = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
+            var actual = cSharpType.InitializationType;
             var expected = new CSharpType(arguments.MakeArrayType());
 
             var areEqual = actual.Equals(expected);

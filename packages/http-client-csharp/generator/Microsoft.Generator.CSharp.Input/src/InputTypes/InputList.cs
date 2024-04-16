@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Input
     /// </summary>
     public sealed class InputList : InputType
     {
-        /// <summary>Creates an intance of <see cref="InputList"/>.</summary>
+        /// <summary>Creates an instance of <see cref="InputList"/>.</summary>
         /// <param name="Name">The name of the list type.</param>
         /// <param name="ElementType">The element's <see cref="InputType"/>.</param>
         /// <param name="IsEmbeddingsVector">Flag used to determine if the input list type is embedding vector.</param>

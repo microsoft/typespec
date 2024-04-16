@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Input
     /// </summary>
     public sealed class InputDictionary : InputType
     {
-        /// <summary>Creates an intance of <see cref="InputDictionary"/>.</summary>
+        /// <summary>Creates an instance of <see cref="InputDictionary"/>.</summary>
         /// <param name="name">The name of the dictionary.</param>
         /// <param name="keyType">The key's <see cref="InputType"/>.</param>
         /// <param name="valueType">The value's <see cref="InputType"/>.</param>

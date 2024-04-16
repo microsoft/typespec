@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Input
     /// </summary>
     public sealed class OperationResponseHeader
     {
-        /// <summary>Creates an intance of <see cref="OperationResponseHeader"/>.</summary>
+        /// <summary>Creates an instance of <see cref="OperationResponseHeader"/>.</summary>
         /// <param name="Name">The name of the header.</param>
         /// <param name="NameInResponse">The name of the header in the operation response.</param>
         /// <param name="Description">The description of the header.</param>

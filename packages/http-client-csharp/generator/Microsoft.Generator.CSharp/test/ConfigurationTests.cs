@@ -55,18 +55,18 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
 
-            string uknownStringValue = additionalConfigOptions["unknown-string-property"].ToObjectFromJson<string>()!;
-            Assert.AreEqual(unknownStringProperty, uknownStringValue);
+            string unknownStringValue = additionalConfigOptions["unknown-string-property"].ToObjectFromJson<string>()!;
+            Assert.AreEqual(unknownStringProperty, unknownStringValue);
 
-            bool uknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
-            Assert.AreEqual(unknownBoolProp, uknownBoolValue);
+            bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
+            Assert.AreEqual(unknownBoolProp, unknownBoolValue);
         }
 
         // Validates that an exception is thrown when no configuration file is found
         [Test]
         public void TestInitialize_NoFileFound()
         {
-            var configFilePath = Path.Combine(_mocksFolder, "uknown_file.out");
+            var configFilePath = Path.Combine(_mocksFolder, "unknown_file.out");
             Assert.Throws<InvalidOperationException>(() => Configuration.Load(configFilePath));
         }
 
@@ -152,11 +152,11 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsTrue(additionalConfigOptions!.ContainsKey("unknown-string-property"));
             Assert.IsTrue(additionalConfigOptions.ContainsKey("unknown-bool-property"));
 
-            string uknownStringValue = additionalConfigOptions["unknown-string-property"].ToObjectFromJson<string>()!;
-            Assert.AreEqual("unknownPropertyValue", uknownStringValue);
+            string unknownStringValue = additionalConfigOptions["unknown-string-property"].ToObjectFromJson<string>()!;
+            Assert.AreEqual("unknownPropertyValue", unknownStringValue);
 
-            bool uknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
-            Assert.AreEqual(true, uknownBoolValue);
+            bool unknownBoolValue = additionalConfigOptions["unknown-bool-property"].ToObjectFromJson<bool>();
+            Assert.AreEqual(true, unknownBoolValue);
         }
 
         public static IEnumerable<TestCaseData> ParseConfigOutputFolderTestCases

@@ -447,7 +447,7 @@ namespace Microsoft.Generator.CSharp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public sealed override int GetHashCode()
         {
-            // we cache the hashcode since `CSharpType` is meant to be immuttable.
+            // we cache the hashcode since `CSharpType` is meant to be immutable.
             if (_hashCode != null)
                 return _hashCode.Value;
 

@@ -9,7 +9,7 @@ using System.Text.Json;
 namespace Microsoft.Generator.CSharp
 {
     /// <summary>
-    /// Contains configuration for the generator impemented as a singleton.
+    /// Contains configuration for the generator implemented as a singleton.
     /// </summary>
     public class Configuration
     {

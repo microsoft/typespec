@@ -65,8 +65,8 @@ namespace Microsoft.Generator.CSharp.Input
             reader.Read();
             object? value;
             switch (type) {
-                case InputPrimitiveType primitype:
-                    switch (primitype.Kind)
+                case InputPrimitiveType primitiveType:
+                    switch (primitiveType.Kind)
                     {
                         case InputTypeKind.String:
                             value = reader.GetString() ?? throw new JsonException();
