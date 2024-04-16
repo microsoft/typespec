@@ -48,20 +48,24 @@ extends:
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
 
       # Run eng test stage if RunEng == true
-      - stage: TestEng
-        displayName: Test Eng
+      - stage: EngTest
+        displayName: Eng - Test
         dependsOn: InitStage
         condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunEng'])
         jobs:
-          - job: TestEng
+          - job: EngTest
+            displayName: Eng - Test
             pool:
               name: $(LINUXPOOL)
               image: $(LINUXVMIMAGE)
               os: linux
             steps:
               - pwsh: |
-                  Install-Module -Name Pester -Force -SkipPublisherCheck
+                  Write-Host "Installing Pester"
+                  Install-Module -Name Pester -RequiredVersion '5.5.0' -Force -SkipPublisherCheck
                   Import-Module Pester
+
+                  Write-Host "Running pester tests"
                   Invoke-Pester
-                displayName: "Run Eng pester tests"
+                displayName: "Run pester tests"
                 workingDirectory: $(Build.SourcesDirectory)/eng
