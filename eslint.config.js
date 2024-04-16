@@ -97,6 +97,9 @@ const testFilesConfig = tsEslint.config({
     "vitest/require-local-test-context-for-concurrent-snapshots": "warn",
     "vitest/valid-describe-callback": "warn",
     "vitest/valid-expect": "warn",
+    "vitest/consistent-test-it": ["warn", { fn: "it" }],
+    "vitest/no-done-callback": ["warn"],
+    "vitest/no-duplicate-hooks": ["warn"],
     "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
   },
 });
