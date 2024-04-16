@@ -720,9 +720,9 @@ describe("compiler: parser", () => {
         [
           `@doc("foo")\n#suppress "foo"\nnamespace Foo.Bar {}`,
           (node) => {
-            const fooNs = node.statements[0] as NamespaceStatementNode;
+            const fooNs = node.statements[0];
             assert(fooNs.kind === SyntaxKind.NamespaceStatement);
-            const barNs = (fooNs as any).statements as NamespaceStatementNode;
+            const barNs = (fooNs as any).statements;
             assert(barNs.kind === SyntaxKind.NamespaceStatement);
             assert(fooNs.id.sv === "Foo");
             assert(barNs.id.sv === "Bar");
