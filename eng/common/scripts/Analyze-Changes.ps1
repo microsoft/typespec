@@ -25,6 +25,10 @@ $isolatedPackages = @{
     "http-client-python" = [IsolatedPackage]::new(@("packages/http-client-python"), "RunPython", $false)
 }
 
+$pathBasedRules = @{
+    "RunEng" = ("eng/common/scripts")
+}
+
 # A tree representation of a set of files
 # Each node represents a directory and contains a list of child nodes.
 class TreeNode {
@@ -148,6 +152,15 @@ function Get-ActiveVariables($changes) {
         $variables += "RunCore"
     }
 
+    foreach ($rule in $pathBasedRules.Keys) {
+        foreach ($rulePath in $pathBasedRules[$rule]) {
+            if ($runAll -or $root.PathExists($rulePath)) {
+                $variables += $rule
+                break;
+            }
+        }
+    }
+
     # foreach isolated package, set log commands if the RunValue is true
     foreach ($package in $isolatedPackages.Values) {
         if ($runAll -or $runIsolated -or $package.RunValue) {
@@ -157,7 +170,6 @@ function Get-ActiveVariables($changes) {
 
     return $variables
 }
-
 
 # add all changed files to the tree
 Write-Host "Checking for changes in current branch compared to $TargetBranch"

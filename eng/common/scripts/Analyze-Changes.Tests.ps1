@@ -32,6 +32,14 @@ Describe 'Analyze-Changes' {
         $_ | Should -BeIn $expected
       }
   }
+
+  It 'Should return RunEng if testable files in eng are changed' {
+      $variables = Get-ActiveVariables @(
+        "eng/common/scripts/some-file.ps1"
+      )
+
+      $variables | Should -Contain 'RunEng'
+  }
   
   It 'Should return a combination of core and isolated packages' {
       $actual = Get-ActiveVariables @(

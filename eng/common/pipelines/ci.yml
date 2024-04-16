@@ -35,6 +35,25 @@ extends:
                     -TargetBranch $(TARGET_BRANCH)
                   workingDirectory: $(Build.SourcesDirectory)
 
+      # Run eng test stage if RunEng == true
+      - stage: TestEng
+        displayName: Test Eng
+        dependsOn: InitStage
+        condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunEng'])
+        jobs:
+          - job: TestEng
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+            steps:
+              - pwsh: |
+                  Install-Module -Name Pester -Force -SkipPublisherCheck
+                  Import-Module Pester
+                  Invoke-Pester
+                displayName: "Run Eng pester tests"
+                workingDirectory: $(Build.SourcesDirectory)/eng
+
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
         parameters:
