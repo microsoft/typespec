@@ -2,7 +2,13 @@ import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
-import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
+import {
+  Numeric,
+  Operation,
+  getDoc,
+  isArrayModelType,
+  isRecordModelType,
+} from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -103,18 +109,88 @@ describe("compiler: models", () => {
     ]);
   });
 
-  // TODO: update to test new defaultValue
-  describe("assign default values", () => {
-    const testCases: [string, string, any][] = [
-      ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
-      ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
-      ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
-      ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
-      ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
-    ];
+  describe("property defaults", () => {
+    describe("set defaultValue", () => {
+      const testCases: [string, string, { kind: string; value: unknown }][] = [
+        ["boolean", `false`, { kind: "BooleanValue", value: false }],
+        ["boolean", `true`, { kind: "BooleanValue", value: true }],
+        ["string", `"foo"`, { kind: "StringValue", value: "foo" }],
+        ["int32", `123`, { kind: "NumericValue", value: Numeric("123") }],
+        ["int32 | null", `null`, { kind: "NullValue", value: null }],
+      ];
 
-    for (const [type, defaultValue, expectedValue] of testCases) {
-      it(`foo?: ${type} = ${defaultValue}`, async () => {
+      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+          model A { @test foo?: ${type} = ${defaultValue} }
+          `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, expectedValue.kind);
+        deepStrictEqual((foo.defaultValue as any).value, expectedValue.value);
+      });
+
+      it(`foo?: string[] = #["abc"]`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: string[] = #["abc"] }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "ArrayValue");
+      });
+
+      it(`foo?: {name: string} = #{name: "abc"}`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: {name: string} = #{name: "abc"} }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "ObjectValue");
+      });
+
+      it(`foo?: Enum = Enum.up`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: Enum = Direction.up }
+        enum Enum {up, down}
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "EnumValue");
+        deepStrictEqual(foo.defaultValue?.value.kind, "EnumMember");
+        deepStrictEqual(foo.defaultValue?.value.name, "up");
+      });
+
+      it(`foo?: Union = Union.up`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: Direction = Direction.up }
+        union Direction {up: "up-value", down: "down-value"}
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "StringValue");
+        deepStrictEqual(foo.defaultValue?.value, "up-value");
+      });
+    });
+
+    describe("set deprecated default property", () => {
+      const testCases: [string, string, any][] = [
+        ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
+        ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
+        ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
+        ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
+        ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
+      ];
+
+      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
@@ -124,28 +200,28 @@ describe("compiler: models", () => {
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         expect({ ...foo.default }).toMatchObject(expectedValue);
       });
-    }
 
-    it(`foo?: string[] = #["abc"]`, async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      it(`foo?: string[] = #["abc"] result is not set`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
         model A { @test foo?: string[] = #["abc"] }
         `
-      );
-      const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-      deepStrictEqual(foo.defaultValue?.valueKind, "ArrayValue");
-    });
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        deepStrictEqual(foo.default, undefined);
+      });
 
-    it(`foo?: {name: string} = #{name: "abc"}`, async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
+      it(`foo?: {name: string} = #{name: "abc"} result is not set`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
         model A { @test foo?: {name: string} = #{name: "abc"} }
         `
-      );
-      const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-      deepStrictEqual(foo.defaultValue?.valueKind, "ObjectValue");
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        deepStrictEqual(foo.default, undefined);
+      });
     });
   });
 

@@ -581,7 +581,6 @@ export function getMaxLength(program: Program, target: Type): number | undefined
   return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
-// TODO: better name?
 /**
  * Get the maximum length of a string type as a {@link Numeric} value.
  * @param program Current program

@@ -310,6 +310,7 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
+  /** @deprecated use {@link defaultValue} instead. */
   default?: Type;
   defaultValue?: Value;
   model?: Model;
