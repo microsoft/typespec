@@ -5,7 +5,6 @@ import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
-  NamespaceStatementNode,
   Node,
   ParseOptions,
   SourceFile,
