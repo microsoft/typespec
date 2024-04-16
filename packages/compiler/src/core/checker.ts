@@ -3010,6 +3010,7 @@ export function createChecker(program: Program): Checker {
           target: node,
         })
       );
+      return null;
     }
 
     if (hasValue) {
