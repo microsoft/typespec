@@ -323,7 +323,12 @@ const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
   ],
   [
     "unixTimestamp32",
-    new CSharpType({ name: "int", namespace: "System", isBuiltIn: true, isValueType: true }),
+    new CSharpType({
+      name: "DateTimeOffset",
+      namespace: "System",
+      isBuiltIn: true,
+      isValueType: true,
+    }),
   ],
   [
     "plainTime",

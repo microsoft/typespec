@@ -83,6 +83,17 @@ export class StringValue extends CSharpValue {
   }
 }
 
+export class RawValue extends CSharpValue {
+  value?: string;
+  public constructor(value?: string) {
+    super();
+    this.value = value;
+  }
+  public emitValue(scope?: Scope<string> | undefined): string {
+    return `${this.value}`;
+  }
+}
+
 export class NumericValue extends CSharpValue {
   value?: number;
   public constructor(value?: number) {
