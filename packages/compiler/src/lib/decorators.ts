@@ -1056,7 +1056,11 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
   target: Model
 ) => {
   // remove all read-only properties from the target type
-  target.properties.forEach((p) => delete p.default);
+  target.properties.forEach((p) => {
+    // eslint-disable-next-line deprecation/deprecation
+    delete p.default;
+    delete p.defaultValue;
+  });
 };
 
 // -- @list decorator ---------------------
