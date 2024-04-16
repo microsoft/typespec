@@ -78,6 +78,18 @@ describe("string templates", () => {
         "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
     });
   });
+
+  it("emit error if string template if interpolating non serializable value", async () => {
+    const diagnostics = await diagnoseValueType(
+      `string("one \${a} def")`,
+      `const a = #{a: "foo"};`
+    );
+    expectDiagnostics(diagnostics, {
+      code: "non-literal-string-template",
+      message:
+        "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
+    });
+  });
 });
 
 describe("validate literal are assignable", () => {
