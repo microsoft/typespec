@@ -40,6 +40,7 @@ export function legacyMarshallTypeForJS(
       return value;
   }
 }
+
 export function marshallTypeForJS<T extends Value>(
   value: T,
   valueConstraint: Type | undefined

@@ -4829,11 +4829,9 @@ export function createChecker(program: Program): Checker {
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        const res =
-          jsMarshalling === "legacy"
-            ? legacyMarshallTypeForJS(checker, value)
-            : marshallTypeForJS(value, valueConstraint.type);
-        return res ?? value;
+        return jsMarshalling === "legacy"
+          ? legacyMarshallTypeForJS(checker, value)
+          : marshallTypeForJS(value, valueConstraint.type);
       } else {
         return value;
       }
