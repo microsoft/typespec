@@ -67,7 +67,6 @@
     "c8": "^9.1.0",
     "rimraf": "~5.0.5",
     "typescript": "~5.4.3",
-    "vitest": "^1.4.0",
-    "@typespec/http-client-csharp-generator-clientModel": "file:generator/artifacts/bin/Microsoft.Generator.CSharp.ClientModel/Debug/net8.0/"
+    "vitest": "^1.4.0"
   }
 }
