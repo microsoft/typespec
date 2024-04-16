@@ -172,7 +172,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
+    // eslint-disable-next-line deprecation/deprecation
     if (property.default) {
+      // eslint-disable-next-line deprecation/deprecation
       result.default = this.#getDefaultValue(property.type, property.default);
     }
 

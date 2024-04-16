@@ -313,7 +313,7 @@ describe("compiler: checker: decorators", () => {
         value: string,
         suppress?: boolean
       ): Promise<any> {
-        mutate($flags).decoratorArgMarshalling = "value";
+        mutate($flags).decoratorArgMarshalling = "lossless";
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
           

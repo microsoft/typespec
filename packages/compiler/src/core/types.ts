@@ -408,7 +408,6 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
-// TODO: should we just call that Constructor or NamedConstructor for future proof?
 export interface ScalarConstructor extends BaseType {
   kind: "ScalarConstructor";
   node: ScalarConstructorNode;
@@ -2343,7 +2342,7 @@ export interface TypeSpecLibraryDef<
 export interface ModuleFlags {
   /**
    * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
-   * - `value` - New recommended behavior
+   * - `lossless` - New recommended behavior
    *  - string value -> `string`
    *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
    *  - boolean value -> `boolean`
@@ -2356,7 +2355,7 @@ export interface ModuleFlags {
    *  - null value -> `NullType`
    * @default legacy
    */
-  readonly decoratorArgMarshalling?: "legacy" | "value";
+  readonly decoratorArgMarshalling?: "legacy" | "lossless";
 }
 
 export interface LinterDefinition {

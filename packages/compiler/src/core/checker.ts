@@ -1484,12 +1484,6 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     instantiateTemplates = true
   ): Type {
-    // TODO: do we even need this
-    if (sym.flags & SymbolFlags.Const) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
-      return errorType;
-    }
-
     const result = checkTypeOrValueReferenceSymbol(sym, node, mapper, instantiateTemplates);
     if (result === null || isValue(result)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
@@ -1890,7 +1884,7 @@ export function createChecker(program: Program): Checker {
               [
                 `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting null as a type.`,
                 `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "value"}}` to your library.',
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "lossless"}}` to your library.',
               ].join("\n"),
               param.node
             );
@@ -1905,7 +1899,7 @@ export function createChecker(program: Program): Checker {
               [
                 `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting a numeric type that is not representable as a JS Number.`,
                 `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "value"}}` to your library.',
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "lossless"}}` to your library.',
               ].join("\n"),
               param.node
             );
@@ -3081,7 +3075,7 @@ export function createChecker(program: Program): Checker {
         str += stringifyValueForTemplate(typeOrValue);
         str += span.literal.value;
       }
-      return checkStringValue(createLiteralType(str), undefined, node); // TODO: constraint
+      return checkStringValue(createLiteralType(str), undefined, node);
     } else {
       const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
 
@@ -4517,6 +4511,7 @@ export function createChecker(program: Program): Checker {
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
+          // eslint-disable-next-line deprecation/deprecation
           type.default = checkLegacyDefault(prop.default);
         }
       }
@@ -4661,11 +4656,13 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function resolveDecoratorArgMarshalling(declaredType: Decorator | undefined): "value" | "legacy" {
+  function resolveDecoratorArgMarshalling(
+    declaredType: Decorator | undefined
+  ): "lossless" | "legacy" {
     if (declaredType) {
       const location = getLocationContext(program, declaredType);
       if (location.type === "compiler") {
-        return "value";
+        return "lossless";
       } else if (
         (location.type === "library" || location.type === "project") &&
         location.flags?.decoratorArgMarshalling
@@ -4675,7 +4672,7 @@ export function createChecker(program: Program): Checker {
         return "legacy";
       }
     }
-    return "value";
+    return "lossless";
   }
   /** Check the decorator target is valid */
 
@@ -4835,7 +4832,7 @@ export function createChecker(program: Program): Checker {
   function resolveDecoratorArgJsValue(
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
-    jsMarshalling: "legacy" | "value"
+    jsMarshalling: "legacy" | "lossless"
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {

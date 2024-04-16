@@ -113,7 +113,7 @@ export const $lib = createTypeSpecLibrary({
 } as const);
 
 export const $flags = defineModuleFlags({
-  decoratorArgMarshalling: "value",
+  decoratorArgMarshalling: "lossless",
 });
 
 export const { reportDiagnostic, createStateSymbol } = $lib;
