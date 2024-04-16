@@ -721,15 +721,15 @@ describe("compiler: parser", () => {
           `@doc("foo")\n#suppress "foo"\nnamespace Foo.Bar {}`,
           (node) => {
             const fooNs = node.statements[0];
-            assert(fooNs.kind === SyntaxKind.NamespaceStatement);
+            strictEqual(fooNs.kind, SyntaxKind.NamespaceStatement);
             const barNs = (fooNs as any).statements;
-            assert(barNs.kind === SyntaxKind.NamespaceStatement);
-            assert(fooNs.id.sv === "Foo");
-            assert(barNs.id.sv === "Bar");
-            assert(fooNs.directives?.length === 0);
-            assert(fooNs.decorators.length === 0);
-            assert(barNs.directives?.length === 1);
-            assert(barNs.decorators.length === 1);
+            strictEqual(barNs.kind, SyntaxKind.NamespaceStatement);
+            strictEqual(fooNs.id.sv, "Foo");
+            strictEqual(barNs.id.sv, "Bar");
+            strictEqual(fooNs.directives?.length, 0);
+            strictEqual(fooNs.decorators.length, 0);
+            strictEqual(barNs.directives?.length, 1);
+            strictEqual(barNs.decorators.length, 1);
           },
         ],
       ]);
