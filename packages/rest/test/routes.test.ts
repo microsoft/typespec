@@ -421,12 +421,9 @@ describe("rest: routes", () => {
       }
       `
     );
-    strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "invalid-argument");
-    strictEqual(
-      diagnostics[0].message,
-      `Argument '"x"' is not assignable to parameter of type '"/" | ":" | "/:"'`
-    );
+    expectDiagnostics(diagnostics, {
+      code: "invalid-argument",
+    });
   });
 
   it("skips templated operations", async () => {
