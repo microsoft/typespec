@@ -35,6 +35,18 @@ extends:
                     -TargetBranch $(TARGET_BRANCH)
                   workingDirectory: $(Build.SourcesDirectory)
 
+      # Run csharp stages if RunCSharp == true
+      - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
+
+      # Run core stages if RunCore == true
+      - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
+        parameters:
+          DependsOn: InitStage
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
+
       # Run eng test stage if RunEng == true
       - stage: TestEng
         displayName: Test Eng
@@ -53,15 +65,3 @@ extends:
                   Invoke-Pester
                 displayName: "Run Eng pester tests"
                 workingDirectory: $(Build.SourcesDirectory)/eng
-
-      # Run csharp stages if RunCSharp == true
-      - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
-        parameters:
-          DependsOn: InitStage
-          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCSharp'])
-
-      # Run core stages if RunCore == true
-      - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
-        parameters:
-          DependsOn: InitStage
-          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
