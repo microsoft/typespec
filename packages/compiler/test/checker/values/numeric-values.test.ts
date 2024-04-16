@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
 import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
@@ -345,11 +345,21 @@ describe("custom numeric scalars", () => {
     strictEqual(value.value.asNumber(), 2);
   });
 
-  it.skip("validate value is valid using @minValue and @maxValue", async () => {
-    const value = await compileValueType(
-      `int4(2)`,
-      `@minValue(0) @maxValue(15) scalar uint4 extends integer;`
-    );
-    ok(false); // TODO: implement
+  describe("using custom min/max values", () => {
+    const type = `@minValue(0) @maxValue(15) scalar uint4 extends integer;`;
+    it("accept if value within range", async () => {
+      const value = await compileValueType(`uint4(2)`, type);
+      strictEqual(value.valueKind, "NumericValue");
+      strictEqual(value.scalar?.name, "uint4");
+      strictEqual(value.value.asNumber(), 2);
+    });
+
+    it("emit diagnostic if value is out of range", async () => {
+      const diagnostics = await diagnoseValueType(`uint4(16)`, type);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type '16' is not assignable to type 'uint4'",
+      });
+    });
   });
 });

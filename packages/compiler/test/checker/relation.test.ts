@@ -342,6 +342,42 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("custom string target", () => {
+    it("accept string within length", async () => {
+      await expectTypeAssignable({
+        source: `"abcd"`,
+        target: "myString",
+        commonCode: `@minLength(3) @maxLength(16) scalar myString extends string;`,
+      });
+    });
+    it("validate minValue", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: `"ab"`,
+          target: "myString",
+          commonCode: `@minLength(3) scalar myString extends string;`,
+        },
+        {
+          code: "unassignable",
+          message: `Type '"ab"' is not assignable to type 'myString'`,
+        }
+      );
+    });
+    it("validate maxValue", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: `"abcdefg"`,
+          target: "myString",
+          commonCode: `@maxLength(6) scalar myString extends string;`,
+        },
+        {
+          code: "unassignable",
+          message: `Type '"abcdefg"' is not assignable to type 'myString'`,
+        }
+      );
+    });
+  });
+
   describe("string literal target", () => {
     it("can the exact same literal", async () => {
       await expectTypeAssignable({ source: `"foo"`, target: `"foo"` });
@@ -667,6 +703,68 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "-2147483448", target: "decimal128" });
       await expectTypeAssignable({ source: "2147483448", target: "decimal128" });
       await expectTypeAssignable({ source: "2147483448.12390812", target: "decimal128" });
+    });
+  });
+
+  describe("custom numeric target", () => {
+    it("accept numeric literal within range", async () => {
+      await expectTypeAssignable({
+        source: "4",
+        target: "myInt",
+        commonCode: `@minValue(3) @maxValue(16) scalar myInt extends integer;`,
+      });
+    });
+    it("validate minValue", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: "2",
+          target: "myInt",
+          commonCode: `@minValue(3) scalar myInt extends integer;`,
+        },
+        {
+          code: "unassignable",
+          message: "Type '2' is not assignable to type 'myInt'",
+        }
+      );
+    });
+    it("validate maxValue", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: "16",
+          target: "myInt",
+          commonCode: `@maxValue(15) scalar myInt extends integer;`,
+        },
+        {
+          code: "unassignable",
+          message: "Type '16' is not assignable to type 'myInt'",
+        }
+      );
+    });
+    it("validate minValueExclusive", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: "3",
+          target: "myInt",
+          commonCode: `@minValueExclusive(3) scalar myInt extends integer;`,
+        },
+        {
+          code: "unassignable",
+          message: "Type '3' is not assignable to type 'myInt'",
+        }
+      );
+    });
+    it("validate maxValueExclusive", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: "15",
+          target: "myInt",
+          commonCode: `@maxValueExclusive(15) scalar myInt extends integer;`,
+        },
+        {
+          code: "unassignable",
+          message: "Type '15' is not assignable to type 'myInt'",
+        }
+      );
     });
   });
 

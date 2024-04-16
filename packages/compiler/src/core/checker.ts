@@ -1,4 +1,14 @@
-import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
+import {
+  $docFromComment,
+  getIndexer,
+  getMaxLength,
+  getMaxValueAsNumeric,
+  getMaxValueExclusiveAsNumeric,
+  getMinLength,
+  getMinValueAsNumeric,
+  getMinValueExclusiveAsNumeric,
+  isArrayModelType,
+} from "../lib/decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -6900,7 +6910,7 @@ export function createChecker(program: Program): Checker {
         return isNumericLiteralRelatedTo(source, target);
       case "String":
       case "StringTemplate":
-        return areScalarsRelated(target, getStdType("string"));
+        return isStringLiteralRelatedTo(source, target);
       case "Boolean":
         return areScalarsRelated(target, getStdType("boolean"));
       case "Scalar":
@@ -6949,7 +6959,28 @@ export function createChecker(program: Program): Checker {
   }
 
   function isNumericLiteralRelatedTo(source: NumericLiteral, target: Scalar) {
-    return isNumericAssignableToNumericScalar(source.numericValue, target);
+    // First check that the source numeric literal is assignable to the target scalar
+    if (!isNumericAssignableToNumericScalar(source.numericValue, target)) {
+      return false;
+    }
+    const min = getMinValueAsNumeric(program, target);
+    const max = getMaxValueAsNumeric(program, target);
+    const minExclusive = getMinValueExclusiveAsNumeric(program, target);
+    const maxExclusive = getMaxValueExclusiveAsNumeric(program, target);
+    if (min && source.numericValue.lt(min)) {
+      return false;
+    }
+    if (minExclusive && source.numericValue.lte(minExclusive)) {
+      return false;
+    }
+    if (max && source.numericValue.gt(max)) {
+      return false;
+    }
+
+    if (maxExclusive && source.numericValue.gte(maxExclusive)) {
+      return false;
+    }
+    return true;
   }
 
   function isNumericAssignableToNumericScalar(source: Numeric, target: Scalar) {
@@ -6979,6 +7010,26 @@ export function createChecker(program: Program): Checker {
     if (!(target.name in numericRanges)) return false;
     const [low, high, options] = numericRanges[target.name as keyof typeof numericRanges];
     return source.gte(low) && source.lte(high) && (!options.int || isInt);
+  }
+
+  function isStringLiteralRelatedTo(source: StringLiteral | StringTemplate, target: Scalar) {
+    if (!areScalarsRelated(target, getStdType("string"))) {
+      return false;
+    }
+    if (source.kind === "StringTemplate") {
+      return true;
+    }
+    const len = source.value.length;
+    const min = getMinLength(program, target);
+    const max = getMaxLength(program, target);
+    if (min && len < min) {
+      return false;
+    }
+    if (max && len > max) {
+      return false;
+    }
+
+    return true;
   }
 
   function isModelRelatedTo(

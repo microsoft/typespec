@@ -157,8 +157,8 @@ describe("compiler: models", () => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
-        model A { @test foo?: Enum = Direction.up }
-        enum Enum {up, down}
+        model A { @test foo?: TestEnum = TestEnum.up }
+        enum TestEnum {up, down}
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
@@ -198,6 +198,7 @@ describe("compiler: models", () => {
           `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
         expect({ ...foo.default }).toMatchObject(expectedValue);
       });
 
@@ -209,6 +210,7 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
         deepStrictEqual(foo.default, undefined);
       });
 
@@ -220,6 +222,7 @@ describe("compiler: models", () => {
         `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
         deepStrictEqual(foo.default, undefined);
       });
     });
