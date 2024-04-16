@@ -5,6 +5,7 @@ import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
+  NamespaceStatementNode,
   Node,
   ParseOptions,
   SourceFile,
@@ -712,6 +713,26 @@ describe("compiler: parser", () => {
         ],
         { strict: true }
       );
+    });
+
+    describe("ensure directives and decorators are applied to leaf node", () => {
+      parseEach([
+        [
+          `@doc("foo")\n#suppress "foo"\nnamespace Foo.Bar {}`,
+          (node) => {
+            const fooNs = node.statements[0] as NamespaceStatementNode;
+            assert(fooNs.kind === SyntaxKind.NamespaceStatement);
+            const barNs = (fooNs as any).statements as NamespaceStatementNode;
+            assert(barNs.kind === SyntaxKind.NamespaceStatement);
+            assert(fooNs.id.sv === "Foo");
+            assert(barNs.id.sv === "Bar");
+            assert(fooNs.directives?.length === 0);
+            assert(fooNs.decorators.length === 0);
+            assert(barNs.directives?.length === 1);
+            assert(barNs.decorators.length === 1);
+          },
+        ],
+      ]);
     });
   });
 
