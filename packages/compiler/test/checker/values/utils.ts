@@ -23,7 +23,7 @@ export async function diagnoseUsage(
   return { diagnostics, pos, end };
 }
 
-export async function compileAndDiagnoseValueType(
+export async function compileAndDiagnoseValue(
   code: string,
   other?: string
 ): Promise<[Value | undefined, readonly Diagnostic[]]> {
@@ -49,18 +49,15 @@ export async function compileAndDiagnoseValueType(
   return [called, diagnostics];
 }
 
-export async function compileValueType(code: string, other?: string): Promise<Value> {
-  const [called, diagnostics] = await compileAndDiagnoseValueType(code, other);
+export async function compileValue(code: string, other?: string): Promise<Value> {
+  const [called, diagnostics] = await compileAndDiagnoseValue(code, other);
   expectDiagnosticEmpty(diagnostics);
   ok(called, "Decorator was not called");
 
   return called;
 }
 
-export async function diagnoseValueType(
-  code: string,
-  other?: string
-): Promise<readonly Diagnostic[]> {
-  const [_, diagnostics] = await compileAndDiagnoseValueType(code, other);
+export async function diagnoseValue(code: string, other?: string): Promise<readonly Diagnostic[]> {
+  const [_, diagnostics] = await compileAndDiagnoseValue(code, other);
   return diagnostics;
 }

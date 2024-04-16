@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 const numericScalars = [
   "numeric",
@@ -27,7 +27,7 @@ const numericScalars = [
 
 describe("instantiate with constructor", () => {
   it.each(numericScalars)("%s", async (scalarName) => {
-    const value = await compileValueType(`${scalarName}(123)`);
+    const value = await compileValue(`${scalarName}(123)`);
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, scalarName);
@@ -39,7 +39,7 @@ describe("instantiate with constructor", () => {
 describe("implicit type", () => {
   describe("instantiate when type is scalar", () => {
     it.each(numericScalars)("%s", async (scalarName) => {
-      const value = await compileValueType(`a`, `const a:${scalarName} = 123;`);
+      const value = await compileValue(`a`, `const a:${scalarName} = 123;`);
       strictEqual(value.valueKind, "NumericValue");
       strictEqual(value.type.kind, "Scalar");
       strictEqual(value.type.name, scalarName);
@@ -49,7 +49,7 @@ describe("implicit type", () => {
   });
 
   it("doesn't pick scalar if const has no type", async () => {
-    const value = await compileValueType(`a`, `const a = 123;`);
+    const value = await compileValue(`a`, `const a = 123;`);
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.type.kind, "Number");
     strictEqual(value.type.valueAsString, "123");
@@ -58,7 +58,7 @@ describe("implicit type", () => {
   });
 
   it("instantiate if there is a single numeric option", async () => {
-    const value = await compileValueType(`a`, `const a: int32 | string = 123;`);
+    const value = await compileValue(`a`, `const a: int32 | string = 123;`);
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.type.kind, "Union");
     strictEqual(value.scalar?.name, "int32");
@@ -66,7 +66,7 @@ describe("implicit type", () => {
   });
 
   it("emit diagnostics if there is multiple numeric choices", async () => {
-    const diagnostics = await diagnoseValueType(`a`, `const a: int32 | int64 = 123;`);
+    const diagnostics = await diagnoseValue(`a`, `const a: int32 | int64 = 123;`);
     expectDiagnostics(diagnostics, {
       code: "ambiguous-scalar-type",
       message:
@@ -281,7 +281,7 @@ describe("instantiate from another smaller numeric type", () => {
     ["uint32", "integer"],
     ["uint32", "numeric"],
   ])("%s → %s", async (a, b) => {
-    const value = await compileValueType(`${b}(${a}(123))`);
+    const value = await compileValue(`${b}(${a}(123))`);
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.scalar?.name, b);
     strictEqual(value.type.kind, "Scalar");
@@ -337,7 +337,7 @@ describe("cannot instantiate from a larger numeric type", () => {
 
 describe("custom numeric scalars", () => {
   it("instantiates a custom scalar", async () => {
-    const value = await compileValueType(`int4(2)`, "scalar int4 extends integer;");
+    const value = await compileValue(`int4(2)`, "scalar int4 extends integer;");
     strictEqual(value.valueKind, "NumericValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "int4");
@@ -348,14 +348,14 @@ describe("custom numeric scalars", () => {
   describe("using custom min/max values", () => {
     const type = `@minValue(0) @maxValue(15) scalar uint4 extends integer;`;
     it("accept if value within range", async () => {
-      const value = await compileValueType(`uint4(2)`, type);
+      const value = await compileValue(`uint4(2)`, type);
       strictEqual(value.valueKind, "NumericValue");
       strictEqual(value.scalar?.name, "uint4");
       strictEqual(value.value.asNumber(), 2);
     });
 
     it("emit diagnostic if value is out of range", async () => {
-      const diagnostics = await diagnoseValueType(`uint4(16)`, type);
+      const diagnostics = await diagnoseValue(`uint4(16)`, type);
       expectDiagnostics(diagnostics, {
         code: "unassignable",
         message: "Type '16' is not assignable to type 'uint4'",

@@ -1,11 +1,11 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseValue } from "./utils.js";
 
 describe("instantiate with constructor", () => {
   it("with boolean literal", async () => {
-    const value = await compileValueType(`boolean(true)`);
+    const value = await compileValue(`boolean(true)`);
     strictEqual(value.valueKind, "BooleanValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "boolean");
@@ -16,7 +16,7 @@ describe("instantiate with constructor", () => {
 
 describe("implicit type", () => {
   it("doesn't pick scalar if const has no type", async () => {
-    const value = await compileValueType(`a`, `const a = true;`);
+    const value = await compileValue(`a`, `const a = true;`);
     strictEqual(value.valueKind, "BooleanValue");
     strictEqual(value.type.kind, "Boolean");
     strictEqual(value.type.value, true);
@@ -25,7 +25,7 @@ describe("implicit type", () => {
   });
 
   it("instantiate if there is a single string option", async () => {
-    const value = await compileValueType(`a`, `const a: boolean | string = true;`);
+    const value = await compileValue(`a`, `const a: boolean | string = true;`);
     strictEqual(value.valueKind, "BooleanValue");
     strictEqual(value.type.kind, "Union");
     strictEqual(value.scalar?.name, "boolean");
@@ -33,7 +33,7 @@ describe("implicit type", () => {
   });
 
   it("emit diagnostics if there is multiple numeric choices", async () => {
-    const diagnostics = await diagnoseValueType(
+    const diagnostics = await diagnoseValue(
       `a`,
       `
       const a: boolean | myBoolean = true;
@@ -61,7 +61,7 @@ describe("validate literal are assignable", () => {
 
   describe.each(cases)("%s", (scalarName, values) => {
     it.each(values)(`%s %s`, async (expected, value, message) => {
-      const diagnostics = await diagnoseValueType(`${scalarName}(${value})`);
+      const diagnostics = await diagnoseValue(`${scalarName}(${value})`);
       expectDiagnostics(diagnostics, expected === "✔" ? [] : [{ message: message ?? "" }]);
     });
   });

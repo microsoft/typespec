@@ -2,16 +2,16 @@ import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { Model, isValue } from "../../../src/index.js";
 import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 it("no properties", async () => {
-  const object = await compileValueType(`#{}`);
+  const object = await compileValue(`#{}`);
   strictEqual(object.valueKind, "ObjectValue");
   strictEqual(object.properties.size, 0);
 });
 
 it("single property", async () => {
-  const object = await compileValueType(`#{name: "John"}`);
+  const object = await compileValue(`#{name: "John"}`);
   strictEqual(object.valueKind, "ObjectValue");
   strictEqual(object.properties.size, 1);
   const nameProp = object.properties.get("name")?.value;
@@ -20,7 +20,7 @@ it("single property", async () => {
 });
 
 it("multiple property", async () => {
-  const object = await compileValueType(`#{name: "John", age: 21}`);
+  const object = await compileValue(`#{name: "John", age: 21}`);
   strictEqual(object.valueKind, "ObjectValue");
   strictEqual(object.properties.size, 2);
 
@@ -35,10 +35,7 @@ it("multiple property", async () => {
 
 describe("spreading", () => {
   it("add the properties", async () => {
-    const object = await compileValueType(
-      `#{...Common, age: 21}`,
-      `const Common = #{ name: "John" };`
-    );
+    const object = await compileValue(`#{...Common, age: 21}`, `const Common = #{ name: "John" };`);
     strictEqual(object.valueKind, "ObjectValue");
     strictEqual(object.properties.size, 2);
 
@@ -52,7 +49,7 @@ describe("spreading", () => {
   });
 
   it("override properties defined before if there is a name conflict", async () => {
-    const object = await compileValueType(
+    const object = await compileValue(
       `#{name: "John", age: 21, ...Common, }`,
       `const Common = #{ name: "Common" };`
     );
@@ -64,7 +61,7 @@ describe("spreading", () => {
   });
 
   it("override properties spread before", async () => {
-    const object = await compileValueType(
+    const object = await compileValue(
       `#{...Common, name: "John", age: 21 }`,
       `const Common = #{ name: "John" };`
     );
@@ -76,7 +73,7 @@ describe("spreading", () => {
   });
 
   it("emit diagnostic is spreading a model", async () => {
-    const diagnostics = await diagnoseValueType(
+    const diagnostics = await diagnoseValue(
       `#{...Common, age: 21}`,
       `alias Common = { name: "John" };`
     );
@@ -87,10 +84,7 @@ describe("spreading", () => {
   });
 
   it("emit diagnostic is spreading a non-object values", async () => {
-    const diagnostics = await diagnoseValueType(
-      `#{...Common, age: 21}`,
-      `const Common = #["abc"];`
-    );
+    const diagnostics = await diagnoseValue(`#{...Common, age: 21}`, `const Common = #["abc"];`);
     expectDiagnostics(diagnostics, {
       code: "spread-object",
       message: "Cannot spread properties of non-object type.",
@@ -108,7 +102,7 @@ describe("valid property types", () => {
     ["ObjectValue", `#{nested: "foo"}`],
     ["ArrayValue", `#["foo"]`],
   ])("%s", async (kind, type, other?) => {
-    const object = await compileValueType(`#{prop: ${type}}`, other);
+    const object = await compileValue(`#{prop: ${type}}`, other);
     strictEqual(object.valueKind, "ObjectValue");
     const nameProp = object.properties.get("prop")?.value;
     strictEqual(nameProp?.valueKind, kind);
@@ -116,7 +110,7 @@ describe("valid property types", () => {
 });
 
 it("emit diagnostic if referencing a non literal type", async () => {
-  const diagnostics = await diagnoseValueType(`#{ prop: { thisIsAModel: true }}`);
+  const diagnostics = await diagnoseValue(`#{ prop: { thisIsAModel: true }}`);
   expectDiagnostics(diagnostics, {
     code: "expect-value",
     message: "{ thisIsAModel: true } refers to a type, but is being used as a value here.",

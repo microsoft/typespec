@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseValue } from "./utils.js";
 
 describe("instantiate with named constructor", () => {
   const ipv4Code = `
@@ -12,7 +12,7 @@ describe("instantiate with named constructor", () => {
   `;
 
   it("with single arg", async () => {
-    const value = await compileValueType(`ipv4.fromString("0.0.1.1")`, ipv4Code);
+    const value = await compileValue(`ipv4.fromString("0.0.1.1")`, ipv4Code);
     strictEqual(value.valueKind, "ScalarValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "ipv4");
@@ -27,7 +27,7 @@ describe("instantiate with named constructor", () => {
   });
 
   it("with multiple args", async () => {
-    const value = await compileValueType(`ipv4.fromBytes(0, 0, 1, 1)`, ipv4Code);
+    const value = await compileValue(`ipv4.fromBytes(0, 0, 1, 1)`, ipv4Code);
     strictEqual(value.valueKind, "ScalarValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "ipv4");
@@ -50,7 +50,7 @@ describe("instantiate with named constructor", () => {
   });
 
   it("instantiate from another scalar", async () => {
-    const value = await compileValueType(
+    const value = await compileValue(
       `b.fromA(a.fromString("a"))`,
       `
       scalar a { init fromString(val: string);}
@@ -70,7 +70,7 @@ describe("instantiate with named constructor", () => {
   });
 
   it("emit warning if passing wrong type to constructor", async () => {
-    const diagnostics = await diagnoseValueType(`ipv4.fromString(123)`, ipv4Code);
+    const diagnostics = await diagnoseValue(`ipv4.fromString(123)`, ipv4Code);
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message: "Argument '123' is not assignable to parameter of type 'string'",
@@ -78,7 +78,7 @@ describe("instantiate with named constructor", () => {
   });
 
   it("emit warning if passing too many args", async () => {
-    const diagnostics = await diagnoseValueType(`ipv4.fromString("abc", "def")`, ipv4Code);
+    const diagnostics = await diagnoseValue(`ipv4.fromString("abc", "def")`, ipv4Code);
     expectDiagnostics(diagnostics, {
       code: "invalid-argument-count",
       message: "Expected 1 arguments, but got 2.",
@@ -86,7 +86,7 @@ describe("instantiate with named constructor", () => {
   });
 
   it("emit warning if passing too few args", async () => {
-    const diagnostics = await diagnoseValueType(`ipv4.fromBytes(0, 0, 0)`, ipv4Code);
+    const diagnostics = await diagnoseValue(`ipv4.fromBytes(0, 0, 0)`, ipv4Code);
     expectDiagnostics(diagnostics, {
       code: "invalid-argument-count",
       message: "Expected 4 arguments, but got 3.",
@@ -95,7 +95,7 @@ describe("instantiate with named constructor", () => {
 
   describe("with optional params", () => {
     it("allow not providing it", async () => {
-      const value = await compileValueType(
+      const value = await compileValue(
         `ipv4.fromItems("a")`,
         `
           scalar ipv4 {
@@ -108,7 +108,7 @@ describe("instantiate with named constructor", () => {
       expect(value.value.args).toHaveLength(1);
     });
     it("allow providing it", async () => {
-      const value = await compileValueType(
+      const value = await compileValue(
         `ipv4.fromItems("a", "b")`,
         `
           scalar ipv4 {
@@ -122,7 +122,7 @@ describe("instantiate with named constructor", () => {
     });
 
     it("emit warning if passing wrong type to constructor", async () => {
-      const diagnostics = await diagnoseValueType(
+      const diagnostics = await diagnoseValue(
         `ipv4.fromItems("a", 123)`,
         `
           scalar ipv4 {
@@ -138,7 +138,7 @@ describe("instantiate with named constructor", () => {
   });
   describe("with rest params", () => {
     it("support rest params", async () => {
-      const value = await compileValueType(
+      const value = await compileValue(
         `ipv4.fromItems("a", "b", "c")`,
         `
           scalar ipv4 {
@@ -152,7 +152,7 @@ describe("instantiate with named constructor", () => {
     });
 
     it("support rest params with positional before", async () => {
-      const value = await compileValueType(
+      const value = await compileValue(
         `ipv4.fromItems(1, "b", "c")`,
         `
           scalar ipv4 {
@@ -166,7 +166,7 @@ describe("instantiate with named constructor", () => {
     });
 
     it("emit warning if passing wrong type to constructor", async () => {
-      const diagnostics = await diagnoseValueType(
+      const diagnostics = await diagnoseValue(
         `ipv4.fromItems(123)`,
         `
           scalar ipv4 {

@@ -1,11 +1,11 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseValue } from "./utils.js";
 
 describe("instantiate with constructor", () => {
   it("string", async () => {
-    const value = await compileValueType(`string("abc")`);
+    const value = await compileValue(`string("abc")`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "string");
@@ -16,7 +16,7 @@ describe("instantiate with constructor", () => {
 
 describe("implicit type", () => {
   it("doesn't pick scalar if const has no type (string literal)", async () => {
-    const value = await compileValueType(`a`, `const a = "abc";`);
+    const value = await compileValue(`a`, `const a = "abc";`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.type.kind, "String");
     strictEqual(value.type.value, "abc");
@@ -24,7 +24,7 @@ describe("implicit type", () => {
     strictEqual(value.value, "abc");
   });
   it("doesn't pick scalar if const has no type (string template )", async () => {
-    const value = await compileValueType(`a`, `const a = "one ${"abc"} def";`);
+    const value = await compileValue(`a`, `const a = "one ${"abc"} def";`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.type.kind, "String");
     strictEqual(value.type.value, "one abc def");
@@ -33,7 +33,7 @@ describe("implicit type", () => {
   });
 
   it("instantiate if there is a single string option", async () => {
-    const value = await compileValueType(`a`, `const a: int32 | string = "abc";`);
+    const value = await compileValue(`a`, `const a: int32 | string = "abc";`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.type.kind, "Union");
     strictEqual(value.scalar?.name, "string");
@@ -41,7 +41,7 @@ describe("implicit type", () => {
   });
 
   it("emit diagnostics if there is multiple numeric choices", async () => {
-    const diagnostics = await diagnoseValueType(
+    const diagnostics = await diagnoseValue(
       `a`,
       `
       const a: string | myString = "abc";
@@ -56,7 +56,7 @@ describe("implicit type", () => {
 
 describe("string templates", () => {
   it("create string value from string template if able to serialize to string", async () => {
-    const value = await compileValueType(`string("one \${"abc"} def")`);
+    const value = await compileValue(`string("one \${"abc"} def")`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.type.kind, "Scalar");
     strictEqual(value.type.name, "string");
@@ -65,13 +65,13 @@ describe("string templates", () => {
   });
 
   it("interpolate another const", async () => {
-    const value = await compileValueType(`string("one \${a} def")`, `const a = "abc";`);
+    const value = await compileValue(`string("one \${a} def")`, `const a = "abc";`);
     strictEqual(value.valueKind, "StringValue");
     strictEqual(value.value, "one abc def");
   });
 
   it("emit error if string template is not serializable to string", async () => {
-    const diagnostics = await diagnoseValueType(`string("one \${boolean} def")`);
+    const diagnostics = await diagnoseValue(`string("one \${boolean} def")`);
     expectDiagnostics(diagnostics, {
       code: "non-literal-string-template",
       message:
@@ -80,10 +80,7 @@ describe("string templates", () => {
   });
 
   it("emit error if string template if interpolating non serializable value", async () => {
-    const diagnostics = await diagnoseValueType(
-      `string("one \${a} def")`,
-      `const a = #{a: "foo"};`
-    );
+    const diagnostics = await diagnoseValue(`string("one \${a} def")`, `const a = #{a: "foo"};`);
     expectDiagnostics(diagnostics, {
       code: "non-literal-string-template",
       message:
@@ -115,7 +112,7 @@ describe("validate literal are assignable", () => {
 
   describe.each(cases)("%s", (scalarName, values) => {
     it.each(values)(`%s %s`, async (expected, value, message) => {
-      const diagnostics = await diagnoseValueType(`a`, `const a:${scalarName} = ${value};`);
+      const diagnostics = await diagnoseValue(`a`, `const a:${scalarName} = ${value};`);
       expectDiagnostics(diagnostics, expected === "✔" ? [] : [{ message: message ?? "" }]);
     });
   });

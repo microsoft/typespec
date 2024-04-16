@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
-import { compileValueType, diagnoseUsage } from "./utils.js";
+import { compileValue, diagnoseUsage } from "./utils.js";
 
 describe("without type it use the most precise type", () => {
   it.each([
@@ -11,13 +11,13 @@ describe("without type it use the most precise type", () => {
     [`#{foo: "abc"}`, "Model"],
     [`#["abc"]`, "Tuple"],
   ])("%s => %s", async (input, kind) => {
-    const value = await compileValueType("a", `const a = ${input};`);
+    const value = await compileValue("a", `const a = ${input};`);
     strictEqual(value.type.kind, kind);
   });
 });
 
 it("when assigning another const it change the type", async () => {
-  const value = await compileValueType("b", `const a: int32 = 123;const b: int64 = a;`);
+  const value = await compileValue("b", `const a: int32 = 123;const b: int64 = a;`);
   strictEqual(value.type.kind, "Scalar");
   strictEqual(value.type.name, "int64");
 });

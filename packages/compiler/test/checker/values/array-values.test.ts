@@ -2,16 +2,16 @@ import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { Model, isValue } from "../../../src/index.js";
 import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValueType, diagnoseUsage, diagnoseValueType } from "./utils.js";
+import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 it("no values", async () => {
-  const object = await compileValueType(`#[]`);
+  const object = await compileValue(`#[]`);
   strictEqual(object.valueKind, "ArrayValue");
   strictEqual(object.values.length, 0);
 });
 
 it("single value", async () => {
-  const object = await compileValueType(`#["John"]`);
+  const object = await compileValue(`#["John"]`);
   strictEqual(object.valueKind, "ArrayValue");
   strictEqual(object.values.length, 1);
   const first = object.values[0];
@@ -20,7 +20,7 @@ it("single value", async () => {
 });
 
 it("multiple property", async () => {
-  const object = await compileValueType(`#["John", 21]`);
+  const object = await compileValue(`#["John", 21]`);
   strictEqual(object.valueKind, "ArrayValue");
   strictEqual(object.values.length, 2);
 
@@ -43,7 +43,7 @@ describe("valid property types", () => {
     ["ObjectValue", `#{nested: "foo"}`],
     ["ArrayValue", `#["foo"]`],
   ])("%s", async (kind, type, other?) => {
-    const object = await compileValueType(`#[${type}]`, other);
+    const object = await compileValue(`#[${type}]`, other);
     strictEqual(object.valueKind, "ArrayValue");
     const nameProp = object.values[0];
     strictEqual(nameProp?.valueKind, kind);
@@ -51,7 +51,7 @@ describe("valid property types", () => {
 });
 
 it("emit diagnostic if referencing a non literal type", async () => {
-  const diagnostics = await diagnoseValueType(`#[{ thisIsAModel: true }]`);
+  const diagnostics = await diagnoseValue(`#[{ thisIsAModel: true }]`);
   expectDiagnostics(diagnostics, {
     code: "expect-value",
     message: "{ thisIsAModel: true } refers to a type, but is being used as a value here.",
