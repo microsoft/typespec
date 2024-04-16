@@ -35,6 +35,7 @@ extern dec id(target: unknown, id: valueof string);
  *
  * @param value The numeric type must be a multiple of this value.
  */
+#suppress "deprecated" ""
 extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
 
 /**

@@ -30,13 +30,21 @@ export interface DecoratorArgument {
   /**
    * Marshalled value for use in Javascript.
    */
-  jsValue: Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric;
+  jsValue:
+    | Type
+    | Value
+    | Record<string, unknown>
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | Numeric
+    | null;
   node?: Node;
 }
 
 export interface DecoratorApplication {
   definition?: Decorator;
-  // TODO-TIM deprecate replace with `implementation`?
   decorator: DecoratorFunction;
   args: DecoratorArgument[];
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
@@ -1935,23 +1943,29 @@ export type LocationContext =
 
 /** Defined in the user project. */
 export interface ProjectLocationContext {
-  type: "project";
+  readonly type: "project";
+  readonly flags?: ModuleFlags;
 }
 
 /** Built-in */
 export interface CompilerLocationContext {
-  type: "compiler";
+  readonly type: "compiler";
 }
 
 /** Refer to a type that was not declared in a file */
 export interface SyntheticLocationContext {
-  type: "synthetic";
+  readonly type: "synthetic";
 }
 
 /** Defined in a library. */
 export interface LibraryLocationContext {
-  type: "library";
-  metadata: ModuleLibraryMetadata;
+  readonly type: "library";
+
+  /** Library metadata */
+  readonly metadata: ModuleLibraryMetadata;
+
+  /** Module definition */
+  readonly flags?: ModuleFlags;
 }
 
 export interface LibraryInstance {
@@ -1986,10 +2000,10 @@ export interface FileLibraryMetadata extends LibraryMetadataBase {
 
 /** Data for a library. Either loaded via a node_modules package or a standalone js file  */
 export interface ModuleLibraryMetadata extends LibraryMetadataBase {
-  type: "module";
+  readonly type: "module";
 
   /** Library name as specified in the package.json or in exported $lib. */
-  name: string;
+  readonly name: string;
 }
 
 export interface TextRange {
@@ -2323,6 +2337,25 @@ export interface TypeSpecLibraryDef<
   readonly linter?: LinterDefinition;
 
   readonly state?: Record<State, StateDef>;
+}
+
+export interface ModuleFlags {
+  /**
+   * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
+   * - `value` - New recommended behavior
+   *  - string value -> `string`
+   *  - numeric value -> `number` if the constraint can be represented as a JS number, Numeric otherwise(e.g. for types int64, decimal128, numeric, etc.)
+   *  - boolean value -> `boolean`
+   *  - null value -> `null`
+   *
+   * - `legacy` Behavior before version 0.56.0.
+   *  - string value -> `string`
+   *  - numeric value -> `number`
+   *  - boolean value -> `boolean`
+   *  - null value -> `NullType`
+   * @default legacy
+   */
+  readonly decoratorArgMarshalling?: "legacy" | "value";
 }
 
 export interface LinterDefinition {

@@ -7,6 +7,7 @@ import {
   JSONSchemaValidator,
   LinterDefinition,
   LinterRuleDefinition,
+  ModuleFlags,
   StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
@@ -100,6 +101,10 @@ export function createTypeSpecLibrary<
   function getTracer(program: Program) {
     return program.tracer.sub(lib.name);
   }
+}
+
+export function defineModuleFlags(flags: ModuleFlags): ModuleFlags {
+  return flags;
 }
 
 export function defineLinter(def: LinterDefinition): LinterDefinition {

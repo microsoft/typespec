@@ -5,16 +5,26 @@ import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-iden
 import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
 import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
+import {
+  ProjectionError,
+  compilerAssert,
+  ignoreDiagnostics,
+  reportDeprecated,
+} from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   TypeNameOptions,
   getEntityName,
+  getLocationContext,
   getNamespaceFullName,
   getTypeName,
   stringTemplateToString,
 } from "./helpers/index.js";
-import { marshallTypeForJSWithLegacyCast } from "./js-marshaller.js";
+import {
+  canNumericConstraintBeJsNumber,
+  legacyMarshallTypeForJS,
+  marshallTypeForJS,
+} from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
@@ -275,10 +285,11 @@ export interface Checker {
   /** @internal */
   getValueForNode(node: Node): Value | null;
 
-  errorType: ErrorType;
-  voidType: VoidType;
-  neverType: NeverType;
-  anyType: UnknownType;
+  readonly errorType: ErrorType;
+  readonly voidType: VoidType;
+  readonly neverType: NeverType;
+  readonly nullType: NullType;
+  readonly anyType: UnknownType;
 }
 
 interface TypePrototype {
@@ -418,6 +429,7 @@ export function createChecker(program: Program): Checker {
     project,
     neverType,
     errorType,
+    nullType,
     anyType: unknownType,
     voidType,
     typePrototype,
@@ -542,7 +554,7 @@ export function createChecker(program: Program): Checker {
         if (ref.flags & SymbolFlags.Namespace) {
           const links = getSymbolLinks(getMergedSymbol(ref));
           const type: Type & DecoratedType = links.type! as any;
-          const decApp = checkDecorator(type, decNode, undefined);
+          const decApp = checkDecoratorApplication(type, decNode, undefined);
           if (decApp) {
             type.decorators.push(decApp);
             applyDecoratorToType(program, decApp, type);
@@ -1851,7 +1863,46 @@ export function createChecker(program: Program): Checker {
 
     linkType(links, decoratorType, mapper);
 
+    checkDecoratorLegacyMarshalling(decoratorType);
     return decoratorType;
+  }
+
+  function checkDecoratorLegacyMarshalling(decorator: Decorator) {
+    const marshalling = resolveDecoratorArgMarshalling(decorator);
+    if (marshalling === "legacy") {
+      for (const param of decorator.parameters) {
+        if (param.type.kind === "Value") {
+          if (
+            ignoreDiagnostics(isTypeAssignableTo(nullType, param.type.target, param.type.target))
+          ) {
+            reportDeprecated(
+              program,
+              [
+                `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting null as a type.`,
+                `This will change in the future.`,
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "value"}}` to your library.',
+              ].join("\n"),
+              param.node
+            );
+          } else if (
+            ignoreDiagnostics(
+              isTypeAssignableTo(param.type.target, getStdType("numeric"), param.type.target)
+            ) &&
+            !canNumericConstraintBeJsNumber(param.type.target)
+          ) {
+            reportDeprecated(
+              program,
+              [
+                `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting a numeric type that is not representable as a JS Number.`,
+                `This will change in the future.`,
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "value"}}` to your library.',
+              ].join("\n"),
+              param.node
+            );
+          }
+        }
+      }
+    }
   }
 
   function checkFunctionDeclaration(
@@ -4534,7 +4585,7 @@ export function createChecker(program: Program): Checker {
     return resolved;
   }
 
-  function checkDecorator(
+  function checkDecoratorApplication(
     targetType: Type,
     decNode: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     mapper: TypeMapper | undefined
@@ -4591,6 +4642,7 @@ export function createChecker(program: Program): Checker {
     if (hasError || argsHaveError) {
       return undefined;
     }
+
     return {
       definition: symbolLinks.declaredType,
       decorator: sym.value ?? ((...args: any[]) => {}),
@@ -4599,6 +4651,22 @@ export function createChecker(program: Program): Checker {
     };
   }
 
+  function resolveDecoratorArgMarshalling(declaredType: Decorator | undefined): "value" | "legacy" {
+    if (declaredType) {
+      const location = getLocationContext(program, declaredType);
+      if (location.type === "compiler") {
+        return "value";
+      } else if (
+        (location.type === "library" || location.type === "project") &&
+        location.flags?.decoratorArgMarshalling
+      ) {
+        return location.flags.decoratorArgMarshalling;
+      } else {
+        return "legacy";
+      }
+    }
+    return "value";
+  }
   /** Check the decorator target is valid */
 
   function checkDecoratorTarget(targetType: Type, declaration: Decorator, decoratorNode: Node) {
@@ -4679,7 +4747,36 @@ export function createChecker(program: Program): Checker {
     }
 
     const resolvedArgs: DecoratorArgument[] = [];
-
+    const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
+    function resolveArg(
+      argNode: Expression,
+      perParamType: Type | ValueType | ParamConstraintUnion
+    ): DecoratorArgument | undefined {
+      const arg = getTypeOrValueForNode(argNode, mapper, {
+        kind: "argument",
+        constraint: perParamType,
+      });
+      if (
+        arg !== null &&
+        !(isType(arg) && isErrorType(arg)) &&
+        checkArgumentAssignable(arg, perParamType, argNode)
+      ) {
+        return {
+          value: arg,
+          node: argNode,
+          jsValue: resolveDecoratorArgJsValue(
+            arg,
+            extractValueOfConstraints({
+              kind: "argument",
+              constraint: perParamType,
+            }),
+            jsMarshalling
+          ),
+        };
+      } else {
+        return undefined;
+      }
+    }
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
         const restType =
@@ -4697,26 +4794,9 @@ export function createChecker(program: Program): Checker {
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
-              const arg = getTypeOrValueForNode(argNode, mapper, {
-                kind: "argument",
-                constraint: perParamType,
-              });
-              if (
-                arg !== null &&
-                !(isType(arg) && isErrorType(arg)) &&
-                checkArgumentAssignable(arg, perParamType, argNode)
-              ) {
-                resolvedArgs.push({
-                  value: arg,
-                  node: argNode,
-                  jsValue: resolveDecoratorArgJsValue(
-                    arg,
-                    extractValueOfConstraints({
-                      kind: "argument",
-                      constraint: parameter.type,
-                    })
-                  ),
-                });
+              const arg = resolveArg(argNode, perParamType);
+              if (arg) {
+                resolvedArgs.push(arg);
               } else {
                 hasError = true;
               }
@@ -4727,26 +4807,9 @@ export function createChecker(program: Program): Checker {
       }
       const argNode = node.arguments[index];
       if (argNode) {
-        const arg = getTypeOrValueForNode(argNode, mapper, {
-          kind: "argument",
-          constraint: parameter.type,
-        });
-        if (
-          arg !== null &&
-          !(isType(arg) && isErrorType(arg)) &&
-          checkArgumentAssignable(arg, parameter.type, argNode)
-        ) {
-          resolvedArgs.push({
-            value: arg,
-            node: argNode,
-            jsValue: resolveDecoratorArgJsValue(
-              arg,
-              extractValueOfConstraints({
-                kind: "argument",
-                constraint: parameter.type,
-              })
-            ),
-          });
+        const arg = resolveArg(argNode, parameter.type);
+        if (arg) {
+          resolvedArgs.push(arg);
         } else {
           hasError = true;
         }
@@ -4761,12 +4824,15 @@ export function createChecker(program: Program): Checker {
 
   function resolveDecoratorArgJsValue(
     value: Type | Value,
-    valueConstraint: CheckValueConstraint | undefined
+    valueConstraint: CheckValueConstraint | undefined,
+    jsMarshalling: "legacy" | "value"
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value, valueConstraint.type);
-        reportCheckerDiagnostics(diagnostics);
+        const res =
+          jsMarshalling === "legacy"
+            ? legacyMarshallTypeForJS(checker, value)
+            : marshallTypeForJS(value, valueConstraint.type);
         return res ?? value;
       } else {
         return value;
@@ -4801,7 +4867,7 @@ export function createChecker(program: Program): Checker {
     const decorators: DecoratorApplication[] = [];
 
     for (const decNode of augmentDecoratorNodes) {
-      const decorator = checkDecorator(targetType, decNode, mapper);
+      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
         decorators.unshift(decorator);
       }
@@ -4822,7 +4888,7 @@ export function createChecker(program: Program): Checker {
       ...node.decorators,
     ];
     for (const decNode of decoratorNodes) {
-      const decorator = checkDecorator(targetType, decNode, mapper);
+      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
         decorators.unshift(decorator);
       }

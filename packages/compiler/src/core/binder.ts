@@ -134,8 +134,12 @@ export function createBinder(program: Program): Binder {
       let name: string;
       let kind: "decorator" | "function";
       let containerSymbol = sourceFile.symbol;
-
-      if (typeof member === "function") {
+      if (key === "$flags") {
+        const context = getLocationContext(program, sourceFile);
+        if (context.type === "library" || context.type === "project") {
+          mutate(context).flags = member as any;
+        }
+      } else if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
         if (isFunctionName(key)) {

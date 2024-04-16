@@ -1,9 +1,9 @@
+import { Checker } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";
 import type {
   ArrayValue,
-  Diagnostic,
   MarshalledValue,
   NumericValue,
   ObjectValue,
@@ -11,37 +11,59 @@ import type {
   Value,
 } from "./types.js";
 
-/** Legacy version that will cast models to object literals and tuple to tuple literals */
-export function marshallTypeForJSWithLegacyCast<T extends Value>(
-  value: Value,
-  valueConstraint: Type
-): [MarshalledValue<T> | undefined, readonly Diagnostic[]] {
-  return [marshallTypeForJS(value, valueConstraint) as any, []];
-}
-export function marshallTypeForJS<T extends Value>(
-  type: T,
-  valueConstraint: Type | undefined
-): MarshalledValue<T> {
-  switch (type.valueKind) {
+/**
+ * Legacy marshalling of values to replicate before 0.56.0 behavior
+ *  - string value -> `string`
+ *  - numeric value -> `number`
+ *  - boolean value -> `boolean`
+ *  - null value -> `NullType`
+ */
+export function legacyMarshallTypeForJS(
+  checker: Checker,
+  value: Value
+): Type | Value | Record<string, unknown> | unknown[] | string | number | boolean {
+  switch (value.valueKind) {
     case "BooleanValue":
     case "StringValue":
-      return type.value as any;
+      return value.value;
     case "NumericValue":
-      return numericValueToJs(type, valueConstraint) as any;
+      return Number(value.value.toString());
     case "ObjectValue":
-      return objectValueToJs(type) as any;
+      return objectValueToJs(value);
     case "ArrayValue":
-      return arrayValueToJs(type) as any;
+      return arrayValueToJs(value);
     case "EnumValue":
-      return type.value as any;
+      return value.value;
+    case "NullValue":
+      return checker.nullType;
+    case "ScalarValue":
+      return value;
+  }
+}
+export function marshallTypeForJS<T extends Value>(
+  value: T,
+  valueConstraint: Type | undefined
+): MarshalledValue<T> {
+  switch (value.valueKind) {
+    case "BooleanValue":
+    case "StringValue":
+      return value.value as any;
+    case "NumericValue":
+      return numericValueToJs(value, valueConstraint) as any;
+    case "ObjectValue":
+      return objectValueToJs(value) as any;
+    case "ArrayValue":
+      return arrayValueToJs(value) as any;
+    case "EnumValue":
+      return value.value as any;
     case "NullValue":
       return null as any;
     case "ScalarValue":
-      return type as any;
+      return value as any;
   }
 }
 
-function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
+export function canNumericConstraintBeJsNumber(type: Type | undefined): boolean {
   if (type === undefined) return true;
   switch (type.kind) {
     case "Scalar":

@@ -553,7 +553,7 @@ export function createProjector(
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
         const jsValue =
-          typeof arg.jsValue === "object" && "kind" in arg.jsValue
+          typeof arg.jsValue === "object" && arg.jsValue !== null && "kind" in arg.jsValue
             ? projectType(arg.jsValue as any)
             : arg.jsValue;
         args.push({ ...arg, value: projectType(arg.value), jsValue });
