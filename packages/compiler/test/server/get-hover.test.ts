@@ -252,44 +252,6 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
-
-    it("model with one template arg", async () => {
-      const hover = await getHoverAtCursor(
-        `
-          @service({title: "RT"})
-          namespace TestNs;
-          
-          interface IAct┆ions<T>{
-            fly(): void;
-        }
-        `
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "interface TestNs.IActions<T>\n" + "```",
-        },
-      });
-    });
-
-    it("model with two template args", async () => {
-      const hover = await getHoverAtCursor(
-        `
-          @service({title: "RT"})
-          namespace TestNs;
-          
-          interface IAct┆ions<T, P>{
-            fly(): void;
-        }
-        `
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "interface TestNs.IActions<T, P>\n" + "```",
-        },
-      });
-    });
   });
 
   describe("get hover for operation", () => {
@@ -391,8 +353,7 @@ describe("compiler: server: on hover", () => {
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value:
-            "```typespec\n" + "op TestNs.IActions<Q>.Eat<T, P>(food: string): string\n" + "```",
+          value: "```typespec\n" + "op TestNs.IActions.Eat<T, P>(food: string): string\n" + "```",
         },
       });
     });

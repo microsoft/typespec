@@ -188,8 +188,10 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;
   }
-  const interfaceName = op.interface ? getInterfaceName(op.interface, options) + "." : "";
-  return `${getNamespacePrefix(op.namespace, options)}${interfaceName}${opName}`;
+  const prefix = op.interface
+    ? getInterfaceName(op.interface, options) + "."
+    : getNamespacePrefix(op.namespace, options);
+  return `${prefix}${opName}`;
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
