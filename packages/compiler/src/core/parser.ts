@@ -420,7 +420,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          item = parseNamespaceStatement(pos, decorators, docs);
+          item = parseNamespaceStatement(pos, decorators, docs, directives);
           break;
         case Token.InterfaceKeyword:
           item = parseInterfaceStatement(pos, decorators);
@@ -461,8 +461,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           break;
       }
 
-      mutate(item).directives = directives;
       if (tok !== Token.NamespaceKeyword) {
+        mutate(item).directives = directives;
         mutate(item).docs = docs;
       }
 
@@ -515,7 +515,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          const ns = parseNamespaceStatement(pos, decorators, docs);
+          const ns = parseNamespaceStatement(pos, decorators, docs, directives);
 
           if (!Array.isArray(ns.statements)) {
             error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
@@ -595,7 +595,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseNamespaceStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
-    docs: DocNode[]
+    docs: DocNode[],
+    directives: DirectiveExpressionNode[]
   ): NamespaceStatementNode {
     parseExpected(Token.NamespaceKeyword);
     let currentName = parseIdentifierOrMemberExpression();
@@ -621,7 +622,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id: nsSegments[0],
       locals: undefined!,
       statements,
-
+      directives: directives,
       ...finishNode(pos),
     };
 
@@ -629,6 +630,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       outerNs = {
         kind: SyntaxKind.NamespaceStatement,
         decorators: [],
+        directives: [],
         id: nsSegments[i],
         statements: outerNs,
         locals: undefined!,

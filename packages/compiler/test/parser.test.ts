@@ -713,6 +713,26 @@ describe("compiler: parser", () => {
         { strict: true }
       );
     });
+
+    describe("ensure directives and decorators are applied to leaf node", () => {
+      parseEach([
+        [
+          `@doc("foo")\n#suppress "foo"\nnamespace Foo.Bar {}`,
+          (node) => {
+            const fooNs = node.statements[0];
+            strictEqual(fooNs.kind, SyntaxKind.NamespaceStatement);
+            const barNs = (fooNs as any).statements;
+            strictEqual(barNs.kind, SyntaxKind.NamespaceStatement);
+            strictEqual(fooNs.id.sv, "Foo");
+            strictEqual(barNs.id.sv, "Bar");
+            strictEqual(fooNs.directives?.length, 0);
+            strictEqual(fooNs.decorators.length, 0);
+            strictEqual(barNs.directives?.length, 1);
+            strictEqual(barNs.decorators.length, 1);
+          },
+        ],
+      ]);
+    });
   });
 
   describe("augment decorator statements", () => {
