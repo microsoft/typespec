@@ -115,7 +115,7 @@ export async function createBrowserHost(
     },
 
     getExecutionRoot() {
-      return resolveVirtualPath(".tsp");
+      return resolveVirtualPath("/test/node_modules/@typespec/compiler");
     },
 
     async getJsImport(path) {
