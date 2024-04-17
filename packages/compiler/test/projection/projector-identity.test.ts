@@ -285,7 +285,7 @@ describe("compiler: projector: Identity", () => {
           }`,
         ref: "Foo.one",
         expectedTypes: [
-          ["Operation", "one"],
+          ["Operation", "Foo.one"],
           ["Interface", "Foo"],
         ],
       });
