@@ -177,10 +177,6 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
     interfaceName += `<${iface.templateMapper.args
       .map((x) => getTypeName(x, options))
       .join(", ")}>`;
-  } else if (iface.node.templateParameters.length > 0) {
-    // template
-    const params = iface.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
-    interfaceName += `<${params.join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
@@ -192,10 +188,8 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
     const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
     opName += `<${params.join(", ")}>`;
   }
-  const prefix = op.interface
-    ? getInterfaceName(op.interface, options) + "."
-    : getNamespacePrefix(op.namespace, options);
-  return `${prefix}${opName}`;
+  const interfaceName = op.interface ? getInterfaceName(op.interface, options) + "." : "";
+  return `${getNamespacePrefix(op.namespace, options)}${interfaceName}${opName}`;
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
