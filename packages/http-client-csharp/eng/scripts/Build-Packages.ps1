@@ -17,6 +17,7 @@ $outputPath = $Output ? $Output : "$packageRoot/ci-build"
 
 # create the output folders
 $outputPath = New-Item -ItemType Directory -Force -Path $outputPath | Select-Object -ExpandProperty FullName
+New-Item -ItemType Directory -Force -Path "$outputPath/packages" | Out-Null
 
 $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 
