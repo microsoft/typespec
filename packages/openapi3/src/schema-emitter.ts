@@ -198,6 +198,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.emitter.getContext().visibility ?? Visibility.Read;
   }
 
+  #ignoreMetadataAnnotations(): boolean {
+    return this.emitter.getContext().ignoreMetadataAnnotations;
+  }
+
   #getContentType(): string {
     return this.emitter.getContext().contentType ?? "application/json";
   }
@@ -264,7 +268,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+
+      if (
+        !this.#metadataInfo.isPayloadProperty(prop, visibility, this.#ignoreMetadataAnnotations())
+      ) {
         continue;
       }
 
@@ -293,7 +300,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+      if (
+        !this.#metadataInfo.isPayloadProperty(prop, visibility, this.#ignoreMetadataAnnotations())
+      ) {
         continue;
       }
       const result = this.emitter.emitModelProperty(prop);
@@ -845,6 +854,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const usage = this.#visibilityUsage.getUsage(type);
+
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
     const fullName =
