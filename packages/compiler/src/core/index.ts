@@ -7,6 +7,25 @@ export * from "./emitter-utils.js";
 export * from "./formatter.js";
 export * from "./helpers/index.js";
 export {
+  getDocData,
+  getMaxItems,
+  getMaxItemsAsNumeric,
+  getMaxLength,
+  getMaxLengthAsNumeric,
+  getMaxValue,
+  getMaxValueAsNumeric,
+  getMaxValueExclusive,
+  getMaxValueExclusiveAsNumeric,
+  getMinItems,
+  getMinItemsAsNumeric,
+  getMinLength,
+  getMinLengthAsNumeric,
+  getMinValue,
+  getMinValueAsNumeric,
+  getMinValueExclusive,
+  getMinValueExclusiveAsNumeric,
+} from "./intrinsic-type-data.js";
+export {
   // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,
   createLinterRule as createRule,

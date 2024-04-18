@@ -1,5 +1,6 @@
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
+  ArrayModelType,
   Entity,
   Enum,
   ErrorType,
@@ -47,6 +48,21 @@ export function isType(entity: Entity): entity is Type {
 }
 export function isValue(entity: Entity): entity is Value {
   return "valueKind" in entity;
+}
+
+/**
+ * @param type Model type
+ */
+export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && type.indexer.key.name === "integer");
+}
+
+/**
+ * Check if a model is an array type.
+ * @param type Model type
+ */
+export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
+  return Boolean(type.indexer && type.indexer.key.name === "string");
 }
 
 /**

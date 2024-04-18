@@ -1,6 +1,5 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model } from "../../src/core/types.js";
 import {
   getMaxItems,
   getMaxLength,
@@ -8,7 +7,8 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
-} from "../../src/lib/decorators.js";
+} from "../../src/core/intrinsic-type-data.js";
+import { Model } from "../../src/core/types.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: range limiting decorators", () => {

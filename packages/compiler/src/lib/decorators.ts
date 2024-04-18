@@ -1,4 +1,4 @@
-import {
+import type {
   DeprecatedDecorator,
   DiscriminatorDecorator,
   DocDecorator,
@@ -48,13 +48,33 @@ import {
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
+  isArrayModelType,
   reportDeprecated,
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
+import {
+  DocData,
+  getDocDataInternal,
+  getMaxItemsAsNumeric,
+  getMaxLengthAsNumeric,
+  getMaxValueAsNumeric,
+  getMaxValueExclusiveAsNumeric,
+  getMinItemsAsNumeric,
+  getMinLengthAsNumeric,
+  getMinValueAsNumeric,
+  getMinValueExclusiveAsNumeric,
+  setDocData,
+  setMaxItems,
+  setMaxLength,
+  setMaxValue,
+  setMaxValueExclusive,
+  setMinLength,
+  setMinValue,
+  setMinValueExclusive,
+} from "../core/intrinsic-type-data.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
-  ArrayModelType,
   DecoratorContext,
   Enum,
   EnumMember,
@@ -115,24 +135,6 @@ export function getSummary(program: Program, type: Type): string | undefined {
   return program.stateMap(summaryKey).get(type);
 }
 
-const docsKey = createStateSymbol("docs");
-const returnsDocsKey = createStateSymbol("returnsDocs");
-const errorsDocsKey = createStateSymbol("errorDocs");
-type DocTarget = "self" | "returns" | "errors";
-
-export interface DocData {
-  /**
-   * Doc value.
-   */
-  value: string;
-
-  /**
-   * How was the doc set.
-   * - `decorator` means the `@doc` decorator was used
-   * - `comment` means it was set from a `/** comment * /`
-   */
-  source: "decorator" | "comment";
-}
 /**
  * @doc attaches a documentation string. Works great with multi-line string literals.
  *
@@ -153,57 +155,6 @@ export const $doc: DocDecorator = (
   }
   setDocData(context.program, target, "self", { value: text, source: "decorator" });
 };
-
-/**
- * @internal to be used to set the `@doc` from doc comment.
- */
-export const $docFromComment = (
-  context: DecoratorContext,
-  target: Type,
-  key: DocTarget,
-  text: string
-) => {
-  setDocData(context.program, target, key, { value: text, source: "comment" });
-};
-
-function getDocKey(target: DocTarget): symbol {
-  switch (target) {
-    case "self":
-      return docsKey;
-    case "returns":
-      return returnsDocsKey;
-    case "errors":
-      return errorsDocsKey;
-  }
-}
-
-function setDocData(program: Program, target: Type, key: DocTarget, data: DocData) {
-  program.stateMap(getDocKey(key)).set(target, data);
-}
-
-/**
- * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
- * @param program Program
- * @param target Type
- * @returns Doc data with source information.
- */
-export function getDocDataInternal(
-  program: Program,
-  target: Type,
-  key: DocTarget
-): DocData | undefined {
-  return program.stateMap(getDocKey(key)).get(target);
-}
-
-/**
- * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
- * @param program Program
- * @param target Type
- * @returns Doc data with source information.
- */
-export function getDocData(program: Program, target: Type): DocData | undefined {
-  return getDocDataInternal(program, target, "self");
-}
 
 /**
  * Get the documentation string for the given type.
@@ -359,21 +310,6 @@ function validateTargetingAString(
 }
 
 /**
- * @param type Model type
- */
-export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && type.indexer.key.name === "integer");
-}
-
-/**
- * Check if a model is an array type.
- * @param type Model type
- */
-export function isRecordModelType(program: Program, type: Model): type is ArrayModelType {
-  return Boolean(type.indexer && type.indexer.key.name === "string");
-}
-
-/**
  * Return the type of the property or the model itself.
  */
 export function getPropertyType(target: Scalar | ModelProperty): Type {
@@ -513,8 +449,6 @@ export function getPatternData(program: Program, target: Type): PatternData | un
 
 // -- @minLength decorator ---------------------
 
-const minLengthValuesKey = createStateSymbol("minLengthValues");
-
 export const $minLength: MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -528,26 +462,10 @@ export const $minLength: MinLengthDecorator = (
   ) {
     return;
   }
-
-  context.program.stateMap(minLengthValuesKey).set(target, minLength);
+  setMinLength(context.program, target, minLength);
 };
 
-/**
- * Get the minimum length of a string type as a {@link Numeric} value.
- * @param program Current program
- * @param target Type with the `@minLength` decorator
- */
-export function getMinLengthAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(minLengthValuesKey).get(target);
-}
-
-export function getMinLength(program: Program, target: Type): number | undefined {
-  return getMinLengthAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @maxLength decorator ---------------------
-
-const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 
 export const $maxLength: MaxLengthDecorator = (
   context: DecoratorContext,
@@ -563,25 +481,10 @@ export const $maxLength: MaxLengthDecorator = (
     return;
   }
 
-  context.program.stateMap(maxLengthValuesKey).set(target, maxLength);
+  setMaxLength(context.program, target, maxLength);
 };
 
-export function getMaxLength(program: Program, target: Type): number | undefined {
-  return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
-/**
- * Get the maximum length of a string type as a {@link Numeric} value.
- * @param program Current program
- * @param target Type with the `@maxLength` decorator
- */
-export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(maxLengthValuesKey).get(target);
-}
-
 // -- @minItems decorator ---------------------
-
-const minItemsValuesKey = createStateSymbol("minItems");
 
 export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
@@ -605,20 +508,10 @@ export const $minItems: MinItemsDecorator = (
     return;
   }
 
-  context.program.stateMap(minItemsValuesKey).set(target, minItems);
+  setMinLength(context.program, target, minItems);
 };
 
-export function getMinItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(minItemsValuesKey).get(target);
-}
-
-export function getMinItems(program: Program, target: Type): number | undefined {
-  return getMinItemsAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @maxLength decorator ---------------------
-
-const maxItemsValuesKey = createStateSymbol("maxItems");
 
 export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
@@ -641,20 +534,10 @@ export const $maxItems: MaxItemsDecorator = (
     return;
   }
 
-  context.program.stateMap(maxItemsValuesKey).set(target, maxItems);
+  setMaxItems(context.program, target, maxItems);
 };
 
-export function getMaxItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(maxItemsValuesKey).get(target);
-}
-
-export function getMaxItems(program: Program, target: Type): number | undefined {
-  return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @minValue decorator ---------------------
-
-const minValuesKey = createStateSymbol("minValues");
 
 export const $minValue: MinValueDecorator = (
   context: DecoratorContext,
@@ -679,19 +562,10 @@ export const $minValue: MinValueDecorator = (
   ) {
     return;
   }
-  program.stateMap(minValuesKey).set(target, minValue);
+  setMinValue(program, target, minValue);
 };
 
-export function getMinValueAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(minValuesKey).get(target);
-}
-export function getMinValue(program: Program, target: Type): number | undefined {
-  return getMinValueAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @maxValue decorator ---------------------
-
-const maxValuesKey = createStateSymbol("maxValues");
 
 export const $maxValue: MaxValueDecorator = (
   context: DecoratorContext,
@@ -715,19 +589,10 @@ export const $maxValue: MaxValueDecorator = (
   ) {
     return;
   }
-  program.stateMap(maxValuesKey).set(target, maxValue);
+  setMaxValue(program, target, maxValue);
 };
 
-export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(maxValuesKey).get(target);
-}
-export function getMaxValue(program: Program, target: Type): number | undefined {
-  return getMaxValueAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @minValueExclusive decorator ---------------------
-
-const minValueExclusiveKey = createStateSymbol("minValueExclusive");
 
 export const $minValueExclusive: MinValueExclusiveDecorator = (
   context: DecoratorContext,
@@ -752,19 +617,10 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
   ) {
     return;
   }
-  program.stateMap(minValueExclusiveKey).set(target, minValueExclusive);
+  setMinValueExclusive(program, target, minValueExclusive);
 };
 
-export function getMinValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(minValueExclusiveKey).get(target);
-}
-export function getMinValueExclusive(program: Program, target: Type): number | undefined {
-  return getMinValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @maxValueExclusive decorator ---------------------
-
-const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
 
 export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   context: DecoratorContext,
@@ -788,16 +644,8 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   ) {
     return;
   }
-  program.stateMap(maxValueExclusiveKey).set(target, maxValueExclusive);
+  setMaxValueExclusive(program, target, maxValueExclusive);
 };
-
-export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(maxValueExclusiveKey).get(target);
-}
-export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
-  return getMaxValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
-}
-
 // -- @secret decorator ---------------------
 
 const secretTypesKey = createStateSymbol("secretTypes");

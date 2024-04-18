@@ -1,14 +1,4 @@
-import {
-  $docFromComment,
-  getMaxLength,
-  getMaxValueAsNumeric,
-  getMaxValueExclusiveAsNumeric,
-  getMinLength,
-  getMinValueAsNumeric,
-  getMinValueExclusiveAsNumeric,
-  isArrayModelType,
-} from "../lib/decorators.js";
-import { getIndexer } from "../lib/intrinsic-decorators.js";
+import { $docFromComment, getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -31,6 +21,14 @@ import {
   stringTemplateToString,
 } from "./helpers/index.js";
 import {
+  getMaxLength,
+  getMaxValueAsNumeric,
+  getMaxValueExclusiveAsNumeric,
+  getMinLength,
+  getMinValueAsNumeric,
+  getMinValueExclusiveAsNumeric,
+} from "./intrinsic-type-data.js";
+import {
   canNumericConstraintBeJsNumber,
   legacyMarshallTypeForJS,
   marshallTypeForJS,
@@ -44,11 +42,12 @@ import {
   hasParseError,
   visitChildren,
 } from "./parser.js";
-import { Program, ProjectedProgram } from "./program.js";
+import type { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
+  isArrayModelType,
   isErrorType,
   isNeverType,
   isTemplateInstance,
