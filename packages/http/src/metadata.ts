@@ -235,7 +235,7 @@ export function gatherMetadata(
   rootMapOut?: Map<ModelProperty, ModelProperty>
 ): Set<ModelProperty> {
   const metadata = new Map<string, ModelProperty>();
-  if (type.kind !== "Model" || type.indexer || type.properties.size === 0) {
+  if (type.kind !== "Model" || type.properties.size === 0) {
     return new Set();
   }
 

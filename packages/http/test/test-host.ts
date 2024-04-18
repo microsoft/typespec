@@ -81,6 +81,14 @@ export async function compileOperations(
   return [details, diagnostics];
 }
 
+export async function diagnoseOperations(
+  code: string,
+  routeOptions?: RouteResolutionOptions
+): Promise<readonly Diagnostic[]> {
+  const [_, diagnostics] = await compileOperations(code, routeOptions);
+  return diagnostics;
+}
+
 export async function getOperationsWithServiceNamespace(
   code: string,
   routeOptions?: RouteResolutionOptions
