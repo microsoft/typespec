@@ -462,7 +462,7 @@ export async function compile(
   async function loadIntrinsicTypes() {
     const locationContext: LocationContext = { type: "compiler" };
     await loadTypeSpecFile(
-      resolvePath(host.getExecutionRoot(), "lib/intrinsic.tsp"),
+      resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
       locationContext,
       NoTarget
     );
