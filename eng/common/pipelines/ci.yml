@@ -3,6 +3,7 @@ pr:
   branches:
     include:
       - main
+      - gh-readonly-queue/*
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
