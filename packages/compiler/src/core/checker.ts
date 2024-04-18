@@ -2402,8 +2402,22 @@ export function createChecker(program: Program): Checker {
 
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
-        base = getAliasedSymbol(base, mapper, options);
-        if (!base) {
+        const aliasedSym = getAliasedSymbol(base, mapper, options);
+        if (!aliasedSym) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "node",
+              format: {
+                id: node.id.sv,
+                nodeName: base.declarations[0]
+                  ? SyntaxKind[base.declarations[0].kind]
+                  : "Unknown node",
+              },
+              target: node,
+            })
+          );
+          base = aliasedSym;
           return undefined;
         }
       }
@@ -2561,11 +2575,19 @@ export function createChecker(program: Program): Checker {
     while (current.flags & SymbolFlags.Alias) {
       const node = current.declarations[0];
       const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
-      const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
-      if (sym === undefined) {
+      if (
+        targetNode.kind === SyntaxKind.TypeReference ||
+        targetNode.kind === SyntaxKind.MemberExpression ||
+        targetNode.kind === SyntaxKind.Identifier
+      ) {
+        const sym = resolveTypeReferenceSymInternal(targetNode, mapper, options);
+        if (sym === undefined) {
+          return undefined;
+        }
+        current = sym;
+      } else {
         return undefined;
       }
-      current = sym;
     }
     const sym = current;
     const node = aliasSymbol.declarations[0];
