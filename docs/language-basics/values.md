@@ -89,7 +89,7 @@ scalar IPv4 extends string {
   init fromInt(uint32);
 }
 
-const ip = IPv4.fromInt(2341230);
+const ip = ipv4.fromInt(2341230);
 ```
 
 ## Enum member &amp; union variant references
