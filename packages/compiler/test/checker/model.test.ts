@@ -588,7 +588,7 @@ describe("compiler: models", () => {
       const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
       expect(B.sourceModels).toHaveLength(1);
       strictEqual(B.sourceModels[0].model, A);
-      strictEqual(B.sourceModels[0].usage, "in");
+      strictEqual(B.sourceModels[0].usage, "is");
     });
 
     it("copies decorators", async () => {
