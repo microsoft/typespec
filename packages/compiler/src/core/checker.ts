@@ -1587,6 +1587,7 @@ export function createChecker(program: Program): Checker {
       properties: properties,
       decorators: [],
       derivedModels: [],
+      sourceModels: [],
     });
 
     const indexers: ModelIndexer[] = [];
@@ -1619,6 +1620,7 @@ export function createChecker(program: Program): Checker {
       }
     }
     for (const [_, option] of modelOptions) {
+      intersection.sourceModels.push({ usage: "intersection", model: option });
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -2748,6 +2750,7 @@ export function createChecker(program: Program): Checker {
       properties: createRekeyableMap<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
+      sourceModels: [],
       derivedModels: [],
     });
     linkType(links, type, mapper);
@@ -2755,6 +2758,7 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       type.sourceModel = isBase;
+      type.sourceModels.push({ usage: "is", model: isBase });
       // copy decorators
       decorators.push(...isBase.decorators);
       if (isBase.indexer) {
@@ -2842,6 +2846,7 @@ export function createChecker(program: Program): Checker {
       namespace: getParentNamespaceType(node),
       decorators: [],
       derivedModels: [],
+      sourceModels: [],
     });
     checkModelProperties(node, properties, type, mapper);
     return finishType(type);
@@ -2922,6 +2927,7 @@ export function createChecker(program: Program): Checker {
           parentModel,
           mapper
         );
+
         if (additionalIndexer) {
           if (spreadIndexers) {
             spreadIndexers.push(additionalIndexer);
@@ -3453,6 +3459,8 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
+
+    parentModel.sourceModels.push({ usage: "spread", model: targetType });
 
     const props: ModelProperty[] = [];
     // copy each property
@@ -4844,6 +4852,7 @@ export function createChecker(program: Program): Checker {
       decorators: [],
       properties: createRekeyableMap(),
       derivedModels: [],
+      sourceModels: [],
     });
 
     for (const propNode of node.properties) {
@@ -6167,6 +6176,7 @@ export function filterModelProperties(
     properties,
     decorators: [],
     derivedModels: [],
+    sourceModels: [{ usage: "spread", model }],
   });
 
   for (const property of walkPropertiesInherited(model)) {
