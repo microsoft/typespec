@@ -2417,9 +2417,9 @@ export function createChecker(program: Program): Checker {
               target: node,
             })
           );
-          base = aliasedSym;
           return undefined;
         }
+        base = aliasedSym;
       }
 
       if (node.selector === ".") {
