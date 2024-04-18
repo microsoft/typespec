@@ -86,7 +86,7 @@ Any scalar can additionally be declared with named initializers that take one or
 
 ```typespec
 scalar ipv4 extends string {
-  init fromInt(uint32);
+  init fromInt(value: uint32);
 }
 
 const ip = ipv4.fromInt(2341230);
