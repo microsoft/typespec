@@ -99,9 +99,8 @@ function getFunctionSignature(type: FunctionType) {
 }
 
 function getOperationSignature(type: Operation) {
-  const ns = getQualifier(type.namespace) || getQualifier(type.interface);
   const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);
-  return `op ${ns}${type.name}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
+  return `op ${getTypeName(type)}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
