@@ -85,7 +85,7 @@ const s = string("hello");
 Any scalar can additionally be declared with named initializers that take one or more value parameters. For example, `utcDateTime` provides a `fromISO` initializer that takes an ISO string. Named scalars can be declared like so:
 
 ```typespec
-scalar IPv4 extends string {
+scalar ipv4 extends string {
   init fromInt(uint32);
 }
 
