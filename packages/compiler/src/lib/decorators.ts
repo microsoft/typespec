@@ -60,7 +60,6 @@ import {
   EnumMember,
   Interface,
   Model,
-  ModelIndexer,
   ModelProperty,
   Namespace,
   Operation,
@@ -287,16 +286,6 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   // eslint-disable-next-line no-console
   console.log(getTypeName(target));
 };
-
-const indexTypeKey = createStateSymbol("index");
-export const $indexer = (context: DecoratorContext, target: Type, key: Scalar, value: Type) => {
-  const indexer: ModelIndexer = { key, value };
-  context.program.stateMap(indexTypeKey).set(target, indexer);
-};
-
-export function getIndexer(program: Program, target: Type): ModelIndexer | undefined {
-  return program.stateMap(indexTypeKey).get(target);
-}
 
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");

@@ -34,7 +34,7 @@ import {
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths } from "./path-utils.js";
+import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -333,8 +333,9 @@ export async function compile(
   }
   const binder = createBinder(program);
 
+  await loadIntrinsicTypes();
   if (!options?.nostdlib) {
-    await loadStandardLibrary(program);
+    await loadStandardLibrary();
   }
 
   // Load additional imports prior to compilation
@@ -459,7 +460,16 @@ export async function compile(
     }
   }
 
-  async function loadStandardLibrary(program: Program) {
+  async function loadIntrinsicTypes() {
+    const locationContext: LocationContext = { type: "compiler" };
+    await loadTypeSpecFile(
+      resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
+      locationContext,
+      NoTarget
+    );
+  }
+
+  async function loadStandardLibrary() {
     const locationContext: LocationContext = { type: "compiler" };
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, locationContext, NoTarget);

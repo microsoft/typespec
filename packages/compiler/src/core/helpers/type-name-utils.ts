@@ -221,7 +221,16 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
 }
 
 function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
-  return `${getNamespacePrefix(op.namespace, options)}${getIdentifierName(op.name, options)}`;
+  let opName = getIdentifierName(op.name, options);
+  if (op.node.templateParameters.length > 0) {
+    // template
+    const params = op.node.templateParameters.map((t) => getIdentifierName(t.id.sv, options));
+    opName += `<${params.join(", ")}>`;
+  }
+  const prefix = op.interface
+    ? getInterfaceName(op.interface, options) + "."
+    : getNamespacePrefix(op.namespace, options);
+  return `${prefix}${opName}`;
 }
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {

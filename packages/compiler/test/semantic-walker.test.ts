@@ -127,7 +127,15 @@ describe("compiler: semantic walker", () => {
 
     deepStrictEqual(
       result.namespaces.map((x) => getNamespaceFullName(x)),
-      ["", "Global", "Global.My", "Global.My.Simple", "Global.My.Parent", "Global.My.Parent.Child"]
+      [
+        "",
+        "TypeSpec",
+        "Global",
+        "Global.My",
+        "Global.My.Simple",
+        "Global.My.Parent",
+        "Global.My.Parent.Child",
+      ]
     );
   });
 
