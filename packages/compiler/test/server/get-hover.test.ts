@@ -5,30 +5,31 @@ import { createTestServerHost, extractCursor } from "../../src/testing/test-serv
 
 describe("compiler: server: on hover", () => {
   describe("get hover for scalar", () => {
-    it("string scalar", async () => {
+    it("scalar declaration", async () => {
       const hover = await getHoverAtCursor(
         `
-          scalar Str┆ing;
+          scalar myStr┆ing;
         `
       );
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "scalar String\n" + "```",
+          value: "```typespec\n" + "scalar myString\n" + "```",
         },
       });
     });
 
-    it("int16 scalar", async () => {
+    it("scalar reference", async () => {
       const hover = await getHoverAtCursor(
         `
-          scalar Int┆16;
+          scalar myString;
+          scalar myStringEx extends myStr┆ing;
         `
       );
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "scalar Int16\n" + "```",
+          value: "```typespec\n" + "scalar myString\n" + "```",
         },
       });
     });
@@ -76,7 +77,7 @@ describe("compiler: server: on hover", () => {
   });
 
   describe("get hover for alias", () => {
-    it("test alias", async () => {
+    it("test alias declaration", async () => {
       const hover = await getHoverAtCursor(
         `
           namespace TestNS;
@@ -87,6 +88,22 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "alias TestNS.Mixed<T>\n" + "```",
+        },
+      });
+    });
+
+    it("test alias reference", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          namespace TestNS;
+          alias myString = string;
+          alias myStringEx = myStr┆ing;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "alias TestNS.myString\n" + "```",
         },
       });
     });
@@ -134,15 +151,54 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
+
+    it("nested namespace", async () => {
+      const hover = await getHoverAtCursor(
+        `
+        namespace Foo {
+          namespace Bar {
+            namespace B┆az {
+              model SampleModel {}
+            }
+          }
+        }
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "namespace Foo.Bar.Baz\n" + "```",
+        },
+      });
+    });
   });
 
   describe("get hover for model", () => {
-    it("normal model", async () => {
+    it("model declaration", async () => {
       const hover = await getHoverAtCursor(
         `
           model Ani┆mal{
               name: string;
               age: int16;
+          }
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "model Animal\n" + "```",
+        },
+      });
+    });
+
+    it("model reference", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          model Animal{
+            name: string;
+            age: int16;
+          }
+          model Cat is Ani┆mal{
           }
         `
       );
@@ -218,11 +274,29 @@ describe("compiler: server: on hover", () => {
   });
 
   describe("get hover for interface", () => {
-    it("normal interface", async () => {
+    it("interface declaration", async () => {
       const hover = await getHoverAtCursor(
         `
           interface IAct┆ions{
               fly(): void;
+          }
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "interface IActions\n" + "```",
+        },
+      });
+    });
+
+    it("interface reference", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          interface IActions{
+              fly(): void;
+          }
+          interface IActionsEx extends IAct┆ions{
           }
         `
       );
@@ -255,10 +329,25 @@ describe("compiler: server: on hover", () => {
   });
 
   describe("get hover for operation", () => {
-    it("normal operation", async () => {
+    it("operation declaration", async () => {
       const hover = await getHoverAtCursor(
         `
           op Ea┆t(food: string): void;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "op Eat(food: string): void\n" + "```",
+        },
+      });
+    });
+
+    it("operation reference", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          op Eat(food: string): void;
+          op Swallow is Ea┆t;
         `
       );
       deepStrictEqual(hover, {
