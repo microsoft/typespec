@@ -83,7 +83,7 @@ interface ResourceRead<Resource extends {}, Error> {
 @doc("Resource create operation completed successfully.")
 model ResourceCreatedResponse<Resource> {
   ...CreatedResponse;
-  @body body: Resource;
+  @bodyRoot body: Resource;
 }
 
 /**
@@ -104,7 +104,7 @@ interface ResourceCreateOrReplace<Resource extends {}, Error> {
   @createsOrReplacesResource(Resource)
   createOrReplace(
     ...ResourceParameters<Resource>,
-    @body resource: ResourceCreateModel<Resource>,
+    @bodyRoot resource: ResourceCreateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -135,7 +135,7 @@ interface ResourceCreateOrUpdate<Resource extends {}, Error> {
   @createsOrUpdatesResource(Resource)
   createOrUpdate(
     ...ResourceParameters<Resource>,
-    @body resource: ResourceCreateOrUpdateModel<Resource>,
+    @bodyRoot resource: ResourceCreateOrUpdateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -166,7 +166,7 @@ interface ResourceCreate<Resource extends {}, Error> {
   @createsResource(Resource)
   create(
     ...ResourceCollectionParameters<Resource>,
-    @body resource: ResourceCreateModel<Resource>,
+    @bodyRoot resource: ResourceCreateModel<Resource>,
   ): Resource | ResourceCreatedResponse<Resource> | Error;
 }
 
@@ -190,7 +190,7 @@ interface ResourceUpdate<Resource extends {}, Error> {
   @updatesResource(Resource)
   update(
     ...ResourceParameters<Resource>,
-    @body properties: ResourceCreateOrUpdateModel<Resource>,
+    @bodyRoot properties: ResourceCreateOrUpdateModel<Resource>,
   ): Resource | Error;
 }
 
@@ -400,7 +400,7 @@ interface ExtensionResourceCreateOrUpdate<Extension extends {}, Resource extends
   createOrUpdate(
     ...ResourceParameters<Resource>,
     ...ResourceParameters<Extension>,
-    @body resource: ResourceCreateOrUpdateModel<Extension>,
+    @bodyRoot resource: ResourceCreateOrUpdateModel<Extension>,
   ): Extension | ResourceCreatedResponse<Extension> | Error;
 }
 
@@ -423,7 +423,7 @@ interface ExtensionResourceCreate<Extension extends {}, Resource extends {}, Err
   @createsResource(Extension)
   create(
     ...ResourceParameters<Resource>,
-    @body resource: ResourceCreateModel<Extension>,
+    @bodyRoot resource: ResourceCreateModel<Extension>,
   ): Extension | ResourceCreatedResponse<Extension> | Error;
 }
 

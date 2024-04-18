@@ -323,9 +323,16 @@ export type HttpOperationParameter = (
  */
 export interface HttpOperationRequestBody extends HttpOperationBody {
   /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body`
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
    */
   parameter?: ModelProperty;
+}
+
+export interface HttpOperationResponseBody extends HttpOperationBody {
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
+   */
+  readonly property?: ModelProperty;
 }
 
 export interface HttpOperationParameters {
@@ -439,7 +446,7 @@ export interface HttpOperationResponse {
 
 export interface HttpOperationResponseContent {
   headers?: Record<string, ModelProperty>;
-  body?: HttpOperationBody;
+  body?: HttpOperationResponseBody;
 }
 
 export interface HttpOperationBody {
@@ -452,6 +459,12 @@ export interface HttpOperationBody {
    * Type of the operation body.
    */
   type: Type;
+
+  /** If the body was explicitly set with `@body`. */
+  readonly isExplicit: boolean;
+
+  /** If the body contains metadata annotations to ignore. For example `@header`. */
+  readonly containsMetadataAnnotations: boolean;
 }
 
 export interface HttpStatusCodeRange {
