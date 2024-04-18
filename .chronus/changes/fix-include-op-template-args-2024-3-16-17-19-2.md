@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Show template arguments when hoving on an operation template
+Show template parameters when hovering on an operation template
