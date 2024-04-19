@@ -24,7 +24,7 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
-} from "./intrinsic-type-data.js";
+} from "./intrinsic-type-state.js";
 export {
   // eslint-disable-next-line deprecation/deprecation
   createCadlLibrary,

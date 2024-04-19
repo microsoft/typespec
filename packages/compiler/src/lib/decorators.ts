@@ -72,7 +72,7 @@ import {
   setMinLength,
   setMinValue,
   setMinValueExclusive,
-} from "../core/intrinsic-type-data.js";
+} from "../core/intrinsic-type-state.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {

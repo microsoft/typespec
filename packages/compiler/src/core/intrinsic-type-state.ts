@@ -103,7 +103,7 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 // #region @maxLength
 export function setMaxLength(program: Program, target: Type, value: Numeric): void {
-  program.stateMap(stateKeys.minLength).set(target, value);
+  program.stateMap(stateKeys.maxLength).set(target, value);
 }
 
 /**
@@ -112,7 +112,7 @@ export function setMaxLength(program: Program, target: Type, value: Numeric): vo
  * @param target Type with the `@maxLength` decorator
  */
 export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric | undefined {
-  return program.stateMap(stateKeys.maxItems).get(target);
+  return program.stateMap(stateKeys.maxLength).get(target);
 }
 
 export function getMaxLength(program: Program, target: Type): number | undefined {

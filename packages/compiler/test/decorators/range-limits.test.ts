@@ -7,7 +7,7 @@ import {
   getMinItems,
   getMinLength,
   getMinValue,
-} from "../../src/core/intrinsic-type-data.js";
+} from "../../src/core/intrinsic-type-state.js";
 import { Model } from "../../src/core/types.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 

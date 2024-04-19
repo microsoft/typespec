@@ -29,7 +29,7 @@ import {
   getMinLength,
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
-} from "./intrinsic-type-data.js";
+} from "./intrinsic-type-state.js";
 import {
   canNumericConstraintBeJsNumber,
   legacyMarshallTypeForJS,
