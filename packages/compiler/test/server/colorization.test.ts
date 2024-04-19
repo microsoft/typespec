@@ -51,6 +51,7 @@ const Token = {
     to: createToken("to", "keyword.other.tsp"),
     from: createToken("from", "keyword.other.tsp"),
     valueof: createToken("valueof", "keyword.other.tsp"),
+    typeof: createToken("typeof", "keyword.other.tsp"),
     const: createToken("const", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
   },
@@ -322,6 +323,23 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.typeParameters.end,
           Token.punctuation.openBrace,
           Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("typeof", () => {
+      it("simple typeof", async () => {
+        const tokens = await tokenize(`alias B = Foo<typeof "abc">;`);
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("B"),
+          Token.operators.assignment,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.keywords.typeof,
+          Token.literals.stringQuoted("abc"),
+          Token.punctuation.typeParameters.end,
+          Token.punctuation.semicolon,
         ]);
       });
     });

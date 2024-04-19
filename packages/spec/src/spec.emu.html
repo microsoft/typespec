@@ -477,12 +477,13 @@ UnionExpressionOrHigher :
     `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
 
 IntersectionExpressionOrHigher :
-  ValueOfExpressionOrHigher
-    `&`? IntersectionExpressionOrHigher `&` ValueOfExpressionOrHigher
+  ValueOfOrTypeOfExpressionOrHigher
+    `&`? IntersectionExpressionOrHigher `&` ValueOfOrTypeOfExpressionOrHigher
 
-ValueOfExpressionOrHigher :
+ValueOfOrTypeOfExpressionOrHigher :
     ArrayExpressionOrHigher
     `valueof` ArrayExpressionOrHigher
+    `typeof` ArrayExpressionOrHigher
 
 ArrayExpressionOrHigher :
     PrimaryExpression

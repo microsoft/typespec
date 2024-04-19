@@ -271,11 +271,15 @@ describe("compiler: parser", () => {
 
   describe("valueof expressions", () => {
     parseEach([
-      "alias A = valueof string;",
-      "alias A = valueof int32;",
-      "alias A = valueof {a: string, b: int32};",
-      "alias A = valueof int8[];",
+      "model Foo<T extends valueof string> {}",
+      "model Foo<T extends valueof int32> {}",
+      "model Foo<T extends valueof {a: string, b: int32}> {}",
+      "model Foo<T extends valueof int8[]> {}",
     ]);
+  });
+
+  describe("typeof expressions", () => {
+    parseEach([`const a: typeof #{name: "abc"} = 123;`, `alias A = Foo<typeof "abc">;`]);
   });
 
   describe("template instantiations", () => {

@@ -72,6 +72,7 @@ import {
   TextRange,
   TupleExpressionNode,
   TupleLiteralNode,
+  TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionExpressionNode,
@@ -224,6 +225,8 @@ export function printNode(
       return printTemplateArgument(path as AstPath<TemplateArgumentNode>, options, print);
     case SyntaxKind.ValueOfExpression:
       return printValueOfExpression(path as AstPath<ValueOfExpressionNode>, options, print);
+    case SyntaxKind.TypeOfExpression:
+      return printTypeOfExpression(path as AstPath<TypeOfExpressionNode>, options, print);
     case SyntaxKind.TemplateParameterDeclaration:
       return printTemplateParameterDeclaration(
         path as AstPath<TemplateParameterDeclarationNode>,
@@ -1523,6 +1526,14 @@ export function printValueOfExpression(
 ): Doc {
   const type = path.call(print, "target");
   return ["valueof ", type];
+}
+export function printTypeOfExpression(
+  path: AstPath<TypeOfExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): Doc {
+  const type = path.call(print, "target");
+  return ["typeof ", type];
 }
 
 function printTemplateParameterDeclaration(

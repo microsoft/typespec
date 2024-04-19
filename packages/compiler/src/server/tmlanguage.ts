@@ -322,7 +322,31 @@ const valueOfExpression: BeginEndRule = {
   end: `(?=>)|${universalEnd}`,
   patterns: [expression],
 };
+const typeOfExpression: BeginEndRule = {
+  key: "typeof",
+  scope: meta,
+  begin: `\\b(typeof)`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+  },
+  end: `(?=>)|${universalEnd}`,
+  patterns: [expression],
+};
 
+const typeArgument: BeginEndRule = {
+  key: "type-argument",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(=))`,
+  beginCaptures: {
+    "1": { scope: "entity.name.type.tsp" },
+    "2": { scope: "keyword.operator.assignment.tsp" },
+  },
+  end: `=`,
+  endCaptures: {
+    "0": { scope: "keyword.operator.assignment.tsp" },
+  },
+  patterns: [token, expression, punctuationComma],
+};
 const typeArguments: BeginEndRule = {
   key: "type-arguments",
   scope: meta,
@@ -334,7 +358,7 @@ const typeArguments: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.definition.typeparameters.end.tsp" },
   },
-  patterns: [identifierExpression, operatorAssignment, expression, punctuationComma],
+  patterns: [typeArgument, expression, punctuationComma],
 };
 
 const typeParameterConstraint: BeginEndRule = {
@@ -679,15 +703,27 @@ const unionStatement: BeginEndRule = {
   patterns: [token, unionBody],
 };
 
+const aliasAssignment: BeginEndRule = {
+  key: "alias-id",
+  scope: meta,
+  begin: `(=)\\s*`,
+  beginCaptures: {
+    "1": { scope: "keyword.operator.assignment.tsp" },
+  },
+  end: universalEnd,
+  patterns: [expression],
+};
+
 const aliasStatement: BeginEndRule = {
   key: "alias-statement",
   scope: meta,
-  begin: "\\b(alias)\\b",
+  begin: `\\b(alias)\\b\\s+(${identifier})\\s*`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: universalEnd,
-  patterns: [typeParameters, operatorAssignment, expression],
+  patterns: [aliasAssignment, typeParameters],
 };
 
 const constStatement: BeginEndRule = {
@@ -1017,6 +1053,7 @@ expression.patterns = [
   directive,
   parenthesizedExpression,
   valueOfExpression,
+  typeOfExpression,
   typeArguments,
   objectLiteral,
   tupleLiteral,

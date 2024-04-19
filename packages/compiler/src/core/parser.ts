@@ -110,6 +110,7 @@ import {
   TextRange,
   TupleExpressionNode,
   TupleLiteralNode,
+  TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -1296,6 +1297,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
+  function parseTypeOfExpression(): TypeOfExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.TypeOfKeyword);
+    const target = parseExpression();
+
+    return {
+      kind: SyntaxKind.TypeOfExpression,
+      target,
+      ...finishNode(pos),
+    };
+  }
 
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
@@ -1559,6 +1571,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       switch (token()) {
         case Token.ValueOfKeyword:
           return parseValueOfExpression();
+        case Token.TypeOfKeyword:
+          return parseTypeOfExpression();
         case Token.Identifier:
           return parseCallOrReferenceExpression();
         case Token.StringLiteral:
@@ -3490,6 +3504,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.ValueOfExpression:
+      return visitNode(cb, node.target);
+    case SyntaxKind.TypeOfExpression:
       return visitNode(cb, node.target);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);

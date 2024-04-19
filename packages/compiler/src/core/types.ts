@@ -932,6 +932,7 @@ export enum SyntaxKind {
   Return,
   JsNamespaceDeclaration,
   TemplateArgument,
+  TypeOfExpression,
   ObjectLiteral,
   ObjectLiteralProperty,
   ObjectLiteralSpreadProperty,
@@ -1206,6 +1207,7 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
+  | TypeOfExpressionNode
   | CallExpressionNode
   | StringLiteralNode
   | NumericLiteralNode
@@ -1526,6 +1528,11 @@ export interface IntersectionExpressionNode extends BaseNode {
 
 export interface ValueOfExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ValueOfExpression;
+  readonly target: Expression;
+}
+
+export interface TypeOfExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.TypeOfExpression;
   readonly target: Expression;
 }
 
