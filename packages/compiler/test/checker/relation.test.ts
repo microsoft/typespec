@@ -965,12 +965,48 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "int32[]", target: "numeric[]" });
     });
 
-    it("can assign a tuple of the same type", async () => {
-      await expectTypeAssignable({ source: "[int32, int32]", target: "int32[]" });
-    });
+    describe("can assign tuple", () => {
+      it("of the same type", async () => {
+        await expectTypeAssignable({ source: "[int32, int32]", target: "int32[]" });
+      });
 
-    it("can assign a tuple of subtype", async () => {
-      await expectTypeAssignable({ source: "[int32, int32, int32]", target: "numeric[]" });
+      it("of subtype", async () => {
+        await expectTypeAssignable({ source: "[int32, int32, int32]", target: "numeric[]" });
+      });
+
+      it("validate minItems", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `["one", string]`,
+            target: "Tags",
+            commonCode: `@minItems(3) model Tags is string[];`,
+          },
+          {
+            code: "unassignable",
+            message: [
+              `Type '["one", string]' is not assignable to type 'Tags'`,
+              `  Source has 2 element(s) but target requires 3.`,
+            ].join("\n"),
+          }
+        );
+      });
+
+      it("validate maxItems", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `["one", string, "three", "four"]`,
+            target: "Tags",
+            commonCode: `@maxItems(3) model Tags is string[];`,
+          },
+          {
+            code: "unassignable",
+            message: [
+              `Type '["one", string, "three", "four"]' is not assignable to type 'Tags'`,
+              `  Source has 4 element(s) but target only allows 3.`,
+            ].join("\n"),
+          }
+        );
+      });
     });
 
     it("emit diagnostic assigning other type", async () => {

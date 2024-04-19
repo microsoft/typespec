@@ -21,9 +21,11 @@ import {
   stringTemplateToString,
 } from "./helpers/index.js";
 import {
+  getMaxItems,
   getMaxLength,
   getMaxValueAsNumeric,
   getMaxValueExclusiveAsNumeric,
+  getMinItems,
   getMinLength,
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
@@ -59,6 +61,7 @@ import {
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayModelType,
   ArrayValue,
   AugmentDecoratorStatementNode,
   BooleanLiteral,
@@ -6803,18 +6806,7 @@ export function createChecker(program: Program): Checker {
       isArrayModelType(program, target) &&
       source.kind === "Tuple"
     ) {
-      for (const item of source.values) {
-        const [related, diagnostics] = isTypeAssignableToInternal(
-          item,
-          target.indexer.value!,
-          diagnosticTarget,
-          relationCache
-        );
-        if (!related) {
-          return [Related.false, diagnostics];
-        }
-      }
-      return [Related.true, []];
+      return isTupleAssignableToArray(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Tuple" && source.kind === "Tuple") {
       return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Union") {
@@ -7174,6 +7166,62 @@ export function createChecker(program: Program): Checker {
       diagnosticTarget,
       relationCache
     );
+  }
+
+  function isTupleAssignableToArray(
+    source: Tuple,
+    target: ArrayModelType,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    const minItems = getMinItems(program, target);
+    const maxItems = getMaxItems(program, target);
+    if (minItems !== undefined && source.values.length < minItems) {
+      return [
+        Related.false,
+        [
+          createDiagnostic({
+            code: "unassignable",
+            messageId: "withDetails",
+            format: {
+              sourceType: getEntityName(source),
+              targetType: getTypeName(target),
+              details: `Source has ${source.values.length} element(s) but target requires ${minItems}.`,
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    }
+    if (maxItems !== undefined && source.values.length > maxItems) {
+      return [
+        Related.false,
+        [
+          createDiagnostic({
+            code: "unassignable",
+            messageId: "withDetails",
+            format: {
+              sourceType: getEntityName(source),
+              targetType: getTypeName(target),
+              details: `Source has ${source.values.length} element(s) but target only allows ${maxItems}.`,
+            },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    }
+    for (const item of source.values) {
+      const [related, diagnostics] = isTypeAssignableToInternal(
+        item,
+        target.indexer.value!,
+        diagnosticTarget,
+        relationCache
+      );
+      if (!related) {
+        return [Related.false, diagnostics];
+      }
+    }
+    return [Related.true, []];
   }
 
   function isTupleAssignableToTuple(

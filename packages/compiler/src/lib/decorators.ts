@@ -68,6 +68,7 @@ import {
   setMaxLength,
   setMaxValue,
   setMaxValueExclusive,
+  setMinItems,
   setMinLength,
   setMinValue,
   setMinValueExclusive,
@@ -508,7 +509,7 @@ export const $minItems: MinItemsDecorator = (
     return;
   }
 
-  setMinLength(context.program, target, minItems);
+  setMinItems(context.program, target, minItems);
 };
 
 // -- @maxLength decorator ---------------------
