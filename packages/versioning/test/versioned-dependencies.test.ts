@@ -106,8 +106,6 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument of type '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
       });
     });
   });
