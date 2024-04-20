@@ -1,8 +1,8 @@
 import {
   DocTag,
-  FunctionParameter,
   IntrinsicScalarName,
   MixedConstraint,
+  MixedFunctionParameter,
   Model,
   Program,
   Scalar,
@@ -105,7 +105,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     ].join("");
   }
 
-  function getTSParameter(param: FunctionParameter, isTarget?: boolean): string {
+  function getTSParameter(param: MixedFunctionParameter, isTarget?: boolean): string {
     const optional = param.optional ? "?" : "";
     const rest = param.rest ? "..." : "";
     if (rest) {
@@ -115,28 +115,48 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
   }
 
-  function getRestTSParmeterType(type: Type | ValueConstraint | MixedConstraint) {
-    if (type.kind === "Value") {
-      if (type.target.kind === "Model" && isArrayModelType(program, type.target)) {
-        return `(${getValueTSType(type.target.indexer.value)})[]`;
+  function getRestTSParmeterType(constraint: MixedConstraint) {
+    let value: ValueConstraint | undefined;
+    let type: Type | undefined;
+    if (constraint.value) {
+      if (
+        constraint.value.target.kind === "Model" &&
+        isArrayModelType(program, constraint.value.target)
+      ) {
+        value = { kind: "Value", target: constraint.value.target.indexer.value };
       } else {
         return "unknown";
       }
     }
-    if (!(type.kind === "Model" && isArrayModelType(program, type))) {
-      return `unknown`;
+    if (constraint.type) {
+      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+        type = constraint.type.indexer.value;
+      } else {
+        return "unknown";
+      }
     }
 
-    return `${getTSParmeterType(type.indexer.value)}[]`;
+    return `(${getTSParmeterType({
+      kind: "MixedConstraint",
+      type,
+      value,
+    })})[]`;
   }
 
-  function getTSParmeterType(
-    type: Type | ValueConstraint | MixedConstraint,
-    isTarget?: boolean
-  ): string {
-    if (type.kind === "Value") {
-      return getValueTSType(type.target);
+  function getTSParmeterType(constraint: MixedConstraint, isTarget?: boolean): string {
+    if (constraint.type && constraint.value) {
+      return `${getTypeConstraintTSType(constraint.type, isTarget)} | ${getValueTSType(constraint.value.target)}`;
     }
+    if (constraint.value) {
+      return getValueTSType(constraint.value.target);
+    } else if (constraint.type) {
+      return getTypeConstraintTSType(constraint.type, isTarget);
+    }
+
+    return useCompilerType("Type");
+  }
+
+  function getTypeConstraintTSType(type: Type, isTarget?: boolean): string {
     if (isTarget && isUnknownType(type)) {
       return useCompilerType("Type");
     }
@@ -146,7 +166,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
       const variants = [...type.variants.values()];
 
       if (isTarget) {
-        const items = [...new Set(variants.map((x) => getTSParmeterType(x.type, isTarget)))];
+        const items = [...new Set(variants.map((x) => getTypeConstraintTSType(x.type, isTarget)))];
         return items.join(" | ");
       } else if (variants.every((x) => isReflectionType(x.type))) {
         return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
