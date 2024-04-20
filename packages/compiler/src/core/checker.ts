@@ -108,6 +108,7 @@ import {
   MemberNode,
   MemberType,
   MixedConstraint,
+  MixedFunctionParameter,
   Model,
   ModelExpressionNode,
   ModelIndexer,
@@ -156,6 +157,7 @@ import {
   ScalarConstructorNode,
   ScalarStatementNode,
   ScalarValue,
+  SigFunctionParameter,
   StdTypeName,
   StdTypes,
   StringLiteral,
@@ -1428,12 +1430,7 @@ export function createChecker(program: Program): Checker {
           );
 
           // TODO-TIM check if we expose this below
-          commit(
-            param,
-            param.constraint?.kind === "Value" || param.constraint?.kind === "MixedConstraint"
-              ? unknownType
-              : param.constraint ?? unknownType
-          );
+          commit(param, param.constraint?.type ?? unknownType);
         }
 
         continue;
@@ -1443,17 +1440,13 @@ export function createChecker(program: Program): Checker {
 
       if (param.constraint) {
         const constraint =
-          param.constraint.kind === "TemplateParameter"
-            ? finalMap.get(param.constraint)!
+          param.constraint.type?.kind === "TemplateParameter"
+            ? finalMap.get(param.constraint.type)!
             : param.constraint;
 
         if (isErrorType(type) || !checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
-          const effectiveType =
-            param.constraint?.kind === "Value" || param.constraint.kind === "MixedConstraint"
-              ? unknownType
-              : param.constraint;
-
+          const effectiveType = param.constraint.type ?? unknownType;
           commit(param, effectiveType);
           continue;
         }
@@ -1745,15 +1738,10 @@ export function createChecker(program: Program): Checker {
   }
 
   /** Check a union expresion used in a parameter constraint, those allow the use of `valueof` as a variant. */
-  function checkMixedConstraint(
+  function checkMixedConstraintUnion(
     node: UnionExpressionNode,
     mapper: TypeMapper | undefined
-  ): Union | MixedConstraint {
-    const hasValueOf = node.options.some((x) => x.kind === SyntaxKind.ValueOfExpression);
-    if (!hasValueOf) {
-      return checkUnionExpression(node, mapper);
-    }
-
+  ): MixedConstraint {
     const values: Type[] = [];
     const types: Type[] = [];
     for (const option of node.options) {
@@ -1907,8 +1895,8 @@ export function createChecker(program: Program): Checker {
       name: `@${name}`,
       namespace,
       node,
-      target: checkFunctionParameter(node.target, mapper),
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      target: checkFunctionParameter(node.target, mapper, true),
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
       implementation: implementation ?? (() => {}),
     });
 
@@ -1924,9 +1912,11 @@ export function createChecker(program: Program): Checker {
     const marshalling = resolveDecoratorArgMarshalling(decorator);
     if (marshalling === "legacy") {
       for (const param of decorator.parameters) {
-        if (param.type.kind === "Value") {
+        if (param.type.value) {
           if (
-            ignoreDiagnostics(isTypeAssignableTo(nullType, param.type.target, param.type.target))
+            ignoreDiagnostics(
+              isTypeAssignableTo(nullType, param.type.value.target, param.type.value)
+            )
           ) {
             reportDeprecated(
               program,
@@ -1939,9 +1929,13 @@ export function createChecker(program: Program): Checker {
             );
           } else if (
             ignoreDiagnostics(
-              isTypeAssignableTo(param.type.target, getStdType("numeric"), param.type.target)
+              isTypeAssignableTo(
+                param.type.value.target,
+                getStdType("numeric"),
+                param.type.value.target
+              )
             ) &&
-            !canNumericConstraintBeJsNumber(param.type.target)
+            !canNumericConstraintBeJsNumber(param.type.value.target)
           ) {
             reportDeprecated(
               program,
@@ -1989,7 +1983,7 @@ export function createChecker(program: Program): Checker {
       name,
       namespace,
       node,
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
       returnType: node.returnType ? getTypeForNode(node.returnType, mapper) : unknownType,
       implementation: implementation ?? (() => {}),
     });
@@ -2003,7 +1997,18 @@ export function createChecker(program: Program): Checker {
 
   function checkFunctionParameter(
     node: FunctionParameterNode,
-    mapper: TypeMapper | undefined
+    mapper: TypeMapper | undefined,
+    mixed: true
+  ): MixedFunctionParameter;
+  function checkFunctionParameter(
+    node: FunctionParameterNode,
+    mapper: TypeMapper | undefined,
+    mixed: false
+  ): SigFunctionParameter;
+  function checkFunctionParameter(
+    node: FunctionParameterNode,
+    mapper: TypeMapper | undefined,
+    mixed: boolean
   ): FunctionParameter {
     const links = getSymbolLinks(node.symbol);
 
@@ -2023,17 +2028,36 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getParamConstraintEntityForNode(node.type) : unknownType;
 
-    const parameterType: FunctionParameter = createType({
+    const base = {
       kind: "FunctionParameter",
       node,
       name: node.id.sv,
       optional: node.optional,
       rest: node.rest,
-      type,
       implementation: node.symbol.value!,
-    });
+    } as const;
+    let parameterType: FunctionParameter;
+
+    if (mixed) {
+      const type = node.type
+        ? getParamConstraintEntityForNode(node.type)
+        : ({ kind: "MixedConstraint", type: unknownType } satisfies MixedConstraint);
+      parameterType = createType({
+        ...base,
+        type,
+        mixed: true,
+        implementation: node.symbol.value!,
+      });
+    } else {
+      parameterType = createType({
+        ...base,
+        mixed: false,
+        type: node.type ? getTypeForNode(node.type) : unknownType,
+        implementation: node.symbol.value!,
+      });
+    }
+
     linkType(links, parameterType, mapper);
 
     return parameterType;
@@ -2048,15 +2072,18 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getParamConstraintEntityForNode(
-    node: Node,
-    mapper?: TypeMapper
-  ): Type | MixedConstraint | ValueConstraint {
+  function getParamConstraintEntityForNode(node: Expression, mapper?: TypeMapper): MixedConstraint {
     switch (node.kind) {
       case SyntaxKind.UnionExpression:
-        return checkMixedConstraint(node, mapper);
+        return checkMixedConstraintUnion(node, mapper);
       default:
-        return getTypeOrValueOfTypeForNode(node, mapper);
+        const entity = getTypeOrValueOfTypeForNode(node, mapper);
+        return {
+          kind: "MixedConstraint",
+          node: node,
+          type: entity.kind === "Value" ? undefined : entity,
+          value: entity.kind === "Value" ? entity : undefined,
+        };
     }
   }
 
@@ -3873,10 +3900,7 @@ export function createChecker(program: Program): Checker {
 
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType =
-          parameter.type.kind === "MixedConstraint" || parameter.type.kind === "Value" // TODO: change if we change this to not be a FunctionParameter
-            ? undefined
-            : getIndexType(parameter.type);
+        const restType = getIndexType(parameter.type);
         if (restType) {
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
@@ -4835,18 +4859,14 @@ export function createChecker(program: Program): Checker {
     }
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType =
-          parameter.type.kind === "MixedConstraint"
-            ? undefined
-            : getIndexType(
-                parameter.type.kind === "Value" ? parameter.type.target : parameter.type
-              );
+        const restType = getIndexType(
+          parameter.type.value ? parameter.type.value.target : parameter.type.type!
+        );
 
         if (restType) {
-          const perParamType =
-            parameter.type.kind === "Value"
-              ? ({ kind: "Value", target: restType } as const)
-              : restType;
+          const perParamType = parameter.type.value
+            ? ({ kind: "Value", target: restType } as const)
+            : restType;
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
@@ -5092,7 +5112,7 @@ export function createChecker(program: Program): Checker {
       scalar: parentScalar,
       name,
       node,
-      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper)),
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, false)),
     });
     linkMapper(member, mapper);
     if (shouldCreateTypeForTemplate(node.parent!, mapper)) {
@@ -6409,7 +6429,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function createFunctionType(fn: (...args: Type[]) => Type): FunctionType {
-    const parameters: FunctionParameter[] = [];
+    const parameters: MixedFunctionParameter[] = [];
     return createType({
       kind: "Function",
       name: "",
@@ -6741,12 +6761,13 @@ export function createChecker(program: Program): Checker {
       "kind" in source &&
       "kind" in target &&
       source.kind === "TemplateParameter" &&
-      source.constraint &&
-      target.kind === "Value"
+      source.constraint?.type &&
+      target.kind === "MixedConstraint" &&
+      target.value
     ) {
       const [assignable] = isTypeAssignableToInternal(
-        source.constraint,
-        target.target,
+        source.constraint.type,
+        target.value.target,
         diagnosticTarget,
         relationCache
       );
@@ -6763,11 +6784,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    while (
-      "kind" in source &&
-      source.kind === "TemplateParameter" &&
-      source.constraint !== source
-    ) {
+    if ("kind" in source && source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
 
@@ -6782,9 +6799,17 @@ export function createChecker(program: Program): Checker {
       return isAssignableToMixedConstraint(source, target, diagnosticTarget, relationCache);
     }
 
-    if (isValue(source) || source.kind === "Value" || source.kind === "MixedConstraint") {
+    if (
+      isValue(source) ||
+      source.kind === "Value" ||
+      (source.kind === "MixedConstraint" && source.value)
+    ) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
+    if (source.kind === "MixedConstraint") {
+      return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
+    }
+
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
     if (isSimpleTypeRelated === true) {
       return [Related.true, []];
@@ -6893,29 +6918,31 @@ export function createChecker(program: Program): Checker {
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if ("kind" in source && source.kind === "MixedConstraint") {
-      if (source.type) {
-        const [variantAssignable] = isAssignableToMixedConstraint(
+      if (source.type && target.type) {
+        const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
           source.type,
-          target,
+          target.type,
           diagnosticTarget,
           relationCache
         );
-        if (!variantAssignable) {
-          return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        if (variantAssignable === Related.false) {
+          return [Related.false, diagnostics];
         }
+        return [Related.true, []];
       }
-      if (source.value) {
-        const [variantAssignable] = isAssignableToMixedConstraint(
+      if (source.value && target.value) {
+        const [variantAssignable, diagnostics] = isAssignableToValueType(
           source.value,
-          target,
+          target.value,
           diagnosticTarget,
           relationCache
         );
-        if (!variantAssignable) {
-          return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        if (variantAssignable === Related.false) {
+          return [Related.false, diagnostics];
         }
+        return [Related.true, []];
       }
-      return [Related.true, []];
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     if (target.type) {

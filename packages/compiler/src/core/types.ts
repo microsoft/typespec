@@ -178,7 +178,7 @@ export interface ValueConstraint {
 
 export interface MixedConstraint {
   readonly kind: "MixedConstraint";
-  readonly node: UnionExpressionNode;
+  readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */
   readonly type?: Type;
@@ -424,7 +424,7 @@ export interface ScalarConstructor extends BaseType {
   node: ScalarConstructorNode;
   name: string;
   scalar: Scalar;
-  parameters: FunctionParameter[];
+  parameters: SigFunctionParameter[];
 }
 
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -659,7 +659,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type | MixedConstraint | ValueConstraint;
+  constraint?: MixedConstraint;
   default?: Type | Value;
 }
 
@@ -668,8 +668,8 @@ export interface Decorator extends BaseType {
   node: DecoratorDeclarationStatementNode;
   name: `@${string}`;
   namespace: Namespace;
-  target: FunctionParameter;
-  parameters: FunctionParameter[];
+  target: MixedFunctionParameter;
+  parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
 }
 
@@ -678,19 +678,31 @@ export interface FunctionType extends BaseType {
   node?: FunctionDeclarationStatementNode;
   namespace?: Namespace;
   name: string;
-  parameters: FunctionParameter[];
+  parameters: MixedFunctionParameter[];
   returnType: Type;
   implementation: (...args: unknown[]) => unknown;
 }
 
-export interface FunctionParameter extends BaseType {
+export interface FunctionParameterBase extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type | MixedConstraint | ValueConstraint;
   optional: boolean;
   rest: boolean;
 }
+
+/** Represent a function parameter that could accept types or values in the TypeSpec program. */
+export interface MixedFunctionParameter extends FunctionParameterBase {
+  // TODO: better name?
+  mixed: true;
+  type: MixedConstraint;
+}
+/** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
+export interface SigFunctionParameter extends FunctionParameterBase {
+  mixed: false;
+  type: Type;
+}
+export type FunctionParameter = MixedFunctionParameter | SigFunctionParameter;
 
 export interface Sym {
   readonly flags: SymbolFlags;

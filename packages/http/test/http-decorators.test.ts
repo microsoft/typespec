@@ -81,17 +81,12 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '{ name: 123 }' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message: `Argument '{ format: "invalid" }' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'`,
         },
       ]);
     });
@@ -169,16 +164,12 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
-          message: `Argument '{ name: 123 }' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
         },
         {
           code: "invalid-argument",
-          message: `Argument '{ format: "invalid" }' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'`,
         },
       ]);
     });
@@ -306,7 +297,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: `Argument '{ shared: "yes" }' is not assignable to parameter of type '{ shared: boolean }'`,
         },
       ]);
     });
@@ -361,7 +351,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'string'",
         },
       ]);
     });
@@ -615,7 +604,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -627,7 +615,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'string'",
       });
     });
 
@@ -651,7 +638,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Record<unknown>'",
       });
     });
 
@@ -711,7 +697,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
     });
 

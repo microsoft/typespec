@@ -64,7 +64,8 @@ describe("compiler: service", () => {
 
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
-      message: "Argument '{ title: 123 }' is not assignable to parameter of type 'ServiceOptions'",
+      message:
+        "Argument of type '{ title: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 
@@ -102,7 +103,7 @@ describe("compiler: service", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-argument",
       message:
-        "Argument '{ version: 123 }' is not assignable to parameter of type 'ServiceOptions'",
+        "Argument of type '{ version: 123 }' is not assignable to parameter of type 'ServiceOptions'",
     });
   });
 });

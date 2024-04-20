@@ -1023,7 +1023,7 @@ export function printObjectLiteral(
   const hasProperties = node.properties && node.properties.length > 0;
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   if (!hasProperties && !nodeHasComments) {
-    return "{}";
+    return "#{}";
   }
   const lineDoc = softline;
   const body: Doc[] = [

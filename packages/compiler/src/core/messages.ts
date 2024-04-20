@@ -768,7 +768,7 @@ const diagnostics = {
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument of type '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {

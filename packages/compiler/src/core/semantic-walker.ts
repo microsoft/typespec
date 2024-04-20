@@ -96,7 +96,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
           return ListenerFlow.NoRecursion;
         }
       }
-      return callback(x as any);
+      return (callback as any)(x);
     };
   }
   return wrappedListeners as any;

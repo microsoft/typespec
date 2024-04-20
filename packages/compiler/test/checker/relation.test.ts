@@ -1,12 +1,11 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
-  ConstStatementNode,
   Diagnostic,
   FunctionParameterNode,
   Model,
-  SyntaxKind,
   Type,
+  defineModuleFlags,
 } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -17,7 +16,6 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-  resolveVirtualPath,
 } from "../../src/testing/index.js";
 
 interface RelatedTypeOptions {
@@ -40,6 +38,9 @@ describe("compiler: checker: type relations", () => {
     expectedDiagnosticPos: number;
   }> {
     host.addJsFile("mock.js", {
+      $flags: defineModuleFlags({
+        decoratorArgMarshalling: "lossless",
+      }),
       $mock: () => null,
     });
     const { source: code, pos } = extractCursor(`
@@ -62,42 +63,24 @@ describe("compiler: checker: type relations", () => {
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
 
-  async function checkValueAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
+  async function checkValueAssignableToConstraint({
+    source,
+    target,
+    commonCode,
+  }: RelatedTypeOptions): Promise<{
     related: boolean;
     diagnostics: readonly Diagnostic[];
     expectedDiagnosticPos: number;
   }> {
     const cursor = source.includes("┆") ? "" : "┆";
-    host.addJsFile("mock.js", { $mock: () => null });
     const { source: code, pos } = extractCursor(`
-    import "./mock.js";
-    ${commonCode ?? ""}
-    extern dec mock(target: unknown, target: ${target});
-
-    const Source = ${cursor}${source};
+      ${commonCode ?? ""}
+      model Test<T extends ${target}> {}
+      alias Case = Test<${cursor}${source}>;
    `);
 
-    await runner.compile(code);
-    const constStatement = runner.program.sourceFiles
-      .get(resolveVirtualPath("main.tsp"))
-      ?.statements.find(
-        (x): x is ConstStatementNode => x.kind === SyntaxKind.ConstStatement && x.id.sv === "Source"
-      );
-    ok(constStatement);
-    const value = runner.program.checker.getValueForNode(constStatement.value);
-    ok(value, `Could not find source type for ${source}`);
-    const decDeclaration = runner.program
-      .getGlobalNamespaceType()
-      .decoratorDeclarations.get("mock");
-    const targetProp = decDeclaration?.parameters[0].type;
-    ok(targetProp, `Could not find target type for ${target}`);
-
-    const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
-      value,
-      targetProp,
-      constStatement.value
-    );
-    return { related, diagnostics, expectedDiagnosticPos: pos };
+    const diagnostics = await runner.diagnose(code);
+    return { related: diagnostics.length === 0, diagnostics, expectedDiagnosticPos: pos };
   }
 
   async function expectTypeAssignable(options: RelatedTypeOptions) {
@@ -112,14 +95,18 @@ describe("compiler: checker: type relations", () => {
     expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
   }
 
-  async function expectValueAssignable(options: RelatedTypeOptions) {
-    const { related, diagnostics } = await checkValueAssignable(options);
+  async function expectValueAssignableToConstraint(options: RelatedTypeOptions) {
+    const { related, diagnostics } = await checkValueAssignableToConstraint(options);
     expectDiagnosticEmpty(diagnostics);
     ok(related, `Value ${options.source} should be assignable to ${options.target}`);
   }
 
-  async function expectValueNotAssignable(options: RelatedTypeOptions, match: DiagnosticMatch) {
-    const { related, diagnostics, expectedDiagnosticPos } = await checkValueAssignable(options);
+  async function expectValueNotAssignableToConstraint(
+    options: RelatedTypeOptions,
+    match: DiagnosticMatch
+  ) {
+    const { related, diagnostics, expectedDiagnosticPos } =
+      await checkValueAssignableToConstraint(options);
     ok(!related, `Value ${options.source} should NOT be assignable to ${options.target}`);
     expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
   }
@@ -1276,15 +1263,15 @@ describe("compiler: checker: type relations", () => {
   describe("Value constraint", () => {
     describe("valueof string", () => {
       it("can assign string literal", async () => {
-        await checkValueAssignable({ source: `"foo bar"`, target: "string" });
+        await checkValueAssignableToConstraint({ source: `"foo bar"`, target: "string" });
       });
 
       it("cannot assign numeric literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `123`, target: "valueof string" },
           {
-            code: "unassignable",
-            message: "Type '123' is not assignable to type 'string'",
+            code: "invalid-argument",
+            message: "Argument of type '123' is not assignable to parameter of type 'string'",
           }
         );
       });
@@ -1302,15 +1289,15 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof boolean", () => {
       it("can assign boolean literal", async () => {
-        await expectValueAssignable({ source: `true`, target: "valueof boolean" });
+        await expectValueAssignableToConstraint({ source: `true`, target: "valueof boolean" });
       });
 
       it("cannot assign numeric literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `123`, target: "valueof boolean" },
           {
-            code: "unassignable",
-            message: "Type '123' is not assignable to type 'boolean'",
+            code: "invalid-argument",
+            message: "Argument of type '123' is not assignable to parameter of type 'boolean'",
           }
         );
       });
@@ -1328,7 +1315,7 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof int16", () => {
       it("can assign int16 literal", async () => {
-        await expectValueAssignable({ source: `12`, target: "valueof int16" });
+        await expectValueAssignableToConstraint({ source: `12`, target: "valueof int16" });
       });
 
       it("can assign valueof int8", async () => {
@@ -1336,31 +1323,31 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign int too large", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `123456`, target: "valueof int16" },
           {
-            code: "unassignable",
-            message: "Type '123456' is not assignable to type 'int16'",
+            code: "invalid-argument",
+            message: "Argument of type '123456' is not assignable to parameter of type 'int16'",
           }
         );
       });
 
       it("cannot assign float", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `12.6`, target: "valueof int16" },
           {
-            code: "unassignable",
-            message: "Type '12.6' is not assignable to type 'int16'",
+            code: "invalid-argument",
+            message: "Argument of type '12.6' is not assignable to parameter of type 'int16'",
           }
         );
       });
 
       it("cannot assign string literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `"foo bar"`, target: "valueof int16" },
           {
-            code: "unassignable",
-            message: `Type '"foo bar"' is not assignable to type 'int16'`,
+            code: "invalid-argument",
+            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'int16'`,
           }
         );
       });
@@ -1378,15 +1365,15 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof float32", () => {
       it("can assign float32 literal", async () => {
-        await expectValueAssignable({ source: `12.6`, target: "valueof float32" });
+        await expectValueAssignableToConstraint({ source: `12.6`, target: "valueof float32" });
       });
 
       it("cannot assign string literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           { source: `"foo bar"`, target: "valueof float32" },
           {
-            code: "unassignable",
-            message: `Type '"foo bar"' is not assignable to type 'float32'`,
+            code: "invalid-argument",
+            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'float32'`,
           }
         );
       });
@@ -1404,7 +1391,7 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof model", () => {
       it("can assign object literal", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#{name: "foo"}`,
           target: "valueof Info",
           commonCode: `model Info { name: string }`,
@@ -1412,7 +1399,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("can assign object literal with optional properties", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#{name: "foo"}`,
           target: "valueof Info",
           commonCode: `model Info { name: string, age?: int32 }`,
@@ -1420,7 +1407,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("can assign object literal with additional properties", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#{age: 21, name: "foo"}`,
           target: "valueof Info",
           commonCode: `model Info { age: int32, ...Record<string> }`,
@@ -1444,21 +1431,21 @@ describe("compiler: checker: type relations", () => {
 
       describe("excess properties", () => {
         it("emit diagnostic when using extra properties", async () => {
-          await expectValueNotAssignable(
+          await expectValueNotAssignableToConstraint(
             {
-              source: `#{name: "foo", ┆notDefined: "bar"}`,
+              source: `#{name: "foo", notDefined: "bar"}`,
               target: "valueof Info",
               commonCode: `model Info { name: string }`,
             },
             {
-              code: "unexpected-property",
-              message: `Object literal may only specify known properties, and 'notDefined' does not exist in type 'Info'.`,
+              code: "invalid-argument",
+              message: `Argument of type '{ name: "foo", notDefined: "bar" }' is not assignable to parameter of type 'Info'`,
             }
           );
         });
 
         it("don't emit diagnostic when the extra props are spread into it", async () => {
-          await expectValueAssignable({
+          await expectValueAssignableToConstraint({
             source: `#{name: "foo", ...common}`,
             target: "valueof Info",
             commonCode: `
@@ -1470,15 +1457,15 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign a tuple literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           {
             source: `#["foo"]`,
             target: "valueof Info",
             commonCode: `model Info { name: string }`,
           },
           {
-            code: "unassignable",
-            message: `Type '["foo"]' is not assignable to type 'Info'`,
+            code: "invalid-argument",
+            message: `Argument of type '["foo"]' is not assignable to parameter of type 'Info'`,
           }
         );
       });
@@ -1496,14 +1483,14 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof array", () => {
       it("can assign tuple literal", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#["foo"]`,
           target: "valueof string[]",
         });
       });
 
       it("can assign tuple literal of object literal", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#[#{name: "a"}, #{name: "b"}]`,
           target: "valueof Info[]",
           commonCode: `model Info { name: string }`,
@@ -1512,7 +1499,7 @@ describe("compiler: checker: type relations", () => {
 
       // Disabled for now as this is allowed for backcompat
       it.skip("cannot assign a tuple", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           {
             source: `["foo"]`,
             target: "valueof string[]",
@@ -1525,14 +1512,14 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign an object literal", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           {
             source: `#{name: "foo"}`,
             target: "valueof string[]",
           },
           {
-            code: "unassignable",
-            message: `Type '{ name: "foo" }' is not assignable to type 'string[]'`,
+            code: "invalid-argument",
+            message: `Argument of type '{ name: "foo" }' is not assignable to parameter of type 'string[]'`,
           }
         );
       });
@@ -1550,40 +1537,34 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof tuple", () => {
       it("can assign tuple literal", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#["foo", 12]`,
           target: "valueof [string, int32]",
         });
       });
 
       it("cannot assign tuple literal with too few values", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           {
             source: `#["foo"]`,
             target: "valueof [string, string]",
           },
           {
-            code: "unassignable",
-            message: [
-              `Type '["foo"]' is not assignable to type '[string, string]'`,
-              "  Source has 1 element(s) but target requires 2.",
-            ].join("\n"),
+            code: "invalid-argument",
+            message: `Argument of type '["foo"]' is not assignable to parameter of type '[string, string]'`,
           }
         );
       });
 
       it("cannot assign tuple literal with too many values", async () => {
-        await expectValueNotAssignable(
+        await expectValueNotAssignableToConstraint(
           {
             source: `#["a", "b", "c"]`,
             target: "valueof [string, string]",
           },
           {
-            code: "unassignable",
-            message: [
-              `Type '["a", "b", "c"]' is not assignable to type '[string, string]'`,
-              "  Source has 3 element(s) but target requires 2.",
-            ].join("\n"),
+            code: "invalid-argument",
+            message: `Argument of type '["a", "b", "c"]' is not assignable to parameter of type '[string, string]'`,
           }
         );
       });
@@ -1591,13 +1572,13 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof union", () => {
       it("can assign tuple literal variant", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `#["foo", 12]`,
           target: "valueof ([string, int32] | string | boolean)",
         });
       });
       it("can assign string variant", async () => {
-        await expectValueAssignable({
+        await expectValueAssignableToConstraint({
           source: `"foo"`,
           target: "valueof ([string, int32] | string | boolean)",
         });
@@ -1649,7 +1630,7 @@ describe("compiler: checker: type relations", () => {
         ["#[]", "unknown[]"],
         ["#[]", "unknown"],
       ])(`%s => %s`, async (source, target) => {
-        await expectValueNotAssignable({ source, target }, { code: "unassignable" });
+        await expectValueNotAssignableToConstraint({ source, target }, { code: "unassignable" });
       });
     });
 
@@ -1668,7 +1649,7 @@ describe("compiler: checker: type relations", () => {
         ["#{}", "(valueof unknown) | unknown"],
         ["#{}", "(valueof {}) | {}"],
       ])(`%s => %s`, async (source, target) => {
-        await expectValueAssignable({ source, target });
+        await expectValueAssignableToConstraint({ source, target });
       });
       it.each([
         ["{}", "(valueof unknown) | unknown"],

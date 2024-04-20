@@ -281,7 +281,7 @@ describe("compiler: checker: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'string'",
+        message: "Argument of type '123' is not assignable to parameter of type 'string'",
       });
       expectDecoratorNotCalled();
     });
@@ -297,11 +297,11 @@ describe("compiler: checker: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'string'",
+          message: "Argument of type '123' is not assignable to parameter of type 'string'",
         },
         {
           code: "invalid-argument",
-          message: "Argument '456' is not assignable to parameter of type 'string'",
+          message: "Argument of type '456' is not assignable to parameter of type 'string'",
         },
       ]);
       expectDecoratorNotCalled();

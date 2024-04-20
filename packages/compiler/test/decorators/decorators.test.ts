@@ -222,7 +222,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument of type '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -267,7 +267,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument of type '123' is not assignable to parameter of type 'string'`,
       });
     });
 
@@ -320,7 +320,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument of type '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -347,7 +347,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '123' is not assignable to parameter of type 'string'`,
+        message: `Argument of type '123' is not assignable to parameter of type 'string'`,
       });
     });
   });
@@ -503,7 +503,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'Foo' is not assignable to parameter of type 'Enum'",
+        message: "Argument of type 'Foo' is not assignable to parameter of type 'Enum'",
       });
     });
   });
@@ -520,7 +520,7 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '4' is not assignable to parameter of type 'string'",
+          message: "Argument of type '4' is not assignable to parameter of type 'string'",
         },
       ]);
     });
@@ -708,7 +708,7 @@ describe("compiler: built-in decorators", () => {
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",
-          `Argument '"int32"' is not assignable to parameter of type 'Scalar'`,
+          `Argument of type '"int32"' is not assignable to parameter of type 'Scalar'`,
         ],
       ];
       describe("valid", () => {
@@ -834,7 +834,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: `Argument '"foo"' is not assignable to parameter of type 'Operation'`,
+        message: `Argument of type '"foo"' is not assignable to parameter of type 'Operation'`,
         severity: "error",
       });
     });
