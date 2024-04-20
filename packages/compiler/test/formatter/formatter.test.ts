@@ -2529,10 +2529,10 @@ model Foo {
     it("format simple valueof", async () => {
       await assertFormat({
         code: `
-alias A =      valueof        string;
+model Foo<T extends      valueof        string>{}
 `,
         expected: `
-alias A = valueof string;
+model Foo<T extends valueof string> {}
 `,
       });
     });
@@ -2540,21 +2540,10 @@ alias A = valueof string;
     it("keeps parentheses around valueof inside a union", async () => {
       await assertFormat({
         code: `
-alias A =      (valueof        string) | Model;
+model Foo<T extends      (valueof        string) | Model   >{}
 `,
         expected: `
-alias A = (valueof string) | Model;
-`,
-      });
-    });
-
-    it("keeps parentheses around valueof inside a array expression", async () => {
-      await assertFormat({
-        code: `
-alias A =      (valueof        string)[];
-`,
-        expected: `
-alias A = (valueof string)[];
+model Foo<T extends (valueof string) | Model> {}
 `,
       });
     });

@@ -444,8 +444,12 @@ TemplateParameter :
     Identifier TemplateParameterConstraint? TemplateParameterDefault?
 
 TemplateParameterConstraint :
-    `extends` Expression
-    
+    `extends` MixedConstraint
+
+MixedConstraint :
+  Expression
+  ValueOfExpression
+
 TemplateParameterDefault :
     `=` Expression
 
@@ -477,19 +481,23 @@ UnionExpressionOrHigher :
     `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
 
 IntersectionExpressionOrHigher :
-  ValueOfOrTypeOfExpressionOrHigher
-    `&`? IntersectionExpressionOrHigher `&` ValueOfOrTypeOfExpressionOrHigher
+ArrayExpressionOrHigher
+    `&`? IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
 
-ValueOfOrTypeOfExpressionOrHigher :
-    ArrayExpressionOrHigher
-    `valueof` ArrayExpressionOrHigher
-    `typeof` ArrayExpressionOrHigher
+ValueOfExpression :
+  `valueof` Expression
+
+TypeOfExpression
+    `typeof` Literal
+    `typeof` ReferenceExpression
+    `typeof` ParenthesizedExpression
 
 ArrayExpressionOrHigher :
     PrimaryExpression
     ArrayExpressionOrHigher `[` `]`
 
 PrimaryExpression :
+    TypeOfExpression
     Literal
     CallOrReferenceExpression
     ParenthesizedExpression
@@ -589,7 +597,7 @@ FunctionDeclarationStatement :
   FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
 
 TypeAnnotation:
-  `:` Expression
+  `:` MixedConstraint
 
 FunctionModifiers:
   `extern`

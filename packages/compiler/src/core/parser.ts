@@ -942,9 +942,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
-    let constraint: Expression | undefined;
+    let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseExpression();
+      constraint = parseMixedConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -955,6 +955,40 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       constraint,
       default: def,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseValueOfExpressionOrIntersectionOrHigher() {
+    if (token() === Token.ValueOfKeyword) {
+      return parseValueOfExpression();
+    } else if (parseOptional(Token.OpenParen)) {
+      const expr = parseMixedConstraint();
+      parseExpected(Token.CloseParen);
+      return expr;
+    }
+
+    return parseIntersectionExpressionOrHigher();
+  }
+
+  function parseMixedConstraint(): Expression | ValueOfExpressionNode {
+    const pos = tokenPos();
+    parseOptional(Token.Bar);
+    const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
+
+    if (token() !== Token.Bar) {
+      return node;
+    }
+
+    const options = [node];
+    while (parseOptional(Token.Bar)) {
+      const expr = parseValueOfExpressionOrIntersectionOrHigher();
+      options.push(expr);
+    }
+
+    return {
+      kind: SyntaxKind.UnionExpression,
+      options,
       ...finishNode(pos),
     };
   }
@@ -1297,16 +1331,44 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
+
   function parseTypeOfExpression(): TypeOfExpressionNode {
     const pos = tokenPos();
     parseExpected(Token.TypeOfKeyword);
-    const target = parseExpression();
+    const target = parseTypeOfTarget();
 
     return {
       kind: SyntaxKind.TypeOfExpression,
       target,
       ...finishNode(pos),
     };
+  }
+
+  function parseTypeOfTarget(): Expression {
+    while (true) {
+      switch (token()) {
+        case Token.TypeOfKeyword:
+          return parseTypeOfExpression();
+        case Token.Identifier:
+          return parseCallOrReferenceExpression();
+        case Token.StringLiteral:
+          return parseStringLiteral();
+        case Token.StringTemplateHead:
+          return parseStringTemplateExpression();
+        case Token.TrueKeyword:
+        case Token.FalseKeyword:
+          return parseBooleanLiteral();
+        case Token.NumericLiteral:
+          return parseNumericLiteral();
+        case Token.OpenParen:
+          parseExpected(Token.OpenParen);
+          const target = parseTypeOfTarget();
+          parseExpected(Token.CloseParen);
+          return target;
+        default:
+          return parseReferenceExpression("typeofTarget");
+      }
+    }
   }
 
   function parseReferenceExpression(
@@ -1569,8 +1631,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
-        case Token.ValueOfKeyword:
-          return parseValueOfExpression();
         case Token.TypeOfKeyword:
           return parseTypeOfExpression();
         case Token.Identifier:
@@ -2002,7 +2062,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseExpression();
+      type = parseMixedConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,
