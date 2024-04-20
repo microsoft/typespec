@@ -25,7 +25,7 @@ export function stringTemplateToString(
           case "StringTemplate":
             return diagnostics.pipe(stringTemplateToString(x.type));
           case "TemplateParameter":
-            if (x.type.constraint && x.type.constraint.value !== undefined) {
+            if (x.type.constraint && x.type.constraint.valueType !== undefined) {
               return "";
             }
           // eslint-disable-next-line no-fallthrough
@@ -61,7 +61,7 @@ export function isStringTemplateSerializable(
           diagnostics.pipe(isStringTemplateSerializable(span.type));
           break;
         case "TemplateParameter":
-          if (span.type.constraint && span.type.constraint.value !== undefined) {
+          if (span.type.constraint && span.type.constraint.valueType !== undefined) {
             break; // Value types will be serializable in the template instance.
           }
         // eslint-disable-next-line no-fallthrough

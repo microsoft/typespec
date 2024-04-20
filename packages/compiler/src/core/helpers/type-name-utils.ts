@@ -88,12 +88,12 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
     return getValuePreview(entity, options);
   } else {
     switch (entity.kind) {
-      case "Value":
-        return `valueof ${getTypeName(entity.target, options)}`;
       case "MixedConstraint":
-        return [entity.type, entity.value]
+        return [
+          entity.type && getEntityName(entity.type),
+          entity.valueType && `valueof ${getEntityName(entity.valueType)}`,
+        ]
           .filter(isDefined)
-          .map((x) => getEntityName(x, options))
           .join(" | ");
       default:
         return getTypeName(entity, options);

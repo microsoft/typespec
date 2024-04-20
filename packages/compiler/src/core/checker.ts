@@ -198,8 +198,6 @@ import {
   UnionVariantNode,
   UnknownType,
   Value,
-  ValueConstraint,
-  ValueOfExpressionNode,
   VoidType,
 } from "./types.js";
 
@@ -918,8 +916,8 @@ export function createChecker(program: Program): Checker {
     if (constraint === undefined) {
       return undefined;
     }
-    if (constraint.constraint.value) {
-      return { kind: constraint.kind, type: constraint.constraint.value.target };
+    if (constraint.constraint.valueType) {
+      return { kind: constraint.kind, type: constraint.constraint.valueType };
     } else {
       return undefined;
     }
@@ -1743,23 +1741,22 @@ export function createChecker(program: Program): Checker {
     const values: Type[] = [];
     const types: Type[] = [];
     for (const option of node.options) {
-      const entity = getTypeOrValueOfTypeForNode(option, mapper);
-      if (entity.kind === "Value") {
-        values.push(entity.target);
+      const [kind, type] = getTypeOrValueOfTypeForNode(option, mapper);
+      if (kind === "value") {
+        values.push(type);
       } else {
-        types.push(entity);
+        types.push(type);
       }
     }
     return {
       kind: "MixedConstraint",
       node,
-      value:
+      valueType:
         values.length === 0
           ? undefined
-          : {
-              kind: "Value",
-              target: values.length === 1 ? values[0] : createConstraintUnion(node, values),
-            },
+          : values.length === 1
+            ? values[0]
+            : createConstraintUnion(node, values),
       type:
         types.length === 0
           ? undefined
@@ -1837,18 +1834,6 @@ export function createChecker(program: Program): Checker {
     return unionType;
   }
 
-  function checkValueOfExpression(
-    node: ValueOfExpressionNode,
-    mapper: TypeMapper | undefined
-  ): ValueConstraint {
-    const target = getTypeForNode(node.target, mapper);
-
-    return {
-      kind: "Value",
-      target,
-    };
-  }
-
   /**
    * Intersection produces a model type from the properties of its operands.
    * So this doesn't work if we don't have a known set of properties (e.g.
@@ -1910,12 +1895,8 @@ export function createChecker(program: Program): Checker {
     const marshalling = resolveDecoratorArgMarshalling(decorator);
     if (marshalling === "legacy") {
       for (const param of decorator.parameters) {
-        if (param.type.value) {
-          if (
-            ignoreDiagnostics(
-              isTypeAssignableTo(nullType, param.type.value.target, param.type.value)
-            )
-          ) {
+        if (param.type.valueType) {
+          if (ignoreDiagnostics(isTypeAssignableTo(nullType, param.type.valueType, param.type))) {
             reportDeprecated(
               program,
               [
@@ -1927,13 +1908,9 @@ export function createChecker(program: Program): Checker {
             );
           } else if (
             ignoreDiagnostics(
-              isTypeAssignableTo(
-                param.type.value.target,
-                getStdType("numeric"),
-                param.type.value.target
-              )
+              isTypeAssignableTo(param.type.valueType, getStdType("numeric"), param.type.valueType)
             ) &&
-            !canNumericConstraintBeJsNumber(param.type.value.target)
+            !canNumericConstraintBeJsNumber(param.type.valueType)
           ) {
             reportDeprecated(
               program,
@@ -2061,12 +2038,13 @@ export function createChecker(program: Program): Checker {
     return parameterType;
   }
 
-  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueConstraint {
+  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): ["type" | "value", Type] {
     switch (node.kind) {
       case SyntaxKind.ValueOfExpression:
-        return checkValueOfExpression(node, mapper);
+        const target = getTypeForNode(node.target, mapper);
+        return ["value", target];
       default:
-        return getTypeForNode(node, mapper);
+        return ["type", getTypeForNode(node, mapper)];
     }
   }
 
@@ -2075,12 +2053,12 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.UnionExpression:
         return checkMixedConstraintUnion(node, mapper);
       default:
-        const entity = getTypeOrValueOfTypeForNode(node, mapper);
+        const [kind, entity] = getTypeOrValueOfTypeForNode(node, mapper);
         return {
           kind: "MixedConstraint",
           node: node,
-          type: entity.kind === "Value" ? undefined : entity,
-          value: entity.kind === "Value" ? entity : undefined,
+          type: kind === "value" ? undefined : entity,
+          valueType: kind === "value" ? entity : undefined,
         };
     }
   }
@@ -4889,14 +4867,14 @@ export function createChecker(program: Program): Checker {
 
   /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
   function extractRestParamConstraint(constraint: MixedConstraint): MixedConstraint | undefined {
-    let value: ValueConstraint | undefined;
+    let valueType: Type | undefined;
     let type: Type | undefined;
-    if (constraint.value) {
+    if (constraint.valueType) {
       if (
-        constraint.value.target.kind === "Model" &&
-        isArrayModelType(program, constraint.value.target)
+        constraint.valueType.kind === "Model" &&
+        isArrayModelType(program, constraint.valueType)
       ) {
-        value = { kind: "Value", target: constraint.value.target.indexer.value };
+        valueType = constraint.valueType.indexer.value;
       } else {
         return undefined;
       }
@@ -4912,7 +4890,7 @@ export function createChecker(program: Program): Checker {
     return {
       kind: "MixedConstraint",
       type,
-      value,
+      valueType,
     };
   }
 
@@ -6785,11 +6763,11 @@ export function createChecker(program: Program): Checker {
       source.kind === "TemplateParameter" &&
       source.constraint?.type &&
       target.kind === "MixedConstraint" &&
-      target.value
+      target.valueType
     ) {
       const [assignable] = isTypeAssignableToInternal(
         source.constraint.type,
-        target.value.target,
+        target.valueType,
         diagnosticTarget,
         relationCache
       );
@@ -6811,9 +6789,6 @@ export function createChecker(program: Program): Checker {
     }
 
     if (source === target) return [Related.true, []];
-    if ("kind" in target && target.kind === "Value") {
-      return isAssignableToValueType(source, target, diagnosticTarget, relationCache);
-    }
     if (isValue(target)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
@@ -6821,11 +6796,7 @@ export function createChecker(program: Program): Checker {
       return isAssignableToMixedConstraint(source, target, diagnosticTarget, relationCache);
     }
 
-    if (
-      isValue(source) ||
-      source.kind === "Value" ||
-      (source.kind === "MixedConstraint" && source.value)
-    ) {
+    if (isValue(source) || (source.kind === "MixedConstraint" && source.valueType)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
     if (source.kind === "MixedConstraint") {
@@ -6912,25 +6883,15 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToValueType(
     source: Entity,
-    target: ValueConstraint,
+    target: Type,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
-    const isSourceAType = "kind" in source;
-    if (isSourceAType && source.kind === "Value") {
-      return isTypeAssignableToInternal(
-        source.target,
-        target.target,
-        diagnosticTarget,
-        relationCache
-      );
-    }
-
     if (!isValue(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
-    return isValueOfTypeInternal(source, target.target, diagnosticTarget, relationCache);
+    return isValueOfTypeInternal(source, target, diagnosticTarget, relationCache);
   }
 
   function isAssignableToMixedConstraint(
@@ -6952,10 +6913,10 @@ export function createChecker(program: Program): Checker {
         }
         return [Related.true, []];
       }
-      if (source.value && target.value) {
-        const [variantAssignable, diagnostics] = isAssignableToValueType(
-          source.value,
-          target.value,
+      if (source.valueType && target.valueType) {
+        const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
+          source.valueType,
+          target.valueType,
           diagnosticTarget,
           relationCache
         );
@@ -6978,10 +6939,10 @@ export function createChecker(program: Program): Checker {
         return [Related.true, []];
       }
     }
-    if (target.value) {
-      const [related] = isTypeAssignableToInternal(
+    if (target.valueType) {
+      const [related] = isAssignableToValueType(
         source,
-        target.value,
+        target.valueType,
         diagnosticTarget,
         relationCache
       );

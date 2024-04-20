@@ -106,7 +106,7 @@ export interface TemplatedTypeBase {
  * - Values
  * - Value Constraints
  */
-export type Entity = Type | Value | ValueConstraint | MixedConstraint;
+export type Entity = Type | Value | MixedConstraint;
 
 export type Type =
   | BooleanLiteral
@@ -171,11 +171,6 @@ export interface Projector {
   projectedGlobalNamespace?: Namespace;
 }
 
-export interface ValueConstraint {
-  readonly kind: "Value";
-  readonly target: Type;
-}
-
 export interface MixedConstraint {
   readonly kind: "MixedConstraint";
   readonly node?: UnionExpressionNode | Expression;
@@ -184,7 +179,7 @@ export interface MixedConstraint {
   readonly type?: Type;
 
   /** Expecting value */
-  readonly value?: ValueConstraint;
+  readonly valueType?: Type;
 }
 
 export interface IntrinsicType extends BaseType {

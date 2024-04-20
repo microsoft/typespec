@@ -8,7 +8,6 @@ import {
   Scalar,
   SyntaxKind,
   Type,
-  ValueConstraint,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
@@ -115,40 +114,48 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
   }
 
-  function getRestTSParmeterType(constraint: MixedConstraint) {
-    let value: ValueConstraint | undefined;
+  /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
+  function extractRestParamConstraint(constraint: MixedConstraint): MixedConstraint | undefined {
+    let valueType: Type | undefined;
     let type: Type | undefined;
-    if (constraint.value) {
+    if (constraint.valueType) {
       if (
-        constraint.value.target.kind === "Model" &&
-        isArrayModelType(program, constraint.value.target)
+        constraint.valueType.kind === "Model" &&
+        isArrayModelType(program, constraint.valueType)
       ) {
-        value = { kind: "Value", target: constraint.value.target.indexer.value };
+        valueType = constraint.valueType.indexer.value;
       } else {
-        return "unknown";
+        return undefined;
       }
     }
     if (constraint.type) {
       if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
         type = constraint.type.indexer.value;
       } else {
-        return "unknown";
+        return undefined;
       }
     }
 
-    return `(${getTSParmeterType({
+    return {
       kind: "MixedConstraint",
       type,
-      value,
-    })})[]`;
+      valueType,
+    };
+  }
+  function getRestTSParmeterType(constraint: MixedConstraint) {
+    const restItemConstraint = extractRestParamConstraint(constraint);
+    if (restItemConstraint === undefined) {
+      return "unknown";
+    }
+    return `(${getTSParmeterType(restItemConstraint)})[]`;
   }
 
   function getTSParmeterType(constraint: MixedConstraint, isTarget?: boolean): string {
-    if (constraint.type && constraint.value) {
-      return `${getTypeConstraintTSType(constraint.type, isTarget)} | ${getValueTSType(constraint.value.target)}`;
+    if (constraint.type && constraint.valueType) {
+      return `${getTypeConstraintTSType(constraint.type, isTarget)} | ${getValueTSType(constraint.valueType)}`;
     }
-    if (constraint.value) {
-      return getValueTSType(constraint.value.target);
+    if (constraint.valueType) {
+      return getValueTSType(constraint.valueType);
     } else if (constraint.type) {
       return getTypeConstraintTSType(constraint.type, isTarget);
     }
