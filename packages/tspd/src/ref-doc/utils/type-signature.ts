@@ -14,14 +14,10 @@ import {
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
-  ValueConstraint,
 } from "@typespec/compiler";
 
 /** @internal */
-export function getTypeSignature(type: Type | ValueConstraint): string {
-  if (type.kind === "Value") {
-    return `valueof ${getTypeSignature(type.target)}`;
-  }
+export function getTypeSignature(type: Type): string {
   if (isReflectionType(type)) {
     return type.name;
   }
