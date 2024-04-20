@@ -20,6 +20,7 @@ import {
   getTypeName,
   stringTemplateToString,
 } from "./helpers/index.js";
+import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import {
   getMaxItems,
   getMaxLength,
@@ -3129,24 +3130,47 @@ export function createChecker(program: Program): Checker {
       }
       return checkStringValue(createLiteralType(str), undefined, node);
     } else {
+      let hasNonStringElement = false;
+      let stringValue = node.head.value;
+
       const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
 
       for (const [span, typeOrValue] of spanTypeOrValues) {
-        if (typeOrValue !== null) {
-          if (isValue(typeOrValue)) {
-            hasValue = true;
-          } else {
-            hasType = true;
-            spans.push(createTemplateSpanValue(span.expression, typeOrValue));
-          }
+        compilerAssert(typeOrValue !== null && isType(typeOrValue), "Expected type.");
+
+        const spanValue = createTemplateSpanValue(span.expression, typeOrValue);
+        spans.push(spanValue);
+        const spanValueAsString = stringifyTypeForTemplate(typeOrValue);
+        if (spanValueAsString) {
+          stringValue += spanValueAsString;
+        } else {
+          hasNonStringElement = true;
         }
+
         spans.push(createTemplateSpanLiteral(span.literal));
+        stringValue += span.literal.value;
       }
       return createType({
         kind: "StringTemplate",
         node,
         spans,
+        stringValue: hasNonStringElement ? undefined : stringValue,
       });
+    }
+  }
+  function stringifyTypeForTemplate(type: Type): string | undefined {
+    switch (type.kind) {
+      case "String":
+      case "Number":
+      case "Boolean":
+        return String(type.value);
+      case "StringTemplate":
+        if (type.stringValue !== undefined) {
+          return type.stringValue;
+        }
+        return undefined;
+      default:
+        return undefined;
     }
   }
   function stringifyValueForTemplate(value: Value): string {
@@ -3681,9 +3705,12 @@ export function createChecker(program: Program): Checker {
     }
     let value: string;
     if (literalType.kind === "StringTemplate") {
-      const [result, diagnostics] = stringTemplateToString(literalType);
-      value = result;
-      reportCheckerDiagnostics(diagnostics);
+      if (literalType.stringValue) {
+        value = literalType.stringValue;
+      } else {
+        reportCheckerDiagnostics(explainStringTemplateNotSerializable(literalType));
+        return null;
+      }
     } else {
       value = literalType.value;
     }

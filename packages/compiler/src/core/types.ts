@@ -591,6 +591,8 @@ export interface BooleanLiteral extends BaseType {
 
 export interface StringTemplate extends BaseType {
   kind: "StringTemplate";
+  /** If the template can be render as as string this is the string value */
+  stringValue?: string;
   node: StringTemplateExpressionNode;
   spans: StringTemplateSpan[];
 }
