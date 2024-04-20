@@ -180,7 +180,11 @@ export interface MixedConstraint {
   readonly kind: "MixedConstraint";
   readonly node: UnionExpressionNode;
 
-  readonly options: (Type | ValueConstraint)[];
+  /** Type constraints */
+  readonly type?: Type;
+
+  /** Expecting value */
+  readonly value?: ValueConstraint;
 }
 
 export interface IntrinsicType extends BaseType {

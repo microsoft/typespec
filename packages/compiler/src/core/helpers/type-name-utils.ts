@@ -1,4 +1,5 @@
 import { printId } from "../../formatter/print/printer.js";
+import { isDefined } from "../../utils/misc.js";
 import { isTemplateInstance, isValue } from "../type-utils.js";
 import type {
   Entity,
@@ -90,7 +91,10 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
       case "Value":
         return `valueof ${getTypeName(entity.target, options)}`;
       case "MixedConstraint":
-        return entity.options.map((x) => getEntityName(x, options)).join(" | ");
+        return [entity.type, entity.value]
+          .filter(isDefined)
+          .map((x) => getEntityName(x, options))
+          .join(" | ");
       default:
         return getTypeName(entity, options);
     }
