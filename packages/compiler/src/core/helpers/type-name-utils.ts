@@ -89,7 +89,7 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
     switch (entity.kind) {
       case "Value":
         return `valueof ${getTypeName(entity.target, options)}`;
-      case "ParamConstraintUnion":
+      case "MixedConstraint":
         return entity.options.map((x) => getEntityName(x, options)).join(" | ");
       default:
         return getTypeName(entity, options);

@@ -2,13 +2,13 @@ import {
   DocTag,
   FunctionParameter,
   IntrinsicScalarName,
+  MixedConstraint,
   Model,
-  ParamConstraintUnion,
   Program,
   Scalar,
   SyntaxKind,
   Type,
-  ValueType,
+  ValueConstraint,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
@@ -115,7 +115,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
   }
 
-  function getRestTSParmeterType(type: Type | ValueType | ParamConstraintUnion) {
+  function getRestTSParmeterType(type: Type | ValueConstraint | MixedConstraint) {
     if (type.kind === "Value") {
       if (type.target.kind === "Model" && isArrayModelType(program, type.target)) {
         return `(${getValueTSType(type.target.indexer.value)})[]`;
@@ -131,7 +131,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   }
 
   function getTSParmeterType(
-    type: Type | ValueType | ParamConstraintUnion,
+    type: Type | ValueConstraint | MixedConstraint,
     isTarget?: boolean
   ): string {
     if (type.kind === "Value") {

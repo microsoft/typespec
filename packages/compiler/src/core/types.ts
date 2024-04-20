@@ -106,7 +106,7 @@ export interface TemplatedTypeBase {
  * - Values
  * - Value Constraints
  */
-export type Entity = Type | Value | ValueType | ParamConstraintUnion;
+export type Entity = Type | Value | ValueConstraint | MixedConstraint;
 
 export type Type =
   | BooleanLiteral
@@ -171,9 +171,16 @@ export interface Projector {
   projectedGlobalNamespace?: Namespace;
 }
 
-export interface ValueType {
-  kind: "Value";
-  target: Type;
+export interface ValueConstraint {
+  readonly kind: "Value";
+  readonly target: Type;
+}
+
+export interface MixedConstraint {
+  readonly kind: "MixedConstraint";
+  readonly node: UnionExpressionNode;
+
+  readonly options: (Type | ValueConstraint)[];
 }
 
 export interface IntrinsicType extends BaseType {
@@ -611,13 +618,6 @@ export interface Tuple extends BaseType {
   values: Type[];
 }
 
-export interface ParamConstraintUnion {
-  kind: "ParamConstraintUnion"; // TODO: review naming
-  node: UnionExpressionNode;
-
-  readonly options: (Type | ValueType)[];
-}
-
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
@@ -655,7 +655,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type | ParamConstraintUnion | ValueType;
+  constraint?: Type | MixedConstraint | ValueConstraint;
   default?: Type | Value;
 }
 
@@ -683,7 +683,7 @@ export interface FunctionParameter extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type | ParamConstraintUnion | ValueType;
+  type: Type | MixedConstraint | ValueConstraint;
   optional: boolean;
   rest: boolean;
 }

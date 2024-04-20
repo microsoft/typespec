@@ -15,7 +15,7 @@ import {
   SyntaxKind,
   Type,
   UnionVariant,
-  ValueType,
+  ValueConstraint,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
@@ -30,7 +30,7 @@ export function getSymbolSignature(program: Program, sym: Sym): string {
   return getTypeSignature(type);
 }
 
-function getTypeSignature(type: Type | ValueType): string {
+function getTypeSignature(type: Type | ValueConstraint): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":

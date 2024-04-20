@@ -107,6 +107,7 @@ import {
   MemberExpressionNode,
   MemberNode,
   MemberType,
+  MixedConstraint,
   Model,
   ModelExpressionNode,
   ModelIndexer,
@@ -129,7 +130,6 @@ import {
   ObjectValuePropertyDescriptor,
   Operation,
   OperationStatementNode,
-  ParamConstraintUnion,
   Projection,
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
@@ -196,8 +196,8 @@ import {
   UnionVariantNode,
   UnknownType,
   Value,
+  ValueConstraint,
   ValueOfExpressionNode,
-  ValueType,
   VoidType,
 } from "./types.js";
 
@@ -879,7 +879,7 @@ export function createChecker(program: Program): Checker {
 
   interface CheckConstraint {
     kind: "argument" | "assignment";
-    constraint: Type | ValueType | ParamConstraintUnion;
+    constraint: Type | ValueConstraint | MixedConstraint;
   }
   interface CheckValueConstraint {
     kind: "argument" | "assignment";
@@ -919,7 +919,7 @@ export function createChecker(program: Program): Checker {
       return { kind: constraint.kind, type: constraint.constraint.target };
     } else {
       const valueOfOptions = constraint.constraint.options
-        .filter((x): x is ValueType => x.kind === "Value")
+        .filter((x): x is ValueConstraint => x.kind === "Value")
         .map((x) => x.target);
       return { kind: constraint.kind, type: createUnion(valueOfOptions) };
     }
@@ -1430,7 +1430,7 @@ export function createChecker(program: Program): Checker {
           // TODO-TIM check if we expose this below
           commit(
             param,
-            param.constraint?.kind === "Value" || param.constraint?.kind === "ParamConstraintUnion"
+            param.constraint?.kind === "Value" || param.constraint?.kind === "MixedConstraint"
               ? unknownType
               : param.constraint ?? unknownType
           );
@@ -1450,7 +1450,7 @@ export function createChecker(program: Program): Checker {
         if (isErrorType(type) || !checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
           const effectiveType =
-            param.constraint?.kind === "Value" || param.constraint.kind === "ParamConstraintUnion"
+            param.constraint?.kind === "Value" || param.constraint.kind === "MixedConstraint"
               ? unknownType
               : param.constraint;
 
@@ -1748,14 +1748,14 @@ export function createChecker(program: Program): Checker {
   function checkUnionExpressionAsParamConstraint(
     node: UnionExpressionNode,
     mapper: TypeMapper | undefined
-  ): Union | ParamConstraintUnion {
+  ): Union | MixedConstraint {
     const hasValueOf = node.options.some((x) => x.kind === SyntaxKind.ValueOfExpression);
     if (!hasValueOf) {
       return checkUnionExpression(node, mapper);
     }
 
     return {
-      kind: "ParamConstraintUnion",
+      kind: "MixedConstraint",
       node,
       options: node.options.map((x) => getTypeOrValueOfTypeForNode(x, mapper)),
     };
@@ -1804,7 +1804,7 @@ export function createChecker(program: Program): Checker {
   function checkValueOfExpression(
     node: ValueOfExpressionNode,
     mapper: TypeMapper | undefined
-  ): ValueType {
+  ): ValueConstraint {
     const target = getTypeForNode(node.target, mapper);
 
     return {
@@ -1989,7 +1989,7 @@ export function createChecker(program: Program): Checker {
     return parameterType;
   }
 
-  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueType {
+  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueConstraint {
     switch (node.kind) {
       case SyntaxKind.ValueOfExpression:
         return checkValueOfExpression(node, mapper);
@@ -2001,7 +2001,7 @@ export function createChecker(program: Program): Checker {
   function getParamConstraintEntityForNode(
     node: Node,
     mapper?: TypeMapper
-  ): Type | ParamConstraintUnion | ValueType {
+  ): Type | MixedConstraint | ValueConstraint {
     switch (node.kind) {
       case SyntaxKind.UnionExpression:
         return checkUnionExpressionAsParamConstraint(node, mapper);
@@ -3824,7 +3824,7 @@ export function createChecker(program: Program): Checker {
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
         const restType =
-          parameter.type.kind === "ParamConstraintUnion" || parameter.type.kind === "Value" // TODO: change if we change this to not be a FunctionParameter
+          parameter.type.kind === "MixedConstraint" || parameter.type.kind === "Value" // TODO: change if we change this to not be a FunctionParameter
             ? undefined
             : getIndexType(parameter.type);
         if (restType) {
@@ -4756,7 +4756,7 @@ export function createChecker(program: Program): Checker {
     const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
     function resolveArg(
       argNode: Expression,
-      perParamType: Type | ValueType | ParamConstraintUnion
+      perParamType: Type | ValueConstraint | MixedConstraint
     ): DecoratorArgument | undefined {
       const arg = getTypeOrValueForNode(argNode, mapper, {
         kind: "argument",
@@ -4786,7 +4786,7 @@ export function createChecker(program: Program): Checker {
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
         const restType =
-          parameter.type.kind === "ParamConstraintUnion"
+          parameter.type.kind === "MixedConstraint"
             ? undefined
             : getIndexType(
                 parameter.type.kind === "Value" ? parameter.type.target : parameter.type
@@ -6728,7 +6728,7 @@ export function createChecker(program: Program): Checker {
     if (isValue(target)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    if (target.kind === "ParamConstraintUnion") {
+    if (target.kind === "MixedConstraint") {
       return isAssignableToParameterConstraintUnion(
         source,
         target,
@@ -6737,7 +6737,7 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    if (isValue(source) || source.kind === "Value" || source.kind === "ParamConstraintUnion") {
+    if (isValue(source) || source.kind === "Value" || source.kind === "MixedConstraint") {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -6820,7 +6820,7 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToValueType(
     source: Entity,
-    target: ValueType,
+    target: ValueConstraint,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
@@ -6843,11 +6843,11 @@ export function createChecker(program: Program): Checker {
 
   function isAssignableToParameterConstraintUnion(
     source: Entity,
-    target: ParamConstraintUnion,
+    target: MixedConstraint,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
-    if ("kind" in source && source.kind === "ParamConstraintUnion") {
+    if ("kind" in source && source.kind === "MixedConstraint") {
       for (const option of source.options) {
         const [variantAssignable] = isAssignableToParameterConstraintUnion(
           option,
