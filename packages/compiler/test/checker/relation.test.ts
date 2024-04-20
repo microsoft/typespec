@@ -370,6 +370,10 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: `"foo"` });
     });
 
+    it("can assign equivalent string template", async () => {
+      await expectTypeAssignable({ source: `"foo \${123} bar"`, target: `"foo 123 bar"` });
+    });
+
     it("emit diagnostic when passing other literal", async () => {
       await expectTypeNotAssignable(
         { source: `"bar"`, target: `"foo"` },

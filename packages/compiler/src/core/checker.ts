@@ -18,7 +18,6 @@ import {
   getLocationContext,
   getNamespaceFullName,
   getTypeName,
-  stringTemplateToString,
 } from "./helpers/index.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import {
@@ -7044,7 +7043,10 @@ export function createChecker(program: Program): Checker {
       return false;
     }
     if (target.kind === "String") {
-      return source.kind === "String" && target.value === source.value;
+      return (
+        (source.kind === "String" && source.value === target.value) ||
+        (source.kind === "StringTemplate" && source.stringValue === target.value)
+      );
     }
     if (target.kind === "Number") {
       return source.kind === "Number" && target.value === source.value;
@@ -7983,7 +7985,7 @@ function unsafe_projectionArgumentMarshalForJS(arg: Type): any {
   if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
     return arg.value;
   } else if (arg.kind === "StringTemplate") {
-    return stringTemplateToString(arg)[0];
+    return arg.stringValue;
   }
   return arg as any;
 }
