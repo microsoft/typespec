@@ -881,7 +881,7 @@ export function createChecker(program: Program): Checker {
 
   interface CheckConstraint {
     kind: "argument" | "assignment";
-    constraint: Type | ValueConstraint | MixedConstraint;
+    constraint: MixedConstraint;
   }
   interface CheckValueConstraint {
     kind: "argument" | "assignment";
@@ -915,12 +915,10 @@ export function createChecker(program: Program): Checker {
   function extractValueOfConstraints(
     constraint: CheckConstraint | undefined
   ): CheckValueConstraint | undefined {
-    if (constraint === undefined || isType(constraint.constraint)) {
+    if (constraint === undefined) {
       return undefined;
     }
-    if (constraint.constraint.kind === "Value") {
-      return { kind: constraint.kind, type: constraint.constraint.target };
-    } else if (constraint.constraint.value) {
+    if (constraint.constraint.value) {
       return { kind: constraint.kind, type: constraint.constraint.value.target };
     } else {
       return undefined;
@@ -4830,7 +4828,7 @@ export function createChecker(program: Program): Checker {
     const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
     function resolveArg(
       argNode: Expression,
-      perParamType: Type | ValueConstraint | MixedConstraint
+      perParamType: MixedConstraint
     ): DecoratorArgument | undefined {
       const arg = getTypeOrValueForNode(argNode, mapper, {
         kind: "argument",
@@ -4859,18 +4857,13 @@ export function createChecker(program: Program): Checker {
     }
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType = getIndexType(
-          parameter.type.value ? parameter.type.value.target : parameter.type.type!
-        );
+        const restType = extractRestParamConstraint(parameter.type);
 
         if (restType) {
-          const perParamType = parameter.type.value
-            ? ({ kind: "Value", target: restType } as const)
-            : restType;
           for (let i = index; i < node.arguments.length; i++) {
             const argNode = node.arguments[i];
             if (argNode) {
-              const arg = resolveArg(argNode, perParamType);
+              const arg = resolveArg(argNode, restType);
               if (arg) {
                 resolvedArgs.push(arg);
               } else {
@@ -4892,6 +4885,35 @@ export function createChecker(program: Program): Checker {
       }
     }
     return [hasError, resolvedArgs];
+  }
+
+  /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
+  function extractRestParamConstraint(constraint: MixedConstraint): MixedConstraint | undefined {
+    let value: ValueConstraint | undefined;
+    let type: Type | undefined;
+    if (constraint.value) {
+      if (
+        constraint.value.target.kind === "Model" &&
+        isArrayModelType(program, constraint.value.target)
+      ) {
+        value = { kind: "Value", target: constraint.value.target.indexer.value };
+      } else {
+        return undefined;
+      }
+    }
+    if (constraint.type) {
+      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+        type = constraint.type.indexer.value;
+      } else {
+        return undefined;
+      }
+    }
+
+    return {
+      kind: "MixedConstraint",
+      type,
+      value,
+    };
   }
 
   function getIndexType(type: Type): Type | undefined {
