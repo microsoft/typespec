@@ -1,4 +1,4 @@
-import { Entity, getEntityName, isType, resolvePath } from "@typespec/compiler";
+import { Entity, MixedConstraint, getEntityName, isType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -187,23 +187,24 @@ export class MarkdownRenderer {
     return [base];
   }
 
-  ref(type: Entity): string {
+  ref(type: Entity, prefix: string = ""): string {
     const namedType = isType(type) && this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
       return link(
-        inlinecode(namedType.name),
+        prefix + inlinecode(namedType.name),
         `${this.filename(namedType)}#${this.anchorId(namedType)}`
       );
     }
 
     // So we don't show (anonymous model) until this gets improved.
     if ("kind" in type && type.kind === "Model" && type.name === "" && type.properties.size > 0) {
-      return inlinecode("{...}");
+      return inlinecode(prefix + "{...}");
     }
     return inlinecode(
-      getEntityName(type, {
-        namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
-      })
+      prefix +
+        getEntityName(type, {
+          namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
+        })
     );
   }
 
@@ -260,7 +261,7 @@ export class MarkdownRenderer {
     if (dec.parameters.length > 0) {
       const paramTable: string[][] = [["Name", "Type", "Description"]];
       for (const param of dec.parameters) {
-        paramTable.push([param.name, this.ref(param.type.type), param.doc]);
+        paramTable.push([param.name, this.mixedConstraint(param.type.type), param.doc]);
       }
       content.push(section("Parameters", [table(paramTable), ""]));
     } else {
@@ -270,6 +271,13 @@ export class MarkdownRenderer {
     content.push(this.examples(dec.examples));
 
     return section(this.headingTitle(dec), content);
+  }
+
+  mixedConstraint(constraint: MixedConstraint): string {
+    return [
+      ...(constraint.type ? [this.ref(constraint.type)] : []),
+      ...(constraint.valueType ? [this.ref(constraint.valueType, "valueof ")] : []),
+    ].join(" | ");
   }
 
   examples(examples: readonly ExampleRefDoc[]) {
