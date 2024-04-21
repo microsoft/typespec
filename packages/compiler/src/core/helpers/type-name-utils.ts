@@ -1,6 +1,6 @@
 import { printId } from "../../formatter/print/printer.js";
 import { isDefined } from "../../utils/misc.js";
-import { isTemplateInstance, isValue } from "../type-utils.js";
+import { isTemplateInstance, isType, isValue } from "../type-utils.js";
 import type {
   Entity,
   Enum,
@@ -86,8 +86,10 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
 export function getEntityName(entity: Entity, options?: TypeNameOptions): string {
   if (isValue(entity)) {
     return getValuePreview(entity, options);
+  } else if (isType(entity)) {
+    return getTypeName(entity, options);
   } else {
-    switch (entity.kind) {
+    switch (entity.metaKind) {
       case "MixedConstraint":
         return [
           entity.type && getEntityName(entity.type),
@@ -95,8 +97,6 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
         ]
           .filter(isDefined)
           .join(" | ");
-      default:
-        return getTypeName(entity, options);
     }
   }
 }

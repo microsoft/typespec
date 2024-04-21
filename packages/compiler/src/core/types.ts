@@ -172,7 +172,7 @@ export interface Projector {
 }
 
 export interface MixedConstraint {
-  readonly kind: "MixedConstraint";
+  readonly metaKind: "MixedConstraint";
   readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */

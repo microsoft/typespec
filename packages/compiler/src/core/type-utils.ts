@@ -44,7 +44,7 @@ export function isNullType(type: Entity): type is NullType {
 }
 
 export function isType(entity: Entity): entity is Type {
-  return "kind" in entity && entity.kind !== "MixedConstraint";
+  return "kind" in entity;
 }
 export function isValue(entity: Entity): entity is Value {
   return "valueKind" in entity;

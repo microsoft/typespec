@@ -1174,7 +1174,7 @@ export async function compile(
   }
 
   function getNode(target: Node | Entity | Sym): Node | undefined {
-    if (!("kind" in target) && !("valueKind" in target)) {
+    if (!("kind" in target) && !("valueKind" in target) && !("metaKind" in target)) {
       // symbol
       if (target.flags & SymbolFlags.Using) {
         return target.symbolSource!.declarations[0];

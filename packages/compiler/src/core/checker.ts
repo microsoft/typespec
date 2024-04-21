@@ -913,10 +913,7 @@ export function createChecker(program: Program): Checker {
   function extractValueOfConstraints(
     constraint: CheckConstraint | undefined
   ): CheckValueConstraint | undefined {
-    if (constraint === undefined) {
-      return undefined;
-    }
-    if (constraint.constraint.valueType) {
+    if (constraint?.constraint.valueType) {
       return { kind: constraint.kind, type: constraint.constraint.valueType };
     } else {
       return undefined;
@@ -1749,7 +1746,7 @@ export function createChecker(program: Program): Checker {
       }
     }
     return {
-      kind: "MixedConstraint",
+      metaKind: "MixedConstraint",
       node,
       valueType:
         values.length === 0
@@ -2017,7 +2014,7 @@ export function createChecker(program: Program): Checker {
     if (mixed) {
       const type = node.type
         ? getParamConstraintEntityForNode(node.type)
-        : ({ kind: "MixedConstraint", type: unknownType } satisfies MixedConstraint);
+        : ({ metaKind: "MixedConstraint", type: unknownType } satisfies MixedConstraint);
       parameterType = createType({
         ...base,
         type,
@@ -2055,7 +2052,7 @@ export function createChecker(program: Program): Checker {
       default:
         const [kind, entity] = getTypeOrValueOfTypeForNode(node, mapper);
         return {
-          kind: "MixedConstraint",
+          metaKind: "MixedConstraint",
           node: node,
           type: kind === "value" ? undefined : entity,
           valueType: kind === "value" ? entity : undefined,
@@ -4914,7 +4911,7 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
-      kind: "MixedConstraint",
+      metaKind: "MixedConstraint",
       type,
       valueType,
     };
@@ -6785,10 +6782,10 @@ export function createChecker(program: Program): Checker {
     // BACKCOMPAT: Added May 2023 sprint, to be removed by June 2023 sprint
     if (
       "kind" in source &&
-      "kind" in target &&
+      "metaKind" in target &&
       source.kind === "TemplateParameter" &&
       source.constraint?.type &&
-      target.kind === "MixedConstraint" &&
+      target.metaKind === "MixedConstraint" &&
       target.valueType
     ) {
       const [assignable] = isTypeAssignableToInternal(
@@ -6818,14 +6815,17 @@ export function createChecker(program: Program): Checker {
     if (isValue(target)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    if (target.kind === "MixedConstraint") {
+    if ("metaKind" in target) {
       return isAssignableToMixedConstraint(source, target, diagnosticTarget, relationCache);
     }
 
-    if (isValue(source) || (source.kind === "MixedConstraint" && source.valueType)) {
+    if (
+      isValue(source) ||
+      ("metaKind" in source && source.metaKind === "MixedConstraint" && source.valueType)
+    ) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    if (source.kind === "MixedConstraint") {
+    if ("metaKind" in source) {
       return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
     }
 
@@ -6926,7 +6926,7 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
-    if ("kind" in source && source.kind === "MixedConstraint") {
+    if ("metaKind" in source && source.metaKind === "MixedConstraint") {
       if (source.type && target.type) {
         const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
           source.type,
