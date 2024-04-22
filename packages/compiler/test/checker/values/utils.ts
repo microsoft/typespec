@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { Diagnostic, Type, Value } from "../../../src/index.js";
+import { Diagnostic, Model, Type, Value, defineModuleFlags } from "../../../src/index.js";
 import {
   createTestHost,
   createTestRunner,
@@ -59,5 +59,58 @@ export async function compileValue(code: string, other?: string): Promise<Value>
 
 export async function diagnoseValue(code: string, other?: string): Promise<readonly Diagnostic[]> {
   const [_, diagnostics] = await compileAndDiagnoseValue(code, other);
+  return diagnostics;
+}
+
+export async function compileAndDiagnoseValueOrType(
+  constraint: string,
+  code: string,
+  other?: string
+): Promise<[Type | Value | undefined, readonly Diagnostic[]]> {
+  const host = await createTestHost();
+  host.addJsFile("collect.js", {
+    $collect: () => {},
+    $flags: defineModuleFlags({ decoratorArgMarshalling: "lossless" }),
+  });
+  host.addTypeSpecFile(
+    "main.tsp",
+    `
+      import "./collect.js";
+      extern dec collect(target, value: ${constraint});
+
+      #suppress "deprecated" "for testing"
+      @collect(${code})
+      @test model Test {}
+      ${other ?? ""}
+      `
+  );
+  const [{ Test }, diagnostics] = (await host.compileAndDiagnose("main.tsp")) as [
+    { Test: Model },
+    Diagnostic[],
+  ];
+  const dec = Test.decorators.find((x) => x.definition?.name === "@collect");
+  ok(dec);
+
+  return [dec.args[0].value, diagnostics];
+}
+
+export async function compileValueOrType(
+  constraint: string,
+  code: string,
+  other?: string
+): Promise<Value | Type> {
+  const [called, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
+  expectDiagnosticEmpty(diagnostics);
+  ok(called, "Decorator was not called");
+
+  return called;
+}
+
+export async function diagnoseValueOrType(
+  constraint: string,
+  code: string,
+  other?: string
+): Promise<readonly Diagnostic[]> {
+  const [_, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
   return diagnostics;
 }

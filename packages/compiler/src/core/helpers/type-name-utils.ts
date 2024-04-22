@@ -97,6 +97,8 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
         ]
           .filter(isDefined)
           .join(" | ");
+      case "Indeterminate":
+        return getTypeName(entity.type, options);
     }
   }
 }

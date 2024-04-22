@@ -1,8 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { Model, isValue } from "../../../src/index.js";
-import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
+import { isValue } from "../../../src/index.js";
+import { expectDiagnostics } from "../../../src/testing/index.js";
+import { compileValue, compileValueOrType, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 it("no values", async () => {
   const object = await compileValue(`#[]`);
@@ -86,17 +86,7 @@ describe("emit diagnostic when used in", () => {
 
 describe("(LEGACY) cast tuple to array value", () => {
   it("create the value", async () => {
-    const runner = await createTestRunner();
-    const { Test } = (await runner.compile(
-      `
-        @test model Test<T extends valueof string[]> {}
-
-        #suppress "deprecated" "for testing"
-        alias A = Test<["foo", "bar"]>;
-      `
-    )) as { Test: Model };
-
-    const value = Test.templateMapper?.args[0];
+    const value = await compileValueOrType(`valueof string[]`, `["foo", "bar"]`);
     ok(value && isValue(value));
     strictEqual(value.valueKind, "ArrayValue");
     expect(value.values).toHaveLength(2);
@@ -129,8 +119,9 @@ describe("(LEGACY) cast tuple to array value", () => {
   `);
 
     expectDiagnostics(diagnostics, {
-      code: "unassignable",
-      message: "Type '[string]' is not assignable to type 'valueof string[]'",
+      code: "invalid-argument",
+      message:
+        "Argument of type '[string]' is not assignable to parameter of type 'valueof string[]'",
       pos,
     });
   });
