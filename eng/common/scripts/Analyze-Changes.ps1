@@ -6,12 +6,12 @@ param(
 
 # Represents an isolated package which has its own stages in typespec - ci pipeline
 class IsolatedPackage {
-    [string] $Path
+    [string[]] $Paths
     [string] $RunVariable
     [bool] $RunValue
 
-    IsolatedPackage([string]$path, [string]$runVariable, [bool]$runValue) {
-        $this.Path = $path
+    IsolatedPackage([string[]]$paths, [string]$runVariable, [bool]$runValue) {
+        $this.Paths = $paths
         $this.RunVariable = $runVariable
         $this.RunValue = $runValue
     }
@@ -19,10 +19,10 @@ class IsolatedPackage {
 
 # Emitter packages in the repo
 $isolatedPackages = @{
-    "http-client-csharp" = [IsolatedPackage]::new("packages/http-client-csharp", "RunCSharp", $false)
-    "http-client-java" = [IsolatedPackage]::new("packages/http-client-java", "RunJava", $false)
-    "http-client-typescript" = [IsolatedPackage]::new("packages/http-client-typescript", "RunTypeScript", $false)
-    "http-client-python" = [IsolatedPackage]::new("packages/http-client-python", "RunPython", $false)
+    "http-client-csharp" = [IsolatedPackage]::new(@("packages/http-client-csharp", ".editorconfig"), "RunCSharp", $false)
+    "http-client-java" = [IsolatedPackage]::new(@("packages/http-client-java"), "RunJava", $false)
+    "http-client-typescript" = [IsolatedPackage]::new(@("packages/http-client-typescript"), "RunTypeScript", $false)
+    "http-client-python" = [IsolatedPackage]::new(@("packages/http-client-python"), "RunPython", $false)
 }
 
 # A tree representation of a set of files
@@ -125,7 +125,12 @@ function Get-ActiveVariables($changes) {
         if (-not $runIsolated) {
             # set each isolated package flag
             foreach ($package in $isolatedPackages.Values) {
-                $package.RunValue = $root.PathExists($package.Path)
+                foreach ($path in $package.Paths) {
+                    $package.RunValue = $package.RunValue -or $root.PathExists($path)
+                    if ($package.RunValue) {
+                        break
+                    }
+                }
             }
         }
 
