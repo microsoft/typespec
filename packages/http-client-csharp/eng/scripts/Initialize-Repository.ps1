@@ -24,8 +24,8 @@ try {
         ./dotnet-install.ps1 -Version '8.0.204'
     }
     else {
-        wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-        ./dotnet-install.sh --version 8.0.204
+        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
+        bash ./dotnet-install.sh --version 8.0.204
     }
 
     # install and list npm packages
