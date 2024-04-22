@@ -17,12 +17,12 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/index.js",
+  "main": "emitter/dist/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./emitter/dist/index.js"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp",
+    "clean": "rimraf ./emitter/dist ./emitter/temp",
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
