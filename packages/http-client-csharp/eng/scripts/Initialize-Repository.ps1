@@ -20,8 +20,8 @@ try {
     # install dotnet
     if ($IsWindows) {
         # download and run https://dot.net/v1/dotnet-install.ps1
-        Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "dotnet-install.ps1"
-        ./dotnet-install.ps1 -Channel 8
+        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -Proxy $env:HTTP_PROXY -ProxyUseDefaultCredentials -OutFile 'dotnet-install.ps1';
+        ./dotnet-install.ps1 -Version '8.0.204' -Runtime 'dotnet' -ProxyAddress $env:HTTP_PROXY -ProxyUseDefaultCredentials;
     }
     else {
         Invoke-LoggedCommand "sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0" -GroupOutput
