@@ -19,7 +19,9 @@ try {
 
     # install dotnet
     if ($IsWindows) {
-        Invoke-LoggedCommand "winget install Microsoft.DotNet.SDK.8" -GroupOutput
+        # download and run https://dot.net/v1/dotnet-install.ps1
+        Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "dotnet-install.ps1"
+        ./dotnet-install.ps1 -Channel 8
     }
     else {
         Invoke-LoggedCommand "sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0" -GroupOutput
