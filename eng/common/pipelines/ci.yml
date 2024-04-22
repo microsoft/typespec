@@ -22,7 +22,7 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
-              - script: node /eng/common/scripts/resolve-target-branch.js
+              - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
 
               - task: PowerShell@2
