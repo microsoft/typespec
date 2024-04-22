@@ -212,4 +212,34 @@ describe("Test encode duration", () => {
       durationProperty.Properties[0].Type
     );
   });
+  it("encode iso8601 on duration|null union model property", async () => {
+    const program = await typeSpecCompile(
+        `
+        @doc("This is a model.")
+        model ISO8601DurationProperty {
+            @encode(DurationKnownEncoding.ISO8601)
+            value: duration | null;
+        }
+  `,
+        runner
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = createNetSdkContext(context);
+    const [services] = getAllHttpServices(program);
+    const modelMap = new Map<string, InputModelType>();
+    const enumMap = new Map<string, InputEnumType>();
+    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
+    const durationProperty = modelMap.get("ISO8601DurationProperty");
+    assert(durationProperty !== undefined);
+    assert(
+      deepStrictEqual(
+            {
+                Kind: InputTypeKind.Primitive,
+                Name: InputPrimitiveTypeKind.DurationISO8601,
+                IsNullable: true
+            } as InputPrimitiveType,
+            durationProperty.Properties[0].Type
+        )
+    );
+  });
 });
