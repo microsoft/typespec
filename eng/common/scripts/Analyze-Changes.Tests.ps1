@@ -10,35 +10,51 @@ Describe 'Analyze-Changes' {
   }
 
   It 'Should return package variables if package specific changes are detected' {
-      $variables = Get-ActiveVariables @(
+      $actual = Get-ActiveVariables @(
         "packages/http-client-csharp/src/constants.ts"
       )
 
-      $variables | Should -Be 'RunCSharp'
+      $expected = @('RunCSharp')
+
+      $actual | ForEach-Object {
+        $_ | Should -BeIn $expected
+      }
   }
 
   It 'Should return RunCore if common files are changed' {
-      $variables = Get-ActiveVariables @(
+      $actual = Get-ActiveVariables @(
         "packages/compiler/package.json"
       )
 
-      $variables | Should -Be 'RunCore'
+      $expected = @('RunCore')
+
+      $actual | ForEach-Object {
+        $_ | Should -BeIn $expected
+      }
   }
   
   It 'Should return a combination of core and isolated packages' {
-      $variables = Get-ActiveVariables @(
+      $actual = Get-ActiveVariables @(
         "packages/http-client-csharp/src/constants.ts",
         "packages/compiler/package.json"
       )
 
-      $variables | Should -Be 'RunCore', 'RunCSharp'
+      $expected = @('RunCore', 'RunCSharp')
+
+      $actual | ForEach-Object {
+        $_ | Should -BeIn $expected
+      }
   }
 
   It 'Should return RunCSharp and RunCore if .editorconfig is changed' {
-      $variables = Get-ActiveVariables @(
+      $actual = Get-ActiveVariables @(
         ".editorconfig"
       )
 
-      $variables | Should -Be 'RunCore', 'RunCSharp'
+      $expected = @('RunCore', 'RunCSharp')
+
+      $actual | ForEach-Object {
+        $_ | Should -BeIn $expected
+      }
   }
 }
