@@ -33,4 +33,12 @@ Describe 'Analyze-Changes' {
 
       $variables | Should -Be 'RunCore', 'RunCSharp'
   }
+
+  It 'Should return RunCSharp and RunCore if .editorconfig is changed' {
+      $variables = Get-ActiveVariables @(
+        ".editorconfig"
+      )
+
+      $variables | Should -Be 'RunCore', 'RunCSharp'
+  }
 }
