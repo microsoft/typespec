@@ -14,10 +14,7 @@ There are three kinds of values: objects, arrays, and scalars. These values can 
 Object values use the syntax `#{}` and can define any number of properties. For example:
 
 ```typespec
-const point = #{
-  x: 0,
-  y: 0
-}
+const point = #{ x: 0, y: 0 };
 ```
 
 The object value's properties must refer to other values. It is an error to reference a type.
@@ -35,10 +32,7 @@ const example = #{
 Array values use the syntax `#[]` and can define any number of items. For example:
 
 ```typespec
-const points = #[
-  #{ x: 0, y: 0},
-  #{ x: 1, y: 1}
-]
+const points = #[#{ x: 0, y: 0 }, #{ x: 1, y: 1 }];
 ```
 
 As with object values, array values cannot contain types.
