@@ -24,7 +24,8 @@ try {
         ./dotnet-install.ps1 -Version '8.0.204'
     }
     else {
-        Invoke-LoggedCommand "sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0" -GroupOutput
+        wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+        ./dotnet-install.sh --version 8.0.204
     }
 
     # install and list npm packages
