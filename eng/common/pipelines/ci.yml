@@ -1,9 +1,12 @@
-trigger: none
+trigger:
+  branches:
+    include:
+      - gh-readonly-queue/*
+
 pr:
   branches:
     include:
       - main
-      - gh-readonly-queue/*
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
