@@ -3,12 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -20,7 +24,10 @@ namespace Microsoft.Generator.CSharp
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
         private static readonly Lazy<WorkspaceMetadataReferenceResolver> _metadataReferenceResolver = new(() => new WorkspaceMetadataReferenceResolver());
+        private static readonly CSharpSyntaxRewriter SA1505Rewriter = new SA1505Rewriter();
         private static Task<Project>? _cachedProject;
+        private static readonly string[] _generatedFolders = { GeneratedFolder };
+        private static readonly string _newLine = "\n";
 
         private Project _project;
         private Dictionary<string, string> PlainFiles { get; }
@@ -45,16 +52,60 @@ namespace Microsoft.Generator.CSharp
             PlainFiles.Add(name, content);
         }
 
+        public async Task AddGeneratedFile(string name, string text)
+        {
+            var document = _project.AddDocument(name, text, _generatedFolders);
+            var root = await document.GetSyntaxRootAsync();
+            Debug.Assert(root != null);
+
+            root = root.WithAdditionalAnnotations(Simplifier.Annotation);
+            document = document.WithSyntaxRoot(root);
+            _project = document.Project;
+        }
+
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
-            var compilation = await _project.GetCompilationAsync();
-            Debug.Assert(compilation != null);
+            List<Task<Document>> documents = new List<Task<Document>>();
+            foreach (Document document in _project.Documents)
+            {
+                if (!IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                documents.Add(ProcessDocument(document));
+            }
+            var docs = await Task.WhenAll(documents);
+
+            foreach (var doc in docs)
+            {
+                var processed = doc;
+
+                var text = await processed.GetSyntaxTreeAsync();
+                yield return (processed.Name, text!.ToString());
+            }
 
             foreach (var (file, content) in PlainFiles)
             {
                 yield return (file, content);
             }
         }
+
+        private async Task<Document> ProcessDocument(Document document)
+        {
+            var syntaxTree = await document.GetSyntaxTreeAsync();
+            if (syntaxTree != null)
+            {
+                var root = await syntaxTree.GetRootAsync();
+                document = document.WithSyntaxRoot(SA1505Rewriter.Visit(root));
+            }
+
+            document = await Simplifier.ReduceAsync(document);
+            document = await Formatter.FormatAsync(document);
+            return document;
+        }
+
+        public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
 
         /// <summary>
         /// Create a new AdHoc workspace using the Roslyn SDK and add a project with all the necessary compilation options.
@@ -63,6 +114,8 @@ namespace Microsoft.Generator.CSharp
         private static Project CreateGeneratedCodeProject()
         {
             var workspace = new AdhocWorkspace();
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
+            workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project generatedCodeProject = workspace.AddProject(Constants.DefaultGeneratedCodeProjectFolderName, LanguageNames.CSharp);
 
             generatedCodeProject = generatedCodeProject
@@ -98,6 +151,8 @@ namespace Microsoft.Generator.CSharp
         public static GeneratedCodeWorkspace CreateExistingCodeProject(string outputDirectory)
         {
             var workspace = new AdhocWorkspace();
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
+            workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 
             if (Path.IsPathRooted(outputDirectory))
@@ -124,13 +179,6 @@ namespace Microsoft.Generator.CSharp
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
             return await project.GetCompilationAsync();
-        }
-
-        public async Task<CSharpCompilation> GetCompilationAsync()
-        {
-            var compilation = await _project.GetCompilationAsync() as CSharpCompilation;
-            Debug.Assert(compilation != null);
-            return compilation;
         }
 
         /// <summary>

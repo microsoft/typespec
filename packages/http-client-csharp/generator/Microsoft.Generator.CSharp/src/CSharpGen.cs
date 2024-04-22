@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,9 +16,8 @@ namespace Microsoft.Generator.CSharp
         private static readonly string[] _filesToKeep = [Constants.DefaultCodeModelFileName, Constants.DefaultConfigurationFileName];
 
         /// <summary>
-        /// Executes the generator task with the given plugin.
+        /// Executes the generator task with the <see cref="CodeModelPlugin"/> instance.
         /// </summary>
-        /// <param name="plugin">The code model plugin.</param>
         public async Task ExecuteAsync()
         {
             GeneratedCodeWorkspace.Initialize();
@@ -29,13 +29,17 @@ namespace Microsoft.Generator.CSharp
 
             var output = CodeModelPlugin.Instance.GetOutputLibrary(inputNamespace);
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
+            List<Task> generateFilesTasks = new();
             foreach (var model in output.Models)
             {
                 CodeWriter writer = new CodeWriter();
                 ExpressionTypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model);
                 modelWriter.Write();
-                workspace.AddPlainFiles(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString());
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
             }
+
+            // Add all the generated files to the workspace
+            await Task.WhenAll(generateFilesTasks);
 
             if (CodeModelPlugin.Instance.Configuration.ClearOutputFolder)
             {

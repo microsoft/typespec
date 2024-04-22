@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreNotEqual(expected, result);
         }
 
-        [TestCaseSource("CSharpTypeOperatorEqualsTestCases")]
+        [TestCaseSource(nameof(CSharpTypeOperatorEqualsTestCases))]
         public void CSharpTypeOperatorTestEqual(CSharpType t)
         {
             ValueExpression result = t;
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(expected, result);
         }
 
-        [TestCaseSource("CSharpTypeOperatorNotEqualTestCases")]
+        [TestCaseSource(nameof(CSharpTypeOperatorNotEqualTestCases))]
         public void CSharpTypeOperatorTestNotEqual(CSharpType t1, CSharpType t2)
         {
             ValueExpression result = t1;

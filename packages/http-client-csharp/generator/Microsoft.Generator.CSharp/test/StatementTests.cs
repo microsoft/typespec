@@ -243,10 +243,10 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryOnly()
         {
             var tryStatement = new MethodBodyStatement();
-            var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, null, null);
+            var tryCatchFinally = new TryCatchFinallyStatement(tryStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
-            Assert.IsNull(tryCatchFinally.Catch);
+            Assert.AreEqual(0, tryCatchFinally.Catches.Count);
             Assert.IsNull(tryCatchFinally.Finally);
         }
 
@@ -254,11 +254,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new MethodBodyStatement();
+            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
-            Assert.AreEqual(catchStatement, tryCatchFinally.Catch);
+            Assert.AreEqual(1, tryCatchFinally.Catches.Count);
+            Assert.AreEqual(catchStatement, tryCatchFinally.Catches[0]);
             Assert.IsNull(tryCatchFinally.Finally);
         }
 
@@ -266,12 +267,30 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new MethodBodyStatement();
+            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
-            Assert.AreEqual(catchStatement, tryCatchFinally.Catch);
+            Assert.AreEqual(1, tryCatchFinally.Catches.Count);
+            Assert.AreEqual(catchStatement, tryCatchFinally.Catches[0]);
+            Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
+        }
+
+        [Test]
+        public void TryCatchFinallyStatementWithMultipleCatches()
+        {
+            var tryStatement = new MethodBodyStatement();
+            var catchStatements = new[]
+            {
+                new CatchStatement(null, new MethodBodyStatement()),
+                new CatchStatement(null, new MethodBodyStatement())
+            };
+            var finallyStatement = new MethodBodyStatement();
+            var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);
+
+            Assert.AreEqual(tryStatement, tryCatchFinally.Try);
+            CollectionAssert.AreEqual(catchStatements, tryCatchFinally.Catches);
             Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
         }
 

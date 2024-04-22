@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp
             PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();
             _existingCompilation = existingCompilation;
 
-            _codeGenAttributes = new CodeGenAttributes(customization);
+            _codeGenAttributes = new CodeGenAttributes();
 
             IAssemblySymbol assembly = Customization.Assembly;
 
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp
                 var attributeType = attribute.AttributeClass;
                 while (attributeType != null)
                 {
-                    if (SymbolEqualityComparer.Default.Equals(attributeType, _codeGenAttributes.CodeGenClientAttribute))
+                    if (attributeType.Name == CodeGenAttributes.CodeGenClientAttributeName)
                     {
                         INamedTypeSymbol? parentClientType = null;
                         foreach ((var argumentName, TypedConstant constant) in attribute.NamedArguments)
@@ -117,10 +117,10 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var attribute in symbol.GetAttributes())
             {
-                var type = attribute.AttributeClass;
+                INamedTypeSymbol? type = attribute.AttributeClass;
                 while (type != null)
                 {
-                    if (SymbolEqualityComparer.Default.Equals(type, _codeGenAttributes.CodeGenTypeAttribute))
+                    if (type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) == CodeGenAttributes.CodeGenTypeAttributeName)
                     {
                         if (attribute?.ConstructorArguments.Length > 0)
                         {

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -13,37 +12,22 @@ namespace Microsoft.Generator.CSharp
 {
     internal class CodeGenAttributes
     {
-        public CodeGenAttributes(Compilation compilation)
-        {
-            CodeGenSuppressAttribute = GetSymbol(compilation, typeof(CodeGenSuppressAttribute));
-            CodeGenMemberAttribute = GetSymbol(compilation, typeof(CodeGenMemberAttribute));
-            CodeGenTypeAttribute = GetSymbol(compilation, typeof(CodeGenTypeAttribute));
-            CodeGenModelAttribute = GetSymbol(compilation, typeof(CodeGenModelAttribute));
-            CodeGenClientAttribute = GetSymbol(compilation, typeof(CodeGenClientAttribute));
-            CodeGenSerializationAttribute = GetSymbol(compilation, typeof(CodeGenSerializationAttribute));
-        }
+        public const string CodeGenSuppressAttributeName = "CodeGenSuppressAttribute";
 
-        public INamedTypeSymbol CodeGenSuppressAttribute { get; }
+        public const string CodeGenMemberAttributeName = "CodeGenMemberAttribute";
 
-        public INamedTypeSymbol CodeGenMemberAttribute { get; }
+        public const string CodeGenTypeAttributeName = "CodeGenTypeAttribute";
 
-        public INamedTypeSymbol CodeGenTypeAttribute { get; }
+        public const string CodeGenModelAttributeName = "CodeGenModelAttribute";
 
-        public INamedTypeSymbol CodeGenModelAttribute { get; }
+        public const string CodeGenClientAttributeName = "CodeGenClientAttribute";
 
-        public INamedTypeSymbol CodeGenClientAttribute { get; }
-
-        public INamedTypeSymbol CodeGenSerializationAttribute { get; }
-
-        private static INamedTypeSymbol GetSymbol(Compilation compilation, Type type) => compilation.GetTypeByMetadataName(type.FullName!) ?? throw new InvalidOperationException($"cannot load symbol of attribute {type}");
-
-        private static bool CheckAttribute(AttributeData attributeData, INamedTypeSymbol codeGenAttribute)
-            => SymbolEqualityComparer.Default.Equals(attributeData.AttributeClass, codeGenAttribute);
+        public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
         public bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
         {
             name = null;
-            if (!CheckAttribute(attributeData, CodeGenMemberAttribute))
+            if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
                 return false;
 
             name = attributeData.ConstructorArguments.FirstOrDefault().Value as string;
@@ -57,7 +41,7 @@ namespace Microsoft.Generator.CSharp
             serializationHook = null;
             deserializationHook = null;
             bicepSerializationHook = null;
-            if (!CheckAttribute(attributeData, CodeGenSerializationAttribute))
+            if (attributeData.AttributeClass?.Name != CodeGenSerializationAttributeName)
             {
                 return false;
             }
@@ -81,17 +65,14 @@ namespace Microsoft.Generator.CSharp
             {
                 switch (key)
                 {
-                    case nameof(Customization.CodeGenSerializationAttribute.SerializationPath):
+                    case nameof(CodeGenSerializationAttribute.SerializationPath):
                         serializationNames = ToStringArray(namedArgument.Values);
                         break;
-                    case nameof(Customization.CodeGenSerializationAttribute.SerializationValueHook):
+                    case nameof(CodeGenSerializationAttribute.SerializationValueHook):
                         serializationHook = namedArgument.Value as string;
                         break;
-                    case nameof(Customization.CodeGenSerializationAttribute.DeserializationValueHook):
+                    case nameof(CodeGenSerializationAttribute.DeserializationValueHook):
                         deserializationHook = namedArgument.Value as string;
-                        break;
-                    case nameof(Customization.CodeGenSerializationAttribute.BicepSerializationValueHook):
-                        bicepSerializationHook = namedArgument.Value as string;
                         break;
                 }
             }
@@ -103,16 +84,16 @@ namespace Microsoft.Generator.CSharp
         {
             usage = null;
             formats = null;
-            if (!CheckAttribute(attributeData, CodeGenModelAttribute))
+            if (attributeData.AttributeClass?.Name != CodeGenModelAttributeName)
                 return false;
             foreach (var namedArgument in attributeData.NamedArguments)
             {
                 switch (namedArgument.Key)
                 {
-                    case nameof(Customization.CodeGenModelAttribute.Usage):
+                    case nameof(CodeGenModelAttribute.Usage):
                         usage = ToStringArray(namedArgument.Value.Values);
                         break;
-                    case nameof(Customization.CodeGenModelAttribute.Formats):
+                    case nameof(CodeGenModelAttribute.Formats):
                         formats = ToStringArray(namedArgument.Value.Values);
                         break;
                 }
