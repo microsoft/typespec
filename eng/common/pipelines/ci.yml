@@ -22,6 +22,9 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
+              - script: node /eng/common/scripts/resolve-target-branch.js
+                displayName: Resolve target branch
+
               - task: PowerShell@2
                 displayName: "Analyze PR changes"
                 name: InitStep
