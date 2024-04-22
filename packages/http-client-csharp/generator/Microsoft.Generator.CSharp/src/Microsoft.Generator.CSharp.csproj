@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Generator.CSharp</PackageId>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Microsoft.Build" />
+    <PackageReference Include="System.ComponentModel.Composition" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="System.Memory.Data" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Customization\src\Microsoft.Generator.CSharp.Customization.csproj" />
+    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Input\src\Microsoft.Generator.CSharp.Input.csproj" />
+  </ItemGroup>
+
+</Project>

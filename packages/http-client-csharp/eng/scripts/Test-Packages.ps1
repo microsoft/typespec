@@ -15,11 +15,14 @@ Set-ConsoleEncoding
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        # test the emitter
         Push-Location "$packageRoot"
         try {
+            # test the emitter
             Invoke-LoggedCommand "npm run build" -GroupOutput
             Invoke-LoggedCommand "npm run test" -GroupOutput
+
+            # test the generator
+            Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
         }
         finally {
             Pop-Location
