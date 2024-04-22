@@ -17,6 +17,14 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
+    # install dotnet
+    if ($IsWindows) {
+        Invoke-LoggedCommand "winget install Microsoft.DotNet.SDK.8" -GroupOutput
+    }
+    else {
+        Invoke-LoggedCommand "sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0" -GroupOutput
+    }
+
     # install and list npm packages
   
     if ($BuildArtifactsPath) {
