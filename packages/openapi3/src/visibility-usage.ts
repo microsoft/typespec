@@ -175,6 +175,9 @@ function navigateReferencedTypes(
         navigateReferencedTypes(type.baseModel, usage, callback, visited);
       }
       navigateIterable(type.derivedModels, usage, callback, visited);
+      if (type.baseModel) {
+        navigateReferencedTypes(type.baseModel, usage, callback, visited);
+      }
       if (type.indexer) {
         if (type.indexer.key.name === "integer") {
           navigateReferencedTypes(type.indexer.value, usage | Visibility.Item, callback, visited);

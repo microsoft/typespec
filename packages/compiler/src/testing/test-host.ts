@@ -42,7 +42,7 @@ function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions
 ): CompilerHost {
-  const libDirs = [resolveVirtualPath(".tsp/lib")];
+  const libDirs = [resolveVirtualPath(".tsp/lib/std")];
   if (!options?.excludeTestLib) {
     libDirs.push(resolveVirtualPath(".tsp/test-lib"));
   }
@@ -224,7 +224,7 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "*" },
-    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },
+    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "**" },
   ],
 };
 
