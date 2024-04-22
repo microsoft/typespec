@@ -38,8 +38,8 @@ namespace Microsoft.Generator.CSharp
                 return node;
             }
 
-            var newLeadingTrvia = leadingTrivia.SkipWhile(t => t.IsKind(SyntaxKind.EndOfLineTrivia));
-            var newNextToken = nextToken.WithLeadingTrivia(newLeadingTrvia);
+            var newLeadingTrivia = leadingTrivia.SkipWhile(t => t.IsKind(SyntaxKind.EndOfLineTrivia));
+            var newNextToken = nextToken.WithLeadingTrivia(newLeadingTrivia);
             return node.ReplaceToken(nextToken, newNextToken);
         }
     }
