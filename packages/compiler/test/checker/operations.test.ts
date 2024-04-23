@@ -259,6 +259,37 @@ describe("compiler: operations", () => {
     ok(gammaTargets.has(newFoo));
   });
 
+  // Regression test for https://github.com/microsoft/typespec/issues/3199
+  it("produce an empty interface operation in template when op is reference is invalid", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test op test is IFace.Action<int32>;
+
+      interface IFace {
+        Action<T> is string;
+      }
+      `
+    );
+
+    const [{ test }, diagnostics] = await testHost.compileAndDiagnose("./main.tsp");
+    expectDiagnostics(diagnostics, [
+      {
+        code: "is-operation",
+        message: "Operation can only reuse the signature of another operation.",
+      },
+      {
+        code: "is-operation",
+        message: "Operation can only reuse the signature of another operation.",
+      },
+    ]);
+    strictEqual(test.kind, "Operation");
+    strictEqual(test.parameters.name, "");
+    strictEqual(test.parameters.properties.size, 0);
+    strictEqual(test.returnType.kind, "Intrinsic");
+    strictEqual((test.returnType as IntrinsicType).name, "void");
+  });
+
   it("emit diagnostic when operation is referencing itself as signature", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
