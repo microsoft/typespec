@@ -13,6 +13,11 @@ parameters:
     type: string
     default: ""
 
+  # Indicates the build matrix to use for post-build autorest validation
+  - name: TestMatrix
+    type: object
+    default: {}
+
   # Node version
   - name: NodeVersion
     type: string
