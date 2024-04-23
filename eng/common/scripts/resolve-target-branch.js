@@ -1,6 +1,4 @@
 // @ts-check
-console.log("Process", process.env);
-
 const prTargetBranch = process.env["SYSTEM_PULLREQUEST_TARGETBRANCHNAME"];
 const currentBranch = process.env["BUILD_SOURCEBRANCH"];
 
