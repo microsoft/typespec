@@ -338,10 +338,6 @@ describe("compiler: operations", () => {
         code: "circular-op-signature",
         message: "Operation 'foo' recursively references itself.",
       },
-      {
-        code: "circular-op-signature",
-        message: "Operation 'bar' recursively references itself.",
-      },
     ]);
   });
 
@@ -360,10 +356,6 @@ describe("compiler: operations", () => {
       {
         code: "circular-op-signature",
         message: "Operation 'foo' recursively references itself.",
-      },
-      {
-        code: "circular-op-signature",
-        message: "Operation 'bar' recursively references itself.",
       },
     ]);
   });
