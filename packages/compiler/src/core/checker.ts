@@ -1807,7 +1807,7 @@ export function createChecker(program: Program): Checker {
     node: OperationStatementNode,
     mapper: TypeMapper | undefined,
     parentInterface?: Interface
-  ): Operation | ErrorType {
+  ): Operation {
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
     const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
     const links = symbol && getSymbolLinks(symbol);
@@ -4158,19 +4158,17 @@ export function createChecker(program: Program): Checker {
 
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
-      if (opType.kind === "Operation") {
-        if (ownMembers.has(opType.name)) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "interface-duplicate",
-              format: { name: opType.name },
-              target: opNode,
-            })
-          );
-          continue;
-        }
-        ownMembers.set(opType.name, opType);
+      if (ownMembers.has(opType.name)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "interface-duplicate",
+            format: { name: opType.name },
+            target: opNode,
+          })
+        );
+        continue;
       }
+      ownMembers.set(opType.name, opType);
     }
     return ownMembers;
   }
