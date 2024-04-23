@@ -11,9 +11,9 @@ if (prTargetBranch !== undefined) {
   console.log("Target branch is", prTargetBranch);
   console.log(`##vso[task.setvariable variable=TARGET_BRANCH]${prTargetBranch}`);
 } else if (currentBranch) {
-  const segments = currentBranch.split("/");
-  if (segments[0] === "github-readonly-queue") {
-    const targetBranch = segments.slice(1, segments.length - 2).join("/");
+  const match = currentBranch.match(/refs\/heads\/gh-readonly-queue\/(.*)\/pr-.*/);
+  if (match !== null) {
+    const targetBranch = match[1];
     console.log("Target branch is", targetBranch);
     console.log(`##vso[task.setvariable variable=TARGET_BRANCH]${targetBranch}`);
   }
