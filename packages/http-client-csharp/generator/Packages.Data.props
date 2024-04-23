@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Test only dependencies. -->
+  <ItemGroup Condition="'$(IsUnitTestProject)' == 'true'">
+    <PackageReference Update="Moq" Version="[4.20.70]" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests')) Or '$(IsUnitTestProject)' == 'true'">
+    <PackageReference Update="NUnit" Version="3.13.2" />
+    <PackageReference Update="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+  </ItemGroup>
+
+  <!-- All csproj dependencies. -->
+  <ItemGroup>
+    <PackageReference Update="CommandLineParser" Version="2.9.1" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+    <PackageReference Update="Microsoft.Build" Version="17.9.5" />
+    <PackageReference Update="NuGet.Configuration" Version="6.9.1" />
+    <PackageReference Update="System.ComponentModel.Composition" Version="8.0.0" />
+    <PackageReference Update="System.ClientModel" Version="1.0.0-beta.3" />
+    <PackageReference Update="System.Memory.Data" Version="8.0.0" />
+  </ItemGroup>
+</Project>

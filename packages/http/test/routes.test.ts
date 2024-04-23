@@ -6,6 +6,7 @@ import { HttpOperation, getRoutePath } from "../src/index.js";
 import {
   compileOperations,
   createHttpTestRunner,
+  diagnoseOperations,
   getOperations,
   getRoutesFor,
 } from "./test-host.js";
@@ -146,6 +147,32 @@ describe("http: routes", () => {
           `
         );
         expectRouteIncluded(routes, ["/included"]);
+      });
+    });
+  });
+
+  describe("@route path parameters mapping", () => {
+    it("maps route interpolated params to the operation param", async () => {
+      const routes = await getRoutesFor(
+        `@route("/foo/{myParam}/") op test(@path myParam: string): void;`
+      );
+      deepStrictEqual(routes, [{ verb: "get", path: "/foo/{myParam}", params: ["myParam"] }]);
+    });
+
+    it("maps route interpolated params to the operation param when operation spread items", async () => {
+      const routes = await getRoutesFor(
+        `@route("/foo/{myParam}/") op test(@path myParam: string, ...Record<string>): void;`
+      );
+      deepStrictEqual(routes, [{ verb: "post", path: "/foo/{myParam}", params: ["myParam"] }]);
+    });
+
+    it("emit diagnostic if interpolated param is missing in param list", async () => {
+      const diagnostics = await diagnoseOperations(
+        `@route("/foo/{myParam}/") op test(@path other: string): void;`
+      );
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/missing-path-param",
+        message: "Route reference parameter 'myParam' but wasn't found in operation parameters",
       });
     });
   });
