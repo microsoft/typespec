@@ -1,9 +1,9 @@
 {
-    "profiles": {
-        "Unbranded-TypeSpec": {
-            "commandName": "Executable",
-            "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
-            "commandLineArgs": "$(SolutionDir)/Microsoft.Generator.CSharp.ClientModel.TestProjects/Unbranded-TypeSpec"
-        }
+  "profiles": {
+    "Unbranded-TypeSpec": {
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
+      "commandLineArgs": "$(SolutionDir)/Microsoft.Generator.CSharp.ClientModel.TestProjects/Unbranded-TypeSpec"
     }
+  }
 }
