@@ -19,9 +19,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override ApiTypes ApiTypes { get; }
         public override CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
 
-        public override OutputLibrary GetOutputLibrary(InputNamespace input) => new ScmOutputLibrary(input);
+        private ScmOutputLibrary? _scmOutputLibrary;
+        public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new ScmOutputLibrary();
 
-        public override ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, ModelTypeProvider model) => new ScmExpressionTypeProviderWriter(writer, model);
+        public override ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new ScmExpressionTypeProviderWriter(writer, provider);
 
         public override TypeFactory TypeFactory { get; }
 

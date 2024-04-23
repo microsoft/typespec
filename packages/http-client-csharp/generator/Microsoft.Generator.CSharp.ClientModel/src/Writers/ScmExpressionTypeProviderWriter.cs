@@ -7,8 +7,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Writers
 {
     internal class ScmExpressionTypeProviderWriter : ExpressionTypeProviderWriter
     {
-        public ScmExpressionTypeProviderWriter(CodeWriter writer, ModelTypeProvider model)
-            : base(writer, model)
+        public ScmExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider)
+            : base(writer, provider)
         {
         }
     }

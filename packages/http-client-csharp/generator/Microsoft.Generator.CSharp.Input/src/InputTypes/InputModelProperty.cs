@@ -25,6 +25,5 @@ namespace Microsoft.Generator.CSharp.Input
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
         public bool IsDiscriminator { get; }
-        public FormattableString? DefaultValue { get; init; }
     }
 }

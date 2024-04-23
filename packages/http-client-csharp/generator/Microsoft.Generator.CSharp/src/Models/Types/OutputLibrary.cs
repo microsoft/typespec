@@ -8,17 +8,13 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class OutputLibrary
     {
-        protected InputNamespace Input { get; }
-
-        public OutputLibrary(InputNamespace input)
-        {
-            Input = input;
-        }
-
         private IReadOnlyList<ModelTypeProvider>? _models;
 
         public IReadOnlyList<ModelTypeProvider> Models => _models ??= BuildModels();
 
         protected abstract ModelTypeProvider[] BuildModels();
+
+        public abstract IDictionary<InputEnumType, EnumType> EnumMappings { get; }
+        public abstract IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
     }
 }

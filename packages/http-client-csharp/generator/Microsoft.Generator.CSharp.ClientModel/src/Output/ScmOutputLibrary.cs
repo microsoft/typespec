@@ -8,20 +8,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Output
 {
     internal class ScmOutputLibrary : OutputLibrary
     {
-        public ScmOutputLibrary(InputNamespace input) : base(input)
+        public override IDictionary<InputEnumType, EnumType> EnumMappings { get; }
+        public override IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
+
+        public ScmOutputLibrary()
         {
+            EnumMappings = new Dictionary<InputEnumType, EnumType>();
+            ModelMappings = new Dictionary<InputModelType, ModelTypeProvider>();
         }
 
         protected override ModelTypeProvider[] BuildModels()
         {
-            List<ModelTypeProvider> modelProviders = new List<ModelTypeProvider>();
+            var input = ClientModelPlugin.Instance.InputLibrary.InputNamespace;
 
-            foreach (var model in Input.Models)
+            var modelsCount = input.Models.Count;
+            ModelTypeProvider[] modelProviders = new ModelTypeProvider[modelsCount];
+
+            for (int i = 0; i < modelsCount; i++)
             {
-                modelProviders.Add(new ModelTypeProvider(model, null));
+                var model = input.Models[i];
+                var typeProvider = new ModelTypeProvider(model, null);
+
+                modelProviders[i]  = typeProvider;
+                ModelMappings.Add(model, typeProvider);
             }
 
-            return modelProviders.ToArray();
+            return modelProviders;
         }
     }
 }

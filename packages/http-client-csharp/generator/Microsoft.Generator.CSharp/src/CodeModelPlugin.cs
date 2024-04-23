@@ -25,6 +25,7 @@ namespace Microsoft.Generator.CSharp
         {
             _instance = this;
             Configuration = context.Configuration;
+            InputLibrary = new InputLibrary(Instance.Configuration.OutputDirectory);
         }
 
         // Extensibility points to be implemented by a plugin
@@ -32,7 +33,8 @@ namespace Microsoft.Generator.CSharp
         public abstract CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
         public abstract TypeFactory TypeFactory { get; }
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
-        public abstract OutputLibrary GetOutputLibrary(InputNamespace input);
-        public virtual ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, ModelTypeProvider model) => new ExpressionTypeProviderWriter(writer, model);
+        public abstract OutputLibrary OutputLibrary { get; }
+        public InputLibrary InputLibrary { get; }
+        public virtual ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new ExpressionTypeProviderWriter(writer, provider);
     }
 }

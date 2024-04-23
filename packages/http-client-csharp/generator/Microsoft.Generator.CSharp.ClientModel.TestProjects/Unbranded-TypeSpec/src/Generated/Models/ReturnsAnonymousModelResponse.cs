@@ -6,11 +6,7 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ReturnsAnonymousModelResponse
     {
-        // Add Fields
-
         // Add Constructors
-
-        // Add Properties
 
         // Add Methods
 
