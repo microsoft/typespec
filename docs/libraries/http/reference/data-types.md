@@ -416,12 +416,12 @@ model TypeSpec.Http.PasswordFlow
 
 #### Properties
 
-| Name             | Type                                    | Description                       |
-| ---------------- | --------------------------------------- | --------------------------------- |
-| type             | `TypeSpec.Http.OAuth2FlowType.password` | password flow                     |
-| authorizationUrl | `string`                                | the authorization URL             |
-| refreshUrl?      | `string`                                | the refresh URL                   |
-| scopes?          | `string[]`                              | list of scopes for the credential |
+| Name        | Type                                    | Description                       |
+| ----------- | --------------------------------------- | --------------------------------- |
+| type        | `TypeSpec.Http.OAuth2FlowType.password` | password flow                     |
+| tokenUrl    | `string`                                | the token URL                     |
+| refreshUrl? | `string`                                | the refresh URL                   |
+| scopes?     | `string[]`                              | list of scopes for the credential |
 
 ### `PlainData` {#TypeSpec.Http.PlainData}
 

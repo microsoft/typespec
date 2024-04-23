@@ -1,5 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
 import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
@@ -565,17 +565,30 @@ describe("compiler: models", () => {
       });
     });
 
-    it("keeps reference to source model", async () => {
+    it("keeps reference to source model in sourceModel", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-        import "./dec.js";
         @test model A { }
         @test  model B is A { };
         `
       );
       const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
       strictEqual(B.sourceModel, A);
+    });
+
+    it("keeps reference to source model in sourceModels", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A { }
+        @test model B is A { };
+        `
+      );
+      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      expect(B.sourceModels).toHaveLength(1);
+      strictEqual(B.sourceModels[0].model, A);
+      strictEqual(B.sourceModels[0].usage, "is");
     });
 
     it("copies decorators", async () => {
@@ -849,6 +862,23 @@ describe("compiler: models", () => {
       };
       strictEqual(getDoc(testHost.program, Spread.properties.get("one")!), "override for spread");
       strictEqual(getDoc(testHost.program, Base.properties.get("one")!), "base doc");
+    });
+
+    it("keeps reference to source model in sourceModels", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A { one: string }
+        @test model B { two: string }
+        @test model C {...A, ...B}
+        `
+      );
+      const { A, B, C } = (await testHost.compile("main.tsp")) as { A: Model; B: Model; C: Model };
+      expect(C.sourceModels).toHaveLength(2);
+      strictEqual(C.sourceModels[0].model, A);
+      strictEqual(C.sourceModels[0].usage, "spread");
+      strictEqual(C.sourceModels[1].model, B);
+      strictEqual(C.sourceModels[1].usage, "spread");
     });
 
     it("can spread a Record<T>", async () => {
