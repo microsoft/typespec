@@ -18,7 +18,7 @@ export const $lib = createTypeSpecLibrary({
     "missing-path-param": {
       severity: "error",
       messages: {
-        default: paramMessage`Path contains parameter ${"param"} but wasn't found in given parameters`,
+        default: paramMessage`Route reference parameter '${"param"}' but wasn't found in operation parameters`,
       },
     },
     "optional-path-param": {
