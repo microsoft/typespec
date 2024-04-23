@@ -93,6 +93,6 @@ namespace Two {
   alias B = A; // This is valid
 }
 
-alias C = One.A; // This is not valid
+alias C = Two.A; // This is not valid
 alias C = Two.B; // This is valid
 ```
