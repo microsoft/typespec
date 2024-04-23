@@ -1819,7 +1819,11 @@ export function createChecker(program: Program): Checker {
     }
 
     if (mapper === undefined && inInterface) {
-      compilerAssert(parentInterface, "Operation in interface should already have been checked.");
+      compilerAssert(
+        parentInterface,
+        "Operation in interface should already have been checked.",
+        node.parent
+      );
     }
     checkTemplateDeclaration(node, mapper);
 
@@ -1837,32 +1841,42 @@ export function createChecker(program: Program): Checker {
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
       // Attempt to resolve the operation
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
-      if (!baseOperation) {
-        return errorType;
+      if (baseOperation) {
+        sourceOperation = baseOperation;
+        const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+          "parameters"
+        )!;
+        // Reference the same return type and create the parameters type
+        const clone = initializeClone(baseOperation.parameters, {
+          properties: createRekeyableMap(),
+        });
+
+        clone.properties = createRekeyableMap(
+          Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
+            key,
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+              model: clone,
+              sourceProperty: prop,
+            }),
+          ])
+        );
+        parameters = finishType(clone);
+        returnType = baseOperation.returnType;
+
+        // Copy decorators from the base operation, inserting the base decorators first
+        decorators = [...baseOperation.decorators];
+      } else {
+        // If we can't resolve the signature we return an empty model.
+        parameters = createAndFinishType({
+          kind: "Model",
+          name: "",
+          decorators: [],
+          properties: createRekeyableMap(),
+          derivedModels: [],
+          sourceModels: [],
+        });
+        returnType = voidType;
       }
-      sourceOperation = baseOperation;
-      const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-        "parameters"
-      )!;
-      // Reference the same return type and create the parameters type
-      const clone = initializeClone(baseOperation.parameters, {
-        properties: createRekeyableMap(),
-      });
-
-      clone.properties = createRekeyableMap(
-        Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
-          key,
-          cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
-            model: clone,
-            sourceProperty: prop,
-          }),
-        ])
-      );
-      parameters = finishType(clone);
-      returnType = baseOperation.returnType;
-
-      // Copy decorators from the base operation, inserting the base decorators first
-      decorators = [...baseOperation.decorators];
     } else {
       parameters = getTypeForNode(node.signature.parameters, mapper) as Model;
       returnType = getTypeForNode(node.signature.returnType, mapper);
