@@ -1,5 +1,4 @@
-import http from "http";
-import https from "https";
+import { http, https } from "follow-redirects";
 import { compilerAssert } from "./diagnostics.js";
 
 export interface FetchResponse {
@@ -24,10 +23,6 @@ export function fetch(uri: string): Promise<FetchResponse> {
 
     protocol
       .get(url, (res) => {
-        if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
-          res.destroy(); // destroy the response otherwise it gets stuck waiting for data.
-          return request(res.headers.location, resolve, reject);
-        }
         let data = "";
 
         res.on("data", (chunk) => {
