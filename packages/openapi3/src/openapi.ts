@@ -1473,6 +1473,7 @@ function createOAPIEmitter(
           !paramModels.has(type) &&
           !shouldInline(program, type)
         ) {
+          console.log("Process schemas", (type as any).name);
           callSchemaEmitter(type, Visibility.All);
         }
       };
