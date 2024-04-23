@@ -177,8 +177,8 @@ model PasswordFlow {
   @doc("password flow")
   type: OAuth2FlowType.password;
 
-  @doc("the authorization URL")
-  authorizationUrl: string;
+  @doc("the token URL")
+  tokenUrl: string;
 
   @doc("the refresh URL")
   refreshUrl?: string;
