@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Tests
         private static IEnumerable<TestCaseData> TestParseCommandLineOptionsArgsTestData()
         {
             // happy path scenarios
-            yield return new TestCaseData(new string[] { "../inputDir", "--model-plugin", "my-plugin" }, false);
+            yield return new TestCaseData(new string[] { "../inputDir" }, false);
         }
 
         // Validates parsing different command line options
