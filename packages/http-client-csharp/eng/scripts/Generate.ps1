@@ -2,12 +2,13 @@
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..' 'generator')
-$mgcArtifactRoot = Join-Path $repoRoot 'artifacts' 'bin' 'Microsoft.Generator.CSharp' 'Debug' 'net8.0'
-$clientModelTestProjectsDirectory = Join-Path $repoRoot 'Microsoft.Generator.CSharp.ClientModel.TestProjects'
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
-Invoke "dotnet build $repoRoot"
+Invoke "npm run build"
 
-$mgcPath = Join-Path $mgcArtifactRoot "Microsoft.Generator.CSharp"
+$mgcArtifactRoot = Join-Path $repoRoot 'dist' 'generator'
+$clientModelTestProjectsDirectory = Join-Path $repoRoot 'generator' 'Microsoft.Generator.CSharp.ClientModel.TestProjects'
+
+$mgcPath = Join-Path $mgcArtifactRoot "Microsoft.Generator.CSharp.exe"
 $unbrandedTypespecTestProject = Join-Path $clientModelTestProjectsDirectory "Unbranded-TypeSpec"
 Invoke "$mgcPath $unbrandedTypespecTestProject"
