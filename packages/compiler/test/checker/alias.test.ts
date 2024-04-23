@@ -258,4 +258,38 @@ describe("compiler: aliases", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnosticEmpty(diagnostics);
   });
+
+  // REGRESSION TEST: https://github.com/microsoft/typespec/issues/3125
+  it("trying to access member of aliased union expression shouldn't crash", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias A = {foo: string} | {bar: string};
+
+      alias Aliased = A.prop;
+
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: `Cannot resolve 'prop' in node AliasStatement since it has no members. Did you mean to use "::" instead of "."?`,
+    });
+  });
+  it("trying to access member of aliased model expression shouldn't crash", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      alias A = {foo: string};
+
+      alias Aliased = A.prop;
+
+      `
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: `Cannot resolve 'prop' in node AliasStatement since it has no members. Did you mean to use "::" instead of "."?`,
+    });
+  });
 });
