@@ -32,7 +32,7 @@ extends:
                   pwsh: true
                   filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
                   arguments: >
-                    -TargetBranch $TARGET_BRANCH
+                    -TargetBranch $(TARGET_BRANCH)
                   workingDirectory: $(Build.SourcesDirectory)
 
       # Run csharp stages if RunCSharp == true
