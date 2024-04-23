@@ -356,7 +356,7 @@ function isApplicableMetadataCore(
     return false;
   }
 
-  if (visibility === Visibility.Read) {
+  if (visibility & Visibility.Read) {
     return isHeader(program, property) || isStatusCode(program, property);
   }
 
@@ -538,6 +538,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     if (isOptional(property, canonicalVisibility) !== isOptional(property, visibility)) {
       return true;
     }
+
     return (
       isPayloadProperty(property, visibility, undefined, /* keep shared */ true) !==
       isPayloadProperty(property, canonicalVisibility, undefined, /*keep shared*/ true)

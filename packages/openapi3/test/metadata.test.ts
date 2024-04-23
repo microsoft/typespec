@@ -1170,4 +1170,49 @@ describe("openapi3: metadata", () => {
       "WidgetCreate",
     ]);
   });
+
+  it("unreachable models include @path properties", async () => {
+    const res = await openApiFor(`
+      model Unreachable {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas.Unreachable, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("inheritance tree unreachable with @path doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
 });
