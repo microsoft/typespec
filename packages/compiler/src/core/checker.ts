@@ -1981,7 +1981,6 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolLinks(s: Sym): SymbolLinks {
     const id = getSymbolId(s);
-
     if (symbolLinks.has(id)) {
       return symbolLinks.get(id)!;
     }
@@ -3675,7 +3674,7 @@ export function createChecker(program: Program): Checker {
             x.kind === SyntaxKind.DecoratorDeclarationStatement
         );
       if (decoratorDeclNode) {
-        checkDecoratorDeclaration(decoratorDeclNode, mapper);
+        checkDecoratorDeclaration(decoratorDeclNode, undefined);
       }
     }
     if (symbolLinks.declaredType) {
