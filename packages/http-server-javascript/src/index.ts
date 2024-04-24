@@ -1,0 +1,133 @@
+import "source-map-support/register.js";
+
+import { EmitContext, Namespace, listServices } from "@typespec/compiler";
+import { JsEmitterOptions } from "./lib.js";
+import {
+  Module,
+  JsContext,
+  completePendingDeclarations,
+  createPathCursor,
+  createModule,
+} from "./ctx.js";
+import { parseCase } from "./util/case.js";
+import {
+  createOrGetModuleForNamespace,
+  visitAllTypes,
+} from "./common/namespace.js";
+import { writeModuleTree } from "./write.js";
+import { createOnceQueue } from "./util/onceQueue.js";
+import { UnimplementedError } from "./util/error.js";
+import { JsEmitterFeature, getFeatureHandler } from "./feature.js";
+
+// #region features
+
+import "./http/feature.js";
+
+// #endregion
+
+export { $lib } from "./lib.js";
+
+export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
+  const services = listServices(context.program);
+
+  if (services.length === 0) {
+    console.warn("No services found in program.");
+    return;
+  } else if (services.length > 1) {
+    throw new UnimplementedError("multiple service definitions per program.");
+  }
+
+  const [service] = services;
+
+  const serviceModuleName = parseCase(service.type.name).snakeCase;
+
+  const rootCursor = createPathCursor();
+
+  const globalNamespace = context.program.getGlobalNamespaceType();
+
+  // Root module for emit.
+  const rootModule: Module = {
+    name: serviceModuleName,
+    cursor: rootCursor,
+
+    imports: [],
+    declarations: [],
+  };
+
+  // Module for all models, including synthetic and all.
+  const modelsModule: Module = createModule("models", rootModule);
+
+  // Module for all types in all namespaces.
+  const allModule: Module = createModule("all", modelsModule, globalNamespace);
+
+  // Module for all synthetic (named ad-hoc) types.
+  const syntheticModule: Module = createModule("synthetic", modelsModule);
+
+  const jsCtx: JsContext = {
+    program: context.program,
+    service,
+
+    typeQueue: createOnceQueue(),
+    synthetics: [],
+    syntheticNames: new Map(),
+
+    rootModule,
+    baseNamespace: service.type,
+    namespaceModules: new Map([[globalNamespace, allModule]]),
+    syntheticModule,
+    modelsModule,
+  };
+
+  // Find the root of the service module and recursively reconstruct a path to it, adding the definitions along the way.
+  let namespacePath = [];
+  let namespace: Namespace = service.type;
+  while (namespace !== globalNamespace) {
+    namespacePath.push(namespace);
+
+    if (!namespace.namespace) {
+      throw new Error(
+        "UNREACHABLE: failed to encounter global namespace in namespace traversal"
+      );
+    }
+
+    namespace = namespace.namespace;
+  }
+
+  let parentModule = allModule;
+  for (const namespace of namespacePath.reverse()) {
+    const module = createOrGetModuleForNamespace(jsCtx, namespace);
+    parentModule = module;
+  }
+
+  for (const [name, options] of Object.entries(
+    context.options.features ?? {}
+  ) as [keyof JsEmitterFeature, any][]) {
+    const handler = getFeatureHandler(name);
+    await handler(jsCtx, options);
+  }
+
+  if (!context.options["omit-unreachable-types"]) {
+    // Visit everything in the service namespace to ensure we emit a full `models` module and not just the subparts that
+    // are reachable from the service impl.
+
+    visitAllTypes(jsCtx, service.type);
+  }
+
+  completePendingDeclarations(jsCtx);
+
+  try {
+    const stat = await context.program.host.stat(context.emitterOutputDir);
+    if (stat.isDirectory()) {
+      await context.program.host.rm(context.emitterOutputDir, {
+        recursive: true,
+      });
+    }
+  } catch {}
+
+  await writeModuleTree(
+    jsCtx,
+    context.emitterOutputDir,
+    rootModule,
+    !context.options["no-format"]
+  );
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@typespec/http-server-javascript",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "tspMain": "lib/main.tsp",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.6",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "typescript": "~5.4.5",
+    "prettier": "~3.2.5"
+  }
+}
