@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Expressions;
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
         {
-            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateType(property.Type);
+            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
             MethodSignatureModifiers setterModifier = !property.IsReadOnly ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             // Exclude setter generation for collection properties https://github.com/Azure/autorest.csharp/issues/4616
