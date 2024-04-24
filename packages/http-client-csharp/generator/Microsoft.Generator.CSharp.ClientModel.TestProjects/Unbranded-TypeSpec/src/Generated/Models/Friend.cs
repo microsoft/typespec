@@ -6,11 +6,10 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class Friend
     {
-        // Add Fields
-
         // Add Constructors
 
-        // Add Properties
+        /// <summary> name of the NotFriend. </summary>
+        public string Name { get; set; }
 
         // Add Methods
 

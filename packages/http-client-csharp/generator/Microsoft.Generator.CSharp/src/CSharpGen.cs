@@ -24,10 +24,9 @@ namespace Microsoft.Generator.CSharp
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
             var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", Constants.DefaultGeneratedCodeFolderName);
 
-            var inputNamespace = await InputLibrary.Load(outputPath);
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
-            var output = CodeModelPlugin.Instance.GetOutputLibrary(inputNamespace);
+            var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
             List<Task> generateFilesTasks = new();
             foreach (var model in output.Models)

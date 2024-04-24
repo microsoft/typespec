@@ -6,11 +6,10 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ProjectedModel
     {
-        // Add Fields
-
         // Add Constructors
 
-        // Add Properties
+        /// <summary> name of the ModelWithProjectedName. </summary>
+        public string Name { get; set; }
 
         // Add Methods
 

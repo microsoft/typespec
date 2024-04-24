@@ -8,4 +8,8 @@
   <ItemGroup>
     <Folder Include="Unbranded-TypeSpec\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+  </ItemGroup>
+
 </Project>

@@ -72,48 +72,6 @@ namespace Microsoft.Generator.CSharp.Input
             }
         }
 
-        internal InputModelType ReplaceProperty(InputModelProperty property, InputType inputType)
-        {
-            return new InputModelType(
-                Name,
-                Namespace,
-                Accessibility,
-                Deprecated,
-                Description,
-                Usage,
-                GetNewProperties(property, inputType),
-                BaseModel,
-                DerivedModels,
-                DiscriminatorValue,
-                DiscriminatorPropertyName,
-                InheritedDictionaryType,
-                IsNullable);
-        }
-
-        private IReadOnlyList<InputModelProperty> GetNewProperties(InputModelProperty property, InputType inputType)
-        {
-            List<InputModelProperty> properties = new List<InputModelProperty>();
-            foreach (var myProperty in Properties)
-            {
-                if (myProperty.Equals(property))
-                {
-                    properties.Add(new InputModelProperty(
-                        myProperty.Name,
-                        myProperty.SerializedName,
-                        myProperty.Description,
-                        myProperty.Type.GetCollectionEquivalent(inputType),
-                        myProperty.IsRequired,
-                        myProperty.IsReadOnly,
-                        myProperty.IsDiscriminator));
-                }
-                else
-                {
-                    properties.Add(myProperty);
-                }
-            }
-            return properties;
-        }
-
         public bool Equals(InputType other, bool handleCollections)
         {
             if (!handleCollections)
