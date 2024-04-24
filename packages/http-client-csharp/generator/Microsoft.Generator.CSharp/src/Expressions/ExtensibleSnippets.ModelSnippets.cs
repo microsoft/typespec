@@ -7,8 +7,8 @@ namespace Microsoft.Generator.CSharp.Expressions
     {
         public abstract class ModelSnippets
         {
-            public abstract Method BuildConversionToRequestBodyMethod(MethodSignatureModifiers modifiers);
-            public abstract Method BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers);
+            public abstract CSharpMethod BuildConversionToRequestBodyMethod(MethodSignatureModifiers modifiers);
+            public abstract CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers);
             public abstract TypedValueExpression InvokeToRequestBodyMethod(TypedValueExpression model);
         }
     }

@@ -104,9 +104,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestWriteMethodWithBodyStatements()
         {
-
-            bool useExpressionAsBody = false;
-            var method = ConstructMockMethod(useExpressionAsBody);
+            var method = ConstructMockMethod();
             var codeWriter = new CodeWriter();
 
             codeWriter.WriteMethod(method);
@@ -126,8 +124,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestWriteMethodWithBodyExpressions()
         {
-            bool useExpressionAsBody = true;
-            var method = ConstructMockMethod(useExpressionAsBody);
+            var method = ConstructMockMethod();
             var codeWriter = new CodeWriter();
             codeWriter.WriteMethod(method);
 
@@ -142,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
-        private static Method ConstructMockMethod(bool useExpressionAsBody)
+        private static CSharpMethod ConstructMockMethod()
         {
             // create method signature
             var methodName = "TestMethod";
@@ -156,35 +153,20 @@ namespace Microsoft.Generator.CSharp.Tests
                 new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string)), null, Validation: ValidationType.AssertNotNullOrEmpty, Initializer: null)
             };
 
-            Method method;
-
-            if (!useExpressionAsBody)
+            var responseVar = new VariableReference(returnType, "responseParamName");
+            var responseRef = Snippets.Var(responseVar, BinaryDataExpression.FromBytes(new StringLiteralExpression("sample response", false)));
+            var resultStatements = new List<MethodBodyStatement>()
             {
-                var responseVar = new VariableReference(returnType, "responseParamName");
-                var responseRef = Snippets.Var(responseVar, BinaryDataExpression.FromBytes(new StringLiteralExpression("sample response", false)));
-                var resultStatements = new List<MethodBodyStatement>()
-                {
-                    responseRef,
-                    new KeywordStatement("return", responseVar)
-                };
+                responseRef,
+                new KeywordStatement("return", responseVar)
+            };
 
-                method = new Method
-                (
-                    new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
-                    resultStatements,
-                    "GET"
-                );
-            }
-            else
-            {
-                var response = BinaryDataExpression.FromBytes(new StringLiteralExpression("sample response", false));
-                method = new Method
-                (
-                    new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
-                    response,
-                    "GET"
-                );
-            }
+            var method = new CSharpMethod
+            (
+                new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
+                resultStatements,
+                "GET"
+            );
 
             return method;
         }

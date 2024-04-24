@@ -61,11 +61,11 @@ namespace Microsoft.Generator.CSharp
         private IReadOnlyList<PropertyDeclaration>? _properties;
         public IReadOnlyList<PropertyDeclaration> Properties => _properties ??= BuildProperties();
 
-        private IReadOnlyList<Method>? _methods;
-        public IReadOnlyList<Method> Methods => _methods ??= BuildMethods();
+        private IReadOnlyList<CSharpMethod>? _methods;
+        public IReadOnlyList<CSharpMethod> Methods => _methods ??= BuildMethods();
 
-        private IReadOnlyList<Method>? _constructors;
-        public IReadOnlyList<Method> Constructors => _constructors ??= BuildConstructors();
+        private IReadOnlyList<CSharpMethod>? _constructors;
+        public IReadOnlyList<CSharpMethod> Constructors => _constructors ??= BuildConstructors();
 
         private IReadOnlyList<FieldDeclaration>? _fields;
         public IReadOnlyList<FieldDeclaration> Fields => _fields ??= BuildFields();
@@ -81,9 +81,9 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual CSharpType[] BuildImplements() => Array.Empty<CSharpType>();
 
-        protected virtual Method[] BuildMethods() => Array.Empty<Method>();
+        protected virtual CSharpMethod[] BuildMethods() => Array.Empty<CSharpMethod>();
 
-        protected virtual Method[] BuildConstructors() => Array.Empty<Method>();
+        protected virtual CSharpMethod[] BuildConstructors() => Array.Empty<CSharpMethod>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
 
