@@ -12,8 +12,13 @@ import type {
  *
  * @example
  * ```typespec
- * op read(): {@statusCode: 200, @body pet: Pet}
- * op create(): {@statusCode: 201 | 202}
+ * op read(): {
+ * @statusCode _: 200;
+ * @body pet: Pet;
+ * };
+ * op create(): {
+ * @statusCode _: 201 | 202;
+ * };
  * ```
  */
 export type StatusCodeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
