@@ -1,8 +1,8 @@
 import { resolvePath } from "@typespec/compiler";
-import { Module, JsContext, isModule } from "./ctx.js";
+import { JsContext, Module, isModule } from "./ctx.js";
 
 import { emitModuleBody } from "./common/namespace.js";
-import { OnceQueue, createOnceQueue } from "./util/onceQueue.js";
+import { OnceQueue, createOnceQueue } from "./util/once-queue.js";
 
 import * as prettier from "prettier";
 
@@ -54,10 +54,7 @@ async function writeModuleFile(
     ...emitModuleBody(ctx, module, queue),
   ];
 
-  const [declaredModules, declaredText] = bifilter(
-    module.declarations,
-    isModule
-  );
+  const [declaredModules, declaredText] = bifilter(module.declarations, isModule);
 
   if (declaredText.length === 0) {
     // Early exit to avoid writing an empty module.

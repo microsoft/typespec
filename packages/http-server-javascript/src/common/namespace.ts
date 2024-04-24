@@ -1,17 +1,17 @@
 import { Namespace, getNamespaceFullName } from "@typespec/compiler";
 import {
+  DeclarationType,
+  JsContext,
   Module,
   ModuleBodyDeclaration,
-  JsContext,
-  DeclarationType,
-  isModule,
   createModule,
+  isModule,
 } from "../ctx.js";
-import { isIterable, join } from "../util/iter.js";
-import { emitOperationGroup } from "./interface.js";
 import { parseCase } from "../util/case.js";
-import { OnceQueue } from "../util/onceQueue.js";
 import { UnimplementedError } from "../util/error.js";
+import { isIterable, join } from "../util/iter.js";
+import { OnceQueue } from "../util/once-queue.js";
+import { emitOperationGroup } from "./interface.js";
 
 /**
  * Enqueue all declarations in the namespace to be included in the emit, recursively.
@@ -20,8 +20,7 @@ import { UnimplementedError } from "../util/error.js";
  * @param namespace - The root namespace to begin traversing.
  */
 export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
-  const { enums, interfaces, models, unions, namespaces, scalars, operations } =
-    namespace;
+  const { enums, interfaces, models, unions, namespaces, scalars, operations } = namespace;
 
   for (const type of join<DeclarationType>(
     enums.values(),
@@ -45,10 +44,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
       throw new UnimplementedError("no parent namespace in visitAllTypes");
     }
 
-    const parentModule = createOrGetModuleForNamespace(
-      ctx,
-      namespace.namespace
-    );
+    const parentModule = createOrGetModuleForNamespace(ctx, namespace.namespace);
 
     parentModule.declarations.push([
       // prettier-ignore
@@ -67,18 +63,13 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
  * @param namespace - The namespace to create a module for.
  * @returns the module for the namespace.
  */
-export function createOrGetModuleForNamespace(
-  ctx: JsContext,
-  namespace: Namespace
-): Module {
+export function createOrGetModuleForNamespace(ctx: JsContext, namespace: Namespace): Module {
   if (ctx.namespaceModules.has(namespace)) {
     return ctx.namespaceModules.get(namespace)!;
   }
 
   if (!namespace.namespace) {
-    throw new Error(
-      "UNREACHABLE: no parent namespace in createOrGetModuleForNamespace"
-    );
+    throw new Error("UNREACHABLE: no parent namespace in createOrGetModuleForNamespace");
   }
 
   const parent = createOrGetModuleForNamespace(ctx, namespace.namespace);
@@ -107,9 +98,7 @@ export function emitNamespaceInterfaceReference(
   module: Module
 ): string {
   if (!namespace.namespace) {
-    throw new Error(
-      "UNREACHABLE: no parent namespace in emitNamespaceInterfaceReference"
-    );
+    throw new Error("UNREACHABLE: no parent namespace in emitNamespaceInterfaceReference");
   }
 
   const namespaceName = parseCase(namespace.name).pascalCase;
@@ -152,9 +141,7 @@ function computeRelativeFilePath(from: Module, to: Module): string {
   const fromIsIndex = from.declarations.some((d) => isModule(d));
   const toIsIndex = to.declarations.some((d) => isModule(d));
 
-  const relativePath = (
-    fromIsIndex ? from.cursor : from.cursor.parent!
-  ).relativePath(to.cursor);
+  const relativePath = (fromIsIndex ? from.cursor : from.cursor.parent!).relativePath(to.cursor);
 
   if (relativePath.length === 0 && !toIsIndex)
     throw new Error("UNREACHABLE: relativePath returned no fragments");
@@ -171,10 +158,7 @@ function computeRelativeFilePath(from: Module, to: Module): string {
 /**
  * Deduplicates, consolidates, and writes the import statements for a module.
  */
-function* writeImportsNormalized(
-  ctx: JsContext,
-  module: Module
-): Iterable<string> {
+function* writeImportsNormalized(ctx: JsContext, module: Module): Iterable<string> {
   const allTargets = new Set<string>();
   const importMap = new Map<string, Set<string>>();
   const starAsMap = new Map<string, string>();
@@ -211,9 +195,7 @@ function* writeImportsNormalized(
     const starAs = starAsMap.get(target);
 
     if (binders && starAs) {
-      yield `import ${starAs}, { ${[...binders].join(
-        ", "
-      )} } from "${target}";`;
+      yield `import ${starAs}, { ${[...binders].join(", ")} } from "${target}";`;
     } else if (binders) {
       yield `import { ${[...binders].join(", ")} } from "${target}";`;
     } else if (starAs) {

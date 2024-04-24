@@ -1,17 +1,11 @@
-import {
-  Interface,
-  Operation,
-  Type,
-  UnionVariant,
-  isErrorModel,
-} from "@typespec/compiler";
+import { Interface, Operation, Type, UnionVariant, isErrorModel } from "@typespec/compiler";
 import { JsContext, Module, PathCursor } from "../ctx.js";
+import { bifilter } from "../util/bifilter.js";
 import { parseCase } from "../util/case.js";
 import { getAllProperties } from "../util/extends.js";
-import { emitTypeReference, isValueLiteralType } from "./reference.js";
-import { emitDocumentation } from "./documentation.js";
 import { indent } from "../util/indent.js";
-import { bifilter } from "../util/bifilter.js";
+import { emitDocumentation } from "./documentation.js";
+import { emitTypeReference, isValueLiteralType } from "./reference.js";
 import { emitUnionType } from "./union.js";
 
 /**
@@ -21,11 +15,7 @@ import { emitUnionType } from "./union.js";
  * @param iface - The interface to emit.
  * @param module - The module that this interface is written into.
  */
-export function* emitInterface(
-  ctx: JsContext,
-  iface: Interface,
-  module: Module
-): Iterable<string> {
+export function* emitInterface(ctx: JsContext, iface: Interface, module: Module): Iterable<string> {
   const name = parseCase(iface.name).pascalCase;
 
   yield* emitDocumentation(ctx, iface);
@@ -60,23 +50,14 @@ export function* emitOperationGroup(
  * @param op - The operation to emit.
  * @param module - The module that the operation is written into.
  */
-export function* emitOperation(
-  ctx: JsContext,
-  op: Operation,
-  module: Module
-): Iterable<string> {
+export function* emitOperation(ctx: JsContext, op: Operation, module: Module): Iterable<string> {
   const opNameCase = parseCase(op.name);
 
   const opName = opNameCase.camelCase;
 
   const hasOptions = getAllProperties(op.parameters).some((p) => p.optional);
 
-  const [successResult, errorResult] = splitReturnType(
-    ctx,
-    op.returnType,
-    module,
-    opNameCase.pascalCase
-  );
+  const [successResult, _] = splitReturnType(ctx, op.returnType, module, opNameCase.pascalCase);
 
   const returnType = `Promise<${successResult.typeReference}>`;
 
@@ -114,8 +95,7 @@ export function* emitOperation(
 
     yield* indent(documentation);
 
-    const paramsFragment =
-      params.length > 0 ? `${paramsDeclarationLine}, ` : "";
+    const paramsFragment = params.length > 0 ? `${paramsDeclarationLine}, ` : "";
 
     // prettier-ignore
     yield `  ${opName}(${paramsFragment}options?: ${optionsTypeName}): ${returnType};`;
@@ -147,9 +127,7 @@ export function emitOptionsType(
     from: ctx.syntheticModule,
   });
 
-  const options = [...operation.parameters.properties.values()].filter(
-    (p) => p.optional
-  );
+  const options = [...operation.parameters.properties.values()].filter((p) => p.optional);
 
   ctx.syntheticModule.declarations.push([
     `export interface ${optionsTypeName} {`,
@@ -232,13 +210,7 @@ export function splitReturnType(
       errorVariants.length === 0
         ? DEFAULT_NO_VARIANT_RETURN_TYPE
         : errorVariants.length === 1
-          ? emitTypeReference(
-              ctx,
-              errorVariants[0].type,
-              errorVariants[0],
-              module,
-              errorAltName
-            )
+          ? emitTypeReference(ctx, errorVariants[0].type, errorVariants[0], module, errorAltName)
           : emitUnionType(ctx, errorVariants, module);
 
     const successSplit: SplitReturnType =

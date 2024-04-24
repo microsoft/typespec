@@ -1,15 +1,9 @@
-import {
-  DiagnosticTarget,
-  NoTarget,
-  Program,
-  Scalar,
-  formatDiagnostic,
-} from "@typespec/compiler";
-import { reportDiagnostic } from "../lib.js";
-import { getFullyQualifiedTypeName } from "../util/name.js";
+import { DiagnosticTarget, NoTarget, Program, Scalar, formatDiagnostic } from "@typespec/compiler";
 import { JsContext } from "../ctx.js";
+import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "../util/case.js";
 import { UnimplementedError } from "../util/error.js";
+import { getFullyQualifiedTypeName } from "../util/name.js";
 
 /**
  * Emits a declaration for a scalar type.
@@ -60,7 +54,7 @@ export function parseTemplateForScalar(ctx: JsContext, scalar: Scalar): string {
   }
 }
 
-let __JS_SCALARS_MAP = new Map<Program, Map<Scalar, string>>();
+const __JS_SCALARS_MAP = new Map<Program, Map<Scalar, string>>();
 
 function getScalarsMap(program: Program): Map<Scalar, string> {
   let scalars = __JS_SCALARS_MAP.get(program);
@@ -107,21 +101,15 @@ function createScalarsMap(program: Program): Map<Scalar, string> {
   for (const [[type, diagnostics]] of entries) {
     if (!type) {
       const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
-      throw new Error(
-        `failed to construct TypeSpec -> JavaScript scalar map: ${diagnosticString}`
-      );
+      throw new Error(`failed to construct TypeSpec -> JavaScript scalar map: ${diagnosticString}`);
     } else if (type.kind !== "Scalar") {
       throw new Error(
-        `type ${(type as any).name ?? "<anonymous>"} is a '${
-          type.kind
-        }', expected 'scalar'`
+        `type ${(type as any).name ?? "<anonymous>"} is a '${type.kind}', expected 'scalar'`
       );
     }
   }
 
-  return new Map<Scalar, string>(
-    entries.map(([[type], scalar]) => [type! as Scalar, scalar])
-  );
+  return new Map<Scalar, string>(entries.map(([[type], scalar]) => [type! as Scalar, scalar]));
 }
 
 /**

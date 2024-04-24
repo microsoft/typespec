@@ -1,21 +1,16 @@
-import {
-  HttpOperation,
-  HttpService,
-  HttpVerb,
-  OperationContainer,
-} from "@typespec/http";
-import { HttpContext } from "./feature.js";
-import { Module, createModule } from "../ctx.js";
 import { Operation, Type } from "@typespec/compiler";
-import { bifilter } from "../util/bifilter.js";
-import { ReCase, parseCase } from "../util/case.js";
+import { HttpOperation, HttpService, HttpVerb, OperationContainer } from "@typespec/http";
 import {
   createOrGetModuleForNamespace,
   emitNamespaceInterfaceReference,
 } from "../common/namespace.js";
 import { emitTypeReference } from "../common/reference.js";
+import { Module, createModule } from "../ctx.js";
+import { bifilter } from "../util/bifilter.js";
+import { ReCase, parseCase } from "../util/case.js";
 import { indent } from "../util/indent.js";
 import { keywordSafe } from "../util/keywords.js";
+import { HttpContext } from "./feature.js";
 
 /**
  * Common utility types and functions emitted as part of the router definition.
@@ -234,11 +229,7 @@ interface RouterOptions<RouteConfig extends { [k: string]: {} } = {}> {
  * @param service - The HTTP service to emit a router for.
  * @param serverRawModule - The module that contains the raw server implementation.
  */
-export function emitRouter(
-  ctx: HttpContext,
-  service: HttpService,
-  serverRawModule: Module
-) {
+export function emitRouter(ctx: HttpContext, service: HttpService, serverRawModule: Module) {
   const routerModule = createModule("router", ctx.httpModule);
 
   const routeTree = createRouteTree(ctx, service);
@@ -253,9 +244,7 @@ export function emitRouter(
     from: serverRawModule,
   });
 
-  routerModule.declarations.push([
-    ...emitRouterDefinition(ctx, service, routeTree, routerModule),
-  ]);
+  routerModule.declarations.push([...emitRouterDefinition(ctx, service, routeTree, routerModule)]);
 }
 
 function* emitRouterDefinition(
@@ -266,9 +255,7 @@ function* emitRouterDefinition(
 ): Iterable<string> {
   const routerName = parseCase(service.namespace.name).pascalCase + "Router";
 
-  const uniqueContainers = new Set(
-    service.operations.map((operation) => operation.container)
-  );
+  const uniqueContainers = new Set(service.operations.map((operation) => operation.container));
 
   const backends = new Map<OperationContainer, [ReCase, string]>();
 
@@ -396,9 +383,7 @@ function* emitRouteHandler(
 
   yield `if (path.length === 0) {`;
   if (routeTree.operations.length > 0) {
-    yield* indent(
-      emitRouteOperationDispatch(ctx, routeTree.operations, backends)
-    );
+    yield* indent(emitRouteOperationDispatch(ctx, routeTree.operations, backends));
   } else {
     // Not found
     yield `  return onRouteNotFound(request, response);`;
@@ -456,10 +441,7 @@ function* emitRouteOperationDispatch(
 
     const parameters =
       operation.parameters.length > 0
-        ? ", " +
-          operation.parameters
-            .map((param) => parseCase(param.name).camelCase)
-            .join(", ")
+        ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
         : "";
 
     yield `  case ${JSON.stringify(operation.verb.toUpperCase())}:`;
@@ -569,10 +551,7 @@ function createRouteTree(ctx: HttpContext, service: HttpService): RouteTree {
  * @param routes - the routes to build the tree from
  */
 function intoRouteTree(routes: Route[]): RouteTree {
-  const [operations, rest] = bifilter(
-    routes,
-    (route) => route.segments.length === 0
-  );
+  const [operations, rest] = bifilter(routes, (route) => route.segments.length === 0);
   const [literal, parameterized] = bifilter(
     rest,
     (route) => typeof route.segments[0]! === "string"
@@ -605,10 +584,7 @@ function intoRouteTree(routes: Route[]): RouteTree {
         edge,
         intoRouteTree(
           routes.map(function removePrefix(route) {
-            const [prefix, ...rest] = route.segments as [
-              string,
-              ...RouteSegment[],
-            ];
+            const [prefix, ...rest] = route.segments as [string, ...RouteSegment[]];
 
             if (prefix === edge) {
               return { ...route, segments: rest };
@@ -656,10 +632,7 @@ function intoRouteTree(routes: Route[]): RouteTree {
   }
 }
 
-function getRouteSegments(
-  ctx: HttpContext,
-  operation: HttpOperation
-): RouteSegment[] {
+function getRouteSegments(ctx: HttpContext, operation: HttpOperation): RouteSegment[] {
   // Parse the route template into segments of "prefixes" (i.e. literal strings)
   // and parameters (names enclosed in curly braces). The "/" character does not
   // actually matter for this. We just want to know what the segments of the route
@@ -687,9 +660,7 @@ function getRouteSegments(
       (p) =>
         [
           p.param.name,
-          p.param.type.kind === "ModelProperty"
-            ? p.param.type.type
-            : p.param.type,
+          p.param.type.kind === "ModelProperty" ? p.param.type.type : p.param.type,
         ] as const
     )
   );
@@ -712,7 +683,7 @@ function getRouteSegments(
     }
 
     // Scan for next `}` character
-    let closeBraceIndex = remainingTemplate.indexOf("}", openBraceIndex);
+    const closeBraceIndex = remainingTemplate.indexOf("}", openBraceIndex);
 
     if (closeBraceIndex === -1) {
       // TODO/witemple: this _MUST_ be an error in the HTTP layer, so we don't need to raise a diagnostic here?
@@ -724,10 +695,7 @@ function getRouteSegments(
     }
 
     // Extract the parameter name
-    const parameterName = remainingTemplate.substring(
-      openBraceIndex + 1,
-      closeBraceIndex
-    );
+    const parameterName = remainingTemplate.substring(openBraceIndex + 1, closeBraceIndex);
 
     segments.push({
       name: parameterName,

@@ -1,16 +1,11 @@
 import {
   JSONSchemaType,
   ModelProperty,
+  NoTarget,
   Type,
   getMaxValue,
   getMinValue,
 } from "@typespec/compiler";
-import {
-  Module,
-  JsContext,
-  completePendingDeclarations,
-  createModule,
-} from "../ctx.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -18,29 +13,30 @@ import {
   HttpService,
   getHeaderFieldName,
   getHttpService,
-  getQueryParamName,
   getServers,
   isBody,
   isHeader,
   isStatusCode,
 } from "@typespec/http";
-import { UnimplementedError } from "../util/error.js";
-import { JsEmitterFeature, registerFeature } from "../feature.js";
-import { parseCase } from "../util/case.js";
-import { bifilter } from "../util/bifilter.js";
-import { emitTypeReference, isValueLiteralType } from "../common/reference.js";
 import {
   SplitReturnType,
   UnionSplitReturnType,
   isInfallible,
   splitReturnType,
 } from "../common/interface.js";
-import { indent } from "../util/indent.js";
-import { parseTemplateForScalar } from "../common/scalar.js";
 import { createOrGetModuleForNamespace } from "../common/namespace.js";
-import { emitRouter } from "./router.js";
-import { keywordSafe } from "../util/keywords.js";
+import { emitTypeReference, isValueLiteralType } from "../common/reference.js";
+import { parseTemplateForScalar } from "../common/scalar.js";
+import { JsContext, Module, completePendingDeclarations, createModule } from "../ctx.js";
+import { JsEmitterFeature, registerFeature } from "../feature.js";
+import { reportDiagnostic } from "../lib.js";
+import { bifilter } from "../util/bifilter.js";
+import { parseCase } from "../util/case.js";
+import { UnimplementedError } from "../util/error.js";
 import { getAllProperties } from "../util/extends.js";
+import { indent } from "../util/indent.js";
+import { keywordSafe } from "../util/keywords.js";
+import { emitRouter } from "./router.js";
 
 // Declare the existence of the HTTP feature.
 declare module "../feature.js" {
@@ -87,19 +83,18 @@ registerFeature("http", HttpOptionsSchema, emitHttp);
  * Emits bindings for the service to be carried over the HTTP protocol.
  */
 async function emitHttp(ctx: JsContext, options: JsEmitterFeature["http"]) {
-  const [httpService, diagnostics] = getHttpService(
-    ctx.program,
-    ctx.service.type
-  );
+  const [httpService, diagnostics] = getHttpService(ctx.program, ctx.service.type);
 
   const diagnosticsAreError = diagnostics.some((d) => d.severity === "error");
 
   if (diagnosticsAreError) {
     // TODO/witemple: ensure that HTTP-layer diagnostics are reported when the user enables
     // the HTTP feature.
-    console.warn(
-      "HTTP emit disabled because getHttpService returned diagnostics."
-    );
+    reportDiagnostic(ctx.program, {
+      code: "http-emit-disabled",
+      target: NoTarget,
+      messageId: "default",
+    });
     return;
   }
 
@@ -141,9 +136,7 @@ function emitRawServer(ctx: HttpContext, operationsModule: Module): Module {
   });
 
   for (const operation of ctx.httpService.operations) {
-    serverRawModule.declarations.push([
-      ...emitRawServerOperation(ctx, operation, serverRawModule),
-    ]);
+    serverRawModule.declarations.push([...emitRawServerOperation(ctx, operation, serverRawModule)]);
   }
 
   return serverRawModule;
@@ -160,7 +153,7 @@ function* emitRawServerOperation(
   operation: HttpOperation,
   module: Module
 ): Iterable<string> {
-  const { operation: op, verb, responses } = operation;
+  const op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
@@ -180,15 +173,11 @@ function* emitRawServerOperation(
 
   completePendingDeclarations(ctx);
 
-  const pathParameters = operation.parameters.parameters.filter(
-    function isPathParameter(param) {
-      return param.type === "path";
-    }
-  ) as Extract<HttpOperationParameter, { type: "path" }>[];
+  const pathParameters = operation.parameters.parameters.filter(function isPathParameter(param) {
+    return param.type === "path";
+  }) as Extract<HttpOperationParameter, { type: "path" }>[];
 
-  const functionName = keywordSafe(
-    containerNameCase.snakeCase + "_" + operationNameCase.snakeCase
-  );
+  const functionName = keywordSafe(containerNameCase.snakeCase + "_" + operationNameCase.snakeCase);
 
   yield `export async function ${functionName}(`;
   // prettier-ignore
@@ -212,9 +201,7 @@ function* emitRawServerOperation(
 
   for (const parameter of operation.parameters.parameters) {
     const resolvedParameter =
-      parameter.param.type.kind === "ModelProperty"
-        ? parameter.param.type
-        : parameter.param;
+      parameter.param.type.kind === "ModelProperty" ? parameter.param.type : parameter.param;
     switch (parameter.type) {
       case "header":
         yield* indent(emitHeaderParamBinding(ctx, parameter));
@@ -247,9 +234,7 @@ function* emitRawServerOperation(
 
   const bodyFields = new Map<string, Type>(
     operation.parameters.body && operation.parameters.body.type.kind === "Model"
-      ? getAllProperties(operation.parameters.body.type).map(
-          (p) => [p.name, p.type] as const
-        )
+      ? getAllProperties(operation.parameters.body.type).map((p) => [p.name, p.type] as const)
       : []
   );
 
@@ -335,9 +320,7 @@ function* emitRawServerOperation(
         yield `}) as ${bodyTypeName};`;
         break;
       default:
-        throw new UnimplementedError(
-          `request deserialization for content-type: '${contentType}'`
-        );
+        throw new UnimplementedError(`request deserialization for content-type: '${contentType}'`);
     }
 
     yield "";
@@ -350,18 +333,14 @@ function* emitRawServerOperation(
     ...indent(
       indent(
         parameters.map((p) => {
-          const isBodyField =
-            bodyFields.has(p.name) && bodyFields.get(p.name) === p.type;
-          if (!isBodyField && p.name === "user") debugger;
+          const isBodyField = bodyFields.has(p.name) && bodyFields.get(p.name) === p.type;
           if (isBodyField) {
             return `${bodyName}.${parseCase(p.name).camelCase},`;
           }
 
-          const resolvedParameter =
-            p.type.kind === "ModelProperty" ? p.type : p;
+          const resolvedParameter = p.type.kind === "ModelProperty" ? p.type : p;
 
-          return resolvedParameter.type.kind === "Scalar" &&
-            parsedParams.has(resolvedParameter)
+          return resolvedParameter.type.kind === "Scalar" && parsedParams.has(resolvedParameter)
             ? parseTemplateForScalar(ctx, resolvedParameter.type).replace(
                 "{}",
                 parseCase(p.name).camelCase
@@ -404,16 +383,11 @@ function* emitRawServerOperation(
  * @param ctx - The HTTP emitter context.
  * @param split - The SplitReturnType instance representing the return type of the operation.
  */
-function* emitResultProcessing(
-  ctx: HttpContext,
-  split: SplitReturnType
-): Iterable<string> {
+function* emitResultProcessing(ctx: HttpContext, split: SplitReturnType): Iterable<string> {
   if (split.kind === "ordinary") {
     // Single target type
     if (typeof split.target === "undefined" || Array.isArray(split.target)) {
-      throw new Error(
-        "Unimplemented: splitReturnType target array or undefined"
-      );
+      throw new Error("Unimplemented: splitReturnType target array or undefined");
     }
     yield* emitResultProcessingForType(ctx, split.target);
   } else {
@@ -430,19 +404,12 @@ function* emitResultProcessing(
  * @param ctx - The HTTP emitter context.
  * @param target - The target type to emit processing code for.
  */
-function* emitResultProcessingForType(
-  ctx: HttpContext,
-  target: Type
-): Iterable<string> {
+function* emitResultProcessingForType(ctx: HttpContext, target: Type): Iterable<string> {
   if (target.kind !== "Model") {
-    throw new Error(
-      `Unimplemented: result processing for type kind '${target.kind}'`
-    );
+    throw new Error(`Unimplemented: result processing for type kind '${target.kind}'`);
   }
 
-  const body = [...target.properties.values()].find((p) =>
-    isBody(ctx.program, p)
-  );
+  const body = [...target.properties.values()].find((p) => isBody(ctx.program, p));
 
   for (const property of target.properties.values()) {
     if (isHeader(ctx.program, property)) {
@@ -560,9 +527,7 @@ function createResultProcessingDecisionTree(
 
     for (const variant of split.variants) {
       if (variant.type.kind !== "Model") {
-        throw new Error(
-          `Output decision tree: variant is not a model, got ${variant.type.kind}`
-        );
+        throw new Error(`Output decision tree: variant is not a model, got ${variant.type.kind}`);
       }
 
       const statusCode = variant.type.properties.get("statusCode");
@@ -590,9 +555,7 @@ function createResultProcessingDecisionTree(
 
     for (const variant of split.variants) {
       if (variant.type.kind !== "Model") {
-        throw new Error(
-          `Output decision tree: variant is not a model, got ${variant.type.kind}`
-        );
+        throw new Error(`Output decision tree: variant is not a model, got ${variant.type.kind}`);
       }
 
       const statusCode = variant.type.properties.get("statusCode");
@@ -658,9 +621,7 @@ function* emitDecisionTreeResultProcessing(
         let conditionExpr: string;
         if (condition.kind === "exact") {
           const valueExpr =
-            typeof condition.value === "string"
-              ? JSON.stringify(condition.value)
-              : condition.value;
+            typeof condition.value === "string" ? JSON.stringify(condition.value) : condition.value;
           conditionExpr = `result.${tree.path.join(".")} === ${valueExpr}`;
         } else {
           const [start, end] = condition.bounds;
@@ -698,9 +659,7 @@ function* emitHeaderParamBinding(
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
 
-  yield `const ${nameCase.camelCase} = request.headers[${JSON.stringify(
-    parameter.name
-  )}];`;
+  yield `const ${nameCase.camelCase} = request.headers[${JSON.stringify(parameter.name)}];`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === undefined) {`;
@@ -728,9 +687,7 @@ function* emitQueryParamBinding(
 
   // TODO/witemple: handle complex query parameters with encodings such as CSV, multiple occurrence, etc.
 
-  yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(
-    parameter.name
-  )});`;
+  yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)});`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === null) {`;

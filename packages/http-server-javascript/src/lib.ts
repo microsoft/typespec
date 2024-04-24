@@ -1,8 +1,4 @@
-import {
-  JSONSchemaType,
-  createTypeSpecLibrary,
-  paramMessage,
-} from "@typespec/compiler";
+import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { JsEmitterFeature, JsEmitterFeatureOptionsSchema } from "./feature.js";
 
 export interface JsEmitterOptions {
@@ -45,6 +41,18 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`unrecognized encoding '${"encoding"}' for type '${"type"}'`,
+      },
+    },
+    "http-emit-disabled": {
+      severity: "warning",
+      messages: {
+        default: "HTTP emit is disabled because the HTTP library returned errors.",
+      },
+    },
+    "no-services-in-program": {
+      severity: "warning",
+      messages: {
+        default: "No services found in program.",
       },
     },
   },

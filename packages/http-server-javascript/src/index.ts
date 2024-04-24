@@ -1,23 +1,18 @@
-import "source-map-support/register.js";
-
-import { EmitContext, Namespace, listServices } from "@typespec/compiler";
-import { JsEmitterOptions } from "./lib.js";
+import { EmitContext, NoTarget, listServices } from "@typespec/compiler";
+import { visitAllTypes } from "./common/namespace.js";
 import {
-  Module,
   JsContext,
+  Module,
   completePendingDeclarations,
-  createPathCursor,
   createModule,
+  createPathCursor,
 } from "./ctx.js";
-import { parseCase } from "./util/case.js";
-import {
-  createOrGetModuleForNamespace,
-  visitAllTypes,
-} from "./common/namespace.js";
-import { writeModuleTree } from "./write.js";
-import { createOnceQueue } from "./util/onceQueue.js";
-import { UnimplementedError } from "./util/error.js";
 import { JsEmitterFeature, getFeatureHandler } from "./feature.js";
+import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
+import { parseCase } from "./util/case.js";
+import { UnimplementedError } from "./util/error.js";
+import { createOnceQueue } from "./util/once-queue.js";
+import { writeModuleTree } from "./write.js";
 
 // #region features
 
@@ -31,7 +26,11 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
   const services = listServices(context.program);
 
   if (services.length === 0) {
-    console.warn("No services found in program.");
+    reportDiagnostic(context.program, {
+      code: "no-services-in-program",
+      target: NoTarget,
+      messageId: "default",
+    });
     return;
   } else if (services.length > 1) {
     throw new UnimplementedError("multiple service definitions per program.");
@@ -78,30 +77,10 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     modelsModule,
   };
 
-  // Find the root of the service module and recursively reconstruct a path to it, adding the definitions along the way.
-  let namespacePath = [];
-  let namespace: Namespace = service.type;
-  while (namespace !== globalNamespace) {
-    namespacePath.push(namespace);
-
-    if (!namespace.namespace) {
-      throw new Error(
-        "UNREACHABLE: failed to encounter global namespace in namespace traversal"
-      );
-    }
-
-    namespace = namespace.namespace;
-  }
-
-  let parentModule = allModule;
-  for (const namespace of namespacePath.reverse()) {
-    const module = createOrGetModuleForNamespace(jsCtx, namespace);
-    parentModule = module;
-  }
-
-  for (const [name, options] of Object.entries(
-    context.options.features ?? {}
-  ) as [keyof JsEmitterFeature, any][]) {
+  for (const [name, options] of Object.entries(context.options.features ?? {}) as [
+    keyof JsEmitterFeature,
+    any,
+  ][]) {
     const handler = getFeatureHandler(name);
     await handler(jsCtx, options);
   }
@@ -124,10 +103,5 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     }
   } catch {}
 
-  await writeModuleTree(
-    jsCtx,
-    context.emitterOutputDir,
-    rootModule,
-    !context.options["no-format"]
-  );
+  await writeModuleTree(jsCtx, context.emitterOutputDir, rootModule, !context.options["no-format"]);
 }

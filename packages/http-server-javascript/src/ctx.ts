@@ -12,11 +12,11 @@ import {
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
-import { OnceQueue } from "./util/onceQueue.js";
 import { emitDeclaration } from "./common/declaration.js";
 import { createOrGetModuleForNamespace } from "./common/namespace.js";
 import { emitUnion } from "./common/union.js";
 import { UnimplementedError } from "./util/error.js";
+import { OnceQueue } from "./util/once-queue.js";
 
 export type DeclarationType = Model | Enum | Union | Interface | Scalar;
 
@@ -32,10 +32,7 @@ export type DeclarationType = Model | Enum | Union | Interface | Scalar;
  * @param t - the type to test
  * @returns `true` if the type is an importable declaration, `false` otherwise.
  */
-export function isImportableType(
-  ctx: JsContext,
-  t: Type
-): t is DeclarationType {
+export function isImportableType(ctx: JsContext, t: Type): t is DeclarationType {
   return (
     (t.kind === "Model" &&
       !isArrayModelType(ctx.program, t) &&
@@ -156,12 +153,7 @@ export function completePendingDeclarations(ctx: JsContext): void {
       switch (synthetic.kind) {
         case "anonymous": {
           ctx.syntheticModule.declarations.push([
-            ...emitDeclaration(
-              ctx,
-              synthetic.underlying,
-              ctx.syntheticModule,
-              synthetic.name
-            ),
+            ...emitDeclaration(ctx, synthetic.underlying, ctx.syntheticModule, synthetic.name),
           ]);
           break;
         }
@@ -213,11 +205,7 @@ export function isModule(value: unknown): value is Module {
  * @param namespace - an optional TypeSpec Namespace to associate with the module
  * @returns the newly created module
  */
-export function createModule(
-  name: string,
-  parent: Module,
-  namespace?: Namespace
-): Module {
+export function createModule(name: string, parent: Module, namespace?: Namespace): Module {
   const self = {
     name,
     cursor: parent.cursor.enter(name),
@@ -338,9 +326,7 @@ export function createPathCursor(...base: string[]): PathCursor {
     path: base,
 
     get parent() {
-      return self.path.length === 0
-        ? undefined
-        : createPathCursor(...self.path.slice(0, -1));
+      return self.path.length === 0 ? undefined : createPathCursor(...self.path.slice(0, -1));
     },
 
     enter(...path: string[]) {
