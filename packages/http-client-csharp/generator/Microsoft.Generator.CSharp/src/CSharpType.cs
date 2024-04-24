@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -480,7 +480,7 @@ namespace Microsoft.Generator.CSharp
 
         public sealed override string ToString()
         {
-            return new CodeWriter().Append($"{this}").ToString(false);
+            return new CodeWriter().Append($"{this}").ToString();
         }
 
         /// <summary>

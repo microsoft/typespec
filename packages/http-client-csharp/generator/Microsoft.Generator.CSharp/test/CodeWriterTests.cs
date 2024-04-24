@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -302,10 +302,10 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_AutoBody()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new AutoPropertyBody());
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new AutoPropertyBody(MethodSignatureModifiers.None));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(MethodSignatureModifiers.Internal));
-            var property4 = new PropertyDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(MethodSignatureModifiers.Internal, Literal("abc")));
+            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new AutoPropertyBody(false));
+            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new AutoPropertyBody(true, MethodSignatureModifiers.None));
+            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
+            var property4 = new PropertyDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -335,9 +335,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_AutoBody_WithExplicitInterface()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new AutoPropertyBody(), ExplicitInterface: typeof(IList<string>));
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new AutoPropertyBody(MethodSignatureModifiers.None), ExplicitInterface: typeof(IList<string>));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyList<string>));
+            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new AutoPropertyBody(false), ExplicitInterface: typeof(IList<string>));
+            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new AutoPropertyBody(true, MethodSignatureModifiers.None), ExplicitInterface: typeof(IList<string>));
+            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(true, MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyList<string>));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -524,13 +524,13 @@ L16";
         public void CodeWriter_WriteProperty_IndexerProperty_AutoBody()
         {
             var p1 = new Parameter("p1", $"p1", typeof(int), null, ValidationType.None, null);
-            var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(float), p1, new AutoPropertyBody());
+            var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(float), p1, new AutoPropertyBody(false));
             var p2 = new Parameter("p2", $"p2", typeof(string), null, ValidationType.None, null);
-            var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), p2, new AutoPropertyBody(MethodSignatureModifiers.None));
+            var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), p2, new AutoPropertyBody(true, MethodSignatureModifiers.None));
             var p3 = new Parameter("p3", $"p3", typeof(float), null, ValidationType.None, null);
-            var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), p3, new AutoPropertyBody(MethodSignatureModifiers.Internal));
+            var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), p3, new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
             var p4 = new Parameter("p4", $"p4", typeof(double), null, ValidationType.None, null);
-            var indexer4 = new IndexerDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(MethodSignatureModifiers.Internal, Literal("abc")));
+            var indexer4 = new IndexerDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
@@ -561,9 +561,9 @@ L16";
         public void CodeWriter_WriteProperty_IndexerProperty_AutoBody_WithExplicitInterface()
         {
             var index = new Parameter("index", $"index", typeof(int), null, ValidationType.None, null);
-            var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new AutoPropertyBody(), ExplicitInterface: typeof(IReadOnlyList<string>));
-            var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), index, new AutoPropertyBody(MethodSignatureModifiers.None), ExplicitInterface: typeof(IList<bool>));
-            var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), index, new AutoPropertyBody(MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyList<double>));
+            var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new AutoPropertyBody(false), ExplicitInterface: typeof(IReadOnlyList<string>));
+            var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), index, new AutoPropertyBody(true, MethodSignatureModifiers.None), ExplicitInterface: typeof(IList<bool>));
+            var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), index, new AutoPropertyBody(true, MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyList<double>));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
