@@ -1,5 +1,5 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
@@ -411,28 +411,22 @@ describe("compiler: interfaces", () => {
     });
 
     it("instantiating an templated interface doesn't finish template operation inside", async () => {
-      const blues = new WeakSet();
-      let calls = 0;
-      testHost.addJsFile("dec.js", {
-        $blue(p: any, t: Type) {
-          calls++;
-          blues.add(t);
-        },
-      });
+      const $track = vi.fn();
+      testHost.addJsFile("dec.js", { $track });
       testHost.addTypeSpecFile(
         "main.tsp",
         `
         import "./dec.js";
          
-        interface Base<A> {
-          @blue bar<B>(input: A): B;
+         interface Base<A> {
+          @track bar<B>(input: A): B;
         }
 
         alias My = Base<string>;
         `
       );
       await testHost.compile("./");
-      strictEqual(calls, 0);
+      expect($track).not.toHaveBeenCalled();
     });
 
     it("emit warning if shadowing parent templated type", async () => {
