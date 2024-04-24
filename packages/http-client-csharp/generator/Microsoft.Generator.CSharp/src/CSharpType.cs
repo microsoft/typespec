@@ -480,7 +480,7 @@ namespace Microsoft.Generator.CSharp
 
         public sealed override string ToString()
         {
-            return new CodeWriter().Append($"{this}").ToString();
+            return new CodeWriter().Append($"{this}").ToString(false);
         }
 
         /// <summary>
