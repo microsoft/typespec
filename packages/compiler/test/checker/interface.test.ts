@@ -410,6 +410,31 @@ describe("compiler: interfaces", () => {
       strictEqual(returnType.name, "int32");
     });
 
+    it("instantiating an templated interface doesn't finish template operation inside", async () => {
+      const blues = new WeakSet();
+      let calls = 0;
+      testHost.addJsFile("dec.js", {
+        $blue(p: any, t: Type) {
+          calls++;
+          blues.add(t);
+        },
+      });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+         
+        interface Base<A> {
+          @blue bar<B>(input: A): B;
+        }
+
+        alias My = Base<string>;
+        `
+      );
+      await testHost.compile("./");
+      strictEqual(calls, 0);
+    });
+
     it("emit warning if shadowing parent templated type", async () => {
       const diagnostics = await runner.diagnose(`
       interface Base<A> {
