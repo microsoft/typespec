@@ -29,7 +29,7 @@ export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLi
       { realDir: "", pattern: "package.json", virtualPath: `./node_modules/${name}` },
       {
         realDir: typespecFileFolder,
-        pattern: "*.tsp",
+        pattern: "**/*.tsp",
         virtualPath: resolvePath(`./node_modules/${name}`, typespecFileFolder),
       },
       {
