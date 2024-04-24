@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -6,7 +6,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record JsonPropertyExpression(ValueExpression Untyped) : TypedValueExpression<JsonProperty>(Untyped)
+    public sealed record JsonPropertyExpression(ValueExpression Untyped) : TypedValueExpression<JsonProperty>(Untyped), ITypedValueExpressionFactory<JsonPropertyExpression>
     {
         public StringExpression Name => new(Property(nameof(JsonProperty.Name)));
         public JsonElementExpression Value => new(Property(nameof(JsonProperty.Value)));
@@ -14,5 +14,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public BoolExpression NameEquals(string value) => new(Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
 
         public MethodBodyStatement ThrowNonNullablePropertyIsNull() => Extensible.JsonElement.ThrowNonNullablePropertyIsNull(this);
+
+        static JsonPropertyExpression ITypedValueExpressionFactory<JsonPropertyExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

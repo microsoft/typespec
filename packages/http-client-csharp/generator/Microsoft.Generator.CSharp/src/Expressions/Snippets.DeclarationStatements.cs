@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -14,11 +14,8 @@ namespace Microsoft.Generator.CSharp.Expressions
             return new UsingDeclareVariableStatement(type, declaration, value);
         }
 
-        public static MethodBodyStatement UsingDeclare(string name, JsonDocumentExpression value, out JsonDocumentExpression variable)
-            => UsingDeclare(name, value, d => new JsonDocumentExpression(d), out variable);
-
-        public static MethodBodyStatement UsingDeclare(string name, StreamExpression value, out StreamExpression variable)
-            => UsingDeclare(name, value, d => new StreamExpression(d), out variable);
+        public static MethodBodyStatement UsingDeclare<T>(string name, T value, out T variable) where T : TypedValueExpression, ITypedValueExpressionFactory<T>
+            => UsingDeclare(name, value, T.Create, out variable);
 
         public static MethodBodyStatement UsingDeclare(VariableReference variable, ValueExpression value)
             => new UsingDeclareVariableStatement(variable.Type, variable.Declaration, value);
@@ -30,17 +27,14 @@ namespace Microsoft.Generator.CSharp.Expressions
             return Declare(variableRef, value);
         }
 
-        public static MethodBodyStatement Declare(string name, BinaryDataExpression value, out BinaryDataExpression variable)
-            => Declare(name, value, d => new BinaryDataExpression(d), out variable);
+        public static MethodBodyStatement Declare<T>(string name, T value, out T variable) where T : TypedValueExpression, ITypedValueExpressionFactory<T>
+            => Declare(name, value, T.Create, out variable);
 
         public static MethodBodyStatement Declare(string name, DictionaryExpression value, out DictionaryExpression variable)
             => Declare(name, value, d => new DictionaryExpression(value.KeyType, value.ValueType, d), out variable);
 
         public static MethodBodyStatement Declare(string name, EnumerableExpression value, out EnumerableExpression variable)
             => Declare(name, value, d => new EnumerableExpression(value.ItemType, d), out variable);
-
-        public static MethodBodyStatement Declare(string name, JsonElementExpression value, out JsonElementExpression variable)
-            => Declare(name, value, d => new JsonElementExpression(d), out variable);
 
         public static MethodBodyStatement Declare(string name, ListExpression value, out ListExpression variable)
             => Declare(name, value, d => new ListExpression(value.ItemType, d), out variable);
@@ -58,8 +52,11 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static MethodBodyStatement Declare(VariableReference variable, ValueExpression value)
             => new DeclareVariableStatement(variable.Type, variable.Declaration, value);
 
-        public static MethodBodyStatement UsingVar(string name, JsonDocumentExpression value, out JsonDocumentExpression variable)
-            => UsingVar(name, value, d => new JsonDocumentExpression(d), out variable);
+        public static MethodBodyStatement UsingVar<T>(string name, T value, out T variable) where T : TypedValueExpression, ITypedValueExpressionFactory<T>
+            => UsingVar(name, value, T.Create, out variable);
+
+        public static MethodBodyStatement Var<T>(string name, T value, out T variable) where T : TypedValueExpression, ITypedValueExpressionFactory<T>
+            => Var(name, value, T.Create, out variable);
 
         public static MethodBodyStatement Var(string name, DictionaryExpression value, out DictionaryExpression variable)
             => Var(name, value, d => new DictionaryExpression(value.KeyType, value.ValueType, d), out variable);
@@ -67,14 +64,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static MethodBodyStatement Var(string name, ListExpression value, out ListExpression variable)
             => Var(name, value, d => new ListExpression(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Var(string name, StringExpression value, out StringExpression variable)
-            => Var(name, value, d => new StringExpression(d), out variable);
-
-        public static MethodBodyStatement Var(string name, Utf8JsonWriterExpression value, out Utf8JsonWriterExpression variable)
-            => Var(name, value, d => new Utf8JsonWriterExpression(d), out variable);
-
-        public static MethodBodyStatement Var(string name, XDocumentExpression value, out XDocumentExpression variable)
-            => Var(name, value, d => new XDocumentExpression(d), out variable);
 
         public static MethodBodyStatement Var(string name, TypedValueExpression value, out TypedValueExpression variable)
         {

@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record JsonDocumentExpression(ValueExpression Untyped) : TypedValueExpression<JsonDocument>(Untyped)
+    public sealed record JsonDocumentExpression(ValueExpression Untyped) : TypedValueExpression<JsonDocument>(Untyped), ITypedValueExpressionFactory<JsonDocumentExpression>
     {
         public JsonElementExpression RootElement => new(Property(nameof(JsonDocument.RootElement)));
 
@@ -21,5 +21,8 @@ namespace Microsoft.Generator.CSharp.Expressions
                 ? new JsonDocumentExpression(InvokeStatic(nameof(JsonDocument.ParseAsync), new[] { stream, Snippets.Default, KnownParameters.CancellationTokenParameter }, true))
                 : new JsonDocumentExpression(InvokeStatic(nameof(JsonDocument.Parse), stream));
         }
+
+        static JsonDocumentExpression ITypedValueExpressionFactory<JsonDocumentExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

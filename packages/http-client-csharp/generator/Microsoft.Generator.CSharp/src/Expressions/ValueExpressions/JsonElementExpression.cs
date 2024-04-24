@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -6,7 +6,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record JsonElementExpression(ValueExpression Untyped) : TypedValueExpression<JsonElement>(Untyped)
+    public sealed record JsonElementExpression(ValueExpression Untyped) : TypedValueExpression<JsonElement>(Untyped), ITypedValueExpressionFactory<JsonElementExpression>
     {
         public JsonValueKindExpression ValueKind => new(Property(nameof(JsonElement.ValueKind)));
         public EnumerableExpression EnumerateArray() => new(typeof(JsonElement), Invoke(nameof(JsonElement.EnumerateArray)));
@@ -70,5 +70,8 @@ namespace Microsoft.Generator.CSharp.Expressions
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), new ValueExpression[] { new DeclarationExpression(longValueDeclaration, true) }, null, false);
             return new BoolExpression(invocation);
         }
+
+        static JsonElementExpression ITypedValueExpressionFactory<JsonElementExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

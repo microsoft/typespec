@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record StringExpression(ValueExpression Untyped) : TypedValueExpression<string>(Untyped)
+    public sealed record StringExpression(ValueExpression Untyped) : TypedValueExpression<string>(Untyped), ITypedValueExpressionFactory<StringExpression>
     {
         public CharExpression Index(ValueExpression index) => new(new IndexerExpression(this, index));
         public CharExpression Index(int index) => Index(Snippets.Literal(index));
@@ -26,5 +26,8 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public StringExpression Substring(ValueExpression startIndex)
             => new(new InvokeInstanceMethodExpression(this, nameof(string.Substring), new[] { startIndex }, null, false));
+
+        static StringExpression ITypedValueExpressionFactory<StringExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

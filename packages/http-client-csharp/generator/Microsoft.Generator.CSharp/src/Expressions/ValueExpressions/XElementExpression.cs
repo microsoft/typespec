@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Xml.Linq;
@@ -6,7 +6,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record XElementExpression(ValueExpression Untyped) : TypedValueExpression<XElement>(Untyped)
+    public sealed record XElementExpression(ValueExpression Untyped) : TypedValueExpression<XElement>(Untyped), ITypedValueExpressionFactory<XElementExpression>
     {
         public XNameExpression Name => new(Property(nameof(XElement.Name)));
         public StringExpression Value => new(Property(nameof(XElement.Value)));
@@ -20,5 +20,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression GetTimeSpanValue(string? format) => Extensible.XElement.GetTimeSpanValue(this, format);
 
         public static XElementExpression Load(StreamExpression stream) => new(new InvokeStaticMethodExpression(typeof(XElement), nameof(XElement.Load), new[] { stream }));
+
+        static XElementExpression ITypedValueExpressionFactory<XElementExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record BinaryDataExpression(ValueExpression Untyped) : TypedValueExpression<BinaryData>(Untyped)
+    public sealed record BinaryDataExpression(ValueExpression Untyped) : TypedValueExpression<BinaryData>(Untyped), ITypedValueExpressionFactory<BinaryDataExpression>
     {
         public FrameworkTypeExpression ToObjectFromJson(Type responseType)
             => new(responseType, new InvokeInstanceMethodExpression(Untyped, nameof(BinaryData.ToObjectFromJson), Array.Empty<ValueExpression>(), new[] { new CSharpType(responseType) }, false));
@@ -36,5 +36,8 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public static BinaryDataExpression FromString(ValueExpression data)
             => new(InvokeStatic(nameof(BinaryData.FromString), data));
+
+        static BinaryDataExpression ITypedValueExpressionFactory<BinaryDataExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

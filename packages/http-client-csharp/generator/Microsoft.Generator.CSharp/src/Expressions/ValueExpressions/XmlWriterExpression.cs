@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record XmlWriterExpression(ValueExpression Untyped) : TypedValueExpression<XmlWriter>(Untyped)
+    public sealed record XmlWriterExpression(ValueExpression Untyped) : TypedValueExpression<XmlWriter>(Untyped), ITypedValueExpressionFactory<XmlWriterExpression>
     {
         public MethodBodyStatement WriteStartAttribute(string localName) => new InvokeInstanceMethodStatement(Untyped, nameof(XmlWriter.WriteStartAttribute), Literal(localName));
         public MethodBodyStatement WriteEndAttribute() => new InvokeInstanceMethodStatement(Untyped, nameof(XmlWriter.WriteEndAttribute));
@@ -31,5 +31,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         }
 
         public MethodBodyStatement WriteObjectValue(ValueExpression value, string? nameHint) => Extensible.XmlWriter.WriteObjectValue(this, value, nameHint);
+
+        static XmlWriterExpression ITypedValueExpressionFactory<XmlWriterExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }

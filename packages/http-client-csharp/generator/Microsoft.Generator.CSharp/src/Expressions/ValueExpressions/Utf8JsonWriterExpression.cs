@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record Utf8JsonWriterExpression(ValueExpression Untyped) : TypedValueExpression<Utf8JsonWriter>(Untyped)
+    public sealed record Utf8JsonWriterExpression(ValueExpression Untyped) : TypedValueExpression<Utf8JsonWriter>(Untyped), ITypedValueExpressionFactory<Utf8JsonWriterExpression>
     {
         public LongExpression BytesCommitted => new(Property(nameof(Utf8JsonWriter.BytesCommitted)));
         public LongExpression BytesPending => new(Property(nameof(Utf8JsonWriter.BytesPending)));
@@ -62,5 +62,8 @@ namespace Microsoft.Generator.CSharp.Expressions
                 : new[] { cancellationToken };
             return new InvokeInstanceMethodStatement(this, nameof(Utf8JsonWriter.FlushAsync), arguments, true);
         }
+
+        static Utf8JsonWriterExpression ITypedValueExpressionFactory<Utf8JsonWriterExpression>.Create(ValueExpression untyped)
+            => new(untyped);
     }
 }
