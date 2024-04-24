@@ -12,9 +12,10 @@ parameters:
   #  Currently not installing node in this template, but keeping this parameter for future use
   - name: NodeVersion
     type: string
+    default: "20.x"
 
-  # Arguments needed to run unit tests
-  - name: UnitTestArgs
+  # Arguments needed to run tests
+  - name: TestArgs
     type: string
 
 steps:
@@ -39,5 +40,5 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-      arguments: ${{ parameters.UnitTestArgs }}
+      arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)
