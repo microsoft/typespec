@@ -35,9 +35,6 @@ Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
 
-    # TODO this is happening 4 times until ..... gets fixed
-    Invoke-LoggedCommand "dotnet build ./generator" -GroupOutput
-
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
     if ($BuildNumber) {
