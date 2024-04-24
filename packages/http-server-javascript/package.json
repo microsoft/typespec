@@ -6,8 +6,14 @@
   "main": "dist/index.js",
   "tspMain": "lib/main.tsp",
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "echo No tests specified",
+    "test:ci": "echo No tests specified",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http-server-javascript/reference"
   },
   "keywords": [],
   "author": "",
