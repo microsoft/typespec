@@ -1,9 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
@@ -24,8 +25,8 @@ namespace Microsoft.Generator.CSharp
 
         public Parameter TokenAuth => new("tokenCredential", $"The token credential to copy", TypeFactory.TokenCredentialType(), null, ValidationType.None, null);
         public Parameter PageSizeHint => new("pageSizeHint", $"The number of items per {TypeFactory.PageResponseType():C} that should be requested (from service operations that support it). It's not guaranteed that the value will be respected.", new CSharpType(typeof(int), true), null, ValidationType.None, null);
-        public Parameter MatchConditionsParameter => new("matchConditions", $"The content to send as the request conditions of the request.", TypeFactory.MatchConditionsType(), Constant.Default(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
-        public Parameter RequestConditionsParameter => new("requestConditions", $"The content to send as the request conditions of the request.", TypeFactory.RequestConditionsType(), Constant.Default(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
+        public Parameter MatchConditionsParameter => new("matchConditions", $"The content to send as the request conditions of the request.", TypeFactory.MatchConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
+        public Parameter RequestConditionsParameter => new("requestConditions", $"The content to send as the request conditions of the request.", TypeFactory.RequestConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
 
         public static readonly Parameter ClientDiagnostics = new("clientDiagnostics", $"The handler for diagnostic messaging in the client.", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ClientDiagnosticsType), null, ValidationType.AssertNotNull, null);
         public static readonly Parameter Pipeline = new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType), null, ValidationType.AssertNotNull, null);
@@ -37,11 +38,11 @@ namespace Microsoft.Generator.CSharp
         public static readonly Parameter RequestContent = new("content", $"The content to send as the body of the request.", RequestContentType, null, ValidationType.AssertNotNull, null, RequestLocation: RequestLocation.Body);
         public static readonly Parameter RequestContentNullable = new("content", $"The content to send as the body of the request.", RequestContentNullableType, null, ValidationType.None, null, RequestLocation: RequestLocation.Body);
 
-        public static readonly Parameter RequestContext = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextNullableType, Constant.Default(RequestContextNullableType), ValidationType.None, null);
+        public static readonly Parameter RequestContext = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextNullableType, Snippets.DefaultOf(RequestContextNullableType), ValidationType.None, null);
         public static readonly Parameter RequestContextRequired = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextType, null, ValidationType.None, null);
 
-        public static readonly Parameter CancellationTokenParameter = new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Constant.NewInstanceOf(typeof(CancellationToken)), ValidationType.None, null);
-        public static readonly Parameter EnumeratorCancellationTokenParameter = new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Constant.NewInstanceOf(typeof(CancellationToken)), ValidationType.None, null) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
+        public static readonly Parameter CancellationTokenParameter = new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null);
+        public static readonly Parameter EnumeratorCancellationTokenParameter = new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
 
         public static readonly Parameter Response = new("response", $"Response returned from backend service", ResponseType, null, ValidationType.None, null);
     }

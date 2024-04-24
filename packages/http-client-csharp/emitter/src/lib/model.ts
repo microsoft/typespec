@@ -72,7 +72,6 @@ import {
   isInputLiteralType,
   isInputModelType,
 } from "../type/input-type.js";
-import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { Usage } from "../type/usage.js";
 import { logger } from "./logger.js";
 import { capitalize, getFullNamespaceString, getTypeName } from "./utils.js";
@@ -274,8 +273,7 @@ export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   formattedType: FormattedType,
   models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>,
-  literalTypeContext?: LiteralTypeContext
+  enums: Map<string, InputEnumType>
 ): InputType {
   const type =
     formattedType.type.kind === "ModelProperty" ? formattedType.type.type : formattedType.type;
@@ -285,7 +283,7 @@ export function getInputType(
   if (type.kind === "Model") {
     return getInputModelType(type);
   } else if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
-    return getInputLiteralType(formattedType, literalTypeContext);
+    return getInputLiteralType(formattedType);
   } else if (type.kind === "Enum") {
     return getInputTypeForEnum(type);
   } else if (type.kind === "EnumMember") {
@@ -333,8 +331,7 @@ export function getInputType(
       context,
       getFormattedType(program, type.type),
       models,
-      enums,
-      literalTypeContext
+      enums
     );
   } else if (type.kind === "Tuple") {
     return {
@@ -383,8 +380,7 @@ export function getInputType(
   }
 
   function getInputLiteralType(
-    formattedType: FormattedType,
-    literalContext?: LiteralTypeContext
+    formattedType: FormattedType
   ): InputLiteralType {
     // For literal types, we just want to emit them directly as well.
     const type = formattedType.type;
@@ -400,54 +396,14 @@ export function getInputType(
       IsNullable: false,
     };
     const literalValue = getDefaultValue(type);
-    const newValueType = getLiteralValueType();
-
-    if (isInputEnumType(newValueType)) {
-      enums.set(newValueType.Name, newValueType);
-    }
 
     return {
       Kind: InputTypeKind.Literal,
       Name: InputTypeKind.Literal,
-      LiteralValueType: newValueType,
+      LiteralValueType: rawValueType,
       Value: literalValue,
       IsNullable: false,
     };
-
-    function getLiteralValueType(): InputPrimitiveType | InputEnumType {
-      // we will not wrap it if it comes from outside a model or it is a boolean
-      if (literalContext === undefined || rawValueType.Name === InputPrimitiveTypeKind.Boolean)
-        return rawValueType;
-
-      // otherwise we need to wrap this into an extensible enum
-      // we use the model name followed by the property name as the enum name to ensure it is unique
-      const enumName = `${literalContext.ModelName}_${literalContext.PropertyName}`;
-      const enumValueType =
-        rawValueType.Name === InputPrimitiveTypeKind.String
-          ? InputPrimitiveTypeKind.String
-          : InputPrimitiveTypeKind.Float32;
-      const allowValues: InputEnumTypeValue[] = [
-        {
-          Name: literalValue.toString(),
-          Value: literalValue,
-          Description: literalValue.toString(),
-        },
-      ];
-      const enumType: InputEnumType = {
-        Kind: InputTypeKind.Enum,
-        Name: enumName,
-        EnumValueType: enumValueType, //EnumValueType and  AllowedValues should be the first field after id and name, so that it can be corrected serialized.
-        AllowedValues: allowValues,
-        Namespace: literalContext.Namespace,
-        Accessibility: undefined,
-        Deprecated: undefined,
-        Description: `The ${enumName}`, // TODO -- what should we put here?
-        IsExtensible: true,
-        IsNullable: false,
-        Usage: "None", // will be updated later
-      };
-      return enumType;
-    }
   }
 
   function getInputTypeForEnum(e: Enum, addToCollection: boolean = true): InputEnumType {
@@ -607,17 +563,11 @@ export function getInputType(
         if (isNeverType(value.type) || isVoidType(value.type)) return;
         const name = getTypeName(context, value);
         const serializedName = getWireName(context, value);
-        const literalTypeContext: LiteralTypeContext = {
-          ModelName: model.Name,
-          PropertyName: name,
-          Namespace: model.Namespace,
-        };
         const inputType = getInputType(
           context,
           getFormattedType(program, value),
           models,
-          enums,
-          literalTypeContext
+          enums
         );
         if (
           model.Namespace === "Azure.Core.Foundations" &&

@@ -11,7 +11,5 @@ namespace Microsoft.Generator.CSharp
     public sealed record ConstructorInitializer(bool IsBase, IReadOnlyList<ValueExpression> Arguments)
     {
         public ConstructorInitializer(bool isBase, IEnumerable<Parameter> arguments) : this(isBase, arguments.Select(p => (ValueExpression)p).ToArray()) { }
-
-        public ConstructorInitializer(bool isBase, IEnumerable<Reference> arguments) : this(isBase, arguments.Select(r => new FormattableStringToExpression(FormattableStringFactory.Create("{0:I}", r.Name))).ToArray()) { }
     }
 }

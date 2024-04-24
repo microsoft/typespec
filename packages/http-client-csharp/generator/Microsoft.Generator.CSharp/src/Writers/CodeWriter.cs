@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -392,9 +392,6 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public CodeWriter WriteReferenceOrConstant(ReferenceOrConstant value)
-            => Append(value.GetReferenceOrConstantFormattable());
-
         public void WriteParameter(Parameter clientParameter)
         {
             if (clientParameter.Attributes.Any())
@@ -412,17 +409,10 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("ref ", clientParameter.IsRef);
 
             Append($"{clientParameter.Type} {clientParameter.Name:D}");
-            if (clientParameter.DefaultValue != null)
+            if (clientParameter.DefaultValue is { } defaultValue)
             {
-                var defaultValue = clientParameter.DefaultValue.Value;
-                if (defaultValue.IsNewInstanceSentinel && defaultValue.Type.IsValueType || clientParameter.IsApiVersionParameter && clientParameter.Initializer != null)
-                {
-                    Append($" = default");
-                }
-                else
-                {
-                    Append($" = {clientParameter.DefaultValue.Value.GetConstantFormattable()}");
-                }
+                AppendRaw(" = ");
+                defaultValue.Write(this);
             }
 
             AppendRaw(",");

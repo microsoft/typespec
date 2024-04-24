@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -7,7 +7,6 @@ using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.ClientModel.Output;
 using Microsoft.Generator.CSharp.ClientModel.Writers;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp.ClientModel

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -9,9 +9,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public BoolExpression And(ValueExpression other) => new(new BinaryOperatorExpression(" && ", this, other));
 
-        public static BoolExpression True => new(new ConstantExpression(new Constant(true, typeof(bool))));
+        public static BoolExpression True => new(new LiteralExpression(true));
 
-        public static BoolExpression False => new(new ConstantExpression(new Constant(false, typeof(bool))));
+        public static BoolExpression False => new(new LiteralExpression(false));
 
         public static BoolExpression Is(ValueExpression untyped, CSharpType comparisonType) => new(new BinaryOperatorExpression("is", untyped, comparisonType));
 
