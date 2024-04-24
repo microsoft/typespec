@@ -305,7 +305,7 @@ L16";
             var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new AutoPropertyBody(false));
             var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new AutoPropertyBody(true, MethodSignatureModifiers.None));
             var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
-            var property4 = new PropertyDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
+            var property4 = new PropertyDeclaration($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -323,7 +323,7 @@ L16";
                 .Append("public string Property2{ get;set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
                 .Append("public string Property3{ get;internal set; }").Append(NewLine)
-                .Append("/// <summary> To test an auto property with an internal setter and initalization value. </summary>").Append(NewLine)
+                .Append("/// <summary> To test an auto property with an internal setter and initialization value. </summary>").Append(NewLine)
                 .Append("public string Property4{ get;internal set; } = \"abc\";").Append(NewLine)
                 .ToString();
 
@@ -530,7 +530,7 @@ L16";
             var p3 = new Parameter("p3", $"p3", typeof(float), null, ValidationType.None, null);
             var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), p3, new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
             var p4 = new Parameter("p4", $"p4", typeof(double), null, ValidationType.None, null);
-            var indexer4 = new IndexerDeclaration($"To test an auto property with an internal setter and initalization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
+            var indexer4 = new IndexerDeclaration($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
@@ -548,7 +548,7 @@ L16";
                 .Append("public bool this[string p2]{ get;set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
                 .Append("public double this[float p3]{ get;internal set; }").Append(NewLine)
-                .Append("/// <summary> To test an auto property with an internal setter and initalization value. </summary>").Append(NewLine)
+                .Append("/// <summary> To test an auto property with an internal setter and initialization value. </summary>").Append(NewLine)
                 .Append("public string this[double p4]{ get;internal set; } = \"abc\";").Append(NewLine)
                 .ToString();
 
