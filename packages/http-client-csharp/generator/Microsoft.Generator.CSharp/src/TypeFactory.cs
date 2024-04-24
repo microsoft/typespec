@@ -5,9 +5,6 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    /// <summary>
-    /// This class provides a method for creating CSharpType objects based on input types.
-    /// </summary>
     public abstract class TypeFactory
     {
         /// <summary>
@@ -15,15 +12,24 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="input">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        public abstract CSharpType CreateType(InputType input);
+        public abstract CSharpType CreateCSharpType(InputType input);
 
         /// <summary>
-        /// Factory method for creating a <see cref="Method"/> based on an input operation <paramref name="operation"/>.
+        /// Factory method for creating a <see cref="Parameter"/> based on an input parameter <paramref name="parameter"/>.
+        /// </summary>
+        /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
+        /// <returns>An instance of <see cref="Parameter"/>.</returns>
+        public abstract Parameter CreateCSharpParam(InputParameter parameter);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="CSharpMethodCollection"/> based on an input operation <paramref name="operation"/>.
         /// </summary>
         /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
-        /// <param name="returnProtocol">Flag that can be used to determine if the protocol method should be returned.</param>
-        /// <returns>The constructed <see cref="Method"/>.</returns>
-        public abstract Method CreateMethod(InputOperation operation, bool returnProtocol = true);
+        /// <returns>An instance of <see cref="CSharpMethodCollection"/> containing the chain of methods
+        /// associated with the input operation, or <c>null</c> if no methods are constructed.
+        /// </returns>
+        public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation);
+
         public abstract CSharpType MatchConditionsType();
         public abstract CSharpType RequestConditionsType();
         public abstract CSharpType TokenCredentialType();

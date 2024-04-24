@@ -75,25 +75,25 @@ namespace Microsoft.Generator.CSharp.Input
             generateConvenienceMethod: false)
         { }
 
-        public string Name { get; }
-        public string? ResourceName { get; }
-        public string? Summary { get; }
-        public string? Deprecated { get; }
-        public string Description { get; }
-        public string? Accessibility { get; }
-        public IReadOnlyList<InputParameter> Parameters { get; }
-        public IReadOnlyList<OperationResponse> Responses { get; }
-        public string HttpMethod { get; }
-        public BodyMediaType RequestBodyMediaType { get; }
-        public string Uri { get; }
-        public string Path { get; }
-        public string? ExternalDocsUrl { get; }
-        public IReadOnlyList<string>? RequestMediaTypes { get; }
-        public bool BufferResponse { get; }
-        public OperationLongRunning? LongRunning { get; }
-        public OperationPaging? Paging { get; }
-        public bool GenerateProtocolMethod { get; }
-        public bool GenerateConvenienceMethod { get; }
+        public string Name { get; init; }
+        public string? ResourceName { get; init; }
+        public string? Summary { get; init; }
+        public string? Deprecated { get; init; }
+        public string Description { get; init; }
+        public string? Accessibility { get; init; }
+        public IReadOnlyList<InputParameter> Parameters { get; init; }
+        public IReadOnlyList<OperationResponse> Responses { get; init; }
+        public string HttpMethod { get; init; }
+        public BodyMediaType RequestBodyMediaType { get; init; }
+        public string Uri { get; init; }
+        public string Path { get; init; }
+        public string? ExternalDocsUrl { get; init; }
+        public IReadOnlyList<string>? RequestMediaTypes { get; init; }
+        public bool BufferResponse { get; init; }
+        public OperationLongRunning? LongRunning { get; init; }
+        public OperationPaging? Paging { get; init; }
+        public bool GenerateProtocolMethod { get; init; }
+        public bool GenerateConvenienceMethod { get; init; }
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;
         internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();

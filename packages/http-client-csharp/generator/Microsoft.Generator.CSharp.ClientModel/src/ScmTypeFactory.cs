@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,28 +6,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
-    internal class GeneratorCSharpTypeFactory : TypeFactory
+    internal class ScmTypeFactory : TypeFactory
     {
         /// <summary>
         /// This method will attempt to retrieve the <see cref="CSharpType"/> of the input type.
         /// </summary>
         /// <param name="inputType">The input type to convert.</param>
         /// <returns>The <see cref="CSharpType"/> of the input type.</returns>
-        public override CSharpType CreateType(InputType inputType) => inputType switch
+        public override CSharpType CreateCSharpType(InputType inputType) => inputType switch
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreateType(literalType.LiteralValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.UnionItemTypes.Select(CreateType).ToArray(), unionType.IsNullable),
-            InputList { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateType(listType.ElementType)),
-            InputList listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateType(listType.ElementType)),
-            InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateType(dictionaryType.ValueType)),
+            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.LiteralValueType), literalType.Value),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.UnionItemTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
+            InputList { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
+            InputList listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
+            InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             // Uncomment this when the enums are implemented: https://github.com/Azure/autorest.csharp/issues/4579
             //InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
             //? provider.Type.WithNullable(inputType.IsNullable)
@@ -72,73 +70,44 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 InputTypeKind.Uri => new CSharpType(typeof(Uri), inputType.IsNullable),
                 _ => new CSharpType(typeof(object), inputType.IsNullable),
             },
-            InputGenericType genericType => new CSharpType(genericType.Type, CreateType(genericType.ArgumentType)).WithNullable(inputType.IsNullable),
+            InputGenericType genericType => new CSharpType(genericType.Type, CreateCSharpType(genericType.ArgumentType)).WithNullable(inputType.IsNullable),
             InputIntrinsicType { Kind: InputIntrinsicTypeKind.Unknown } => typeof(BinaryData),
             _ => throw new Exception("Unknown type")
         };
 
-        public override Method CreateMethod(InputOperation operation, bool returnProtocol = true)
+        public override Parameter CreateCSharpParam(InputParameter inputParameter)
         {
-            var methodType = GetMethodType(operation);
-            switch (methodType)
+            return Parameter.FromInputParameter(inputParameter);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="CSharpMethodCollection"/> for the given operation. If the operation is a <see cref="OperationKinds.DefaultValue"/> operation,
+        /// a method collection will be created consisting of a <see cref="CSharpMethodKinds.CreateMessage"/> method. Otherwise, <c>null</c> will be returned.
+        /// </summary>
+        /// <param name="operation">The input operation to create methods for.</param>
+        public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation)
+        {
+            switch (GetOperationKind(operation))
             {
-                case "default":
-                    return new Method
-                    (
-                        new MethodSignature(operation.Name, $"{operation?.Summary}", null, MethodSignatureModifiers.Public, null, null, Array.Empty<Parameter>()),
-                        Array.Empty<MethodBodyStatement>(),
-                        methodType
-                    );
-                case "longRunning":
-                    return new Method
-                    (
-                        CreateLongRunningMethodSignature(operation),
-                        Array.Empty<MethodBodyStatement>(),
-                        methodType
-                    );
+                case var value when value == OperationKinds.Default:
+                    return CSharpMethodCollection.DefaultCSharpMethodCollection(operation);
                 default:
-                    throw new Exception($"Unknown method type {methodType}");
+                    return null;
             }
         }
 
-        private static string GetMethodType(InputOperation operation)
+        /// <summary>
+        /// Returns the <see cref="OperationKinds"/> of the given operation.
+        /// By default, the operation kind is <see cref="OperationKinds.Default"/>.
+        /// </summary>
+        private static OperationKinds GetOperationKind(InputOperation operation)
         {
-            var defaultMethodType = "default";
-
-            if (operation.LongRunning is not null)
-                return "longRunning";
-            if (operation.Paging is not null)
-                return "paging";
-            return defaultMethodType;
-        }
-
-        private MethodSignature CreateLongRunningMethodSignature(InputOperation operation)
-        {
-            var methodName = operation.Name + "Async";
-            var returnType = new CSharpType(typeof(Task<>), GetReturnType(operation).Arguments, false);
-            var parameters = operation.Parameters.Select(p => new Parameter(p.Name, $"{p.Description}", CreateType(p.Type), DefaultValue: null, ValidationType.None, Initializer: null)).ToList();
-            return new MethodSignature(methodName, $"{operation?.Summary}", null, MethodSignatureModifiers.Public, returnType, null, parameters);
-        }
-
-        private CSharpType GetReturnType(InputOperation operation)
-        {
-            CSharpType? responseType = null;
-            var firstResponse = operation.Responses.FirstOrDefault();
-            if (firstResponse != null)
+            return operation switch
             {
-                var bodyType = firstResponse.BodyType;
-                if (bodyType != null)
-                {
-                    responseType = CreateType(bodyType);
-                }
-            }
-
-            if (responseType is null)
-            {
-                responseType = new CSharpType(typeof(void), false);
-            }
-
-            return responseType;
+                { LongRunning: { } } => OperationKinds.LongRunning,
+                { Paging: { } } => OperationKinds.Paging,
+                _ => OperationKinds.Default,
+            };
         }
 
         public override CSharpType MatchConditionsType()
