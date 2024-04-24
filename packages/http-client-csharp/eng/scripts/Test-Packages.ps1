@@ -32,7 +32,7 @@ try {
         Set-StrictMode -Version 1
         # run E2E Test for TypeSpec emitter
         Write-Host "Generating test projects ..."
-        & "$packageRoot/eng/Generate.ps1"
+        & "$packageRoot/eng/scripts/Generate.ps1"
         Write-Host 'Code generation is completed.'
 
         try {
