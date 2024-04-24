@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -14,7 +14,8 @@ namespace Microsoft.Generator.CSharp.Expressions
     public abstract record TypedValueExpression(CSharpType Type, ValueExpression Untyped) : ValueExpression
     {
         public override void Write(CodeWriter writer) => Untyped.Write(writer);
-        public static implicit operator TypedValueExpression(FieldDeclaration name) => new VariableReference(name.Type, name.Declaration);
+        public static implicit operator TypedValueExpression(FieldDeclaration field) => new VariableReference(field.Type, field.Name);
+        public static implicit operator TypedValueExpression(PropertyDeclaration property) => new VariableReference(property.PropertyType, property.Name);
         public static implicit operator TypedValueExpression(Parameter parameter) => new ParameterReference(parameter);
 
         public TypedValueExpression NullableStructValue() => this is not ConstantExpression && Type is { IsNullable: true, IsValueType: true } ? new TypedMemberExpression(this, nameof(Nullable<int>.Value), Type.WithNullable(false)) : this;
