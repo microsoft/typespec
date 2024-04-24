@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 CallBase = true
             };
 
-            mockTypeFactory.Setup(p => p.CreateType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
+            mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
             mockApiTypes.SetupGet(p => p.ChangeTrackingListType).Returns(typeof(IList<>));
             mockApiTypes.SetupGet(p => p.ChangeTrackingDictionaryType).Returns(typeof(IDictionary<string, string>));
             mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
