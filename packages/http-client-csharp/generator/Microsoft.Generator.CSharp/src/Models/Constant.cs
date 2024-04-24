@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 using System;
+using System.Globalization;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -48,6 +49,45 @@ namespace Microsoft.Generator.CSharp
         internal static Constant NewInstanceOf(CSharpType type)
         {
             return new Constant(NewInstanceSentinel, type);
+        }
+
+        public static Constant Parse(object? value, CSharpType type)
+        {
+            object? normalizedValue;
+
+            if (!type.IsFrameworkType && type.Implementation is EnumType enumType)
+            {
+                return Constant.Default(type);
+
+                // Uncomment this when the enums are implemented: https://github.com/Azure/autorest.csharp/issues/4579
+                //if (value == null)
+                //{
+                //    return Constant.Default(type);
+                //}
+
+                //var stringValue = Convert.ToString(value);
+                //var enumTypeValue = enumType.Values.SingleOrDefault(v => v.Value.Value?.ToString() == stringValue);
+
+                //// Fallback to the string value if we can't find an appropriate enum member (would work only for extensible enums)
+                //return new Constant((object?)enumTypeValue ?? stringValue, type);
+            }
+
+            Type? frameworkType = type.FrameworkType;
+            if (frameworkType == null)
+            {
+                throw new InvalidOperationException("Only constants of framework type and enums are allowed");
+            }
+
+            if (frameworkType == typeof(byte[]) && value is string base64String)
+                normalizedValue = Convert.FromBase64String(base64String);
+            else if (frameworkType == typeof(BinaryData) && value is string base64String2)
+                normalizedValue = BinaryData.FromBytes(Convert.FromBase64String(base64String2));
+            else if (frameworkType == typeof(DateTimeOffset) && value is string dateTimeString)
+                normalizedValue = DateTimeOffset.Parse(dateTimeString, styles: DateTimeStyles.AssumeUniversal);
+            else
+                normalizedValue = Convert.ChangeType(value, frameworkType);
+
+            return new Constant(normalizedValue, type);
         }
 
         internal static Constant FromExpression(FormattableString expression, CSharpType type) => new Constant(new Expression(expression), type);

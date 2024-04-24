@@ -28,9 +28,14 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputList { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateType(listType.ElementType)),
             InputList listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateType(listType.ElementType)),
             InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateType(dictionaryType.ValueType)),
-            // TODO ---- Add when the ResolveEnum and ResolveModel implementation is available.
-            // InputEnumType enumType => _library.ResolveEnum(enumType).WithNullable(inputType.IsNullable),
-            // InputModelType model => _library.ResolveModel(model).WithNullable(inputType.IsNullable),
+            // Uncomment this when the enums are implemented: https://github.com/Azure/autorest.csharp/issues/4579
+            //InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
+            //? provider.Type.WithNullable(inputType.IsNullable)
+            //: throw new InvalidOperationException($"No {nameof(EnumType)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
+            InputEnumType enumType => new CSharpType(typeof(string), inputType.IsNullable),
+            InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
+            ? provider.Type.WithNullable(inputType.IsNullable)
+            : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputTypeKind.BinaryData => new CSharpType(typeof(BinaryData), inputType.IsNullable),
@@ -68,6 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 _ => new CSharpType(typeof(object), inputType.IsNullable),
             },
             InputGenericType genericType => new CSharpType(genericType.Type, CreateType(genericType.ArgumentType)).WithNullable(inputType.IsNullable),
+            InputIntrinsicType { Kind: InputIntrinsicTypeKind.Unknown } => typeof(BinaryData),
             _ => throw new Exception("Unknown type")
         };
 

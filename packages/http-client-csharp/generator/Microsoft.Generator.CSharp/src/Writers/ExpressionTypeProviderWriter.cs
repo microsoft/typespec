@@ -66,13 +66,11 @@ namespace Microsoft.Generator.CSharp.Writers
             _writer.WriteLine();
             using (_writer.Scope())
             {
-                _writer.WriteLine($"// Add Fields"); // https://github.com/Azure/autorest.csharp/issues/4475
                 WriteFields();
 
                 _writer.WriteLine($"// Add Constructors"); // https://github.com/Azure/autorest.csharp/issues/4474
                 WriteConstructors();
 
-                _writer.WriteLine($"// Add Properties"); // https://github.com/Azure/autorest.csharp/issues/4475
                 WriteProperties();
 
                 _writer.WriteLine($"// Add Methods"); // https://github.com/Azure/autorest.csharp/issues/4476

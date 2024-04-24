@@ -7,11 +7,18 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.Input
 {
-    public static class InputLibrary
+    public class InputLibrary
     {
         private const string CodeModelInputFileName = "tspCodeModel.json";
 
-        public static async Task<InputNamespace> Load(string outputDirectory)
+        public InputLibrary(string codeModelPath)
+        {
+            InputNamespace = Load(codeModelPath);
+        }
+
+        public InputNamespace InputNamespace { get; }
+
+        public InputNamespace Load(string outputDirectory)
         {
             var codeModelFile = Path.Combine(outputDirectory, CodeModelInputFileName);
             if (!File.Exists(codeModelFile))
@@ -20,7 +27,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             // Read and deserialize tspCodeModel.json
-            var json = await File.ReadAllTextAsync(codeModelFile);
+            var json = File.ReadAllText(codeModelFile);
             return TypeSpecSerialization.Deserialize(json) ?? throw new InvalidOperationException($"Deserializing {codeModelFile} has failed.");
         }
     }
