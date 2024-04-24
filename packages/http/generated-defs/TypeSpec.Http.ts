@@ -13,11 +13,11 @@ import type {
  * @example
  * ```typespec
  * op read(): {
- * @statusCode _: 200;
- * @body pet: Pet;
+ *   @statusCode _: 200;
+ *   @body pet: Pet;
  * };
  * op create(): {
- * @statusCode _: 201 | 202;
+ *   @statusCode _: 201 | 202;
  * };
  * ```
  */
