@@ -712,10 +712,10 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "unassignable",
+          code: "invalid-argument",
         },
         {
-          code: "unassignable",
+          code: "invalid-argument",
         },
       ]);
     });
