@@ -2646,7 +2646,10 @@ export function createChecker(program: Program): Checker {
         }
 
         compilerAssert(node.parent, "Parent expected.");
-        const containerType = getTypeForNode(node.parent, mapper);
+        const containerType = getTypeOrValueForNode(node.parent, mapper);
+        if (containerType === null || isValue(containerType)) {
+          return undefined;
+        }
         if (isAnonymous(containerType)) {
           return undefined; // member of anonymous type cannot be referenced.
         }
