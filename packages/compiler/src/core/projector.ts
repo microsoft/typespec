@@ -8,6 +8,7 @@ import {
   DecoratorArgument,
   Enum,
   EnumMember,
+  IndeterminateEntity,
   Interface,
   Model,
   ModelProperty,
@@ -97,10 +98,19 @@ export function createProjector(
 
   function projectType(type: Type): Type;
   function projectType(type: Value): Value;
+  function projectType(type: IndeterminateEntity): IndeterminateEntity;
   function projectType(type: Type | Value): Type | Value;
-  function projectType(type: Type | Value): Type | Value {
+  function projectType(
+    type: Type | Value | IndeterminateEntity
+  ): Type | Value | IndeterminateEntity;
+  function projectType(
+    type: Type | Value | IndeterminateEntity
+  ): Type | Value | IndeterminateEntity {
     if (isValue(type)) {
       return type;
+    }
+    if ("metaKind" in type) {
+      return { metaKind: "Indeterminate", type: projectType(type.type) };
     }
     if (projectedTypes.has(type)) {
       return projectedTypes.get(type)!;

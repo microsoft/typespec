@@ -1,8 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { Model, isValue } from "../../../src/index.js";
-import { createTestRunner, expectDiagnostics } from "../../../src/testing/index.js";
-import { compileValue, diagnoseUsage, diagnoseValue } from "./utils.js";
+import { isValue } from "../../../src/index.js";
+import { expectDiagnostics } from "../../../src/testing/index.js";
+import { compileValue, compileValueOrType, diagnoseUsage, diagnoseValue } from "./utils.js";
 
 it("no properties", async () => {
   const object = await compileValue(`#{}`);
@@ -145,17 +145,10 @@ describe("emit diagnostic when used in", () => {
 
 describe("(LEGACY) cast model to object value", () => {
   it("create the value", async () => {
-    const runner = await createTestRunner();
-    const { Test } = (await runner.compile(
-      `
-        @test model Test<T extends valueof {a: string, b: string}> {}
-
-        #suppress "deprecated" "for testing"
-        alias A = Test<{a: "foo", b: "bar"}>;
-      `
-    )) as { Test: Model };
-
-    const value = Test.templateMapper?.args[0];
+    const value = await compileValueOrType(
+      `valueof {a: string, b: string}`,
+      `{a: "foo", b: "bar"}`
+    );
     ok(value && isValue(value));
     strictEqual(value.valueKind, "ObjectValue");
     expect(value.properties).toHaveLength(2);
@@ -193,8 +186,9 @@ describe("(LEGACY) cast model to object value", () => {
     expectDiagnostics(diagnostics, [
       { code: "deprecated" }, // deprecated diagnostic still emitted
       {
-        code: "unassignable",
-        message: "Type '{ a: string }' is not assignable to type 'valueof { a: string }'",
+        code: "invalid-argument",
+        message:
+          "Argument of type '{ a: string }' is not assignable to parameter of type 'valueof { a: string }'",
         pos,
       },
     ]);

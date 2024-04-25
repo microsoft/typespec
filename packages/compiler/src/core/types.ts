@@ -86,9 +86,9 @@ export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
 export interface TypeMapper {
   partial: boolean;
-  getMappedType(type: TemplateParameter): Type | Value;
-  args: readonly (Type | Value)[];
-  /** @internal */ map: Map<TemplateParameter, Type | Value>;
+  getMappedType(type: TemplateParameter): Type | Value | IndeterminateEntity;
+  args: readonly (Type | Value | IndeterminateEntity)[];
+  /** @internal */ map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
 }
 
 export interface TemplatedTypeBase {
@@ -96,7 +96,7 @@ export interface TemplatedTypeBase {
   /**
    * @deprecated use templateMapper instead.
    */
-  templateArguments?: (Type | Value)[];
+  templateArguments?: (Type | Value | IndeterminateEntity)[];
   templateNode?: Node;
 }
 
@@ -106,7 +106,7 @@ export interface TemplatedTypeBase {
  * - Values
  * - Value Constraints
  */
-export type Entity = Type | Value | MixedConstraint;
+export type Entity = Type | Value | MixedConstraint | IndeterminateEntity;
 
 export type Type =
   | BooleanLiteral
@@ -180,6 +180,12 @@ export interface MixedConstraint {
 
   /** Expecting value */
   readonly valueType?: Type;
+}
+
+/** When an entity that could be used as a type or value has not figured out if it is a value or type yet. */
+export interface IndeterminateEntity {
+  readonly metaKind: "Indeterminate";
+  readonly type: Type; // TODO: better typeing?
 }
 
 export interface IntrinsicType extends BaseType {
@@ -657,7 +663,7 @@ export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
   constraint?: MixedConstraint;
-  default?: Type | Value;
+  default?: Type | Value | IndeterminateEntity;
 }
 
 export interface Decorator extends BaseType {
@@ -828,8 +834,8 @@ export const enum SymbolFlags {
  * Maps type arguments to instantiated type.
  */
 export interface TypeInstantiationMap {
-  get(args: readonly (Type | Value)[]): Type | undefined;
-  set(args: readonly (Type | Value)[], type: Type): void;
+  get(args: readonly (Type | Value | IndeterminateEntity)[]): Type | undefined;
+  set(args: readonly (Type | Value | IndeterminateEntity)[], type: Type): void;
 }
 
 /**

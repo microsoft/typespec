@@ -1,49 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { it } from "vitest";
-import { Diagnostic, Model, Type, Value, isType, isValue } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
-
-export async function compileAndDiagnoseValueOrType(
-  constraint: string,
-  code: string,
-  other?: string
-): Promise<[Type | Value | undefined, readonly Diagnostic[]]> {
-  const host = await createTestHost();
-  host.addTypeSpecFile(
-    "main.tsp",
-    `
-      @test model Test<T extends ${constraint}> {}
-      alias Instance = Test<${code}>;
-
-      ${other ?? ""}
-      `
-  );
-  const [{ Test }, diagnostics] = await host.compileAndDiagnose("main.tsp");
-  const arg = (Test as Model).templateMapper?.args[0];
-  return [arg, diagnostics];
-}
-
-export async function compileValueOrType(
-  constraint: string,
-  code: string,
-  other?: string
-): Promise<Value | Type> {
-  const [called, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
-  expectDiagnosticEmpty(diagnostics);
-  ok(called, "Decorator was not called");
-
-  return called;
-}
-
-export async function diagnoseValueOrType(
-  constraint: string,
-  code: string,
-  other?: string
-): Promise<readonly Diagnostic[]> {
-  const [_, diagnostics] = await compileAndDiagnoseValueOrType(constraint, code, other);
-  return diagnostics;
-}
+import { isType, isValue } from "../../src/index.js";
+import { expectDiagnostics } from "../../src/testing/expect.js";
+import { compileValueOrType, diagnoseValueOrType } from "./values/utils.js";
 
 it("extends valueof string returns a string value", async () => {
   const entity = await compileValueOrType("valueof string", `"hello"`);

@@ -1192,8 +1192,8 @@ describe("compiler: checker: type relations", () => {
         `);
 
         expectDiagnostics(diagnostics, {
-          code: "missing-property",
-          message: `Property 'a' is missing on type '{ b: string }' but required in '{ a: string }'`,
+          code: "invalid-argument",
+          message: `Argument of type '{ b: string }' is not assignable to parameter of type '{ a: string }'`,
         });
       });
 
@@ -1275,7 +1275,8 @@ describe("compiler: checker: type relations", () => {
           { source: `123`, target: "valueof string" },
           {
             code: "invalid-argument",
-            message: "Argument of type '123' is not assignable to parameter of type 'string'",
+            message:
+              "Argument of type '123' is not assignable to parameter of type 'valueof string'",
           }
         );
       });
@@ -1301,7 +1302,8 @@ describe("compiler: checker: type relations", () => {
           { source: `123`, target: "valueof boolean" },
           {
             code: "invalid-argument",
-            message: "Argument of type '123' is not assignable to parameter of type 'boolean'",
+            message:
+              "Argument of type '123' is not assignable to parameter of type 'valueof boolean'",
           }
         );
       });
@@ -1331,7 +1333,8 @@ describe("compiler: checker: type relations", () => {
           { source: `123456`, target: "valueof int16" },
           {
             code: "invalid-argument",
-            message: "Argument of type '123456' is not assignable to parameter of type 'int16'",
+            message:
+              "Argument of type '123456' is not assignable to parameter of type 'valueof int16'",
           }
         );
       });
@@ -1341,7 +1344,8 @@ describe("compiler: checker: type relations", () => {
           { source: `12.6`, target: "valueof int16" },
           {
             code: "invalid-argument",
-            message: "Argument of type '12.6' is not assignable to parameter of type 'int16'",
+            message:
+              "Argument of type '12.6' is not assignable to parameter of type 'valueof int16'",
           }
         );
       });
@@ -1351,7 +1355,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof int16" },
           {
             code: "invalid-argument",
-            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'int16'`,
+            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'valueof int16'`,
           }
         );
       });
@@ -1377,7 +1381,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof float32" },
           {
             code: "invalid-argument",
-            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'float32'`,
+            message: `Argument of type '"foo bar"' is not assignable to parameter of type 'valueof float32'`,
           }
         );
       });
@@ -1443,7 +1447,7 @@ describe("compiler: checker: type relations", () => {
             },
             {
               code: "invalid-argument",
-              message: `Argument of type '{ name: "foo", notDefined: "bar" }' is not assignable to parameter of type 'Info'`,
+              message: `Argument of type '#{name: "foo", notDefined: "bar"}' is not assignable to parameter of type 'valueof Info'`,
             }
           );
         });
@@ -1469,7 +1473,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "invalid-argument",
-            message: `Argument of type '["foo"]' is not assignable to parameter of type 'Info'`,
+            message: `Argument of type '#["foo"]' is not assignable to parameter of type 'valueof Info'`,
           }
         );
       });
@@ -1523,7 +1527,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "invalid-argument",
-            message: `Argument of type '{ name: "foo" }' is not assignable to parameter of type 'string[]'`,
+            message: `Argument of type '#{name: "foo"}' is not assignable to parameter of type 'valueof string[]'`,
           }
         );
       });
@@ -1555,7 +1559,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "invalid-argument",
-            message: `Argument of type '["foo"]' is not assignable to parameter of type '[string, string]'`,
+            message: `Argument of type '#["foo"]' is not assignable to parameter of type 'valueof [string, string]'`,
           }
         );
       });
@@ -1568,7 +1572,7 @@ describe("compiler: checker: type relations", () => {
           },
           {
             code: "invalid-argument",
-            message: `Argument of type '["a", "b", "c"]' is not assignable to parameter of type '[string, string]'`,
+            message: `Argument of type '#["a", "b", "c"]' is not assignable to parameter of type 'valueof [string, string]'`,
           }
         );
       });
@@ -1604,8 +1608,8 @@ describe("compiler: checker: type relations", () => {
       model B<T extends valueof unknown> is A<┆T> {}`);
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'valueof unknown' is not assignable to type 'unknown'",
+        code: "invalid-argument",
+        message: "Argument of type 'T' is not assignable to parameter of type 'unknown'",
         pos,
       });
     });
@@ -1634,7 +1638,10 @@ describe("compiler: checker: type relations", () => {
         ["#[]", "unknown[]"],
         ["#[]", "unknown"],
       ])(`%s => %s`, async (source, target) => {
-        await expectValueNotAssignableToConstraint({ source, target }, { code: "unassignable" });
+        await expectValueNotAssignableToConstraint(
+          { source, target },
+          { code: "invalid-argument" }
+        );
       });
     });
 
