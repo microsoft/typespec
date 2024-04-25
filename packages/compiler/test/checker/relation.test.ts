@@ -1602,6 +1602,17 @@ describe("compiler: checker: type relations", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("valueof X template constraint cannot be used as a type", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo<T extends valueof string> {
+          kind: T;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "Template parameter can be passed values but is used as a type.",
+      });
+    });
+
     it("can use valueof unknown constraint not assignable to unknown", async () => {
       const { source, pos } = extractCursor(`
       model A<T extends unknown> {}

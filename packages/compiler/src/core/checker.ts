@@ -706,6 +706,18 @@ export function createChecker(program: Program): Checker {
       );
       return errorType;
     }
+    if (entity.kind === "TemplateParameter") {
+      if (entity.constraint?.valueType) {
+        // means this template constraint will accept values
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "value-in-type",
+            messageId: "templateConstraint",
+            target: node,
+          })
+        );
+      }
+    }
     return entity;
   }
 
@@ -1111,7 +1123,7 @@ export function createChecker(program: Program): Checker {
   function checkTemplateParameterDeclaration(
     node: TemplateParameterDeclarationNode,
     mapper: undefined
-  ): TemplateParameter | IndeterminateEntity;
+  ): TemplateParameter;
   function checkTemplateParameterDeclaration(
     node: TemplateParameterDeclarationNode,
     mapper: TypeMapper
@@ -1369,7 +1381,7 @@ export function createChecker(program: Program): Checker {
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
       decls.map((decl) => {
-        const declaredType = getTypeForNode(decl)! as TemplateParameter;
+        const declaredType = checkTemplateParameterDeclaration(decl, undefined);
 
         positional.push(declaredType);
         params.set(decl.id.sv, declaredType);
@@ -4096,16 +4108,38 @@ export function createChecker(program: Program): Checker {
   function checkTypeOfExpression(node: TypeOfExpressionNode, mapper: TypeMapper | undefined): Type {
     const entity = getTypeOrValueForNodeInternal(node.target, mapper, undefined);
     if (entity === null) {
-      return errorType; // TODO: emit error
+      // Shouldn't need to emit error as we assume null value already emitted error when produced
+      return errorType;
     }
     if ("metaKind" in entity) {
       return entity.type;
     }
+
     if (isType(entity)) {
-      return entity; // TODO: emit error
-    }
-    if (entity === null) {
-      return errorType; // TODO: emit error
+      if (entity.kind === "TemplateParameter") {
+        if (entity.constraint === undefined || entity.constraint.type !== undefined) {
+          // means this template constraint will accept values
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "expect-value",
+              messageId: "templateConstraint",
+              format: { name: getTypeName(entity) },
+              target: node.target,
+            })
+          );
+          return errorType;
+        } else if (entity.constraint.valueType) {
+          return entity.constraint.valueType;
+        }
+      }
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          format: { name: getTypeName(entity) },
+          target: node.target,
+        })
+      );
+      return entity;
     }
     return entity.type;
   }
@@ -6921,6 +6955,7 @@ export function createChecker(program: Program): Checker {
       "metaKind" in target &&
       source.kind === "TemplateParameter" &&
       source.constraint?.type &&
+      source.constraint.valueType === undefined &&
       target.metaKind === "MixedConstraint" &&
       target.valueType
     ) {

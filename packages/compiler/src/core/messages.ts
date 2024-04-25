@@ -409,6 +409,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
+      templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
     },
   },
   "non-callable": {
@@ -447,6 +448,7 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "A value cannot be used as a type.",
+      templateConstraint: "Template parameter can be passed values but is used as a type.",
     },
   },
   "no-prop": {
