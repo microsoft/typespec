@@ -2,10 +2,12 @@
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
 import { NormalizedSidebar } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
-import type { Config, Plugin, ThemeConfig } from "@docusaurus/types";
+import { Options, ThemeConfig } from "@docusaurus/preset-classic";
+import type { Config, Plugin } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { resolve } from "path";
 import { themes } from "prism-react-renderer";
+import { LightTheme } from "./themes/light";
 
 function getMajorMinorVersion(pkgJsonPath): string {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -47,8 +49,6 @@ function reverseSidebarItems(items: NormalizedSidebar) {
   result.reverse();
   return result;
 }
-
-import { LightTheme } from "./themes/light";
 
 const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 const config: Config = {
@@ -116,7 +116,6 @@ const config: Config = {
   presets: [
     [
       "classic",
-      /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
@@ -131,12 +130,13 @@ const config: Config = {
         },
 
         blog: {
+          path: "../../blog",
           showReadingTime: true,
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-      },
+      } satisfies Options,
     ],
   ],
   staticDirectories: [
@@ -232,6 +232,10 @@ const config: Config = {
         },
         { to: "/playground", label: "Playground", position: "left" },
         {
+          label: "Blog",
+          to: "/blog",
+        },
+        {
           label: "Community",
           to: "/community",
         },
@@ -246,7 +250,7 @@ const config: Config = {
           "aria-label": "Github repository",
         },
       ],
-    },
+    } satisfies ThemeConfig,
     footer: {
       style: "dark",
       links: [
@@ -269,7 +273,7 @@ const config: Config = {
     prism: {
       theme: LightTheme,
       darkTheme: themes.oneDark,
-      additionalLanguages: ["http", "shell-session", "protobuf", "diff"],
+      additionalLanguages: ["http", "shell-session", "protobuf"],
     },
     mermaid: {},
     algolia: {
