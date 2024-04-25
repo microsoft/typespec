@@ -690,7 +690,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
-    const entity = getTypeOrValueOrIndeterminateForNode(node, mapper);
+    const entity = checkNode(node, mapper);
     if (entity === null) {
       return errorType;
     }
@@ -727,7 +727,7 @@ export function createChecker(program: Program): Checker {
     constraint?: CheckValueConstraint,
     options: { legacyTupleAndModelCast?: boolean } = {}
   ): Value | null {
-    const initial = getTypeOrValueForNodeInternal(node, mapper, constraint);
+    const initial = checkNode(node, mapper, constraint);
     if (initial === null) {
       return null;
     }
@@ -735,11 +735,11 @@ export function createChecker(program: Program): Checker {
     if ("metaKind" in initial) {
       compilerAssert(initial.metaKind === "Indeterminate", "Expected indeterminate entity");
       entity = getValueFromIndeterminate(initial.type, constraint, node);
-      if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
-        entity = legacy_tryTypeToValueCast(entity, constraint, node);
-      }
     } else {
       entity = initial;
+    }
+    if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
+      entity = legacy_tryTypeToValueCast(entity, constraint, node);
     }
     if (entity === null) {
       return null;
@@ -942,7 +942,7 @@ export function createChecker(program: Program): Checker {
     constraint?: CheckConstraint | undefined
   ): Type | Value | null {
     const valueConstraint = extractValueOfConstraints(constraint);
-    const entity = getTypeOrValueForNodeInternal(node, mapper, valueConstraint);
+    const entity = checkNode(node, mapper, valueConstraint);
     if (entity === null) {
       return entity;
     } else if (isType(entity)) {
@@ -963,19 +963,6 @@ export function createChecker(program: Program): Checker {
     return entity.type;
   }
 
-  /**
-   * Gets a type or value depending on the node and current constraint.
-   * For nodes that can be both type or values(e.g. string), the value will be returned if the constraint expect a value of that type even if the constrain also allows the type.
-   * This means that if the constraint is `string | valueof string` passing `"abc"` will send the value `"abc"` and not the type `"abc"`.
-   */
-  function getTypeOrValueOrIndeterminateForNode(
-    node: Node,
-    mapper?: TypeMapper
-  ): Type | Value | IndeterminateEntity | null {
-    return getTypeOrValueForNodeInternal(node, mapper);
-  }
-
-  // TODO: do we still need this?
   /** Extact the type constraint a value should match. */
   function extractValueOfConstraints(
     constraint: CheckConstraint | undefined
@@ -987,8 +974,12 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  /** Do not call to be used inside getTypeOrValueForNode */
-  function getTypeOrValueForNodeInternal(
+  /**
+   * Gets a type, value or indeterminate depending on the node and current constraint.
+   * For nodes that can be both type or values(e.g. string literals), an indeterminate entity will be returned.
+   * It is the job of of the consumer to decide if it should be a type or a value depending on the context.
+   */
+  function checkNode(
     node: Node,
     mapper?: TypeMapper,
     valueConstraint?: CheckValueConstraint | undefined
@@ -1203,7 +1194,7 @@ export function createChecker(program: Program): Checker {
     constraint: Entity | undefined
   ): Type | Value | IndeterminateEntity {
     function visit(node: Node) {
-      const type = getTypeOrValueOrIndeterminateForNode(node);
+      const type = checkNode(node);
       let hasError = false;
       if (type !== null && "kind" in type && type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
@@ -1279,7 +1270,7 @@ export function createChecker(program: Program): Checker {
     node: TemplateArgumentNode,
     mapper: TypeMapper | undefined
   ): Type | Value | IndeterminateEntity | null {
-    return getTypeOrValueOrIndeterminateForNode(node.argument, mapper);
+    return checkNode(node.argument, mapper);
   }
 
   function resolveTypeReference(
@@ -1391,7 +1382,7 @@ export function createChecker(program: Program): Checker {
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
       function deferredCheck(): [Node, Type | Value | IndeterminateEntity | null] {
-        return [arg, getTypeOrValueOrIndeterminateForNode(arg.argument, mapper)];
+        return [arg, checkNode(arg.argument, mapper)];
       }
 
       if (arg.name) {
@@ -3226,7 +3217,7 @@ export function createChecker(program: Program): Checker {
     let hasType = false;
     let hasValue = false;
     const spanTypeOrValues = node.spans.map(
-      (span) => [span, getTypeOrValueOrIndeterminateForNode(span.expression, mapper)] as const
+      (span) => [span, checkNode(span.expression, mapper)] as const
     );
     for (const [_, typeOrValue] of spanTypeOrValues) {
       if (typeOrValue !== null) {
@@ -3421,7 +3412,7 @@ export function createChecker(program: Program): Checker {
 
   function checkSourceFile(file: TypeSpecScriptNode) {
     for (const statement of file.statements) {
-      getTypeOrValueOrIndeterminateForNode(statement, undefined);
+      checkNode(statement, undefined);
     }
   }
 
@@ -4126,7 +4117,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTypeOfExpression(node: TypeOfExpressionNode, mapper: TypeMapper | undefined): Type {
-    const entity = getTypeOrValueForNodeInternal(node.target, mapper, undefined);
+    const entity = checkNode(node.target, mapper, undefined);
     if (entity === null) {
       // Shouldn't need to emit error as we assume null value already emitted error when produced
       return errorType;
@@ -4840,7 +4831,7 @@ export function createChecker(program: Program): Checker {
    * We do do checking here we just keep existing behavior.
    */
   function checkLegacyDefault(defaultNode: Node): Type | undefined {
-    const resolved = getTypeOrValueOrIndeterminateForNode(defaultNode, undefined);
+    const resolved = checkNode(defaultNode, undefined);
     if (resolved === null || isValue(resolved)) {
       return undefined;
     }
@@ -4965,7 +4956,7 @@ export function createChecker(program: Program): Checker {
       return [
         false,
         node.arguments.map((argNode): DecoratorArgument => {
-          let type = getTypeOrValueOrIndeterminateForNode(argNode, mapper) ?? errorType;
+          let type = checkNode(argNode, mapper) ?? errorType;
           if ("metaKind" in type) {
             type = type.type;
           }
