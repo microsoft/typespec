@@ -5,7 +5,7 @@ title: "[I] RoutePath"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `path` | `string` | - |
-| `shared` | `boolean` | - |
+| Property | Type |
+| :------ | :------ |
+| `path` | `string` |
+| `shared` | `boolean` |

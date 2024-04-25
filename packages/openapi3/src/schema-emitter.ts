@@ -197,6 +197,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.emitter.getContext().visibility ?? Visibility.Read;
   }
 
+  #ignoreMetadataAnnotations(): boolean {
+    return this.emitter.getContext().ignoreMetadataAnnotations;
+  }
+
   #getContentType(): string {
     return this.emitter.getContext().contentType ?? "application/json";
   }
@@ -263,7 +267,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+
+      if (
+        !this.#metadataInfo.isPayloadProperty(prop, visibility, this.#ignoreMetadataAnnotations())
+      ) {
         continue;
       }
 
@@ -292,7 +299,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+      if (
+        !this.#metadataInfo.isPayloadProperty(prop, visibility, this.#ignoreMetadataAnnotations())
+      ) {
         continue;
       }
       const result = this.emitter.emitModelProperty(prop);
@@ -339,7 +348,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
-      referenceContext: isMultipart ? { contentType: "application/json" } : {},
+      referenceContext:
+        isMultipart &&
+        (prop.type.kind !== "Union" ||
+          ![...prop.type.variants.values()].some((x) => this.#isBytesKeptRaw(x.type)))
+          ? { contentType: "application/json" }
+          : {},
     });
 
     if (refSchema.kind !== "code") {
@@ -466,11 +480,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return new ObjectBuilder({});
     }
     const variants = Array.from(union.variants.values());
-    const literalVariantEnumByType: Record<string, any> = {};
+    const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
     const discriminator = getDiscriminator(program, union);
+    const isMultipart = this.#getContentType().startsWith("multipart/");
 
     for (const variant of variants) {
       if (isNullType(variant.type)) {
@@ -478,20 +493,26 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         continue;
       }
 
+      if (isMultipart && this.#isBytesKeptRaw(variant.type)) {
+        schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
+        continue;
+      }
+
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = this.emitter.emitTypeReference(variant.type);
-          compilerAssert(
-            enumSchema.kind === "code",
-            "Unexpected enum schema. Should be kind: code"
-          );
-          literalVariantEnumByType[variant.type.kind] = enumSchema.value;
-          schemaMembers.push({ schema: enumSchema.value, type: null });
+          const enumValue: any[] = [variant.type.value];
+          literalVariantEnumByType[variant.type.kind] = enumValue;
+          schemaMembers.push({
+            schema: { type: literalType(variant.type), enum: enumValue },
+            type: null,
+          });
         } else {
-          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
+          literalVariantEnumByType[variant.type.kind].push(variant.type.value);
         }
       } else {
-        const enumSchema = this.emitter.emitTypeReference(variant.type);
+        const enumSchema = this.emitter.emitTypeReference(variant.type, {
+          referenceContext: isMultipart ? { contentType: "application/json" } : {},
+        });
         compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
         schemaMembers.push({ schema: enumSchema.value, type: variant.type });
       }
@@ -699,7 +720,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       case "int64":
         return { type: "integer", format: "int64" };
       case "safeint":
-        return { type: "integer", format: "int64" };
+        switch (this.#options.safeintStrategy) {
+          case "double-int":
+            return { type: "integer", format: "double-int" };
+          case "int64":
+          default:
+            return { type: "integer", format: "int64" };
+        }
       case "uint8":
         return { type: "integer", format: "uint8" };
       case "uint16":
@@ -826,6 +853,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const usage = this.#visibilityUsage.getUsage(type);
+
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
     const fullName =
@@ -902,9 +930,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     switch (name) {
       case "unknown":
         return {};
+      case "null":
+        return { nullable: true };
     }
 
-    throw new Error("Unknown intrinsic type " + name);
+    reportDiagnostic(this.emitter.getProgram(), {
+      code: "invalid-schema",
+      format: { type: name },
+      target: intrinsic,
+    });
+    return {};
   }
 
   programContext(program: Program): Context {
@@ -915,6 +950,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
 function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
   return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
+}
+
+function literalType(type: StringLiteral | NumericLiteral | BooleanLiteral) {
+  switch (type.kind) {
+    case "String":
+      return "string";
+    case "Number":
+      return "number";
+    case "Boolean":
+      return "boolean";
+  }
 }
 
 function includeDerivedModel(model: Model): boolean {

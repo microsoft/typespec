@@ -1,4 +1,8 @@
 import {
+  ApplyWorkspaceEditParams,
+  ApplyWorkspaceEditResult,
+  CodeAction,
+  CodeActionParams,
   CompletionList,
   CompletionParams,
   DefinitionParams,
@@ -8,6 +12,7 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
+  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -40,6 +45,9 @@ export interface ServerHost {
   readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
   readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
   readonly log: (message: string) => void;
+  readonly applyEdit: (
+    paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit
+  ) => Promise<ApplyWorkspaceEditResult>;
 }
 
 export interface CompileResult {
@@ -71,6 +79,8 @@ export interface Server {
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
+  getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
+  executeCommand(params: ExecuteCommandParams): Promise<void>;
   log(message: string, details?: any): void;
 }
 

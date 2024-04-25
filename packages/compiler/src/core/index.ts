@@ -20,6 +20,7 @@ export {
 export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
 export * from "./options.js";
+export { getPositionBeforeTrivia } from "./parser-utils.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
 export * from "./program.js";

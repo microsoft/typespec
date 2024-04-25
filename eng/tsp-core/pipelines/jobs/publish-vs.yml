@@ -1,0 +1,61 @@
+jobs:
+  - job: sign_vs
+    displayName: Sign
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - checkout: self
+
+      - download: current
+        artifact: vs-extension-unsigned
+        displayName: Download VS extension(.vsix) from pipeline artifacts
+
+      - template: /eng/tsp-core/pipelines/templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          pattern: "*.vsix"
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          artifact: vs-extension-signed
+          displayName: Publish signed VS extension
+
+  - job: publish_vs
+    displayName: Publish
+    dependsOn: sign_vs
+    pool:
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
+
+    steps:
+      - checkout: self
+
+      - download: current
+        artifact: vs-extension-signed
+        displayName: Download VS extension(.vsix) from pipeline artifacts
+
+      - pwsh: |
+          Install-Module VSSetup -Force
+          $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
+          $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension-signed/Microsoft.Typespec.VS.vsix"  
+          echo "Path to vsix: $vsixPath"
+          $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)  -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08"  2>&1)
+          Write-Output $stdout
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output "Successfully published VSIX"
+          } elseif ($stdout -match "^VSSDK: error VsixPub0029 :") {
+            Write-Output "Version already exists, skipping publish"
+            exit 0
+          } else {
+            exit 1
+          }
+        displayName: Publish
+        workingDirectory: packages/typespec-vs
+        env:
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)

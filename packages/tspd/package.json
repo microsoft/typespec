@@ -44,10 +44,11 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
+    "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "files": [
     "lib/*.tsp",
@@ -58,24 +59,22 @@
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.0",
     "prettier": "~3.2.5",
-    "yaml": "~2.3.4",
+    "yaml": "~2.4.1",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@types/yargs": "~17.0.32",
     "@typespec/compiler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/prettier-plugin-typespec": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
     "rimraf": "~5.0.5",
     "source-map-support": "~0.5.21",
-    "typedoc": "0.25.7",
+    "typedoc": "0.25.13",
     "typedoc-plugin-markdown": "4.0.0-next.53",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.5",
+    "vitest": "^1.5.0"
   }
 }

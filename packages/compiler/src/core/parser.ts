@@ -82,6 +82,7 @@ import {
   ProjectionNode,
   ProjectionOperationSelectorNode,
   ProjectionParameterDeclarationNode,
+  ProjectionScalarSelectorNode,
   ProjectionStatementItem,
   ProjectionStatementNode,
   ProjectionTupleExpressionNode,
@@ -419,7 +420,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          item = parseNamespaceStatement(pos, decorators, docs);
+          item = parseNamespaceStatement(pos, decorators, docs, directives);
           break;
         case Token.InterfaceKeyword:
           item = parseInterfaceStatement(pos, decorators);
@@ -460,8 +461,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           break;
       }
 
-      mutate(item).directives = directives;
       if (tok !== Token.NamespaceKeyword) {
+        mutate(item).directives = directives;
         mutate(item).docs = docs;
       }
 
@@ -514,7 +515,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          const ns = parseNamespaceStatement(pos, decorators, docs);
+          const ns = parseNamespaceStatement(pos, decorators, docs, directives);
 
           if (!Array.isArray(ns.statements)) {
             error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
@@ -594,7 +595,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseNamespaceStatement(
     pos: number,
     decorators: DecoratorExpressionNode[],
-    docs: DocNode[]
+    docs: DocNode[],
+    directives: DirectiveExpressionNode[]
   ): NamespaceStatementNode {
     parseExpected(Token.NamespaceKeyword);
     let currentName = parseIdentifierOrMemberExpression();
@@ -620,7 +622,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id: nsSegments[0],
       locals: undefined!,
       statements,
-
+      directives: directives,
       ...finishNode(pos),
     };
 
@@ -628,6 +630,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       outerNs = {
         kind: SyntaxKind.NamespaceStatement,
         decorators: [],
+        directives: [],
         id: nsSegments[i],
         statements: outerNs,
         locals: undefined!,
@@ -2377,6 +2380,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     | MemberExpressionNode
     | ProjectionInterfaceSelectorNode
     | ProjectionModelSelectorNode
+    | ProjectionScalarSelectorNode
     | ProjectionModelPropertySelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
@@ -2390,7 +2394,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       Token.OpKeyword,
       Token.InterfaceKeyword,
       Token.UnionKeyword,
-      Token.EnumKeyword
+      Token.EnumKeyword,
+      Token.ScalarKeyword
     );
 
     switch (selectorTok) {
@@ -2444,6 +2449,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         nextToken();
         return {
           kind: SyntaxKind.ProjectionEnumSelector,
+          ...finishNode(pos),
+        };
+      case Token.ScalarKeyword:
+        nextToken();
+        return {
+          kind: SyntaxKind.ProjectionScalarSelector,
           ...finishNode(pos),
         };
       default:
@@ -3374,6 +3385,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.EmptyStatement:
     case SyntaxKind.ProjectionModelSelector:
     case SyntaxKind.ProjectionModelPropertySelector:
+    case SyntaxKind.ProjectionScalarSelector:
     case SyntaxKind.ProjectionUnionSelector:
     case SyntaxKind.ProjectionUnionVariantSelector:
     case SyntaxKind.ProjectionInterfaceSelector:

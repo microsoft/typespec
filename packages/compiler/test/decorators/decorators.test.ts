@@ -387,6 +387,16 @@ describe("compiler: built-in decorators", () => {
       ok(isErrorModel(runner.program, A), "isError should be true");
     });
 
+    it("applies @error on derived models", async () => {
+      const { B, C } = await runner.compile(`
+        @error model A { }
+        @test model B extends A { }
+        @test model C extends B { }
+      `);
+      ok(isErrorModel(runner.program, B), "isError should be true");
+      ok(isErrorModel(runner.program, C), "isError should be true");
+    });
+
     it("emit diagnostic if error is not applied to a model", async () => {
       const diagnostics = await runner.diagnose(`
         @error
@@ -406,6 +416,7 @@ describe("compiler: built-in decorators", () => {
     it("assign the known values to string scalar", async () => {
       const { Bar } = (await runner.compile(`
         enum Foo {one: "one", two: "two"}
+        #suppress "deprecated" "For testing"
         @test
         @knownValues(Foo)
         scalar Bar extends string;
@@ -423,6 +434,7 @@ describe("compiler: built-in decorators", () => {
           one: 1; 
           two: 2;
         }
+        #suppress "deprecated" "For testing"
         @test
         @knownValues(Foo)
         scalar Bar extends int32;
@@ -437,6 +449,7 @@ describe("compiler: built-in decorators", () => {
     it("emit diagnostics when used on non model", async () => {
       const diagnostics = await runner.diagnose(`
         enum Foo {one, two}
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         enum Bar {}
       `);
@@ -454,6 +467,7 @@ describe("compiler: built-in decorators", () => {
           one: 1; 
           two: 2;
         }
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         scalar Bar extends string;
       `);
@@ -466,6 +480,7 @@ describe("compiler: built-in decorators", () => {
 
     it("emit diagnostics when used on non string model", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         enum Foo {one, two}
         @knownValues(Foo)
         model Bar {}
@@ -481,6 +496,7 @@ describe("compiler: built-in decorators", () => {
     it("emit diagnostics when known values is not an enum", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo {}
+        #suppress "deprecated" "For testing"
         @knownValues(Foo)
         scalar Bar extends string;
       `);
@@ -577,6 +593,30 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
     });
 
+    it(`set encoding on model property`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime;
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+    });
+
+    it(`set encoding on model property of union type`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime | null; 
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+    });
+
     it(`encode type default to string`, async () => {
       const { s } = (await runner.compile(`
         @encode("rfc3339")
@@ -668,7 +708,7 @@ describe("compiler: built-in decorators", () => {
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",
-          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+          `Argument '"int32"' is not assignable to parameter of type 'Scalar'`,
         ],
       ];
       describe("valid", () => {
@@ -794,7 +834,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
+        message: `Argument '"foo"' is not assignable to parameter of type 'Operation'`,
         severity: "error",
       });
     });

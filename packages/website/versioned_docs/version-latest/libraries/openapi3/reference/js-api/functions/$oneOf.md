@@ -4,7 +4,7 @@ title: "[F] $oneOf"
 
 ---
 ```ts
-$oneOf(context, entity): void
+$oneOf(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $oneOf(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` \| `Union` |
+| `target` | `ModelProperty` \| `Union` |
 
 ## Returns
 

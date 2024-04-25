@@ -1,5 +1,8 @@
 import {
   DecoratorContext,
+  getDoc,
+  getService,
+  getSummary,
   Model,
   Namespace,
   Operation,
@@ -9,6 +12,13 @@ import {
   TypeSpecValue,
 } from "@typespec/compiler";
 import { setStatusCode } from "@typespec/http";
+import {
+  DefaultResponseDecorator,
+  ExtensionDecorator,
+  ExternalDocsDecorator,
+  InfoDecorator,
+  OperationIdDecorator,
+} from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey } from "./types.js";
 
@@ -21,9 +31,13 @@ const operationIdsKey = createStateSymbol("operationIds");
  * @param entity Decorator target
  * @param opId Operation ID.
  */
-export function $operationId(context: DecoratorContext, entity: Operation, opId: string) {
+export const $operationId: OperationIdDecorator = (
+  context: DecoratorContext,
+  entity: Operation,
+  opId: string
+) => {
   context.program.stateMap(operationIdsKey).set(entity, opId);
-}
+};
 
 /**
  * @returns operationId set via the @operationId decorator or `undefined`
@@ -34,12 +48,12 @@ export function getOperationId(program: Program, entity: Operation): string | un
 
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
-export function $extension(
+export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
   value: TypeSpecValue
-) {
+) => {
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
@@ -53,7 +67,7 @@ export function $extension(
     context.program.reportDiagnostics(diagnostics);
   }
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
-}
+};
 
 export function setExtension(
   program: Program,
@@ -82,11 +96,14 @@ function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
  *
  */
 const defaultResponseKey = createStateSymbol("defaultResponse");
-export function $defaultResponse(context: DecoratorContext, entity: Model) {
+export const $defaultResponse: DefaultResponseDecorator = (
+  context: DecoratorContext,
+  entity: Model
+) => {
   // eslint-disable-next-line deprecation/deprecation
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
-}
+};
 
 /**
  * Check if the given model has been mark as a default response.
@@ -107,32 +124,60 @@ const externalDocsKey = createStateSymbol("externalDocs");
 /**
  * Allows referencing an external resource for extended documentation.
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
- * @param @optional description A short description of the target documentation.
+ * @param description A short description of the target documentation.
  */
-export function $externalDocs(
+export const $externalDocs: ExternalDocsDecorator = (
   context: DecoratorContext,
   target: Type,
   url: string,
   description?: string
-) {
+) => {
   const doc: ExternalDocs = { url };
   if (description) {
     doc.description = description;
   }
   context.program.stateMap(externalDocsKey).set(target, doc);
-}
+};
 
 export function getExternalDocs(program: Program, entity: Type): ExternalDocs | undefined {
   return program.stateMap(externalDocsKey).get(entity);
 }
 
 const infoKey = createStateSymbol("info");
-export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
-  const [data, diagnostics] = typespecTypeToJson(model, context.getArgumentTarget(0)!);
+export const $info: InfoDecorator = (
+  context: DecoratorContext,
+  entity: Namespace,
+  model: TypeSpecValue
+) => {
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
+    model,
+    context.getArgumentTarget(0)!
+  );
   context.program.reportDiagnostics(diagnostics);
+  if (data === undefined) {
+    return;
+  }
   context.program.stateMap(infoKey).set(entity, data);
-}
+};
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
+}
+
+/** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
+export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
+  const info = getInfo(program, entity);
+  const service = getService(program, entity);
+  return omitUndefined({
+    ...info,
+    title: info?.title ?? service?.title,
+    // eslint-disable-next-line deprecation/deprecation
+    version: info?.version ?? service?.version,
+    summary: info?.summary ?? getSummary(program, entity),
+    description: info?.description ?? getDoc(program, entity),
+  });
+}
+
+function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }

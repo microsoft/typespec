@@ -13,6 +13,7 @@ import {
 } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
@@ -33,7 +34,7 @@ import {
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths } from "./path-utils.js";
+import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -287,6 +288,7 @@ export async function compile(
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   let error = false;
+  let continueToNextStage = true;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -330,8 +332,9 @@ export async function compile(
   }
   const binder = createBinder(program);
 
+  await loadIntrinsicTypes();
   if (!options?.nostdlib) {
-    await loadStandardLibrary(program);
+    await loadStandardLibrary();
   }
 
   // Load additional imports prior to compilation
@@ -382,7 +385,7 @@ export async function compile(
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
   // onValidate stage
@@ -391,7 +394,7 @@ export async function compile(
   validateRequiredImports();
 
   await validateLoadedLibraries();
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
 
@@ -456,7 +459,16 @@ export async function compile(
     }
   }
 
-  async function loadStandardLibrary(program: Program) {
+  async function loadIntrinsicTypes() {
+    const locationContext: LocationContext = { type: "compiler" };
+    await loadTypeSpecFile(
+      resolvePath(host.getExecutionRoot(), "lib/intrinsics.tsp"),
+      locationContext,
+      NoTarget
+    );
+  }
+
+  async function loadStandardLibrary() {
     const locationContext: LocationContext = { type: "compiler" };
     for (const dir of host.getLibDirs()) {
       await loadDirectory(dir, locationContext, NoTarget);
@@ -1046,6 +1058,15 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "error") {
+      continueToNextStage = false;
+    }
+
+    if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
+      mutate(diagnostic).codefixes ??= [];
+      mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

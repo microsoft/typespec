@@ -5,9 +5,11 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  ApplyWorkspaceEditParams,
   ProposedFeatures,
   PublishDiagnosticsParams,
   TextDocuments,
+  WorkspaceEdit,
   createConnection,
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
@@ -48,6 +50,9 @@ function main() {
     },
     getOpenDocumentByURL(url: string) {
       return documents.get(url);
+    },
+    applyEdit(paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit) {
+      return connection.workspace.applyEdit(paramOrEdit);
     },
   };
 
@@ -90,6 +95,8 @@ function main() {
   connection.onDocumentHighlight(profile(s.findDocumentHighlight));
   connection.onHover(profile(s.getHover));
   connection.onSignatureHelp(profile(s.getSignatureHelp));
+  connection.onCodeAction(profile(s.getCodeActions));
+  connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
 
   documents.onDidChangeContent(profile(s.checkChange));

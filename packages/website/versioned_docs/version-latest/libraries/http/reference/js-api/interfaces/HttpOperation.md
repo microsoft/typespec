@@ -7,6 +7,7 @@ title: "[I] HttpOperation"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
+| `authentication?` | [`Authentication`](Authentication.md) | Operation authentication. Overrides HttpService authentication |
 | `container` | [`OperationContainer`](../type-aliases/OperationContainer.md) | Parent type being the interface, namespace or global namespace. |
 | `operation` | `Operation` | Operation type reference. |
 | `overloading?` | [`HttpOperation`](HttpOperation.md) | Overload this operation |

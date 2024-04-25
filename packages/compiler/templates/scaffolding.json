@@ -3,12 +3,12 @@
     "title": "Empty project",
     "description": "Create an empty project.",
     "libraries": [],
-    "compilerVersion": "0.53.1"
+    "compilerVersion": "0.55.0"
   },
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API",
-    "compilerVersion": "0.53.1",
+    "compilerVersion": "0.55.0",
     "libraries": [
       "@typespec/http",
       "@typespec/rest",
@@ -23,7 +23,7 @@
   "library-ts": {
     "title": "TypeSpec Library (With TypeScript)",
     "description": "Create a new package to add decorators or linters to typespec.",
-    "compilerVersion": "0.53.1",
+    "compilerVersion": "0.55.0",
     "libraries": [],
     "files": [
       {
@@ -35,8 +35,8 @@
         "skipGeneration": true
       },
       {
-        "path": "library-ts/.eslintrc.yml",
-        "destination": ".eslintrc.yml"
+        "path": "library-ts/eslint.config.js",
+        "destination": "eslint.config.js"
       },
       {
         "path": "library-ts/lib/decorators.tsp.mu",
@@ -99,7 +99,7 @@
   "emitter-ts": {
     "title": "TypeSpec Emitter (With TypeScript)",
     "description": "Create a new package that will be emitting typespec",
-    "compilerVersion": "0.53.1",
+    "compilerVersion": "0.55.0",
     "libraries": [],
     "files": [
       {
@@ -111,8 +111,8 @@
         "skipGeneration": true
       },
       {
-        "path": "emitter-ts/.eslintrc.yml",
-        "destination": ".eslintrc.yml"
+        "path": "emitter-ts/eslint.config.js",
+        "destination": "eslint.config.js"
       },
       {
         "path": "emitter-ts/package.json",

@@ -7,6 +7,6 @@ Defined in the user project.
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `type` | `"project"` | - |
+| Property | Type |
+| :------ | :------ |
+| `type` | `"project"` |

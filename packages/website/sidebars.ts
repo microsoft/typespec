@@ -140,6 +140,7 @@ const sidebars: SidebarsConfig = {
         createLibraryReferenceStructure("versioning", "Versioning", false, [
           "libraries/versioning/guide",
         ]),
+        createLibraryReferenceStructure("xml", "Xml", false, ["libraries/xml/guide"]),
       ],
     },
     {
@@ -150,6 +151,7 @@ const sidebars: SidebarsConfig = {
         "extending-typespec/diagnostics",
         "extending-typespec/create-decorators",
         "extending-typespec/linters",
+        "extending-typespec/codefixes",
         "extending-typespec/emitters",
         "extending-typespec/emitter-framework",
         "extending-typespec/emitter-metadata-handling",

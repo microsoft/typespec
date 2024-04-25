@@ -92,6 +92,74 @@ describe("openapi3: union type", () => {
     });
   });
 
+  describe("union literals", () => {
+    it("produce an enum from union of string literal", async () => {
+      const res = await openApiFor(
+        `
+        model Pet {
+          prop: "a" | "b";
+        };
+        `
+      );
+      deepStrictEqual(res.components.schemas.Pet.properties.prop, {
+        type: "string",
+        enum: ["a", "b"],
+      });
+    });
+    it("produce an enum from union of numeric literal", async () => {
+      const res = await openApiFor(
+        `
+        model Pet {
+          prop: 0 | 1;
+        };
+        `
+      );
+      deepStrictEqual(res.components.schemas.Pet.properties.prop, {
+        type: "number",
+        enum: [0, 1],
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/3087
+    it("string literals union with same variants don't conflict", async () => {
+      const res = await openApiFor(
+        `
+        model Pet {
+          prop1: "a" | "b";
+          prop2: "a" | "b";
+        }
+        `
+      );
+      deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
+        type: "string",
+        enum: ["a", "b"],
+      });
+      deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
+        type: "string",
+        enum: ["a", "b"],
+      });
+    });
+    // Regression test for https://github.com/microsoft/typespec/issues/3087
+    it("numeric literals union with same variants don't conflict", async () => {
+      const res = await openApiFor(
+        `
+        model Pet {
+          prop1: 0 | 1;
+          prop2: 0 | 1;
+        }
+        `
+      );
+      deepStrictEqual(res.components.schemas.Pet.properties.prop1, {
+        type: "number",
+        enum: [0, 1],
+      });
+      deepStrictEqual(res.components.schemas.Pet.properties.prop2, {
+        type: "number",
+        enum: [0, 1],
+      });
+    });
+  });
+
   it("defines nullable properties with multiple variants", async () => {
     const res = await oapiForModel(
       "Pet",

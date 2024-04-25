@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "0.53.1",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -20,7 +20,14 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
   },
   "tspMain": "lib/main.tsp",
   "engines": {
@@ -28,14 +35,15 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/json-schema/reference"
   },
   "files": [
@@ -49,22 +57,19 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
-    "@typespec/eslint-plugin": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
     "ajv": "~8.12.0",
-    "ajv-formats": "~2.1.1",
+    "ajv-formats": "~3.0.1",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.5",
+    "vitest": "^1.5.0"
   },
   "dependencies": {
-    "yaml": "~2.3.4"
+    "yaml": "~2.4.1"
   }
 }

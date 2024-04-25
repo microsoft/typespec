@@ -1,5 +1,80 @@
 # Change Log - @typespec/compiler
 
+## 0.55.0
+
+### Bug Fixes
+
+- [#3018](https://github.com/microsoft/typespec/pull/3018) Grammar: Fix comments in template params not tokenized
+- [#3052](https://github.com/microsoft/typespec/pull/3052) Fix: Union template declaration were incorrectly being finished in projection
+- [#2983](https://github.com/microsoft/typespec/pull/2983) Warnings converted to error with `warn-as-error` do not prevent compilation from moving to the next stage like regular warnings
+- [#3041](https://github.com/microsoft/typespec/pull/3041) Improve relability of application of codefixes in IDE, often it would not do anything
+- [#3069](https://github.com/microsoft/typespec/pull/3069) TmLanguage: Fix tokenization of escaped identifiers, enums and unions
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+### Features
+
+- [#2992](https://github.com/microsoft/typespec/pull/2992) Enable the use of `@encode` for model properties that have a union type. This supports cases like `@encode("rfc3339") prop: utcDateTime | null`
+- [#3053](https://github.com/microsoft/typespec/pull/3053) Experimental projection: Add support for scalars
+
+### Deprecations
+
+- [#3094](https://github.com/microsoft/typespec/pull/3094) Deprecate `@knownValues` decorator. Use a named union of string literal with a string variant to achieve the same result without a decorator
+
+Example:
+```diff
+-enum FooKV { a, b, c}
+-@knownValues(FooKV)
+-scalar foo extends string;
++union Foo { "a", "b", "c", string }
+```
+- [#2910](https://github.com/microsoft/typespec/pull/2910) Deprecate `@projectedName` decorator. `@encodedName` should be used instead.
+
+Example:
+```diff
+-@projectedName("json", "exp")
++@encodedName("application/json", "exp")
+```
+
+
+## 0.54.0
+
+### Bug Fixes
+
+- [#2932](https://github.com/microsoft/typespec/pull/2932) Report error when having a circular template constraint e.g. `model Example<T extends T>`
+- [#2955](https://github.com/microsoft/typespec/pull/2955) [Formatter] Formatting file with only comments would reorder the first line.
+- [#2934](https://github.com/microsoft/typespec/pull/2934) [IDE] Fix issue when deleting an open file outside the IDE that would crash the language server
+- [#2959](https://github.com/microsoft/typespec/pull/2959) Decorators that have missing arguments will not run. This is inline with passing invalid argument to a decorator that would prevent it from running.
+- [#2976](https://github.com/microsoft/typespec/pull/2976) [IDE] Fix type documentation shown twice when hovering symbols or in completion details.
+- [#2929](https://github.com/microsoft/typespec/pull/2929) [API] Add `Scalar` to TS `TemplatedType` type
+- [#2978](https://github.com/microsoft/typespec/pull/2978) [IDE] Go to imports
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Autocompleting file or folder with non alpha numeric charachter completes correctly
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Fix crashing when trying to autocomplete an invalid folder
+- [#2951](https://github.com/microsoft/typespec/pull/2951) Wrap string in quotes in errors
+- [#2886](https://github.com/microsoft/typespec/pull/2886) Fix: `tsp compile --watch` was missing coloring and error previews
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2888](https://github.com/microsoft/typespec/pull/2888) Add support for codefixes
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Add support for `...Record<T>` to define the type of remaining properties
+- [#2968](https://github.com/microsoft/typespec/pull/2968) Any subtype of an error(marked with `@error`) is now an error.
+
+### Deprecations
+
+- [#2919](https://github.com/microsoft/typespec/pull/2919) [API] Create a new export `@typespec/compiler/utils` exports. Deprecate export from `@typespec/compiler` of utils like `DuplicateTracker`, `Queue`, `createTwoKeyMap`, etc.
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Deprecate `@service` version property. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version. For OpenAPI generation. the `@OpenAPI.info` nows decorator allows providing the document version.
+
+### Breaking Changes
+
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Intersecting Record<T> with incompatible properties will now emit an error
+
+
 ## 0.53.1
 
 ### Patch Changes
@@ -18,7 +93,6 @@
 - cc2723a: Template instantiated with ErrorType will get the arg changed to unknown
 - fd4fdfb: Fix: Error out when using properties in array model
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 
@@ -446,7 +520,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
 - Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
-- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
+- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parameter.
 - Fix typing and export format command
 - **Api Breaking** Multiple `@service` per specs are now allowed.
 - Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name

@@ -9,7 +9,7 @@ createCadlLibrary<T, E, State>(lib): TypeSpecLibrary<T, E, State>
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends `Object` | - |
 | `E` extends `Record`<`string`, `any`\> | - |

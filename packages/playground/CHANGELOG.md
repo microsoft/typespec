@@ -1,11 +1,36 @@
 # Change Log - @typespec/playground
 
+## 0.2.1
+
+### Bug Fixes
+
+- [#3031](https://github.com/microsoft/typespec/pull/3031) Add `aria` attributes for accessibility
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
+## 0.2.0
+
+### Bug Fixes
+
+- [#2888](https://github.com/microsoft/typespec/pull/2888) Refactor of the mapping between Language Server and monaco API
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2936](https://github.com/microsoft/typespec/pull/2936) Autocomplete installed libraries in `import` statements
+
+
 ## 0.1.0
 
 ### Patch Changes
 
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.1.0-alpha.5
 

@@ -1,5 +1,8 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
+  CodeAction,
+  CodeActionKind,
+  CodeActionParams,
   CompletionList,
   CompletionParams,
   DefinitionParams,
@@ -12,6 +15,7 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
+  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -42,19 +46,24 @@ import {
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
+import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { ResolveModuleHost, resolveModule } from "../core/index.js";
+import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
-import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
+import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
 import { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
   AugmentDecoratorStatementNode,
+  CodeFixEdit,
   CompilerHost,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  Diagnostic,
   DiagnosticTarget,
   IdentifierNode,
   Node,
@@ -64,13 +73,13 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath } from "../utils/misc.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
+import { Commands } from "./constants.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
-import { getPositionBeforeTrivia } from "./server-utils.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
   getParameterDocumentation,
@@ -105,6 +114,8 @@ export function createServer(host: ServerHost): Server {
     serverHost: host,
     log,
   });
+  const currentDiagnosticIndex = new Map<number, Diagnostic>();
+  let diagnosticIdCounter = 0;
   compileService.on("compileEnd", (result) => reportDiagnostics(result));
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -138,6 +149,8 @@ export function createServer(host: ServerHost): Server {
     getHover,
     getSignatureHelp,
     getDocumentSymbols,
+    getCodeActions,
+    executeCommand,
     log,
   };
 
@@ -172,6 +185,12 @@ export function createServer(host: ServerHost): Server {
       signatureHelpProvider: {
         triggerCharacters: ["(", ",", "<"],
         retriggerCharacters: [")"],
+      },
+      codeActionProvider: {
+        codeActionKinds: ["quickfix"],
+      },
+      executeCommandProvider: {
+        commands: [Commands.APPLY_CODE_FIX],
       },
     };
 
@@ -334,6 +353,7 @@ export function createServer(host: ServerHost): Server {
     compileService.notifyChange(change.document);
   }
   async function reportDiagnostics({ program, document }: CompileResult) {
+    currentDiagnosticIndex.clear();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -376,12 +396,14 @@ export function createServer(host: ServerHost): Server {
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
+      diagnostic.data = { id: diagnosticIdCounter++ };
       const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
         diagnostics,
         "Diagnostic reported against a source file that was not added to the program."
       );
       diagnostics.push(diagnostic);
+      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
@@ -599,11 +621,47 @@ export function createServer(host: ServerHost): Server {
     if (result === undefined) {
       return [];
     }
-    const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
-    const sym =
-      id?.kind === SyntaxKind.Identifier ? result.program.checker.resolveIdentifier(id) : undefined;
-    return getLocations(sym?.declarations);
+    const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    switch (node?.kind) {
+      case SyntaxKind.Identifier:
+        const sym = result.program.checker.resolveIdentifier(node);
+        return getLocations(sym?.declarations);
+      case SyntaxKind.StringLiteral:
+        if (node.parent?.kind === SyntaxKind.ImportStatement) {
+          return [await getImportLocation(node.value, result.script)];
+        } else {
+          return [];
+        }
+    }
+    return [];
   }
+
+  async function getImportLocation(
+    importPath: string,
+    currentFile: TypeSpecScriptNode
+  ): Promise<Location> {
+    const host: ResolveModuleHost = {
+      realpath: compilerHost.realpath,
+      readFile: async (path) => {
+        const file = await compilerHost.readFile(path);
+        return file.text;
+      },
+      stat: compilerHost.stat,
+    };
+    const resolved = await resolveModule(host, importPath, {
+      baseDir: getDirectoryPath(currentFile.file.path),
+      resolveMain(pkg) {
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using tspMain instead of main.
+        return resolveTspMain(pkg) ?? pkg.main;
+      },
+    });
+    return {
+      uri: fileService.getURL(resolved.type === "file" ? resolved.path : resolved.mainFile),
+      range: Range.create(0, 0, 0, 0),
+    };
+  }
+
   async function complete(params: CompletionParams): Promise<CompletionList> {
     const completions: CompletionList = {
       isIncomplete: false,
@@ -614,7 +672,7 @@ export function createServer(host: ServerHost): Server {
       const { script, document, program } = result;
       const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
-      await resolveCompletion(
+      return await resolveCompletion(
         {
           program,
           file: script,
@@ -624,6 +682,7 @@ export function createServer(host: ServerHost): Server {
         node
       );
     }
+
     return completions;
   }
 
@@ -733,6 +792,58 @@ export function createServer(host: ServerHost): Server {
     }
 
     return builder.build();
+  }
+
+  async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
+    const actions = [];
+    for (const vsDiag of params.context.diagnostics) {
+      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
+      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+
+      for (const fix of tspDiag.codefixes ?? []) {
+        const codeAction: CodeAction = {
+          ...CodeAction.create(
+            fix.label,
+            {
+              title: fix.label,
+              command: Commands.APPLY_CODE_FIX,
+              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
+            },
+            CodeActionKind.QuickFix
+          ),
+          diagnostics: [vsDiag],
+        };
+        actions.push(codeAction);
+      }
+    }
+
+    return actions;
+  }
+
+  async function executeCommand(params: ExecuteCommandParams) {
+    if (params.command === Commands.APPLY_CODE_FIX) {
+      const [documentUri, diagId, fixId] = params.arguments ?? [];
+      if (documentUri && diagId && fixId) {
+        const diag = currentDiagnosticIndex.get(diagId);
+        const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          const vsEdits = convertCodeFixEdits(edits);
+          await host.applyEdit({ changes: { [documentUri]: vsEdits } });
+        }
+      }
+    }
+  }
+  function convertCodeFixEdits(edits: CodeFixEdit[]): TextEdit[] {
+    return edits.map(convertCodeFixEdit);
+  }
+  function convertCodeFixEdit(edit: CodeFixEdit): TextEdit {
+    switch (edit.kind) {
+      case "insert-text":
+        return TextEdit.insert(edit.file.getLineAndCharacterOfPosition(edit.pos), edit.text);
+      case "replace-text":
+        return TextEdit.replace(getRange(edit, edit.file), edit.text);
+    }
   }
 
   function documentClosed(change: TextDocumentChangeEvent<TextDocument>) {

@@ -5,13 +5,13 @@ title: "[I] DecoratorParamDefinition"
 ---
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `readonly` | `kind` | `K` \| readonly `K`[] | Kind of the parameter |
-| `readonly` | `optional?` | `boolean` | Is the parameter optional. |
+| `kind` | `readonly` | `K` \| readonly `K`[] | Kind of the parameter |
+| `optional?` | `readonly` | `boolean` | Is the parameter optional. |

@@ -5,10 +5,10 @@ title: "[I] TypeMapper"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `args` | readonly [`Type`](../type-aliases/Type.md)[] | - |
-| `partial` | `boolean` | - |
+| Property | Type |
+| :------ | :------ |
+| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `partial` | `boolean` |
 
 ## Methods
 

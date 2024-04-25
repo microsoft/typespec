@@ -419,7 +419,7 @@ describe("compiler: interfaces", () => {
 
       expectDiagnostics(diagnostics, {
         code: "shadow",
-        message: `Shadowing parent template parmaeter with the same name "A"`,
+        message: `Shadowing parent template parameter with the same name "A"`,
       });
     });
 

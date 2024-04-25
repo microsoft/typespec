@@ -1,12 +1,25 @@
 # Change Log - typespec-vscode
 
+## 0.55.0
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
 ### Patch Changes
 
 - ba02533: Added icons to the extensions
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.1
 

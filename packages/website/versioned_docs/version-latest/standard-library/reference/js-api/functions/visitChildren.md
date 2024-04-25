@@ -9,7 +9,7 @@ visitChildren<T>(node, cb): T | undefined
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

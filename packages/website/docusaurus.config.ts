@@ -1,4 +1,3 @@
-// @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
@@ -10,6 +9,7 @@ import { resolve } from "path";
 import { themes } from "prism-react-renderer";
 
 function getMajorMinorVersion(pkgJsonPath): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const version = require(pkgJsonPath).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;
@@ -56,7 +56,7 @@ const config: Config = {
   url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.svg",
 
   // GitHub pages deployment config.
@@ -80,6 +80,11 @@ const config: Config = {
   scripts: [
     {
       src: "es-module-shims.js",
+      type: "module",
+      async: true,
+    },
+    {
+      src: "1ds-init.js",
       type: "module",
       async: true,
     },
@@ -234,10 +239,6 @@ const config: Config = {
           to: "/community",
         },
         {
-          label: "Getting started",
-          to: "/docs",
-        },
-        {
           type: "docsVersionDropdown",
           position: "right",
         },
@@ -277,10 +278,11 @@ const config: Config = {
     algolia: {
       // cspell:disable-next-line
       appId: "V3T9EUVLJR",
+      // This is the search API KEY this can be public https://support.algolia.com/hc/en-us/articles/18966776061329-Can-the-search-API-key-be-public
       apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
       indexName: "typespec",
     },
-  },
+  } satisfies ThemeConfig,
 };
 
 export default config;

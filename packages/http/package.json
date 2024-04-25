@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "0.53.0",
+  "version": "0.55.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -35,15 +35,16 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http/reference"
   },
   "files": [
@@ -57,16 +58,13 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@typespec/compiler": "workspace:~",
-    "@typespec/eslint-config-typespec": "workspace:~",
-    "@typespec/eslint-plugin": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.5",
+    "vitest": "^1.5.0"
   }
 }

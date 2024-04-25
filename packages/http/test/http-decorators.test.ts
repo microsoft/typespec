@@ -18,6 +18,8 @@ import {
   getStatusCodes,
   includeInapplicableMetadataInPayload,
   isBody,
+  isBodyIgnore,
+  isBodyRoot,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -260,7 +262,7 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
@@ -269,7 +271,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
       ]);
     });
@@ -280,6 +290,15 @@ describe("http: decorators", () => {
         @route("/test") @sharedRoute op test2(): string;
       `);
 
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("do not emit diagnostics routes sharing path but not same verb", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") @post op test3(): string;
+      `);
       expectDiagnosticEmpty(diagnostics);
     });
 
@@ -403,6 +422,68 @@ describe("http: decorators", () => {
     });
   });
 
+  describe("@bodyRoot", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyRoot op test(): string;
+
+          @bodyRoot model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("set the body root with @bodyRoot", async () => {
+      const { body } = (await runner.compile(`
+          @post op test(@test @bodyRoot body: string): string;
+        `)) as { body: ModelProperty };
+
+      ok(isBodyRoot(runner.program, body));
+    });
+  });
+
+  describe("@bodyIgnore", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyIgnore op test(): string;
+
+          @bodyIgnore model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("isBodyIgnore returns true on property decorated", async () => {
+      const { body } = await runner.compile(`
+          @post op test(@test @bodyIgnore body: string): string;
+        `);
+
+      ok(isBodyIgnore(runner.program, body as ModelProperty));
+    });
+  });
+
   describe("@statusCode", () => {
     it("emit diagnostics when @statusCode is not used on model property", async () => {
       const diagnostics = await runner.diagnose(`
@@ -449,7 +530,7 @@ describe("http: decorators", () => {
         `      
         model CustomUnauthorizedResponse {
           @statusCode _: 401;
-          @body body: UnauthorizedResponse;
+          @bodyRoot body: UnauthorizedResponse;
         }
   
         model Pet {
@@ -650,8 +731,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unassignable",
-          message:
-            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          message: `Type '"foo"' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'`,
         },
         {
           code: "unassignable",
@@ -780,7 +860,7 @@ describe("http: decorators", () => {
 
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo } = (await runner.compile(`
-        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
+        alias MyAuth<T extends valueof string[]> = OAuth2Auth<Flows=[{
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
           refreshUrl: "https://api.example.com/oauth2/refresh";

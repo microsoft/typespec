@@ -298,6 +298,12 @@ const diagnostics = {
       array: "Cannot intersect an array model.",
     },
   },
+  "incompatible-indexer": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property is incompatible with indexer:\n${"message"}`,
+    },
+  },
   "no-array-properties": {
     severity: "error",
     messages: {
@@ -491,7 +497,7 @@ const diagnostics = {
   shadow: {
     severity: "warning",
     messages: {
-      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+      default: paramMessage`Shadowing parent template parameter with the same name "${"name"}"`,
     },
   },
   "invalid-deprecation-argument": {

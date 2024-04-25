@@ -18,7 +18,7 @@ export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 /** @deprecated use Authentication */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type ServiceAuthentication = Authentication;
+export type ServiceAuthentication = Authentication;
 
 export interface Authentication {
   /**
@@ -197,6 +197,57 @@ export interface NoAuth extends HttpAuthBase {
   type: "noAuth";
 }
 
+export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
+
+export interface AnyHttpAuthRef {
+  readonly kind: "any";
+  readonly auth: HttpAuth;
+}
+
+export interface NoHttpAuthRef {
+  readonly kind: "noAuth";
+  readonly auth: NoAuth;
+}
+
+/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
+export interface OAuth2HttpAuthRef {
+  readonly kind: "oauth2";
+  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  readonly scopes: string[];
+}
+
+export interface AuthenticationReference {
+  /**
+   * Either one of those options can be used independently to authenticate.
+   */
+  readonly options: AuthenticationOptionReference[];
+}
+
+export interface AuthenticationOptionReference {
+  /**
+   * For this authentication option all the given auth have to be used together.
+   */
+  readonly all: HttpAuthRef[];
+}
+
+export interface HttpServiceAuthentication {
+  /**
+   * All the authentication schemes used in this service.
+   * Some might only be used in certain operations.
+   */
+  readonly schemes: HttpAuth[];
+
+  /**
+   * Default authentication for operations in this service.
+   */
+  readonly defaultAuth: AuthenticationReference;
+
+  /**
+   * Authentication overrides for individual operations.
+   */
+  readonly operationsAuth: Map<Operation, AuthenticationReference>;
+}
+
 export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
@@ -272,9 +323,16 @@ export type HttpOperationParameter = (
  */
 export interface HttpOperationRequestBody extends HttpOperationBody {
   /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body`
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
    */
   parameter?: ModelProperty;
+}
+
+export interface HttpOperationResponseBody extends HttpOperationBody {
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
+   */
+  readonly property?: ModelProperty;
 }
 
 export interface HttpOperationParameters {
@@ -388,7 +446,7 @@ export interface HttpOperationResponse {
 
 export interface HttpOperationResponseContent {
   headers?: Record<string, ModelProperty>;
-  body?: HttpOperationBody;
+  body?: HttpOperationResponseBody;
 }
 
 export interface HttpOperationBody {
@@ -401,6 +459,12 @@ export interface HttpOperationBody {
    * Type of the operation body.
    */
   type: Type;
+
+  /** If the body was explicitly set with `@body`. */
+  readonly isExplicit: boolean;
+
+  /** If the body contains metadata annotations to ignore. For example `@header`. */
+  readonly containsMetadataAnnotations: boolean;
 }
 
 export interface HttpStatusCodeRange {

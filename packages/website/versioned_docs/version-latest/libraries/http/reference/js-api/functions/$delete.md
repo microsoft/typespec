@@ -4,7 +4,7 @@ title: "[F] $delete"
 
 ---
 ```ts
-$delete(context, entity): void
+$delete(context, target): void
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ $delete(context, entity): void
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

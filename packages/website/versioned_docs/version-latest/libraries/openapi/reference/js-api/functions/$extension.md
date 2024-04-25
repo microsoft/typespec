@@ -6,8 +6,8 @@ title: "[F] $extension"
 ```ts
 $extension(
    context, 
-   entity, 
-   extensionName, 
+   target, 
+   key, 
    value): void
 ```
 
@@ -16,9 +16,9 @@ $extension(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Type` |
-| `extensionName` | `string` |
-| `value` | `TypeSpecValue` |
+| `target` | `Type` |
+| `key` | `string` |
+| `value` | `Type` |
 
 ## Returns
 

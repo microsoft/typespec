@@ -1,11 +1,13 @@
+import { ServiceDecorator } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { getTypeName } from "../core/index.js";
+import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { DecoratorContext, Model, Namespace } from "../core/types.js";
+import { DecoratorContext, Namespace } from "../core/types.js";
 
 export interface ServiceDetails {
   title?: string;
+  /** @deprecated Service version is deprecated. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version */
   version?: string;
 }
 
@@ -63,12 +65,24 @@ export function addService(
   serviceMap.set(namespace, { ...existing, ...details, type: namespace });
 }
 
-export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
+export const $service: ServiceDecorator = (
+  context: DecoratorContext,
+  target: Namespace,
+  options?: Type
+) => {
   validateDecoratorUniqueOnNode(context, target, $service);
 
+  if (options && options.kind !== "Model") {
+    reportDiagnostic(context.program, {
+      code: "invalid-argument",
+      format: { value: options.kind, expected: "Model" },
+      target: context.getArgumentTarget(0)!,
+    });
+    return;
+  }
   const serviceDetails: ServiceDetails = {};
   const title = options?.properties.get("title")?.type;
-  const version = options?.properties.get("version")?.type;
+  const versionProp = options?.properties.get("version");
   if (title) {
     if (title.kind === "String") {
       serviceDetails.title = title.value;
@@ -80,8 +94,15 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
       });
     }
   }
-  if (version) {
+  if (versionProp) {
+    const version = versionProp.type;
+    reportDeprecated(
+      context.program,
+      "version: property is deprecated in @service. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version.",
+      versionProp
+    );
     if (version.kind === "String") {
+      // eslint-disable-next-line deprecation/deprecation
       serviceDetails.version = version.value;
     } else {
       reportDiagnostic(context.program, {
@@ -93,4 +114,4 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
   }
 
   addService(context.program, target, serviceDetails);
-}
+};

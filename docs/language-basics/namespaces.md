@@ -5,11 +5,11 @@ title: Namespaces
 
 # Namespaces
 
-Namespaces let you group related types together into namespaces. This helps organize your types, making them easier to find and prevents name conflicts. Namespaces are merged across files, so you can reference any type anywhere in your TypeSpec program via its namespace.
+Namespaces in TypeSpec allow you to group related types together. This organization makes your types easier to locate and helps avoid naming conflicts. Namespaces are merged across files, enabling you to reference any type from anywhere in your TypeSpec program using its namespace.
 
 ## Basics
 
-Create a namespace with the `namespace` keyword.
+You can create a namespace using the `namespace` keyword.
 
 ```typespec
 namespace SampleNamespace {
@@ -17,9 +17,9 @@ namespace SampleNamespace {
 }
 ```
 
-_The name of a namespace must be a valid TypeSpec identifier._
+_Note: The namespace name must be a valid TypeSpec identifier._
 
-The `SampleNamespace` can then be used from other places:
+You can then use `SampleNamespace` from other locations:
 
 ```typespec
 model Foo {
@@ -27,9 +27,9 @@ model Foo {
 }
 ```
 
-## Nested namespace
+## Nested namespaces
 
-Namespaces can contain sub namespaces providing additional granularity
+Namespaces can contain sub-namespaces, offering additional layers of organization.
 
 ```typespec
 namespace Foo {
@@ -41,7 +41,7 @@ namespace Foo {
 }
 ```
 
-or this can be simplified using `.` notation
+Alternatively, you can simplify this using `.` notation:
 
 ```typespec
 namespace Foo.Bar.Baz {
@@ -49,7 +49,7 @@ namespace Foo.Bar.Baz {
 }
 ```
 
-The sub-namespace can then be used from other places using the fully qualified name.
+You can then use the sub-namespace from other locations using the fully qualified name.
 
 ```typespec
 model A {
@@ -57,9 +57,9 @@ model A {
 }
 ```
 
-## File namespace
+## File-level namespaces
 
-A namespace for all declarations contained in a file can be provided at the top (After the `import` statements) using a blockless namespace statement
+You can define a namespace for all declarations within a file at the top of the file (after any `import` statements) using a blockless namespace statement:
 
 ```typespec
 namespace SampleNamespace;
@@ -67,11 +67,11 @@ namespace SampleNamespace;
 model SampleModel {}
 ```
 
-A file can only have a single blockless namespace.
+A file can only have one blockless namespace.
 
-## Using a namespace
+## Using namespaces
 
-The content of a namespace can be exposed to the current scope using the `using` keyword.
+You can expose the contents of a namespace to the current scope using the `using` keyword.
 
 ```typespec
 using SampleNamespace;
@@ -81,7 +81,7 @@ model Foo {
 }
 ```
 
-The bindings introduced by a `using` statement are local to the namespace they are declared in. They do not become part of the namespace themselves.
+The bindings introduced by a `using` statement are local to the namespace in which they are declared. They do not become part of the namespace themselves.
 
 ```typespec
 namespace One {
@@ -90,9 +90,9 @@ namespace One {
 
 namespace Two {
   using One;
-  alias B = A; // ok
+  alias B = A; // This is valid
 }
 
-alias C = One.A; // not ok
-alias C = Two.B; // ok
+alias C = Two.A; // This is not valid
+alias C = Two.B; // This is valid
 ```

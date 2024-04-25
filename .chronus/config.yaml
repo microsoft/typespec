@@ -44,7 +44,6 @@ versionPolicies:
       - "@typespec/openapi3"
       - "@typespec/protobuf"
       - "@typespec/prettier-plugin-typespec"
-      - "@typespec/eslint-config-typespec"
       - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/json-schema"
@@ -52,4 +51,12 @@ versionPolicies:
       - "typespec-vs"
       - "typespec-vscode"
       - "@typespec/library-linter"
-      - "@typespec/best-practices"
+
+changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
+
+ignore:
+  - "@typespec/http-client-csharp"
+
+changedFiles:
+  - "!**/*.md"
+  - "!**/*.test.ts"

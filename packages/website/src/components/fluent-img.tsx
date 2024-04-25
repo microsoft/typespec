@@ -32,5 +32,5 @@ export const FluentImg = ({ name, ...props }: FluentImgProps) => {
   const { colorMode } = useColorMode();
   const colorKey = colorMode === "dark" ? "d" : "l";
   const src = useBaseUrl(`/img/fluent/${name}-${colorKey}-standard-128x128.png`);
-  return <img src={src} {...props} />;
+  return <img src={src} {...props} alt={props.alt ?? ""} />;
 };

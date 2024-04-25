@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 
-await buildSamples_experimental(packageRoot, resolve(__dirname, "dist/samples.js"), {
+await buildSamples_experimental(packageRoot, resolve(__dirname, "dist/samples.ts"), {
   "API versioning": {
     filename: "samples/versioning.tsp",
     preferredEmitter: "@typespec/openapi3",

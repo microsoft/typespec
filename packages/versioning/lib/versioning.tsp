@@ -237,3 +237,30 @@ projection enummember#v {
     };
   }
 }
+
+#suppress "projections-are-experimental"
+projection scalar#v {
+  pre to(version) {
+    if !existsAtVersion(self, version) {
+      return never;
+    };
+  }
+  to(version) {
+    if hasDifferentNameAtVersion(self, version) {
+      self::rename(getNameAtVersion(self, version));
+    };
+    if hasDifferentReturnTypeAtVersion(self, version) {
+      self::changeReturnType(getReturnTypeBeforeVersion(self, version));
+    };
+  }
+  pre from(version) {
+    if !existsAtVersion(self, version) {
+      return never;
+    };
+  }
+  from(version) {
+    if hasDifferentNameAtVersion(self, version) {
+      self::rename(self::projectionBase::name);
+    };
+  }
+}

@@ -5,9 +5,9 @@ title: "[F] $field"
 ---
 ```ts
 $field(
-   ctx, 
+   context, 
    target, 
-   fieldIndex): void
+   index): void
 ```
 
 Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
@@ -16,9 +16,9 @@ Decorate a model property with a field index. Field indices are required for all
 
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
-| `ctx` | `DecoratorContext` | - |
+| `context` | `DecoratorContext` | - |
 | `target` | `ModelProperty` |  |
-| `fieldIndex` | `number` |  |
+| `index` | `number` | - |
 
 ## Returns
 

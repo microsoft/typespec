@@ -3,42 +3,58 @@
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@8.13.1",
+  "type": "module",
   "scripts": {
-    "build": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build ",
-    "check-format": "pnpm run prettier --check",
+    "build": "pnpm build:all && pnpm gen-compiler-extern-signature",
+    "build:all": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build  && pnpm gen-compiler-extern-signature",
+    "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" run build",
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
     "cspell": "cspell --no-progress .",
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
     "fix-version-mismatch": "syncpack fix-mismatches",
-    "format": "pnpm run prettier --write",
-    "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "format:dir": "prettier --write",
+    "gen-compiler-extern-signature": "pnpm run -r --filter \"@typespec/compiler\"  gen-extern-signature",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
-    "pack:all": "node ./eng/scripts/pack-all.js",
+    "pack:all": "chronus pack --pack-destination ./temp/artifacts",
     "preinstall": "npx only-allow pnpm",
     "prepare-publish": "pnpm chronus version",
-    "prettier": "prettier .",
     "purge": "rimraf --glob \"packages/*/node_modules/\"",
     "regen-docs": "pnpm -r --parallel --aggregate-output --reporter=append-only run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
-    "test-official": "pnpm -r --aggregate-output --reporter=append-only test-official",
+    "test:ci": "pnpm -r --aggregate-output --reporter=append-only --sequential test:ci",
     "test:e2e": "pnpm -r run test:e2e",
     "test": "pnpm -r --aggregate-output --reporter=append-only run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.7.0",
+    "@chronus/chronus": "^0.10.1",
+    "@chronus/github": "^0.3.2",
+    "@eslint/js": "^8.57.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
+    "@types/node": "~18.11.19",
+    "@typescript-eslint/parser": "^7.6.0",
+    "@typescript-eslint/utils": "^7.6.0",
     "c8": "^9.1.0",
-    "cspell": "^8.3.2",
+    "cspell": "^8.7.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-deprecation": "^2.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-unicorn": "^52.0.0",
+    "eslint-plugin-vitest": "^0.5.3",
     "prettier": "~3.2.5",
     "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.5",
     "syncpack": "^12.3.0",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.5",
+    "typescript-eslint": "^7.6.0",
+    "vitest": "^1.5.0"
   },
   "syncpack": {
     "dependencyTypes": [
@@ -49,5 +65,10 @@
       "prod",
       "resolutions"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "@fluentui/react-theme": "9.1.17"
+    }
   }
 }

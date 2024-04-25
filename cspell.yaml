@@ -5,6 +5,7 @@ dictionaries:
   - node
   - typescript
 words:
+  - atrule
   - autorest
   - azsdk
   - azsdkengsys
@@ -30,6 +31,7 @@ words:
   - eastus
   - ecmarkup
   - esbuild
+  - espt
   - ESRP
   - fluentui
   - genproto
@@ -42,7 +44,11 @@ words:
   - jsyaml
   - keyer
   - lifecyle
+  - LINUXOS
+  - LINUXVMIMAGE
+  - LINUXNEXTVMIMAGE
   - lzutf
+  - MACVMIMAGE
   - mocharc
   - msbuild
   - MSRC
@@ -57,6 +63,7 @@ words:
   - npmjs
   - oapi
   - OIDC
+  - oneds
   - oneof
   - onig
   - onigasm
@@ -69,7 +76,9 @@ words:
   - protobuf
   - protoc
   - pwsh
+  - psscriptanalyzer
   - regen
+  - respecify
   - rpaas
   - rushx
   - safeint
@@ -84,6 +93,7 @@ words:
   - tspd
   - tspwebsitepr
   - tsvs
+  - typespec
   - typespecvs
   - Uhoh
   - uitestresults
@@ -99,8 +109,10 @@ words:
   - VSSDK
   - vswhere
   - westus
+  - WINDOWSVMIMAGE
   - xlarge
   - xplat
+  - TCGC
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

@@ -6,8 +6,8 @@ title: "[F] $madeOptional"
 ```ts
 $madeOptional(
    context, 
-   t, 
-   v): void
+   target, 
+   version): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $madeOptional(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `t` | `ModelProperty` |
-| `v` | `EnumMember` |
+| `target` | `ModelProperty` |
+| `version` | `EnumMember` |
 
 ## Returns
 

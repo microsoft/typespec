@@ -4,7 +4,7 @@ title: "[F] $sharedRoute"
 
 ---
 ```ts
-$sharedRoute(context, entity): void
+$sharedRoute(context, target): void
 ```
 
 `@sharedRoute` marks the operation as sharing a route path with other operations.
@@ -19,7 +19,7 @@ route path as long as those operations are also marked with `@sharedRoute`.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Operation` |
+| `target` | `Operation` |
 
 ## Returns
 

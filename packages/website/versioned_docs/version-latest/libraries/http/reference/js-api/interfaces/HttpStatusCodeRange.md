@@ -5,7 +5,7 @@ title: "[I] HttpStatusCodeRange"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `end` | `number` | - |
-| `start` | `number` | - |
+| Property | Type |
+| :------ | :------ |
+| `end` | `number` |
+| `start` | `number` |

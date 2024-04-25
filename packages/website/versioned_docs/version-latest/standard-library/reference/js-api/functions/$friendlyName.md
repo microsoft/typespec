@@ -7,8 +7,8 @@ title: "[F] $friendlyName"
 $friendlyName(
    context, 
    target, 
-   friendlyName, 
-   sourceObject): void
+   name, 
+   formatArgs?): void
 ```
 
 ## Parameters
@@ -17,8 +17,8 @@ $friendlyName(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
-| `friendlyName` | `string` |
-| `sourceObject` | `undefined` \| [`Type`](../type-aliases/Type.md) |
+| `name` | `string` |
+| `formatArgs`? | [`Type`](../type-aliases/Type.md) |
 
 ## Returns
 

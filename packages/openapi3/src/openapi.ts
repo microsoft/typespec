@@ -81,11 +81,11 @@ import {
 import {
   getExtensions,
   getExternalDocs,
-  getInfo,
   getOpenAPITypeName,
   getParameterKey,
   isDefaultResponse,
   isReadonlyProperty,
+  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
@@ -118,6 +118,7 @@ const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
+  "safeint-strategy": "int64",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -186,6 +187,7 @@ export function resolveOptions(
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
+    safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
@@ -196,6 +198,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
+  safeintStrategy: "double-int" | "int64";
 }
 
 function createOAPIEmitter(
@@ -304,13 +307,13 @@ function createOAPIEmitter(
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
 
+    const info = resolveInfo(program, service.type);
     root = {
       openapi: "3.0.0",
       info: {
-        title: service.title ?? "(title)",
-        version: version ?? service.version ?? "0000-00-00",
-        description: getDoc(program, service.type),
-        ...getInfo(program, service.type),
+        title: "(title)",
+        ...info,
+        version: version ?? info?.version ?? "0.0.0",
       },
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
@@ -863,7 +866,7 @@ function createOAPIEmitter(
       attachExtensions(program, op, currentEndpoint);
     }
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
   }
 
@@ -903,7 +906,7 @@ function createOAPIEmitter(
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
@@ -1016,7 +1019,12 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(data.body.type, Visibility.Read, undefined);
+          : getSchemaForBody(
+              data.body.type,
+              Visibility.Read,
+              data.body.isExplicit && data.body.containsMetadataAnnotations,
+              undefined
+            );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -1049,9 +1057,15 @@ function createOAPIEmitter(
   function callSchemaEmitter(
     type: Type,
     visibility: Visibility,
+    ignoreMetadataAnnotations?: boolean,
     contentType?: string
   ): Refable<OpenAPI3Schema> {
-    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
+    const result = emitTypeWithSchemaEmitter(
+      type,
+      visibility,
+      ignoreMetadataAnnotations,
+      contentType
+    );
 
     switch (result.kind) {
       case "code":
@@ -1073,7 +1087,7 @@ function createOAPIEmitter(
   }
 
   function getSchemaValue(type: Type, visibility: Visibility, contentType: string): OpenAPI3Schema {
-    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
+    const result = emitTypeWithSchemaEmitter(type, visibility, false, contentType);
 
     switch (result.kind) {
       case "code":
@@ -1096,6 +1110,7 @@ function createOAPIEmitter(
   function emitTypeWithSchemaEmitter(
     type: Type,
     visibility: Visibility,
+    ignoreMetadataAnnotations?: boolean,
     contentType?: string
   ): EmitEntity<OpenAPI3Schema> {
     if (!metadataInfo.isTransformed(type, visibility)) {
@@ -1103,17 +1118,28 @@ function createOAPIEmitter(
     }
     contentType = contentType === "application/json" ? undefined : contentType;
     return schemaEmitter.emitType(type, {
-      referenceContext: { visibility, serviceNamespaceName: serviceNamespaceName, contentType },
+      referenceContext: {
+        visibility,
+        serviceNamespaceName: serviceNamespaceName,
+        ignoreMetadataAnnotations: ignoreMetadataAnnotations ?? false,
+        contentType,
+      },
     }) as any;
   }
 
   function getSchemaForBody(
     type: Type,
     visibility: Visibility,
+    ignoreMetadataAnnotations: boolean,
     multipart: string | undefined
   ): any {
     const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
-    return callSchemaEmitter(effectiveType, visibility, multipart ?? "application/json");
+    return callSchemaEmitter(
+      effectiveType,
+      visibility,
+      ignoreMetadataAnnotations,
+      multipart ?? "application/json"
+    );
   }
 
   function getParamPlaceholder(property: ModelProperty) {
@@ -1191,6 +1217,7 @@ function createOAPIEmitter(
           : getSchemaForBody(
               body.type,
               visibility,
+              body.isExplicit,
               contentType.startsWith("multipart/") ? contentType : undefined
             );
         if (schemaMap.has(contentType)) {
@@ -1233,6 +1260,7 @@ function createOAPIEmitter(
         : getSchemaForBody(
             body.type,
             visibility,
+            body.isExplicit && body.containsMetadataAnnotations,
             contentType.startsWith("multipart/") ? contentType : undefined
           );
       const contentEntry: any = {
@@ -1553,7 +1581,7 @@ function createOAPIEmitter(
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, "application/json")],
+        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, false, "application/json")],
       };
     }
 
@@ -1572,6 +1600,7 @@ function createOAPIEmitter(
       const newType = callSchemaEmitter(
         encodeData.type,
         Visibility.Read,
+        false,
         "application/json"
       ) as OpenAPI3Schema;
       newTarget.type = newType.type;
@@ -1656,8 +1685,11 @@ function createOAPIEmitter(
     return security;
   }
 
-  function emitSecurity(authReference: AuthenticationReference) {
+  function emitEndpointSecurity(authReference: AuthenticationReference) {
     const security = getOpenAPISecurity(authReference);
+    if (deepEquals(security, root.security)) {
+      return;
+    }
     if (security.length > 0) {
       currentEndpoint.security = security;
     }

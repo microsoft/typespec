@@ -69,7 +69,7 @@ model User {
   updatedAtPretty: offsetDateTime; // rfc7231
 
   @encode(DateTimeKnownEncoding.unixTimestamp, int32)
-  createdAtUnix: utcDateTime; // unixTime
+  createdAtUnix: utcDateTime; // unixTime in seconds
 }
 ```
 
@@ -87,7 +87,7 @@ Created-At-Rfc3339: 2022-10-12T07:20:50.52Z
   "updatedAt": "2022-10-25T07:20:50.52+07:00",
   "createdAtPretty": "Wed, 12 Oct 2022 07:20:50 GMT",
   "updatedAtPretty": "Tue, 25 Oct 2022 00:20:50 GMT",
-  "createdAtUnix": 1665559250520
+  "createdAtUnix": 1493938410
 }
 ```
 

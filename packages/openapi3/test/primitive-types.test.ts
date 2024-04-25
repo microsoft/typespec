@@ -1,12 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { OpenAPI3Schema } from "../src/types.js";
-import { oapiForModel } from "./test-host.js";
+import { oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: primitives", () => {
   describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
+      ["null", { nullable: true }],
       ["numeric", { type: "number" }],
       ["integer", { type: "integer" }],
       ["int8", { type: "integer", format: "int8" }],
@@ -46,6 +47,34 @@ describe("openapi3: primitives", () => {
         deepStrictEqual(schema, expectedSchema);
       });
     }
+  });
+
+  describe("safeint-strategy", () => {
+    it("produce type: integer, format: double-int for safeint when safeint-strategy is double-int", async () => {
+      const res = await openApiFor(
+        `
+      model Pet { name: safeint };
+      `,
+        undefined,
+        { "safeint-strategy": "double-int" }
+      );
+
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "double-int" });
+    });
+
+    it("produce type: integer, format: int64 for safeint when safeint-strategy is int64", async () => {
+      const res = await openApiFor(
+        `
+      model Pet { name: safeint };
+      `,
+        undefined,
+        { "safeint-strategy": "int64" }
+      );
+
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "int64" });
+    });
   });
 
   it("defines models extended from primitives", async () => {

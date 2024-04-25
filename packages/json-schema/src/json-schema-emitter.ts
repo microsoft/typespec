@@ -634,6 +634,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
   async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
+    if (this.emitter.getOptions().noEmit) {
+      return;
+    }
     this.#reportDuplicateIds();
     const toEmit: EmittedSourceFile[] = [];
 

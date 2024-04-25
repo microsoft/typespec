@@ -7,7 +7,7 @@ title: "[F] $maxLength"
 $maxLength(
    context, 
    target, 
-   maxLength): void
+   value): void
 ```
 
 ## Parameters
@@ -15,8 +15,8 @@ $maxLength(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
-| `maxLength` | `number` |
+| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `value` | `number` |
 
 ## Returns
 

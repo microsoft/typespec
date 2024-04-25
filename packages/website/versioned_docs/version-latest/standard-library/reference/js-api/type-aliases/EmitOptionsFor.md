@@ -11,6 +11,6 @@ Get the options for the onEmit of this library.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `C` |

@@ -5,28 +5,28 @@ title: Releases
 
 # Releases
 
-## Package versioning strategy
+## Versioning strategy for packages
 
-TypeSpec is not stable yet, all packages are released with `0.` major version. Each minor version might have some breaking changes to the TypeSpec language, library API or both. Those are documented [here](../release-notes).
+TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../release-notes).
 
-Every change to the `main` branch is automatically published under the npm `@next` tag.
+Any modification to the `main` branch is automatically published under the npm `@next` tag.
 
-## Current packages
+## Available packages
 
-| Name                                               | Changelog                        | Latest                                                                                                                                   | Next                                                                      |
-| -------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| Core functionality                                 |                                  |                                                                                                                                          |                                                                           |
-| [@typespec/compiler][compiler_src]                 | [Changelog][compiler_chg]        | [![](https://img.shields.io/npm/v/@typespec/compiler)](https://www.npmjs.com/package/@typespec/compiler)                                 | ![](https://img.shields.io/npm/v/@typespec/compiler/next)                 |
-| TypeSpec Libraries                                 |                                  |                                                                                                                                          |                                                                           |
-| [@typespec/rest][rest_src]                         | [Changelog][rest_chg]            | [![](https://img.shields.io/npm/v/@typespec/rest)](https://www.npmjs.com/package/@typespec/rest)                                         | ![](https://img.shields.io/npm/v/@typespec/rest/next)                     |
-| [@typespec/openapi][openapi_src]                   | [Changelog][openapi_chg]         | [![](https://img.shields.io/npm/v/@typespec/openapi)](https://www.npmjs.com/package/@typespec/openapi)                                   | ![](https://img.shields.io/npm/v/@typespec/openapi/next)                  |
-| [@typespec/openapi3][openapi3_src]                 | [Changelog][openapi3_chg]        | [![](https://img.shields.io/npm/v/@typespec/openapi3)](https://www.npmjs.com/package/@typespec/openapi3)                                 | ![](https://img.shields.io/npm/v/@typespec/openapi3/next)                 |
-| [@typespec/versioning][versioning_src]             | [Changelog][versioning_chg]      | [![](https://img.shields.io/npm/v/@typespec/versioning)](https://www.npmjs.com/package/@typespec/versioning)                             | ![](https://img.shields.io/npm/v/@typespec/versioning/next)               |
-| TypeSpec Tools                                     |                                  |                                                                                                                                          |                                                                           |
-| [@typespec/prettier-plugin-typespec][prettier_src] | [Changelog][prettier_chg]        | [![](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec)](https://www.npmjs.com/package/@typespec/prettier-plugin-typespec) | ![](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec/next) |
-| [typespec-vs][typespec-vs_src]                     | [Changelog][typespec-vs_chg]     | [![](https://img.shields.io/npm/v/typespec-vs)](https://www.npmjs.com/package/typespec-vs)                                               | ![](https://img.shields.io/npm/v/typespec-vs/next)                        |
-| [typespec-vscode][typespec-vscode_src]             | [Changelog][typespec-vscode_chg] | [![](https://img.shields.io/npm/v/typespec-vscode)](https://www.npmjs.com/package/typespec-vscode)                                       | ![](https://img.shields.io/npm/v/typespec-vscode/next)                    |
-| [tmlanguage-generator][tmlanguage_src]             | [Changelog][tmlanguage_chg]      | [![](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                             | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)               |
+| Name                                               | Changelog                        | Latest                                                                                                                                              | Next                                                                      |
+| -------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Core functionality                                 |                                  |                                                                                                                                                     |                                                                           |
+| [@typespec/compiler][compiler_src]                 | [Changelog][compiler_chg]        | [![Npm version](https://img.shields.io/npm/v/@typespec/compiler)](https://www.npmjs.com/package/@typespec/compiler)                                 | ![](https://img.shields.io/npm/v/@typespec/compiler/next)                 |
+| TypeSpec Libraries                                 |                                  |                                                                                                                                                     |                                                                           |
+| [@typespec/rest][rest_src]                         | [Changelog][rest_chg]            | [![Npm version](https://img.shields.io/npm/v/@typespec/rest)](https://www.npmjs.com/package/@typespec/rest)                                         | ![](https://img.shields.io/npm/v/@typespec/rest/next)                     |
+| [@typespec/openapi][openapi_src]                   | [Changelog][openapi_chg]         | [![Npm version](https://img.shields.io/npm/v/@typespec/openapi)](https://www.npmjs.com/package/@typespec/openapi)                                   | ![](https://img.shields.io/npm/v/@typespec/openapi/next)                  |
+| [@typespec/openapi3][openapi3_src]                 | [Changelog][openapi3_chg]        | [![Npm version](https://img.shields.io/npm/v/@typespec/openapi3)](https://www.npmjs.com/package/@typespec/openapi3)                                 | ![](https://img.shields.io/npm/v/@typespec/openapi3/next)                 |
+| [@typespec/versioning][versioning_src]             | [Changelog][versioning_chg]      | [![Npm version](https://img.shields.io/npm/v/@typespec/versioning)](https://www.npmjs.com/package/@typespec/versioning)                             | ![](https://img.shields.io/npm/v/@typespec/versioning/next)               |
+| TypeSpec Tools                                     |                                  |                                                                                                                                                     |                                                                           |
+| [@typespec/prettier-plugin-typespec][prettier_src] | [Changelog][prettier_chg]        | [![Npm version](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec)](https://www.npmjs.com/package/@typespec/prettier-plugin-typespec) | ![](https://img.shields.io/npm/v/@typespec/prettier-plugin-typespec/next) |
+| [typespec-vs][typespec-vs_src]                     | [Changelog][typespec-vs_chg]     | [![Npm version](https://img.shields.io/npm/v/typespec-vs)](https://www.npmjs.com/package/typespec-vs)                                               | ![](https://img.shields.io/npm/v/typespec-vs/next)                        |
+| [typespec-vscode][typespec-vscode_src]             | [Changelog][typespec-vscode_chg] | [![Npm version](https://img.shields.io/npm/v/typespec-vscode)](https://www.npmjs.com/package/typespec-vscode)                                       | ![](https://img.shields.io/npm/v/typespec-vscode/next)                    |
+| [tmlanguage-generator][tmlanguage_src]             | [Changelog][tmlanguage_chg]      | [![Npm version](https://img.shields.io/npm/v/tmlanguage-generator)](https://www.npmjs.com/package/tmlanguage-generator)                             | ![](https://img.shields.io/npm/v/tmlanguage-generator/next)               |
 
 [compiler_src]: https://github.com/microsoft/typespec/blob/main/packages/compiler
 [compiler_chg]: https://github.com/microsoft/typespec/blob/main/packages/compiler/CHANGELOG.md
@@ -49,9 +49,9 @@ Every change to the `main` branch is automatically published under the npm `@nex
 
 ## Release cadence
 
-We release changes from all packages the first week of every month.
+We roll out updates for all packages during the first week of each month.
 
-You can look at the millestones https://github.com/microsoft/typespec/milestones to see upcoming changes. Millestones are named after the target release month (i.e `[2022] October` is the sprint running in september targeting a release in the first week of October.)
+To preview upcoming changes, you can check the milestones at https://github.com/microsoft/typespec/milestones. Milestones are labeled according to the target release month.
 
 ## Breaking changes migration guides
 

@@ -17,6 +17,8 @@ import {
 import {
   includeInapplicableMetadataInPayload,
   isBody,
+  isBodyIgnore,
+  isBodyRoot,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -233,7 +235,7 @@ export function gatherMetadata(
   rootMapOut?: Map<ModelProperty, ModelProperty>
 ): Set<ModelProperty> {
   const metadata = new Map<string, ModelProperty>();
-  if (type.kind !== "Model" || type.indexer || type.properties.size === 0) {
+  if (type.kind !== "Model" || type.properties.size === 0) {
     return new Set();
   }
 
@@ -264,6 +266,9 @@ export function gatherMetadata(
       if (isApplicableMetadataOrBody(program, property, visibility, isMetadataCallback)) {
         metadata.set(property.name, property);
         rootMapOut?.set(property, root);
+        if (isBody(program, property)) {
+          continue; // We ignore any properties under `@body`
+        }
       }
 
       if (
@@ -343,7 +348,7 @@ function isApplicableMetadataCore(
     return false; // no metadata is applicable to collection items
   }
 
-  if (treatBodyAsMetadata && isBody(program, property)) {
+  if (treatBodyAsMetadata && (isBody(program, property) || isBodyRoot(program, property))) {
     return true;
   }
 
@@ -351,7 +356,7 @@ function isApplicableMetadataCore(
     return false;
   }
 
-  if (visibility === Visibility.Read) {
+  if (visibility & Visibility.Read) {
     return isHeader(program, property) || isStatusCode(program, property);
   }
 
@@ -378,6 +383,7 @@ export interface MetadataInfo {
    *
    * When the type of a property is emptied by visibility, the property
    * itself is also removed.
+   * @deprecated This produces inconsistent behaviors and should be avoided.
    */
   isEmptied(type: Type | undefined, visibility: Visibility): boolean;
 
@@ -393,7 +399,11 @@ export interface MetadataInfo {
    * payload and not applicable metadata {@link isApplicableMetadata} or
    * filtered out by the given visibility.
    */
-  isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
+  isPayloadProperty(
+    property: ModelProperty,
+    visibility: Visibility,
+    inExplicitBody?: boolean
+  ): boolean;
 
   /**
    * Determines if the given property is optional in the request or
@@ -528,9 +538,10 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     if (isOptional(property, canonicalVisibility) !== isOptional(property, visibility)) {
       return true;
     }
+
     return (
-      isPayloadProperty(property, visibility, /* keep shared */ true) !==
-      isPayloadProperty(property, canonicalVisibility, /*keep shared*/ true)
+      isPayloadProperty(property, visibility, undefined, /* keep shared */ true) !==
+      isPayloadProperty(property, canonicalVisibility, undefined, /*keep shared*/ true)
     );
   }
 
@@ -539,7 +550,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       return false;
     }
     for (const property of model.properties.values()) {
-      if (isPayloadProperty(property, visibility, /* keep shared */ true)) {
+      if (isPayloadProperty(property, visibility, undefined, /* keep shared */ true)) {
         return false;
       }
     }
@@ -559,12 +570,14 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   function isPayloadProperty(
     property: ModelProperty,
     visibility: Visibility,
+    inExplicitBody?: boolean,
     keepShareableProperties?: boolean
   ): boolean {
     if (
-      isEmptied(property.type, visibility) ||
-      isApplicableMetadata(program, property, visibility) ||
-      (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property))
+      !inExplicitBody &&
+      (isBodyIgnore(program, property) ||
+        isApplicableMetadata(program, property, visibility) ||
+        (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property)))
     ) {
       return false;
     }
@@ -580,7 +593,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       // For OpenAPI emit, for example, this means that we won't put a
       // readOnly: true property into a specialized schema for a non-read
       // visibility.
-      keepShareableProperties ||= visibility === canonicalVisibility;
+      keepShareableProperties ??= visibility === canonicalVisibility;
       return !!(keepShareableProperties && options?.canShareProperty?.(property));
     }
 
@@ -594,7 +607,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   function getEffectivePayloadType(type: Type, visibility: Visibility): Type {
     if (type.kind === "Model" && !type.name) {
       const effective = getEffectiveModelType(program, type, (p) =>
-        isPayloadProperty(p, visibility)
+        isPayloadProperty(p, visibility, undefined, /* keep shared */ false)
       );
       if (effective.name) {
         return effective;

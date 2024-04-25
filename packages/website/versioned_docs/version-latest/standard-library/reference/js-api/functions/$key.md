@@ -6,7 +6,7 @@ title: "[F] $key"
 ```ts
 $key(
    context, 
-   entity, 
+   target, 
    altName?): void
 ```
 
@@ -22,7 +22,7 @@ Otherwise, the name of the target property will be used.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
-| `entity` | [`ModelProperty`](../interfaces/ModelProperty.md) |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `altName`? | `string` |
 
 ## Returns

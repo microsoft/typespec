@@ -1,4 +1,42 @@
 import {
+  DeprecatedDecorator,
+  DiscriminatorDecorator,
+  DocDecorator,
+  EncodeDecorator,
+  ErrorDecorator,
+  ErrorsDocDecorator,
+  FormatDecorator,
+  FriendlyNameDecorator,
+  InspectTypeDecorator,
+  InspectTypeNameDecorator,
+  KeyDecorator,
+  ListDecorator,
+  MaxItemsDecorator,
+  MaxLengthDecorator,
+  MaxValueDecorator,
+  MaxValueExclusiveDecorator,
+  MinItemsDecorator,
+  MinLengthDecorator,
+  MinValueDecorator,
+  MinValueExclusiveDecorator,
+  OverloadDecorator,
+  ParameterVisibilityDecorator,
+  PatternDecorator,
+  ProjectedNameDecorator,
+  ReturnTypeVisibilityDecorator,
+  ReturnsDocDecorator,
+  SecretDecorator,
+  SummaryDecorator,
+  TagDecorator,
+  VisibilityDecorator,
+  WithDefaultKeyVisibilityDecorator,
+  WithOptionalPropertiesDecorator,
+  WithUpdateablePropertiesDecorator,
+  WithVisibilityDecorator,
+  WithoutDefaultValuesDecorator,
+  WithoutOmittedPropertiesDecorator,
+} from "../../generated-defs/TypeSpec.js";
+import {
   isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
@@ -6,7 +44,6 @@ import {
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
   StdTypeName,
-  StringLiteral,
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
@@ -22,7 +59,6 @@ import {
   EnumMember,
   Interface,
   Model,
-  ModelIndexer,
   ModelProperty,
   Namespace,
   Operation,
@@ -61,18 +97,18 @@ const summaryKey = createStateSymbol("summary");
  *
  * @summary can be specified on any language element -- a model, an operation, a namespace, etc.
  */
-export function $summary(
+export const $summary: SummaryDecorator = (
   context: DecoratorContext,
   target: Type,
   text: string,
-  sourceObject: Type
-) {
+  sourceObject?: Type
+) => {
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
 
   context.program.stateMap(summaryKey).set(target, text);
-}
+};
 
 export function getSummary(program: Program, type: Type): string | undefined {
   return program.stateMap(summaryKey).get(type);
@@ -91,7 +127,7 @@ export interface DocData {
 
   /**
    * How was the doc set.
-   * - `@doc` means the `@doc` decorator was used
+   * - `decorator` means the `@doc` decorator was used
    * - `comment` means it was set from a `/** comment * /`
    */
   source: "decorator" | "comment";
@@ -104,25 +140,30 @@ export interface DocData {
  *
  * @doc can be specified on any language element -- a model, an operation, a namespace, etc.
  */
-export function $doc(context: DecoratorContext, target: Type, text: string, sourceObject?: Type) {
+export const $doc: DocDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  text: string,
+  sourceObject?: Type
+) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
   setDocData(context.program, target, "self", { value: text, source: "decorator" });
-}
+};
 
 /**
  * @internal to be used to set the `@doc` from doc comment.
  */
-export function $docFromComment(
+export const $docFromComment = (
   context: DecoratorContext,
   target: Type,
   key: DocTarget,
   text: string
-) {
+) => {
   setDocData(context.program, target, key, { value: text, source: "comment" });
-}
+};
 
 function getDocKey(target: DocTarget): symbol {
   switch (target) {
@@ -173,10 +214,14 @@ export function getDoc(program: Program, target: Type): string | undefined {
   return getDocDataInternal(program, target, "self")?.value;
 }
 
-export function $returnsDoc(context: DecoratorContext, target: Operation, text: string) {
+export const $returnsDoc: ReturnsDocDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  text: string
+) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   setDocData(context.program, target, "returns", { value: text, source: "decorator" });
-}
+};
 
 /**
  * Get the documentation information for the return success types of an operation. In most cases you probably just want to use {@link getReturnsDoc}
@@ -198,10 +243,14 @@ export function getReturnsDoc(program: Program, target: Operation): string | und
   return getDocDataInternal(program, target, "returns")?.value;
 }
 
-export function $errorsDoc(context: DecoratorContext, target: Operation, text: string) {
+export const $errorsDoc: ErrorsDocDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  text: string
+) => {
   validateDecoratorUniqueOnNode(context, target, $doc);
   setDocData(context.program, target, "errors", { value: text, source: "decorator" });
-}
+};
 
 /**
  * Get the documentation information for the return errors types of an operation. In most cases you probably just want to use {@link getErrorsDoc}
@@ -223,29 +272,19 @@ export function getErrorsDoc(program: Program, target: Operation): string | unde
   return getDocDataInternal(program, target, "errors")?.value;
 }
 
-export function $inspectType(program: Program, target: Type, text: string) {
+export const $inspectType: InspectTypeDecorator = (context, target: Type, text: string) => {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
   // eslint-disable-next-line no-console
   console.dir(target, { depth: 3 });
-}
+};
 
-export function $inspectTypeName(program: Program, target: Type, text: string) {
+export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type, text: string) => {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
   // eslint-disable-next-line no-console
   console.log(getTypeName(target));
-}
-
-const indexTypeKey = createStateSymbol("index");
-export function $indexer(context: DecoratorContext, target: Type, key: Scalar, value: Type) {
-  const indexer: ModelIndexer = { key, value };
-  context.program.stateMap(indexTypeKey).set(target, indexer);
-}
-
-export function getIndexer(program: Program, target: Type): ModelIndexer | undefined {
-  return program.stateMap(indexTypeKey).get(target);
-}
+};
 
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");
@@ -350,16 +389,28 @@ const errorKey = createStateSymbol("error");
 
 /**
  * `@error` decorator marks a model as an error type.
- *
- * `@error` can only be specified on a model.
+ *  Any derived models (using extends) will also be seen as error types.
  */
-export function $error(context: DecoratorContext, entity: Model) {
+export const $error: ErrorDecorator = (context: DecoratorContext, entity: Model) => {
   validateDecoratorUniqueOnNode(context, entity, $error);
   context.program.stateSet(errorKey).add(entity);
-}
+};
 
+/**
+ * Check if the type is an error model or a descendant of an error model.
+ */
 export function isErrorModel(program: Program, target: Type): boolean {
-  return program.stateSet(errorKey).has(target);
+  if (target.kind !== "Model") {
+    return false;
+  }
+  let current: Model | undefined = target;
+  while (current) {
+    if (program.stateSet(errorKey).has(current)) {
+      return true;
+    }
+    current = current.baseModel;
+  }
+  return false;
 }
 
 // -- @format decorator ---------------------
@@ -379,7 +430,11 @@ const formatValuesKey = createStateSymbol("formatValues");
  *
  * `@format` can be specified on a type that extends from `string` or a `string`-typed model property.
  */
-export function $format(context: DecoratorContext, target: Scalar | ModelProperty, format: string) {
+export const $format: FormatDecorator = (
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  format: string
+) => {
   validateDecoratorUniqueOnNode(context, target, $format);
 
   if (!validateTargetingAString(context, target, "@format")) {
@@ -395,7 +450,7 @@ export function $format(context: DecoratorContext, target: Scalar | ModelPropert
   }
 
   context.program.stateMap(formatValuesKey).set(target, format);
-}
+};
 
 export function getFormat(program: Program, target: Type): string | undefined {
   return program.stateMap(formatValuesKey).get(target);
@@ -410,12 +465,12 @@ export interface PatternData {
   readonly validationMessage?: string;
 }
 
-export function $pattern(
+export const $pattern: PatternDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   pattern: string,
   validationMessage?: string
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
   if (!validateTargetingAString(context, target, "@pattern")) {
@@ -428,7 +483,7 @@ export function $pattern(
   };
 
   context.program.stateMap(patternValuesKey).set(target, patternData);
-}
+};
 
 /**
  * Gets the pattern regular expression associated with a given type, if one has been set.
@@ -459,11 +514,11 @@ export function getPatternData(program: Program, target: Type): PatternData | un
 
 const minLengthValuesKey = createStateSymbol("minLengthValues");
 
-export function $minLength(
+export const $minLength: MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   minLength: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
   if (
@@ -474,7 +529,7 @@ export function $minLength(
   }
 
   context.program.stateMap(minLengthValuesKey).set(target, minLength);
-}
+};
 
 export function getMinLength(program: Program, target: Type): number | undefined {
   return program.stateMap(minLengthValuesKey).get(target);
@@ -484,11 +539,11 @@ export function getMinLength(program: Program, target: Type): number | undefined
 
 const maxLengthValuesKey = createStateSymbol("maxLengthValues");
 
-export function $maxLength(
+export const $maxLength: MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   maxLength: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
   if (
@@ -499,7 +554,7 @@ export function $maxLength(
   }
 
   context.program.stateMap(maxLengthValuesKey).set(target, maxLength);
-}
+};
 
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return program.stateMap(maxLengthValuesKey).get(target);
@@ -509,14 +564,14 @@ export function getMaxLength(program: Program, target: Type): number | undefined
 
 const minItemsValuesKey = createStateSymbol("minItems");
 
-export function $minItems(
+export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type,
   minItems: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
@@ -532,7 +587,7 @@ export function $minItems(
   }
 
   context.program.stateMap(minItemsValuesKey).set(target, minItems);
-}
+};
 
 export function getMinItems(program: Program, target: Type): number | undefined {
   return program.stateMap(minItemsValuesKey).get(target);
@@ -542,14 +597,14 @@ export function getMinItems(program: Program, target: Type): number | undefined 
 
 const maxItemsValuesKey = createStateSymbol("maxItems");
 
-export function $maxItems(
+export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type,
   maxItems: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
@@ -564,7 +619,7 @@ export function $maxItems(
   }
 
   context.program.stateMap(maxItemsValuesKey).set(target, maxItems);
-}
+};
 
 export function getMaxItems(program: Program, target: Type): number | undefined {
   return program.stateMap(maxItemsValuesKey).get(target);
@@ -574,11 +629,11 @@ export function getMaxItems(program: Program, target: Type): number | undefined 
 
 const minValuesKey = createStateSymbol("minValues");
 
-export function $minValue(
+export const $minValue: MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   minValue: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $minValue);
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
@@ -597,7 +652,7 @@ export function $minValue(
     return;
   }
   program.stateMap(minValuesKey).set(target, minValue);
-}
+};
 
 export function getMinValue(program: Program, target: Type): number | undefined {
   return program.stateMap(minValuesKey).get(target);
@@ -607,11 +662,11 @@ export function getMinValue(program: Program, target: Type): number | undefined 
 
 const maxValuesKey = createStateSymbol("maxValues");
 
-export function $maxValue(
+export const $maxValue: MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   maxValue: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
@@ -629,7 +684,7 @@ export function $maxValue(
     return;
   }
   program.stateMap(maxValuesKey).set(target, maxValue);
-}
+};
 
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return program.stateMap(maxValuesKey).get(target);
@@ -639,11 +694,11 @@ export function getMaxValue(program: Program, target: Type): number | undefined 
 
 const minValueExclusiveKey = createStateSymbol("minValueExclusive");
 
-export function $minValueExclusive(
+export const $minValueExclusive: MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   minValueExclusive: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $minValueExclusive);
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
@@ -662,7 +717,7 @@ export function $minValueExclusive(
     return;
   }
   program.stateMap(minValueExclusiveKey).set(target, minValueExclusive);
-}
+};
 
 export function getMinValueExclusive(program: Program, target: Type): number | undefined {
   return program.stateMap(minValueExclusiveKey).get(target);
@@ -672,11 +727,11 @@ export function getMinValueExclusive(program: Program, target: Type): number | u
 
 const maxValueExclusiveKey = createStateSymbol("maxValueExclusive");
 
-export function $maxValueExclusive(
+export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   maxValueExclusive: number
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
@@ -694,7 +749,7 @@ export function $maxValueExclusive(
     return;
   }
   program.stateMap(maxValueExclusiveKey).set(target, maxValueExclusive);
-}
+};
 
 export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
   return program.stateMap(maxValueExclusiveKey).get(target);
@@ -709,14 +764,17 @@ const secretTypesKey = createStateSymbol("secretTypes");
  * @param context Decorator context
  * @param target Decorator target, either a string model or a property with type string.
  */
-export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
+export const $secret: SecretDecorator = (
+  context: DecoratorContext,
+  target: Scalar | ModelProperty
+) => {
   validateDecoratorUniqueOnNode(context, target, $secret);
 
   if (!validateTargetingAString(context, target, "@secret")) {
     return;
   }
   context.program.stateMap(secretTypesKey).set(target, true);
-}
+};
 
 export function isSecret(program: Program, target: Type): boolean | undefined {
   return program.stateMap(secretTypesKey).get(target);
@@ -731,38 +789,54 @@ export interface EncodeData {
 }
 
 const encodeKey = createStateSymbol("encode");
-export function $encode(
+export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  encoding: string | EnumMember,
+  encoding: string | Type,
   encodeAs?: Scalar
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $encode);
 
+  const encodingStr = computeEncoding(encoding);
+  if (encodingStr === undefined) {
+    return;
+  }
   const encodeData: EncodeData = {
-    encoding: typeof encoding === "string" ? encoding : encoding.value?.toString() ?? encoding.name,
+    encoding: encodingStr,
     type: encodeAs ?? context.program.checker.getStdType("string"),
   };
   const targetType = getPropertyType(target);
-  if (targetType.kind !== "Scalar") {
-    return;
-  }
   validateEncodeData(context, targetType, encodeData);
   context.program.stateMap(encodeKey).set(target, encodeData);
+};
+function computeEncoding(encoding: string | Type) {
+  if (typeof encoding === "string") {
+    return encoding;
+  }
+  switch (encoding.kind) {
+    case "String":
+      return encoding.value;
+    case "EnumMember":
+      if (encoding.value && typeof encoding.value === "string") {
+        return encoding.value;
+      } else {
+        return getTypeName(encoding);
+      }
+    default:
+      return undefined;
+  }
 }
 
-function validateEncodeData(context: DecoratorContext, target: Scalar, encodeData: EncodeData) {
+function validateEncodeData(context: DecoratorContext, target: Type, encodeData: EncodeData) {
   function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {
     const checker = context.program.checker;
-    const isTargetValid = validTargets.some((validTarget) => {
-      return ignoreDiagnostics(
-        checker.isTypeAssignableTo(
-          target.projectionBase ?? target,
-          checker.getStdType(validTarget),
-          target
-        )
-      );
-    });
+    const isTargetValid = isTypeIn(target.projectionBase ?? target, (type) =>
+      validTargets.some((validTarget) => {
+        return ignoreDiagnostics(
+          checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target)
+        );
+      })
+    );
 
     if (!isTargetValid) {
       reportDiagnostic(context.program, {
@@ -831,15 +905,15 @@ export function getEncode(
 
 const visibilitySettingsKey = createStateSymbol("visibilitySettings");
 
-export function $visibility(
+export const $visibility: VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   ...visibilities: string[]
-) {
+) => {
   validateDecoratorUniqueOnNode(context, target, $visibility);
 
   context.program.stateMap(visibilitySettingsKey).set(target, visibilities);
-}
+};
 
 export function getVisibility(program: Program, target: Type): string[] | undefined {
   return program.stateMap(visibilitySettingsKey).get(target);
@@ -849,14 +923,14 @@ function clearVisibilities(program: Program, target: Type) {
   program.stateMap(visibilitySettingsKey).delete(target);
 }
 
-export function $withVisibility(
+export const $withVisibility: WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
   ...visibilities: string[]
-) {
+) => {
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
   [...target.properties.values()].forEach((p) => clearVisibilities(context.program, p));
-}
+};
 
 export function isVisible(
   program: Program,
@@ -877,33 +951,39 @@ function filterModelPropertiesInPlace(model: Model, filter: (prop: ModelProperty
 
 // -- @withOptionalProperties decorator ---------------------
 
-export function $withOptionalProperties(context: DecoratorContext, target: Model) {
+export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model
+) => {
   // Make all properties of the target type optional
   target.properties.forEach((p) => (p.optional = true));
-}
+};
 
 // -- @withUpdateableProperties decorator ----------------------
 
-export function $withUpdateableProperties(context: DecoratorContext, target: Type) {
+export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
+  context: DecoratorContext,
+  target: Type
+) => {
   if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
     return;
   }
 
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
-}
+};
 
 // -- @withoutOmittedProperties decorator ----------------------
 
-export function $withoutOmittedProperties(
+export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
-  omitProperties: StringLiteral | Union
-) {
+  omitProperties: Type
+) => {
   // Get the property or properties to omit
   const omitNames = new Set<string>();
   if (omitProperties.kind === "String") {
     omitNames.add(omitProperties.value);
-  } else {
+  } else if (omitProperties.kind === "Union") {
     for (const variant of omitProperties.variants.values()) {
       if (variant.type.kind === "String") {
         omitNames.add(variant.type.value);
@@ -913,14 +993,17 @@ export function $withoutOmittedProperties(
 
   // Remove all properties to be omitted
   filterModelPropertiesInPlace(target, (prop) => !omitNames.has(prop.name));
-}
+};
 
 // -- @withoutDefaultValues decorator ----------------------
 
-export function $withoutDefaultValues(context: DecoratorContext, target: Model) {
+export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
+  context: DecoratorContext,
+  target: Model
+) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => delete p.default);
-}
+};
 
 // -- @list decorator ---------------------
 
@@ -929,7 +1012,12 @@ const listPropertiesKey = createStateSymbol("listProperties");
 /**
  * @deprecated Use the `listsResource` decorator in `@typespec/rest` instead.
  */
-export function $list(context: DecoratorContext, target: Operation, listedType?: Type) {
+// eslint-disable-next-line deprecation/deprecation
+export const $list: ListDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  listedType?: Type
+) => {
   if (listedType && listedType.kind === "TemplateParameter") {
     // Silently return because this is probably being used in a templated interface
     return;
@@ -943,7 +1031,7 @@ export function $list(context: DecoratorContext, target: Operation, listedType?:
   }
 
   context.program.stateMap(listPropertiesKey).set(target, listedType);
-}
+};
 
 /**
  * @deprecated This function is unused and will be removed in a future release.
@@ -965,18 +1053,18 @@ const tagPropertiesKey = createStateSymbol("tagProperties");
 
 // Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
 // operation, interface, or namespace.
-export function $tag(
+export const $tag: TagDecorator = (
   context: DecoratorContext,
   target: Operation | Namespace | Interface,
   tag: string
-) {
+) => {
   const tags = context.program.stateMap(tagPropertiesKey).get(target);
   if (tags) {
     tags.push(tag);
   } else {
     context.program.stateMap(tagPropertiesKey).set(target, [tag]);
   }
-}
+};
 
 // Return the tags set on an operation or namespace
 export function getTags(program: Program, target: Type): string[] {
@@ -1013,19 +1101,19 @@ export function getAllTags(
 
 const friendlyNamesKey = createStateSymbol("friendlyNames");
 
-export function $friendlyName(
+export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
   friendlyName: string,
   sourceObject: Type | undefined
-) {
+) => {
   // If an object was passed in, use it to format the friendly name
   if (sourceObject) {
     friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
   }
 
   context.program.stateMap(friendlyNamesKey).set(target, friendlyName);
-}
+};
 
 export function getFriendlyName(program: Program, target: Type): string {
   return program.stateMap(friendlyNamesKey).get(target);
@@ -1043,11 +1131,11 @@ const knownValuesKey = createStateSymbol("knownValues");
  * @param target Decorator target. Must be a string. (model Foo extends string)
  * @param knownValues Must be an enum.
  */
-export function $knownValues(
+export const $knownValues = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   knownValues: Enum
-) {
+) => {
   const type = getPropertyType(target);
   if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
     context.program.reportDiagnostic(
@@ -1075,7 +1163,7 @@ export function $knownValues(
     }
   }
   context.program.stateMap(knownValuesKey).set(target, knownValues);
-}
+};
 
 function isEnumMemberAssignableToType(program: Program, typeName: Type, member: EnumMember) {
   const memberType = member.value !== undefined ? typeof member.value : "string";
@@ -1103,7 +1191,11 @@ const keyKey = createStateSymbol("key");
  *
  * `@key` can only be applied to model properties.
  */
-export function $key(context: DecoratorContext, entity: ModelProperty, altName?: string): void {
+export const $key: KeyDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+  altName?: string
+) => {
   // Ensure that the key property is not marked as optional
   if (entity.optional) {
     reportDiagnostic(context.program, {
@@ -1117,7 +1209,7 @@ export function $key(context: DecoratorContext, entity: ModelProperty, altName?:
 
   // Register the key property
   context.program.stateMap(keyKey).set(entity, altName || entity.name);
-}
+};
 
 export function isKey(program: Program, property: ModelProperty) {
   return program.stateMap(keyKey).has(property);
@@ -1127,11 +1219,11 @@ export function getKeyName(program: Program, property: ModelProperty): string {
   return program.stateMap(keyKey).get(property);
 }
 
-export function $withDefaultKeyVisibility(
+export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   entity: Model,
   visibility: string
-): void {
+) => {
   const keyProperties: ModelProperty[] = [];
   entity.properties.forEach((prop: ModelProperty) => {
     // Keep track of any key property without a visibility
@@ -1158,7 +1250,7 @@ export function $withDefaultKeyVisibility(
       })
     );
   });
-}
+};
 
 /**
  * Mark a type as deprecated
@@ -1171,9 +1263,14 @@ export function $withDefaultKeyVisibility(
  *     model Foo {}
  * ```
  */
-export function $deprecated(context: DecoratorContext, target: Type, message: string) {
+// eslint-disable-next-line deprecation/deprecation
+export const $deprecated: DeprecatedDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  message: string
+) => {
   markDeprecated(context.program, target, { message });
-}
+};
 
 /**
  * Return the deprecated message or undefined if not deprecated
@@ -1193,7 +1290,11 @@ const overloadsOperationKey = createStateSymbol("overloadsOperation");
  * @param target The specializing operation declaration
  * @param overloadBase The operation to be overloaded.
  */
-export function $overload(context: DecoratorContext, target: Operation, overloadBase: Operation) {
+export const $overload: OverloadDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  overloadBase: Operation
+) => {
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
     target.parameters.projectionBase ?? target.parameters,
@@ -1219,7 +1320,7 @@ export function $overload(context: DecoratorContext, target: Operation, overload
   context.program.stateMap(overloadsOperationKey).set(target, overloadBase);
   const existingOverloads = getOverloads(context.program, overloadBase) || new Array<Operation>();
   context.program.stateMap(overloadedByKey).set(overloadBase, existingOverloads.concat(target));
-}
+};
 
 function areOperationsInSameContainer(op1: Operation, op2: Operation): boolean {
   return op1.interface || op2.interface
@@ -1277,19 +1378,19 @@ const projectedNameKey = createStateSymbol("projectedNameKey");
  * @param projectionName Name of the projection (e.g. "toJson", "toCSharp")
  * @param projectedName Name of the type should have in the scope of the projection specified.
  */
-export function $projectedName(
+export const $projectedName: ProjectedNameDecorator = (
   context: DecoratorContext,
   target: Type,
   projectionName: string,
   projectedName: string
-) {
+) => {
   let map: Map<string, string> = context.program.stateMap(projectedNameKey).get(target);
   if (map === undefined) {
     map = new Map();
     context.program.stateMap(projectedNameKey).set(target, map);
   }
   map.set(projectionName, projectedName);
-}
+};
 
 /**
  * @param program Program
@@ -1353,11 +1454,11 @@ export interface Discriminator {
 
 const discriminatorKey = createStateSymbol("discriminator");
 
-export function $discriminator(
+export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model | Union,
   propertyName: string
-) {
+) => {
   const discriminator: Discriminator = { propertyName };
 
   if (entity.kind === "Union") {
@@ -1369,7 +1470,7 @@ export function $discriminator(
     }
   }
   context.program.stateMap(discriminatorKey).set(entity, discriminator);
-}
+};
 
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
   return program.stateMap(discriminatorKey).get(entity);
@@ -1381,14 +1482,14 @@ export function getDiscriminatedTypes(program: Program): [Model | Union, Discrim
 
 const parameterVisibilityKey = createStateSymbol("parameterVisibility");
 
-export function $parameterVisibility(
+export const $parameterVisibility: ParameterVisibilityDecorator = (
   context: DecoratorContext,
   entity: Operation,
   ...visibilities: string[]
-) {
+) => {
   validateDecoratorUniqueOnNode(context, entity, $parameterVisibility);
   context.program.stateMap(parameterVisibilityKey).set(entity, visibilities);
-}
+};
 
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
@@ -1401,14 +1502,14 @@ export function getParameterVisibility(program: Program, entity: Operation): str
 
 const returnTypeVisibilityKey = createStateSymbol("returnTypeVisibility");
 
-export function $returnTypeVisibility(
+export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   entity: Operation,
   ...visibilities: string[]
-) {
+) => {
   validateDecoratorUniqueOnNode(context, entity, $returnTypeVisibility);
   context.program.stateMap(returnTypeVisibilityKey).set(entity, visibilities);
-}
+};
 
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.

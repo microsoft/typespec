@@ -9,24 +9,24 @@ title: "[I] Union"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `public` | `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType.decorators`](DecoratedType.md) |
-| `public` | `expression` | `boolean` | - | - |
-| `public` | `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType.instantiationParameters`](BaseType.md) |
-| `public` | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType.isFinished`](BaseType.md) |
-| `public` | `kind` | `"Union"` | - | [`BaseType.kind`](BaseType.md) |
-| `public` | `name?` | `string` | - | - |
-| `public` | `namespace?` | [`Namespace`](Namespace.md) | - | - |
-| `public` | `node` | [`UnionExpressionNode`](UnionExpressionNode.md) \| [`UnionStatementNode`](UnionStatementNode.md) | - | [`BaseType.node`](BaseType.md) |
-| `readonly` | ~~`options`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use variants | - |
-| `public` | `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionBase`](BaseType.md) |
-| `public` | `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionSource`](BaseType.md) |
-| `public` | `projector?` | [`Projector`](Projector.md) | - | [`BaseType.projector`](BaseType.md) |
-| `public` | ~~`templateArguments?`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase.templateArguments`](TemplatedTypeBase.md) |
-| `public` | `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase.templateMapper`](TemplatedTypeBase.md) |
-| `public` | `templateNode?` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase.templateNode`](TemplatedTypeBase.md) |
-| `public` | `variants` | `RekeyableMap`<`string` \| `symbol`, [`UnionVariant`](UnionVariant.md)\> | The variants of the union.<br /><br />Variants are ordered in order that they appear in source. | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ | :------ |
+| `decorators` | `public` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `expression` | `public` | `boolean` | - | - | - |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"Union"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `name?` | `public` | `string` | - | - | - |
+| `namespace?` | `public` | [`Namespace`](Namespace.md) | - | - | - |
+| `node` | `public` | [`UnionStatementNode`](UnionStatementNode.md) \| [`UnionExpressionNode`](UnionExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| ~~`options`~~ | `readonly` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use variants | - | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| ~~`templateArguments?`~~ | `public` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
+| `templateMapper?` | `public` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` |
+| `templateNode?` | `public` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` |
+| `variants` | `public` | `RekeyableMap`<`string` \| `symbol`, [`UnionVariant`](UnionVariant.md)\> | The variants of the union.<br /><br />Variants are ordered in order that they appear in source. | - | - |
 
 ## Accessors
 
@@ -60,4 +60,4 @@ projectionsByName(name): ProjectionStatementNode[]
 
 #### Inherited from
 
-[`BaseType.projectionsByName`](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

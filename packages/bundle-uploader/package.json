@@ -27,9 +27,9 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "echo 'no test'",
-    "test-official": "echo 'no test'",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "test:ci": "echo 'no test'",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
   },
   "files": [
     "lib/*.tsp",
@@ -37,7 +37,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure/identity": "~4.0.1",
+    "@azure/identity": "~4.1.0",
     "@azure/storage-blob": "~12.17.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@typespec/bundler": "workspace:~",
@@ -47,14 +47,12 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@types/semver": "^7.5.6",
-    "@typespec/eslint-config-typespec": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@types/semver": "^7.5.8",
+    "@vitest/coverage-v8": "^1.5.0",
+    "@vitest/ui": "^1.5.0",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.5",
+    "vitest": "^1.5.0"
   }
 }

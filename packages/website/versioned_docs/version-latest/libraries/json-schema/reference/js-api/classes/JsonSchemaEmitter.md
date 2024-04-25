@@ -34,12 +34,12 @@ call `createAssetEmitter` on the emitter context object.
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ | :------ |
-| `private` | `#idDuplicateTracker` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | - | - |
-| `private` | `#refToDecl` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | - | - |
-| `private` | `#typeForSourceFile` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | - | - |
-| `public` | `emitter` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | - | `TypeEmitter.emitter` |
+| Property | Modifier | Type | Inherited from |
+| :------ | :------ | :------ | :------ |
+| `#idDuplicateTracker` | `private` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | - |
+| `#refToDecl` | `private` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | - |
+| `#typeForSourceFile` | `private` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | - |
+| `emitter` | `protected` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | `TypeEmitter.emitter` |
 
 ## Methods
 
@@ -53,7 +53,7 @@ private #applyConstraints(type, schema): void
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` |    \| `Model`   \| `ModelProperty`   \| `Scalar`   \| `Enum`   \| `Union` |
+| `type` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Enum` \| `Union` |
 | `schema` | `ObjectBuilder`<`unknown`\> |
 
 #### Returns
@@ -217,10 +217,9 @@ private #newFileScope(type): Object
 
 `Object`
 
-> | Member | Type | Description |
-> | :------ | :------ | :------ |
-> | `scope` | `Scope`<`Record`<`string`, `any`\>\> | - |
->
+| Member | Type | Value |
+| :------ | :------ | :------ |
+| `scope` | `Scope`<`Record`<`string`, `any`\>\> | sourceFile.globalScope |
 
 ***
 

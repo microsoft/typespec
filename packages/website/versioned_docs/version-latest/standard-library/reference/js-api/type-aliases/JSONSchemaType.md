@@ -9,6 +9,6 @@ type JSONSchemaType<T>: AjvJSONSchemaType<T>;
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |

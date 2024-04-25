@@ -8,7 +8,7 @@ REST API.
 
 ## Enumeration Members
 
-| Member | Value | Description |
+| Enumeration Member | Value | Description |
 | :------ | :------ | :------ |
 | `All` | `31` | - |
 | `Create` | `2` | - |

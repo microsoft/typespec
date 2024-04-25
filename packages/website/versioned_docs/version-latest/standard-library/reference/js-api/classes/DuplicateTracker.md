@@ -7,7 +7,7 @@ Helper class to track duplicate instance
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` |
 | `V` |
@@ -26,9 +26,9 @@ new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `#entries` | `Map`<`K`, `V`[]\> | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `#entries` | `private` | `Map`<`K`, `V`[]\> |
 
 ## Methods
 

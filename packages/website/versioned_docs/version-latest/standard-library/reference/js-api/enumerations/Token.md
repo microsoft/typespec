@@ -5,7 +5,7 @@ title: "[E] Token"
 ---
 ## Enumeration Members
 
-| Member | Value |
+| Enumeration Member | Value |
 | :------ | :------ |
 | `AliasKeyword` | `57` |
 | `Ampersand` | `30` |

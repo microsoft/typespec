@@ -2,9 +2,9 @@
 title: Configuration
 ---
 
-# Compiler and Libraries configurations
+# Compiler and library configurations
 
-The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
+The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file
 
@@ -46,13 +46,13 @@ model LinterConfig {
 }
 ```
 
-### Extending project files
+### Extending Project Files
 
-There is cases where you might want to build different folders with different options (for example different emitters) but want to share some configuration for both as well.
+There may be instances where you want to build different folders with varying options (such as different emitters), but still want to share some common configurations.
 
-For that you can use the `extends` property of the configuration file
+In such cases, you can use the `extends` property in the configuration file.
 
-in `<my-pkg>/tspconfig.yaml`
+For instance, in `<my-pkg>/tspconfig.yaml`:
 
 ```yaml
 options:
@@ -72,7 +72,7 @@ emit:
 
 ### Variable interpolation
 
-The TypeSpec project file provide variable interpolation using:
+The TypeSpec project file provides variable interpolation using:
 
 - built-in variables
 - environment variables
@@ -86,14 +86,14 @@ Examples:
 - `{output-dir}/my-path`
 - `{env.SHARED_PATH}/my-path`
 
-### Emitter path config interpolation
+### Interpolation of Emitter Path Config
 
-Some config of emitters can be interpolated using a special rule that will collapse a path.
+Certain emitter configurations can be interpolated using a specific rule designed to collapse a path.
 
-If a variable is followed by a `/` or `.` and the emitter interpolating the config doesn't provide that variable it will then omit the path segment.
+If a variable is succeeded by a `/` or `.` and the emitter responsible for interpolating the config doesn't supply that variable, the path segment will be omitted.
 
-For example given the following config value: `{service-name}/output.{version}.json`
-The following would get produced
+For instance, consider the following config value: `{service-name}/output.{version}.json`
+Here's what would be produced:
 
 | Service name value | Version value | Result                    |
 | ------------------ | ------------- | ------------------------- |
@@ -111,15 +111,15 @@ The following would get produced
 | `output-dir`   | emitter options | Common `output-dir` See [output-dir](#output-dir---configure-the-default-output-dir) |
 | `emitter-name` | emitter options | Name of the emitter                                                                  |
 
-#### Project parameters
+#### Project Parameters
 
-A TypeSpec project file can specify some parameters that can then be specified via the CLI.
+A TypeSpec project file can define certain parameters that can subsequently be specified through the CLI.
 
-`{cwd}` and `{project-root}` variables can be used in the default value of those parmeters.
+The `{cwd}` and `{project-root}` variables can be utilized in the default value of these parameters.
 
-The parameters can then be referenced by their name in a variable interpolation expression.
+These parameters can then be referred to by their name in a variable interpolation expression.
 
-Parameters must have a default value.
+All parameters must have a default value.
 **Example:**
 
 ```yaml
@@ -130,7 +130,7 @@ parameters:
 output-dir: {base-dir}/output
 ```
 
-The parameter can then be specified with `--arg` in this format `--arg "<parameter-name>=<value>"`
+The parameter can then be specified via `--arg` in this format `--arg "<parameter-name>=<value>"`
 
 ```bash
 tsp compile . --arg "base-dir=/path/to/base"
@@ -138,13 +138,13 @@ tsp compile . --arg "base-dir=/path/to/base"
 
 #### Environment variables
 
-A TypeSpec project file can define which environment variables it can interpolate.
+A TypeSpec project file can specify which environment variables it can interpolate.
 
-`{cwd}` and `{project-root}` variables can be used in the default value of the environment variables.
+The `{cwd}` and `{project-root}` variables can be used in the default value of these environment variables.
 
-The environment variables can then be referenced by their name in a variable interpolation expression with the `env.` prefix.
+These environment variables can then be referred to by their name in a variable interpolation expression, using the `env.` prefix.
 
-Environment variables must have a default value.
+All environment variables must have a default value.
 
 **Example:**
 
@@ -156,11 +156,11 @@ environment-variables:
 output-dir: {env.BASE_DIR}/output
 ```
 
-#### Emitter options
+#### Emitter Options
 
-Emitter options can reference each other using the other option name as the variable expresion.
+Emitter options can refer to each other by using the other option's name as the variable expression.
 
-Can only interpolate emitter options from the same emitter.
+Interpolation is only possible among emitter options from the same emitter.
 
 ```yaml
 options:
@@ -185,7 +185,7 @@ options:
 
 ### `output-dir` - Configure the default output dir
 
-Specify the common output-dir for all emitters. See [this](#output-directory-configuration) to configure per emitter.
+Specify the common output-dir for all emitters. See [this](#configuring-output-directory) to configure per emitter.
 
 ```yaml
 output-dir: {cwd}/typespec-build
@@ -199,7 +199,7 @@ tsp compile . --output-dir "./typespec-build"
 
 Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
 
-See [output directory configuration for mode details](#output-directory-configuration)
+See [output directory configuration for mode details](#configuring-output-directory)
 
 ### `trace` - Configure what to trace
 
@@ -221,11 +221,11 @@ Trace can be provided using the `--trace` cli flag
 tsp compile . --trace import-resolution --trace projection
 ```
 
-### `warn-as-error` - Treat warning as error
+### `warn-as-error` - Treating Warnings as Errors
 
-All warnings will be emitted as error. Result in a non zero exit code in case of warning.
+All warnings will be treated and emitted as errors, resulting in a non-zero exit code in the event of a warning.
 
-**This is recommended to use in CI to prevent warning from being unadressed.**
+**It is recommended to use this feature in Continuous Integration (CI) to ensure all warnings are addressed.**
 
 ```yaml
 warn-as-error: true
@@ -307,11 +307,11 @@ Represent the path where the emitter should be outputing the generated files.
 
 Default: `{output-dir}/{emitter-name}`
 
-See [output directory configuration for mode details](#output-directory-configuration)
+See [output directory configuration for mode details](#configuring-output-directory)
 
-### `linter` - Configuring linters
+### `linter` - Setting Up Linters
 
-Configure which linter rules should be enabled in this repository. Referencing to a rule or ruleset must be using their id which is in this format `<libraryName>:<ruleName>`
+This allows you to configure the linter rules to be enabled in this repository. When referencing a rule or ruleset, use their ID, which follows the format `<libraryName>:<ruleName>`.
 
 ```yaml
 linter:
@@ -325,13 +325,13 @@ linter:
     "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
 
-## Emitter control cli flags
+## CLI Flags for Emitter Control
 
 ### `--no-emit`
 
-Disable emitting. If emitters are still specified it will still run the emitter but emitters shouldn't be writing anything to disk.
+This flag disables emitting. If emitters are still specified, the emitter will run but it should not write anything to the disk.
 
-Can also be used to hide the "There is no emitters warning".
+This flag can also be used to suppress the "There are no emitters" warning.
 
 ```yaml
 tsp compile . --no-emit
@@ -385,22 +385,20 @@ Enable/Disable pretty logging (colors, diagnostic preview, etc.).
 tsp compile . --pretty=false
 ```
 
-## Output directory configuration
+## Configuring Output Directory
 
-Typespec compiler will provide a unique output directory for each emitter that is being run to reduce conflicts.
-By default the output-dir of an emitter is set to this value:
+The TypeSpec compiler assigns a unique output directory to each emitter that runs, in order to minimize conflicts. By default, the output directory of an emitter is set to:
 
 ```
 {output-dir}/{emitter-name}
 ```
 
-where
+where:
 
-- `output-dir` is the compiler common `output-dir` that can be configured via `--output-dir`
-- `emitter-name` is the name of the emitter package (for example `@typespec/openapi3`)
+- `output-dir` is the common output directory for the compiler, which can be configured via `--output-dir`.
+- `emitter-name` is the name of the emitter package (for example, `/openapi3`).
 
-Example:
-Given the following emitters: `@typespec/openapi3` and `@typespec/jsonschema`, the default output folder structure would be
+For instance, if the emitters `@typespec/openapi3` and `@typespec/jsonschema` are given, the default output folder structure would be:
 
 ```
 {project-root}/tsp-output:
@@ -411,7 +409,7 @@ Given the following emitters: `@typespec/openapi3` and `@typespec/jsonschema`, t
       ... json schema files ...
 ```
 
-Changing the compiler `output-dir` with `--output-dir` or setting that value in the tspconfig.yaml would result in the following structure
+You can change the compiler's `output-dir` with `--output-dir` or by setting that value in the tspconfig.yaml, which would result in the following structure:
 
 ```
 --output-dir={cwd}/my-custom-output-dir
@@ -422,13 +420,12 @@ Changing the compiler `output-dir` with `--output-dir` or setting that value in 
       ... openapi3 files ...
     jsonschema
       ... json schema files ...
-
 ```
 
-Changing a specific emitter output-dir can be done by setting that emitter `emitter-output-dir` option
+To change a specific emitter's output directory, you can set the `emitter-output-dir` option for that emitter:
 
 ```
---option "@typespec/openapi3.output-dir={projectroot}/openapispec"
+--option "@typespec/openapi3.output-dir={project-root}/openapispec"
 
 {project-root}
   openapispec:

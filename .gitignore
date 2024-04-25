@@ -190,3 +190,7 @@ obj/
 
 
 docs/**/js-api/
+
+# csharp emitter
+!packages/http-client-csharp/package-lock.json
+packages/http-client-csharp/generator/artifacts/

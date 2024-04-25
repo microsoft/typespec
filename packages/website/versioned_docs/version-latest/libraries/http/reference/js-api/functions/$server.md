@@ -22,7 +22,7 @@ Configure the server url for the service.
 | `target` | `Namespace` | Decorator target (must be a namespace) |
 | `url` | `string` | - |
 | `description` | `string` | Description for this server. |
-| `parameters`? | `Model` |  |
+| `parameters`? | `Type` |  |
 
 ## Returns
 

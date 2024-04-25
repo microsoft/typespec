@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-csharp/
+
+pr: none
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: false
+          UseTypeSpecNext: false
+          Publish: "internal"
+          PublishDependsOnTest: true
+          PackagePath: /packages/http-client-csharp
+          EmitterPackageJsonPath: packages/http-client-csharp/package.json
+          Packages:
+            - name: emitter
+              file: typespec-http-client-csharp-*.tgz
+              type: npm
+          UnitTestArgs: -UnitTests
+          StagePrefix: "CSharp"

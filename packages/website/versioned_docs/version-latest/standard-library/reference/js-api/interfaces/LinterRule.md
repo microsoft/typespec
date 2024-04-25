@@ -11,21 +11,21 @@ Resolved instance of a linter rule that will run.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `N` extends `string` |
 | `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
-| `description` | `string` | Short description of the rule | [`LinterRuleDefinition.description`](LinterRuleDefinition.md) |
+| `description` | `string` | Short description of the rule | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
 | `id` | `string` | Expanded rule id in format `<library-name>:<rule-name>` | - |
-| `messages` | `DM` | Messages that can be reported with the diagnostic. | [`LinterRuleDefinition.messages`](LinterRuleDefinition.md) |
-| `name` | `N` | Rule name (without the library name) | [`LinterRuleDefinition.name`](LinterRuleDefinition.md) |
-| `severity` | `"warning"` | Rule default severity. | [`LinterRuleDefinition.severity`](LinterRuleDefinition.md) |
-| `url?` | `string` | Specifies the URL at which the full documentation can be accessed. | [`LinterRuleDefinition.url`](LinterRuleDefinition.md) |
+| `messages` | `DM` | Messages that can be reported with the diagnostic. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
+| `name` | `N` | Rule name (without the library name) | [`LinterRuleDefinition`](LinterRuleDefinition.md).`name` |
+| `severity` | `"warning"` | Rule default severity. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`severity` |
+| `url?` | `string` | Specifies the URL at which the full documentation can be accessed. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`url` |
 
 ## Methods
 
@@ -49,4 +49,4 @@ Creator
 
 #### Inherited from
 
-[`LinterRuleDefinition.create`](LinterRuleDefinition.md#create)
+[`LinterRuleDefinition`](LinterRuleDefinition.md).[`create`](LinterRuleDefinition.md#create)

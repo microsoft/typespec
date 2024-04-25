@@ -1,5 +1,33 @@
 # Change Log - @typespec/openapi3
 
+## 0.55.0
+
+### Bug Fixes
+
+- [#3077](https://github.com/microsoft/typespec/pull/3077) Do not crash if using an unsupported intrinsic type
+- [#2967](https://github.com/microsoft/typespec/pull/2967) Fix crash: emit `{nullable: true}` when trying to emit `null` in openapi3
+- [#3013](https://github.com/microsoft/typespec/pull/3013) Fix: OpenAPI3 not marking part of bytes or something else as `format: binary`
+- [#3090](https://github.com/microsoft/typespec/pull/3090) Fix: Literal unions with the same variants keep adding duplicate entries
+- [#3049](https://github.com/microsoft/typespec/pull/3049) Fix visibility naming conflict when a model used with `extends` was used in different visibility.
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Add support for all properties of openapi `info` object on the `@info` decorator
+- [#2950](https://github.com/microsoft/typespec/pull/2950) Add `getOpenAPI3` function that takes a TypeSpec program and returns the emitted OpenAPI as an object. Useful for other emitters and tools that want to work with emitted OpenAPI directly without writing it to disk.
+- [#2933](https://github.com/microsoft/typespec/pull/2933) Add a new option `safeint-strategy` that can be set to `double-int` to emit `type: integer, format: double-int` instead of `type: integer, format: int64` when using the `safeint` scalar.
+
+
 ## 0.53.2
 
 ### Patch Changes
@@ -21,7 +49,6 @@
 - 05c8597: Fix circular reference would not always inline array properties
 - 8ed1d82: Add support for OpenIdConnect auth scheme
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

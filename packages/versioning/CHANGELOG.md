@@ -1,11 +1,32 @@
 # Change Log - @typespec/versioning
 
+## 0.55.0
+
+### Bump dependencies
+
+- [#3027](https://github.com/microsoft/typespec/pull/3027) Update dependencies
+
+### Features
+
+- [#3053](https://github.com/microsoft/typespec/pull/3053) Add support for versioning of scalars(Added, removed, renamed)
+
+
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2950](https://github.com/microsoft/typespec/pull/2950) Export the VersionProjections interface.
+
+
 ## 0.53.0
 
 ### Patch Changes
 
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

@@ -612,7 +612,7 @@ describe("openapi3: metadata", () => {
        @header h: string;
       }
       @route("/single") @get op single(...Parameters): string;
-      @route("/batch") @get op batch(...Body<Parameters[]>): string;
+      @route("/batch") @get op batch(@bodyRoot _: Parameters[]): string;
       `
     );
     deepStrictEqual(res.paths, {
@@ -643,7 +643,6 @@ describe("openapi3: metadata", () => {
             },
           },
           requestBody: {
-            description: "The body type of the operation request or response.",
             required: true,
             content: {
               "application/json": {
@@ -766,7 +765,7 @@ describe("openapi3: metadata", () => {
         @path p: string;
         @header h: string;
       }
-      @route("/batch") @post op batch(@body body?: Parameters[]): string;
+      @route("/batch") @post op batch(@bodyRoot body?: Parameters[]): string;
       `
     );
     deepStrictEqual(res.paths, {
@@ -926,7 +925,7 @@ describe("openapi3: metadata", () => {
     });
   });
 
-  it("supports nested metadata and removes emptied properties", async () => {
+  it("supports nested metadata", async () => {
     const res = await openApiFor(
       `
       model Pet {
@@ -1016,15 +1015,33 @@ describe("openapi3: metadata", () => {
       PetCreate: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           name: {
             type: "string",
           },
         },
-        required: ["name"],
+        required: ["headers", "name"],
       },
       Pet: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           id: {
             type: "string",
           },
@@ -1032,7 +1049,7 @@ describe("openapi3: metadata", () => {
             type: "string",
           },
         },
-        required: ["id", "name"],
+        required: ["headers", "id", "name"],
       },
     });
   });
@@ -1128,6 +1145,74 @@ describe("openapi3: metadata", () => {
           },
         },
       },
+    });
+  });
+
+  it("base models used in different visibility gets distinct names", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        @visibility("read", "update")
+        @path
+        id: string;
+      
+        weight: int32;
+      }
+      
+      model CreatedWidget extends Widget {}
+      
+      @post op create(widget: Widget): CreatedWidget;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "CreatedWidget",
+      "CreatedWidgetCreate",
+      "Widget",
+      "WidgetCreate",
+    ]);
+  });
+
+  it("unreachable models include @path properties", async () => {
+    const res = await openApiFor(`
+      model Unreachable {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas.Unreachable, {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
+    });
+  });
+
+  it("inheritance tree unreachable with @path doesn't get conflicts", async () => {
+    const res = await openApiFor(`
+      model Base {
+      }
+
+      model Child extends Base {
+        @path name: string;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Base", "Child"]);
+    deepStrictEqual(res.components.schemas.Child, {
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Base",
+        },
+      ],
+      properties: {
+        name: {
+          type: "string",
+        },
+      },
+      required: ["name"],
     });
   });
 });

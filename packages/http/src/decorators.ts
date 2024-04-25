@@ -22,6 +22,25 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { PlainDataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
+import {
+  BodyDecorator,
+  BodyIgnoreDecorator,
+  BodyRootDecorator,
+  DeleteDecorator,
+  GetDecorator,
+  HeadDecorator,
+  HeaderDecorator,
+  PatchDecorator,
+  PathDecorator,
+  PostDecorator,
+  PutDecorator,
+  QueryDecorator,
+  RouteDecorator,
+  ServerDecorator,
+  SharedRouteDecorator,
+  StatusCodeDecorator,
+} from "../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";
@@ -40,11 +59,11 @@ import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "TypeSpec.Http";
 
-export function $header(
+export const $header: HeaderDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  headerNameOrOptions?: StringLiteral | Model
-) {
+  headerNameOrOptions?: StringLiteral | Type
+) => {
   const options: HeaderFieldOptions = {
     type: "header",
     name: entity.name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase(),
@@ -52,7 +71,7 @@ export function $header(
   if (headerNameOrOptions) {
     if (headerNameOrOptions.kind === "String") {
       options.name = headerNameOrOptions.value;
-    } else {
+    } else if (headerNameOrOptions.kind === "Model") {
       const name = headerNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
         options.name = name.value;
@@ -72,6 +91,8 @@ export function $header(
           options.format = val;
         }
       }
+    } else {
+      return;
     }
   }
   if (
@@ -85,7 +106,7 @@ export function $header(
     });
   }
   context.program.stateMap(HttpStateKeys.header).set(entity, options);
-}
+};
 
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
   return program.stateMap(HttpStateKeys.header).get(entity);
@@ -99,11 +120,11 @@ export function isHeader(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.header).has(entity);
 }
 
-export function $query(
+export const $query: QueryDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
-  queryNameOrOptions?: StringLiteral | Model
-) {
+  queryNameOrOptions?: StringLiteral | Type
+) => {
   const options: QueryParameterOptions = {
     type: "query",
     name: entity.name,
@@ -111,7 +132,7 @@ export function $query(
   if (queryNameOrOptions) {
     if (queryNameOrOptions.kind === "String") {
       options.name = queryNameOrOptions.value;
-    } else {
+    } else if (queryNameOrOptions.kind === "Model") {
       const name = queryNameOrOptions.properties.get("name")?.type;
       if (name?.kind === "String") {
         options.name = name.value;
@@ -120,6 +141,8 @@ export function $query(
       if (format?.kind === "String") {
         options.format = format.value as any; // That value should have already been validated by the TypeSpec dec
       }
+    } else {
+      return;
     }
   }
   if (
@@ -133,7 +156,7 @@ export function $query(
     });
   }
   context.program.stateMap(HttpStateKeys.query).set(entity, options);
-}
+};
 
 export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
   return program.stateMap(HttpStateKeys.query).get(entity);
@@ -147,13 +170,17 @@ export function isQueryParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.query).has(entity);
 }
 
-export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
+export const $path: PathDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty,
+  paramName?: string
+) => {
   const options: PathParameterOptions = {
     type: "path",
     name: paramName ?? entity.name,
   };
   context.program.stateMap(HttpStateKeys.path).set(entity, options);
-}
+};
 
 export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
   return program.stateMap(HttpStateKeys.path).get(entity);
@@ -167,20 +194,42 @@ export function isPathParam(program: Program, entity: Type) {
   return program.stateMap(HttpStateKeys.path).has(entity);
 }
 
-export function $body(context: DecoratorContext, entity: ModelProperty) {
+export const $body: BodyDecorator = (context: DecoratorContext, entity: ModelProperty) => {
   context.program.stateSet(HttpStateKeys.body).add(entity);
-}
+};
+
+export const $bodyRoot: BodyRootDecorator = (context: DecoratorContext, entity: ModelProperty) => {
+  context.program.stateSet(HttpStateKeys.bodyRoot).add(entity);
+};
+
+export const $bodyIgnore: BodyIgnoreDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty
+) => {
+  context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
+};
 
 export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.body).has(entity);
 }
 
-export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
+export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyRoot).has(entity);
+}
+
+export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
+}
+
+export const $statusCode: StatusCodeDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty
+) => {
   context.program.stateSet(HttpStateKeys.statusCode).add(entity);
 
   // eslint-disable-next-line deprecation/deprecation
   setLegacyStatusCodeState(context, entity);
-}
+};
 
 /**
  * To not break we keep the legacy behavior of resolving the discrete status code in the decorator and saving them in the state.
@@ -327,29 +376,29 @@ export function getOperationVerb(program: Program, entity: Type): HttpVerb | und
   return program.stateMap(HttpStateKeys.verbs).get(entity);
 }
 
-export function $get(context: DecoratorContext, entity: Operation) {
+export const $get: GetDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "get");
-}
+};
 
-export function $put(context: DecoratorContext, entity: Operation) {
+export const $put: PutDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "put");
-}
+};
 
-export function $post(context: DecoratorContext, entity: Operation) {
+export const $post: PostDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "post");
-}
+};
 
-export function $patch(context: DecoratorContext, entity: Operation) {
+export const $patch: PatchDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "patch");
-}
+};
 
-export function $delete(context: DecoratorContext, entity: Operation) {
+export const $delete: DeleteDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "delete");
-}
+};
 
-export function $head(context: DecoratorContext, entity: Operation) {
+export const $head: HeadDecorator = (context: DecoratorContext, entity: Operation) => {
   setOperationVerb(context.program, entity, "head");
-}
+};
 
 export interface HttpServer {
   url: string;
@@ -364,15 +413,15 @@ export interface HttpServer {
  * @param description Description for this server.
  * @param parameters @optional Parameters to interpolate in the server url.
  */
-export function $server(
+export const $server: ServerDecorator = (
   context: DecoratorContext,
   target: Namespace,
   url: string,
   description: string,
-  parameters?: Model
-): void {
+  parameters?: Type
+) => {
   const params = extractParamsFromPath(url);
-  const parameterMap = new Map(parameters?.properties ?? []);
+  const parameterMap = new Map((parameters as Model)?.properties ?? []);
   for (const declaredParam of params) {
     const param = parameterMap.get(declaredParam);
     if (!param) {
@@ -395,13 +444,13 @@ export function $server(
     description,
     parameters: parameterMap,
   });
-}
+};
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
   return program.stateMap(HttpStateKeys.servers).get(type);
 }
 
-export function $plainData(context: DecoratorContext, entity: Model) {
+export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
   const { program } = context;
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
@@ -427,15 +476,16 @@ export function $plainData(context: DecoratorContext, entity: Model) {
     paths.delete(property);
     statusCodes.delete(property);
   }
-}
+};
 
 setTypeSpecNamespace("Private", $plainData);
 
 export function $useAuth(
   context: DecoratorContext,
   entity: Namespace | Interface | Operation,
-  authConfig: Model | Union | Tuple
+  authConfig: Type
 ) {
+  validateDecoratorUniqueOnNode(context, entity, $useAuth);
   const [auth, diagnostics] = extractAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {
@@ -453,7 +503,7 @@ export function setAuthentication(
 
 function extractAuthentication(
   program: Program,
-  type: Model | Union | Tuple
+  type: Type
 ): [Authentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
@@ -467,6 +517,17 @@ function extractAuthentication(
       return diagnostics.wrap({ options: [option] });
     case "Union":
       return extractHttpAuthenticationOptions(program, type, type);
+    default:
+      return [
+        undefined,
+        [
+          createDiagnostic({
+            code: "invalid-type-for-auth",
+            format: { kind: type.kind },
+            target: type,
+          }),
+        ],
+      ];
   }
 }
 
@@ -597,12 +658,17 @@ export function getAuthentication(
  *
  * `@route` can only be applied to operations, namespaces, and interfaces.
  */
-export function $route(context: DecoratorContext, entity: Type, path: string, parameters?: Model) {
+export const $route: RouteDecorator = (
+  context: DecoratorContext,
+  entity: Type,
+  path: string,
+  parameters?: Type
+) => {
   validateDecoratorUniqueOnNode(context, entity, $route);
 
   // Handle the deprecated `shared` option
   let shared = false;
-  const sharedValue = parameters?.properties.get("shared")?.type;
+  const sharedValue = (parameters as Model)?.properties.get("shared")?.type;
   if (sharedValue !== undefined) {
     reportDeprecated(
       context.program,
@@ -620,7 +686,7 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
     path,
     shared,
   });
-}
+};
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.
@@ -630,9 +696,12 @@ export function $route(context: DecoratorContext, entity: Type, path: string, pa
  *
  * `@sharedRoute` can only be applied directly to operations.
  */
-export function $sharedRoute(context: DecoratorContext, entity: Operation) {
+export const $sharedRoute: SharedRouteDecorator = (
+  context: DecoratorContext,
+  entity: Operation
+) => {
   setSharedRoute(context.program, entity);
-}
+};
 
 /**
  * Specifies if inapplicable metadata should be included in the payload for

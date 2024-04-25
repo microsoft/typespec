@@ -1,0 +1,6 @@
+steps:
+  - task: PublishCodeCoverageResults@2
+    inputs:
+      codeCoverageTool: "Cobertura"
+      summaryFileLocation: $(Build.SourcesDirectory)/packages/*/coverage/cobertura-coverage.xml
+    displayName: Publish code coverage
