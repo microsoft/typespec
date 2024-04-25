@@ -35,6 +35,6 @@ namespace Microsoft.Generator.CSharp
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary { get; }
-        public virtual ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new ExpressionTypeProviderWriter(writer, provider);
+        public virtual ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
     }
 }
