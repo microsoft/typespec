@@ -1,11 +1,24 @@
 import {
   BooleanLiteral,
-  compilerAssert,
   DiagnosticTarget,
   DuplicateTracker,
-  emitFile,
   Enum,
   EnumMember,
+  IntrinsicType,
+  Model,
+  ModelProperty,
+  NumericLiteral,
+  Program,
+  Scalar,
+  StringLiteral,
+  StringTemplate,
+  Tuple,
+  Type,
+  Union,
+  UnionVariant,
+  compilerAssert,
+  emitFile,
+  explainStringTemplateNotSerializable,
   getDeprecated,
   getDirectoryPath,
   getDoc,
@@ -21,21 +34,9 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  IntrinsicType,
   isArrayModelType,
   isNullType,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Program,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
-  Tuple,
-  Type,
   typespecTypeToJson,
-  Union,
-  UnionVariant,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -52,8 +53,8 @@ import {
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
 import { stringify } from "yaml";
-import { explainStringTemplateNotSerializable } from "../../compiler/src/core/helpers/string-template-utils.js";
 import {
+  JsonSchemaDeclaration,
   findBaseUri,
   getContains,
   getContentEncoding,
@@ -69,7 +70,6 @@ import {
   getPrefixItems,
   getUniqueItems,
   isJsonSchemaDeclaration,
-  JsonSchemaDeclaration,
 } from "./index.js";
 import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {

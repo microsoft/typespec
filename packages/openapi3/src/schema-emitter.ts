@@ -19,6 +19,7 @@ import {
   UnionVariant,
   Value,
   compilerAssert,
+  explainStringTemplateNotSerializable,
   getDeprecated,
   getDiscriminatedUnion,
   getDiscriminator,
@@ -69,7 +70,6 @@ import {
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
-import { explainStringTemplateNotSerializable } from "../../compiler/src/core/helpers/string-template-utils.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
@@ -412,7 +412,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   stringTemplate(string: StringTemplate): EmitterOutput<object> {
     if (string.stringValue !== undefined) {
-      return { type: "string", const: string.stringValue };
+      return { type: "string", enum: [string.stringValue] };
     }
     const diagnostics = explainStringTemplateNotSerializable(string);
     this.emitter
