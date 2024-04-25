@@ -3703,6 +3703,7 @@ export function createChecker(program: Program): Checker {
       properties: createRekeyableMap<string, ModelProperty>(),
       decorators: [],
       derivedModels: [],
+      sourceModels: [],
     });
 
     for (const prop of properties.values()) {
