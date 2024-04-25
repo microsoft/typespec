@@ -2255,7 +2255,7 @@ export function createChecker(program: Program): Checker {
 
     if (node.kind === SyntaxKind.NamespaceStatement) {
       if (isArray(node.statements)) {
-        node.statements.forEach((x) => getTypeForNode(x));
+        node.statements.forEach((x) => checkNode(x));
       } else if (node.statements) {
         const subNs = checkNamespace(node.statements);
         type.namespaces.set(subNs.name, subNs);

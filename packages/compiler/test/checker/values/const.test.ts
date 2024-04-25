@@ -29,6 +29,11 @@ it("when assigning another const it change the type", async () => {
   strictEqual(value.type.name, "int64");
 });
 
+it("declare const in namespace", async () => {
+  const value = (await compileValue("Data.a", `namespace Data {const a = 123;}`)) as NumericValue;
+  strictEqual(value.value.asNumber(), 123);
+});
+
 describe("invalid assignment", () => {
   async function expectInvalidAssignment(code: string) {
     const { diagnostics, pos, end } = await diagnoseUsage(code);
