@@ -7,6 +7,7 @@ import type { Config, Plugin } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { resolve } from "path";
 import { themes } from "prism-react-renderer";
+import { LightTheme } from "./themes/light";
 
 function getMajorMinorVersion(pkgJsonPath): string {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -270,7 +271,7 @@ const config: Config = {
       copyright: `© ${new Date().getFullYear()} Microsoft`,
     },
     prism: {
-      theme: themes.oneLight,
+      theme: LightTheme,
       darkTheme: themes.oneDark,
       additionalLanguages: ["http", "shell-session", "protobuf"],
     },
