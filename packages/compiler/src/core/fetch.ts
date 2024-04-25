@@ -1,5 +1,4 @@
-import http from "http";
-import https from "https";
+import followRedirects from "follow-redirects";
 import { compilerAssert } from "./diagnostics.js";
 
 export interface FetchResponse {
@@ -19,14 +18,15 @@ export function fetch(uri: string): Promise<FetchResponse> {
   function request(uri: string, resolve: (arg: FetchResponse) => void, reject: (arg: any) => void) {
     const url = new URL(uri);
     const protocol =
-      url.protocol === "https:" ? https : url.protocol === "http:" ? http : undefined;
+      url.protocol === "https:"
+        ? followRedirects.https
+        : url.protocol === "http:"
+          ? followRedirects.http
+          : undefined;
     compilerAssert(protocol, `Protocol '${url.protocol}' is not supported`);
 
     protocol
       .get(url, (res) => {
-        if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
-          return request(res.headers.location, resolve, reject);
-        }
         let data = "";
 
         res.on("data", (chunk) => {

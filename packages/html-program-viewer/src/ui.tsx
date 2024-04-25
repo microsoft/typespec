@@ -255,6 +255,7 @@ const ModelUI: FunctionComponent<{ type: Model }> = ({ type }) => {
         derivedModels: "ref",
         properties: "nested",
         sourceModel: "ref",
+        sourceModels: "value",
       }}
     />
   );

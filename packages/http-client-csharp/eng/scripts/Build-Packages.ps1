@@ -34,6 +34,7 @@ if ($BuildNumber) {
 Push-Location "$packageRoot"
 try {
     Write-Host "Working in $PWD"
+
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
     if ($BuildNumber) {

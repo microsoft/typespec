@@ -302,10 +302,27 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   sourceModel?: Model;
 
   /**
+   * Models that were used to build this model. This include any model referenced in `model is`, `...` or when intersecting models.
+   */
+  sourceModels: SourceModel[];
+
+  /**
    * Late-bound symbol of this model type.
    * @internal
    */
   symbol?: Sym;
+}
+
+export interface SourceModel {
+  /**
+   * How was this model used.
+   * - is: `model A is B`
+   * - spread: `model A {...B}`
+   * - intersection: `alias A = B & C`
+   */
+  readonly usage: "is" | "spread" | "intersection";
+  /** Source model */
+  readonly model: Model;
 }
 
 export interface ModelProperty extends BaseType, DecoratedType {

@@ -307,6 +307,21 @@ describe("compiler: checker: decorators", () => {
       expectDecoratorNotCalled();
     });
 
+    // Regresssion test for https://github.com/microsoft/typespec/issues/3211
+    it("augmenting a template model property before a decorator declaration resolve the declaration correctly", async () => {
+      await runner.compile(`
+        model Foo<T> {
+          prop: T;
+        }
+        model Test {foo: Foo<string>}
+
+        @@testDec(Foo.prop, "abc");
+        extern dec testDec(target: unknown, arg1: valueof string);
+
+      `);
+      strictEqual(calledArgs![2], "abc");
+    });
+
     describe("value marshalling", () => {
       async function testCallDecorator(
         type: string,
