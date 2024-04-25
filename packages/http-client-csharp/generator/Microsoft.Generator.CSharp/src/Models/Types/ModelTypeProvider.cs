@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
             var propHasSetter = PropertyHasSetter(propertyType, property);
-            MethodSignatureModifiers setterModifier = !property.IsReadOnly ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
+            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             // Add Remarks and Example for BinaryData Properties https://github.com/Azure/autorest.csharp/issues/4617
             var propertyDeclaration = new PropertyDeclaration(
