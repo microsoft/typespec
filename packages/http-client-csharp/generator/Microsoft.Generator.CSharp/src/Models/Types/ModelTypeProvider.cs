@@ -65,18 +65,33 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Returns true if the property has a setter. Read-only properties and non-nullable collections do not have setters.
+        /// Returns true if the property has a setter.
         /// </summary>
         /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
         /// <param name="prop">The <see cref="InputModelProperty"/>.</param>
         private bool PropertyHasSetter(CSharpType type, InputModelProperty prop)
         {
+            if (prop.IsDiscriminator)
+            {
+                return true;
+            }
+
             if (prop.IsReadOnly)
             {
                 return false;
             }
 
-            if (type.IsCollection)
+            if (IsStruct)
+            {
+                return false;
+            }
+
+            if (type.IsLiteral && prop.IsRequired)
+            {
+                return false;
+            }
+
+            if (type.IsCollection && !type.IsReadOnlyMemory)
             {
                 return type.IsNullable;
             }

@@ -103,6 +103,11 @@ namespace Microsoft.Generator.CSharp.Tests
                     new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputTypeKind.String, false), false, true, false),
                     new CSharpType(typeof(string)),
                     false);
+                // readonlymemory property
+                yield return new TestCaseData(
+                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputTypeKind.String, false), true, false), false, false, false),
+                    new CSharpType(typeof(ReadOnlyMemory<>)),
+                    true);
             }
         }
     }
