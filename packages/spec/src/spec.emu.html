@@ -441,12 +441,18 @@ TemplateParameter :
     Identifier TemplateParameterConstraint? TemplateParameterDefault?
 
 TemplateParameterConstraint :
-    `extends` MixedConstraint
+    `extends` MixedParameterConstraint
 
-MixedConstraint :
-  Expression
+MixedParameterConstraint :
+  ValueOfExpressionOrIntersectionOrHigher
+  ValueOfExpressionOrIntersectionOrHigher `|` ValueOfExpressionOrIntersectionOrHigher
+
+ValueOfExpressionOrIntersectionOrHigher : 
   ValueOfExpression
+  IntersectionExpressionOrHigher
+  `(` MixedParameterConstraint `)`
 
+  
 TemplateParameterDefault :
     `=` Expression
 
@@ -594,7 +600,7 @@ FunctionDeclarationStatement :
   FunctionModifiers? `fn` `(` FunctionParameterList? `)` TypeAnnotation?
 
 TypeAnnotation:
-  `:` MixedConstraint
+  `:` MixedParameterConstraint
 
 FunctionModifiers:
   `extern`

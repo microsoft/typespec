@@ -944,7 +944,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseMixedConstraint();
+      constraint = parseMixedParameterConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -963,7 +963,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.ValueOfKeyword) {
       return parseValueOfExpression();
     } else if (parseOptional(Token.OpenParen)) {
-      const expr = parseMixedConstraint();
+      const expr = parseMixedParameterConstraint();
       parseExpected(Token.CloseParen);
       return expr;
     }
@@ -971,7 +971,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return parseIntersectionExpressionOrHigher();
   }
 
-  function parseMixedConstraint(): Expression | ValueOfExpressionNode {
+  function parseMixedParameterConstraint(): Expression | ValueOfExpressionNode {
     const pos = tokenPos();
     parseOptional(Token.Bar);
     const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
@@ -2062,7 +2062,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseMixedConstraint();
+      type = parseMixedParameterConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,

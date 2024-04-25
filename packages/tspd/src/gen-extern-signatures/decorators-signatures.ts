@@ -1,8 +1,8 @@
 import {
   DocTag,
   IntrinsicScalarName,
-  MixedConstraint,
   MixedFunctionParameter,
+  MixedParameterConstraint,
   Model,
   Program,
   Scalar,
@@ -115,7 +115,9 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   }
 
   /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
-  function extractRestParamConstraint(constraint: MixedConstraint): MixedConstraint | undefined {
+  function extractRestParamConstraint(
+    constraint: MixedParameterConstraint
+  ): MixedParameterConstraint | undefined {
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
@@ -137,12 +139,12 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
 
     return {
-      metaKind: "MixedConstraint",
+      metaKind: "MixedParameterConstraint",
       type,
       valueType,
     };
   }
-  function getRestTSParmeterType(constraint: MixedConstraint) {
+  function getRestTSParmeterType(constraint: MixedParameterConstraint) {
     const restItemConstraint = extractRestParamConstraint(constraint);
     if (restItemConstraint === undefined) {
       return "unknown";
@@ -150,7 +152,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     return `(${getTSParmeterType(restItemConstraint)})[]`;
   }
 
-  function getTSParmeterType(constraint: MixedConstraint, isTarget?: boolean): string {
+  function getTSParmeterType(constraint: MixedParameterConstraint, isTarget?: boolean): string {
     if (constraint.type && constraint.valueType) {
       return `${getTypeConstraintTSType(constraint.type, isTarget)} | ${getValueTSType(constraint.valueType)}`;
     }

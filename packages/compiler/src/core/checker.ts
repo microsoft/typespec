@@ -109,8 +109,8 @@ import {
   MemberExpressionNode,
   MemberNode,
   MemberType,
-  MixedConstraint,
   MixedFunctionParameter,
+  MixedParameterConstraint,
   Model,
   ModelExpressionNode,
   ModelIndexer,
@@ -733,7 +733,6 @@ export function createChecker(program: Program): Checker {
     }
     let entity: Type | Value | null;
     if ("metaKind" in initial) {
-      compilerAssert(initial.metaKind === "Indeterminate", "Expected indeterminate entity");
       entity = getValueFromIndeterminate(initial.type, constraint, node);
     } else {
       entity = initial;
@@ -925,7 +924,7 @@ export function createChecker(program: Program): Checker {
 
   interface CheckConstraint {
     kind: "argument" | "assignment";
-    constraint: MixedConstraint;
+    constraint: MixedParameterConstraint;
   }
   interface CheckValueConstraint {
     kind: "argument" | "assignment";
@@ -1816,10 +1815,10 @@ export function createChecker(program: Program): Checker {
   }
 
   /** Check a union expresion used in a parameter constraint, those allow the use of `valueof` as a variant. */
-  function checkMixedConstraintUnion(
+  function checkMixedParameterConstraintUnion(
     node: UnionExpressionNode,
     mapper: TypeMapper | undefined
-  ): MixedConstraint {
+  ): MixedParameterConstraint {
     const values: Type[] = [];
     const types: Type[] = [];
     for (const option of node.options) {
@@ -1831,7 +1830,7 @@ export function createChecker(program: Program): Checker {
       }
     }
     return {
-      metaKind: "MixedConstraint",
+      metaKind: "MixedParameterConstraint",
       node,
       valueType:
         values.length === 0
@@ -2099,7 +2098,10 @@ export function createChecker(program: Program): Checker {
     if (mixed) {
       const type = node.type
         ? getParamConstraintEntityForNode(node.type)
-        : ({ metaKind: "MixedConstraint", type: unknownType } satisfies MixedConstraint);
+        : ({
+            metaKind: "MixedParameterConstraint",
+            type: unknownType,
+          } satisfies MixedParameterConstraint);
       parameterType = createType({
         ...base,
         type,
@@ -2130,14 +2132,17 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getParamConstraintEntityForNode(node: Expression, mapper?: TypeMapper): MixedConstraint {
+  function getParamConstraintEntityForNode(
+    node: Expression,
+    mapper?: TypeMapper
+  ): MixedParameterConstraint {
     switch (node.kind) {
       case SyntaxKind.UnionExpression:
-        return checkMixedConstraintUnion(node, mapper);
+        return checkMixedParameterConstraintUnion(node, mapper);
       default:
         const [kind, entity] = getTypeOrValueOfTypeForNode(node, mapper);
         return {
-          metaKind: "MixedConstraint",
+          metaKind: "MixedParameterConstraint",
           node: node,
           type: kind === "value" ? undefined : entity,
           valueType: kind === "value" ? entity : undefined,
@@ -5011,7 +5016,7 @@ export function createChecker(program: Program): Checker {
     const jsMarshalling = resolveDecoratorArgMarshalling(declaration);
     function resolveArg(
       argNode: Expression,
-      perParamType: MixedConstraint
+      perParamType: MixedParameterConstraint
     ): DecoratorArgument | undefined {
       const arg = getTypeOrValueForNode(argNode, mapper, {
         kind: "argument",
@@ -5072,7 +5077,9 @@ export function createChecker(program: Program): Checker {
   }
 
   /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
-  function extractRestParamConstraint(constraint: MixedConstraint): MixedConstraint | undefined {
+  function extractRestParamConstraint(
+    constraint: MixedParameterConstraint
+  ): MixedParameterConstraint | undefined {
     let valueType: Type | undefined;
     let type: Type | undefined;
     if (constraint.valueType) {
@@ -5094,7 +5101,7 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
-      metaKind: "MixedConstraint",
+      metaKind: "MixedParameterConstraint",
       type,
       valueType,
     };
@@ -6987,7 +6994,7 @@ export function createChecker(program: Program): Checker {
       source.kind === "TemplateParameter" &&
       source.constraint?.type &&
       source.constraint.valueType === undefined &&
-      target.metaKind === "MixedConstraint" &&
+      target.metaKind === "MixedParameterConstraint" &&
       target.valueType
     ) {
       const [assignable] = isTypeAssignableToInternal(
@@ -7026,12 +7033,17 @@ export function createChecker(program: Program): Checker {
     }
 
     if ("metaKind" in target) {
-      return isAssignableToMixedConstraint(source, target, diagnosticTarget, relationCache);
+      return isAssignableToMixedParameterConstraint(
+        source,
+        target,
+        diagnosticTarget,
+        relationCache
+      );
     }
 
     if (
       isValue(source) ||
-      ("metaKind" in source && source.metaKind === "MixedConstraint" && source.valueType)
+      ("metaKind" in source && source.metaKind === "MixedParameterConstraint" && source.valueType)
     ) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
@@ -7119,7 +7131,7 @@ export function createChecker(program: Program): Checker {
 
   function isIndeterminateEntityAssignableTo(
     indeterminate: IndeterminateEntity,
-    target: Type | MixedConstraint,
+    target: Type | MixedParameterConstraint,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
@@ -7162,13 +7174,13 @@ export function createChecker(program: Program): Checker {
     return isValueOfTypeInternal(source, target, diagnosticTarget, relationCache);
   }
 
-  function isAssignableToMixedConstraint(
+  function isAssignableToMixedParameterConstraint(
     source: Entity,
-    target: MixedConstraint,
+    target: MixedParameterConstraint,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
-    if ("metaKind" in source && source.metaKind === "MixedConstraint") {
+    if ("metaKind" in source && source.metaKind === "MixedParameterConstraint") {
       if (source.type && target.type) {
         const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
           source.type,

@@ -106,7 +106,7 @@ export interface TemplatedTypeBase {
  * - Values
  * - Value Constraints
  */
-export type Entity = Type | Value | MixedConstraint | IndeterminateEntity;
+export type Entity = Type | Value | MixedParameterConstraint | IndeterminateEntity;
 
 export type Type =
   | BooleanLiteral
@@ -171,8 +171,8 @@ export interface Projector {
   projectedGlobalNamespace?: Namespace;
 }
 
-export interface MixedConstraint {
-  readonly metaKind: "MixedConstraint";
+export interface MixedParameterConstraint {
+  readonly metaKind: "MixedParameterConstraint";
   readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */
@@ -679,7 +679,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: MixedConstraint;
+  constraint?: MixedParameterConstraint;
   default?: Type | Value | IndeterminateEntity;
 }
 
@@ -715,7 +715,7 @@ export interface FunctionParameterBase extends BaseType {
 export interface MixedFunctionParameter extends FunctionParameterBase {
   // TODO: better name?
   mixed: true;
-  type: MixedConstraint;
+  type: MixedParameterConstraint;
 }
 /** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
 export interface SigFunctionParameter extends FunctionParameterBase {

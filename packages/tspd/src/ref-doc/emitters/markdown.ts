@@ -1,4 +1,10 @@
-import { Entity, MixedConstraint, getEntityName, isType, resolvePath } from "@typespec/compiler";
+import {
+  Entity,
+  MixedParameterConstraint,
+  getEntityName,
+  isType,
+  resolvePath,
+} from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -261,7 +267,7 @@ export class MarkdownRenderer {
     if (dec.parameters.length > 0) {
       const paramTable: string[][] = [["Name", "Type", "Description"]];
       for (const param of dec.parameters) {
-        paramTable.push([param.name, this.mixedConstraint(param.type.type), param.doc]);
+        paramTable.push([param.name, this.MixedParameterConstraint(param.type.type), param.doc]);
       }
       content.push(section("Parameters", [table(paramTable), ""]));
     } else {
@@ -273,7 +279,7 @@ export class MarkdownRenderer {
     return section(this.headingTitle(dec), content);
   }
 
-  mixedConstraint(constraint: MixedConstraint): string {
+  MixedParameterConstraint(constraint: MixedParameterConstraint): string {
     return [
       ...(constraint.type ? [this.ref(constraint.type)] : []),
       ...(constraint.valueType ? [this.ref(constraint.valueType, "valueof ")] : []),
