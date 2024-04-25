@@ -4,7 +4,6 @@ import {
   Entity,
   Enum,
   ErrorType,
-  IndeterminateEntity,
   Interface,
   Model,
   Namespace,
@@ -44,10 +43,10 @@ export function isNullType(type: Entity): type is NullType {
   return "kind" in type && type.kind === "Intrinsic" && type.name === "null";
 }
 
-export function isType(entity: Entity | IndeterminateEntity): entity is Type {
+export function isType(entity: Entity): entity is Type {
   return "kind" in entity;
 }
-export function isValue(entity: Entity | IndeterminateEntity): entity is Value {
+export function isValue(entity: Entity): entity is Value {
   return "valueKind" in entity;
 }
 
