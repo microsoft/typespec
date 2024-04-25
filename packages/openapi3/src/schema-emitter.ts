@@ -45,7 +45,6 @@ import {
   isSecret,
   isTemplateDeclaration,
   resolveEncodedName,
-  stringTemplateToString,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -70,6 +69,7 @@ import {
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
+import { explainStringTemplateNotSerializable } from "../../compiler/src/core/helpers/string-template-utils.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
@@ -411,14 +411,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   stringTemplate(string: StringTemplate): EmitterOutput<object> {
-    const [value, diagnostics] = stringTemplateToString(string);
-    if (diagnostics.length > 0) {
-      this.emitter
-        .getProgram()
-        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
-      return { type: "string" };
+    if (string.stringValue !== undefined) {
+      return { type: "string", const: string.stringValue };
     }
-    return { type: "string", enum: [value] };
+    const diagnostics = explainStringTemplateNotSerializable(string);
+    this.emitter
+      .getProgram()
+      .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+    return { type: "string" };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {

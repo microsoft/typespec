@@ -31,7 +31,6 @@ import {
   Scalar,
   StringLiteral,
   StringTemplate,
-  stringTemplateToString,
   Tuple,
   Type,
   typespecTypeToJson,
@@ -53,6 +52,7 @@ import {
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
 import { stringify } from "yaml";
+import { explainStringTemplateNotSerializable } from "../../compiler/src/core/helpers/string-template-utils.js";
 import {
   findBaseUri,
   getContains,
@@ -239,14 +239,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   stringTemplate(string: StringTemplate): EmitterOutput<object> {
-    const [value, diagnostics] = stringTemplateToString(string);
-    if (diagnostics.length > 0) {
-      this.emitter
-        .getProgram()
-        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
-      return { type: "string" };
+    if (string.stringValue !== undefined) {
+      return { type: "string", const: string.stringValue };
     }
-    return { type: "string", const: value };
+    const diagnostics = explainStringTemplateNotSerializable(string);
+    this.emitter
+      .getProgram()
+      .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+    return { type: "string" };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {

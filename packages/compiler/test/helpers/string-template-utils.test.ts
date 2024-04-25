@@ -4,7 +4,7 @@ import { ModelProperty, stringTemplateToString } from "../../src/index.js";
 import { expectDiagnosticEmpty } from "../../src/testing/expect.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 
-describe("compiler: stringTemplateToString", () => {
+describe("compiler: stringTemplateToString (deprecated)", () => {
   async function stringifyTemplate(template: string) {
     const runner = await createTestRunner();
     const { value } = (await runner.compile(`model Foo { @test value: ${template}; }`)) as {
@@ -12,6 +12,7 @@ describe("compiler: stringTemplateToString", () => {
     };
 
     strictEqual(value.type.kind, "StringTemplate");
+    // eslint-disable-next-line deprecation/deprecation
     return stringTemplateToString(value.type);
   }
 
