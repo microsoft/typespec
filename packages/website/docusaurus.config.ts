@@ -273,7 +273,7 @@ const config: Config = {
     prism: {
       theme: LightTheme,
       darkTheme: themes.oneDark,
-      additionalLanguages: ["http", "shell-session", "protobuf"],
+      additionalLanguages: ["http", "shell-session", "protobuf", "diff"],
     },
     mermaid: {},
     algolia: {
