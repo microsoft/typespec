@@ -734,7 +734,7 @@ export function createChecker(program: Program): Checker {
     let entity: Type | Value | null;
     if ("metaKind" in initial) {
       compilerAssert(initial.metaKind === "Indeterminate", "Expected indeterminate entity");
-      entity = tryUsingValueOfType(initial.type, constraint, node);
+      entity = getValueFromIndeterminate(initial.type, constraint, node);
       if (options.legacyTupleAndModelCast && entity !== null && isType(entity)) {
         entity = legacy_tryTypeToValueCast(entity, constraint, node);
       }
@@ -745,20 +745,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     if (isValue(entity)) {
-      return entity;
-    }
-    if (isType(entity)) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "expect-value",
-          format: { name: getTypeName(entity) },
-          target: node,
-        })
-      );
-      return null;
-    }
-    if (entity === null || isValue(entity)) {
-      return entity;
+      return constraint ? inferScalarsFromConstraints(entity, constraint.type) : entity;
     }
     reportCheckerDiagnostic(
       createDiagnostic({
@@ -771,7 +758,7 @@ export function createChecker(program: Program): Checker {
   }
 
   /** In certain context for types that can also be value if the constraint allows it we try to use it as a value instead of a type. */
-  function tryUsingValueOfType(
+  function getValueFromIndeterminate(
     type: Type,
     constraint: CheckValueConstraint | undefined,
     node: Node
@@ -787,7 +774,7 @@ export function createChecker(program: Program): Checker {
       case "EnumMember":
         return checkEnumValue(type, constraint, node);
       case "UnionVariant":
-        return tryUsingValueOfType(type.type, constraint, node);
+        return getValueFromIndeterminate(type.type, constraint, node);
       case "Intrinsic":
         switch (type.name) {
           case "null":
@@ -844,7 +831,11 @@ export function createChecker(program: Program): Checker {
     };
 
     for (const prop of model.properties.values()) {
-      let propValue = tryUsingValueOfType(prop.type, { kind: "assignment", type: prop.type }, node);
+      let propValue = getValueFromIndeterminate(
+        prop.type,
+        { kind: "assignment", type: prop.type },
+        node
+      );
       if (propValue !== null && isType(propValue)) {
         propValue = legacy_tryTypeToValueCast(
           propValue,
@@ -900,7 +891,7 @@ export function createChecker(program: Program): Checker {
           : type?.kind === "Tuple"
             ? type.values[index]
             : undefined;
-      let value = tryUsingValueOfType(
+      let value = getValueFromIndeterminate(
         item,
         itemType && { kind: "assignment", type: itemType },
         node
@@ -966,7 +957,7 @@ export function createChecker(program: Program): Checker {
     compilerAssert(entity.metaKind === "Indeterminate", "Expected indeterminate entity");
 
     if (valueConstraint) {
-      return tryUsingValueOfType(entity.type, valueConstraint, node);
+      return getValueFromIndeterminate(entity.type, valueConstraint, node);
     }
 
     return entity.type;
@@ -3773,7 +3764,6 @@ export function createChecker(program: Program): Checker {
   }
 
   function inferScalarForPrimitiveValue(
-    base: Scalar,
     type: Type | undefined,
     literalType: Type
   ): Scalar | undefined {
@@ -3782,14 +3772,14 @@ export function createChecker(program: Program): Checker {
     }
     switch (type.kind) {
       case "Scalar":
-        if (areScalarsRelated(type, base)) {
+        if (ignoreDiagnostics(isTypeAssignableTo(literalType, type, literalType))) {
           return type;
         }
         return undefined;
       case "Union":
         let found = undefined;
         for (const variant of type.variants.values()) {
-          const scalar = inferScalarForPrimitiveValue(base, variant.type, literalType);
+          const scalar = inferScalarForPrimitiveValue(variant.type, literalType);
           if (scalar) {
             if (found) {
               reportCheckerDiagnostic(
@@ -3834,11 +3824,7 @@ export function createChecker(program: Program): Checker {
     } else {
       value = literalType.value;
     }
-    const scalar = inferScalarForPrimitiveValue(
-      getStdType("string"),
-      constraint?.type,
-      literalType
-    );
+    const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
       valueKind: "StringValue",
       value,
@@ -3855,11 +3841,7 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    const scalar = inferScalarForPrimitiveValue(
-      getStdType("numeric"),
-      constraint?.type,
-      literalType
-    );
+    const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
       valueKind: "NumericValue",
       value: Numeric(literalType.valueAsString),
@@ -3876,11 +3858,7 @@ export function createChecker(program: Program): Checker {
     if (constraint && !checkTypeOfValueMatchConstraint(literalType, constraint, node)) {
       return null;
     }
-    const scalar = inferScalarForPrimitiveValue(
-      getStdType("boolean"),
-      constraint?.type,
-      literalType
-    );
+    const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
       valueKind: "BooleanValue",
       value: literalType.value,
@@ -4809,7 +4787,7 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostics(diagnostics);
       return null;
     } else {
-      return defaultValue;
+      return { ...defaultValue, type };
     }
   }
 
@@ -5380,6 +5358,25 @@ export function createChecker(program: Program): Checker {
     }
     links.value = type ? { ...value, type } : { ...value };
     return links.value;
+  }
+
+  function inferScalarsFromConstraints<T extends Value>(value: T, type: Type): T {
+    switch (value.valueKind) {
+      case "BooleanValue":
+      case "StringValue":
+      case "NumericValue":
+        if (value.scalar === undefined) {
+          const scalar = inferScalarForPrimitiveValue(type, value.type);
+          return { ...value, scalar };
+        }
+        return value;
+      case "ArrayValue":
+      case "ObjectValue":
+      case "EnumValue":
+      case "NullValue":
+      case "ScalarValue":
+        return value;
+    }
   }
 
   function checkEnum(node: EnumStatementNode, mapper: TypeMapper | undefined): Type {

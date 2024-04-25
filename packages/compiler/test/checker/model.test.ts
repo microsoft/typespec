@@ -111,7 +111,7 @@ describe("compiler: models", () => {
 
   describe("property defaults", () => {
     describe("set defaultValue", () => {
-      const testCases: [string, string, { kind: string; value: unknown }][] = [
+      const testCases: [string, string, { kind: string; value: any }][] = [
         ["boolean", `false`, { kind: "BooleanValue", value: false }],
         ["boolean", `true`, { kind: "BooleanValue", value: true }],
         ["string", `"foo"`, { kind: "StringValue", value: "foo" }],
@@ -128,7 +128,7 @@ describe("compiler: models", () => {
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, expectedValue.kind);
-        deepStrictEqual((foo.defaultValue as any).value, expectedValue.value);
+        expect((foo.defaultValue as any).value).toMatchObject(expectedValue.value);
       });
 
       it(`foo?: string[] = #["abc"]`, async () => {
@@ -151,6 +151,20 @@ describe("compiler: models", () => {
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
         strictEqual(foo.defaultValue?.valueKind, "ObjectValue");
+      });
+
+      it(`assign scalar for primitive types if not yet`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        const a = 123;
+        model A { @test foo?: int32 = a }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "NumericValue");
+        strictEqual(foo.defaultValue.scalar?.kind, "Scalar");
+        strictEqual(foo.defaultValue.scalar?.name, "int32");
       });
 
       it(`foo?: Enum = Enum.up`, async () => {

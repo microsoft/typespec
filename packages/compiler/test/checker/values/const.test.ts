@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { NumericValue } from "../../../src/index.js";
 import { expectDiagnostics } from "../../../src/testing/expect.js";
 import { compileValue, diagnoseUsage } from "./utils.js";
 
@@ -14,6 +15,12 @@ describe("without type it use the most precise type", () => {
     const value = await compileValue("a", `const a = ${input};`);
     strictEqual(value.type.kind, kind);
   });
+});
+
+it("when assigning another const a primitive value that didn't figure out the scalar it resolved it then", async () => {
+  const value = (await compileValue("b", `const a = 123;const b: int64 = a;`)) as NumericValue;
+  strictEqual(value.scalar?.kind, "Scalar");
+  strictEqual(value.scalar.name, "int64");
 });
 
 it("when assigning another const it change the type", async () => {
