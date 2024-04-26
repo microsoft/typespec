@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -43,6 +43,7 @@ namespace Microsoft.Generator.CSharp
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error: {ex.Message}");
+                Console.Error.WriteLine($"{ex.StackTrace}");
                 return 1;
             }
 

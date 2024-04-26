@@ -18,19 +18,31 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public override InputModelType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => ReadModelType(ref reader, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputModelType>(_referenceHandler.CurrentResolver) ?? CreateModelType(ref reader, null, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputModelType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        private static InputModelType? ReadModelType(ref Utf8JsonReader reader, JsonSerializerOptions options, ReferenceResolver resolver)
-            => reader.ReadReferenceAndResolve<InputModelType>(resolver) ?? CreateModelType(ref reader, null, options, resolver);
-
-        public static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null;
-            string? name = null;
-            var properties = new List<InputModelProperty>();
+            if (id == null)
+            {
+                reader.TryReadReferenceId(ref id);
+            }
+
+            id = id ?? throw new JsonException();
+
+            // skip every other property until we have a name
+            while (name == null)
+            {
+                var hasName = reader.TryReadString(nameof(InputModelType.Name), ref name);
+                if (!hasName)
+                {
+                    reader.SkipProperty();
+                }
+            }
+            name = name ?? throw new JsonException("Model must have name");
+
             var derivedModels = new List<InputModelType>();
             bool isNullable = false;
             string? ns = null;
@@ -42,25 +54,16 @@ namespace Microsoft.Generator.CSharp.Input
             string? discriminatorValue = null;
             InputDictionary? inheritedDictionaryType = null;
             InputModelType? baseModel = null;
-            InputModelType? model = null;
+            IReadOnlyList<InputModelProperty>? properties = null;
+            // create an empty model to resolve circular references
+            var model = new InputModelType(name, null, null, null, null, InputModelTypeUsage.None, null!, null, derivedModels, null, null, null, false);
+            resolver.AddReference(id, model);
+            resolver.AddReference($"{model.Name}.{nameof(InputModelType.DerivedModels)}", derivedModels); // TODO we could move the derived model deserialization to the deserialization of input namespace where all models are in place.
 
+            // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                if (!reader.TryReadReferenceId(ref isFirstProperty, ref id))
-                {
-                    throw new JsonException($"Cannot get $id for {nameof(InputModelType)}");
-                }
-                id = id ?? throw new JsonException($"{nameof(InputModelType)} must have id");
-
-                Console.Error.WriteLine($"Deserializing id: {id}");
-
-                // create an empty model to resolve circular references
-                model = new InputModelType(null!, null, null, null, null, InputModelTypeUsage.None, properties, null, derivedModels, null, null, null, false);
-                resolver.AddReference(id, model);
-                resolver.AddReference($"{model.Name}.{nameof(InputModelType.DerivedModels)}", derivedModels);
-
-                var isKnownProperty = reader.TryReadString(nameof(InputModelType.Name), ref name)
-                    || reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
+                var isKnownProperty = reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
                     || reader.TryReadString(nameof(InputModelType.Namespace), ref ns)
                     || reader.TryReadString(nameof(InputModelType.Accessibility), ref accessibility)
                     || reader.TryReadString(nameof(InputModelType.Deprecated), ref deprecated)
@@ -69,7 +72,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputModelType.DiscriminatorPropertyName), ref discriminatorPropertyName)
                     || reader.TryReadString(nameof(InputModelType.DiscriminatorValue), ref discriminatorValue)
                     || reader.TryReadWithConverter(nameof(InputModelType.InheritedDictionaryType), options, ref inheritedDictionaryType)
-                    || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel);
+                    || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
+                    || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties);
 
                 if (!isKnownProperty)
                 {
@@ -77,12 +81,6 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            if (model == null)
-            {
-                throw new InvalidOperationException("This is impossible");
-            }
-
-            model.Name = name ?? throw new JsonException("Model must have name");
             model.Namespace = ns;
             model.Accessibility = accessibility;
             model.Deprecated = deprecated;
@@ -93,6 +91,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.InheritedDictionaryType = inheritedDictionaryType;
             model.IsNullable = isNullable;
             model.BaseModel = baseModel;
+            model.Properties = properties ?? Array.Empty<InputModelProperty>();
 
             if (baseModel is not null)
             {
@@ -100,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Input
                 baseModelDerived.Add(model);
             }
 
-            return model ?? throw new JsonException();
+            return model;
         }
 
         private static InputModelType CreateInputModelTypeInstance(string? id, string? name, string? ns, string? accessibility, string? deprecated, string? description, string? usageString, string? discriminatorValue, string? discriminatorPropertyValue, InputModelType? baseModel, IReadOnlyList<InputModelProperty> properties, InputDictionary? inheritedDictionaryType, bool isNullable, ReferenceResolver resolver)

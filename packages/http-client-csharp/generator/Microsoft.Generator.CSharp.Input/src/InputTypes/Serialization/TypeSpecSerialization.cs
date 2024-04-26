@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp.Input
                 AllowTrailingCommas = true
             };
 
+            options.Converters.Add(new TypeSpecInputNamespaceConverter(referenceHandler));
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(new TypeSpecInputTypeConverter(referenceHandler));
             options.Converters.Add(new TypeSpecInputListTypeConverter(referenceHandler));
@@ -28,6 +29,8 @@ namespace Microsoft.Generator.CSharp.Input
             options.Converters.Add(new TypeSpecInputConstantConverter(referenceHandler));
             options.Converters.Add(new TypeSpecInputLiteralTypeConverter(referenceHandler));
             options.Converters.Add(new TypeSpecInputUnionTypeConverter(referenceHandler));
+            options.Converters.Add(new TypeSpecInputClientConverter(referenceHandler));
+            options.Converters.Add(new TypeSpecInputOperationConverter(referenceHandler));
             options.Converters.Add(new TypeSpecInputParameterConverter(referenceHandler));
             return JsonSerializer.Deserialize<InputNamespace>(json, options);
         }

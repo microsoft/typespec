@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Microsoft.Generator.CSharp.Input
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
         public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionary? inheritedDictionaryType, bool isNullable)
@@ -61,6 +63,11 @@ namespace Microsoft.Generator.CSharp.Input
                 yield return model;
                 model = model.BaseModel;
             }
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"Model (Name: {Name}, {Namespace})";
         }
     }
 }
