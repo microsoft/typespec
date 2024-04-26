@@ -731,8 +731,8 @@ importers:
         specifier: 0.6.3
         version: 0.6.3
       monaco-editor:
-        specifier: ~0.47.0
-        version: 0.47.0
+        specifier: ~0.46.0
+        version: 0.46.0
       react:
         specifier: ~18.2.0
         version: 18.2.0
@@ -1369,7 +1369,7 @@ importers:
         version: 10.9.0
       monaco-editor-webpack-plugin:
         specifier: ~7.1.0
-        version: 7.1.0(monaco-editor@0.47.0)(webpack@5.91.0)
+        version: 7.1.0(monaco-editor@0.46.0)(webpack@5.91.0)
       playwright:
         specifier: ^1.43.1
         version: 1.43.1
@@ -14593,19 +14593,19 @@ packages:
     resolution: {integrity: sha512-xho7dsmSYOIek6bkMKQApWHVyoOBQ1eaBIE6CIlER40paTN0r0efrig6Q9QkCacfzIuNNxNjyb1uMVoMpi8gcA==}
     dev: false
 
-  /monaco-editor-webpack-plugin@7.1.0(monaco-editor@0.47.0)(webpack@5.91.0):
+  /monaco-editor-webpack-plugin@7.1.0(monaco-editor@0.46.0)(webpack@5.91.0):
     resolution: {integrity: sha512-ZjnGINHN963JQkFqjjcBtn1XBtUATDZBMgNQhDQwd78w2ukRhFXAPNgWuacaQiDZsUr4h1rWv5Mv6eriKuOSzA==}
     peerDependencies:
       monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.4
-      monaco-editor: 0.47.0
+      monaco-editor: 0.46.0
       webpack: 5.91.0(@swc/core@1.4.14)
     dev: true
 
-  /monaco-editor@0.47.0:
-    resolution: {integrity: sha512-VabVvHvQ9QmMwXu4du008ZDuyLnHs9j7ThVFsiJoXSOQk18+LF89N4ADzPbFenm0W4V2bGHnFBztIRQTgBfxzw==}
+  /monaco-editor@0.46.0:
+    resolution: {integrity: sha512-ADwtLIIww+9FKybWscd7OCfm9odsFYHImBRI1v9AviGce55QY8raT+9ihH8jX/E/e6QVSGM+pKj4jSUSRmALNQ==}
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
