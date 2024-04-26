@@ -203,7 +203,7 @@ const config: Config = {
     }),
   },
   themeConfig: {
-    image: "img/social.svg",
+    image: "img/social.png",
     navbar: {
       title: "TypeSpec",
       items: [
