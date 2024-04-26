@@ -2,8 +2,8 @@
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
 import { NormalizedSidebar } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
-import { Options, ThemeConfig } from "@docusaurus/preset-classic";
-import type { Config, Plugin } from "@docusaurus/types";
+import { Options } from "@docusaurus/preset-classic";
+import type { Config, Plugin, ThemeConfig } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { resolve } from "path";
 import { themes } from "prism-react-renderer";
@@ -203,6 +203,7 @@ const config: Config = {
     }),
   },
   themeConfig: {
+    image: "img/favicon.svg",
     navbar: {
       title: "TypeSpec",
       items: [
