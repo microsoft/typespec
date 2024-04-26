@@ -13,9 +13,8 @@ export async function installTypeSpecDependencies(
   host: CliCompilerHost,
   directory: string
 ): Promise<void> {
-  const cmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const child = spawn(cmd, ["install"], {
-    shell: true,
+  const child = spawn("npm", ["install"], {
+    shell: process.platform === "win32",
     stdio: "inherit",
     cwd: directory,
     env: process.env,
