@@ -475,12 +475,12 @@ Expression :
     UnionExpressionOrHigher
 
 UnionExpressionOrHigher[InParameter] :
-    IntersectionExpressionOrHigher[InParameter]
-    `|`? UnionExpressionOrHigher[InParameter] `|` IntersectionExpressionOrHigher[InParameter]
+    IntersectionExpressionOrHigher[?InParameter]
+    `|`? UnionExpressionOrHigher[?InParameter] `|` IntersectionExpressionOrHigher[?InParameter]
 
 IntersectionExpressionOrHigher[InParameter] :
-    ArrayExpressionOrHigher[InParameter]
-    `&`? IntersectionExpressionOrHigher[InParameter] `&` ArrayExpressionOrHigher[InParameter]
+    ArrayExpressionOrHigher[?InParameter]
+    `&`? IntersectionExpressionOrHigher[?InParameter] `&` ArrayExpressionOrHigher[?InParameter]
 
 ValueOfExpression :
   `valueof` Expression
@@ -491,14 +491,14 @@ TypeOfExpression
     `typeof` ParenthesizedExpression
 
 ArrayExpressionOrHigher[InParameter] :
-    PrimaryExpression[InParameter]
-    ArrayExpressionOrHigher[InParameter] `[` `]`
+    PrimaryExpression[?InParameter]
+    ArrayExpressionOrHigher[?InParameter] `[` `]`
 
 PrimaryExpression[InParameter] :
     TypeOfExpression
     Literal
     CallOrReferenceExpression
-    ParenthesizedExpression[InParameter]
+    ParenthesizedExpression[?InParameter]
     ObjectLiteral
     TupleLiteral
     ModelExpression
