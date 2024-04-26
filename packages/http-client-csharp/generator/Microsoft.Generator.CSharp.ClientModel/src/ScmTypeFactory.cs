@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 InputPrimitiveTypeKind.Uri => new CSharpType(typeof(Uri), inputType.IsNullable),
                 _ => new CSharpType(typeof(object), inputType.IsNullable),
             },
-            InputGenericType genericType => new CSharpType(genericType.Type, genericType.Arguments.Select(CreateType).ToArray(), genericType.IsNullable),
+            InputGenericType genericType => new CSharpType(genericType.Type, genericType.Arguments.Select(CreateCSharpType).ToArray(), genericType.IsNullable),
             InputIntrinsicType { Kind: InputIntrinsicTypeKind.Unknown } => typeof(BinaryData),
             _ => throw new Exception("Unknown type")
         };

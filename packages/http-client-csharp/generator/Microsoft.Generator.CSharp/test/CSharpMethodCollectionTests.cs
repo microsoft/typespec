@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.Tests
                     GenerateConvenienceMethod = true,
                     Parameters = new[]
                     {
-                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputTypeKind.Boolean), RequestLocation.Body, null, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
+                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
                     }
                 }, CSharpMethodKinds.CreateMessage);
             }
