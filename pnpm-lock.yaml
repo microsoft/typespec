@@ -225,9 +225,6 @@ importers:
       change-case:
         specifier: ~5.4.4
         version: 5.4.4
-      follow-redirects:
-        specifier: ^1.15.6
-        version: 1.15.6
       globby:
         specifier: ~14.0.1
         version: 14.0.1
@@ -262,9 +259,6 @@ importers:
       '@types/babel__code-frame':
         specifier: ~7.0.6
         version: 7.0.6
-      '@types/follow-redirects':
-        specifier: ^1.14.4
-        version: 1.14.4
       '@types/mustache':
         specifier: ~4.2.5
         version: 4.2.5
@@ -7721,12 +7715,6 @@ packages:
       '@types/qs': 6.9.14
       '@types/serve-static': 1.15.5
     dev: false
-
-  /@types/follow-redirects@1.14.4:
-    resolution: {integrity: sha512-GWXfsD0Jc1RWiFmMuMFCpXMzi9L7oPDVwxUnZdg89kDNnqsRfUKXEtUYtA98A6lig1WXH/CYY/fvPW9HuN5fTA==}
-    dependencies:
-      '@types/node': 18.11.19
-    dev: true
 
   /@types/gtag.js@0.0.12:
     resolution: {integrity: sha512-YQV9bUsemkzG81Ea295/nF/5GijnD2Af7QhEofh7xu+kvCN6RdodgNwwGWXB5GMI3NoyvQo0odNctoH/qLMIpg==}
