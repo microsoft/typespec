@@ -444,13 +444,8 @@ TemplateParameterConstraint :
     `extends` MixedParameterConstraint
 
 MixedParameterConstraint :
-  ValueOfExpressionOrIntersectionOrHigher
-  ValueOfExpressionOrIntersectionOrHigher `|` ValueOfExpressionOrIntersectionOrHigher
-
-ValueOfExpressionOrIntersectionOrHigher : 
-  ValueOfExpression
-  IntersectionExpressionOrHigher
-  `(` MixedParameterConstraint `)`
+  UnionExpressionOrHigher[+InParameter]
+  valueof UnionExpressionOrHigher
 
   
 TemplateParameterDefault :
@@ -479,13 +474,13 @@ OperationStatement :
 Expression :
     UnionExpressionOrHigher
 
-UnionExpressionOrHigher :
-    IntersectionExpressionOrHigher
-    `|`? UnionExpressionOrHigher `|` IntersectionExpressionOrHigher
+UnionExpressionOrHigher[InParameter] :
+    IntersectionExpressionOrHigher[InParameter]
+    `|`? UnionExpressionOrHigher[InParameter] `|` IntersectionExpressionOrHigher[InParameter]
 
-IntersectionExpressionOrHigher :
-ArrayExpressionOrHigher
-    `&`? IntersectionExpressionOrHigher `&` ArrayExpressionOrHigher
+IntersectionExpressionOrHigher[InParameter] :
+    ArrayExpressionOrHigher[InParameter]
+    `&`? IntersectionExpressionOrHigher[InParameter] `&` ArrayExpressionOrHigher[InParameter]
 
 ValueOfExpression :
   `valueof` Expression
@@ -495,15 +490,15 @@ TypeOfExpression
     `typeof` ReferenceExpression
     `typeof` ParenthesizedExpression
 
-ArrayExpressionOrHigher :
-    PrimaryExpression
-    ArrayExpressionOrHigher `[` `]`
+ArrayExpressionOrHigher[InParameter] :
+    PrimaryExpression[InParameter]
+    ArrayExpressionOrHigher[InParameter] `[` `]`
 
-PrimaryExpression :
+PrimaryExpression[InParameter] :
     TypeOfExpression
     Literal
     CallOrReferenceExpression
-    ParenthesizedExpression
+    ParenthesizedExpression[InParameter]
     ObjectLiteral
     TupleLiteral
     ModelExpression
@@ -537,8 +532,9 @@ TemplateArguments :
 ProjectionArguments :
     `(` ExpressionList? `)`
 
-ParenthesizedExpression : 
-    `(` Expression `)`
+ParenthesizedExpression[InParameter] :
+    [~InParameter] `(` Expression `)`
+    [+InParameter] `(` MixedParameterConstraint `)`
 
 ObjectLiteral :
     `#{` ObjectLiteralBody? `}`
