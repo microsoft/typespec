@@ -257,12 +257,12 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// A wrapper around <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, Method)"/> to allow for writing method body statements.
-        /// This method will call the extension method <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, Method)"/> of the plugin <see cref="CodeModelPlugin"/> with the current instance of <see cref="CodeWriter"/>
+        /// A wrapper around <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> to allow for writing method body statements.
+        /// This method will call the extension method <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> of the plugin <see cref="CodeModelPlugin"/> with the current instance of <see cref="CodeWriter"/>
         /// and attempt to write <paramref name="method"/>.
         /// </summary>
-        /// <param name="method">The <see cref="Method"/> to write.</param>
-        public void WriteMethod(Method method)
+        /// <param name="method">The <see cref="CSharpMethod"/> to write.</param>
+        public void WriteMethod(CSharpMethod method)
         {
             CodeModelPlugin.Instance.CodeWriterExtensionMethods.WriteMethod(this, method);
         }

@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Tests
     {
         public override string LicenseString => "// License string";
 
-        public override void WriteMethod(CodeWriter writer, Method method)
+        public override void WriteMethod(CodeWriter writer, CSharpMethod method)
         {
             writer.AppendRaw("Custom implementation");
         }

@@ -23,12 +23,12 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputClient() : this(string.Empty, string.Empty, Array.Empty<InputOperation>(), true, Array.Empty<InputParameter>(), null) { }
 
-        public string Name { get; }
-        public string Description { get; }
-        public IReadOnlyList<InputOperation> Operations { get; }
-        public bool Creatable { get; }
-        public IReadOnlyList<InputParameter> Parameters { get; }
-        public string? Parent { get; }
+        public string Name { get; init; }
+        public string Description { get; init; }
+        public IReadOnlyList<InputOperation> Operations { get; init; }
+        public bool Creatable { get; init; }
+        public IReadOnlyList<InputParameter> Parameters { get; init; }
+        public string? Parent { get; init; }
 
         public string Key
         {
