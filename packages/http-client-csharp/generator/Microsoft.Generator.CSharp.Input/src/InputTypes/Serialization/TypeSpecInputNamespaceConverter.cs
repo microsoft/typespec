@@ -54,13 +54,27 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
+            apiVersions ??= Array.Empty<string>();
+            enums ??= Array.Empty<InputEnumType>();
+            models ??= Array.Empty<InputModelType>();
+            clients ??= Array.Empty<InputClient>();
+
+            // resolve the derived models now
+            foreach (var model in models)
+            {
+                if (model.BaseModel is { } baseModel)
+                {
+                    ((List<InputModelType>)baseModel.DerivedModels).Add(model);
+                }
+            }
+
             return new InputNamespace(
                 name ?? throw new JsonException(),
                 description ?? throw new JsonException(),
-                apiVersions ?? Array.Empty<string>(),
-                enums ?? Array.Empty<InputEnumType>(),
-                models ?? Array.Empty<InputModelType>(),
-                clients ?? Array.Empty<InputClient>(),
+                apiVersions,
+                enums,
+                models,
+                clients,
                 auth ?? throw new JsonException());
         }
     }
