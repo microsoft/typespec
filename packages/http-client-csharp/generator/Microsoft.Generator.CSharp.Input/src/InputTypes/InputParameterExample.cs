@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
             ExampleValue = exampleValue;
         }
 
-        public InputParameter Parameter { get; }
-        public InputExampleValue ExampleValue { get; }
+        public InputParameter Parameter { get; internal set; }
+        public InputExampleValue ExampleValue { get; internal set; }
     }
 }

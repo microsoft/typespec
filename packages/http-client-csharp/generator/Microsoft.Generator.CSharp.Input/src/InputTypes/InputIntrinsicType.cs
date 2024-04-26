@@ -1,8 +1,10 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
 {
+    // TODO -- after we have adopted getAllModels in our emitter, we no longer need to have this type.
+    // The only thing we need in these "intrinsic types" is the "unknown", and TCGC put it in the primitive type. Others we will never generate therefore we do not need to have others
     public class InputIntrinsicType : InputType
     {
         public InputIntrinsicType(InputIntrinsicTypeKind kind) : base(kind.ToString(), false)

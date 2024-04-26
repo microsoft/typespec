@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
             Parameters = parameters;
         }
 
-        public InputOperation Operation { get; }
-        public IReadOnlyList<InputParameterExample> Parameters { get; }
+        public InputOperation Operation { get; internal set; }
+        public IReadOnlyList<InputParameterExample> Parameters { get; internal set; }
     }
 }

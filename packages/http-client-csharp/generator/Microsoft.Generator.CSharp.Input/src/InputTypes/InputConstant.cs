@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
         }
 
-        public object? Value { get; }
-        public InputType Type { get; }
+        public object? Value { get; internal set; }
+        public InputType Type { get; internal set; }
     }
 }

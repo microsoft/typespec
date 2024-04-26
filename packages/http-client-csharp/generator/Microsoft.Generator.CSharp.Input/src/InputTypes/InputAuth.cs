@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputAuth() : this(null, null) { }
 
-        public InputApiKeyAuth? ApiKey { get; init; }
-        public InputOAuth2Auth? OAuth2 { get; init; }
+        public InputApiKeyAuth? ApiKey { get; internal set; }
+        public InputOAuth2Auth? OAuth2 { get; internal set; }
     }
 }

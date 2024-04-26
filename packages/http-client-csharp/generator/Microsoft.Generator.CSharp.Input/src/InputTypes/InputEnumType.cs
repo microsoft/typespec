@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -22,14 +22,14 @@ namespace Microsoft.Generator.CSharp.Input
             IsExtensible = isExtensible;
         }
 
-        public string? Namespace { get; }
-        public string? Accessibility { get; }
-        public string? Deprecated { get; }
-        public string Description { get; }
-        public InputModelTypeUsage Usage { get; }
-        public InputPrimitiveType EnumValueType { get; }
-        public IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
-        public bool IsExtensible { get; }
+        public string? Namespace { get; internal set; }
+        public string? Accessibility { get; internal set; }
+        public string? Deprecated { get; internal set; }
+        public string Description { get; internal set; }
+        public InputModelTypeUsage Usage { get; internal set; }
+        public InputPrimitiveType EnumValueType { get; internal set; }
+        public IReadOnlyList<InputEnumTypeValue> AllowedValues { get; internal set; }
+        public bool IsExtensible { get; internal set; }
 
         public static IEqualityComparer<InputEnumType> IgnoreNullabilityComparer { get; } = new IgnoreNullabilityComparerImplementation();
 

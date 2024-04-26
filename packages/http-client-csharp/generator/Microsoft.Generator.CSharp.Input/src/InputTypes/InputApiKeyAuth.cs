@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
             Prefix = prefix;
         }
 
-        public string Name { get; }
-        public string? Prefix { get; }
+        public string Name { get; internal set; }
+        public string? Prefix { get; internal set; }
     }
 }

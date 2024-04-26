@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Linq;
@@ -16,9 +16,9 @@ namespace Microsoft.Generator.CSharp.Input
 
         public OperationLongRunning() : this(1, new OperationResponse(), null) { }
 
-        public int FinalStateVia { get; }
-        public OperationResponse FinalResponse { get; }
-        public string? ResultPath { get; }
+        public int FinalStateVia { get; internal set; }
+        public OperationResponse FinalResponse { get; internal set; }
+        public string? ResultPath { get; internal set; }
 
         /// <summary>
         /// Meaningful return type of the long running operation.

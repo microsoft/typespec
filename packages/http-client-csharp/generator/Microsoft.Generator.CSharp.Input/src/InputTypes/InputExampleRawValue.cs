@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -10,6 +10,6 @@ namespace Microsoft.Generator.CSharp.Input
             RawValue = rawValue;
         }
 
-        public object? RawValue { get; }
+        public object? RawValue { get; internal set; }
     }
 }

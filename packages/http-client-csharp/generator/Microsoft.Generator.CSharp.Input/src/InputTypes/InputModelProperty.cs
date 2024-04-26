@@ -1,7 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
-using System;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -18,12 +16,12 @@ namespace Microsoft.Generator.CSharp.Input
             IsDiscriminator = isDiscriminator;
         }
 
-        public string Name { get; }
-        public string SerializedName { get; }
-        public string Description { get; }
-        public InputType Type { get; }
-        public bool IsRequired { get; }
-        public bool IsReadOnly { get; }
-        public bool IsDiscriminator { get; }
+        public string Name { get; internal set; }
+        public string SerializedName { get; internal set; }
+        public string Description { get; internal set; }
+        public InputType Type { get; internal set; }
+        public bool IsRequired { get; internal set; }
+        public bool IsReadOnly { get; internal set; }
+        public bool IsDiscriminator { get; internal set; }
     }
 }

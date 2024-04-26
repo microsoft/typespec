@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -13,8 +13,8 @@ namespace Microsoft.Generator.CSharp.Input
             ItemName = itemName;
         }
 
-        public string? NextLinkName { get; }
-        public string? ItemName { get; }
+        public string? NextLinkName { get; internal set; }
+        public string? ItemName { get; internal set; }
         internal Func<InputOperation>? NextLinkOperationRef { get; init; }
         internal InputOperation? NextLinkOperation => NextLinkOperationRef?.Invoke() ?? null;
     }

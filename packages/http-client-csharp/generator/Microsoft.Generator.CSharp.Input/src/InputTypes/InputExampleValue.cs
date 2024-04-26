@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
         }
 
-        public InputType Type { get; }
+        public InputType Type { get; internal set; }
 
         public static InputExampleValue Null(InputType type) => new InputExampleRawValue(type, null);
         public static InputExampleValue Value(InputType type, object? rawValue) => new InputExampleRawValue(type, rawValue);

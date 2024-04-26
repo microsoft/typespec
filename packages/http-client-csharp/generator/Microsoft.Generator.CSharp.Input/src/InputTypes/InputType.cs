@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -16,8 +16,8 @@ namespace Microsoft.Generator.CSharp.Input
             IsNullable = isNullable;
         }
 
-        public string Name { get; }
-        public bool IsNullable { get; }
+        public string Name { get; internal set; }
+        public bool IsNullable { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {
