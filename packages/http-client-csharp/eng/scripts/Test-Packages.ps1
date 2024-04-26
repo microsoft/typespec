@@ -15,14 +15,33 @@ Set-ConsoleEncoding
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        # test the emitter
         Push-Location "$packageRoot"
         try {
+            # test the emitter
             Invoke-LoggedCommand "npm run build" -GroupOutput
             Invoke-LoggedCommand "npm run test" -GroupOutput
+
+            # test the generator
+            Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
         }
         finally {
             Pop-Location
+        }
+    }
+    if ($GenerationChecks) {
+        Set-StrictMode -Version 1
+        # run E2E Test for TypeSpec emitter
+        Write-Host "Generating test projects ..."
+        & "$packageRoot/eng/scripts/Generate.ps1"
+        Write-Host 'Code generation is completed.'
+
+        try {
+            Write-Host 'Checking for differences in generated code...'
+            & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
+            Write-Host 'Done. No code generation differences detected.'
+        }
+        catch {
+            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
         }
     }
 }

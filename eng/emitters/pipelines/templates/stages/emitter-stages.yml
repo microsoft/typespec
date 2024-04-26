@@ -196,7 +196,7 @@ stages:
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 20.x
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
@@ -204,20 +204,41 @@ stages:
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 18.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 20.x
                   Os: windows
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
-                  UnitTestArgs: ${{ parameters.UnitTestArgs }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
                   NodeVersion: 18.x
                   Os: windows
+
+  # Regen Test stage
+  # Responsible for running any regen tests needed to validate no manual changes were done.
+  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
+  - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+      - stage: ${{ parameters.StagePrefix }}_Regen_Test
+        displayName: ${{ parameters.StagePrefix }} - Regen - Test
+        condition: and(succeeded(), ${{ parameters.Condition }})
+        dependsOn:
+          - ${{ parameters.DependsOn }}
+          - ${{ parameters.StagePrefix }}_Build
+        variables:
+          selfRepositoryPath: $(Build.SourcesDirectory)
+          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+        jobs:
+          - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+            parameters:
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              PackagePath: ${{ parameters.PackagePath }}
+              Os: windows
+              TestMatrix: ${{ parameters.TestMatrix }}

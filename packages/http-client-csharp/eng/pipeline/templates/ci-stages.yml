@@ -20,5 +20,8 @@ stages:
           file: typespec-http-client-csharp-*.tgz
           type: npm
       UnitTestArgs: -UnitTests
+      TestMatrix:
+        RegenCheck:
+          TestArguments: -GenerationChecks
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}

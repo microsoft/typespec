@@ -17,14 +17,16 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/emitter/index.js",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/emitter/index.js"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p tsconfig.build.json",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
+    "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
+    "build:generator": "dotnet build ./generator",
+    "build": "npm run build:emitter && npm run build:generator",
+    "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:watch": "vitest -w",
