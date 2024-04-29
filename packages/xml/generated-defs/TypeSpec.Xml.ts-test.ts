@@ -1,6 +1,6 @@
 /** An error here would mean that the decorator is not exported or doesn't have the right name. */
 import { $attribute, $name, $ns, $nsDeclarations, $unwrapped } from "@typespec/xml";
-import {
+import type {
   AttributeDecorator,
   NameDecorator,
   NsDeclarationsDecorator,
