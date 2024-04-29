@@ -106,12 +106,12 @@ namespace Microsoft.Generator.CSharp
                 return null;
 
             // The IsLiteral is returning false for int and float enum value types - https://github.com/Azure/autorest.csharp/issues/4630
-            // if (propertyType.IsLiteral && propertyType.Literal?.Value != null)
-            if (property.Type is InputLiteralType literal)
+            if (propertyType.IsLiteral)
+                //if (property.Type is InputLiteralType literal)
             {
                 if (!propertyType.IsNullable)
                 {
-                    return Literal(literal.Value);
+                    return Literal(propertyType.Literal);
                 }
                 else
                 {
