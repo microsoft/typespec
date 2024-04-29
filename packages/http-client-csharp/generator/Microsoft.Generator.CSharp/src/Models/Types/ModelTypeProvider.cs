@@ -105,9 +105,7 @@ namespace Microsoft.Generator.CSharp
             if (!property.IsRequired)
                 return null;
 
-            // The IsLiteral is returning false for int and float enum value types - https://github.com/Azure/autorest.csharp/issues/4630
             if (propertyType.IsLiteral)
-                //if (property.Type is InputLiteralType literal)
             {
                 if (!propertyType.IsNullable)
                 {
