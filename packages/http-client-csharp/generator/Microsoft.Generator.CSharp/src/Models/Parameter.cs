@@ -9,6 +9,11 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
+    // TODO -- we should merge "DefaultValue" and "Initializer" into a single property and make it a ValueExpression
+    // we have them both because, not all things could be default value like: void Foo(string name = <default>)
+    // the default value of a parameter must be a compile time constant - something is just not.
+    // for example sometimes we have default values for `Uri endpoint` parameter, whose default value `new Uri("https://localhost")` is not a compile time constant, and we have to do this:
+    // public Client(Uri endpoint = null) { endpoint ??= new Uri("https://localhost"); } to make it work.
     public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, ValueExpression? DefaultValue, ValidationType Validation, FormattableString? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
     {
         internal bool IsRawData { get; init; }
