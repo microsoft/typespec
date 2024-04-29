@@ -806,10 +806,25 @@ export function getAvailabilityMap(
   )
     return undefined;
 
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified
   if (!added.length) {
-    added.push(allVersions[0]);
+    if (parentMap !== undefined) {
+      parentMap.forEach((key, value) => {
+        if (value === Availability.Added) {
+          added.push(allVersions.find((x) => x.name === key)!);
+        }
+      });
+    } else {
+      added.push(allVersions[0]);
+    }
   }
 
   // something isn't available by default
