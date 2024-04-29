@@ -40,7 +40,7 @@ import {
   $withoutDefaultValues,
   $withoutOmittedProperties,
 } from "../src/index.js";
-import {
+import type {
   DeprecatedDecorator,
   DiscriminatorDecorator,
   DocDecorator,

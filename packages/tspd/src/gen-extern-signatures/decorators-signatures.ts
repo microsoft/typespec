@@ -25,7 +25,7 @@ export function generateSignatureTests(
   content.push([
     "/** An error here would mean that the decorator is not exported or doesn't have the right name. */",
     line,
-    "import type {",
+    "import {",
     decorators.map((x) => x.jsName).join(","),
     `} from "`,
     importName,
