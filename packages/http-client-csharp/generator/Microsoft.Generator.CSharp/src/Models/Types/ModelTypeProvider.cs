@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -99,7 +100,7 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        private ConstantExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
+        private ValueExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
         {
             if (!property.IsRequired)
                 return null;
@@ -110,12 +111,11 @@ namespace Microsoft.Generator.CSharp
             {
                 if (!propertyType.IsNullable)
                 {
-                    var constant = Constant.Parse(literal.Value, propertyType);
-                    return new ConstantExpression(constant);
+                    return Literal(literal.Value);
                 }
                 else
                 {
-                    return new ConstantExpression(Constant.NewInstanceOf(propertyType));
+                    return DefaultOf(propertyType);
                 }
             }
 

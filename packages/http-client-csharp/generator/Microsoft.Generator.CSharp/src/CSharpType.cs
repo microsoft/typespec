@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -171,7 +171,7 @@ namespace Microsoft.Generator.CSharp
         public bool IsGenericType => Arguments.Count > 0;
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
-        public Constant? Literal { get; private init; }
+        public object? Literal { get; private init; }
         internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
         public CSharpType InitializationType => _initializationType ??= GetImplementationType();
@@ -541,19 +541,9 @@ namespace Microsoft.Generator.CSharp
         {
             if (type.IsFrameworkType)
             {
-                Constant? literal;
-                try
-                {
-                    literal = new Constant(literalValue, type);
-                }
-                catch
-                {
-                    literal = null;
-                }
-
                 return new CSharpType(type.FrameworkType, type.IsNullable)
                 {
-                    Literal = literal
+                    Literal = literalValue
                 };
             }
 
