@@ -40,7 +40,7 @@ As with object values, array values cannot contain types.
 If an array type defines a minimum and maximum size using the `@minValue` and `@maxValue` decorators, the compiler will validate that the array value has the appropriate number of items. For example:
 
 ```typespec
-/** Can have at most 3 tags */
+/** Can have at most 2 tags */
 @maxItems(2)
 model Tags is Array<string>;
 
