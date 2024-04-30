@@ -3548,8 +3548,9 @@ export function createChecker(program: Program): Checker {
     }
 
     // Some of the mapper args are still template parameter so we shouldn't create the type.
-    return mapper.args.every(
-      (t) => isValue(t) || "metaKind" in t || t.kind !== "TemplateParameter"
+    return (
+      !mapper.partial &&
+      mapper.args.every((t) => isValue(t) || "metaKind" in t || t.kind !== "TemplateParameter")
     );
   }
 

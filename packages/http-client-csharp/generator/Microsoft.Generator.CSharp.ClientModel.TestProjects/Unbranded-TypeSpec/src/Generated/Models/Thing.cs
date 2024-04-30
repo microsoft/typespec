@@ -18,7 +18,7 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; set; } = "accept";
+        public string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
         public string RequiredLiteralInt { get; set; } = "123";
@@ -27,7 +27,7 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredLiteralFloat { get; set; } = "1.23";
 
         /// <summary> required literal bool. </summary>
-        public bool RequiredLiteralBool { get; set; } = false;
+        public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
         public string OptionalLiteralString { get; set; }

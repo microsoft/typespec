@@ -19,7 +19,7 @@ import {
   $statusCode,
   $useAuth,
 } from "@typespec/http";
-import {
+import type {
   BodyDecorator,
   BodyIgnoreDecorator,
   BodyRootDecorator,

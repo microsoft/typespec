@@ -433,7 +433,9 @@ export function createProjector(
       projectedOp.namespace = projectedNamespaceScope();
     }
 
-    finishTypeForProgram(projectedProgram, projectedOp);
+    if (op.isFinished) {
+      finishTypeForProgram(projectedProgram, projectedOp);
+    }
     if (op.interface) {
       projectedOp.interface = projectType(op.interface) as Interface;
     }
