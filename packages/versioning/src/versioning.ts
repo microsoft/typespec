@@ -1,5 +1,11 @@
-import type { Enum, EnumMember, Namespace, Program, Type } from "@typespec/compiler";
-import { compilerAssert, getNamespaceFullName } from "@typespec/compiler";
+import {
+  getNamespaceFullName,
+  type Enum,
+  type EnumMember,
+  type Namespace,
+  type Program,
+  type Type,
+} from "@typespec/compiler";
 import {
   getAddedOnVersions,
   getRemovedOnVersions,
@@ -189,6 +195,26 @@ export enum Availability {
   Removed = "Removed",
 }
 
+function getParentAddedVersion(
+  program: Program,
+  type: Type,
+  versions: Version[]
+): Version | undefined {
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [key, value] of parentMap.entries()) {
+    if (value === Availability.Added) {
+      return versions.find((x) => x.name === key);
+    }
+  }
+  return undefined;
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type
@@ -199,7 +225,8 @@ export function getAvailabilityMap(
   // if unversioned then everything exists
   if (allVersions === undefined) return undefined;
 
-  const added = getAddedOnVersions(program, type) ?? [];
+  const parentAdded = getParentAddedVersion(program, type, allVersions);
+  let added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
@@ -214,27 +241,15 @@ export function getAvailabilityMap(
   )
     return undefined;
 
-  let parentMap: Map<string, Availability> | undefined = undefined;
-  if (type.kind === "ModelProperty" && type.model !== undefined) {
-    parentMap = getAvailabilityMap(program, type.model);
-  } else if (type.kind === "Operation" && type.interface !== undefined) {
-    parentMap = getAvailabilityMap(program, type.interface);
-  }
-
-  // implicitly, all versioned things are assumed to have been added at
-  // v1 if not specified
-  if (!added.length) {
-    if (parentMap !== undefined) {
-      parentMap.forEach((key, value) => {
-        if (key === Availability.Added.valueOf()) {
-          const match = allVersions.find((x) => x.name === value);
-          compilerAssert(match !== undefined, "Version not found");
-          added.push(match);
-        }
-      });
-    } else {
-      added.push(allVersions[0]);
-    }
+  if (!added.length && !parentAdded) {
+    // no version information on the item or its parent implicitly means it has always been available
+    added.push(allVersions[0]);
+  } else if (!added.length && parentAdded) {
+    // if no version info on type but is on parent, inherit that parent's "added" version
+    added.push(parentAdded);
+  } else if (added.length && parentAdded) {
+    // if "added" info on both the type and parent, combine them
+    added = [parentAdded, ...added];
   }
 
   // something isn't available by default

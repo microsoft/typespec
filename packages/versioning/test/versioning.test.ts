@@ -290,14 +290,16 @@ describe("versioning: logic", () => {
         `@added(Versions.v2)
         model Test {
           a: int32;
-          @removed(Versions.v3) b: int32;
+          @removed(Versions.v3)
+          @added(Versions.v4)
+          b: int32;
         }
         `
       );
 
       assertHasProperties(v2, ["a", "b"]);
       assertHasProperties(v3, ["a"]);
-      assertHasProperties(v4, ["a"]);
+      assertHasProperties(v4, ["a", "b"]);
 
       assertModelProjectsTo(
         [
@@ -1403,12 +1405,15 @@ describe("versioning: logic", () => {
         `@added(Versions.v2)
         interface Test {
           allVersions(): void;
-          @removed(Versions.v3) version2Only(): void;
+          @removed(Versions.v3) 
+          @added(Versions.v4)
+          foo(): void;
         }
         `
       );
-      assertHasOperations(v2, ["allVersions", "version2Only"]);
+      assertHasOperations(v2, ["allVersions", "foo"]);
       assertHasOperations(v3, ["allVersions"]);
+      assertHasOperations(v4, ["allVersions", "foo"]);
       assertInterfaceProjectsTo(
         [
           [v2, "v2"],
