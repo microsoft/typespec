@@ -6,7 +6,7 @@ import {
   $info,
   $operationId,
 } from "@typespec/openapi";
-import {
+import type {
   DefaultResponseDecorator,
   ExtensionDecorator,
   ExternalDocsDecorator,
