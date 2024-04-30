@@ -9,7 +9,7 @@ import {
   $useDependency,
   $versioned,
 } from "@typespec/versioning";
-import {
+import type {
   AddedDecorator,
   MadeOptionalDecorator,
   RemovedDecorator,
