@@ -124,12 +124,22 @@ const sidebars: SidebarsConfig = {
           "libraries/http/multipart",
           "libraries/http/encoding",
         ]),
-        createLibraryReferenceStructure("json-schema", "JSON Schema", false, []),
         createLibraryReferenceStructure("rest", "Rest", false, [
           "libraries/rest/cheat-sheet",
           "libraries/rest/resource-routing",
         ]),
         createLibraryReferenceStructure("openapi", "OpenAPI", false, []),
+        createLibraryReferenceStructure("versioning", "Versioning", false, [
+          "libraries/versioning/guide",
+        ]),
+        createLibraryReferenceStructure("xml", "Xml", false, ["libraries/xml/guide"]),
+      ],
+    },
+    {
+      type: "category",
+      label: "🖨️ Emitters",
+      items: [
+        createLibraryReferenceStructure("json-schema", "JSON Schema", false, []),
         createLibraryReferenceStructure("openapi3", "OpenAPI3", false, [
           "libraries/openapi3/openapi",
           "libraries/openapi3/diagnostics",
@@ -137,10 +147,6 @@ const sidebars: SidebarsConfig = {
         createLibraryReferenceStructure("protobuf", "Protobuf", false, [
           "libraries/protobuf/guide",
         ]),
-        createLibraryReferenceStructure("versioning", "Versioning", false, [
-          "libraries/versioning/guide",
-        ]),
-        createLibraryReferenceStructure("xml", "Xml", false, ["libraries/xml/guide"]),
       ],
     },
     {
