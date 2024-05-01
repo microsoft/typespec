@@ -73,7 +73,7 @@ export function createOrGetModuleForNamespace(ctx: JsContext, namespace: Namespa
   }
 
   const parent = createOrGetModuleForNamespace(ctx, namespace.namespace);
-  const name = parseCase(namespace.name).pascalCase;
+  const name = namespace.name === "TypeSpec" ? "typespec" : parseCase(namespace.name).kebabCase;
 
   const module: Module = createModule(name, parent, namespace);
 
@@ -126,7 +126,7 @@ function* emitModuleBodyDeclaration(
   if (isIterable(decl)) {
     yield* decl;
   } else if (typeof decl === "string") {
-    yield decl;
+    yield* decl.split(/\r?\n/);
   } else {
     if (decl.declarations.length > 0) {
       queue.add(decl);

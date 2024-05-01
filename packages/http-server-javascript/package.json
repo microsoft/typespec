@@ -25,7 +25,9 @@
   "tspMain": "lib/main.tsp",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
+    "build": "npm run build:helpers && npm run build:src",
+    "build:src": "tsc -p ./tsconfig.json",
+    "build:helpers": "tsc -p ./tsconfig.helpers.json && tsx ./build-helpers.ts",
     "watch": "tsc -p . --watch",
     "test": "echo No tests specified",
     "test:ci": "echo No tests specified",
@@ -38,6 +40,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "typescript": "~5.4.5",
-    "prettier": "~3.2.5"
+    "prettier": "~3.2.5",
+    "tsx": "^4.7.3"
   }
 }

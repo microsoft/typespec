@@ -14,6 +14,8 @@ import { UnimplementedError } from "./util/error.js";
 import { createOnceQueue } from "./util/once-queue.js";
 import { writeModuleTree } from "./write.js";
 
+import { createModule as initializeHelperModule } from "./helpers/index.js";
+
 // #region features
 
 import "./http/feature.js";
@@ -52,6 +54,10 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     imports: [],
     declarations: [],
   };
+
+  // This has the side effect of setting the `module` property of all helpers.
+  // Don't do anything with the emitter code before this is called.
+  await initializeHelperModule(rootModule);
 
   // Module for all models, including synthetic and all.
   const modelsModule: Module = createModule("models", rootModule);

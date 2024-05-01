@@ -1,20 +1,20 @@
 import {
-  Type,
   DiagnosticTarget,
-  NoTarget,
-  getEffectiveModelType,
   IntrinsicType,
-  Namespace,
   LiteralType,
-  isArrayModelType,
+  Namespace,
+  NoTarget,
+  Type,
+  getEffectiveModelType,
   getFriendlyName,
+  isArrayModelType,
 } from "@typespec/compiler";
 import { JsContext, Module, isImportableType } from "../ctx.js";
-import { getJsScalar } from "./scalar.js";
-import { emitWellKnownModel, isWellKnownModel } from "./model.js";
 import { parseCase } from "../util/case.js";
-import { createOrGetModuleForNamespace } from "./namespace.js";
 import { asArrayType, getArrayElementName } from "../util/pluralism.js";
+import { emitWellKnownModel, isWellKnownModel } from "./model.js";
+import { createOrGetModuleForNamespace } from "./namespace.js";
+import { getJsScalar } from "./scalar.js";
 import { emitUnionType } from "./union.js";
 
 export type NamespacedType = Extract<Type, { namespace?: Namespace }>;
@@ -61,8 +61,7 @@ export function emitTypeReference(
           argumentType,
           position,
           module,
-          preferredAlternativeName &&
-            getArrayElementName(preferredAlternativeName)
+          preferredAlternativeName && getArrayElementName(preferredAlternativeName)
         );
 
         if (isImportableType(ctx, argumentType) && argumentType.namespace) {
@@ -92,9 +91,7 @@ export function emitTypeReference(
 
         // Require preferredAlternativeName at this point, as we have an anonymous model that we have not visited.
         if (!preferredAlternativeName) {
-          throw new Error(
-            "UNREACHABLE: anonymous model without preferredAlternativeName"
-          );
+          throw new Error("UNREACHABLE: anonymous model without preferredAlternativeName");
         }
 
         // Anonymous model, synthesize a new model with the preferredName
@@ -125,25 +122,18 @@ export function emitTypeReference(
           ? friendlyName
           : effectiveModel.templateMapper
             ? effectiveModel
-                .templateMapper!.args.map((a) =>
-                  "name" in a ? String(a.name) : ""
-                )
+                .templateMapper!.args.map((a) => ("name" in a ? String(a.name) : ""))
                 .join("_") + effectiveModel.name
             : effectiveModel.name
       );
 
       if (!effectiveModel.namespace) {
-        throw new Error(
-          "UNREACHABLE: no parent namespace of named model in emitTypeReference"
-        );
+        throw new Error("UNREACHABLE: no parent namespace of named model in emitTypeReference");
       }
 
       // TODO/witemple: I believe this is going to declare all template instances in the module of the template itself, which
       // might not be desirable.
-      const parentModule = createOrGetModuleForNamespace(
-        ctx,
-        effectiveModel.namespace
-      );
+      const parentModule = createOrGetModuleForNamespace(ctx, effectiveModel.namespace);
 
       module.imports.push({
         binder: [templatedName.pascalCase],
@@ -179,13 +169,11 @@ export function emitTypeReference(
         case "null":
           return "null";
         case "void":
-          // TODO/witemple: is this correct? I think I need to know whether or not we're emitting a return type to be able to
-          // correctly use `void` here.
+          // It's a bit strange to have a void property, but it's possible, and TypeScript allows it. Void is simply
+          // only assignable from undefined or void itself.
           return "void";
         case "ErrorType":
-          throw new Error(
-            "UNREACHABLE: Encountered ErrorType in emitTypeReference"
-          );
+          throw new Error("UNREACHABLE: Encountered ErrorType in emitTypeReference");
         case "unknown":
           return "unknown";
         default:
@@ -215,22 +203,14 @@ export function emitTypeReference(
     }
     case "ModelProperty": {
       // Forward to underlying type.
-      return emitTypeReference(
-        ctx,
-        type.type,
-        position,
-        module,
-        preferredAlternativeName
-      );
+      return emitTypeReference(ctx, type.type, position, module, preferredAlternativeName);
     }
     default:
       throw new Error(`UNREACHABLE: ${type.kind}`);
   }
 }
 
-export type JsTypeSpecLiteralType =
-  | LiteralType
-  | (IntrinsicType & { name: "null" });
+export type JsTypeSpecLiteralType = LiteralType | (IntrinsicType & { name: "null" });
 
 export function isValueLiteralType(t: Type): t is JsTypeSpecLiteralType {
   switch (t.kind) {

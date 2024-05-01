@@ -68,7 +68,7 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
   for (const param of getAllProperties(op.parameters)) {
     // If the type is a value literal, then we consider it a _setting_ and not a parameter.
     // This allows us to exclude metadata parameters (such as contentType) from the generated interface.
-    if (isValueLiteralType(param.type)) continue;
+    if (param.optional || isValueLiteralType(param.type)) continue;
 
     const paramNameCase = parseCase(param.name);
     const paramName = paramNameCase.camelCase;
