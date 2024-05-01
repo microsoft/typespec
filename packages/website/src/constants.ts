@@ -12,8 +12,8 @@ export const Links = {
   },
   libraryReferences: {
     openapi3: {
-      index: "/docs/libraries/openapi3/reference",
-      decorators: "/docs/libraries/openapi3/reference/decorators",
+      index: "/docs/emitters/openapi3/reference",
+      decorators: "/docs/emitters/openapi3/reference/decorators",
     },
     jsonSchema: {
       index: "/docs/libraries/json-schema/reference",
