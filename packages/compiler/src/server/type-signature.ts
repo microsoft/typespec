@@ -15,6 +15,7 @@ import {
   SyntaxKind,
   Type,
   UnionVariant,
+  Value,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
@@ -25,8 +26,19 @@ export function getSymbolSignature(program: Program, sym: Sym): string {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);
   }
-  const type = sym.type ?? program.checker.getTypeForNode(decl);
-  return getTypeSignature(type);
+  const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
+  return getEntitySignature(sym, entity);
+}
+
+function getEntitySignature(sym: Sym, entity: Type | Value | null): string {
+  if (entity === null) {
+    return "(error)";
+  }
+  if ("valueKind" in entity) {
+    return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
+  }
+
+  return getTypeSignature(entity);
 }
 
 function getTypeSignature(type: Type): string {

@@ -300,6 +300,9 @@ export interface Checker {
   /** @internal */
   getValueForNode(node: Node): Value | null;
 
+  /** @internal */
+  getTypeOrValueForNode(node: Node): Type | Value | null;
+
   readonly errorType: ErrorType;
   readonly voidType: VoidType;
   readonly neverType: NeverType;
@@ -455,6 +458,7 @@ export function createChecker(program: Program): Checker {
     getStdType,
     resolveTypeReference,
     getValueForNode,
+    getTypeOrValueForNode,
   };
 
   const projectionMembers = createProjectionMembers(checker);
