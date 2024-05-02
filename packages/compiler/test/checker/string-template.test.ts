@@ -1,7 +1,12 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { Model, StringTemplate } from "../../src/index.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnostics,
+  extractSquiggles,
+} from "../../src/testing/index.js";
 
 let runner: BasicTestRunner;
 
@@ -99,5 +104,36 @@ describe("emit error if interpolating value in a context where template is used 
       code: "value-in-type",
       message: "A value cannot be used as a type.",
     });
+  });
+});
+
+it("emit error if interpolating template parameter that can be a type or value", async () => {
+  const { source, pos, end } = extractSquiggles(`
+      alias Template<T extends string | (valueof string)> = {
+        a: ~~~"\${T}"~~~;
+      };
+    `);
+  const diagnostics = await runner.diagnose(source);
+  expectDiagnostics(diagnostics, {
+    code: "mixed-string-template",
+    message:
+      "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    pos,
+    end,
+  });
+});
+
+it("emit error if interpolating template parameter that is a value but using template parmater as a type", async () => {
+  const { source, pos, end } = extractSquiggles(`
+      alias Template<T extends valueof string> = {
+        a: ~~~"\${T}"~~~;
+      };
+    `);
+  const diagnostics = await runner.diagnose(source);
+  expectDiagnostics(diagnostics, {
+    code: "value-in-type",
+    message: "A value cannot be used as a type.",
+    pos,
+    end,
   });
 });

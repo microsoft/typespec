@@ -3235,6 +3235,17 @@ export function createChecker(program: Program): Checker {
       if (typeOrValue !== null) {
         if (isValue(typeOrValue)) {
           hasValue = true;
+        } else if ("kind" in typeOrValue && typeOrValue.kind === "TemplateParameter") {
+          if (typeOrValue.constraint) {
+            if (typeOrValue.constraint.valueType) {
+              hasValue = true;
+            }
+            if (typeOrValue.constraint.type) {
+              hasType = true;
+            }
+          } else {
+            hasType = true;
+          }
         } else {
           hasType = true;
         }
@@ -3254,8 +3265,13 @@ export function createChecker(program: Program): Checker {
     if (hasValue) {
       let str = node.head.value;
       for (const [span, typeOrValue] of spanTypeOrValues) {
-        compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
-        str += stringifyValueForTemplate(typeOrValue);
+        if (
+          typeOrValue !== null &&
+          (!("kind" in typeOrValue) || typeOrValue.kind !== "TemplateParameter")
+        ) {
+          compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
+          str += stringifyValueForTemplate(typeOrValue);
+        }
         str += span.literal.value;
       }
       return checkStringValue(createLiteralType(str), undefined, node);
