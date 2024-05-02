@@ -10,8 +10,10 @@ import {
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
+  DecoratorExpressionNode,
   IdentifierNode,
   Node,
+  NodeFlags,
   NodePackage,
   Program,
   StringLiteralNode,
@@ -19,6 +21,7 @@ import {
   SyntaxKind,
   Type,
   TypeSpecScriptNode,
+  getFirstAncestor,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,
@@ -62,6 +65,37 @@ export async function resolveCompletion(
       case SyntaxKind.StringLiteral:
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
           await addImportCompletion(context, node);
+        }
+        break;
+      case SyntaxKind.ModelExpression:
+        // check for following scenario:
+        // a model expresssion as a decorator argument like `@dec({ | })`
+        let decNode: DecoratorExpressionNode | undefined = undefined;
+        if (node.parent?.kind === SyntaxKind.DecoratorExpression) {
+          decNode = node.parent;
+        } else {
+          const argNode = getFirstAncestor(
+            node,
+            (n) =>
+              n.kind === SyntaxKind.ModelExpression &&
+              n.parent?.kind === SyntaxKind.DecoratorExpression
+          );
+          decNode = argNode?.parent as DecoratorExpressionNode;
+        }
+        if (decNode) {
+          // create a fake identifier node to further resolve the completions
+          const fakeProp = {
+            kind: SyntaxKind.ModelProperty,
+            flags: NodeFlags.None,
+            parent: node,
+          };
+          const fakeId = {
+            kind: SyntaxKind.Identifier,
+            sv: "",
+            flags: NodeFlags.None,
+            parent: fakeProp,
+          };
+          addIdentifierCompletion(context, fakeId as IdentifierNode);
         }
         break;
     }

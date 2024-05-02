@@ -16,6 +16,7 @@ import { isStringTemplateSerializable } from "./helpers/string-template-utils.js
 import { createDiagnostic } from "./messages.js";
 import {
   exprIsBareIdentifier,
+  getFirstAncestor,
   getIdentifierContext,
   hasParseError,
   visitChildren,
@@ -2055,6 +2056,9 @@ export function createChecker(program: Program): Checker {
     const { node, kind } = getIdentifierContext(id);
 
     switch (kind) {
+      case IdentifierKind.ModelPropertyReference:
+        // we don't have symbols for model property reference (as decorator model argument value)
+        return undefined;
       case IdentifierKind.Declaration:
         if (node.symbol && (!isTemplatedNode(node) || mapper === undefined)) {
           sym = getMergedSymbol(node.symbol);
@@ -2142,6 +2146,7 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.Decorator:
       case IdentifierKind.Function:
       case IdentifierKind.TypeReference:
+      case IdentifierKind.ModelPropertyReference:
         break; // supported
       case IdentifierKind.Other:
         return completions; // not implemented
@@ -2166,7 +2171,86 @@ export function createChecker(program: Program): Checker {
         compilerAssert(false, "Unreachable");
     }
 
-    if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
+    if (kind === IdentifierKind.ModelPropertyReference) {
+      // Figure out completions from the definition of decorator model argument
+      const path: string[] = [];
+      let existingProperties: string[] | undefined;
+      const decArgNode = getFirstAncestor(ancestor, (n) => {
+        if (n.kind === SyntaxKind.ModelExpression) {
+          if (existingProperties === undefined) {
+            existingProperties = [];
+            n.properties.forEach((p) => {
+              switch (p.kind) {
+                case SyntaxKind.ModelProperty:
+                  if (p.id.sv !== identifier.sv) {
+                    existingProperties?.push(p.id.sv);
+                  }
+                  break;
+                case SyntaxKind.ModelSpreadProperty:
+                  compilerAssert(
+                    false,
+                    "No spread properties for model expression as decorator argument value."
+                  );
+                  break;
+                default:
+                  compilerAssert(false, `Unexpected property node kind`);
+                  break;
+              }
+            });
+          }
+          return n.parent?.kind === SyntaxKind.DecoratorExpression;
+        } else if (n.kind === SyntaxKind.ModelProperty) {
+          path.unshift(n.id.sv);
+        } else {
+          compilerAssert(false, `Unexpected node kind`);
+        }
+        return false;
+      });
+      const decNode = decArgNode?.parent;
+      if (!decArgNode || decNode?.kind !== SyntaxKind.DecoratorExpression) {
+        return completions;
+      }
+
+      const decSym = program.checker.resolveIdentifier(
+        decNode.target.kind === SyntaxKind.MemberExpression ? decNode.target.id : decNode.target
+      );
+      if (!decSym) {
+        return completions;
+      }
+
+      const decDecl: DecoratorDeclarationStatementNode | undefined = decSym.declarations.find(
+        (x): x is DecoratorDeclarationStatementNode =>
+          x.kind === SyntaxKind.DecoratorDeclarationStatement
+      );
+      if (!decDecl) {
+        return completions;
+      }
+
+      const decType = program.checker.getTypeForNode(decDecl);
+      compilerAssert(decType.kind === "Decorator", "Expected type to be a decorator.");
+
+      const argIndex = decNode.arguments.findIndex((n) => n === decArgNode);
+      if (argIndex >= decType.parameters.length) {
+        return completions;
+      }
+      const decArg = decType.parameters[argIndex];
+
+      let parentType: Model | undefined = decArg.type as Model;
+      if (parentType?.kind !== "Model") return completions;
+      for (const seg of path) {
+        parentType = parentType?.properties.get(seg)?.type as Model;
+        if (parentType?.kind !== "Model") return completions;
+      }
+
+      for (const prop of walkPropertiesInherited(parentType)) {
+        if (prop.node.kind === SyntaxKind.ModelProperty) {
+          if (!existingProperties?.includes(prop.name)) {
+            const sym = createSymbol(prop.node, prop.name, SymbolFlags.ModelProperty);
+            addCompletion(prop.name, sym);
+          }
+        }
+      }
+    } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
@@ -2271,6 +2355,8 @@ export function createChecker(program: Program): Checker {
 
     function shouldAddCompletion(sym: Sym): boolean {
       switch (kind) {
+        case IdentifierKind.ModelPropertyReference:
+          return !!(sym.flags & SymbolFlags.ModelProperty);
         case IdentifierKind.Decorator:
           // Only return decorators and namespaces when completing decorator
           return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
