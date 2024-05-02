@@ -11,6 +11,7 @@ import type {
   Namespace,
   Operation,
   Scalar,
+  StringTemplate,
   Type,
   Union,
   Value,
@@ -48,7 +49,7 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
     case "Tuple":
       return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
     case "StringTemplate":
-      return "string";
+      return getStringTemplateName(type);
     case "String":
       return `"${type.value}"`;
     case "Number":
@@ -241,4 +242,11 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
 
 function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
   return options?.printable ? printId(name) : name;
+}
+
+function getStringTemplateName(type: StringTemplate): string {
+  if (type.stringValue) {
+    return `"${type.stringValue}"`;
+  }
+  return "string";
 }

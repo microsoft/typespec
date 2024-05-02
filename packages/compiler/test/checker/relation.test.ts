@@ -395,6 +395,19 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("string template target (serializable as string)", () => {
+    it("can assign string literal", async () => {
+      await expectTypeAssignable({ source: `"foo 123 bar"`, target: `"foo \${123} bar"` });
+    });
+
+    it("can assign string template with primitives interpolated", async () => {
+      await expectTypeAssignable({
+        source: `"foo \${123} \${"bar"}"`,
+        target: `"foo \${123} bar"`,
+      });
+    });
+  });
+
   describe("int8 target", () => {
     it("can assign int8", async () => {
       await expectTypeAssignable({ source: "int8", target: "int8" });

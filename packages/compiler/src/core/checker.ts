@@ -7310,6 +7310,12 @@ export function createChecker(program: Program): Checker {
         (source.kind === "StringTemplate" && source.stringValue === target.value)
       );
     }
+    if (target.kind === "StringTemplate" && target.stringValue) {
+      return (
+        (source.kind === "String" && source.value === target.stringValue) ||
+        (source.kind === "StringTemplate" && source.stringValue === target.stringValue)
+      );
+    }
     if (target.kind === "Number") {
       return source.kind === "Number" && target.value === source.value;
     }
