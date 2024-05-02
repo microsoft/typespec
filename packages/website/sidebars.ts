@@ -141,12 +141,10 @@ const sidebars: SidebarsConfig = {
       items: [
         createLibraryReferenceStructure("json-schema", "JSON Schema", false, []),
         createLibraryReferenceStructure("openapi3", "OpenAPI3", false, [
-          "libraries/openapi3/openapi",
-          "libraries/openapi3/diagnostics",
+          "emitters/openapi3/openapi",
+          "emitters/openapi3/diagnostics",
         ]),
-        createLibraryReferenceStructure("protobuf", "Protobuf", false, [
-          "libraries/protobuf/guide",
-        ]),
+        createLibraryReferenceStructure("protobuf", "Protobuf", false, ["emitters/protobuf/guide"]),
       ],
     },
     {
