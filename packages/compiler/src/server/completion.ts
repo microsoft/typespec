@@ -7,11 +7,15 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { CharCode } from "../core/charcode.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
   DecoratorExpressionNode,
   IdentifierNode,
+  ModelExpressionNode,
+  ModelStatementNode,
   Node,
   NodeFlags,
   NodePackage,
@@ -37,6 +41,7 @@ import { getSymbolDetails } from "./type-details.js";
 export type CompletionContext = {
   program: Program;
   params: CompletionParams;
+  document: TextDocument;
   file: TypeSpecScriptNode;
   completions: CompletionList;
 };
@@ -67,6 +72,12 @@ export async function resolveCompletion(
           await addImportCompletion(context, node);
         }
         break;
+      case SyntaxKind.ModelStatement:
+        // we can provide completions for overrides when the model has base model
+        if (node.extends) {
+          addModelCompletion(context, node);
+        }
+        break;
       case SyntaxKind.ModelExpression:
         // check for following scenario:
         // a model expresssion as a decorator argument like `@dec({ | })`
@@ -83,19 +94,7 @@ export async function resolveCompletion(
           decNode = argNode?.parent as DecoratorExpressionNode;
         }
         if (decNode) {
-          // create a fake identifier node to further resolve the completions
-          const fakeProp = {
-            kind: SyntaxKind.ModelProperty,
-            flags: NodeFlags.None,
-            parent: node,
-          };
-          const fakeId = {
-            kind: SyntaxKind.Identifier,
-            sv: "",
-            flags: NodeFlags.None,
-            parent: fakeProp,
-          };
-          addIdentifierCompletion(context, fakeId as IdentifierNode);
+          addModelCompletion(context, node);
         }
         break;
     }
@@ -261,6 +260,33 @@ async function addRelativePathCompletion(
         break;
     }
   }
+}
+
+function addModelCompletion(
+  context: CompletionContext,
+  node: ModelStatementNode | ModelExpressionNode
+) {
+  // skip the scenario like `{ ... }|`
+  const cur = context.document.offsetAt(context.params.position);
+  if (cur === node.end) {
+    const endChar = context.file.file.text.charCodeAt(cur - 1);
+    if (endChar === CharCode.CloseBrace) {
+      return;
+    }
+  }
+  // create a fake identifier node in the model to further resolve the completions
+  const fakeProp = {
+    kind: SyntaxKind.ModelProperty,
+    flags: NodeFlags.None,
+    parent: node,
+  };
+  const fakeId = {
+    kind: SyntaxKind.Identifier,
+    sv: "",
+    flags: NodeFlags.None,
+    parent: fakeProp,
+  };
+  addIdentifierCompletion(context, fakeId as IdentifierNode);
 }
 
 /**

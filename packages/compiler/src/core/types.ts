@@ -1649,7 +1649,8 @@ export enum IdentifierKind {
   Function,
   Using,
   Declaration,
-  ModelPropertyReference,
+  ModelExpressionProperty,
+  ModelStatementProperty,
   Other,
 }
 

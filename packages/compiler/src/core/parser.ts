@@ -3560,16 +3560,23 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.TemplateArgument:
       kind = IdentifierKind.TemplateArgument;
       break;
+    case SyntaxKind.ModelProperty:
+      switch (node.parent?.kind) {
+        case SyntaxKind.ModelExpression:
+          kind = IdentifierKind.ModelExpressionProperty;
+          break;
+        case SyntaxKind.ModelStatement:
+          kind = IdentifierKind.ModelStatementProperty;
+          break;
+        default:
+          compilerAssert("false", "ModelProperty with unexpected parent kind.");
+          kind = IdentifierKind.Other;
+          break;
+      }
+      break;
     default:
-      // Check whether this is in a model expression used as a decorator argument value
-      const decModelArgNode = getFirstAncestor(
-        node,
-        (n) =>
-          n.kind === SyntaxKind.ModelExpression && n.parent?.kind === SyntaxKind.DecoratorExpression
-      ) as ModelExpressionNode;
-      kind = decModelArgNode
-        ? IdentifierKind.ModelPropertyReference
-        : (id.parent as DeclarationNode).id === id
+      kind =
+        (id.parent as DeclarationNode).id === id
           ? IdentifierKind.Declaration
           : IdentifierKind.Other;
       break;
