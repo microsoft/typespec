@@ -35,7 +35,7 @@ using TypeSpec.Reflection;
 extern dec track(target: Model | Enum);
 ```
 
-### Optional parameters
+## Optional parameters
 
 You can mark a decorator parameter as optional using `?`.
 
@@ -43,7 +43,7 @@ You can mark a decorator parameter as optional using `?`.
 extern dec track(target: Model | Enum, name?: valueof string);
 ```
 
-### Rest parameters
+## Rest parameters
 
 You can prefix the last parameter of a decorator with `...` to collect all the remaining arguments. The type of this parameter must be an `array expression`.
 
@@ -51,28 +51,25 @@ You can prefix the last parameter of a decorator with `...` to collect all the r
 extern dec track(target: Model | Enum, ...names: valueof string[]);
 ```
 
-## Requesting a value type
+## Value parameters
 
-It's common for decorator parameters to expect a value (e.g., a string or a number). However, using `: string` as the type would also allow a user of the decorator to pass `string` itself or a custom scalar extending string, as well as a union of strings. Instead, the decorator can use `valueof <T>` to specify that it expects a value of that kind.
-
-| Example           | Description       |
-| ----------------- | ----------------- |
-| `valueof string`  | Expects a string  |
-| `valueof float64` | Expects a float   |
-| `valueof int32`   | Expects a number  |
-| `valueof boolean` | Expects a boolean |
+A decorator parameter can receive [values](../language-basics/values.md) by using the `valueof` operator. For example the parameter `valueof string` expects a string value. Values are provided to the decorator implementation according the [decorator parameter marshalling](#decorator-parameter-marshalling) rules.
 
 ```tsp
 extern dec tag(target: unknown, value: valueof string);
 
-// bad
+// error: string is not a value
 @tag(string)
 
-// good
-@tag("This is the tag name")
+// ok, a string literal can be a value
+@tag("widgets")
+
+// ok, passing a value from a const
+const tagName: string = "widgets";
+@tag(tagName)
 ```
 
-## Implement the decorator in JavaScript
+## JavaScript decorator implementation
 
 Decorators can be implemented in JavaScript by prefixing the function name with `$`. A decorator function must have the following parameters:
 
@@ -89,7 +86,7 @@ export function $logType(context: DecoratorContext, target: Type, name: valueof 
 }
 ```
 
-Or in pure JavaScript:
+Or in JavaScript:
 
 ```ts
 // model.js
@@ -113,26 +110,35 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain TypeSpec types (Literal types), the decorator does not receive the actual type but a marshalled value if the decorator parameter type is a `valueof`. This simplifies the most common cases.
+When decorators are passed types, the type is passed as-is. When a decorator is passed a TypeSpec value, the decorator receives a JavaScript value with a type that is appropriate for representing that value.
 
-| TypeSpec Type     | Marshalled value in JS |
-| ----------------- | ---------------------- |
-| `valueof string`  | `string`               |
-| `valueof numeric` | `number`               |
-| `valueof boolean` | `boolean`              |
+:::note
+This behavior depends on the value of the `valueMarshalling` [package flag](../extending-typespec/basics.md#f-set-package-flags). This section describes the behavior when `valueMarshalling` is set to `"new"`. In a future release this will become the default value marshalling so it is strongly recommended to set this flag. But for now, the default value marshalling is `"legacy"` which is described in the next section. In a future release the `valueMarshalling` flag will need to be set to `"legacy"` to keep the previous marshalling behavior, but the flag will eventually be removed entirely.
+:::
 
-For all other types, they are not transformed.
+| TypeSpec value type | Marshalled type in JS             |
+| ------------------- | --------------------------------- |
+| `string`            | `string`                          |
+| `boolean`           | `boolean`                         |
+| `numeric`           | `Numeric` or `number` (see below) |
+| `null`              | `null`                            |
+| enum member         | `EnumMemberValue`                 |
 
-Example:
+When marshalling numeric values, either the `Numeric` wrapper type is used, or a `number` is passed directly, depending on whether the value can be represented as a JavaScript number without precision loss. In particular, the types `numeric`, `integer`, `decimal`, `float`, `int64`, `uint64`, and `decimal128` are marshalled as a `Numeric` type. All other numeric types are marshalled as `number`.
 
-```ts
-export function $tag(
-  context: DecoratorContext,
-  target: Type,
-  stringArg: string, // Here instead of receiving a `StringLiteral`, the string value is being sent.
-  modelArg: Model // Model has no special handling so we receive the Model type
-) {}
-```
+When marshalling custom scalar subtypes, the marshalling behavior of the known supertype is used. For example, a `scalar customScalar extends numeric` will marshal as a `Numeric`, regardless of any value constraints that might be present.
+
+#### Legacy value marshalling
+
+With legacy value marshalling, TypeSpec strings, numbers, and booleans values are always marshalled as JS values. All other values are marshalled as their corresponding type. For example, `null` is marshalled as `NullType`.
+
+| TypeSpec Value Type | Marshalled value in JS |
+| ------------------- | ---------------------- |
+| `string`            | `string`               |
+| `numeric`           | `number`               |
+| `boolean`           | `boolean`              |
+
+Note that with legacy marshalling, because JavaScript numbers have limited range and precision, it is possible to define values in TypeSpec that cannot be accurately represented in JavaScript.
 
 #### String templates and marshalling
 
