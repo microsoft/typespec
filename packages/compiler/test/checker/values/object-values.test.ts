@@ -171,7 +171,7 @@ describe("(LEGACY) cast model to object value", () => {
     expectDiagnostics(diagnostics, {
       code: "deprecated",
       message:
-        "Deprecated: Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+        "Deprecated: Using a model as a value is deprecated. Use an object value instead(with #{}).",
       pos,
     });
   });

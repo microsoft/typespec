@@ -1411,7 +1411,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     describe("valueof model", () => {
-      it("can assign object literal", async () => {
+      it("can assign object value", async () => {
         await expectValueAssignableToConstraint({
           source: `#{name: "foo"}`,
           target: "valueof Info",
@@ -1419,7 +1419,7 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("can assign object literal with optional properties", async () => {
+      it("can assign object value with optional properties", async () => {
         await expectValueAssignableToConstraint({
           source: `#{name: "foo"}`,
           target: "valueof Info",
@@ -1427,7 +1427,7 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("can assign object literal with additional properties", async () => {
+      it("can assign object value with additional properties", async () => {
         await expectValueAssignableToConstraint({
           source: `#{age: 21, name: "foo"}`,
           target: "valueof Info",
@@ -1510,7 +1510,7 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("can assign array literal of object literal", async () => {
+      it("can assign array literal of object value", async () => {
         await expectValueAssignableToConstraint({
           source: `#[#{name: "a"}, #{name: "b"}]`,
           target: "valueof Info[]",
@@ -1532,7 +1532,7 @@ describe("compiler: checker: type relations", () => {
         );
       });
 
-      it("cannot assign an object literal", async () => {
+      it("cannot assign an object value", async () => {
         await expectValueNotAssignableToConstraint(
           {
             source: `#{name: "foo"}`,

@@ -819,8 +819,7 @@ export function createChecker(program: Program): Checker {
         code: "deprecated",
         codefixes: [createModelToLiteralCodeFix(model.node)],
         format: {
-          message:
-            "Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+          message: "Using a model as a value is deprecated. Use an object value instead(with #{}).",
         },
         target: model.node,
       })

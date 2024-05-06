@@ -474,7 +474,7 @@ const diagnostics = {
   "unexpected-property": {
     severity: "error",
     messages: {
-      default: paramMessage`Object literal may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
+      default: paramMessage`Object value may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {

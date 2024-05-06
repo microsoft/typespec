@@ -427,7 +427,7 @@ describe("compiler: checker: decorators", () => {
         });
       });
 
-      describe("passing an object literal", () => {
+      describe("passing an object value", () => {
         it("valueof model cast the value to a JS object", async () => {
           const arg = await testCallDecorator("valueof {name: string}", `#{name: "foo"}`);
           deepStrictEqual(arg, { name: "foo" });
@@ -590,7 +590,7 @@ describe("compiler: checker: decorators", () => {
         });
       });
 
-      describe("passing an object literal", () => {
+      describe("passing an object value", () => {
         it("valueof model cast the value to a JS object", async () => {
           const arg = await testCallDecorator("valueof {name: string}", `#{name: "foo"}`);
           deepStrictEqual(arg, { name: "foo" });

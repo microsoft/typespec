@@ -4,7 +4,7 @@ import { createModelToLiteralCodeFix } from "../../../src/core/compiler-code-fix
 import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
-it("it change model expression to an object literal", async () => {
+it("it change model expression to an object value", async () => {
   await expectCodeFixOnAst(
     `
       model Foo {
