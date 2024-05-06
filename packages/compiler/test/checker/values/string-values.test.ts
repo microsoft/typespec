@@ -104,7 +104,7 @@ describe("validate literal are assignable", () => {
       `"abc"`,
       [
         ["✔", `"abc"`],
-        // ["✔", `"a\${"b"}c"`], // TODO: should that work? it doesn't in main
+        ["✔", `"a\${"b"}c"`],
         [`✘`, `string("abc")`, `Type 'string' is not assignable to type '"abc"'`],
       ],
     ],

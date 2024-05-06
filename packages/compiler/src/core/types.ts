@@ -185,7 +185,14 @@ export interface MixedParameterConstraint {
 /** When an entity that could be used as a type or value has not figured out if it is a value or type yet. */
 export interface IndeterminateEntity {
   readonly metaKind: "Indeterminate";
-  readonly type: Type; // TODO: better typeing?
+  readonly type:
+    | StringLiteral
+    | StringTemplate
+    | NumericLiteral
+    | BooleanLiteral
+    | EnumMember
+    | UnionVariant
+    | NullType;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -601,7 +608,7 @@ export interface StringLiteral extends BaseType {
 export interface NumericLiteral extends BaseType {
   kind: "Number";
   node?: NumericLiteralNode;
-  value: number; // TODO: should we deprecate this?
+  value: number;
   numericValue: Numeric;
   valueAsString: string;
 }
@@ -713,7 +720,6 @@ export interface FunctionParameterBase extends BaseType {
 
 /** Represent a function parameter that could accept types or values in the TypeSpec program. */
 export interface MixedFunctionParameter extends FunctionParameterBase {
-  // TODO: better name?
   mixed: true;
   type: MixedParameterConstraint;
 }

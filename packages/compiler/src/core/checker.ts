@@ -3319,7 +3319,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function createIndeterminateEntity(type: Type): IndeterminateEntity {
+  function createIndeterminateEntity(type: IndeterminateEntity["type"]): IndeterminateEntity {
     return {
       metaKind: "Indeterminate",
       type,
@@ -4098,13 +4098,13 @@ export function createChecker(program: Program): Checker {
       if (argNode) {
         const arg = getValueForNode(argNode, mapper, {
           kind: "argument",
-          type: parameter.type as any, // TODO: change if we change this to not be a FunctionParameter
+          type: parameter.type,
         });
         if (arg === null) {
           hasError = true;
           continue;
         }
-        if (checkValueOfType(arg, parameter.type as any, argNode)) {
+        if (checkValueOfType(arg, parameter.type, argNode)) {
           resolvedArgs.push(arg);
         } else {
           hasError = true;
