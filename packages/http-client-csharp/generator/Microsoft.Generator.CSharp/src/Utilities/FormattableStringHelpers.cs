@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Security.AccessControl;
@@ -82,6 +82,9 @@ namespace Microsoft.Generator.CSharp
             s is null ? null : s.Length == 0 ? Empty : $"{s}";
         public static bool IsNullOrEmpty(this FormattableString? fs) =>
             fs is null || string.IsNullOrEmpty(fs.Format) && fs.ArgumentCount == 0;
+
+        public static FormattableString Join(this ICollection<FormattableString> fss, string separator, string? lastSeparator = null)
+            => fss.Count == 1 ? fss.First() : Join(fss, fss.Count, static fs => fs, separator, lastSeparator, null);
 
         public static FormattableString GetTypesFormattable(this IReadOnlyCollection<Parameter> parameters)
             => GetTypesFormattable(parameters, parameters.Count);
