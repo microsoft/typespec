@@ -110,7 +110,7 @@ scalar plainTime;
  */
 scalar utcDateTime {
   /**
-   * Create a date from an ISO string.
+   * Create a date from an ISO 8601 string.
    */
   init fromISO(value: string);
 }
