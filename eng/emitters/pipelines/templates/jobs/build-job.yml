@@ -64,6 +64,12 @@ jobs:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: ${{ parameters.NodeVersion }}
+      - ${{ if parameters.EmitArtifacts }}:
+          - template: /eng/emitters/pipelines/templates/steps/detect-api-changes.yml
+            parameters:
+              Artifacts:
+                - ${{ each package in parameters.Packages }}
+                    - name: ${{ package.name }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:
