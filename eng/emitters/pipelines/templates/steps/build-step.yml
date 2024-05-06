@@ -34,6 +34,10 @@ parameters:
   - name: NodeVersion
     type: string
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
 steps:
   - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
       - script: |
@@ -69,7 +73,7 @@ steps:
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
       arguments: >
         -BuildNumber "$(Build.BuildNumber)"
-        -Output "$(Build.ArtifactStagingDirectory)"
+        -Output "$(Build.ArtifactStagingDirectory)/${{ parameters.LanguageShortName }}"
         -PublishType:"${{ parameters.Publish }}"
         -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
       workingDirectory: $(selfRepositoryPath)

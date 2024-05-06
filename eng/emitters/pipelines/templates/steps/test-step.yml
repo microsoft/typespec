@@ -18,6 +18,10 @@ parameters:
   - name: TestArgs
     type: string
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
 steps:
   - checkout: self
 
@@ -32,7 +36,7 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
+      arguments: -BuildArtifactsPath '$(buildArtifactsPath)/${{ parameters.LanguageShortName }}'
       workingDirectory: $(selfRepositoryPath)
 
   - task: PowerShell@2

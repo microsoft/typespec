@@ -204,6 +204,7 @@ stages:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
                   NodeVersion: 20.x
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
@@ -212,6 +213,7 @@ stages:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
                   NodeVersion: 18.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
@@ -219,6 +221,7 @@ stages:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
                   NodeVersion: 20.x
                   Os: windows
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
@@ -226,6 +229,7 @@ stages:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
                   NodeVersion: 18.x
                   Os: windows
 
@@ -247,5 +251,6 @@ stages:
             parameters:
               AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
               PackagePath: ${{ parameters.PackagePath }}
+              LanguageShortName: ${{ parameters.LanguageShortName }}
               Os: windows
               TestMatrix: ${{ parameters.TestMatrix }}

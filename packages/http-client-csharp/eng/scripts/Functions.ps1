@@ -1,26 +1,25 @@
 # Return list of nupkg artifacts
-function Get-Package-Artifacts ($Location)
+function Get-Package-Artifacts ($location, $filter)
 {
-  $pkgs = @(Get-ChildItem $Location -Recurse | Where-Object -FilterScript {$_.Name.EndsWith(".nupkg") -and -not $_.Name.EndsWith(".symbols.nupkg")})
-  if (!$pkgs)
-  {
-    Write-Host "$($Location) does not have any package"
-    return $null
-  }
-  # returning first for now
-  return $pkgs[0]
+    $pkgs = @(Get-ChildItem $location -Recurse | Where-Object - -Filter $filter)
+    if (!$pkgs)
+    {
+        Write-Host "$($location) does not have any packages matching filter $($filter)"
+        return $null
+    }
+    return $pkgs[0]
 }
 
 function Find-Artifacts-For-Apireview($artifactDir, $packageName)
 {
-  # Find all nupkg files in given artifact directory
-  $PackageArtifactPath = Join-Path $artifactDir $packageName
-  $pkg = Get-Package-Artifacts $PackageArtifactPath
-  if (!$pkg)
-  {
-    Write-Host "Package is not available in artifact path $($PackageArtifactPath)"
-    return $null
-  }
-  $packages = @{ $pkg.Name = $pkg.FullName }
-  return $packages
+    # Find all nupkg files in given artifact directory
+    $packageArtifactPath = Join-Path $artifactDir "packages"
+    $pkg = Get-Package-Artifacts $packageArtifactPath $packageName
+    if (!$pkg)
+    {
+        Write-Host "Package is not available in artifact path $($packageArtifactPath)"
+        return $null
+    }
+    $packages = @{ $pkg.Name = $pkg.FullName }
+    return $packages
 }

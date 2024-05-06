@@ -60,9 +60,6 @@ Push-Location "$packageRoot/generator"
 try {
     Write-Host "Working in $PWD"
 
-    # build the generator
-    Invoke-LoggedCommand "dotnet build" -GroupOutput
-
     # pack the generator
     $file = Invoke-LoggedCommand "dotnet pack -c Release -o $outputPath/packages"
 }
