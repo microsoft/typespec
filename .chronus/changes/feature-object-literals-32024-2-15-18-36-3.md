@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-Update Flow Template to make use of the new tuple literals
+Update Flow Template to make use of the new array literals

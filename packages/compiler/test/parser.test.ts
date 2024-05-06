@@ -261,7 +261,7 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("tuple literals", () => {
+  describe("array literals", () => {
     parseEach([
       `const A = #["abc"];`,
       `const A = #["abc", 123];`,

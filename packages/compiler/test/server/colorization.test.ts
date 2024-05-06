@@ -1199,7 +1199,7 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
-    describe("tuple literals", () => {
+    describe("array literals", () => {
       it("empty", async () => {
         const tokens = await tokenizeWithConst("#[]");
         deepStrictEqual(tokens, [
