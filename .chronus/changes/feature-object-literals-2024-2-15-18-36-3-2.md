@@ -5,7 +5,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-Using a model expression instead of an object value when expecting a value is deprecated. A codefix will be provided to automatically convert the model expression into a literal.
+Using a model type as a value is deprecated. Model types in contexts where values are expected must be updated to be object values instead. A codefix is provided to automatically convert model types into object values.
 
 ```tsp
 model Test {

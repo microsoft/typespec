@@ -5,7 +5,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-Using a tuple expression instead of a array literal when expecting a value is deprecated. A codefix will be provided to automatically convert tuple expressions into a literal.
+Using a tuple type as a value is deprecated. Tuple types in contexts where values are expected must be updated to be array values instead. A codefix is provided to automatically convert tuple types into array values.
 
 ```tsp
 model Test {
