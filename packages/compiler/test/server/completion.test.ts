@@ -639,6 +639,91 @@ describe("identifiers", () => {
     );
   });
 
+  it("completes extended model properties", async () => {
+    const completions = await complete(
+      `
+       model N {
+        name: string;
+        value: int16
+       }
+       model M extends N {
+        test: string;
+        ┆
+       }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "name",
+          insertText: "name",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.name: string\n```",
+          },
+        },
+        {
+          label: "value",
+          insertText: "value",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.value: int16\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes extended model typing and remaining properties", async () => {
+    const completions = await complete(
+      `
+       model N {
+        name: string;
+        value: int16;
+        extra: boolean;
+       }
+       model M extends N {
+        name: string;
+        va┆
+       }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "value",
+          insertText: "value",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.value: int16\n```",
+          },
+        },
+        {
+          label: "extra",
+          insertText: "extra",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.extra: boolean\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
   it("completes template parameter uses", async () => {
     const completions = await complete(
       `
@@ -1024,6 +1109,268 @@ describe("identifiers", () => {
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
+  });
+
+  describe("completion for decorator model argument", () => {
+    const decArgModelDef = `
+      import "./decorators.js";
+
+      /**
+       * my log context
+       */
+      model MyLogContext<T> {
+        /**
+         * name of log context 
+         */
+        name: string;
+        /**
+         * items of context
+         */
+        item: Record<T>;
+      }
+
+      /**
+       * my log argument
+       */
+      model MyLogArg{
+        /**
+         * my log message
+         */
+        msg: string;
+        /**
+         * my log id
+         */
+        id: int16;
+        /**
+         * my log context
+         */
+        context: MyLogContext<string>;
+      }
+
+      extern dec myDec(target, arg: MyLogArg);
+      `;
+
+    it("show all properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({┆})
+        model M {}
+        `,
+        js
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of nested model", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({ context: {┆} })
+        model M {}
+        `,
+        js
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show the left properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({ context: { name: "abc", ┆} })
+        model M {}
+        `,
+        js
+      );
+      check(
+        completions,
+        [
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show the typing and left properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({ msg: "msg", conte┆xt})
+        model M {}
+        `,
+        js
+      );
+      check(
+        completions,
+        [
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("no completion when cursor is after }", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({}┆)
+        model M {}
+        `,
+        js
+      );
+      ok(completions.items.length === 0, "No completions expected when cursor is after }");
+    });
+
+    it("no completion when the model expression is not decorator argument value", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decoratorDefinition}
+        @myDec({})
+        model M {}
+
+        op op1() : {
+          na┆me: string;
+          value: string
+        }
+        `,
+        js
+      );
+      ok(completions.items.length === 0, "No completions expected for normal model expression }");
+    });
   });
 
   describe("directives", () => {

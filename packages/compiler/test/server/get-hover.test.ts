@@ -135,6 +135,107 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
+
+    const decArgModelDef = `
+    import "./dec-types.js";
+
+    /**
+     * my log context
+     */
+    model MyLogContext<T> {
+      /**
+       * name of log context 
+       */
+      name: string;
+      /**
+       * items of context
+       */
+      item: Record<T>;
+    }
+
+    /**
+     * my log argument
+     */
+    model MyLogArg{
+      /**
+       * my log message
+       */
+      msg: string;
+      /**
+       * my log id
+       */
+      id: int16;
+      /**
+       * my log context
+       */
+      context: MyLogContext<string>;
+    }
+
+    extern dec single(target, arg: MyLogArg);`;
+
+    it("test model expression as decorator parameter value", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          ${decArgModelDef}
+          @single({
+            ms┆g: "hello",
+            id: 1,
+            context: {
+              name: "my context",
+              item: {
+                key: "value"
+              }
+            }
+          
+          })
+          namespace TestNS;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n" +
+            "```typespec\n" +
+            "MyLogArg.msg: string\n" +
+            "```\n" +
+            "\n" +
+            "my log message",
+        },
+      });
+    });
+
+    it("test nested model expression as decorator parameter value", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          ${decArgModelDef}
+          @single({
+            msg: "hello",
+            id: 1,
+            context: {
+              name: "my context",
+              it┆em: {
+                key: "value"
+              }
+            }
+          
+          })
+          namespace TestNS;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n" +
+            "```typespec\n" +
+            "MyLogContext<T>.item: Record<Element>\n" +
+            "```\n" +
+            "\n" +
+            "items of context",
+        },
+      });
+    });
   });
 
   describe("get hover for namespace", () => {
