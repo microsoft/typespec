@@ -20,7 +20,20 @@ Param (
   [string] $LanguageShort = "Unknown"
 )
 
-#. (Join-Path $PSScriptRoot common.ps1)
+if ($LanguageShort -eq "Unknown")
+{
+    Write-Host "Language short name is not provided. Please provide the language short name."
+    exit 1
+}
+elseif ($LanguageShort -eq "dotnet")
+{
+    . (Join-Path $PSScriptRoot "/../../../packages/http-client-csharp/eng/scripts/Functions.ps1")
+}
+else
+{
+    Write-Host "Language short name is not supported for API detection."
+    exit 1
+}
 
 # Submit API review request and return status whether current revision is approved or pending or failed to create review
 function Submit-Request($filePath, $packageName)
@@ -93,35 +106,13 @@ function Log-Input-Params()
     Write-Host "Project: $($DevopsProject)"
 }
 
-function Find-dotnet-Artifacts-For-Apireview($artifactDir, $packageName)
-{
-  # Find all nupkg files in given artifact directory
-  $PackageArtifactPath = Join-Path $artifactDir $packageName
-  $pkg = Get-dotnet-Package-Artifacts $PackageArtifactPath
-  if (!$pkg)
-  {
-    Write-Host "Package is not available in artifact path $($PackageArtifactPath)"
-    return $null
-  }
-  $packages = @{ $pkg.Name = $pkg.FullName }
-  return $packages
-}
-
 Log-Input-Params
-
-#if (!($FindArtifactForApiReviewFn -and (Test-Path "Function:$FindArtifactForApiReviewFn")))
-#{
-#    Write-Host "The function for 'FindArtifactForApiReviewFn' was not found.`
-#    Make sure it is present in eng/scripts/Language-Settings.ps1 and referenced in eng/common/scripts/common.ps1.`
-#    See https://github.com/Azure/azure-sdk-tools/blob/main/doc/common/common_engsys.md#code-structure"
-#    exit 1
-#}
 
 $responses = @{}
 foreach ($artifact in $ArtifactList)
 {
     Write-Host "Processing $($artifact.name)"
-    $packages = Find-dotnet-Artifacts-For-Apireview $ArtifactPath $artifact.name
+    $packages = Find-Artifacts-For-Apireview $ArtifactPath $artifact.name
     if ($packages)
     {
         $pkgPath = $packages.Values[0]
