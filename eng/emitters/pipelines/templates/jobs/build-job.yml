@@ -68,10 +68,10 @@ jobs:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: ${{ parameters.NodeVersion }}
-          LanguageShortName: ${{ parameters.LanguageShortName }}
       - ${{ if parameters.EmitArtifacts }}:
           - template: /eng/emitters/pipelines/templates/steps/detect-api-changes.yml
             parameters:
+              LanguageShortName: ${{ parameters.LanguageShortName }}
               Artifacts:
                 - ${{ each package in parameters.Packages }}:
                     - name: ${{ package.name }}
