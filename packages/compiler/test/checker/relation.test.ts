@@ -1477,7 +1477,7 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("cannot assign a tuple literal", async () => {
+      it("cannot assign a array literal", async () => {
         await expectValueNotAssignableToConstraint(
           {
             source: `#["foo"]`,
@@ -1503,14 +1503,14 @@ describe("compiler: checker: type relations", () => {
     });
 
     describe("valueof array", () => {
-      it("can assign tuple literal", async () => {
+      it("can assign array literal", async () => {
         await expectValueAssignableToConstraint({
           source: `#["foo"]`,
           target: "valueof string[]",
         });
       });
 
-      it("can assign tuple literal of object literal", async () => {
+      it("can assign array literal of object literal", async () => {
         await expectValueAssignableToConstraint({
           source: `#[#{name: "a"}, #{name: "b"}]`,
           target: "valueof Info[]",
@@ -1557,14 +1557,14 @@ describe("compiler: checker: type relations", () => {
     });
 
     describe("valueof tuple", () => {
-      it("can assign tuple literal", async () => {
+      it("can assign array literal", async () => {
         await expectValueAssignableToConstraint({
           source: `#["foo", 12]`,
           target: "valueof [string, int32]",
         });
       });
 
-      it("cannot assign tuple literal with too few values", async () => {
+      it("cannot assign array literal with too few values", async () => {
         await expectValueNotAssignableToConstraint(
           {
             source: `#["foo"]`,
@@ -1577,7 +1577,7 @@ describe("compiler: checker: type relations", () => {
         );
       });
 
-      it("cannot assign tuple literal with too many values", async () => {
+      it("cannot assign array literal with too many values", async () => {
         await expectValueNotAssignableToConstraint(
           {
             source: `#["a", "b", "c"]`,
@@ -1592,7 +1592,7 @@ describe("compiler: checker: type relations", () => {
     });
 
     describe("valueof union", () => {
-      it("can assign tuple literal variant", async () => {
+      it("can assign array literal variant", async () => {
         await expectValueAssignableToConstraint({
           source: `#["foo", 12]`,
           target: "valueof ([string, int32] | string | boolean)",

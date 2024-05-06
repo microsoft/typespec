@@ -105,7 +105,7 @@ describe("(LEGACY) cast tuple to array value", () => {
     expectDiagnostics(diagnostics, {
       code: "deprecated",
       message:
-        "Deprecated: Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+        "Deprecated: Using a tuple as a value is deprecated. Use a array literal instead(with #[]).",
       pos,
     });
   });

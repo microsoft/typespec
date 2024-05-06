@@ -62,6 +62,7 @@ import {
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayLiteralNode,
   ArrayModelType,
   ArrayValue,
   AugmentDecoratorStatementNode,
@@ -186,7 +187,6 @@ import {
   TemplatedType,
   Tuple,
   TupleExpressionNode,
-  TupleLiteralNode,
   Type,
   TypeInstantiationMap,
   TypeMapper,
@@ -880,7 +880,8 @@ export function createChecker(program: Program): Checker {
         code: "deprecated",
         codefixes: [createTupleToLiteralCodeFix(tuple.node)],
         format: {
-          message: "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+          message:
+            "Using a tuple as a value is deprecated. Use an array literal instead(with #[]).",
         },
         target: tuple.node,
       })
@@ -1049,7 +1050,7 @@ export function createChecker(program: Program): Checker {
         return unknownType;
       case SyntaxKind.ObjectLiteral:
         return checkObjectValue(node, mapper, valueConstraint);
-      case SyntaxKind.TupleLiteral:
+      case SyntaxKind.ArrayLiteral:
         return checkArrayValue(node, mapper, valueConstraint);
       case SyntaxKind.ConstStatement:
         return checkConst(node);
@@ -3799,7 +3800,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkArrayValue(
-    node: TupleLiteralNode,
+    node: ArrayLiteralNode,
     mapper: TypeMapper | undefined,
     constraint: CheckValueConstraint | undefined
   ): ArrayValue | null {
@@ -3828,7 +3829,7 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function createTypeForArrayValue(node: TupleLiteralNode, values: Value[]): Tuple {
+  function createTypeForArrayValue(node: ArrayLiteralNode, values: Value[]): Tuple {
     return createAndFinishType({
       kind: "Tuple",
       node,

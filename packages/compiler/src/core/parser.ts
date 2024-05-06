@@ -16,6 +16,7 @@ import {
 import {
   AliasStatementNode,
   AnyKeywordNode,
+  ArrayLiteralNode,
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
@@ -109,7 +110,6 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
-  TupleLiteralNode,
   TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
@@ -290,7 +290,7 @@ namespace ListKind {
     close: Token.CloseBracket,
   } as const;
 
-  export const TupleLiteral = {
+  export const ArrayLiteral = {
     ...ExpresionsBase,
     allowEmpty: true,
     open: Token.HashBracket,
@@ -1661,7 +1661,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.HashBrace:
           return parseObjectLiteral();
         case Token.HashBracket:
-          return parseTupleLiteral();
+          return parseArrayLiteral();
         case Token.VoidKeyword:
           return parseVoidKeyword();
         case Token.NeverKeyword:
@@ -1751,11 +1751,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseTupleLiteral(): TupleLiteralNode {
+  function parseArrayLiteral(): ArrayLiteralNode {
     const pos = tokenPos();
-    const values = parseList(ListKind.TupleLiteral, parseExpression);
+    const values = parseList(ListKind.ArrayLiteral, parseExpression);
     return {
-      kind: SyntaxKind.TupleLiteral,
+      kind: SyntaxKind.ArrayLiteral,
       values,
       ...finishNode(pos),
     };
@@ -3656,7 +3656,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.ObjectLiteralSpreadProperty:
       return visitNode(cb, node.target);
-    case SyntaxKind.TupleLiteral:
+    case SyntaxKind.ArrayLiteral:
       return visitEach(cb, node.values);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:

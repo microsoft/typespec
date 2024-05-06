@@ -500,7 +500,7 @@ PrimaryExpression[InParameter] :
     CallOrReferenceExpression
     ParenthesizedExpression[?InParameter]
     ObjectLiteral
-    TupleLiteral
+    ArrayLiteral
     ModelExpression
     TupleExpression
 
@@ -553,7 +553,7 @@ ObjectLiteralProperty :
 ObjectLiteralSpreadProperty :
     `...` ReferenceExpression
 
-TupleLiteral :
+ArrayLiteral :
     `#[` ExpressionList? `]`
 
 ModelExpression :

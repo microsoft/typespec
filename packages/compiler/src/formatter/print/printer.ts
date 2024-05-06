@@ -6,6 +6,7 @@ import { Keywords } from "../../core/scanner.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayLiteralNode,
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
@@ -71,7 +72,6 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
-  TupleLiteralNode,
   TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
@@ -390,8 +390,8 @@ export function printNode(
         options,
         print
       );
-    case SyntaxKind.TupleLiteral:
-      return printTupleLiteral(path as AstPath<TupleLiteralNode>, options, print);
+    case SyntaxKind.ArrayLiteral:
+      return printArrayLiteral(path as AstPath<ArrayLiteralNode>, options, print);
     case SyntaxKind.ConstStatement:
       return printConstStatement(path as AstPath<ConstStatementNode>, options, print);
     case SyntaxKind.CallExpression:
@@ -1053,8 +1053,8 @@ export function printObjectLiteralSpreadProperty(
   return [printDirectives(path, options, print), "...", path.call(print, "target")];
 }
 
-export function printTupleLiteral(
-  path: AstPath<TupleLiteralNode>,
+export function printArrayLiteral(
+  path: AstPath<ArrayLiteralNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {

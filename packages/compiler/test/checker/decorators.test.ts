@@ -442,7 +442,7 @@ describe("compiler: checker: decorators", () => {
         });
       });
 
-      describe("passing an tuple literal", () => {
+      describe("passing an array literal", () => {
         it("valueof model cast the value to a JS array", async () => {
           const arg = await testCallDecorator("valueof string[]", `#["foo"]`);
           deepStrictEqual(arg, ["foo"]);
@@ -605,7 +605,7 @@ describe("compiler: checker: decorators", () => {
         });
       });
 
-      describe("passing an tuple literal", () => {
+      describe("passing an array literal", () => {
         it("valueof model cast the value to a JS array", async () => {
           const arg = await testCallDecorator("valueof string[]", `#["foo"]`);
           deepStrictEqual(arg, ["foo"]);

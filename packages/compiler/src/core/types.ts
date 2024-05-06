@@ -382,7 +382,7 @@ export interface ObjectValuePropertyDescriptor {
 
 export interface ArrayValue extends BaseValue {
   valueKind: "ArrayValue";
-  node: TupleLiteralNode;
+  node: ArrayLiteralNode;
   values: Value[];
 }
 
@@ -645,7 +645,7 @@ export interface StringTemplateSpanValue extends BaseType {
 
 export interface Tuple extends BaseType {
   kind: "Tuple";
-  node: TupleExpressionNode | TupleLiteralNode;
+  node: TupleExpressionNode | ArrayLiteralNode;
   values: Type[];
 }
 
@@ -978,7 +978,7 @@ export enum SyntaxKind {
   ObjectLiteral,
   ObjectLiteralProperty,
   ObjectLiteralSpreadProperty,
-  TupleLiteral,
+  ArrayLiteral,
   ConstStatement,
   CallExpression,
   ScalarConstructor,
@@ -1082,7 +1082,7 @@ export type Node =
   | ObjectLiteralPropertyNode
   | ObjectLiteralSpreadPropertyNode
   | ScalarConstructorNode
-  | TupleLiteralNode;
+  | ArrayLiteralNode;
 
 /**
  * Node that can be used as template
@@ -1243,7 +1243,7 @@ export type Expression =
   | MemberExpressionNode
   | ModelExpressionNode
   | ObjectLiteralNode
-  | TupleLiteralNode
+  | ArrayLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
@@ -1475,8 +1475,8 @@ export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
   readonly parent?: ObjectLiteralNode;
 }
 
-export interface TupleLiteralNode extends BaseNode {
-  readonly kind: SyntaxKind.TupleLiteral;
+export interface ArrayLiteralNode extends BaseNode {
+  readonly kind: SyntaxKind.ArrayLiteral;
   readonly values: readonly Expression[];
 }
 
