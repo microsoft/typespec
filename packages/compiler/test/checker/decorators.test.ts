@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { ModuleFlags, isNullType, setTypeSpecNamespace } from "../../src/core/index.js";
+import { PackageFlags, isNullType, setTypeSpecNamespace } from "../../src/core/index.js";
 import { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
@@ -121,7 +121,7 @@ describe("compiler: checker: decorators", () => {
   describe("usage", () => {
     let runner: BasicTestRunner;
     let calledArgs: any[] | undefined;
-    let $flags: ModuleFlags;
+    let $flags: PackageFlags;
     beforeEach(() => {
       $flags = {};
       calledArgs = undefined;

@@ -281,7 +281,7 @@ describe("compiler: parser", () => {
   describe("typeof expressions", () => {
     parseEach([`const a: typeof "123" = 123;`, `alias A = Foo<typeof "abc">;`]);
     parseErrorEach([
-      [`alias A = typeof #{}`, [{ message: "Typeof expect a literal or value reference." }]],
+      [`alias A = typeof #{}`, [{ message: "Typeof expects a value literal or value reference." }]],
     ]);
   });
 

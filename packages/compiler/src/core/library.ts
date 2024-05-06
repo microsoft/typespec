@@ -7,7 +7,7 @@ import {
   JSONSchemaValidator,
   LinterDefinition,
   LinterRuleDefinition,
-  ModuleFlags,
+  PackageFlags,
   StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
@@ -103,7 +103,7 @@ export function createTypeSpecLibrary<
   }
 }
 
-export function definePackageFlags(flags: ModuleFlags): ModuleFlags {
+export function definePackageFlags(flags: PackageFlags): PackageFlags {
   return flags;
 }
 

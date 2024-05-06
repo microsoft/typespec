@@ -388,9 +388,10 @@ export interface ArrayValue extends BaseValue {
 
 export interface ScalarValue extends BaseValue {
   valueKind: "ScalarValue";
-  scalar: Scalar; // We need to keep a reference of what scalar this is.
-  value: { name: string; args: Value[] }; // e.g. for utcDateTime(2020,12,01)
+  scalar: Scalar;
+  value: { name: string; args: Value[] };
 }
+
 export interface NumericValue extends BaseValue {
   valueKind: "NumericValue";
   scalar: Scalar | undefined;
@@ -449,7 +450,7 @@ export interface ScalarConstructor extends BaseType {
   node: ScalarConstructorNode;
   name: string;
   scalar: Scalar;
-  parameters: SigFunctionParameter[];
+  parameters: SignatureFunctionParameter[];
 }
 
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -724,11 +725,11 @@ export interface MixedFunctionParameter extends FunctionParameterBase {
   type: MixedParameterConstraint;
 }
 /** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
-export interface SigFunctionParameter extends FunctionParameterBase {
+export interface SignatureFunctionParameter extends FunctionParameterBase {
   mixed: false;
   type: Type;
 }
-export type FunctionParameter = MixedFunctionParameter | SigFunctionParameter;
+export type FunctionParameter = MixedFunctionParameter | SignatureFunctionParameter;
 
 export interface Sym {
   readonly flags: SymbolFlags;
@@ -1993,7 +1994,7 @@ export type LocationContext =
 /** Defined in the user project. */
 export interface ProjectLocationContext {
   readonly type: "project";
-  readonly flags?: ModuleFlags;
+  readonly flags?: PackageFlags;
 }
 
 /** Built-in */
@@ -2014,7 +2015,7 @@ export interface LibraryLocationContext {
   readonly metadata: ModuleLibraryMetadata;
 
   /** Module definition */
-  readonly flags?: ModuleFlags;
+  readonly flags?: PackageFlags;
 }
 
 export interface LibraryInstance {
@@ -2388,7 +2389,7 @@ export interface TypeSpecLibraryDef<
   readonly state?: Record<State, StateDef>;
 }
 
-export interface ModuleFlags {
+export interface PackageFlags {
   /**
    * Decorator arg marshalling algorithm. Specify how TypeSpec values are marshalled to decorator arguments.
    * - `lossless` - New recommended behavior

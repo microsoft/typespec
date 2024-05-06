@@ -160,7 +160,7 @@ import {
   ScalarConstructorNode,
   ScalarStatementNode,
   ScalarValue,
-  SigFunctionParameter,
+  SignatureFunctionParameter,
   StdTypeName,
   StdTypes,
   StringLiteral,
@@ -2074,7 +2074,7 @@ export function createChecker(program: Program): Checker {
     node: FunctionParameterNode,
     mapper: TypeMapper | undefined,
     mixed: false
-  ): SigFunctionParameter;
+  ): SignatureFunctionParameter;
   function checkFunctionParameter(
     node: FunctionParameterNode,
     mapper: TypeMapper | undefined,
