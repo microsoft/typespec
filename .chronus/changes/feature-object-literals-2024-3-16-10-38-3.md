@@ -18,7 +18,7 @@ Decorator API: Legacy marshalling logic
 
   To opt-in you can add the following to your library js/ts files.
   ```ts
-  export const $flags = defineModuleFlags({
-    decoratorArgMarshalling: "lossless",
+  export const $flags = definePackageFlags({
+    decoratorArgMarshalling: "new",
   });
   ```

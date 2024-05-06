@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { Diagnostic, Model, Type, Value, defineModuleFlags } from "../../../src/index.js";
+import { Diagnostic, Model, Type, Value, definePackageFlags } from "../../../src/index.js";
 import {
   createTestHost,
   createTestRunner,
@@ -70,7 +70,7 @@ export async function compileAndDiagnoseValueOrType(
   const host = await createTestHost();
   host.addJsFile("collect.js", {
     $collect: () => {},
-    $flags: defineModuleFlags({ decoratorArgMarshalling: "lossless" }),
+    $flags: definePackageFlags({ decoratorArgMarshalling: "new" }),
   });
   host.addTypeSpecFile(
     "main.tsp",

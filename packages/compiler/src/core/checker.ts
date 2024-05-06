@@ -1987,7 +1987,7 @@ export function createChecker(program: Program): Checker {
               [
                 `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting null as a type.`,
                 `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "lossless"}}` to your library.',
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
               ].join("\n"),
               param.node
             );
@@ -2002,7 +2002,7 @@ export function createChecker(program: Program): Checker {
               [
                 `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting a numeric type that is not representable as a JS Number.`,
                 `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "lossless"}}` to your library.',
+                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
               ].join("\n"),
               param.node
             );
@@ -4936,13 +4936,11 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function resolveDecoratorArgMarshalling(
-    declaredType: Decorator | undefined
-  ): "lossless" | "legacy" {
+  function resolveDecoratorArgMarshalling(declaredType: Decorator | undefined): "new" | "legacy" {
     if (declaredType) {
       const location = getLocationContext(program, declaredType);
       if (location.type === "compiler") {
-        return "lossless";
+        return "new";
       } else if (
         (location.type === "library" || location.type === "project") &&
         location.flags?.decoratorArgMarshalling
@@ -4952,7 +4950,7 @@ export function createChecker(program: Program): Checker {
         return "legacy";
       }
     }
-    return "lossless";
+    return "new";
   }
   /** Check the decorator target is valid */
 
@@ -5138,7 +5136,7 @@ export function createChecker(program: Program): Checker {
   function resolveDecoratorArgJsValue(
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
-    jsMarshalling: "legacy" | "lossless"
+    jsMarshalling: "legacy" | "new"
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {

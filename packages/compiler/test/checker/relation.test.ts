@@ -5,7 +5,7 @@ import {
   FunctionParameterNode,
   Model,
   Type,
-  defineModuleFlags,
+  definePackageFlags,
 } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -38,8 +38,8 @@ describe("compiler: checker: type relations", () => {
     expectedDiagnosticPos: number;
   }> {
     host.addJsFile("mock.js", {
-      $flags: defineModuleFlags({
-        decoratorArgMarshalling: "lossless",
+      $flags: definePackageFlags({
+        decoratorArgMarshalling: "new",
       }),
       $mock: () => null,
     });

@@ -103,7 +103,7 @@ export function createTypeSpecLibrary<
   }
 }
 
-export function defineModuleFlags(flags: ModuleFlags): ModuleFlags {
+export function definePackageFlags(flags: ModuleFlags): ModuleFlags {
   return flags;
 }
 

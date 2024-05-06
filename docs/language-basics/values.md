@@ -145,7 +145,7 @@ model Entity {
   a: shortString;
 }
 
-const e1: Entity = #{ a: "abcd" } // error
+const e1: Entity = #{ a: "abcd" }; // error
 ```
 
 ## Enum member &amp; union variant references

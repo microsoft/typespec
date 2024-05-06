@@ -31,7 +31,7 @@ export {
   createLinterRule as createRule,
   createTypeSpecLibrary,
   defineLinter,
-  defineModuleFlags,
+  definePackageFlags,
   paramMessage,
   // eslint-disable-next-line deprecation/deprecation
   setCadlNamespace,

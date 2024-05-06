@@ -1,6 +1,6 @@
 import {
   createTypeSpecLibrary,
-  defineModuleFlags,
+  definePackageFlags,
   JSONSchemaType,
   paramMessage,
 } from "@typespec/compiler";
@@ -112,8 +112,8 @@ export const $lib = createTypeSpecLibrary({
   },
 } as const);
 
-export const $flags = defineModuleFlags({
-  decoratorArgMarshalling: "lossless",
+export const $flags = definePackageFlags({
+  decoratorArgMarshalling: "new",
 });
 
 export const { reportDiagnostic, createStateSymbol } = $lib;

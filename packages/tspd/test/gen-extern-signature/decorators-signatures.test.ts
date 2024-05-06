@@ -1,4 +1,4 @@
-import { defineModuleFlags } from "@typespec/compiler";
+import { definePackageFlags } from "@typespec/compiler";
 import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { generateExternDecorators } from "../../src/gen-extern-signatures/gen-extern-signatures.js";
@@ -13,8 +13,8 @@ async function generateDecoratorSignatures(code: string) {
     ${code}`
   );
   host.addJsFile("lib.js", {
-    $flags: defineModuleFlags({
-      decoratorArgMarshalling: "lossless",
+    $flags: definePackageFlags({
+      decoratorArgMarshalling: "new",
     }),
   });
   await host.diagnose("main.tsp", {

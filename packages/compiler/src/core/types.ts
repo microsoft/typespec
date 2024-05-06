@@ -2398,7 +2398,7 @@ export interface ModuleFlags {
    *  - null value -> `NullType`
    * @default legacy
    */
-  readonly decoratorArgMarshalling?: "legacy" | "lossless";
+  readonly decoratorArgMarshalling?: "legacy" | "new";
 }
 
 export interface LinterDefinition {
