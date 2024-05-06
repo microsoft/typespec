@@ -3570,7 +3570,10 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
           break;
         default:
           compilerAssert("false", "ModelProperty with unexpected parent kind.");
-          kind = IdentifierKind.Other;
+          kind =
+            (id.parent as DeclarationNode).id === id
+              ? IdentifierKind.Declaration
+              : IdentifierKind.Other;
           break;
       }
       break;

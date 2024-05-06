@@ -2243,7 +2243,6 @@ export function createChecker(program: Program): Checker {
       if (!baseNode) {
         return completions;
       }
-      lateBindMembers(baseType, baseNode.symbol);
       for (const prop of baseType.properties.values()) {
         if (identifier.sv === prop.name || !modelType.properties.has(prop.name)) {
           const sym = getMemberSymbol(baseNode.symbol, prop.name);
