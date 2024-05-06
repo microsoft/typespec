@@ -404,6 +404,12 @@ const diagnostics = {
       withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
     },
   },
+  "property-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
+    },
+  },
   "no-prop": {
     severity: "error",
     messages: {

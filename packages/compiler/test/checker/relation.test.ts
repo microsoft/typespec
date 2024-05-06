@@ -737,6 +737,17 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("emit diagnostic when optional property is assigned to required", async () => {
+      await expectTypeNotAssignable(
+        { source: `{foo?: string}`, target: `{foo: string}` },
+        {
+          code: "missing-property",
+          message:
+            "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+        }
+      );
+    });
+
     it("emit diagnostic when required property is missing", async () => {
       await expectTypeNotAssignable(
         { source: `{foo: "abc"}`, target: `{foo: string, bar: string}` },

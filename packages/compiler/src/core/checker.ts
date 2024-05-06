@@ -5785,6 +5785,18 @@ export function createChecker(program: Program): Checker {
       } else {
         remainingProperties.delete(prop.name);
 
+        if (sourceProperty.optional && !prop.optional) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "property-required",
+              format: {
+                propName: prop.name,
+                targetType: getTypeName(target),
+              },
+              target: sourceProperty,
+            })
+          );
+        }
         const [related, propDiagnostics] = isTypeAssignableToInternal(
           sourceProperty.type,
           prop.type,
