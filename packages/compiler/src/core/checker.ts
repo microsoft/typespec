@@ -4126,7 +4126,6 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  // TODO: should those be called eval?
   function checkCallExpression(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined
