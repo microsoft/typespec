@@ -18,10 +18,10 @@ namespace UnbrandedTypeSpec.Models
         public int RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
-        public IList<string> RequiredCollection { get; set; }
+        public IList<string> RequiredCollection { get; }
 
         /// <summary> Required dictionary of enums. </summary>
-        public IDictionary<string, string> RequiredDictionary { get; set; }
+        public IDictionary<string, string> RequiredDictionary { get; }
 
         /// <summary> Required model. </summary>
         public Thing RequiredModel { get; set; }
@@ -30,25 +30,25 @@ namespace UnbrandedTypeSpec.Models
         public string IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<string> IntExtensibleEnumCollection { get; set; }
+        public IList<string> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
         public string FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<string> FloatExtensibleEnumCollection { get; set; }
+        public IList<string> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public string FloatFixedEnum { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<string> FloatFixedEnumCollection { get; set; }
+        public IList<string> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
         public string IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<string> IntFixedEnumCollection { get; set; }
+        public IList<string> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
         public string StringFixedEnum { get; set; }
@@ -60,10 +60,10 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData OptionalUnknown { get; set; }
 
         /// <summary> required record of unknown. </summary>
-        public IDictionary<string, System.BinaryData> RequiredRecordUnknown { get; set; }
+        public IDictionary<string, System.BinaryData> RequiredRecordUnknown { get; }
 
         /// <summary> optional record of unknown. </summary>
-        public IDictionary<string, System.BinaryData> OptionalRecordUnknown { get; set; }
+        public IDictionary<string, System.BinaryData> OptionalRecordUnknown { get; }
 
         /// <summary> required readonly record of unknown. </summary>
         public IDictionary<string, System.BinaryData> ReadOnlyRequiredRecordUnknown { get; }
