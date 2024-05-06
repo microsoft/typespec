@@ -56,6 +56,21 @@ finally
     Pop-Location
 }
 
+Push-Location "$packageRoot/generator"
+try {
+    Write-Host "Working in $PWD"
+
+    # build the generator
+    Invoke-LoggedCommand "dotnet build" -GroupOutput
+
+    # pack the generator
+    $file = Invoke-LoggedCommand "dotnet pack -c Release -o $outputPath/packages"
+}
+finally
+{
+    Pop-Location
+}
+
 if ($PublishType -eq "internal") {
     $feedUrl = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry"
 
