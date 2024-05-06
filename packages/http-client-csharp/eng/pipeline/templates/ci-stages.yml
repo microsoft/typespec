@@ -16,7 +16,7 @@ stages:
       PackagePath: /packages/http-client-csharp
       EmitterPackageJsonPath: packages/http-client-csharp/package.json
       Packages:
-        - name: http-client-csharp
+        - name: typespec-http-client-csharp
           file: typespec-http-client-csharp-*.tgz
           type: npm
         - name: Microsoft.Generator.CSharp
