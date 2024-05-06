@@ -2,6 +2,7 @@ parameters:
   ArtifactPath: $(Build.ArtifactStagingDirectory)
   Artifacts: []
   ArtifactName: "packages"
+  LanguageShortName: "Unknown"
 
 steps:
   - pwsh: |
@@ -23,6 +24,7 @@ steps:
         -APIViewUri $(ApiChangeDetectRequestUrl)
         -ArtifactName ${{ parameters.ArtifactName }}
         -DevopsProject $(System.TeamProject)
+        -LanguageShortName ${{ parameters.LanguageShortName }}
       pwsh: true
     displayName: Detect API changes
     condition: and(succeededOrFailed(), eq(variables['Build.Reason'],'PullRequest'))

@@ -17,15 +17,15 @@ Param (
   [string] $ArtifactName = "packages",
   [string] $TargetBranch = ("origin/${env:SYSTEM_PULLREQUEST_TARGETBRANCH}" -replace "refs/heads/"),
   [string] $DevopsProject = "internal",
-  [string] $LanguageShort = "Unknown"
+  [string] $LanguageShortName = "Unknown"
 )
 
-if ($LanguageShort -eq "Unknown")
+if ($LanguageShortName -eq "Unknown")
 {
     Write-Host "Language short name is not provided. Please provide the language short name."
     exit 1
 }
-elseif ($LanguageShort -eq "dotnet")
+elseif ($LanguageShortName -eq "dotnet")
 {
     . (Join-Path $PSScriptRoot "/../../../packages/http-client-csharp/eng/scripts/Functions.ps1")
 }
@@ -42,7 +42,7 @@ function Submit-Request($filePath, $packageName)
     if (!$repoName) {
         $repoName = "microsoft/typespec"
     }
-    $reviewFileName = "$($packageName)_$($LanguageShort).json"
+    $reviewFileName = "$($packageName)_$($LanguageShortName).json"
     $query = [System.Web.HttpUtility]::ParseQueryString('')
     $query.Add('artifactName', $ArtifactName)
     $query.Add('buildId', $BuildId)
@@ -51,7 +51,7 @@ function Submit-Request($filePath, $packageName)
     $query.Add('repoName', $repoName)
     $query.Add('pullRequestNumber', $PullRequestNumber)
     $query.Add('packageName', $packageName)
-    $query.Add('language', $LanguageShort)
+    $query.Add('language', $LanguageShortName)
     $query.Add('project', $DevopsProject)
     $reviewFileFullName = Join-Path -Path $ArtifactPath $packageName $reviewFileName
     if (Test-Path $reviewFileFullName)

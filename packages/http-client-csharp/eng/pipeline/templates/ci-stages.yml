@@ -25,3 +25,4 @@ stages:
           TestArguments: -GenerationChecks
       Condition: ${{ parameters.Condition }}
       DependsOn: ${{ parameters.DependsOn }}
+      LanguageShortName: "dotnet"

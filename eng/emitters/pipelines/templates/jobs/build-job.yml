@@ -42,6 +42,10 @@ parameters:
     type: boolean
     default: false
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:

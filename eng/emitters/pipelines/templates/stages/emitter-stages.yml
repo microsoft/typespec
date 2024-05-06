@@ -61,6 +61,9 @@ parameters:
     type: object
     default: []
 
+  - name: LanguageShortName
+    type: string
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -84,6 +87,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 20.x
           Os: linux
           EmitArtifacts: true # Emit artifacts only for the first job
@@ -95,6 +99,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: linux
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -105,6 +110,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 20.x
           Os: windows
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -115,6 +121,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: windows
 
