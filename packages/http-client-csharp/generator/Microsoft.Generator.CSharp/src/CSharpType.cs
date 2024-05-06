@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -40,6 +40,7 @@ namespace Microsoft.Generator.CSharp
         private bool? _isCollection;
         private bool? _isIEnumerableOfT;
         private bool? _isIAsyncEnumerableOfT;
+        private bool? _containsBinaryData;
         private int? _hashCode;
         private CSharpType? _initializationType;
         private CSharpType? _propertyInitializationType;
@@ -56,6 +57,7 @@ namespace Microsoft.Generator.CSharp
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
+        internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
         /// Constructs a <see cref="CSharpType"/> from a <see cref="Type"/>.
@@ -208,6 +210,16 @@ namespace Microsoft.Generator.CSharp
 
         private bool TypeIsCollection()
             => IsFrameworkType && (IsDictionary || IsList);
+
+        private bool TypeContainsBinaryData()
+        {
+            if (IsCollection)
+            {
+                return ElementType.TypeContainsBinaryData();
+            }
+
+            return IsFrameworkType && FrameworkType == typeof(BinaryData);
+        }
 
         /// <summary>
         /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"/>.
