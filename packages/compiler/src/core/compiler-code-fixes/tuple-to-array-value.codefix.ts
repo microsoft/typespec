@@ -4,9 +4,9 @@ import type { TupleExpressionNode } from "../types.js";
 /**
  * Quick fix that convert a tuple to an array value.
  */
-export function createTupleToLiteralCodeFix(node: TupleExpressionNode) {
+export function createTupleToArrayValueCodeFix(node: TupleExpressionNode) {
   return defineCodeFix({
-    id: "tuple-to-literal",
+    id: "tuple-to-array-value",
     label: `Convert to an array value \`#[]\``,
     fix: (context) => {
       const location = getSourceLocation(node);

@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
-import { createModelToLiteralCodeFix } from "../../../src/core/compiler-code-fixes/model-to-literal.codefix.js";
+import { createModelToObjectValueCodeFix } from "../../../src/core/compiler-code-fixes/model-to-object-literal.codefix.js";
 import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
@@ -13,7 +13,7 @@ it("it change model expression to an object value", async () => {
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.ModelExpression);
-      return createModelToLiteralCodeFix(node);
+      return createModelToObjectValueCodeFix(node);
     }
   ).toChangeTo(`
       model Foo {

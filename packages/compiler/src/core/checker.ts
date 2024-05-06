@@ -2,8 +2,8 @@ import { $docFromComment, getIndexer } from "../lib/intrinsic-decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
-import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
-import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
+import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
+import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import {
   ProjectionError,
@@ -817,7 +817,7 @@ export function createChecker(program: Program): Checker {
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "deprecated",
-        codefixes: [createModelToLiteralCodeFix(model.node)],
+        codefixes: [createModelToObjectValueCodeFix(model.node)],
         format: {
           message: "Using a model as a value is deprecated. Use an object value instead(with #{}).",
         },
@@ -877,7 +877,7 @@ export function createChecker(program: Program): Checker {
     reportCheckerDiagnostic(
       createDiagnostic({
         code: "deprecated",
-        codefixes: [createTupleToLiteralCodeFix(tuple.node)],
+        codefixes: [createTupleToArrayValueCodeFix(tuple.node)],
         format: {
           message: "Using a tuple as a value is deprecated. Use an array value instead(with #[]).",
         },

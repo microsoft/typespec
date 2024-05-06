@@ -128,7 +128,12 @@ scalar offsetDateTime {
 /**
  * A duration/time period. e.g 5s, 10h
  */
-scalar duration;
+scalar duration {
+  /**
+   * Create a date from an ISO 8601 string.
+   */
+  init fromISO(value: string);
+}
 
 /**
  * Boolean with `true` and `false` values.
