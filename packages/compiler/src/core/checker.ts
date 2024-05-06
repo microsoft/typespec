@@ -2197,7 +2197,6 @@ export function createChecker(program: Program): Checker {
       if (parentType?.kind !== "Model") return undefined;
     }
 
-    lateBindMembers(parentType, parentType.node!.symbol);
     return parentType;
   }
 
