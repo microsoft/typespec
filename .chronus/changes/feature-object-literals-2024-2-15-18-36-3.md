@@ -5,9 +5,9 @@ packages:
   - "@typespec/compiler"
 ---
 
-Values In TypeSpec [See docs](https://tspwebsitepr.z22.web.core.windows.net/prs/3022/docs/next/language-basics/values)
+Add syntax for declaring values. [See docs](https://typespec.io/docs/language-basics/values).
 
-Object and array literals
+Object and array values
 ```tsp
 @dummy(#{
   name: "John",
