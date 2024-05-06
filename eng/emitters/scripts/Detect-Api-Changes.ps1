@@ -26,7 +26,7 @@ function Submit-Request($filePath, $packageName)
 {
     $repoName = $RepoFullName
     if (!$repoName) {
-        $repoName = "microsoft/typepsec"
+        $repoName = "microsoft/typespec"
     }
     $reviewFileName = "$($packageName)_$($LanguageShort).json"
     $query = [System.Web.HttpUtility]::ParseQueryString('')
