@@ -8,7 +8,6 @@ Decorator API: Legacy marshalling logic
 
   If a library had a decorator with `valueof` one of those types `numeric`, `int64`, `uint64`, `integer`, `float`, `decimal`, `decimal128`, `null` it used to marshall those as JS `number` and `NullType` for `null`. With the introduction of values we have a new marshalling logic which will marshall those numeric types as `Numeric` and the others will remain numbers. `null` will also get marshalled as `null`.
 
-  For now this is an opt-in behavior with a warning on decorators not opt-in having a parameter with a constraint from the list above.
 
   Example: 
   ```tsp
