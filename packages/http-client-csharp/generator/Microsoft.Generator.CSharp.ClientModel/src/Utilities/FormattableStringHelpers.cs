@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Generator.CSharp.Input;
 using System.Text.RegularExpressions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -67,5 +68,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             throw new NotSupportedException($"Content type {contentType} is not supported.");
         }
+
+        public static FormattableString Empty => $"";
+
+        [return: NotNullIfNotNull(nameof(s))]
+        public static FormattableString? FromString(string? s) =>
+            s is null ? null : s.Length == 0 ? Empty : $"{s}";
     }
 }

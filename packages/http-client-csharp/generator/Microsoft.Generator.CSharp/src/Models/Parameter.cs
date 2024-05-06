@@ -15,6 +15,32 @@ namespace Microsoft.Generator.CSharp
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
         internal bool IsOptionalInSignature => DefaultValue != null;
 
+        /// <summary>
+        /// Creates a <see cref="Parameter"/> from an <see cref="InputParameter"/>.
+        /// </summary>
+        /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
+        public static Parameter FromInputParameter(InputParameter inputParameter)
+        {
+            // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
+            var csharpType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            FormattableString? description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
+            var validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
+
+            return new Parameter(
+                inputParameter.Name,
+                description,
+                csharpType,
+                null,
+                validation,
+                null,
+                IsApiVersionParameter: inputParameter.IsApiVersion,
+                IsEndpoint: inputParameter.IsEndpoint,
+                IsResourceIdentifier: inputParameter.IsResourceParameter,
+                SkipUrlEncoding: inputParameter.SkipUrlEncoding,
+                RequestLocation: inputParameter.Location,
+                SerializationFormat: SerializationFormat.Default);
+        }
+
         internal Parameter WithRef(bool isRef = true) => IsRef == isRef ? this : this with { IsRef = isRef };
         internal Parameter ToRequired()
         {

@@ -12,9 +12,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
     {
         internal class SystemModelSnippets : ModelSnippets
         {
-            public override Method BuildConversionToRequestBodyMethod(MethodSignatureModifiers modifiers)
+            public override CSharpMethod BuildConversionToRequestBodyMethod(MethodSignatureModifiers modifiers)
             {
-                return new Method
+                return new CSharpMethod
                 (
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.ToRequestContentName, null, $"Convert into a {nameof(Utf8JsonRequestBody)}.", modifiers, typeof(RequestBody), null, Array.Empty<Parameter>()),
                     new[]
@@ -27,10 +27,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 );
             }
 
-            public override Method BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
+            public override CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
             {
                 var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse), null, ValidationType.None, null);
-                return new Method
+                return new CSharpMethod
                 (
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]

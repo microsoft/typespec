@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using NUnit.Framework;
 
@@ -11,12 +10,12 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class TypeFactoryTests
     {
-        private CustomTypeFactory? customFactory;
+        private CustomTypeFactory? _customFactory;
 
         [SetUp]
         public void Setup()
         {
-            customFactory = new CustomTypeFactory();
+            _customFactory = new CustomTypeFactory();
         }
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             if (expectedError)
             {
-                Assert.Throws<NotImplementedException>(() => customFactory?.CreateType(inputType));
+                Assert.Throws<NotImplementedException>(() => _customFactory?.CreateCSharpType(inputType));
                 return;
             }
             else
@@ -37,30 +36,12 @@ namespace Microsoft.Generator.CSharp.Tests
                 Assert.IsNotNull(inputType);
                 Assert.IsNotNull(expectedType);
 
-                var actual = customFactory?.CreateType(inputType);
+                var actual = _customFactory?.CreateCSharpType(inputType);
 
                 Assert.IsNotNull(actual);
 
                 expectedType!.Equals(actual!);
             }
-        }
-
-        /// <summary>
-        /// Validates that the factory method for creating a <see cref="Method"/> based on an input operation <paramref name="operation"/> works as expected.
-        /// </summary>
-        /// <param name="operation">The input operation to convert.</param>
-        /// <param name="expectedMethod">The expected <see cref="Method"/>.</param>
-        [TestCaseSource("CreateMethodTestCases")]
-        public void TestCreateMethod(InputOperation operation, Method expectedMethod)
-        {
-            Assert.IsNotNull(operation);
-            Assert.IsNotNull(expectedMethod);
-
-            var actual = customFactory?.CreateMethod(operation);
-
-            Assert.IsNotNull(actual);
-            string actualType = actual!.Kind;
-            Assert.AreEqual(expectedMethod.Kind, actualType);
         }
 
         public static IEnumerable<TestCaseData> CreateTypeTestCases
@@ -74,66 +55,9 @@ namespace Microsoft.Generator.CSharp.Tests
             }
         }
 
-        public static IEnumerable<TestCaseData> CreateMethodTestCases
-        {
-            get
-            {
-                yield return new TestCaseData(new InputOperation(),
-                    new Method(new MethodSignature(string.Empty, $"{string.Empty}", null, MethodSignatureModifiers.Public, null, null, Array.Empty<Parameter>()),
-                        Array.Empty<MethodBodyStatement>(),
-                        "default"
-                    ));
-                yield return new TestCaseData(new InputOperation(name: string.Empty,
-                    resourceName: null,
-                    summary: null,
-                    deprecated: null,
-                    description: string.Empty,
-                    accessibility: null,
-                    parameters: Array.Empty<InputParameter>(),
-                    responses: Array.Empty<OperationResponse>(),
-                    httpMethod: string.Empty,
-                    requestBodyMediaType: BodyMediaType.None,
-                    uri: string.Empty,
-                    path: string.Empty,
-                    externalDocsUrl: null,
-                    requestMediaTypes: Array.Empty<string>(),
-                    bufferResponse: false,
-                    longRunning: new OperationLongRunning(),
-                    paging: null,
-                    generateProtocolMethod: true,
-                    generateConvenienceMethod: false),
-                    new Method(new MethodSignature(string.Empty, $"{string.Empty}", null, MethodSignatureModifiers.Public, null, null, Array.Empty<Parameter>()),
-                        Array.Empty<MethodBodyStatement>(),
-                        "longRunning"
-                    ));
-                yield return new TestCaseData(new InputOperation(name: string.Empty,
-                    resourceName: null,
-                    summary: null,
-                    deprecated: null,
-                    description: string.Empty,
-                    accessibility: null,
-                    parameters: Array.Empty<InputParameter>(),
-                    responses: Array.Empty<OperationResponse>(),
-                    httpMethod: string.Empty,
-                    requestBodyMediaType: BodyMediaType.None,
-                    uri: string.Empty,
-                    path: string.Empty,
-                    externalDocsUrl: null,
-                    requestMediaTypes: Array.Empty<string>(),
-                    bufferResponse: false,
-                    longRunning: null,
-                    paging: new OperationPaging(),
-                    generateProtocolMethod: true,
-                    generateConvenienceMethod: false),
-                    new Method(new MethodSignature(string.Empty, $"{string.Empty}", null, MethodSignatureModifiers.Public, null, null, Array.Empty<Parameter>()),
-                        Array.Empty<MethodBodyStatement>(),
-                        "paging"
-                    ));
-            }
-        }
-
         internal class CustomTypeFactory : TypeFactory
         {
+
             public override CSharpType RequestConditionsType()
             {
                 throw new NotImplementedException();
@@ -154,7 +78,17 @@ namespace Microsoft.Generator.CSharp.Tests
                 throw new NotImplementedException();
             }
 
-            public override CSharpType CreateType(InputType input)
+            public override Parameter CreateCSharpParam(InputParameter parameter)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override CSharpType CreateCSharpType(InputType input)
             {
                 switch (input)
                 {
@@ -167,48 +101,6 @@ namespace Microsoft.Generator.CSharp.Tests
                     default:
                         throw new NotImplementedException("Unknown input type");
                 }
-            }
-
-            public override Method CreateMethod(InputOperation operation, bool returnProtocol = true)
-            {
-                var methodType = GetMethodType(operation);
-                switch (methodType)
-                {
-                    case "default":
-                        return new Method
-                        (
-                            new MethodSignature(operation.Name, $"{operation?.Summary}", null, MethodSignatureModifiers.Public, null, null, new Parameter[0]),
-                            new MethodBodyStatement[0],
-                            methodType
-                        );
-                    case "longRunning":
-                        return new Method
-                        (
-                            new MethodSignature(operation.Name, $"{operation?.Summary}", null, MethodSignatureModifiers.Public, null, null, new Parameter[0]),
-                            new MethodBodyStatement[0],
-                            methodType
-                        );
-                    case "paging":
-                        return new Method
-                        (
-                            new MethodSignature(operation.Name, $"{operation?.Summary}", null, MethodSignatureModifiers.Public, null, null, new Parameter[0]),
-                            new MethodBodyStatement[0],
-                            methodType
-                        );
-                    default:
-                        throw new Exception($"Unknown method type {methodType}");
-                }
-            }
-
-            private static string GetMethodType(InputOperation operation)
-            {
-                var defaultMethodType = "default";
-
-                if (operation.LongRunning is not null)
-                    return "longRunning";
-                if (operation.Paging is not null)
-                    return "paging";
-                return defaultMethodType;
             }
         }
     }

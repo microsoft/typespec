@@ -16,7 +16,7 @@ import {
   $prefixItems,
   $uniqueItems,
 } from "@typespec/json-schema";
-import {
+import type {
   BaseUriDecorator,
   ContainsDecorator,
   ContentEncodingDecorator,

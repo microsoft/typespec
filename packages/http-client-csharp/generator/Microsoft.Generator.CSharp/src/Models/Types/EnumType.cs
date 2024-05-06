@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp
 
             Name = input.Name.ToCleanName();
             IsExtensible = isExtensible;
-            ValueType = typeFactory.CreateType(input.EnumValueType);
+            ValueType = typeFactory.CreateCSharpType(input.EnumValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
