@@ -4724,7 +4724,9 @@ export function createChecker(program: Program): Checker {
         clone.decorators.push(dec);
       }
     }
-    clone = finishType(clone);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
   }
