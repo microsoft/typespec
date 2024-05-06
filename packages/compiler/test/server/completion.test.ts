@@ -1159,7 +1159,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({┆})
         model M {}
         `,
@@ -1213,7 +1213,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({ context: {┆} })
         model M {}
         `,
@@ -1259,7 +1259,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({ context: { name: "abc", ┆} })
         model M {}
         `,
@@ -1295,7 +1295,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({ msg: "msg", conte┆xt})
         model M {}
         `,
@@ -1340,7 +1340,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({}┆)
         model M {}
         `,
@@ -1358,7 +1358,7 @@ describe("identifiers", () => {
       };
 
       const completions = await complete(
-        `${decoratorDefinition}
+        `${decArgModelDef}
         @myDec({})
         model M {}
 
