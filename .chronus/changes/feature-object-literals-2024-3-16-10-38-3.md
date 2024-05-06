@@ -6,7 +6,7 @@ packages:
 
 Decorator API: Legacy marshalling logic
 
-  If a library had a decorator with `valueof` one of those types `numeric`, `int64`, `uint64`, `integer`, `float`, `decimal`, `decimal128`, `null` it used to marshall those as JS `number` and `NullType` for `null`. With the introduction of values we have a new marshalling logic which will marshall those numeric types as `Numeric` and the others will remain numbers. `null` will also get marshalled as `null`.
+With the introduction of values, the decorator marshalling behavior has changed in some cases. This behavior is opt-in by setting the `valueMarshalling` package flag to `"new"`, but will be the default behavior in future versions. It is strongly recommended to adopt this new behavior as soon as possible.
 
 
   Example: 
