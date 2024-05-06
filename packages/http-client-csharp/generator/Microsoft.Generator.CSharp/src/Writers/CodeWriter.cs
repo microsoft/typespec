@@ -279,7 +279,7 @@ namespace Microsoft.Generator.CSharp
                 WriteXmlDocumentationSummary(property.Description);
             }
 
-            // TODO -- should write parameter xml doc if this is an IndexerDeclaration
+            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
 
             if (property.Exceptions is not null)
             {
