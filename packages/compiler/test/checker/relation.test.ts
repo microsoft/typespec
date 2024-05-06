@@ -741,9 +741,8 @@ describe("compiler: checker: type relations", () => {
       await expectTypeNotAssignable(
         { source: `{foo?: string}`, target: `{foo: string}` },
         {
-          code: "missing-property",
-          message:
-            "Property 'bar' is missing on type '(anonymous model)' but required in '(anonymous model)'",
+          code: "property-required",
+          message: "Property 'foo' is required in type '(anonymous model)' but here is optional.",
         }
       );
     });

@@ -5793,7 +5793,7 @@ export function createChecker(program: Program): Checker {
                 propName: prop.name,
                 targetType: getTypeName(target),
               },
-              target: sourceProperty,
+              target: diagnosticTarget,
             })
           );
         }
