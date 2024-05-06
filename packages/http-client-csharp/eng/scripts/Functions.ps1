@@ -1,7 +1,7 @@
 # Return list of nupkg artifacts
 function Get-Package-Artifacts ($location, $filter)
 {
-    $pkgs = @(Get-ChildItem $location -Recurse | Where-Object - -Filter $filter)
+    $pkgs = Get-ChildItem -Path $location -Filter $filter -Recurse
     if (!$pkgs)
     {
         Write-Host "$($location) does not have any packages matching filter $($filter)"
