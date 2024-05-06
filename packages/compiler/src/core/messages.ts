@@ -144,7 +144,7 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
-      typeofTarget: "Typeof expect a literal or value reference.",
+      typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
   "trailing-token": {
