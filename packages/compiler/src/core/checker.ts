@@ -879,8 +879,7 @@ export function createChecker(program: Program): Checker {
         code: "deprecated",
         codefixes: [createTupleToLiteralCodeFix(tuple.node)],
         format: {
-          message:
-            "Using a tuple as a value is deprecated. Use an array literal instead(with #[]).",
+          message: "Using a tuple as a value is deprecated. Use an array value instead(with #[]).",
         },
         target: tuple.node,
       })

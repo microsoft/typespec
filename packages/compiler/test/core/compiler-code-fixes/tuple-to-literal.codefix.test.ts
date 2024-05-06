@@ -4,7 +4,7 @@ import { createTupleToLiteralCodeFix } from "../../../src/core/compiler-code-fix
 import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
-it("it change tuple to a array literal", async () => {
+it("it change tuple to a array value", async () => {
   await expectCodeFixOnAst(
     `
       model Foo {

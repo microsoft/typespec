@@ -5,4 +5,5 @@ packages:
   - "@typespec/http"
 ---
 
-Update Flow Template to make use of the new array literals
+Update Flow Template to make use of the new array values  
+
