@@ -716,7 +716,7 @@ export function createChecker(program: Program): Checker {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "value-in-type",
-            messageId: "templateConstraint",
+            messageId: "referenceTemplate",
             target: node,
           })
         );
@@ -1522,6 +1522,17 @@ export function createChecker(program: Program): Checker {
       } else if (isErrorType(type)) {
         // If we got an error type we don't want to keep passing it through so we reduce to unknown
         // Similar to the above where if the type is not assignable to the constraint we reduce to the constraint
+        commit(param, unknownType);
+        continue;
+      } else if (isValue(type)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "value-in-type",
+            messageId: "noTemplateConstraint",
+            target: argNode,
+          })
+        );
+
         commit(param, unknownType);
         continue;
       }

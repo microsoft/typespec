@@ -226,6 +226,24 @@ describe("compiler: templates", () => {
     });
   });
 
+  it("emits diagnostics when passing value to template parameter without constraint", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T> { }
+        const a = "abc";
+        alias B = A<a>;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "value-in-type",
+      message:
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
+    });
+  });
+
   describe("instantiating a template with invalid args", () => {
     it("shouldn't pass thru the invalid args", async () => {
       const { pos, source } = extractCursor(`

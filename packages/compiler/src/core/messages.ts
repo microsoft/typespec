@@ -448,7 +448,9 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "A value cannot be used as a type.",
-      templateConstraint: "Template parameter can be passed values but is used as a type.",
+      referenceTemplate: "Template parameter can be passed values but is used as a type.",
+      noTemplateConstraint:
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
     },
   },
   "no-prop": {
