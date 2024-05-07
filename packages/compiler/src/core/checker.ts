@@ -2006,7 +2006,7 @@ export function createChecker(program: Program): Checker {
         [
           `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting ${message}.`,
           `This will change in the future.`,
-          'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
+          'Add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library to opt-in to the new marshalling behavior.',
         ].join("\n"),
         param.node
       );
