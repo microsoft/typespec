@@ -27,7 +27,7 @@ export function link(text: string, url: string) {
 }
 
 function escapeMarkdownTable(text: string) {
-  return text.replace(/(\|)/g, "\\$1").replace(/\n/g, "<br />");
+  return text.replace(/([^\\])(\|)/g, "$1\\$2").replace(/\n/g, "<br />");
 }
 
 export function table([header, ...rows]: string[][]) {
