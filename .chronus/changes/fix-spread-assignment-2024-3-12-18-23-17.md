@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix: Model with spread indexer shouldn't validate explicit properites
+Fix: Model with spread indexer shouldn't validate explicit properties
