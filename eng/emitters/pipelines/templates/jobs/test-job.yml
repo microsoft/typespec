@@ -36,6 +36,10 @@ parameters:
   - name: LanguageShortName
     type: string
 
+  - name: ArtifactName
+    type: string
+    default: ""
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -58,6 +62,7 @@ jobs:
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: $(nodeVersion)
+          ArtifactName: ${{ parameters.ArtifactName }}
           ${{ if ne(length(parameters.TestMatrix), 0) }}:
             TestArgs: $(TestArguments)
           ${{ else }}:

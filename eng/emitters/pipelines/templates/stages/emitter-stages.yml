@@ -156,6 +156,7 @@ stages:
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   NodeVersion: 20.x
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
@@ -165,6 +166,7 @@ stages:
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   NodeVersion: 18.x
                   Os: linux
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
@@ -173,6 +175,7 @@ stages:
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   NodeVersion: 20.x
                   Os: windows
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
@@ -181,6 +184,7 @@ stages:
                   PackagePath: ${{ parameters.PackagePath }}
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   NodeVersion: 18.x
                   Os: windows
 
@@ -203,6 +207,7 @@ stages:
               AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
               PackagePath: ${{ parameters.PackagePath }}
               LanguageShortName: ${{ parameters.LanguageShortName }}
+              ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
               Os: windows
               TestMatrix: ${{ parameters.TestMatrix }}
 
