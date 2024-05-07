@@ -13,11 +13,10 @@ function Get-Package-Artifacts ($location, $filter)
 function Find-Artifacts-For-Apireview($artifactDir, $packageName)
 {
     # Find all nupkg files in given artifact directory
-    $packageArtifactPath = Join-Path $artifactDir "packages"
-    $package = Get-Package-Artifacts $packageArtifactPath "$packageName*"
+    $package = Get-Package-Artifacts $artifactDir "$packageName*"
     if (!$package)
     {
-        Write-Host "Package is not available in artifact path $($packageArtifactPath)"
+        Write-Host "Package is not available in artifact path $($artifactDir)"
         return $null
     }
     $packages = @{ $package.Name = $package.FullName }
