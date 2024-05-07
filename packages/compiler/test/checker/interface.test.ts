@@ -429,6 +429,25 @@ describe("compiler: interfaces", () => {
       expect($track).not.toHaveBeenCalled();
     });
 
+    it("templated interface extending another templated interface doesn't run decorator on extended interface operations", async () => {
+      const $track = vi.fn();
+      testHost.addJsFile("dec.js", { $track });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+         
+        interface Base<T> {
+          @track bar(): T;
+        }
+
+        interface Foo<T> extends Base<T> {}
+        `
+      );
+      await testHost.compile("./");
+      expect($track).not.toHaveBeenCalled();
+    });
+
     it("emit warning if shadowing parent templated type", async () => {
       const diagnostics = await runner.diagnose(`
       interface Base<A> {

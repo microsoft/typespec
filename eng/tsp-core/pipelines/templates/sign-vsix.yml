@@ -3,10 +3,15 @@ parameters:
   pattern: "**/*.vsix"
 
 steps:
-  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+  - task: EsrpCodeSigning@5
     displayName: Sign VSIX
     inputs:
-      ConnectedServiceName: "ESRP Signing Service"
+      ConnectedServiceName: "Azure SDK Engineering System"
+      AppRegistrationClientId: "5e796b8d-3c4d-4e28-93f6-12a44f4368a0"
+      AppRegistrationTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      AuthAKVName: "AzureSDKEngKeyVault"
+      AuthCertName: "azure-sdk-esrp-signing-auth-certificate"
+      AuthSignCertName: "azure-sdk-esrp-signing-certificate"
       FolderPath: ${{ parameters.path }}
       Pattern: ${{ parameters.pattern }}
       UseMinimatch: true

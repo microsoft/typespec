@@ -113,6 +113,8 @@ words:
   - xlarge
   - xplat
   - TCGC
+  - VITE
+  - uncollapsed
   - nupkg
 ignorePaths:
   - "**/node_modules/**"
@@ -128,8 +130,14 @@ ignorePaths:
   - packages/compiler/test/formatter/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
+  - ".git/**"
+  - ".gitignore"
+  - ".vscode/**"
+  - ".editorconfig"
+  - .github/CODEOWNERS
   - packages/samples/test/output/**
 useGitignore: true
+enableGlobDot: true
 enableFiletypes:
   - cadl
 patterns:

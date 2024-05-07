@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix: Model with spread indexer shouldn't validate explicit properties
+Templated interface extending another templated interface shouldn't run decorator on their operations
