@@ -7,7 +7,6 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
 import { CharCode } from "../core/charcode.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
@@ -41,7 +40,6 @@ import { getSymbolDetails } from "./type-details.js";
 export type CompletionContext = {
   program: Program;
   params: CompletionParams;
-  document: TextDocument;
   file: TypeSpecScriptNode;
   completions: CompletionList;
 };
@@ -267,9 +265,9 @@ function addModelCompletion(
   node: ModelStatementNode | ModelExpressionNode
 ) {
   // skip the scenario like `{ ... }|`
-  const cur = context.document.offsetAt(context.params.position);
-  if (cur === node.end) {
-    const endChar = context.file.file.text.charCodeAt(cur - 1);
+  const { line, character } = context.file.file.getLineAndCharacterOfPosition(node.end);
+  if (line === context.params.position.line && character === context.params.position.character) {
+    const endChar = context.file.file.text.charCodeAt(node.end - 1);
     if (endChar === CharCode.CloseBrace) {
       return;
     }

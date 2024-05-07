@@ -676,7 +676,6 @@ export function createServer(host: ServerHost): Server {
         {
           program,
           file: script,
-          document,
           completions,
           params,
         },
