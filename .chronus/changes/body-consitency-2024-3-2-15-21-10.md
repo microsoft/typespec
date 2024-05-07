@@ -6,4 +6,4 @@ packages:
   - "@typespec/rest"
 ---
 
-Add supoort for new `@bodyRoot` and `@body` distinction
+Add support for new `@bodyRoot` and `@body` distinction

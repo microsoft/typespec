@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Model with an optional property should not be satisfy a constraint with that property required. (`{foo?: string}` cannot be assigned to a constraint of `{foo: string}`)
+Model with an optional property should not satisfy a constraint with that property required. (`{foo?: string}` cannot be assigned to a constraint of `{foo: string}`)
