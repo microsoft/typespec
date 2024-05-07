@@ -40,7 +40,7 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-      arguments: -BuildArtifactsPath '${{ parameters.ArtifactName }}'
+      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
       workingDirectory: $(selfRepositoryPath)
 
   - task: PowerShell@2
