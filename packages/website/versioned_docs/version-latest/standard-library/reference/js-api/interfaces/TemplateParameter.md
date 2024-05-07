@@ -11,8 +11,8 @@ title: "[I] TemplateParameter"
 
 | Property | Type | Description | Overrides | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
-| `constraint?` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | - | - | - |
-| `default?` | [`Type`](../type-aliases/Type.md) | - | - | - |
+| `constraint?` | [`MixedParameterConstraint`](MixedParameterConstraint.md) | - | - | - |
+| `default?` | [`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md) | - | - | - |
 | `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
 | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
 | `kind` | `"TemplateParameter"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |

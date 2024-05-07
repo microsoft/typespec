@@ -11,7 +11,7 @@ getTypeName(type, options?): string
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](../interfaces/ValueType.md) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 | `options`? | [`TypeNameOptions`](../interfaces/TypeNameOptions.md) |
 
 ## Returns

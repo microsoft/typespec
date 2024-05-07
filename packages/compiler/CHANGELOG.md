@@ -1,5 +1,34 @@
 # Change Log - @typespec/compiler
 
+## 0.56.0
+
+### Bug Fixes
+
+- [#3170](https://github.com/microsoft/typespec/pull/3170) `--nostdlib` flag will now work by only applying to optional standard library types
+- [#3212](https://github.com/microsoft/typespec/pull/3212) Fix: augmenting template model property could result in sending invalid argument to decorator
+- [#3188](https://github.com/microsoft/typespec/pull/3188) Fix: Do not crash when trying to access member of aliased expressions
+- [#3185](https://github.com/microsoft/typespec/pull/3185) Fix tsp init hanging when done due to unclosed connection
+- [#3151](https://github.com/microsoft/typespec/pull/3151) IDE: Fix completion of statement keywords
+- [#3287](https://github.com/microsoft/typespec/pull/3287) Templated interface extending another templated interface shouldn't run decorator on their operations
+- [#3290](https://github.com/microsoft/typespec/pull/3290) Model with an optional property should not satisfy a constraint with that property required. (`{foo?: string}` cannot be assigned to a constraint of `{foo: string}`)
+- [#3163](https://github.com/microsoft/typespec/pull/3163) Fix: Model with spread indexer shouldn't validate explicit properties
+- [#3227](https://github.com/microsoft/typespec/pull/3227) Stop running decorators on partially instantiated operations(When interface is instantiated but not the operation)
+- [#3180](https://github.com/microsoft/typespec/pull/3180) Fix issue where directives were not parsed to the leaf node in multi-segment Namespace segments.
+- [#3243](https://github.com/microsoft/typespec/pull/3243) Fix calling `tsp install` on windows due to recent NodeJS breaking change to fix vulnerability.
+- [#3216](https://github.com/microsoft/typespec/pull/3216) Fix compiler crash when using an invalid `is` target in an interface operation template
+- [#3246](https://github.com/microsoft/typespec/pull/3246) Internals: Use node built-in `fetch` API that is now stable since node `18.13.0`
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Features
+
+- [#3035](https://github.com/microsoft/typespec/pull/3035) `getEncode` returns the fully qualified enum member name if using a custom enum.
+- [#3183](https://github.com/microsoft/typespec/pull/3183) Show template parameters when hovering on an operation template
+- [#3191](https://github.com/microsoft/typespec/pull/3191) [API] Add new `sourceModels` property to model
+
+
 ## 0.55.0
 
 ### Bug Fixes

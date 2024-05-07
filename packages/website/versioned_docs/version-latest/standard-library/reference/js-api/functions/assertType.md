@@ -17,29 +17,30 @@ Assert that the input type has one of the kinds provided
 | Type parameter |
 | :------ |
 | `TKind` extends (
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
   \| `"Enum"`
-  \| `"EnumMember"`
-  \| `"TemplateParameter"`
-  \| `"Namespace"`
+  \| `"Interface"`
+  \| `"Intrinsic"`
+  \| `"Model"`
   \| `"Operation"`
-  \| `"String"`
-  \| `"Number"`
+  \| `"Scalar"`
+  \| `"Union"`
   \| `"Boolean"`
+  \| `"Decorator"`
+  \| `"EnumMember"`
+  \| `"FunctionParameter"`
+  \| `"Function"`
+  \| `"ModelProperty"`
+  \| `"Namespace"`
+  \| `"Number"`
+  \| `"Object"`
+  \| `"Projection"`
+  \| `"ScalarConstructor"`
+  \| `"String"`
   \| `"StringTemplate"`
   \| `"StringTemplateSpan"`
+  \| `"TemplateParameter"`
   \| `"Tuple"`
-  \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"`)[] |
+  \| `"UnionVariant"`)[] |
 
 ## Parameters
 

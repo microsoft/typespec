@@ -11,7 +11,7 @@ isNeverType(type): type is NeverType
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Entity`](../type-aliases/Entity.md) |
 
 ## Returns
 

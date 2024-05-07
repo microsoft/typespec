@@ -19,6 +19,7 @@ title: "[I] StringTemplate"
 | `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
 | `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
 | `spans` | [`StringTemplateSpan`](../type-aliases/StringTemplateSpan.md)[] | - | - | - |
+| `stringValue?` | `string` | If the template can be render as as string this is the string value | - | - |
 
 ## Accessors
 

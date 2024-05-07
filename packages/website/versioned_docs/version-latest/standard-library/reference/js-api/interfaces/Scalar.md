@@ -12,6 +12,7 @@ title: "[I] Scalar"
 | Property | Type | Description | Overrides | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
 | `baseScalar?` | [`Scalar`](Scalar.md) | Scalar this scalar extends. | - | - |
+| `constructors` | `Map`<`string`, [`ScalarConstructor`](ScalarConstructor.md)\> | - | - | - |
 | `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
 | `derivedScalars` | [`Scalar`](Scalar.md)[] | Direct children. This is the reverse relation of<br /><br />**See**<br />baseScalar | - | - |
 | `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
@@ -23,7 +24,7 @@ title: "[I] Scalar"
 | `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
 | `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
 | `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
-| ~~`templateArguments?`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
+| ~~`templateArguments?`~~ | ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
 | `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` |
 | `templateNode?` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` |
 

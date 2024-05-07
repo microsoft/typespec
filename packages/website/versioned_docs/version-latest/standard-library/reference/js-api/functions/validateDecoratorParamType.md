@@ -18,29 +18,30 @@ Validate a decorator parameter has the correct type.
 | Type parameter |
 | :------ |
 | `K` extends 
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
   \| `"Enum"`
-  \| `"EnumMember"`
-  \| `"TemplateParameter"`
-  \| `"Namespace"`
+  \| `"Interface"`
+  \| `"Intrinsic"`
+  \| `"Model"`
   \| `"Operation"`
-  \| `"String"`
-  \| `"Number"`
+  \| `"Scalar"`
+  \| `"Union"`
   \| `"Boolean"`
+  \| `"Decorator"`
+  \| `"EnumMember"`
+  \| `"FunctionParameter"`
+  \| `"Function"`
+  \| `"ModelProperty"`
+  \| `"Namespace"`
+  \| `"Number"`
+  \| `"Object"`
+  \| `"Projection"`
+  \| `"ScalarConstructor"`
+  \| `"String"`
   \| `"StringTemplate"`
   \| `"StringTemplateSpan"`
+  \| `"TemplateParameter"`
   \| `"Tuple"`
-  \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"` |
+  \| `"UnionVariant"` |
 
 ## Parameters
 

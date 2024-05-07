@@ -11,6 +11,7 @@ title: "[I] BaseType"
 - [`Model`](Model.md)
 - [`ModelProperty`](ModelProperty.md)
 - [`Scalar`](Scalar.md)
+- [`ScalarConstructor`](ScalarConstructor.md)
 - [`Interface`](Interface.md)
 - [`Enum`](Enum.md)
 - [`EnumMember`](EnumMember.md)
@@ -28,7 +29,7 @@ title: "[I] BaseType"
 - [`TemplateParameter`](TemplateParameter.md)
 - [`Decorator`](Decorator.md)
 - [`FunctionType`](FunctionType.md)
-- [`FunctionParameter`](FunctionParameter.md)
+- [`FunctionParameterBase`](FunctionParameterBase.md)
 
 ## Properties
 

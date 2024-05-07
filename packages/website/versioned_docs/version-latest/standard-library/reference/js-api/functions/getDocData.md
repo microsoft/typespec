@@ -18,6 +18,6 @@ Get the documentation information for the given type. In most cases you probably
 
 ## Returns
 
-[`DocData`](../interfaces/DocData.md) \| `undefined`
+`DocData` \| `undefined`
 
 Doc data with source information.

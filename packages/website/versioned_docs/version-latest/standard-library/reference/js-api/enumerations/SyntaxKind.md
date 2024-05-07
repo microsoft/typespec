@@ -11,10 +11,13 @@ AST types
 | :------ | :------ | :------ |
 | `AliasStatement` | `24` | - |
 | `ArrayExpression` | `31` | - |
+| `ArrayLiteral` | `96` | - |
 | `AugmentDecoratorStatement` | `4` | - |
 | `BlockComment` | `51` | - |
 | `BooleanLiteral` | `34` | - |
 | `CadlScript` | `0` | **Deprecated**<br />Use TypeSpecScript |
+| `CallExpression` | `98` | - |
+| `ConstStatement` | `97` | - |
 | `DecoratorDeclarationStatement` | `25` | - |
 | `DecoratorExpression` | `5` | - |
 | `DirectiveExpression` | `6` | - |
@@ -48,6 +51,9 @@ AST types
 | `NamespaceStatement` | `8` | - |
 | `NeverKeyword` | `42` | - |
 | `NumericLiteral` | `33` | - |
+| `ObjectLiteral` | `93` | - |
+| `ObjectLiteralProperty` | `94` | - |
+| `ObjectLiteralSpreadProperty` | `95` | - |
 | `OperationSignatureDeclaration` | `11` | - |
 | `OperationSignatureReference` | `12` | - |
 | `OperationStatement` | `10` | - |
@@ -83,6 +89,7 @@ AST types
 | `ProjectionUnionSelector` | `65` | - |
 | `ProjectionUnionVariantSelector` | `66` | - |
 | `Return` | `89` | - |
+| `ScalarConstructor` | `99` | - |
 | `ScalarStatement` | `17` | - |
 | `StringLiteral` | `32` | - |
 | `StringTemplateExpression` | `35` | - |
@@ -93,6 +100,7 @@ AST types
 | `TemplateArgument` | `91` | - |
 | `TemplateParameterDeclaration` | `47` | - |
 | `TupleExpression` | `30` | - |
+| `TypeOfExpression` | `92` | - |
 | `TypeReference` | `45` | - |
 | `TypeSpecScript` | `0` | - |
 | `UnionExpression` | `28` | - |

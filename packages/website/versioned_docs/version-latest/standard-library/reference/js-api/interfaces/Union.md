@@ -18,12 +18,12 @@ title: "[I] Union"
 | `kind` | `public` | `"Union"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
 | `name?` | `public` | `string` | - | - | - |
 | `namespace?` | `public` | [`Namespace`](Namespace.md) | - | - | - |
-| `node` | `public` | [`UnionStatementNode`](UnionStatementNode.md) \| [`UnionExpressionNode`](UnionExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `node` | `public` | [`UnionExpressionNode`](UnionExpressionNode.md) \| [`UnionStatementNode`](UnionStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
 | ~~`options`~~ | `readonly` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use variants | - | - |
 | `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
 | `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
 | `projector?` | `public` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
-| ~~`templateArguments?`~~ | `public` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
+| ~~`templateArguments?`~~ | `public` | ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
 | `templateMapper?` | `public` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` |
 | `templateNode?` | `public` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` |
 | `variants` | `public` | `RekeyableMap`<`string` \| `symbol`, [`UnionVariant`](UnionVariant.md)\> | The variants of the union.<br /><br />Variants are ordered in order that they appear in source. | - | - |

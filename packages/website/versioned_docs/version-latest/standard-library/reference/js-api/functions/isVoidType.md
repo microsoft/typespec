@@ -11,7 +11,7 @@ isVoidType(type): type is VoidType
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Entity`](../type-aliases/Entity.md) |
 
 ## Returns
 

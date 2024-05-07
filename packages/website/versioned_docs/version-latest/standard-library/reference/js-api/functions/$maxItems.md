@@ -16,7 +16,7 @@ $maxItems(
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
-| `value` | `number` |
+| `value` | [`Numeric`](../interfaces/Numeric.md) |
 
 ## Returns
 

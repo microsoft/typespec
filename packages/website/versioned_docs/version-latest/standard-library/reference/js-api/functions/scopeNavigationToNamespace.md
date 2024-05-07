@@ -16,7 +16,7 @@ Scope the current navigation to the given namespace.
 
 | Type parameter |
 | :------ |
-| `T` extends `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` |
+| `T` extends `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` |
 
 ## Parameters
 

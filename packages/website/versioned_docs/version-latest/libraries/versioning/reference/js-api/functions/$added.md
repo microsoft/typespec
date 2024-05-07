@@ -15,7 +15,7 @@ $added(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `target` |  \| `Scalar` \| `ModelProperty` \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `Operation` \| `Union` \| `UnionVariant` |
 | `version` | `EnumMember` |
 
 ## Returns

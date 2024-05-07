@@ -18,6 +18,6 @@ Get the documentation information for the return errors types of an operation. I
 
 ## Returns
 
-[`DocData`](../interfaces/DocData.md) \| `undefined`
+`DocData` \| `undefined`
 
 Doc data with source information.

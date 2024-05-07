@@ -18,11 +18,11 @@ title: "[I] Decorator"
 | `name` | \`@${string}\` | - | - | - |
 | `namespace` | [`Namespace`](Namespace.md) | - | - | - |
 | `node` | [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
-| `parameters` | [`FunctionParameter`](FunctionParameter.md)[] | - | - | - |
+| `parameters` | [`MixedFunctionParameter`](MixedFunctionParameter.md)[] | - | - | - |
 | `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
 | `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
 | `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
-| `target` | [`FunctionParameter`](FunctionParameter.md) | - | - | - |
+| `target` | [`MixedFunctionParameter`](MixedFunctionParameter.md) | - | - | - |
 
 ## Accessors
 
