@@ -127,7 +127,7 @@ stages:
       - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
         parameters:
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          DependsOn: Build_linus_20
+          DependsOn: Build_linux_20
           ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
           Artifacts:
             - ${{ each package in parameters.Packages }}:
