@@ -26,7 +26,7 @@ jobs:
           filePath: $(Build.SourcesDirectory)/eng/emitters/scripts/Detect-Api-Changes.ps1
           arguments: >
             -ArtifactList ('${{ convertToJson(parameters.Artifacts) }}' | ConvertFrom-Json | Select-Object Name)
-            -ArtifactPath ${{parameters.ArtifactPath}}/build_artifacts/${{parameters.LanguageShortName}}/packages
+            -ArtifactPath ${{parameters.ArtifactPath}}/${{parameters.LanguageShortName}}/packages
             -CommitSha '$(Build.SourceVersion)'
             -BuildId $(Build.BuildId)
             -PullRequestNumber $(System.PullRequest.PullRequestNumber)
