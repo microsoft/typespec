@@ -1,0 +1,210 @@
+> @typespec/monorepo@0.0.1 change /Users/timotheeguerin/dev/azsdk/typespec
+> chronus "changelog" "--policy" "typespec"
+
+# 0.56.0
+
+## Bug Fixes
+
+### @typespec/compiler
+
+- [#3170](https://github.com/microsoft/typespec/pull/3170) `--nostdlib` flag will now work by only applying to optional standard library types
+- [#3212](https://github.com/microsoft/typespec/pull/3212) Fix: augmenting template model property could result in sending invalid argument to decorator
+- [#3188](https://github.com/microsoft/typespec/pull/3188) Fix: Do not crash when trying to access member of aliased expressions
+- [#3185](https://github.com/microsoft/typespec/pull/3185) Fix tsp init hanging when done due to unclosed connection
+- [#3151](https://github.com/microsoft/typespec/pull/3151) IDE: Fix completion of statement keywords
+- [#3287](https://github.com/microsoft/typespec/pull/3287) Templated interface extending another templated interface shouldn't run decorator on their operations
+- [#3290](https://github.com/microsoft/typespec/pull/3290) Model with an optional property should not be satisfy a constraint with that property required. (`{foo?: string}` cannot be assigned to a constraint of `{foo: string}`)
+- [#3163](https://github.com/microsoft/typespec/pull/3163) Fix: Model with spread indexer shouldn't validate explicit properites
+- [#3227](https://github.com/microsoft/typespec/pull/3227) Stop running decorators on partially instantiated operations(When interface is instantiated but not the operation)
+- [#3180](https://github.com/microsoft/typespec/pull/3180) Fix issue where directives were not parsed to the leaf node in multi-segment Namespace segments.
+- [#3243](https://github.com/microsoft/typespec/pull/3243) Fix calling `tsp install` on windows due to recent NodeJS breaking change to fix vulnerability.
+- [#3216](https://github.com/microsoft/typespec/pull/3216) Fix compiler crash when using an invalid `is` target in an interface operation template
+- [#3191](https://github.com/microsoft/typespec/pull/3191) [API] Add new `sourceModels` property to model
+- [#3246](https://github.com/microsoft/typespec/pull/3246) Internals: Use node built-in `fetch` API that is now stable since node `18.13.0`
+
+### @typespec/http
+
+- [#3196](https://github.com/microsoft/typespec/pull/3196) Fix password flow defining `authorizationUrl` instead of `tokenUrl`
+- [#3190](https://github.com/microsoft/typespec/pull/3190) Fix `@path` param mapping when spreading a record in operation parameters
+- [#3218](https://github.com/microsoft/typespec/pull/3218) Fix: `@path` property shouldn't be applicableMetadata if the visibility contain `Read`
+
+### @typespec/versioning
+
+- [#3264](https://github.com/microsoft/typespec/pull/3264) Fix crash when `@service` inside a versioned namespace
+
+### @typespec/openapi3
+
+- [#3218](https://github.com/microsoft/typespec/pull/3218) Fix: `@path` property should be included in unreachable models
+
+### @typespec/html-program-viewer
+
+- [#3191](https://github.com/microsoft/typespec/pull/3191) Add `sourceModels` property to model view
+
+## Bump dependencies
+
+### @typespec/compiler
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/http
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/versioning
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/rest
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/openapi
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/openapi3
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/protobuf
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/prettier-plugin-typespec
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/eslint-plugin
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/html-program-viewer
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/json-schema
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/internal-build-utils
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### typespec-vscode
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### @typespec/library-linter
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+## Features
+
+### @typespec/compiler
+
+- [#3035](https://github.com/microsoft/typespec/pull/3035) `getEncode` returns the fully equalied enum member name if using a custom enum.
+- [#3183](https://github.com/microsoft/typespec/pull/3183) Show template parameters when hovering on an operation template
+
+### @typespec/rest
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Add support for new `@bodyRoot` and `@body` distinction
+
+### @typespec/openapi3
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Add support for new `@bodyRoot` and `@body` distinction
+
+## Breaking Changes
+
+### @typespec/http
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Empty model after removing metadata and visibility property result in void always
+  This means the following case have changed from returning `{}` to no body
+
+  ```tsp
+  op b1(): {};
+  op b2(): {
+    @visibility("none") prop: string;
+  };
+  op b3(): {
+    @added(Versions.v2) prop: string;
+  };
+  ```
+
+  Workaround: Use explicit `@body`
+
+  ```tsp
+  op b1(): {
+    @body _: {};
+  };
+  op b2(): {
+    @body _: {
+      @visibility("none") prop: string;
+    };
+  };
+  op b3(): {
+    @body _: {
+      @added(Versions.v2) prop: string;
+    };
+  };
+  ```
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Implicit status code always 200 except if response is explicitly `void`
+
+  ```tsp
+  op c1(): {
+    @header foo: string;
+  }; // status code 200 (used to be 204)
+  ```
+
+  Solution: Add explicit `@statusCode`
+
+  ```tsp
+  op c1(): {
+    @header foo: string;
+    @statusCode _: 204;
+  };
+  op c1(): {
+    @header foo: string;
+    ...NoContent;
+  }; // or spread common model
+  ```
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) `@body` means this is the body
+
+  This change makes it that using `@body` will mean exactly this is the body and everything underneath will be included, including metadata properties. It will log a warning explaining that.
+
+  ```tsp
+  op a1(): {@body _: {@header foo: string, other: string} };
+                  ^ warning header in a body, it will not be included as a header.
+  ```
+
+  Solution use `@bodyRoot` as the goal is only to change where to resolve the body from.
+
+  ```tsp
+  op a1(): {
+    @bodyRoot _: {
+      @header foo: string;
+      other: string;
+    };
+  };
+  ```
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Properties are not automatically omitted if everything was removed from metadata or visibility
+
+  ```tsp
+  op d1(): {
+    headers: {
+      @header foo: string;
+    };
+  }; // body will be {headers: {}}
+  ```
+
+  Solution: use `@bodyIgnore`
+
+  ```tsp
+  op d1(): {
+    @bodyIgnore headers: {
+      @header foo: string;
+    };
+  }; // body will be {headers: {}}
+  ```
