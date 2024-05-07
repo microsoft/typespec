@@ -1195,18 +1195,14 @@
           "Responses": [
             {
               "$id": "150",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -1348,27 +1344,21 @@
           "Responses": [
             {
               "$id": "164",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "73"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/againHi/{p2}",
-          "RequestMediaTypes": [
-            "text/plain"
-          ],
+          "RequestMediaTypes": ["text/plain"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -1497,27 +1487,21 @@
           "Responses": [
             {
               "$id": "177",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "73"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/noContentType/{p2}",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": false
@@ -1562,18 +1546,14 @@
           "Responses": [
             {
               "$id": "182",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -1668,27 +1648,21 @@
           "Responses": [
             {
               "$id": "191",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/literal",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -1835,18 +1809,14 @@
           "Responses": [
             {
               "$id": "208",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -1917,18 +1887,14 @@
           "Responses": [
             {
               "$id": "215",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -1979,18 +1945,14 @@
           "Responses": [
             {
               "$id": "220",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -2085,27 +2047,21 @@
           "Responses": [
             {
               "$id": "229",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "PATCH",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/patch",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": false
@@ -2195,27 +2151,21 @@
           "Responses": [
             {
               "$id": "238",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/anonymousBody",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -2305,27 +2255,21 @@
           "Responses": [
             {
               "$id": "247",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "125"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/friendlyName",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -2389,9 +2333,7 @@
           "Responses": [
             {
               "$id": "254",
-              "StatusCodes": [
-                204
-              ],
+              "StatusCodes": [204],
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false
@@ -2509,9 +2451,7 @@
           "Responses": [
             {
               "$id": "265",
-              "StatusCodes": [
-                204
-              ],
+              "StatusCodes": [204],
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false
@@ -2521,9 +2461,7 @@
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/stringFormat/{subscriptionId}",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -2613,27 +2551,21 @@
           "Responses": [
             {
               "$id": "274",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "133"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/projectedName",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": true,
           "GenerateConvenienceMethod": true
@@ -2678,18 +2610,14 @@
           "Responses": [
             {
               "$id": "279",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "136"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
@@ -2740,9 +2668,7 @@
           "Responses": [
             {
               "$id": "284",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$id": "285",
                 "Kind": "Primitive",
@@ -2752,9 +2678,7 @@
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "GET",
@@ -2849,27 +2773,21 @@
           "Responses": [
             {
               "$id": "294",
-              "StatusCodes": [
-                200
-              ],
+              "StatusCodes": [200],
               "BodyType": {
                 "$ref": "38"
               },
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false,
-              "ContentTypes": [
-                "application/json"
-              ]
+              "ContentTypes": ["application/json"]
             }
           ],
           "HttpMethod": "POST",
           "RequestBodyMediaType": "Json",
           "Uri": "{unbrandedTypeSpecUrl}",
           "Path": "/internalProtocol",
-          "RequestMediaTypes": [
-            "application/json"
-          ],
+          "RequestMediaTypes": ["application/json"],
           "BufferResponse": true,
           "GenerateProtocolMethod": false,
           "GenerateConvenienceMethod": true
@@ -2914,9 +2832,7 @@
           "Responses": [
             {
               "$id": "299",
-              "StatusCodes": [
-                204
-              ],
+              "StatusCodes": [204],
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false
@@ -2990,9 +2906,7 @@
           "Responses": [
             {
               "$id": "306",
-              "StatusCodes": [
-                204
-              ],
+              "StatusCodes": [204],
               "BodyMediaType": "Json",
               "Headers": [],
               "IsErrorResponse": false

@@ -168,7 +168,6 @@ namespace Microsoft.Generator.CSharp
             switch (_serializationFormat)
             {
                 case SerializationFormat.Bytes_Base64Url:
-                // cSpell:disable
                 case SerializationFormat.Bytes_Base64:
                     return $@"
 <para>
@@ -184,7 +183,6 @@ Examples:
 </item>
 </list>
 </para>";
-                /* cSpell:enable */
                 default:
                     return $@"
 <para>
