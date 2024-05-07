@@ -5,4 +5,4 @@ packages:
   - "@typespec/versioning"
 ---
 
-Fix crash when `@service` inside a versioned namespace
+Fix crash when `@service` appears inside a versioned namespace

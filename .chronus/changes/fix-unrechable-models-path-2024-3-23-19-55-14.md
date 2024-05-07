@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-Fix: `@path` property shouldn't be applicableMetadata if the visibility contain `Read`
+Fix: `@path` property shouldn't be applicableMetadata if the visibility contains `Read`
