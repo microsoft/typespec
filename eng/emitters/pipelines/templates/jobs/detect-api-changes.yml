@@ -1,5 +1,4 @@
 parameters:
-  ArtifactPath: $(Agent.BuildDirectory)
   Artifacts: []
   ArtifactName: "packages"
   LanguageShortName: "Unknown"
@@ -14,7 +13,7 @@ jobs:
       os: linux
     steps:
       - download: current
-        artifact: build_artifacts
+        artifact: ${{ parameters.ArtifactName }}
         displayName: Download build artifacts
       - pwsh: |
           $apiChangeDetectRequestUrl = "https://apiview.dev/PullRequest/DetectApiChanges"
@@ -27,7 +26,7 @@ jobs:
           filePath: $(Build.SourcesDirectory)/eng/emitters/scripts/Detect-Api-Changes.ps1
           arguments: >
             -ArtifactList ('${{ convertToJson(parameters.Artifacts) }}' | ConvertFrom-Json | Select-Object Name)
-            -ArtifactPath ${{parameters.ArtifactPath}}/build_artifacts_${{parameters.LanguageShortName}}/packages
+            -ArtifactPath $(Agent.BuildDirectory)/${{ parameters.ArtifactName }}
             -CommitSha '$(Build.SourceVersion)'
             -BuildId $(Build.BuildId)
             -PullRequestNumber $(System.PullRequest.PullRequestNumber)

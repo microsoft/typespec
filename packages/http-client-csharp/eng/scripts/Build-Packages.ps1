@@ -21,7 +21,7 @@ function Write-PackageInfo {
         [string] $directoryPath
     )
 
-    $packageInfoPath = "$outputPath/packages/PackageInfo"
+    $packageInfoPath = "$outputPath/PackageInfo"
 
     if (!(Test-Path $packageInfoPath)) {
         New-Item -ItemType Directory -Force -Path $packageInfoPath | Out-Null

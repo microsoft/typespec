@@ -73,7 +73,7 @@ steps:
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Build-Packages.ps1
       arguments: >
         -BuildNumber "$(Build.BuildNumber)"
-        -Output "$(Build.ArtifactStagingDirectory)/${{ parameters.LanguageShortName }}"
+        -Output "$(Build.ArtifactStagingDirectory)"
         -PublishType:"${{ parameters.Publish }}"
         -Prerelease:$${{ parameters.BuildPrereleaseVersion }}
       workingDirectory: $(selfRepositoryPath)

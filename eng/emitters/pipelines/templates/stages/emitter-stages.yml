@@ -128,6 +128,7 @@ stages:
         parameters:
           LanguageShortName: ${{ parameters.LanguageShortName }}
           DependsOn: Build_linus_20
+          ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
           Artifacts:
             - ${{ each package in parameters.Packages }}:
                 - name: ${{ package.name }}
