@@ -1997,33 +1997,37 @@ export function createChecker(program: Program): Checker {
 
   function checkDecoratorLegacyMarshalling(decorator: Decorator) {
     const marshalling = resolveDecoratorArgMarshalling(decorator);
+    function reportDeprecatedLegacyMarshalling(param: MixedFunctionParameter, message: string) {
+      reportDeprecated(
+        program,
+        [
+          `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting ${message}.`,
+          `This will change in the future.`,
+          'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
+        ].join("\n"),
+        param.node
+      );
+    }
     if (marshalling === "legacy") {
       for (const param of decorator.parameters) {
         if (param.type.valueType) {
           if (ignoreDiagnostics(isTypeAssignableTo(nullType, param.type.valueType, param.type))) {
-            reportDeprecated(
-              program,
-              [
-                `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting null as a type.`,
-                `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
-              ].join("\n"),
-              param.node
-            );
+            reportDeprecatedLegacyMarshalling(param, "null as a type");
+          } else if (
+            param.type.valueType.kind === "Enum" ||
+            param.type.valueType.kind === "EnumMember" ||
+            (isReflectionType(param.type.valueType) && param.type.valueType.name === "EnumMember")
+          ) {
+            reportDeprecatedLegacyMarshalling(param, "enum members");
           } else if (
             ignoreDiagnostics(
               isTypeAssignableTo(param.type.valueType, getStdType("numeric"), param.type.valueType)
             ) &&
             !canNumericConstraintBeJsNumber(param.type.valueType)
           ) {
-            reportDeprecated(
-              program,
-              [
-                `Parameter ${param.name} of decorator ${decorator.name} is using legacy marshalling but is accepting a numeric type that is not representable as a JS Number.`,
-                `This will change in the future.`,
-                'To opt-in today add `export const $flags = {decoratorArgMarshalling: "new"}}` to your library.',
-              ].join("\n"),
-              param.node
+            reportDeprecatedLegacyMarshalling(
+              param,
+              "a numeric type that is not representable as a JS Number"
             );
           }
         }

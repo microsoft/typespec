@@ -365,7 +365,16 @@ export type Value =
 
 interface BaseValue {
   valueKind: string;
-  type: Type; // Every value has a type. That type could be something completely different(much wider type)
+  /**
+   * Represent the storage type of a value.
+   * @example
+   * ```tsp
+   * const a = "hello"; // Type here would be "hello"
+   * const b: string = a;  // Type here would be string
+   * const c: string | int32 = b; // Type here would be string | int32
+   * ```
+   */
+  type: Type;
 }
 
 export interface ObjectValue extends BaseValue {

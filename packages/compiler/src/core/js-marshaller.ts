@@ -56,7 +56,7 @@ export function marshallTypeForJS<T extends Value>(
     case "ArrayValue":
       return arrayValueToJs(value) as any;
     case "EnumValue":
-      return value.value as any;
+      return value as any;
     case "NullValue":
       return null as any;
     case "ScalarValue":
