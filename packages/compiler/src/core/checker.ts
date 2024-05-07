@@ -1187,15 +1187,18 @@ export function createChecker(program: Program): Checker {
     declaredType: TemplateParameter,
     node: TemplateParameterDeclarationNode,
     mapper: TypeMapper
-  ): Type | undefined {
+  ): Type | Value | IndeterminateEntity | null | undefined {
     if (declaredType.default === undefined) {
       return undefined;
     }
-    if (isType(declaredType.default) && isErrorType(declaredType.default)) {
+    if (
+      (isType(declaredType.default) && isErrorType(declaredType.default)) ||
+      declaredType.default === null
+    ) {
       return declaredType.default;
     }
 
-    return getTypeForNode(node.default!, mapper);
+    return checkNode(node.default!, mapper);
   }
 
   function checkTemplateParameterDefault(
@@ -1205,18 +1208,18 @@ export function createChecker(program: Program): Checker {
     constraint: Entity | undefined
   ): Type | Value | IndeterminateEntity {
     function visit(node: Node) {
-      const type = checkNode(node);
+      const entity = checkNode(node);
       let hasError = false;
-      if (type !== null && "kind" in type && type.kind === "TemplateParameter") {
+      if (entity !== null && "kind" in entity && entity.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
-          if (type.node.symbol === templateParameters[i].symbol) {
+          if (entity.node.symbol === templateParameters[i].symbol) {
             reportCheckerDiagnostic(
               createDiagnostic({ code: "invalid-template-default", target: node })
             );
             return undefined;
           }
         }
-        return type;
+        return entity;
       }
 
       visitChildren(node, (x) => {
@@ -1226,7 +1229,7 @@ export function createChecker(program: Program): Checker {
         }
       });
 
-      return hasError ? undefined : type;
+      return hasError ? undefined : entity;
     }
     const type = visit(nodeDefault) ?? errorType;
 

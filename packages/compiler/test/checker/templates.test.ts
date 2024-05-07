@@ -8,6 +8,7 @@ import {
   TestHost,
   createTestHost,
   createTestRunner,
+  expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
@@ -110,6 +111,22 @@ describe("compiler: templates", () => {
     strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
     strictEqual((b.type as StringLiteral).value, "hi");
+  });
+
+  it("indeterminate defaults", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model B<T extends valueof string> {}
+        @test model A<T extends valueof string = ""> {
+          b: B<T>
+        }
+        alias Test = A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("allows default template parameters that are models", async () => {
