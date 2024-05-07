@@ -959,7 +959,16 @@ export function createChecker(program: Program): Checker {
     compilerAssert(entity.metaKind === "Indeterminate", "Expected indeterminate entity");
 
     if (valueConstraint) {
-      return getValueFromIndeterminate(entity.type, valueConstraint, node);
+      const valueDiagnostics: Diagnostic[] = [];
+      const oldDiagnosticHook = onCheckerDiagnostic;
+      onCheckerDiagnostic = (x: Diagnostic) => valueDiagnostics.push(x);
+      const result = getValueFromIndeterminate(entity.type, valueConstraint, node);
+      onCheckerDiagnostic = oldDiagnosticHook;
+      if (result) {
+        // If there were diagnostic reported but we still got a value this means that the value might be invalid.
+        reportCheckerDiagnostics(valueDiagnostics);
+        return result;
+      }
     }
 
     return entity.type;

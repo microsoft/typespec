@@ -905,7 +905,7 @@ describe("compiler: checker: type relations", () => {
         { source: `{foo?: string}`, target: `{foo: string}` },
         {
           code: "property-required",
-          message: "Property 'foo' is required in type '(anonymous model)' but here is optional.",
+          message: "Property 'foo' is required in type '{ foo: string }' but here is optional.",
         }
       );
     });

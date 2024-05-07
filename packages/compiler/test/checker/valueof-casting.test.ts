@@ -42,3 +42,13 @@ it("ambiguous valueof with type option still emit ambiguous error", async () => 
       "Value 123 type is ambiguous between int32, int64. To resolve be explicit when instantiating this value(e.g. 'int32(123)').",
   });
 });
+
+it("passing an enum member to 'EnumMember | valueof string' pass the type", async () => {
+  const entity = await compileValueOrType(
+    "Reflection.EnumMember | valueof string",
+    `A.a`,
+    `enum A { a }`
+  );
+  ok(isType(entity));
+  strictEqual(entity.kind, "EnumMember");
+});
