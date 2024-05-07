@@ -5363,7 +5363,7 @@ export function createChecker(program: Program): Checker {
     const name = node.id.sv;
     const links = getSymbolLinksForMember(node);
     if (links && links.declaredType && mapper === undefined) {
-      // we're not instantiating this union variant and we've already checked it
+      // we're not instantiating this scalar constructor and we've already checked it
       return links.declaredType as ScalarConstructor;
     }
 
