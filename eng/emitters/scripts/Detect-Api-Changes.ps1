@@ -20,6 +20,8 @@ Param (
   [string] $LanguageShortName = "Unknown"
 )
 
+. (Join-Path $PSScriptRoot "../../common/scripts/git-helpers.ps1")
+
 if ($LanguageShortName -eq "Unknown")
 {
     Write-Host "Language short name is not provided. Please provide the language short name."
