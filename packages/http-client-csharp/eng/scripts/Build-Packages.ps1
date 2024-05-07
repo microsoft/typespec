@@ -69,7 +69,7 @@ try {
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
 
-    Write-PackageInfo -packageName "typespec-http-client-csharp" -directoryPath "/packages/http-client-csharp/emitter/src"
+    Write-PackageInfo -packageName "typespec-http-client-csharp" -directoryPath "packages/http-client-csharp/emitter/src"
 }
 finally
 {
@@ -83,10 +83,10 @@ try {
     # pack the generator
     $file = Invoke-LoggedCommand "dotnet pack -c Release -o $outputPath/packages"
 
-    Write-PackageInfo -packageName "Microsoft.Generator.CSharp" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp/src"
-    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.ClientModel" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.ClientModel/src"
-    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Input" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Input/src"
-    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Customization" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Customization/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp" -directoryPath "packages/http-client-csharp/generator/Microsoft.Generator.CSharp/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.ClientModel" -directoryPath "packages/http-client-csharp/generator/Microsoft.Generator.CSharp.ClientModel/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Input" -directoryPath "packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Input/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Customization" -directoryPath "packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Customization/src"
 }
 finally
 {
