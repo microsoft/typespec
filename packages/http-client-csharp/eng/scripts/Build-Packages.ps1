@@ -15,6 +15,24 @@ Set-ConsoleEncoding
 
 $outputPath = $Output ? $Output : "$packageRoot/ci-build"
 
+function Write-PackageInfo {
+    param(
+        [string] $packageName,
+        [string] $directoryPath
+    )
+
+    $packageInfoPath = "$outputPath/packages/PackageInfo"
+
+    if (!(Test-Path $packageInfoPath)) {
+        New-Item -ItemType Directory -Force -Path $packageInfoPath | Out-Null
+    }
+
+    @{
+        DirectoryPath = $directoryPath
+        IsNewSdk = $true
+    } | ConvertTo-Json | Set-Content -Path "$packageInfoPath/$packageName.json"
+}
+
 # create the output folders
 $outputPath = New-Item -ItemType Directory -Force -Path $outputPath | Select-Object -ExpandProperty FullName
 New-Item -ItemType Directory -Force -Path "$outputPath/packages" | Out-Null
@@ -50,6 +68,8 @@ try {
     #pack the emitter
     $file = Invoke-LoggedCommand "npm pack -q"
     Copy-Item $file -Destination "$outputPath/packages"
+
+    Write-PackageInfo -packageName "typespec-http-client-csharp" -directoryPath "/packages/http-client-csharp/emitter/src"
 }
 finally
 {
@@ -62,6 +82,11 @@ try {
 
     # pack the generator
     $file = Invoke-LoggedCommand "dotnet pack -c Release -o $outputPath/packages"
+
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.ClientModel" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.ClientModel/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Input" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Input/src"
+    Write-PackageInfo -packageName "Microsoft.Generator.CSharp.Customization" -directoryPath "/packages/http-client-csharp/generator/Microsoft.Generator.CSharp.Customization/src"
 }
 finally
 {

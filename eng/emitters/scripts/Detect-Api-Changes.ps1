@@ -75,9 +75,8 @@ function Submit-Request($filePath, $packageName)
     return $StatusCode
 }
 
-function Should-Process-Package($pkgPath, $packageName)
+function Should-Process-Package($packageName)
 {
-    $pkg = Split-Path -Leaf $pkgPath
     $configFileDir = Join-Path -Path $ArtifactPath "PackageInfo"
     $pkgPropPath = Join-Path -Path $configFileDir "$packageName.json"
     if (!(Test-Path $pkgPropPath))
@@ -116,7 +115,7 @@ foreach ($artifact in $ArtifactList)
     if ($packages)
     {
         $pkgPath = $packages.Values[0]
-        $isRequired = Should-Process-Package -pkgPath $pkgPath -packageName $artifact.name
+        $isRequired = Should-Process-Package -packageName $artifact.name
         Write-Host "Is API change detect required for $($artifact.name):$($isRequired)"
         if ($isRequired -eq $True)
         {
