@@ -7,7 +7,7 @@ packages:
 
 `@body` means this is the body
 
-  This change make using `@body` mean this is the exact body and everything underneath will be included, including metadata properties. If metadata properties are present on the body, a warning will be logged.
+  This change makes using `@body` mean this is the exact body and everything underneath will be included, including metadata properties. If metadata properties are present on the body, a warning will be logged.
   
   ```tsp
   op a1(): {@body _: {@header foo: string, other: string} };
