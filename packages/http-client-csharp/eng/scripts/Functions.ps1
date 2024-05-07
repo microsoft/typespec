@@ -14,7 +14,7 @@ function Find-Artifacts-For-Apireview($artifactDir, $packageName)
 {
     # Find all nupkg files in given artifact directory
     $packageArtifactPath = Join-Path $artifactDir "packages"
-    $pkg = Get-Package-Artifacts $packageArtifactPath $packageName
+    $pkg = Get-Package-Artifacts $packageArtifactPath "$packageName*"
     if (!$pkg)
     {
         Write-Host "Package is not available in artifact path $($packageArtifactPath)"
