@@ -6,7 +6,7 @@ parameters:
 
 jobs:
   - job: DetectApiChanges
-    dependsOn: $${{ parameters.DependsOn }}
+    dependsOn: ${{ parameters.DependsOn }}
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
