@@ -135,6 +135,10 @@ projection model#v {
         p::setOptional(false);
       };
 
+      if madeRequiredAfter(p, version) {
+        p::setOptional(true);
+      };
+
       if hasDifferentTypeAtVersion(p, version) {
         self::changePropertyType(p::name, getTypeBeforeVersion(p, version));
       };
@@ -161,6 +165,10 @@ projection model#v {
 
       if madeOptionalAfter(p, version) {
         p::setOptional(true);
+      };
+
+      if madeRequiredAfter(p, version) {
+        p::setOptional(false);
       };
 
       if hasDifferentTypeAtVersion(p, version) {
