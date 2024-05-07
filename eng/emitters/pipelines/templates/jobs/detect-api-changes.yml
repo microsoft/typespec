@@ -6,6 +6,7 @@ parameters:
 
 jobs:
   - job: DetectApiChanges
+    dependsOn: Build_linux_20
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)

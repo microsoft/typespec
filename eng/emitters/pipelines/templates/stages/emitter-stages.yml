@@ -125,7 +125,6 @@ stages:
           NodeVersion: 18.x
           Os: windows
       - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
-        dependsOn: Build_linux_20
         parameters:
           LanguageShortName: ${{ parameters.LanguageShortName }}
           Artifacts:
