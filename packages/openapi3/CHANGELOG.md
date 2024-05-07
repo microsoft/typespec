@@ -1,5 +1,20 @@
 # Change Log - @typespec/openapi3
 
+## 0.56.0
+
+### Bug Fixes
+
+- [#3218](https://github.com/microsoft/typespec/pull/3218) Fix: `@path` property should be included in unreachable models
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Features
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Add support for new `@bodyRoot` and `@body` distinction
+
+
 ## 0.55.0
 
 ### Bug Fixes

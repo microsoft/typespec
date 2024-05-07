@@ -4,7 +4,7 @@ title: "[F] resolveVersions"
 
 ---
 ```ts
-resolveVersions(program, rootNs): VersionResolution[]
+resolveVersions(program, namespace): VersionResolution[]
 ```
 
 Resolve the version to use for all namespace for each of the root namespace versions.
@@ -14,7 +14,7 @@ Resolve the version to use for all namespace for each of the root namespace vers
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `program` | `Program` |  |
-| `rootNs` | `Namespace` | Root namespace. |
+| `namespace` | `Namespace` | - |
 
 ## Returns
 
