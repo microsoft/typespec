@@ -248,6 +248,24 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
 
+        /// <summary>
+        /// Required bytes
+        /// <para>
+        /// To assign a byte[] to this property use <see cref="System.BinaryData.FromBytes(byte[])"/>.
+        /// The byte[] will be serialized to a Base64 encoded string.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromBytes(new byte[] { 1, 2, 3 })</term>
+        /// <description>Creates a payload of "AQID".</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public System.BinaryData RequiredBytes { get; set; }
+
         // Add Methods
 
         // Add Nested Type
