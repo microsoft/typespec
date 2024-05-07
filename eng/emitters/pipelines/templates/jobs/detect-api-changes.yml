@@ -1,5 +1,5 @@
 parameters:
-  ArtifactPath: $(Build.ArtifactStagingDirectory)
+  ArtifactPath: $(System.DefaultWorkingDirectory)
   Artifacts: []
   ArtifactName: "packages"
   LanguageShortName: "Unknown"
