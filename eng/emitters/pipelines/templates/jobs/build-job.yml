@@ -48,6 +48,7 @@ parameters:
 
   - name: ArtifactName
     type: string
+    default: ""
 
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
