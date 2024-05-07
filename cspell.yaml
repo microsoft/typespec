@@ -114,6 +114,7 @@ words:
   - xplat
   - TCGC
   - VITE
+  - uncollapsed
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
