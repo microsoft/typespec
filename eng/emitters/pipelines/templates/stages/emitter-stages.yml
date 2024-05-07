@@ -124,6 +124,13 @@ stages:
           LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: windows
+      - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
+        dependsOn: Build_linux_20
+        parameters:
+          LanguageShortName: ${{ parameters.LanguageShortName }}
+          Artifacts:
+            - ${{ each package in parameters.Packages }}:
+                - name: ${{ package.name }}
 
   # Publish stage
   # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
