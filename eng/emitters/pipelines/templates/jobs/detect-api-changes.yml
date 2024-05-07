@@ -12,6 +12,9 @@ jobs:
       image: $(LINUXVMIMAGE)
       os: linux
     steps:
+      - download: current
+        artifact: build_artifacts
+        displayName: Download build artifacts
       - pwsh: |
           $apiChangeDetectRequestUrl = "https://apiview.dev/PullRequest/DetectApiChanges"
           echo "##vso[task.setvariable variable=ApiChangeDetectRequestUrl]$apiChangeDetectRequestUrl"
