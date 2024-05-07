@@ -27,14 +27,15 @@ if ($LanguageShortName -eq "Unknown")
     Write-Host "Language short name is not provided. Please provide the language short name."
     exit 1
 }
-elseif ($LanguageShortName -eq "dotnet")
-{
-    . (Join-Path $PSScriptRoot "/../../../packages/http-client-csharp/eng/scripts/Functions.ps1")
-}
 else
 {
-    Write-Host "Language short name is not supported for API detection."
-    exit 1
+    $functionScriptPath = Join-Path $PSScriptRoot "/../../../packages/http-client-$LanguageShortName/eng/scripts/Functions.ps1"
+    if (!(Test-Path $functionScriptPath))
+    {
+        Write-Host "Functions script path $($functionScriptPath) is invalid."
+        exit 1
+    }
+    . ($functionScriptPath)
 }
 
 # Submit API review request and return status whether current revision is approved or pending or failed to create review

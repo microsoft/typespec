@@ -52,7 +52,7 @@ try {
     Write-Host "BuildArtifactsPath: $BuildArtifactsPath"
     $artifactStagingDirectory = $env:BUILD_ARTIFACTSTAGINGDIRECTORY
     if ($artifactStagingDirectory -and !$BuildArtifactsPath) {
-        $lockFilesPath = "$artifactStagingDirectory/dotnet/lock-files"
+        $lockFilesPath = "$artifactStagingDirectory/lock-files"
         New-Item -ItemType Directory -Path "$lockFilesPath/emitter" | Out-Null
         
         Write-Host "Copying emitter/package.json and emitter/package-lock.json to $lockFilesPath"

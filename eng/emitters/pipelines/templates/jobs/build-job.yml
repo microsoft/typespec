@@ -46,6 +46,9 @@ parameters:
   - name: LanguageShortName
     type: string
 
+  - name: ArtifactName
+    type: string
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -74,4 +77,4 @@ jobs:
         outputs:
           - output: pipelineArtifact
             path: $(Build.ArtifactStagingDirectory)
-            artifact: build_artifacts_${{ parameters.LanguageShortName }}
+            artifact: ${{ parameters.ArtifactName }}
