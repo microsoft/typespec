@@ -36,7 +36,7 @@ parameters:
   - name: LanguageShortName
     type: string
 
-  - name: ArtifactName
+  - name: BuildArtifactName
     type: string
     default: ""
 
@@ -62,7 +62,7 @@ jobs:
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: $(nodeVersion)
-          ArtifactName: ${{ parameters.ArtifactName }}
+          BuildArtifactName: ${{ parameters.BuildArtifactName }}
           ${{ if ne(length(parameters.TestMatrix), 0) }}:
             TestArgs: $(TestArguments)
           ${{ else }}:

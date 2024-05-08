@@ -46,7 +46,7 @@ parameters:
   - name: LanguageShortName
     type: string
 
-  - name: ArtifactName
+  - name: BuildArtifactName
     type: string
     default: ""
 
@@ -78,4 +78,4 @@ jobs:
         outputs:
           - output: pipelineArtifact
             path: $(Build.ArtifactStagingDirectory)
-            artifact: ${{ parameters.ArtifactName }}
+            artifact: ${{ parameters.BuildArtifactName }}

@@ -14,7 +14,7 @@ Param (
   [array] $ArtifactList,
   [string] $APIViewUri,
   [string] $RepoFullName = "",
-  [string] $ArtifactName = "packages",
+  [string] $BuildArtifactName = "",
   [string] $TargetBranch = ("origin/${env:SYSTEM_PULLREQUEST_TARGETBRANCH}" -replace "refs/heads/"),
   [string] $DevopsProject = "internal",
   [string] $LanguageShortName = "Unknown"
@@ -47,7 +47,7 @@ function Submit-Request($filePath, $packageName)
     }
     $reviewFileName = "$($packageName)_$($LanguageShortName).json"
     $query = [System.Web.HttpUtility]::ParseQueryString('')
-    $query.Add('artifactName', $ArtifactName)
+    $query.Add('artifactName', $BuildArtifactName)
     $query.Add('buildId', $BuildId)
     $query.Add('filePath', $filePath)
     $query.Add('commitSha', $CommitSha)
@@ -99,7 +99,7 @@ function Should-Process-Package($packageName)
 function Log-Input-Params()
 {
     Write-Host "Artifact Path: $($ArtifactPath)"
-    Write-Host "Artifact Name: $($ArtifactName)"
+    Write-Host "Artifact Name: $($BuildArtifactName)"
     Write-Host "PullRequest Number: $($PullRequestNumber)"
     Write-Host "BuildId: $($BuildId)"
     Write-Host "Language: $($Language)"

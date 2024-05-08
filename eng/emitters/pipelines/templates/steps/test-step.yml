@@ -22,7 +22,7 @@ parameters:
   - name: LanguageShortName
     type: string
 
-  - name: ArtifactName
+  - name: BuildArtifactName
     type: string
     default: ""
 
@@ -30,7 +30,7 @@ steps:
   - checkout: self
 
   - download: current
-    artifact: ${{ parameters.ArtifactName }}
+    artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
 
   - ${{ parameters.AdditionalInitializeSteps }}
