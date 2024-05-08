@@ -284,7 +284,9 @@ stages:
                     - ${{ each package in parameters.Packages }}:
                         - name: ${{ package.name }}
                   ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  ArtifactPath: $(buildArtifactsPath)
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
 
             templateContext:
               outputs:
