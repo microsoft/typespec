@@ -39,3 +39,4 @@ extends:
               type: nuget
           UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
+          LanguageShortName: "csharp"
