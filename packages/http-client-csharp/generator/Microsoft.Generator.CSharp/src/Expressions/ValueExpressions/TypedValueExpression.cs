@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator TypedValueExpression(PropertyDeclaration property) => new VariableReference(property.PropertyType, property.Name);
         public static implicit operator TypedValueExpression(Parameter parameter) => new ParameterReference(parameter);
 
-        public TypedValueExpression NullableStructValue() => this is not ConstantExpression && Type is { IsNullable: true, IsValueType: true } ? new TypedMemberExpression(this, nameof(Nullable<int>.Value), Type.WithNullable(false)) : this;
+        public TypedValueExpression NullableStructValue() => Type is { IsNullable: true, IsValueType: true } ? new TypedMemberExpression(this, nameof(Nullable<int>.Value), Type.WithNullable(false)) : this;
 
         public TypedValueExpression NullConditional() => Type.IsNullable ? new TypedNullConditionalExpression(this) : this;
 
