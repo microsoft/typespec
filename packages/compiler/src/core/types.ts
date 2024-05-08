@@ -1361,7 +1361,6 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
-// TODO: should this be ScalarConstructorDeclarationNode?
 export interface ScalarConstructorNode extends BaseNode {
   readonly kind: SyntaxKind.ScalarConstructor;
   readonly id: IdentifierNode;
