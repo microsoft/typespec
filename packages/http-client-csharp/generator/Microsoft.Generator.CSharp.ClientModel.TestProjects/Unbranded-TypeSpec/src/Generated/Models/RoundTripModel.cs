@@ -27,28 +27,28 @@ namespace UnbrandedTypeSpec.Models
         public Thing RequiredModel { get; set; }
 
         /// <summary> this is an int based extensible enum. </summary>
-        public string IntExtensibleEnum { get; set; }
+        public int IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<string> IntExtensibleEnumCollection { get; }
+        public IList<int> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public string FloatExtensibleEnum { get; set; }
+        public int FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<string> FloatExtensibleEnumCollection { get; }
+        public IList<int> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
-        public string FloatFixedEnum { get; set; }
+        public float FloatFixedEnum { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<string> FloatFixedEnumCollection { get; }
+        public IList<float> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
-        public string IntFixedEnum { get; set; }
+        public int IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<string> IntFixedEnumCollection { get; }
+        public IList<int> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
         public string StringFixedEnum { get; set; }
