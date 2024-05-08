@@ -56,6 +56,7 @@ export interface DecoratorFunction {
 }
 
 export interface BaseType {
+  readonly entityKind: "Type";
   kind: string;
   node?: Node;
   instantiationParameters?: Type[];
@@ -172,7 +173,7 @@ export interface Projector {
 }
 
 export interface MixedParameterConstraint {
-  readonly metaKind: "MixedParameterConstraint";
+  readonly entityKind: "MixedParameterConstraint";
   readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */
@@ -184,7 +185,7 @@ export interface MixedParameterConstraint {
 
 /** When an entity that could be used as a type or value has not figured out if it is a value or type yet. */
 export interface IndeterminateEntity {
-  readonly metaKind: "Indeterminate";
+  readonly entityKind: "Indeterminate";
   readonly type:
     | StringLiteral
     | StringTemplate
@@ -364,7 +365,8 @@ export type Value =
   | NullValue;
 
 interface BaseValue {
-  valueKind: string;
+  readonly entityKind: "Value";
+  readonly valueKind: string;
   /**
    * Represent the storage type of a value.
    * @example

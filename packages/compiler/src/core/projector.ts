@@ -109,8 +109,8 @@ export function createProjector(
     if (isValue(type)) {
       return type;
     }
-    if ("metaKind" in type) {
-      return { metaKind: "Indeterminate", type: projectType(type.type) as any };
+    if (type.entityKind === "Indeterminate") {
+      return { entityKind: "Indeterminate", type: projectType(type.type) as any };
     }
     if (projectedTypes.has(type)) {
       return projectedTypes.get(type)!;

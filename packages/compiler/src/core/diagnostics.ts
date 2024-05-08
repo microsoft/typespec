@@ -83,7 +83,7 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("valueKind" in target) && !("metaKind" in target)) {
+  if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
     // symbol
     if (target.flags & SymbolFlags.Using) {
       target = target.symbolSource!;

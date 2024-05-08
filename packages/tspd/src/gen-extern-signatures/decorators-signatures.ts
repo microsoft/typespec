@@ -139,7 +139,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
 
     return {
-      metaKind: "MixedParameterConstraint",
+      entityKind: "MixedParameterConstraint",
       type,
       valueType,
     };

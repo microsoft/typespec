@@ -44,10 +44,10 @@ export function isNullType(type: Entity): type is NullType {
 }
 
 export function isType(entity: Entity): entity is Type {
-  return "kind" in entity;
+  return entity.entityKind === "Type";
 }
 export function isValue(entity: Entity): entity is Value {
-  return "valueKind" in entity;
+  return entity.entityKind === "Value";
 }
 
 /**

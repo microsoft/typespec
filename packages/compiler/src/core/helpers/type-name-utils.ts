@@ -90,7 +90,7 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
   } else if (isType(entity)) {
     return getTypeName(entity, options);
   } else {
-    switch (entity.metaKind) {
+    switch (entity.entityKind) {
       case "MixedParameterConstraint":
         return [
           entity.type && getEntityName(entity.type),

@@ -94,6 +94,7 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
 
 type NamedType = Type & { name: string };
 const omittedProps = [
+  "entityKind",
   "kind",
   "name",
   "node",

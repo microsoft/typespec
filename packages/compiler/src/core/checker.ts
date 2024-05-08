@@ -204,7 +204,7 @@ import {
   VoidType,
 } from "./types.js";
 
-export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
+export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
 export interface Checker {
   typePrototype: TypePrototype;
@@ -242,7 +242,7 @@ export interface Checker {
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T
-  ): T & TypePrototype & { isFinished: boolean };
+  ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
   createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T
   ): T & TypePrototype;
@@ -698,7 +698,7 @@ export function createChecker(program: Program): Checker {
     if (entity === null) {
       return errorType;
     }
-    if ("metaKind" in entity) {
+    if (entity.entityKind === "Indeterminate") {
       return entity.type;
     }
     if (isValue(entity)) {
@@ -736,7 +736,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     let entity: Type | Value | null;
-    if ("metaKind" in initial) {
+    if (initial.entityKind === "Indeterminate") {
       entity = getValueFromIndeterminate(initial.type, constraint, node);
     } else {
       entity = initial;
@@ -826,6 +826,7 @@ export function createChecker(program: Program): Checker {
     );
 
     const value: ObjectValue = {
+      entityKind: "Value",
       valueKind: "ObjectValue",
       type: type ?? model,
       node: model.node as any,
@@ -918,6 +919,7 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
+      entityKind: "Value",
       valueKind: "ArrayValue",
       type: type ?? tuple,
       node: tuple.node as any,
@@ -956,7 +958,7 @@ export function createChecker(program: Program): Checker {
     } else if (isValue(entity)) {
       return entity;
     }
-    compilerAssert(entity.metaKind === "Indeterminate", "Expected indeterminate entity");
+    compilerAssert(entity.entityKind === "Indeterminate", "Expected indeterminate entity");
 
     if (valueConstraint) {
       const valueDiagnostics: Diagnostic[] = [];
@@ -1572,7 +1574,7 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
       return errorType;
     }
-    if ("metaKind" in result) {
+    if (result.entityKind === "Indeterminate") {
       return result.type;
     }
     return result;
@@ -1856,7 +1858,7 @@ export function createChecker(program: Program): Checker {
       }
     }
     return {
-      metaKind: "MixedParameterConstraint",
+      entityKind: "MixedParameterConstraint",
       node,
       valueType:
         values.length === 0
@@ -2129,7 +2131,7 @@ export function createChecker(program: Program): Checker {
       const type = node.type
         ? getParamConstraintEntityForNode(node.type)
         : ({
-            metaKind: "MixedParameterConstraint",
+            entityKind: "MixedParameterConstraint",
             type: unknownType,
           } satisfies MixedParameterConstraint);
       parameterType = createType({
@@ -2172,7 +2174,7 @@ export function createChecker(program: Program): Checker {
       default:
         const [kind, entity] = getTypeOrValueOfTypeForNode(node, mapper);
         return {
-          metaKind: "MixedParameterConstraint",
+          entityKind: "MixedParameterConstraint",
           node: node,
           type: kind === "value" ? undefined : entity,
           valueType: kind === "value" ? entity : undefined,
@@ -3310,7 +3312,7 @@ export function createChecker(program: Program): Checker {
       for (const [span, typeOrValue] of spanTypeOrValues) {
         compilerAssert(typeOrValue !== null && !isValue(typeOrValue), "Expected type.");
 
-        const type = "metaKind" in typeOrValue ? typeOrValue.type : typeOrValue;
+        const type = typeOrValue.entityKind === "Indeterminate" ? typeOrValue.type : typeOrValue;
         const spanValue = createTemplateSpanValue(span.expression, type);
         spans.push(spanValue);
         const spanValueAsString = stringifyTypeForTemplate(type);
@@ -3336,7 +3338,7 @@ export function createChecker(program: Program): Checker {
 
   function createIndeterminateEntity(type: IndeterminateEntity["type"]): IndeterminateEntity {
     return {
-      metaKind: "Indeterminate",
+      entityKind: "Indeterminate",
       type,
     };
   }
@@ -3394,21 +3396,21 @@ export function createChecker(program: Program): Checker {
 
   function checkStringLiteral(str: StringLiteralNode): IndeterminateEntity {
     return {
-      metaKind: "Indeterminate",
+      entityKind: "Indeterminate",
       type: getLiteralType(str),
     };
   }
 
   function checkNumericLiteral(num: NumericLiteralNode): IndeterminateEntity {
     return {
-      metaKind: "Indeterminate",
+      entityKind: "Indeterminate",
       type: getLiteralType(num),
     };
   }
 
   function checkBooleanLiteral(bool: BooleanLiteralNode): IndeterminateEntity {
     return {
-      metaKind: "Indeterminate",
+      entityKind: "Indeterminate",
       type: getLiteralType(bool),
     };
   }
@@ -3596,7 +3598,9 @@ export function createChecker(program: Program): Checker {
     // Some of the mapper args are still template parameter so we shouldn't create the type.
     return (
       !mapper.partial &&
-      mapper.args.every((t) => isValue(t) || "metaKind" in t || t.kind !== "TemplateParameter")
+      mapper.args.every(
+        (t) => isValue(t) || t.entityKind === "Indeterminate" || t.kind !== "TemplateParameter"
+      )
     );
   }
 
@@ -3731,6 +3735,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     return {
+      entityKind: "Value",
       valueKind: "ObjectValue",
       node: node,
       properties,
@@ -3836,6 +3841,7 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
+      entityKind: "Value",
       valueKind: "ArrayValue",
       node: node,
       values: values as any,
@@ -3914,6 +3920,7 @@ export function createChecker(program: Program): Checker {
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
+      entityKind: "Value",
       valueKind: "StringValue",
       value,
       type: constraint ? constraint.type : literalType,
@@ -3931,6 +3938,7 @@ export function createChecker(program: Program): Checker {
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
+      entityKind: "Value",
       valueKind: "NumericValue",
       value: Numeric(literalType.valueAsString),
       type: constraint ? constraint.type : literalType,
@@ -3948,6 +3956,7 @@ export function createChecker(program: Program): Checker {
     }
     const scalar = inferScalarForPrimitiveValue(constraint?.type, literalType);
     return {
+      entityKind: "Value",
       valueKind: "BooleanValue",
       value: literalType.value,
       type: constraint ? constraint.type : literalType,
@@ -3965,6 +3974,8 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
+      entityKind: "Value",
+
       valueKind: "NullValue",
       type: constraint ? constraint.type : literalType,
       value: null,
@@ -3980,6 +3991,8 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     return {
+      entityKind: "Value",
+
       valueKind: "EnumValue",
       type: constraint ? constraint.type : literalType,
       value: literalType,
@@ -4130,6 +4143,7 @@ export function createChecker(program: Program): Checker {
       return null;
     }
     return {
+      entityKind: "Value",
       valueKind: "ScalarValue",
       value: {
         name: declaration.name,
@@ -4176,7 +4190,7 @@ export function createChecker(program: Program): Checker {
       // Shouldn't need to emit error as we assume null value already emitted error when produced
       return errorType;
     }
-    if ("metaKind" in entity) {
+    if (entity.entityKind === "Indeterminate") {
       return entity.type;
     }
 
@@ -4889,7 +4903,7 @@ export function createChecker(program: Program): Checker {
     if (resolved === null || isValue(resolved)) {
       return undefined;
     }
-    if ("metaKind" in resolved) {
+    if (resolved.entityKind === "Indeterminate") {
       return resolved.type;
     }
     return resolved;
@@ -5009,7 +5023,7 @@ export function createChecker(program: Program): Checker {
         false,
         node.arguments.map((argNode): DecoratorArgument => {
           let type = checkNode(argNode, mapper) ?? errorType;
-          if ("metaKind" in type) {
+          if (type.entityKind === "Indeterminate") {
             type = type.type;
           }
           return {
@@ -5148,7 +5162,7 @@ export function createChecker(program: Program): Checker {
     }
 
     return {
-      metaKind: "MixedParameterConstraint",
+      entityKind: "MixedParameterConstraint",
       type,
       valueType,
     };
@@ -5864,7 +5878,7 @@ export function createChecker(program: Program): Checker {
 
   function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T
-  ): T & TypePrototype & { isFinished: boolean } {
+  ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" } {
     createType(typeDef);
     return finishType(typeDef as any) as any;
   }
@@ -5876,17 +5890,17 @@ export function createChecker(program: Program): Checker {
    */
   function createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T
-  ): T & TypePrototype & { isFinished: boolean } {
+  ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
     Object.setPrototypeOf(typeDef, typePrototype);
     (typeDef as any).isFinished = false;
 
     // If the type has an associated syntax node, check any directives that
     // might be attached.
     const createdType = typeDef as any;
+    createdType.entityKind = "Type";
     if (createdType.node) {
       checkDirectives(createdType.node, createdType);
     }
-
     return createdType;
   }
 
@@ -7039,11 +7053,11 @@ export function createChecker(program: Program): Checker {
     // BACKCOMPAT: Allow certain type to be accepted as values
     if (
       "kind" in source &&
-      "metaKind" in target &&
+      "entityKind" in target &&
       source.kind === "TemplateParameter" &&
       source.constraint?.type &&
       source.constraint.valueType === undefined &&
-      target.metaKind === "MixedParameterConstraint" &&
+      target.entityKind === "MixedParameterConstraint" &&
       target.valueType
     ) {
       const [assignable] = isTypeAssignableToInternal(
@@ -7068,7 +7082,7 @@ export function createChecker(program: Program): Checker {
     if ("kind" in source && source.kind === "TemplateParameter") {
       source = source.constraint ?? unknownType;
     }
-    if ("metaKind" in target && target.metaKind === "Indeterminate") {
+    if (target.entityKind === "Indeterminate") {
       target = target.type;
     }
 
@@ -7077,11 +7091,11 @@ export function createChecker(program: Program): Checker {
     if (isValue(target)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    if ("metaKind" in source && source.metaKind === "Indeterminate") {
+    if (source.entityKind === "Indeterminate") {
       return isIndeterminateEntityAssignableTo(source, target, diagnosticTarget, relationCache);
     }
 
-    if ("metaKind" in target) {
+    if (target.entityKind === "MixedParameterConstraint") {
       return isAssignableToMixedParameterConstraint(
         source,
         target,
@@ -7090,13 +7104,10 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    if (
-      isValue(source) ||
-      ("metaKind" in source && source.metaKind === "MixedParameterConstraint" && source.valueType)
-    ) {
+    if (isValue(source) || (source.entityKind === "MixedParameterConstraint" && source.valueType)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    if ("metaKind" in source) {
+    if (source.entityKind === "MixedParameterConstraint") {
       return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
     }
 
@@ -7194,7 +7205,7 @@ export function createChecker(program: Program): Checker {
       return [Related.true, []];
     }
 
-    if ("metaKind" in target && target.valueType) {
+    if (target.entityKind === "MixedParameterConstraint" && target.valueType) {
       const [valueRelated] = isTypeAssignableToInternal(
         indeterminate.type,
         target.valueType,
@@ -7229,7 +7240,7 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
-    if ("metaKind" in source && source.metaKind === "MixedParameterConstraint") {
+    if ("entityKind" in source && source.entityKind === "MixedParameterConstraint") {
       if (source.type && target.type) {
         const [variantAssignable, diagnostics] = isTypeAssignableToInternal(
           source.type,
