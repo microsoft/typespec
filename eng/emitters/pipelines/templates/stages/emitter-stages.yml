@@ -255,6 +255,10 @@ stages:
                     displayName: Authenticate .npmrc for npmjs.org
                     workingDirectory: $(buildArtifactsPath)/packages
 
+              - pwsh: |
+                    Write-Host "$(mgcVersion)"
+                  displayName: Echo mgcVersion
+
               # per package, publishing using appropriate tool
               - ${{ each package in parameters.Packages }}:
                   - ${{ if eq(package.type, 'npm') }}:

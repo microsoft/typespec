@@ -69,7 +69,7 @@ function Set-VersionVariable {
     )
 
     Write-Host "Setting output variable '$variableName' to $version"
-    Write-Host "##vso[task.setvariable variable=$variableName;isoutput=true]$version"
+    Write-Host "##vso[task.setvariable variable=$variableName;isOutput=true]$version"
 }
 
 # create the output folders
