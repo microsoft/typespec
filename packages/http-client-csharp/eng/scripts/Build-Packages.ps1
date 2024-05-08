@@ -36,14 +36,15 @@ function Write-PackageInfo {
 function Pack-And-Write-Info {
     param(
         [string] $package,
-        [string] $versionOption
+        [string] $version
     )
 
+    $versionOption = $BuildNumber ? "/p:Version=$version" : ""
     Invoke-LoggedCommand "dotnet pack $package/src/$package.csproj $versionOption -c Release -o $outputPath/packages"
     Write-PackageInfo -packageName $package -directoryPath "packages/http-client-csharp/generator/$package/src"
 }
 
-function Get-Version-From-Csproj {
+function Get-CsprojVersion {
     param(
         [string] $csprojFilePath
     )
@@ -57,6 +58,16 @@ function Get-Version-From-Csproj {
     } else {
         Write-Output "Version not found in the .csproj file."
     }
+}
+
+function Set-VersionVariable {
+    param(
+        [string] $variableName,
+        [string] $version
+    )
+
+    Write-Host "Setting output variable '$variableName' to $version"
+    Write-Host "##vso[task.setvariable variable=$variableName;isoutput=true]$version"
 }
 
 # create the output folders
@@ -78,34 +89,29 @@ if ($versionElement) {
 }
 
 $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
-$mgcVersion = Get-Version-From-Csproj "$packageRoot/generator/Microsoft.Generator.CSharp/Microsoft.Generator.CSharp.csproj"
-$mgcClientModelVersion = Get-Version-From-Csproj "$packageRoot/generator/Microsoft.Generator.CSharp.ClientModel/Microsoft.Generator.CSharp.ClientModel.csproj"
-$mgcInputVersion = Get-Version-From-Csproj "$packageRoot/generator/Microsoft.Generator.CSharp.Input/Microsoft.Generator.CSharp.Input.csproj"
-$mgcCustomizationVersion = Get-Version-From-Csproj "$packageRoot/generator/Microsoft.Generator.CSharp.Customization/Microsoft.Generator.CSharp.Customization.csproj"
+$mgcVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp/Microsoft.Generator.CSharp.csproj"
+$mgcClientModelVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.ClientModel/Microsoft.Generator.CSharp.ClientModel.csproj"
+$mgcInputVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Input/Microsoft.Generator.CSharp.Input.csproj"
+$mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Customization/Microsoft.Generator.CSharp.Customization.csproj"
 
 if ($BuildNumber) {
     # set package versions
     $versionTag = $Prerelease ? "-alpha" : "-beta"
 
     $mgcVersion = "$mgcVersion$versionTag.$BuildNumber"
-    Write-Host "Setting output variable 'mgcVersion' to $mgcVersion"
-    Write-Host "##vso[task.setvariable variable=mgcVersion;isoutput=true]$mgcVersion"
+    Set-VersionVariable -variableName "mgcVersion" -version $mgcVersion
 
     $mgcClientModelVersion = "$mgcClientModelVersion$versionTag.$BuildNumber"
-    Write-Host "Setting output variable 'mgcClientModelVersion' to $mgcClientModelVersion"
-    Write-Host "##vso[task.setvariable variable=mgcClientModelVersion;isoutput=true]$mgcClientModelVersion"
-
+    Set-VersionVariable -variableName "mgcClientModelVersion" -version $mgcClientModelVersion
+ 
     $mgcInputVersion = "$mgcInputVersion$versionTag.$BuildNumber"
-    Write-Host "Setting output variable 'mgcInputVersion' to $mgcInputVersion"
-    Write-Host "##vso[task.setvariable variable=mgcInputVersion;isoutput=true]$mgcInputVersion"
+    Set-VersionVariable -variableName "mgcInputVersion" -version $mgcInputVersion
 
     $mgcCustomizationVersion = "$mgcCustomizationVersion$versionTag.$BuildNumber"
-    Write-Host "Setting output variable 'mgcCustomizationVersion' to $mgcCustomizationVersion"
-    Write-Host "##vso[task.setvariable variable=mgcCustomizationVersion;isoutput=true]$mgcCustomizationVersion"
+    Set-VersionVariable -variableName "mgcCustomizationVersion" -version $mgcCustomizationVersion
 
     $emitterVersion = "$emitterVersion$versionTag.$BuildNumber"
-    Write-Host "Setting output variable 'emitterVersion' to $emitterVersion"
-    Write-Host "##vso[task.setvariable variable=emitterVersion;isOutput=true]$emitterVersion"
+    Set-VersionVariable -variableName "emitterVersion" -version $emitterVersion
 }
 
 # build and pack the emitter
@@ -140,10 +146,10 @@ Push-Location "$packageRoot/generator"
 try {
     Write-Host "Working in $PWD"
 
-    Pack-And-Write-Info "Microsoft.Generator.CSharp" $BuildNumber ? "/p:Version=$mgcVersion" : ""
-    Pack-And-Write-Info "Microsoft.Generator.CSharp.ClientModel" $BuildNumber ? "/p:Version=$mgcClientModelVersion" : ""
-    Pack-And-Write-Info "Microsoft.Generator.CSharp.Input" $BuildNumber ? "/p:Version=$mgcInputVersion" : ""
-    Pack-And-Write-Info "Microsoft.Generator.CSharp.Customization" $BuildNumber ? "/p:Version=$mgcCustomizationVersion" : ""
+    Pack-And-Write-Info -package "Microsoft.Generator.CSharp" -version $mgcVersion
+    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.ClientModel" -version $mgcClientModelVersion
+    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Input" -version $mgcInputVersion
+    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Customization" -version $mgcCustomizationVersion
 }
 finally
 {
