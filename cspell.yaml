@@ -116,6 +116,7 @@ words:
   - VITE
   - uncollapsed
   - nupkg
+  - Vsts
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
