@@ -57,9 +57,9 @@ function Get-CsprojVersion {
 
     if ($versionElement) {
         $version = $versionElement -replace '<Version>(.*?)<\/Version>', '$1'
-        Write-Output "Version: $version"
+        Write-Host "Version: $version"
     } else {
-        Write-Output "Version not found in the .csproj file."
+        Write-Host "Version not found in the .csproj file."
     }
 }
 
