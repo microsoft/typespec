@@ -243,6 +243,7 @@ describe("compiler: checker: augment decorators", () => {
       });
       for (const prop of (stringTest.returnType as Model).properties) {
         deepEqual(prop[1].decorators[0].args[0].value, {
+          entityKind: "Type",
           kind: "String",
           value: "Some test prop",
           isFinished: false,

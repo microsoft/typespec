@@ -54,7 +54,8 @@ it("emit diagnostic if referencing a non literal type", async () => {
   const diagnostics = await diagnoseValue(`#[{ thisIsAModel: true }]`);
   expectDiagnostics(diagnostics, {
     code: "expect-value",
-    message: "{ thisIsAModel: true } refers to a type, but is being used as a value here.",
+    message:
+      "{ thisIsAModel: true } refers to a model type, but is being used as a value here. Use #{} to create an object value.",
   });
 });
 
