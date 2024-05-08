@@ -266,7 +266,7 @@ stages:
                         workingDirectory: $(buildArtifactsPath)/packages
               - task: 1ES.PublishNuget@1
                 displayName: Publish Nuget packages
-                condition: contains(parameters.Packages.*.type, 'nuget')
+                condition: ${{ contains(parameters.Packages.*.type, 'nuget') }}
                 inputs:
                   packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
                   packageParentPath: $(buildArtifactsPath)/packages
