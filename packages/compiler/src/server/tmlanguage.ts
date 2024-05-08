@@ -618,7 +618,7 @@ const scalarStatement: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
     "2": { scope: "entity.name.type.tsp" },
   },
-  end: universalEnd,
+  end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
     typeParameters,

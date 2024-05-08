@@ -786,6 +786,22 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeBrace,
         ]);
       });
+
+      it("scalar with body doesn't need semi colon for next statement", async () => {
+        const tokens = await tokenize(`
+          scalar foo { }
+          scalar bar;
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.scalar,
+          Token.identifiers.type("foo"),
+          Token.punctuation.openBrace,
+          Token.punctuation.closeBrace,
+          Token.keywords.scalar,
+          Token.identifiers.type("bar"),
+          Token.punctuation.semicolon,
+        ]);
+      });
     });
 
     it("named template argument list", async () => {
