@@ -237,7 +237,7 @@ describe("compiler: projections: logic", () => {
           return p.stateMap(addedOnKey).get(t) || -1;
         },
         getRemovedOn(p: Program, t: Type) {
-          return p.stateMap(removedOnKey).get(t) || Infinity;
+          return p.stateMap(removedOnKey).get(t) || Number.MAX_SAFE_INTEGER;
         },
         getRenamedFromVersions(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.v ?? -1;

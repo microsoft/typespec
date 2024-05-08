@@ -10,6 +10,7 @@ import {
   Namespace,
   Operation,
   Scalar,
+  ScalarConstructor,
   SemanticNodeListener,
   StringTemplate,
   StringTemplateSpan,
@@ -95,7 +96,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
           return ListenerFlow.NoRecursion;
         }
       }
-      return callback(x as any);
+      return (callback as any)(x);
     };
   }
   return wrappedListeners as any;
@@ -143,7 +144,7 @@ function createNavigationContext(
 ): NavigationContext {
   return {
     visited: new Set(),
-    emit: (key, ...args) => listeners[key]?.(...(args as [any])),
+    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
     options: computeOptions(options),
   };
 }
@@ -266,6 +267,9 @@ function navigateScalarType(scalar: Scalar, context: NavigationContext) {
   if (scalar.baseScalar) {
     navigateScalarType(scalar.baseScalar, context);
   }
+  for (const constructor of scalar.constructors.values()) {
+    navigateScalarConstructor(constructor, context);
+  }
 
   context.emit("exitScalar", scalar);
 }
@@ -353,6 +357,13 @@ function navigateDecoratorDeclaration(type: Decorator, context: NavigationContex
   if (context.emit("decorator", type) === ListenerFlow.NoRecursion) return;
 }
 
+function navigateScalarConstructor(type: ScalarConstructor, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
+}
+
 function navigateTypeInternal(type: Type, context: NavigationContext) {
   switch (type.kind) {
     case "Model":
@@ -383,6 +394,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateTemplateParameter(type, context);
     case "Decorator":
       return navigateDecoratorDeclaration(type, context);
+    case "ScalarConstructor":
+      return navigateScalarConstructor(type, context);
     case "Object":
     case "Projection":
     case "Function":

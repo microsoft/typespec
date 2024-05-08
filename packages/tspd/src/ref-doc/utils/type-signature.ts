@@ -4,6 +4,7 @@ import {
   EnumMember,
   FunctionParameter,
   FunctionType,
+  getEntityName,
   getTypeName,
   Interface,
   Model,
@@ -13,14 +14,10 @@ import {
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
-  ValueType,
 } from "@typespec/compiler";
 
 /** @internal */
-export function getTypeSignature(type: Type | ValueType): string {
-  if (type.kind === "Value") {
-    return `valueof ${getTypeSignature(type.target)}`;
-  }
+export function getTypeSignature(type: Type): string {
   if (isReflectionType(type)) {
     return type.name;
   }
@@ -49,6 +46,8 @@ export function getTypeSignature(type: Type | ValueType): string {
       return `(intrinsic) ${type.name}`;
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
+    case "ScalarConstructor":
+      return `(scalar constructor) ${getTypeName(type)}`;
     case "StringTemplate":
       return `(string template)\n${getStringTemplateSignature(type)}`;
     case "StringTemplateSpan":
@@ -120,7 +119,7 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${parameter.name}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {

@@ -45,6 +45,7 @@ import {
   DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
+  Entity,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -1172,15 +1173,15 @@ export async function compile(
     }
   }
 
-  function getNode(target: Node | Type | Sym): Node | undefined {
-    if (!("kind" in target)) {
+  function getNode(target: Node | Entity | Sym): Node | undefined {
+    if (!("kind" in target) && !("valueKind" in target) && !("entityKind" in target)) {
       // symbol
       if (target.flags & SymbolFlags.Using) {
         return target.symbolSource!.declarations[0];
       }
 
       return target.declarations[0]; // handle multiple decls
-    } else if (typeof target.kind === "number") {
+    } else if ("kind" in target && typeof target.kind === "number") {
       // node
       return target as Node;
     } else {

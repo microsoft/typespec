@@ -12,12 +12,12 @@ model Person {
   template: Template<"custom">;
 }
 
-alias Template<T extends valueof string> = "Foo ${T} bar";
+alias Template<T extends string> = "Foo ${T} bar";
 
 /** Example of string template with template parameters */
 @doc("Animal named: ${T}")
 model Animal<T extends valueof string> {
-  kind: T;
+  named: string;
 }
 
 model Cat is Animal<"Cat">;

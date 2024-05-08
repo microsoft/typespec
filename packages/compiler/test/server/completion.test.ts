@@ -33,6 +33,7 @@ describe("complete statement keywords", () => {
     ["union", true],
     ["enum", true],
     ["fn", true],
+    ["const", true],
   ])("%s", (keyword, inNamespace) => {
     describe.each(inNamespace ? ["top level", "namespace"] : ["top level"])("%s", () => {
       it("complete with no text", async () => {

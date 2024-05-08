@@ -5,6 +5,7 @@ import type {
   Model,
   ModelProperty,
   Namespace,
+  Numeric,
   Operation,
   Scalar,
   Type,
@@ -254,7 +255,7 @@ export type PatternDecorator = (
 export type MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -270,7 +271,7 @@ export type MinLengthDecorator = (
 export type MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -286,7 +287,7 @@ export type MaxLengthDecorator = (
 export type MinItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -302,7 +303,7 @@ export type MinItemsDecorator = (
 export type MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -318,7 +319,7 @@ export type MaxItemsDecorator = (
 export type MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -334,7 +335,7 @@ export type MinValueDecorator = (
 export type MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -351,7 +352,7 @@ export type MaxValueDecorator = (
 export type MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
@@ -368,7 +369,7 @@ export type MinValueExclusiveDecorator = (
 export type MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**
