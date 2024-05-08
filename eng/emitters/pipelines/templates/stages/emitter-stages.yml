@@ -264,7 +264,7 @@ stages:
                           npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
                         displayName: Publish ${{ package.name }}
                         workingDirectory: $(buildArtifactsPath)/packages
-              - ${{ contains(packages.*.type, 'nuget') }}:
+              - ${{ contains(parameters.Packages.*.type, 'nuget') }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages
                     inputs:
