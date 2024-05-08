@@ -750,14 +750,40 @@ export function createChecker(program: Program): Checker {
     if (isValue(entity)) {
       return constraint ? inferScalarsFromConstraints(entity, constraint.type) : entity;
     }
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "expect-value",
-        format: { name: getTypeName(entity) },
-        target: node,
-      })
-    );
+    reportExpectedValue(node, entity);
     return null;
+  }
+
+  function reportExpectedValue(target: Node, type: Type) {
+    if (type.kind === "Model" && type.name === "" && target.kind === SyntaxKind.ModelExpression) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          messageId: "model",
+          format: { name: getTypeName(type) },
+          codefixes: [createModelToObjectValueCodeFix(target)],
+          target,
+        })
+      );
+    } else if (type.kind === "Tuple" && target.kind === SyntaxKind.TupleExpression) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          messageId: "tuple",
+          format: { name: getTypeName(type) },
+          codefixes: [createTupleToArrayValueCodeFix(target)],
+          target,
+        })
+      );
+    } else {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          format: { name: getTypeName(type) },
+          target,
+        })
+      );
+    }
   }
 
   /** In certain context for types that can also be value if the constraint allows it we try to use it as a value instead of a type. */
@@ -3730,6 +3756,9 @@ export function createChecker(program: Program): Checker {
     constraint: CheckValueConstraint | undefined
   ): ObjectValue | null {
     const properties = checkObjectLiteralProperties(node, mapper);
+    if (properties === null) {
+      return null;
+    }
     const preciseType = createTypeForObjectValue(node, properties);
     if (constraint && !checkTypeOfValueMatchConstraint(preciseType, constraint, node)) {
       return null;
@@ -3781,13 +3810,15 @@ export function createChecker(program: Program): Checker {
   function checkObjectLiteralProperties(
     node: ObjectLiteralNode,
     mapper: TypeMapper | undefined
-  ): Map<string, ObjectValuePropertyDescriptor> {
+  ): Map<string, ObjectValuePropertyDescriptor> | null {
     const properties = new Map<string, ObjectValuePropertyDescriptor>();
-
+    let hasError = false;
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const value = getValueForNode(prop.value, mapper);
-        if (value !== null) {
+        if (value === null) {
+          hasError = true;
+        } else {
           properties.set(prop.id.sv, { name: prop.id.sv, value: value, node: prop });
         }
       } else {
@@ -3799,7 +3830,7 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
-    return properties;
+    return hasError ? null : properties;
   }
 
   function checkObjectSpreadProperty(
