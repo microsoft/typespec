@@ -255,10 +255,6 @@ stages:
                     displayName: Authenticate .npmrc for npmjs.org
                     workingDirectory: $(buildArtifactsPath)/packages
 
-              - pwsh: |
-                  Write-Host "$(mgcVersion)"
-                displayName: Echo mgcVersion
-
               # per package, publishing using appropriate tool
               - ${{ each package in parameters.Packages }}:
                   - ${{ if eq(package.type, 'npm') }}:
@@ -268,14 +264,15 @@ stages:
                           npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
                         displayName: Publish ${{ package.name }}
                         workingDirectory: $(buildArtifactsPath)/packages
-                  - ${{ elseif eq(package.type, 'nuget') }}:
-                      - task: 1ES.PublishNuget@1
-                        displayName: Publish ${{ package.name }}
-                        inputs:
-                          packagesToPush: $(buildArtifactsPath)/packages/${{ package.file }}
-                          packageParentPath: $(buildArtifactsPath)/packages
-                          publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
-                          nuGetFeedType: internal # Change to external when publishing to external feed
+              - ${{ contains(packages.*.type, 'nuget') }}:
+                  - task: 1ES.PublishNuget@1
+                    displayName: Publish Nuget packages
+                    inputs:
+                      packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
+                      packageParentPath: $(buildArtifactsPath)/packages
+                      # todo update so we can publish publicly to nuget
+                      publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
+                      nuGetFeedType: internal
 
               - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
                 parameters:
