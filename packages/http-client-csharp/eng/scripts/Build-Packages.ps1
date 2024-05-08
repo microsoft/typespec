@@ -13,6 +13,8 @@ $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
+Write-Host "Building packages for BuildNumber: '$BuildNumber', Output: '$Output', Prerelease: '$Prerelease', PublishType: '$PublishType'"
+
 $outputPath = $Output ? $Output : "$packageRoot/ci-build"
 
 function Write-PackageInfo {
@@ -49,6 +51,7 @@ function Get-CsprojVersion {
         [string] $csprojFilePath
     )
 
+    Write-Host "Reading version from $csprojFilePath"
     $csprojContent = Get-Content -Path $csprojFilePath
     $versionElement = $csprojContent | Where-Object { $_ -match '<Version>(.*?)<\/Version>' }
 
