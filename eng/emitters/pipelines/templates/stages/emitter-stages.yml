@@ -256,8 +256,8 @@ stages:
                     workingDirectory: $(buildArtifactsPath)/packages
 
               - pwsh: |
-                    Write-Host "$(mgcVersion)"
-                  displayName: Echo mgcVersion
+                  Write-Host "$(mgcVersion)"
+                displayName: Echo mgcVersion
 
               # per package, publishing using appropriate tool
               - ${{ each package in parameters.Packages }}:
