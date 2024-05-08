@@ -34,7 +34,7 @@ export function generateSignatureTests(
   ]);
 
   content.push([
-    "import {",
+    "import type {",
     decorators.map((x) => x.typeName).join(","),
     `} from "`,
     decoratorSignatureImport,

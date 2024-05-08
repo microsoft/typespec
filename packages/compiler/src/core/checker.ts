@@ -2865,7 +2865,7 @@ export function createChecker(program: Program): Checker {
     }
 
     // Some of the mapper args are still template parameter so we shouldn't create the type.
-    return mapper.args.every((t) => t.kind !== "TemplateParameter");
+    return !mapper.partial && mapper.args.every((t) => t.kind !== "TemplateParameter");
   }
 
   function checkModelExpression(node: ModelExpressionNode, mapper: TypeMapper | undefined) {
@@ -4724,7 +4724,9 @@ export function createChecker(program: Program): Checker {
         clone.decorators.push(dec);
       }
     }
-    clone = finishType(clone);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     compilerAssert(clone.kind === type.kind, "cloneType must not change type kind");
     return clone;
   }
@@ -5783,6 +5785,18 @@ export function createChecker(program: Program): Checker {
       } else {
         remainingProperties.delete(prop.name);
 
+        if (sourceProperty.optional && !prop.optional) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "property-required",
+              format: {
+                propName: prop.name,
+                targetType: getTypeName(target),
+              },
+              target: diagnosticTarget,
+            })
+          );
+        }
         const [related, propDiagnostics] = isTypeAssignableToInternal(
           sourceProperty.type,
           prop.type,

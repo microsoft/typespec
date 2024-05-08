@@ -18,25 +18,25 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; set; } = "accept";
+        public string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
-        public string RequiredLiteralInt { get; set; } = "123";
+        public int RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public string RequiredLiteralFloat { get; set; } = "1.23";
+        public float RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
-        public bool RequiredLiteralBool { get; set; } = false;
+        public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
         public string OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public string OptionalLiteralInt { get; set; }
+        public int OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public string OptionalLiteralFloat { get; set; }
+        public float OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool OptionalLiteralBool { get; set; }

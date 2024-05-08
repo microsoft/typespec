@@ -1,5 +1,17 @@
 # Change Log - @typespec/playground
 
+## 0.2.2
+
+### Bug Fixes
+
+- [#3170](https://github.com/microsoft/typespec/pull/3170) Add support for new intrinsic vs std lib split in the compiler.
+- [#3151](https://github.com/microsoft/typespec/pull/3151) Fix completion of keywords
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+
 ## 0.2.1
 
 ### Bug Fixes

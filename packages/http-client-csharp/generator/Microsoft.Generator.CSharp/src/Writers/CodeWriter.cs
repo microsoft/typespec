@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -392,9 +392,6 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public CodeWriter WriteReferenceOrConstant(ReferenceOrConstant value)
-            => Append(value.GetReferenceOrConstantFormattable());
-
         public void WriteParameter(Parameter clientParameter)
         {
             if (clientParameter.Attributes.Any())
@@ -414,15 +411,8 @@ namespace Microsoft.Generator.CSharp
             Append($"{clientParameter.Type} {clientParameter.Name:D}");
             if (clientParameter.DefaultValue != null)
             {
-                var defaultValue = clientParameter.DefaultValue.Value;
-                if (defaultValue.IsNewInstanceSentinel && defaultValue.Type.IsValueType || clientParameter.IsApiVersionParameter && clientParameter.Initializer != null)
-                {
-                    Append($" = default");
-                }
-                else
-                {
-                    Append($" = {clientParameter.DefaultValue.Value.GetConstantFormattable()}");
-                }
+                AppendRaw(" = ");
+                clientParameter.DefaultValue.Write(this);
             }
 
             AppendRaw(",");
@@ -883,6 +873,7 @@ namespace Microsoft.Generator.CSharp
                 decimal d => SyntaxFactory.Literal(d).ToString(),
                 double d => SyntaxFactory.Literal(d).ToString(),
                 float f => SyntaxFactory.Literal(f).ToString(),
+                char c => SyntaxFactory.Literal(c).ToString(),
                 bool b => b ? "true" : "false",
                 BinaryData bd => bd.ToArray().Length == 0 ? "new byte[] { }" : SyntaxFactory.Literal(bd.ToString()).ToString(),
                 _ => throw new NotImplementedException()

@@ -17,7 +17,7 @@ import {
   $segmentOf,
   $updatesResource,
 } from "@typespec/rest";
-import {
+import type {
   ActionDecorator,
   ActionSeparatorDecorator,
   AutoRouteDecorator,

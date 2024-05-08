@@ -9,9 +9,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public BoolExpression And(ValueExpression other) => new(new BinaryOperatorExpression(" && ", this, other));
 
-        public static BoolExpression True => new(new ConstantExpression(new Constant(true, typeof(bool))));
+        public static BoolExpression True { get; } = Snippets.True;
 
-        public static BoolExpression False => new(new ConstantExpression(new Constant(false, typeof(bool))));
+        public static BoolExpression False { get; } = Snippets.False;
 
         public static BoolExpression Is(ValueExpression untyped, CSharpType comparisonType) => new(new BinaryOperatorExpression("is", untyped, comparisonType));
 

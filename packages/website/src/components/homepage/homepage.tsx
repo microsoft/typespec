@@ -89,7 +89,7 @@ const Overview = () => {
               {
                 title: "Multi-protocol support",
                 description:
-                  "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
+                  "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12 and Protobuf.",
                 image: "tasks",
                 link: "/multi-protocol",
               },

@@ -5,6 +5,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "verbatimModuleSyntax": true,
     "lib": ["DOM", "ESNext"]
   },
   "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
