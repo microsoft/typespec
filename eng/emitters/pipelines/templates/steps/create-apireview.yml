@@ -31,6 +31,7 @@ steps:
             -BuildId $(Build.BuildId)
             -RepoName '$(Build.Repository.Name)'    
             -MarkPackageAsShipped $${{parameters.MarkPackageAsShipped}}
+            -LanguageShortName ${{parameters.LanguageShortName}}
           pwsh: true
           workingDirectory: $(Pipeline.Workspace)
         displayName: Create API Review
