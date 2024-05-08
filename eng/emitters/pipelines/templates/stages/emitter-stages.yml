@@ -125,14 +125,15 @@ stages:
           LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: windows
-      - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
-        parameters:
-          LanguageShortName: ${{ parameters.LanguageShortName }}
-          DependsOn: Build_linux_20
-          BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-          Artifacts:
-            - ${{ each package in parameters.Packages }}:
-                - name: ${{ package.name }}
+      - ${{ if eq(parameters.Publish, 'none') }}:
+          - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
+            parameters:
+              LanguageShortName: ${{ parameters.LanguageShortName }}
+              DependsOn: Build_linux_20
+              BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+              Artifacts:
+                - ${{ each package in parameters.Packages }}:
+                    - name: ${{ package.name }}
 
   # Test stage
   # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
