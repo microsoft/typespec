@@ -64,6 +64,10 @@ parameters:
   - name: LanguageShortName
     type: string
 
+  - name: HasNugetPackages
+    type: boolean
+    default: false
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -264,15 +268,15 @@ stages:
                           npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
                         displayName: Publish ${{ package.name }}
                         workingDirectory: $(buildArtifactsPath)/packages
-              - task: 1ES.PublishNuget@1
-                displayName: Publish Nuget packages
-                condition: ${{ contains(parameters.Packages.*.type, 'nuget') }}
-                inputs:
-                  packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
-                  packageParentPath: $(buildArtifactsPath)/packages
-                  # todo update so we can publish publicly to nuget
-                  publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
-                  nuGetFeedType: internal
+              - ${{ if parameters.HasNugetPackages }}:
+                  - task: 1ES.PublishNuget@1
+                    displayName: Publish Nuget packages
+                    inputs:
+                      packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
+                      packageParentPath: $(buildArtifactsPath)/packages
+                      # todo update so we can publish publicly to nuget
+                      publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
+                      nuGetFeedType: internal
 
               - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
                 parameters:

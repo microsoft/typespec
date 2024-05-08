@@ -40,3 +40,4 @@ extends:
           UnitTestArgs: -UnitTests
           StagePrefix: "CSharp"
           LanguageShortName: "csharp"
+          HasNugetPackages: true
