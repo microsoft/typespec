@@ -39,6 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 InputTypeKind.BinaryData => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
+                InputTypeKind.BytesBase64Url => new CSharpType(typeof(BinaryData), inputType.IsNullable),
+                InputTypeKind.Bytes => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputTypeKind.ContentType => new CSharpType(typeof(HttpContent), inputType.IsNullable),
                 InputTypeKind.Date => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
                 InputTypeKind.DateTime => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
