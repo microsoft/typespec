@@ -1,3 +1,7 @@
+import { compilerAssert } from "../core/diagnostics.js";
+import { emitFile } from "../core/emitter-utils.js";
+import type { Program } from "../core/program.js";
+import { isTemplateDeclaration } from "../core/type-utils.js";
 import type {
   BooleanLiteral,
   Enum,
@@ -9,7 +13,6 @@ import type {
   Namespace,
   NumericLiteral,
   Operation,
-  Program,
   Scalar,
   StringLiteral,
   StringTemplate,
@@ -17,8 +20,7 @@ import type {
   Type,
   Union,
   UnionVariant,
-} from "../core/index.js";
-import { compilerAssert, emitFile, isTemplateDeclaration } from "../core/index.js";
+} from "../core/types.js";
 import { StringBuilder, code } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";

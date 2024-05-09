@@ -1,4 +1,5 @@
 import { EmitterOptions } from "../config/types.js";
+import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import {
@@ -697,7 +698,6 @@ export async function compile(
    * @param emitter Emitter ref to run
    */
   async function runEmitter(emitter: EmitterRef) {
-    const { createAssetEmitter } = await import("../emitter-framework/asset-emitter.js");
     const context: EmitContext<any> = {
       program,
       emitterOutputDir: emitter.emitterOutputDir,
