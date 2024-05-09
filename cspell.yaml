@@ -118,6 +118,7 @@ words:
   - uncollapsed
   - nupkg
   - Vsts
+  - tsdoc
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
