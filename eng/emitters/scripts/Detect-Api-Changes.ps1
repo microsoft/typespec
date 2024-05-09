@@ -57,7 +57,7 @@ function Submit-Request($filePath, $packageName)
     $query.Add('packageName', $packageName)
     $query.Add('language', $isJsPackage ? "js" : $LanguageShortName)
     $query.Add('project', $DevopsProject)
-    $reviewFileFullName = Join-Path -Path $ArtifactPath $packageName $reviewFileName
+    $reviewFileFullName = Join-Path -Path $ArtifactPath $reviewFileName
     if (Test-Path $reviewFileFullName)
     {
         $query.Add('codeFile', $reviewFileName)

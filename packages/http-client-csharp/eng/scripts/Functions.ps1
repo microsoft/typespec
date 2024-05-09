@@ -1,10 +1,12 @@
 # Return list of nupkg artifacts
 function Get-Package-Artifacts ($location, $filter)
 {
-    $packages = Get-ChildItem -Path "$location/packages" -Filter $filter -Recurse
+    $filterToUse = $flter.EndsWith(".tgz") ? $filter.Replace(".tgz", ".api.json") : $filter
+
+    $packages = Get-ChildItem -Path "$location/packages" -Filter $filterToUse -Recurse
     if (!$packages)
     {
-        Write-Host "$($location)/packages does not have any packages matching filter $($filter)"
+        Write-Host "$($location)/packages does not have any packages matching filter $($filterToUse)"
         return $null
     }
     return $packages[0]
