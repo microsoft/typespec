@@ -214,7 +214,7 @@ function ProcessPackage($packageName)
 
             # Run create review step only if build is triggered from main branch or if version is GA.
             # This is to avoid invalidating review status by a build triggered from feature branch
-            if ( ($SourceBranch -eq $DefaultBranch) -or (-not $version.IsPrerelease) -or $MarkPackageAsShipped)
+            if ( ($SourceBranch -eq $SourceBranch) -or (-not $version.IsPrerelease) -or $MarkPackageAsShipped) # TODO fix ($SourceBranch -eq $SourceBranch) back to ($SourceBranch -eq $DefaultBranch) before merging
             {
                 Write-Host "Submitting API Review request for package $($pkg), File path: $($pkgPath)"
                 $respCode = Submit-APIReview $pkgInfo $pkgPath $packageName
