@@ -14,17 +14,60 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> name of the Thing. </summary>
         public string Name { get; set; }
 
-        /// <summary> required Union. </summary>
+        /// <summary>
+        /// required Union
+        /// <para>
+        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// <remarks>
+        /// Supported types:
+        /// <list type="bullet">
+        /// <item>
+        /// <description><see cref="string"/></description>
+        /// </item>
+        /// <item>
+        /// <description><see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/></description>
+        /// </item>
+        /// <item>
+        /// <description><see cref="int"/></description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
         public string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
-        public string RequiredLiteralInt { get; set; } = "123";
+        public int RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public string RequiredLiteralFloat { get; set; } = "1.23";
+        public float RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
         public bool RequiredLiteralBool { get; } = false;
@@ -33,10 +76,10 @@ namespace UnbrandedTypeSpec.Models
         public string OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public string OptionalLiteralInt { get; set; }
+        public int OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public string OptionalLiteralFloat { get; set; }
+        public float OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool OptionalLiteralBool { get; set; }

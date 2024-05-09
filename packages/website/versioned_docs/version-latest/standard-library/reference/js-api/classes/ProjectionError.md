@@ -35,6 +35,7 @@ new ProjectionError(message): ProjectionError
 
 | Property | Modifier | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
+| `cause?` | `public` | `unknown` | - | `Error.cause` |
 | `message` | `public` | `string` | - | `Error.message` |
 | `name` | `public` | `string` | - | `Error.name` |
 | `stack?` | `public` | `string` | - | `Error.stack` |

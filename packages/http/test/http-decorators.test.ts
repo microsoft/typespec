@@ -81,18 +81,12 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.HeaderOptions'",
         },
       ]);
     });
@@ -170,18 +164,12 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message:
-            "Argument '123' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
         {
           code: "invalid-argument",
-          message:
-            "Argument '(anonymous model)' is not assignable to parameter of type 'string | TypeSpec.Http.QueryOptions'",
         },
       ]);
     });
@@ -309,7 +297,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: `Argument '(anonymous model)' is not assignable to parameter of type '(anonymous model)'`,
         },
       ]);
     });
@@ -364,7 +351,6 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "invalid-argument",
-          message: "Argument '123' is not assignable to parameter of type 'valueof string'",
         },
       ]);
     });
@@ -618,7 +604,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -630,7 +615,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'valueof string'",
       });
     });
 
@@ -654,7 +638,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument '123' is not assignable to parameter of type 'Record<unknown>'",
       });
     });
 
@@ -714,7 +697,6 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
     });
 
@@ -730,13 +712,10 @@ describe("http: decorators", () => {
 
       expectDiagnostics(diagnostics, [
         {
-          code: "unassignable",
-          message: `Type '"foo"' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'`,
+          code: "invalid-argument",
         },
         {
-          code: "unassignable",
-          message:
-            "Type 'Flow' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          code: "invalid-argument",
         },
       ]);
     });
@@ -860,7 +839,7 @@ describe("http: decorators", () => {
 
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo } = (await runner.compile(`
-        alias MyAuth<T extends valueof string[]> = OAuth2Auth<Flows=[{
+        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
           refreshUrl: "https://api.example.com/oauth2/refresh";

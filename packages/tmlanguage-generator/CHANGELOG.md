@@ -1,5 +1,12 @@
 # Change Log - tmlanguage-generator
 
+## 0.5.5
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+
 ## 0.5.4
 
 ### Bump dependencies

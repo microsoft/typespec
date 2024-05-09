@@ -144,6 +144,7 @@ const diagnostics = {
       statement: "Statement expected.",
       property: "Property expected.",
       enumMember: "Enum member expected.",
+      typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
   "trailing-token": {
@@ -391,10 +392,51 @@ const diagnostics = {
       selfSpread: "Cannot spread type within its own declaration.",
     },
   },
+
   "unsupported-default": {
     severity: "error",
     messages: {
       default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
+    },
+  },
+  "spread-object": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread properties of non-object type.",
+    },
+  },
+  "expect-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
+      model: paramMessage`${"name"} refers to a model type, but is being used as a value here. Use #{} to create an object value.`,
+      tuple: paramMessage`${"name"} refers to a tuple type, but is being used as a value here. Use #[] to create an array value.`,
+      templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
+    },
+  },
+  "non-callable": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type ${"type"} is not is not callable.`,
+    },
+  },
+  "named-init-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Only scalar deriving from 'string', 'numeric' or 'boolean' can be instantited without a named constructor.`,
+    },
+  },
+  "invalid-primitive-init": {
+    severity: "error",
+    messages: {
+      default: `Instantiating scalar deriving from 'string', 'numeric' or 'boolean' can only take a single argument.`,
+      invalidArg: paramMessage`Expected a single argument of type ${"expected"} but got ${"actual"}.`,
+    },
+  },
+  "ambiguous-scalar-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Value ${"value"} type is ambiguous between ${"types"}. To resolve be explicit when instantiating this value(e.g. '${"example"}(${"value"})').`,
     },
   },
   unassignable: {
@@ -408,6 +450,15 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
+    },
+  },
+  "value-in-type": {
+    severity: "error",
+    messages: {
+      default: "A value cannot be used as a type.",
+      referenceTemplate: "Template parameter can be passed values but is used as a type.",
+      noTemplateConstraint:
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
     },
   },
   "no-prop": {
@@ -426,6 +477,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
+    },
+  },
+  "unexpected-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Object value may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {
@@ -456,6 +513,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Enum already has a member named ${"name"}`,
+    },
+  },
+  "constructor-duplicate": {
+    severity: "error",
+    messages: {
+      default: paramMessage`A constructor already exists with name ${"name"}`,
     },
   },
   "spread-enum": {
@@ -613,6 +676,13 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "mixed-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    },
+  },
   "non-literal-string-template": {
     severity: "error",
     messages: {
@@ -710,7 +780,7 @@ const diagnostics = {
   "invalid-argument": {
     severity: "error",
     messages: {
-      default: paramMessage`Argument '${"value"}' is not assignable to parameter of type '${"expected"}'`,
+      default: paramMessage`Argument of type '${"value"}' is not assignable to parameter of type '${"expected"}'`,
     },
   },
   "invalid-argument-count": {
@@ -882,6 +952,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "circular-const": {
+    severity: "error",
+    messages: {
+      default: paramMessage`const '${"name"}' recursively references itself.`,
     },
   },
   "circular-prop": {

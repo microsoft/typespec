@@ -15,6 +15,7 @@ jobs:
   check-changes:
     name: Check Changes
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,7 +32,10 @@ jobs:
 
       - run: npx chronus verify
         name: Check changelog
-        if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}
+        if: |
+          !startsWith(github.head_ref, 'publish/') &&
+          !startsWith(github.head_ref, 'dependabot/') &&
+          !startsWith(github.head_ref, 'backmerge/')
 
   # Validate spell check
   spellcheck:

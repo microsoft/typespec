@@ -30,7 +30,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             //InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
             //? provider.Type.WithNullable(inputType.IsNullable)
             //: throw new InvalidOperationException($"No {nameof(EnumType)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            InputEnumType enumType => new CSharpType(typeof(string), inputType.IsNullable),
+            // TODO -- this is temporary until we have support for enums
+            InputEnumType enumType => CreateCSharpType(enumType.EnumValueType).WithNullable(enumType.IsNullable),
             InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
             ? provider.Type.WithNullable(inputType.IsNullable)
             : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
@@ -38,6 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 InputTypeKind.BinaryData => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
+                InputTypeKind.BytesBase64Url => new CSharpType(typeof(BinaryData), inputType.IsNullable),
+                InputTypeKind.Bytes => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputTypeKind.ContentType => new CSharpType(typeof(HttpContent), inputType.IsNullable),
                 InputTypeKind.Date => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
                 InputTypeKind.DateTime => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),

@@ -8,7 +8,7 @@ using TypeSpec.Http;
 @useAuth(BearerAuth | MyAuth<["read", "write"]>)
 namespace TypeSpec.OperationAuth;
 
-alias MyAuth<Scopes extends valueof string[]> = OAuth2Auth<
+alias MyAuth<Scopes extends string[]> = OAuth2Auth<
   Flows = [
     {
       type: OAuth2FlowType.implicit;

@@ -5,6 +5,7 @@ import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
+  ConstStatementNode,
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
@@ -133,8 +134,12 @@ export function createBinder(program: Program): Binder {
       let name: string;
       let kind: "decorator" | "function";
       let containerSymbol = sourceFile.symbol;
-
-      if (typeof member === "function") {
+      if (key === "$flags") {
+        const context = getLocationContext(program, sourceFile);
+        if (context.type === "library" || context.type === "project") {
+          mutate(context).flags = member as any;
+        }
+      } else if (typeof member === "function") {
         // lots of 'any' casts here because control flow narrowing `member` to Function
         // isn't particularly useful it turns out.
         if (isFunctionName(key)) {
@@ -270,6 +275,9 @@ export function createBinder(program: Program): Binder {
         break;
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
+        break;
+      case SyntaxKind.ConstStatement:
+        bindConstStatement(node);
         break;
       case SyntaxKind.EnumStatement:
         bindEnumStatement(node);
@@ -473,6 +481,9 @@ export function createBinder(program: Program): Binder {
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
+  function bindConstStatement(node: ConstStatementNode) {
+    declareSymbol(node, SymbolFlags.Const);
+  }
 
   function bindEnumStatement(node: EnumStatementNode) {
     declareSymbol(node, SymbolFlags.Enum);
@@ -603,6 +614,7 @@ function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ConstStatement:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
