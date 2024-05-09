@@ -45,7 +45,7 @@ function Submit-Request($filePath, $packageName)
     if (!$repoName) {
         $repoName = "microsoft/typespec"
     }
-    $reviewFileName = "$($packageName)_$($LanguageShortName).json"
+    $reviewFileName = $packageName.StartsWith("typespec-") ? "$($packageName)_js.json" : "$($packageName)_$($LanguageShortName).json"
     $query = [System.Web.HttpUtility]::ParseQueryString('')
     $query.Add('artifactName', $BuildArtifactName)
     $query.Add('buildId', $BuildId)

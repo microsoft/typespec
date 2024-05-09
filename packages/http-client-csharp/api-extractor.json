@@ -7,15 +7,16 @@
   },
   "apiReport": {
     "enabled": true,
-    "reportFolder": "./emitter/temp"
+    "reportFolder": "./emitter/temp",
+    "reportFileName": "typespec-http-client-csharp.api.md"
   },
   "docModel": {
     "enabled": true,
-    "apiJsonFilePath": "./emitter/temp/http-client-csharp.api.json"
+    "apiJsonFilePath": "./emitter/temp/typespec-http-client-csharp.api.json"
   },
   "dtsRollup": {
     "enabled": true,
-    "publicTrimmedFilePath": "./dist/http-client-csharp.d.ts",
+    "publicTrimmedFilePath": "./dist/typespec-http-client-csharp.d.ts",
     "untrimmedFilePath": ""
   },
   "messages": {
