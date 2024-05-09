@@ -8,54 +8,32 @@ using System.Linq;
 
 namespace Microsoft.Generator.CSharp
 {
-    internal class PropertyDescription
+    internal static class PropertyDescriptionBuilder
     {
-        private readonly InputModelProperty _property;
-        private readonly CSharpType _type;
-        private readonly SerializationFormat _serializationFormat;
-        private readonly bool _isReadOnly;
-
         /// <summary>
-        /// The constructed description for the property.
-        /// </summary>
-        public FormattableString Description { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PropertyDescription"/> class and constructs the description for the property.
+        /// This method is used to create the description for the property.
+        /// If the property is of type <see cref="BinaryData"/>, then an additional description will be appended.
         /// </summary>
         /// <param name="property"> The property for which the description is being constructed.</param>
         /// <param name="type">The CSharpType of the property.</param>
         /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <param name="isPropertyReadOnly">Flag used to determine if the property <paramref name="property"/> is read-only.</param>
-        public PropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, bool isPropertyReadOnly)
-        {
-            _property = property;
-            _type = type;
-            _serializationFormat = serializationFormat;
-            _isReadOnly = isPropertyReadOnly;
-            Description = BuildPropertyDescription();
-        }
-
-        /// <summary>
-        /// This method is used to create the description for the property.
-        /// If the property is of type <see cref="BinaryData"/>, then an additional description will be appended.
-        /// </summary>
         /// <returns>The formatted property description string.</returns>
-        private FormattableString BuildPropertyDescription()
+        internal static FormattableString BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, bool isPropertyReadOnly)
         {
             FormattableString description;
-            if (string.IsNullOrEmpty(_property.Description))
+            if (string.IsNullOrEmpty(property.Description))
             {
-                description = CreateDefaultPropertyDescription();
+                description = CreateDefaultPropertyDescription(property.Name, isPropertyReadOnly);
             }
             else
             {
-                description = FormattableStringHelpers.FromString(_property.Description);
+                description = FormattableStringHelpers.FromString(property.Description);
             }
 
-            if (_type.ContainsBinaryData)
+            if (type.ContainsBinaryData)
             {
-                FormattableString binaryDataExtraDescription = CreateBinaryDataExtraDescription();
+                FormattableString binaryDataExtraDescription = CreateBinaryDataExtraDescription(type, serializationFormat);
                 description = $"{description}{binaryDataExtraDescription}";
             }
 
@@ -78,9 +56,9 @@ namespace Microsoft.Generator.CSharp
             {
                 FormattableString description;
 
-                if (item.IsLiteral && item.Literal?.Value != null)
+                if (item.IsLiteral && item.Literal != null)
                 {
-                    var literalValue = item.Literal.Value.Value;
+                    var literalValue = item.Literal;
                     if (item.FrameworkType == typeof(string))
                     {
                         description = $"<description>{literalValue:L}</description>";
@@ -104,10 +82,10 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// Creates a default property description based on the property name and if it is read only.
         /// </summary>
-        private FormattableString CreateDefaultPropertyDescription()
+        private static FormattableString CreateDefaultPropertyDescription(string name, bool isReadOnly)
         {
-            string splitDeclarationName = string.Join(" ", StringExtensions.SplitByCamelCase(_property.Name)).ToLower();
-            if (_isReadOnly)
+            string splitDeclarationName = string.Join(" ", StringExtensions.SplitByCamelCase(name)).ToLower();
+            if (isReadOnly)
             {
                 return $"Gets the {splitDeclarationName}";
             }
@@ -121,11 +99,13 @@ namespace Microsoft.Generator.CSharp
         /// This method will construct an additional description for properties that are binary data. For properties whose values are union types,
         /// the description will include the types of values that are allowed.
         /// </summary>
+        /// <param name="type">The CSharpType of the property.</param>
+        /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <returns>The formatted description string for the property.</returns>
-        private FormattableString CreateBinaryDataExtraDescription()
+        private static FormattableString CreateBinaryDataExtraDescription(CSharpType type, SerializationFormat serializationFormat)
         {
             string typeSpecificDesc;
-            var unionTypes = _type.UnionItemTypes;
+            var unionTypes = GetUnionTypes(type);
             IReadOnlyList<FormattableString> unionTypeDescriptions = Array.Empty<FormattableString>();
 
             if (unionTypes.Any())
@@ -133,26 +113,41 @@ namespace Microsoft.Generator.CSharp
                 unionTypeDescriptions = GetUnionTypesDescriptions(unionTypes);
             }
 
-            if (_type.FrameworkType == typeof(BinaryData))
+            if (type.FrameworkType == typeof(BinaryData))
             {
                 typeSpecificDesc = "this property";
-                return ConstructBinaryDataDescription(typeSpecificDesc, unionTypeDescriptions);
+                return ConstructBinaryDataDescription(typeSpecificDesc, serializationFormat, unionTypeDescriptions);
             }
-            if (_type.IsList)
+            if (type.IsList)
             {
                 typeSpecificDesc = "the element of this property";
-                return ConstructBinaryDataDescription(typeSpecificDesc, unionTypeDescriptions);
+                return ConstructBinaryDataDescription(typeSpecificDesc, serializationFormat, unionTypeDescriptions);
             }
-            if (_type.IsDictionary)
+            if (type.IsDictionary)
             {
                 typeSpecificDesc = "the value of this property";
-                return ConstructBinaryDataDescription(typeSpecificDesc, unionTypeDescriptions);
+                return ConstructBinaryDataDescription(typeSpecificDesc, serializationFormat, unionTypeDescriptions);
             }
 
             return FormattableStringHelpers.Empty;
         }
 
-        private FormattableString ConstructBinaryDataDescription(string typeSpecificDesc, IReadOnlyList<FormattableString> unionTypeDescriptions)
+        // recursively get the union types if any.
+        private static IReadOnlyList<CSharpType> GetUnionTypes(CSharpType type)
+        {
+            if (type.IsCollection)
+            {
+                return GetUnionTypes(type.ElementType);
+            }
+            else if (type.IsUnion)
+            {
+                return type.UnionItemTypes;
+            }
+
+            return Array.Empty<CSharpType>();
+        }
+
+        private static FormattableString ConstructBinaryDataDescription(string typeSpecificDesc, SerializationFormat serializationFormat, IReadOnlyList<FormattableString> unionTypeDescriptions)
         {
             FormattableString unionTypesAdditionalDescription = $"";
 
@@ -165,7 +160,7 @@ namespace Microsoft.Generator.CSharp
                 }
                 unionTypesAdditionalDescription = $"{unionTypesAdditionalDescription}</list>\n</remarks>";
             }
-            switch (_serializationFormat)
+            switch (serializationFormat)
             {
                 case SerializationFormat.Bytes_Base64Url:
                 case SerializationFormat.Bytes_Base64:

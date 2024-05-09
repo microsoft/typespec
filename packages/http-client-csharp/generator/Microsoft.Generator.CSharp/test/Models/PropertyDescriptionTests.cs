@@ -15,8 +15,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource(nameof(BuildPropertyDescriptionTestCases))]
         public void BuildPropertyDescription(InputModelProperty inputModelProperty, CSharpType type)
         {
-            var propertyDescription = new PropertyDescription(inputModelProperty, type, SerializationFormat.Default, false);
-            var propertyDescriptionString = propertyDescription.Description.ToString();
+            var propertyDescription = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, false);
+            var propertyDescriptionString = propertyDescription.ToString();
             Assert.IsNotNull(propertyDescription);
             Assert.IsNotEmpty(propertyDescriptionString);
 
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 CSharpType.FromLiteral(new CSharpType(typeof(DateTimeOffset), false), dateTime)
             };
 
-            IReadOnlyList<FormattableString> descriptions = PropertyDescription.GetUnionTypesDescriptions(unionItems);
+            IReadOnlyList<FormattableString> descriptions = PropertyDescriptionBuilder.GetUnionTypesDescriptions(unionItems);
 
             Assert.AreEqual(7, descriptions.Count);
 

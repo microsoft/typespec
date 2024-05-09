@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             var propertyDeclaration = new PropertyDeclaration(
-                description: new PropertyDescription(property, propertyType, serializationFormat, !propHasSetter).Description,
+                description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
                 modifiers: MethodSignatureModifiers.Public,
                 propertyType: propertyType,
                 name: property.Name.FirstCharToUpperCase(),
