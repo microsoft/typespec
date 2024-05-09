@@ -45,7 +45,8 @@ function Submit-Request($filePath, $packageName)
     if (!$repoName) {
         $repoName = "microsoft/typespec"
     }
-    $reviewFileName = $packageName.StartsWith("typespec-") ? "$($packageName)_js.json" : "$($packageName)_$($LanguageShortName).json"
+    $isJsPackage = $packageName.StartsWith("typespec-")
+    $reviewFileName = $isJsPackage ? "$($packageName)_js.json" : "$($packageName)_$($LanguageShortName).json"
     $query = [System.Web.HttpUtility]::ParseQueryString('')
     $query.Add('artifactName', $BuildArtifactName)
     $query.Add('buildId', $BuildId)
@@ -54,7 +55,7 @@ function Submit-Request($filePath, $packageName)
     $query.Add('repoName', $repoName)
     $query.Add('pullRequestNumber', $PullRequestNumber)
     $query.Add('packageName', $packageName)
-    $query.Add('language', $LanguageShortName)
+    $query.Add('language', $isJsPackage ? "js" : $LanguageShortName)
     $query.Add('project', $DevopsProject)
     $reviewFileFullName = Join-Path -Path $ArtifactPath $packageName $reviewFileName
     if (Test-Path $reviewFileFullName)
