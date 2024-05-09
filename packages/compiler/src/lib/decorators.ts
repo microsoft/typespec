@@ -54,6 +54,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import {
+  Discriminator,
   DocData,
   getDocDataInternal,
   getMaxItemsAsNumeric,
@@ -64,6 +65,7 @@ import {
   getMinLengthAsNumeric,
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
+  setDiscriminator,
   setDocData,
   setMaxItems,
   setMaxLength,
@@ -1333,12 +1335,6 @@ function validateRange(
   return true;
 }
 
-export interface Discriminator {
-  propertyName: string;
-}
-
-const discriminatorKey = createStateSymbol("discriminator");
-
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model | Union,
@@ -1354,16 +1350,8 @@ export const $discriminator: DiscriminatorDecorator = (
       return;
     }
   }
-  context.program.stateMap(discriminatorKey).set(entity, discriminator);
+  setDiscriminator(context.program, entity, discriminator);
 };
-
-export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
-  return program.stateMap(discriminatorKey).get(entity);
-}
-
-export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
-  return [...program.stateMap(discriminatorKey).entries()] as any;
-}
 
 const parameterVisibilityKey = createStateSymbol("parameterVisibility");
 

@@ -7,6 +7,8 @@ export * from "./emitter-utils.js";
 export * from "./formatter.js";
 export * from "./helpers/index.js";
 export {
+  getDiscriminatedTypes,
+  getDiscriminator,
   getDocData,
   getMaxItems,
   getMaxItemsAsNumeric,
