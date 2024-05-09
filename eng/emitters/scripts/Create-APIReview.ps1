@@ -200,8 +200,9 @@ function ProcessPackage($packageName)
             }
             # Get package info from json file created before updating version to daily dev
             $pkgInfo = Get-Content $pkgPropPath | ConvertFrom-Json
+            Write-Host "Processing package: $($pkgInfo)"
             $version = [AzureEngSemanticVersion]::ParseVersionString($pkgInfo.Version)
-            if ($version -eq $null)
+            if ($null -eq $version)
             {
                 Write-Host "Version info is not available for package $packageName, because version '$(pkgInfo.Version)' is invalid. Please check if the version follows Azure SDK package versioning guidelines."
                 return 1
