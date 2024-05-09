@@ -1,5 +1,73 @@
 # Change Log - @typespec/http
 
+## 0.56.0
+
+### Bug Fixes
+
+- [#3196](https://github.com/microsoft/typespec/pull/3196) Fix password flow defining `authorizationUrl` instead of `tokenUrl`
+- [#3190](https://github.com/microsoft/typespec/pull/3190) Fix `@path` param mapping when spreading a record in operation parameters
+- [#3218](https://github.com/microsoft/typespec/pull/3218) Fix: `@path` property shouldn't be applicableMetadata if the visibility contains `Read`
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Breaking Changes
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Empty model after removing metadata and applying visibility always results in "void"
+  This means the following case have changed from returning `{}` to no body
+  
+  ```tsp
+  op b1(): {};
+  op b2(): {@visibility("none") prop: string};
+  op b3(): {@added(Versions.v2) prop: string};
+  ```
+  
+  Workaround: Use explicit `@body`
+  
+  ```tsp
+  op b1(): {@body _: {}};
+  op b2(): {@body _: {@visibility("none") prop: string}};
+  op b3(): {@body _: {@added(Versions.v2) prop: string}};
+  ```
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Implicit status code always 200 except if response is explicitly `void`
+  
+  ```tsp
+  op c1(): {@header foo: string}; // status code 200 (used to be 204)
+  ```
+  
+  Solution: Add explicit `@statusCode`
+  ```tsp
+  op c1(): {@header foo: string, @statusCode _: 204};
+  op c1(): {@header foo: string, ...NoContent}; // or spread common model
+  ```
+- [#2945](https://github.com/microsoft/typespec/pull/2945) `@body` means this is the body
+
+  This change makes using `@body` mean this is the exact body and everything underneath will be included, including metadata properties. If metadata properties are present on the body, a warning will be logged.
+  
+  ```tsp
+  op a1(): {@body _: {@header foo: string, other: string} };
+                  ^ warning header in a body, it will not be included as a header.
+  ```
+  
+  Use `@bodyRoot` if you want to only change where to resolve the body from.
+  
+  ```tsp
+  op a1(): {@bodyRoot _: {@header foo: string, other: string} };
+  ```
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Properties are not automatically omitted if everything was removed from metadata or visibility
+
+  ```tsp
+  op d1(): {headers: {@header foo: string}}; // body will be {headers: {}}
+  ```
+  
+  Solution: use `@bodyIgnore`
+  
+  ```tsp
+  op d1(): {@bodyIgnore headers: {@header foo: string}}; // body will be {headers: {}}
+  ```
+
+
 ## 0.55.0
 
 ### Bump dependencies

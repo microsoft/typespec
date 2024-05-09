@@ -26,6 +26,7 @@ title: "[P] JS API"
 - [HttpOperationParameters](interfaces/HttpOperationParameters.md)
 - [HttpOperationRequestBody](interfaces/HttpOperationRequestBody.md)
 - [HttpOperationResponse](interfaces/HttpOperationResponse.md)
+- [HttpOperationResponseBody](interfaces/HttpOperationResponseBody.md)
 - [HttpOperationResponseContent](interfaces/HttpOperationResponseContent.md)
 - [HttpServer](interfaces/HttpServer.md)
 - [HttpService](interfaces/HttpService.md)
@@ -75,6 +76,8 @@ title: "[P] JS API"
 ## Functions
 
 - [$body](functions/$body.md)
+- [$bodyIgnore](functions/$bodyIgnore.md)
+- [$bodyRoot](functions/$bodyRoot.md)
 - [$delete](functions/$delete.md)
 - [$get](functions/$get.md)
 - [$head](functions/$head.md)
@@ -125,6 +128,8 @@ title: "[P] JS API"
 - [isApplicableMetadata](functions/isApplicableMetadata.md)
 - [isApplicableMetadataOrBody](functions/isApplicableMetadataOrBody.md)
 - [isBody](functions/isBody.md)
+- [isBodyIgnore](functions/isBodyIgnore.md)
+- [isBodyRoot](functions/isBodyRoot.md)
 - [isContentTypeHeader](functions/isContentTypeHeader.md)
 - [isHeader](functions/isHeader.md)
 - [isMetadata](functions/isMetadata.md)

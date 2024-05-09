@@ -95,6 +95,7 @@ const sidebars: SidebarsConfig = {
         "language-basics/intersections",
         "language-basics/type-literals",
         "language-basics/aliases",
+        "language-basics/values",
         "language-basics/type-relations",
       ],
     },

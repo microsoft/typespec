@@ -25,9 +25,9 @@ namespace Microsoft.Generator.CSharp
         private bool _isEnum;
         private bool _isNullable;
         private bool _isPublic;
-        private bool? _isUnion;
         private IReadOnlyList<CSharpType> _arguments;
-        private IReadOnlyList<CSharpType> _unionItemTypes;
+        private object? _literal;
+        private IReadOnlyList<CSharpType>? _unionItemTypes;
 
         private bool? _isReadOnlyMemory;
         private bool? _isList;
@@ -145,7 +145,6 @@ namespace Microsoft.Generator.CSharp
         [MemberNotNull(nameof(_namespace))]
         [MemberNotNull(nameof(_arguments))]
         [MemberNotNull(nameof(_isPublic))]
-        [MemberNotNull(nameof(_unionItemTypes))]
         private void Initialize(string? name, bool isValueType, bool isEnum, bool isNullable, string? ns,
             CSharpType? declaringType, IReadOnlyList<CSharpType>? args, bool isPublic)
         {
@@ -157,7 +156,6 @@ namespace Microsoft.Generator.CSharp
             _declaringType = declaringType;
             _arguments = args ?? Array.Empty<CSharpType>();
             _isPublic = isPublic;
-            _unionItemTypes ??= Array.Empty<CSharpType>();
         }
 
         public string Namespace { get { return _namespace; } }
@@ -165,15 +163,15 @@ namespace Microsoft.Generator.CSharp
         public CSharpType? DeclaringType { get { return _declaringType; } }
         public bool IsValueType { get { return _isValueType; } }
         public bool IsEnum { get { return _isEnum; } }
-        public bool IsLiteral => Literal is not null;
-        public bool IsUnion => _isUnion ??= UnionItemTypes.Count > 0;
+        public bool IsLiteral => _literal is not null;
+        public bool IsUnion => _unionItemTypes?.Count > 0;
         public bool IsPublic { get { return _isPublic; } }
         public bool IsFrameworkType => _type != null;
         public bool IsNullable { get { return _isNullable; } }
         public bool IsGenericType => Arguments.Count > 0;
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
-        public Constant? Literal { get; private init; }
+        public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
         public CSharpType InitializationType => _initializationType ??= GetImplementationType();
@@ -182,7 +180,7 @@ namespace Microsoft.Generator.CSharp
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
         public Type? SerializeAs { get; init; }
-        public IReadOnlyList<CSharpType> UnionItemTypes { get { return _unionItemTypes; } private init { _unionItemTypes = value; } }
+        public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
 
         private bool TypeIsReadOnlyMemory()
             => IsFrameworkType && _type == typeof(ReadOnlyMemory<>);
@@ -483,10 +481,17 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="isNullable">Flag to determine if the new type is nullable.</param>
         /// <returns>The existing <see cref="CSharpType"/> if it is nullable, otherwise a new instance of <see cref="CSharpType"/>.</returns>
-        public CSharpType WithNullable(bool isNullable) =>
-            isNullable == IsNullable ? this : IsFrameworkType
+        public CSharpType WithNullable(bool isNullable)
+        {
+            var type = isNullable == IsNullable ? this : IsFrameworkType
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
                 : new CSharpType(Implementation, isValueType: IsValueType, isEnum: IsEnum, isNullable: isNullable, arguments: Arguments, declaringType: DeclaringType, ns: Namespace, name: Name);
+
+            type._literal = _literal;
+            type._unionItemTypes = _unionItemTypes;
+
+            return type;
+        }
 
         public static implicit operator CSharpType(Type type) => new CSharpType(type);
 
@@ -553,20 +558,10 @@ namespace Microsoft.Generator.CSharp
         {
             if (type.IsFrameworkType)
             {
-                Constant? literal;
-                try
-                {
-                    literal = new Constant(literalValue, type);
-                }
-                catch
-                {
-                    literal = null;
-                }
+                var literalType = new CSharpType(type.FrameworkType, type.IsNullable);
+                literalType._literal = literalValue;
 
-                return new CSharpType(type.FrameworkType, type.IsNullable)
-                {
-                    Literal = literal
-                };
+                return literalType;
             }
 
             throw new NotSupportedException("Literals are not supported in non-framework type");
@@ -580,10 +575,10 @@ namespace Microsoft.Generator.CSharp
         /// <returns>A <see cref="CSharpType"/> instance representing those unioned types.</returns>
         public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable)
         {
-            return new CSharpType(typeof(BinaryData), isNullable)
-            {
-                UnionItemTypes = unionItemTypes
-            };
+            var type = new CSharpType(typeof(BinaryData), isNullable);
+            type._unionItemTypes = unionItemTypes;
+
+            return type;
         }
 
         public CSharpType MakeGenericType(IReadOnlyList<CSharpType> arguments)

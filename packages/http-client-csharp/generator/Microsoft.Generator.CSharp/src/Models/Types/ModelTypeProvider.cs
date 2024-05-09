@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -101,23 +102,20 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        private ConstantExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
+        private ValueExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
         {
             if (!property.IsRequired)
                 return null;
 
-            // The IsLiteral is returning false for int and float enum value types - https://github.com/Azure/autorest.csharp/issues/4630
-            // if (propertyType.IsLiteral && propertyType.Literal?.Value != null)
-            if (property.Type is InputLiteralType literal)
+            if (propertyType.IsLiteral)
             {
                 if (!propertyType.IsNullable)
                 {
-                    var constant = Constant.Parse(literal.Value, propertyType);
-                    return new ConstantExpression(constant);
+                    return Literal(propertyType.Literal);
                 }
                 else
                 {
-                    return new ConstantExpression(Constant.NewInstanceOf(propertyType));
+                    return DefaultOf(propertyType);
                 }
             }
 

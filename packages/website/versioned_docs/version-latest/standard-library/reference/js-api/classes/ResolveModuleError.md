@@ -34,6 +34,7 @@ new ResolveModuleError(code, message): ResolveModuleError
 
 | Property | Modifier | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
+| `cause?` | `public` | `unknown` | - | `Error.cause` |
 | `code` | `public` | `ResolveModuleErrorCode` | - | - |
 | `message` | `public` | `string` | - | `Error.message` |
 | `name` | `public` | `string` | - | `Error.name` |

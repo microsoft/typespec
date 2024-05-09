@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { DecoratorContext, Namespace, Type, getTypeName } from "../../src/core/index.js";
+import { DecoratorContext, Namespace, Type, getTypeName, isType } from "../../src/core/index.js";
 import { createProjector } from "../../src/core/projector.js";
 import { createTestHost, createTestRunner } from "../../src/testing/test-host.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
@@ -376,16 +376,24 @@ describe("compiler: projector: Identity", () => {
       ok(value !== original.templateMapper.map.get(key));
     }
     for (const arg of original.templateMapper.args) {
-      ok(arg.projector === original.projector);
+      if (isType(arg)) {
+        ok(arg.projector === original.projector);
+      }
     }
     for (const value of original.templateMapper.map.values()) {
-      ok(value.projector === original.projector);
+      if (isType(value)) {
+        ok(value.projector === original.projector);
+      }
     }
     for (const arg of projected.templateMapper.args) {
-      ok(arg.projector === projected.projector);
+      if (isType(arg)) {
+        ok(arg.projector === projected.projector);
+      }
     }
     for (const value of projected.templateMapper.map.values()) {
-      ok(value.projector === projected.projector);
+      if (isType(value)) {
+        ok(value.projector === projected.projector);
+      }
     }
   }
 });

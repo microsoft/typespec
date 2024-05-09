@@ -2,12 +2,13 @@ import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { Program, ProjectedProgram, createStateAccessors, isProjectedProgram } from "./program.js";
-import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
+import { getParentTemplateNode, isNeverType, isTemplateInstance, isValue } from "./type-utils.js";
 import {
   DecoratorApplication,
   DecoratorArgument,
   Enum,
   EnumMember,
+  IndeterminateEntity,
   Interface,
   Model,
   ModelProperty,
@@ -21,6 +22,7 @@ import {
   TypeMapper,
   Union,
   UnionVariant,
+  Value,
 } from "./types.js";
 
 /**
@@ -94,7 +96,22 @@ export function createProjector(
 
   return projectedProgram;
 
-  function projectType(type: Type): Type {
+  function projectType(type: Type): Type;
+  function projectType(type: Value): Value;
+  function projectType(type: IndeterminateEntity): IndeterminateEntity;
+  function projectType(type: Type | Value): Type | Value;
+  function projectType(
+    type: Type | Value | IndeterminateEntity
+  ): Type | Value | IndeterminateEntity;
+  function projectType(
+    type: Type | Value | IndeterminateEntity
+  ): Type | Value | IndeterminateEntity {
+    if (isValue(type)) {
+      return type;
+    }
+    if (type.entityKind === "Indeterminate") {
+      return { entityKind: "Indeterminate", type: projectType(type.type) as any };
+    }
     if (projectedTypes.has(type)) {
       return projectedTypes.get(type)!;
     }
@@ -547,7 +564,10 @@ export function createProjector(
     for (const dec of decs) {
       const args: DecoratorArgument[] = [];
       for (const arg of dec.args) {
-        const jsValue = typeof arg.jsValue === "object" ? projectType(arg.jsValue) : arg.jsValue;
+        const jsValue =
+          typeof arg.jsValue === "object" && arg.jsValue !== null && "kind" in arg.jsValue
+            ? projectType(arg.jsValue as any)
+            : arg.jsValue;
         args.push({ ...arg, value: projectType(arg.value), jsValue });
       }
 
