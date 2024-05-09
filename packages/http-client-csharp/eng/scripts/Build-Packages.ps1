@@ -20,7 +20,8 @@ $outputPath = $Output ? $Output : "$packageRoot/ci-build"
 function Write-PackageInfo {
     param(
         [string] $packageName,
-        [string] $directoryPath
+        [string] $directoryPath,
+        [string] $version
     )
 
     $packageInfoPath = "$outputPath/PackageInfo"
@@ -30,8 +31,12 @@ function Write-PackageInfo {
     }
 
     @{
+        Name = $packageName
+        Version = $version
         DirectoryPath = $directoryPath
+        SdkType = "client"
         IsNewSdk = $true
+        ReleaseStatus = "Unreleased"
     } | ConvertTo-Json | Set-Content -Path "$packageInfoPath/$packageName.json"
 }
 
@@ -43,7 +48,7 @@ function Pack-And-Write-Info {
 
     $versionOption = $BuildNumber ? "/p:Version=$version" : ""
     Invoke-LoggedCommand "dotnet pack ./$package/src/$package.csproj $versionOption -c Release -o $outputPath/packages"
-    Write-PackageInfo -packageName $package -directoryPath "packages/http-client-csharp/generator/$package/src"
+    Write-PackageInfo -packageName $package -directoryPath "packages/http-client-csharp/generator/$package/src" -version $version
 }
 
 function Get-CsprojVersion {
