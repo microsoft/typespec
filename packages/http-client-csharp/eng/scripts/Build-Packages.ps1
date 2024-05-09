@@ -115,6 +115,8 @@ try {
 
     Invoke-LoggedCommand "npm run build" -GroupOutput
 
+    Copy-Item "$packageRoot/emitter/temp/*.api.json" -Destination "$outputPath/packages"
+
     if ($BuildNumber) {
         Write-Host "Updating package.json to version: $emitterVersion`n"
 
