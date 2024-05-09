@@ -1,12 +1,9 @@
-import {
+import type {
   BooleanLiteral,
-  compilerAssert,
-  emitFile,
   Enum,
   EnumMember,
   Interface,
   IntrinsicType,
-  isTemplateDeclaration,
   Model,
   ModelProperty,
   Namespace,
@@ -21,7 +18,8 @@ import {
   Union,
   UnionVariant,
 } from "../core/index.js";
-import { code, StringBuilder } from "./builders/string-builder.js";
+import { compilerAssert, emitFile, isTemplateDeclaration } from "../core/index.js";
+import { StringBuilder, code } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { ReferenceCycle } from "./reference-cycle.js";

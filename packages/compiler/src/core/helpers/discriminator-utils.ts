@@ -2,7 +2,7 @@ import { Discriminator, getDiscriminatedTypes } from "../../lib/decorators.js";
 import { DuplicateTracker } from "../../utils/duplicate-tracker.js";
 import { isDefined } from "../../utils/misc.js";
 import { createDiagnostic } from "../messages.js";
-import { Program } from "../program.js";
+import type { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
 

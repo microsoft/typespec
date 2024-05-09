@@ -37,6 +37,7 @@ import type {
   WithoutOmittedPropertiesDecorator,
 } from "../../generated-defs/TypeSpec.js";
 import {
+  getPropertyType,
   isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
@@ -308,17 +309,6 @@ function validateTargetingAString(
     });
   }
   return valid;
-}
-
-/**
- * Return the type of the property or the model itself.
- */
-export function getPropertyType(target: Scalar | ModelProperty): Type {
-  if (target.kind === "ModelProperty") {
-    return target.type;
-  } else {
-    return target;
-  }
 }
 
 // -- @error decorator ----------------------
