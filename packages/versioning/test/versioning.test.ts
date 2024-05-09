@@ -418,7 +418,7 @@ describe("versioning: logic", () => {
       ok(v2.properties.get("b")!.optional === true);
     });
 
-    it("can be made required", async() => {
+    it("can be made required", async () => {
       const {
         projections: [v1, v2],
       } = await versionedModel(
@@ -433,7 +433,7 @@ describe("versioning: logic", () => {
       ok(v1.properties.get("b")!.optional === true);
       ok(v2.properties.get("a")!.optional === false);
       ok(v2.properties.get("b")!.optional === false);
-    })
+    });
 
     it("can change type to versioned models", async () => {
       const {

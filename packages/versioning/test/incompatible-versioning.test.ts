@@ -491,7 +491,7 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/made-required-optional",
         message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
       });
-    })
+    });
   });
 
   describe("complex type references", () => {

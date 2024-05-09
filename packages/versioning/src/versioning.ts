@@ -38,7 +38,7 @@ const useDependencyNamespaceKey = createStateSymbol("useDependencyNamespace");
 const useDependencyEnumKey = createStateSymbol("useDependencyEnum");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
-const madeRequiredKey = createStateSymbol("madeRequired")
+const madeRequiredKey = createStateSymbol("madeRequired");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
 const returnTypeChangedFromKey = createStateSymbol("returnTypeChangedFrom");
 
@@ -245,7 +245,7 @@ export const $madeRequired: MadeRequiredDecorator = (
 ) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
-  if(!version) {
+  if (!version) {
     return;
   }
   program.stateMap(madeRequiredKey).set(t, version);
@@ -906,9 +906,9 @@ export function madeOptionalAfter(program: Program, type: Type, versionKey: Obje
 
 export function madeRequiredAfter(program: Program, type: Type, versionKey: ObjectType): boolean {
   const versioningState = getVersioningState(program, versionKey);
-  
+
   const madeRequiredAtVersion = getMadeRequiredOn(program, type);
-  if(madeRequiredAtVersion === undefined) {
+  if (madeRequiredAtVersion === undefined) {
     return false;
   }
 
