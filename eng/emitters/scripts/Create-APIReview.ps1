@@ -20,6 +20,7 @@ Param (
 
 Set-StrictMode -Version 3
 . (Join-Path $PSScriptRoot ApiView-Helpers.ps1)
+. (Join-Path $PSScriptRoot SemVer.ps1)
 
 if ($LanguageShortName -eq "Unknown")
 {
