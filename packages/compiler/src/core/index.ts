@@ -47,6 +47,7 @@ export { getPositionBeforeTrivia } from "./parser-utils.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
 export * from "./program.js";
+export { isProjectedProgram } from "./projected-program.js";
 export * from "./scanner.js";
 export * from "./semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
