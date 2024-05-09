@@ -1,11 +1,5 @@
-import {
-  Enum,
-  EnumMember,
-  Namespace,
-  Program,
-  Type,
-  getNamespaceFullName,
-} from "@typespec/compiler";
+import type { Enum, EnumMember, Namespace, Program, Type } from "@typespec/compiler";
+import { getNamespaceFullName } from "@typespec/compiler";
 import {
   getAddedOnVersions,
   getRemovedOnVersions,
@@ -15,7 +9,7 @@ import {
   getVersion,
   type VersionMap,
 } from "./decorators.js";
-import { Version, VersionResolution } from "./types.js";
+import type { Version, VersionResolution } from "./types.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
 export function getVersionDependencies(

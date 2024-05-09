@@ -1,4 +1,4 @@
-import {
+import type {
   DecoratorContext,
   DiagnosticTarget,
   Enum,
@@ -14,7 +14,7 @@ import {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
-import {
+import type {
   AddedDecorator,
   MadeOptionalDecorator,
   MadeRequiredDecorator,
@@ -24,7 +24,7 @@ import {
   VersionedDecorator,
 } from "../generated-defs/TypeSpec.Versioning.js";
 import { VersioningStateKeys, reportDiagnostic } from "./lib.js";
-import { Version } from "./types.js";
+import type { Version } from "./types.js";
 import { getVersionForEnumMember } from "./versioning.js";
 
 export const namespace = "TypeSpec.Versioning";

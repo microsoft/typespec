@@ -1,27 +1,27 @@
 import {
-  Enum,
-  Interface,
-  IntrinsicType,
-  Model,
-  Namespace,
-  Operation,
-  Program,
-  ProjectionApplication,
-  Scalar,
-  Type,
-  Union,
   projectProgram,
+  type Enum,
+  type Interface,
+  type IntrinsicType,
+  type Model,
+  type Namespace,
+  type Operation,
+  type Program,
+  type ProjectionApplication,
+  type Scalar,
+  type Type,
+  type Union,
 } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  type BasicTestRunner,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { buildVersionProjections, indexTimeline } from "../src/projection.js";
-import { Version } from "../src/types.js";
+import type { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
 import { getVersions } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";

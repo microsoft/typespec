@@ -1,4 +1,4 @@
-import { Namespace, ObjectType, Program, ProjectionApplication } from "@typespec/compiler";
+import type { Namespace, ObjectType, Program, ProjectionApplication } from "@typespec/compiler";
 import { VersioningStateKeys } from "./lib.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 import { resolveVersions } from "./versioning.js";

@@ -1,5 +1,5 @@
-import { Namespace, projectProgram } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
+import { projectProgram, type Namespace } from "@typespec/compiler";
+import { createTestWrapper, type BasicTestRunner } from "@typespec/compiler/testing";
 import { notStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { buildVersionProjections } from "../src/projection.js";
