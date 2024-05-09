@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -14,6 +14,9 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
         public static ValueExpression Dash { get; } = new KeywordExpression("_", null);
+
+        public static ValueExpression DefaultOf(CSharpType type) => type is { IsValueType: true, IsNullable: false } ? Default.CastTo(type) : Null.CastTo(type);
+
         public static ValueExpression Default { get; } = new KeywordExpression("default", null);
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
@@ -21,8 +24,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static BoolExpression False { get; } = new(new KeywordExpression("false", null));
 
         public static BoolExpression Bool(bool value) => value ? True : False;
-        public static IntExpression Int(int value) => new IntExpression(Literal(value));
-        public static LongExpression Long(long value) => new LongExpression(Literal(value));
+        public static IntExpression Int(int value) => new(Literal(value));
+        public static LongExpression Long(long value) => new(Literal(value));
         public static ValueExpression Float(float value) => new FormattableStringToExpression($"{value}f");
         public static ValueExpression Double(double value) => new FormattableStringToExpression($"{value}d");
 
@@ -46,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static TypedValueExpression RemoveAllNullConditional(TypedValueExpression expression)
             => expression with { Untyped = RemoveAllNullConditional(expression.Untyped) };
 
-        public static ValueExpression Literal(object? value) => new FormattableStringToExpression($"{value:L}");
+        public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
         public static StringExpression Literal(string? value) => new(value is null ? Null : new StringLiteralExpression(value, false));
         public static StringExpression LiteralU8(string value) => new(new StringLiteralExpression(value, true));

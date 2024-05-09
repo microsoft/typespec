@@ -11,6 +11,8 @@ const $lib: TypeSpecLibrary<Object, Record<string, any>,
   | "path"
   | "query"
   | "authentication"
+  | "bodyRoot"
+  | "bodyIgnore"
   | "verbs"
   | "servers"
   | "includeInapplicableMetadataInPayload"
@@ -45,6 +47,8 @@ const $lib: TypeSpecLibrary<Object, Record<string, any>,
 | `http-verb-wrong-type.default` | `CallableMessage`<[`string`, `string`]\> | - |
 | `invalid-type-for-auth` | `Object` | - |
 | `invalid-type-for-auth.default` | `CallableMessage`<[`string`]\> | - |
+| `metadata-ignored` | `Object` | - |
+| `metadata-ignored.default` | `CallableMessage`<[`string`]\> | - |
 | `missing-path-param` | `Object` | - |
 | `missing-path-param.default` | `CallableMessage`<[`string`]\> | - |
 | `missing-server-param` | `Object` | - |

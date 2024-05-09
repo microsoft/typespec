@@ -1,10 +1,10 @@
 import {
   Decorator,
   Enum,
-  FunctionParameter,
   Interface,
   LinterRuleDefinition,
   LinterRuleSet,
+  MixedFunctionParameter,
   Model,
   ModelProperty,
   NodePackage,
@@ -119,7 +119,7 @@ export type DecoratorRefDoc = NamedTypeRefDoc & {
 };
 
 export type FunctionParameterRefDoc = {
-  readonly type: FunctionParameter;
+  readonly type: MixedFunctionParameter;
   readonly name: string;
   readonly doc: string;
   readonly optional: boolean;

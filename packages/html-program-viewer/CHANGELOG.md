@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.56.0
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Features
+
+- [#3191](https://github.com/microsoft/typespec/pull/3191) Add `sourceModels` property to model view
+
+
 ## 0.55.0
 
 ### Bump dependencies
