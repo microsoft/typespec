@@ -51,6 +51,7 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
+//TODO changing to test apiview detection remove me before merging
 export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
