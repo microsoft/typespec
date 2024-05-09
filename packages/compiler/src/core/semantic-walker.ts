@@ -1,4 +1,4 @@
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Decorator,

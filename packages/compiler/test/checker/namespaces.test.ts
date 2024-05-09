@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getTypeName } from "../../src/core/index.js";
-import { Program } from "../../src/core/program.js";
+import type { Program } from "../../src/core/program.js";
 import { Model, Namespace, Type } from "../../src/core/types.js";
 import {
   TestHost,

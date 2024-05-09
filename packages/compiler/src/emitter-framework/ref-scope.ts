@@ -1,4 +1,4 @@
-import { Declaration, Scope } from "./types.js";
+import type { Declaration, Scope } from "./types.js";
 
 export function scopeChain<T>(scope: Scope<T> | null) {
   const chain = [];

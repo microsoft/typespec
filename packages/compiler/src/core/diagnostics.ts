@@ -1,4 +1,4 @@
-import { formatLog } from "./logger/index.js";
+import { formatLog } from "./logger/console-sink.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {

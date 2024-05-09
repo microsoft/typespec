@@ -1,7 +1,7 @@
 // Contains all intrinsic data setter or getter
 // Anything that the TypeSpec check might should be here.
 
-import type { Type } from "./index.js";
+import type { Model, Type, Union } from "./index.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 
@@ -22,6 +22,8 @@ const stateKeys = {
   docs: createStateSymbol("docs"),
   returnDocs: createStateSymbol("returnsDocs"),
   errorsDocs: createStateSymbol("errorDocs"),
+
+  discriminator: createStateSymbol("discriminator"),
 };
 
 // #region @minValue
@@ -208,3 +210,23 @@ export function getDocData(program: Program, target: Type): DocData | undefined 
   return getDocDataInternal(program, target, "self");
 }
 // #endregion doc
+
+// #region discriminator
+
+export interface Discriminator {
+  readonly propertyName: string;
+}
+
+export function setDiscriminator(program: Program, entity: Type, discriminator: Discriminator) {
+  program.stateMap(stateKeys.discriminator).set(entity, discriminator);
+}
+
+export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
+  return program.stateMap(stateKeys.discriminator).get(entity);
+}
+
+export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
+  return [...program.stateMap(stateKeys.discriminator).entries()] as any;
+}
+
+// #endregion

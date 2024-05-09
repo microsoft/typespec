@@ -1,8 +1,8 @@
 import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
-import { getLocationContext } from "./helpers/index.js";
+import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
   AliasStatementNode,
   ConstStatementNode,

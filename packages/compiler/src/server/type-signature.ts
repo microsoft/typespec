@@ -1,6 +1,6 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
-import { Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {
   AliasStatementNode,

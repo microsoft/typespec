@@ -1,8 +1,7 @@
-import { getPropertyType } from "../lib/decorators.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import {
   DecoratorContext,
   DecoratorFunction,
@@ -514,5 +513,16 @@ export function validateDecoratorNotOnType(
     } else {
       return undefined;
     }
+  }
+}
+
+/**
+ * Return the type of the property or the model itself.
+ */
+export function getPropertyType(target: Scalar | ModelProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target;
   }
 }
