@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
             public abstract TypedValueExpression GetTypedResponseFromValue(TypedValueExpression value, TypedValueExpression response);
             public abstract TypedValueExpression GetTypedResponseFromModel(TypeProvider typeProvider, TypedValueExpression response);
-            public abstract TypedValueExpression GetTypedResponseFromEnum(EnumType enumType, TypedValueExpression response);
+            public abstract TypedValueExpression GetTypedResponseFromEnum(EnumTypeProvider enumType, TypedValueExpression response);
             public abstract TypedValueExpression GetTypedResponseFromBinaryData(Type responseType, TypedValueExpression response, string? contentType = null);
 
             public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedValueExpression message);

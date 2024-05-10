@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Linq;
@@ -18,8 +18,7 @@ namespace Microsoft.Generator.CSharp.Writers
 
         public virtual void Write()
         {
-            var ns = TypeProvider.GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            using (_writer.SetNamespace(ns))
+            using (_writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType();
             }

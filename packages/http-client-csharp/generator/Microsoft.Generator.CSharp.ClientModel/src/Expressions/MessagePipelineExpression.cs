@@ -1,6 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives.Pipeline;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
@@ -24,7 +25,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 arguments.Add(cancellationToken);
             }
 
-            return ClientPipelineExtensionsProvider.Instance.ProcessMessage(arguments, async);
+            // uncomment when this is implemented
+            //return ClientPipelineExtensionsProvider.Instance.ProcessMessage(arguments, async);
+            throw new NotImplementedException();
         }
 
         public ResultExpression ProcessHeadAsBoolMessage(TypedValueExpression message, RequestOptionsExpression? requestContext, bool async)
@@ -36,7 +39,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 requestContext ?? Snippets.Null
             };
 
-            return ClientPipelineExtensionsProvider.Instance.ProcessHeadAsBoolMessage(arguments, async);
+            // uncomment when this is implemented
+            //return ClientPipelineExtensionsProvider.Instance.ProcessHeadAsBoolMessage(arguments, async);
+            throw new NotImplementedException();
         }
     }
 }

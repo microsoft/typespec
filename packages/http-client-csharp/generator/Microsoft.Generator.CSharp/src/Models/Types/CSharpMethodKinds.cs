@@ -15,10 +15,11 @@ namespace Microsoft.Generator.CSharp
         internal const string ConvenienceValue = "Convenience";
         internal const string ProtocolValue = "Protocol";
         internal const string CreateMessageValue = "CreateMessage";
+        internal const string ConstructorValue = "Constructor";
 
         private readonly string _value;
 
-        /// <summary> Initializes a new instance of the <see cref="MethodKinds"/> structure.</summary>
+        /// <summary> Initializes a new instance of the <see cref="CSharpMethodKinds"/> structure.</summary>
         /// <param name="value">The string value of the instance.</param>
         /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public CSharpMethodKinds(string value)
@@ -40,6 +41,11 @@ namespace Microsoft.Generator.CSharp
         /// CreateMessage method kind.
         /// </summary>
         public static CSharpMethodKinds CreateMessage { get; } = new CSharpMethodKinds(CreateMessageValue);
+
+        /// <summary>
+        /// Constructor method kind.
+        /// </summary>
+        public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);

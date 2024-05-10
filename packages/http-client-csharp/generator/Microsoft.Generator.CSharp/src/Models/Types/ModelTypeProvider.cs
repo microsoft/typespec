@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
@@ -15,11 +12,13 @@ namespace Microsoft.Generator.CSharp
         private readonly InputModelType _inputModel;
 
         public override string Name { get; }
+        public override string Namespace { get; }
 
         public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
             Name = inputModel.Name.ToCleanName();
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
 
             if (inputModel.Accessibility == "internal")
             {

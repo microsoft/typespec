@@ -26,15 +26,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputList { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputList listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            // Uncomment this when the enums are implemented: https://github.com/Azure/autorest.csharp/issues/4579
-            //InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-            //? provider.Type.WithNullable(inputType.IsNullable)
-            //: throw new InvalidOperationException($"No {nameof(EnumType)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            // TODO -- this is temporary until we have support for enums
-            InputEnumType enumType => CreateCSharpType(enumType.EnumValueType).WithNullable(enumType.IsNullable),
+            InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
+                ? provider.Type.WithNullable(inputType.IsNullable)
+                : throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-            ? provider.Type.WithNullable(inputType.IsNullable)
-            : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
+                ? provider.Type.WithNullable(inputType.IsNullable)
+                : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputTypeKind.BinaryData => new CSharpType(typeof(BinaryData), inputType.IsNullable),
