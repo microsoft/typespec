@@ -59,9 +59,9 @@ namespace Microsoft.Generator.CSharp
             var propertyDeclaration = new PropertyDeclaration(
                 Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
                 Modifiers: MethodSignatureModifiers.Public,
-                PropertyType: propertyType,
+                Type: propertyType,
                 Name: property.Name.FirstCharToUpperCase(),
-                PropertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
                 );
 
             return propertyDeclaration;
