@@ -57,11 +57,11 @@ namespace Microsoft.Generator.CSharp
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             var propertyDeclaration = new PropertyDeclaration(
-                description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
-                modifiers: MethodSignatureModifiers.Public,
-                propertyType: propertyType,
-                name: property.Name.FirstCharToUpperCase(),
-                propertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                Modifiers: MethodSignatureModifiers.Public,
+                Type: propertyType,
+                Name: property.Name.FirstCharToUpperCase(),
+                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
                 );
 
             return propertyDeclaration;
