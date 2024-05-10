@@ -26,6 +26,7 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
+  type Discriminator,
 } from "./intrinsic-type-state.js";
 export {
   // eslint-disable-next-line deprecation/deprecation
