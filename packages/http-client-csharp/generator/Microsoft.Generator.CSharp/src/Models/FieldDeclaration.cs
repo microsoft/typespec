@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record FieldDeclaration(FormattableString? Description, FieldModifiers Modifiers, CSharpType Type, CSharpType ValueType, string Name, ValueExpression? InitializationValue, bool IsRequired, bool OptionalViaNullability = false, SourcePropertySerializationMapping? SerializationMapping = null)
+    public sealed record FieldDeclaration(FormattableString? Description, FieldModifiers Modifiers, CSharpType Type, string Name, ValueExpression? InitializationValue)
     {
         public string Accessibility => (Modifiers & FieldModifiers.Public) > 0 ? "public" : "internal";
 
@@ -21,10 +21,8 @@ namespace Microsoft.Generator.CSharp
             : this(Description: description,
                   Modifiers: modifiers,
                   Type: type,
-                  ValueType: type,
                   Name: name,
-                  InitializationValue: null,
-                  IsRequired: false)
+                  InitializationValue: null)
         { }
     }
 }
