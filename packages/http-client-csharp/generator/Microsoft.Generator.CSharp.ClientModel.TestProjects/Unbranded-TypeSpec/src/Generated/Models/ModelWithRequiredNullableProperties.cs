@@ -12,10 +12,10 @@ namespace UnbrandedTypeSpec.Models
         public int? RequiredNullablePrimitive { get; set; }
 
         /// <summary> required nullable extensible enum type. </summary>
-        public string RequiredExtensibleEnum { get; set; }
+        public StringExtensibleEnum? RequiredExtensibleEnum { get; set; }
 
         /// <summary> required nullable fixed enum type. </summary>
-        public string RequiredFixedEnum { get; set; }
+        public StringFixedEnum? RequiredFixedEnum { get; set; }
 
         // Add Methods
 

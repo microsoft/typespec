@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using ;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -61,40 +62,44 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; } = "accept";
+        public global::.RequiredLiteralString{ get; } = "accept";
 
-        /// <summary> required literal int. </summary>
-        public int RequiredLiteralInt { get; } = 123;
+/// <summary> required literal int. </summary>
+public global::.RequiredLiteralInt{ get; } = 123;
 
-        /// <summary> required literal float. </summary>
-        public float RequiredLiteralFloat { get; } = 1.23F;
+/// <summary> required literal float. </summary>
+public global::.RequiredLiteralFloat
+{ get; } = 1.23F;
 
-        /// <summary> required literal bool. </summary>
-        public bool RequiredLiteralBool { get; } = false;
+/// <summary> required literal bool. </summary>
+public bool RequiredLiteralBool { get; } = false;
 
-        /// <summary> optional literal string. </summary>
-        public string OptionalLiteralString { get; set; }
+/// <summary> optional literal string. </summary>
+public global::.OptionalLiteralString
+{ get; set; }
 
-        /// <summary> optional literal int. </summary>
-        public int OptionalLiteralInt { get; set; }
+/// <summary> optional literal int. </summary>
+public global::.OptionalLiteralInt
+{ get; set; }
 
-        /// <summary> optional literal float. </summary>
-        public float OptionalLiteralFloat { get; set; }
+/// <summary> optional literal float. </summary>
+public global::.OptionalLiteralFloat
+{ get; set; }
 
-        /// <summary> optional literal bool. </summary>
-        public bool OptionalLiteralBool { get; set; }
+/// <summary> optional literal bool. </summary>
+public bool OptionalLiteralBool { get; set; }
 
-        /// <summary> description with xml <|endoftext|>. </summary>
-        public string RequiredBadDescription { get; set; }
+/// <summary> description with xml <|endoftext|>. </summary>
+public string RequiredBadDescription { get; set; }
 
-        /// <summary> optional nullable collection. </summary>
-        public IList<int> OptionalNullableList { get; set; }
+/// <summary> optional nullable collection. </summary>
+public IList<int> OptionalNullableList { get; set; }
 
-        /// <summary> required nullable collection. </summary>
-        public IList<int> RequiredNullableList { get; set; }
+/// <summary> required nullable collection. </summary>
+public IList<int> RequiredNullableList { get; set; }
 
-        // Add Methods
+// Add Methods
 
-        // Add Nested Type
-    }
+// Add Nested Type
+}
 }
