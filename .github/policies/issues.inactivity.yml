@@ -53,6 +53,8 @@ configuration:
               label: needs-author-feedback
           - isOpen
         then:
+          - assignTo:
+              users: []
           - addLabel:
               label: needs-triage
           - removeLabel:
