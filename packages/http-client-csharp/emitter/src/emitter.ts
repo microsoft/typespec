@@ -59,7 +59,6 @@ export const $lib = createTypeSpecLibrary({
 /**
  * Look for the project root by looking up until a `package.json` is found.
  * @param path Path to start looking
- * @param lookIn
  */
 function findProjectRoot(path: string): string | undefined {
   let current = path;
