@@ -179,7 +179,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const command = `${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
         logger.info(command);
 
-        execAsync(
+       await execAsync(
           generatorPath,
           [outputFolder, newProjectOption, existingProjectOption, debugFlag],
           { stdio: "inherit" }
