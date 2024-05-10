@@ -8,8 +8,6 @@ namespace UnbrandedTypeSpec.Models
     {
         // Add Constructors
 
-        // Add Methods
-
         // Add Nested Type
     }
 }

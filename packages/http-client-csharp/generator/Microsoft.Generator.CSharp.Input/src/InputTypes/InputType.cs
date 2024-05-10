@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -15,6 +15,7 @@ namespace Microsoft.Generator.CSharp.Input
             Name = name;
             IsNullable = isNullable;
         }
+        public InputTypeSerialization Serialization { get; init; } = InputTypeSerialization.Default;
 
         public string Name { get; }
         public bool IsNullable { get; }
