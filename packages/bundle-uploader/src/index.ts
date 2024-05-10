@@ -71,15 +71,16 @@ export async function bundleAndUploadPackages({
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
       logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
+      // Only register imports that are modified
+      for (const [key, value] of Object.entries(result.imports)) {
+        importMap[joinUnix(project.manifest.name!, key)] = value;
+      }
     } else {
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
     }
-    for (const [key, value] of Object.entries(result.imports)) {
-      importMap[joinUnix(project.manifest.name!, key)] = value;
-    }
   }
   logInfo(`Import map for ${indexVersion}:`, importMap);
-  await uploader.uploadIndex(indexName, {
+  await uploader.updateIndex(indexName, {
     version: indexVersion,
     imports: importMap,
   });
