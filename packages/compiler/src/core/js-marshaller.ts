@@ -1,4 +1,4 @@
-import { Checker } from "./checker.js";
+import type { Checker } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
 import { numericRanges } from "./numeric-ranges.js";
 import { Numeric } from "./numeric.js";

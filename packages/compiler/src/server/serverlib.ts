@@ -54,7 +54,7 @@ import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
-import { Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {

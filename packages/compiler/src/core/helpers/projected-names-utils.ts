@@ -1,5 +1,6 @@
-import { Program, ProjectedProgram, projectProgram } from "../program.js";
-import { Projector, Type } from "../types.js";
+import type { Program, ProjectedProgram } from "../program.js";
+import { projectProgram } from "../program.js";
+import type { Projector, Type } from "../types.js";
 
 export interface ProjectedNameView {
   program: ProjectedProgram;

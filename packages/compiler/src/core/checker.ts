@@ -12,14 +12,14 @@ import {
   reportDeprecated,
 } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
+import { getLocationContext } from "./helpers/location-context.js";
+import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import {
-  TypeNameOptions,
   getEntityName,
-  getLocationContext,
   getNamespaceFullName,
   getTypeName,
-} from "./helpers/index.js";
-import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
+  type TypeNameOptions,
+} from "./helpers/type-name-utils.js";
 import {
   getMaxItems,
   getMaxLength,

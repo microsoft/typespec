@@ -1,7 +1,7 @@
 import { camelCase, kebabCase, pascalCase } from "change-case";
 import Mustache from "mustache";
-import { InitTemplate } from "./init-template.js";
-import { ScaffoldingConfig } from "./scaffold.js";
+import type { InitTemplate } from "./init-template.js";
+import type { ScaffoldingConfig } from "./scaffold.js";
 
 export type FileTemplatingContext = Omit<InitTemplate, "libraries"> &
   ScaffoldingConfig & {

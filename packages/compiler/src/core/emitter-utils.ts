@@ -1,5 +1,5 @@
 import { getDirectoryPath } from "./path-utils.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 
 export type NewLine = "lf" | "crlf";
 export interface EmitFileOptions {

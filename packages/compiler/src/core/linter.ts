@@ -1,7 +1,7 @@
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
-import { getLocationContext } from "./helpers/index.js";
+import { getLocationContext } from "./helpers/location-context.js";
 import { createDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import {
   Diagnostic,

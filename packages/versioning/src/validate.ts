@@ -18,6 +18,7 @@ import {
   findVersionedNamespace,
   getAvailabilityMap,
   getMadeOptionalOn,
+  getMadeRequiredOn,
   getRenamedFrom,
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
@@ -69,6 +70,9 @@ export function $onValidate(program: Program) {
 
           // Validate model property type is correct when madeOptional
           validateMadeOptional(program, prop);
+
+          // Validate model property type is correct when madeRequired
+          validateMadeRequired(program, prop);
         }
         validateVersionedPropertyNames(program, model);
       },
@@ -448,6 +452,26 @@ function validateMadeOptional(program: Program, target: Type) {
     if (!target.optional) {
       reportDiagnostic(program, {
         code: "made-optional-not-optional",
+        format: {
+          name: target.name,
+        },
+        target: target,
+      });
+      return;
+    }
+  }
+}
+
+function validateMadeRequired(program: Program, target: Type) {
+  if (target.kind === "ModelProperty") {
+    const madeRequiredOn = getMadeRequiredOn(program, target);
+    if (!madeRequiredOn) {
+      return;
+    }
+    // if the @madeRequired decorator is on a property, it MUST NOT be optional
+    if (target.optional) {
+      reportDiagnostic(program, {
+        code: "made-required-optional",
         format: {
           name: target.name,
         },
