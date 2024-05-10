@@ -5,14 +5,17 @@
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="Unbranded-TypeSpec\**" />
-    <EmbeddedResource Remove="Unbranded-TypeSpec\**" />
-    <None Remove="Unbranded-TypeSpec\**" />
+    <Folder Include="Unbranded-TypeSpec\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="./**/*.*" />
+    <Compile Remove="./**/*.*" />
+    <Compile Include="./**/*.cs" Exclude="./**/Properties/**/*.cs" />
+  </ItemGroup>
+  
 </Project>

@@ -12,7 +12,6 @@ export type NetEmitterOptions = {
   skipSDKGeneration?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  csharpGeneratorPath?: string;
   "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   "model-namespace"?: boolean;
@@ -48,11 +47,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
       nullable: true,
     },
     "new-project": { type: "boolean", nullable: true },
-    csharpGeneratorPath: {
-      type: "string",
-      default: "fake-location",
-      nullable: true,
-    },
     "clear-output-folder": { type: "boolean", nullable: true },
     "save-inputs": { type: "boolean", nullable: true },
     "model-namespace": { type: "boolean", nullable: true },
@@ -120,7 +114,6 @@ const defaultOptions = {
   logFile: "log.json",
   skipSDKGeneration: false,
   "new-project": false,
-  csharpGeneratorPath: "fake-location",
   "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,

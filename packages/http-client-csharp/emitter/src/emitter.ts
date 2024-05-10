@@ -6,13 +6,18 @@ import {
   EmitContext,
   Program,
   createTypeSpecLibrary,
+  getDirectoryPath,
+  joinPaths,
   logDiagnostics,
   paramMessage,
   resolvePath,
 } from "@typespec/compiler";
 
-import fs from "fs";
+import { execSync } from "child_process";
+import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel, logger } from "./lib/logger.js";
@@ -51,6 +56,27 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
+/**
+ * Look for the project root by looking up until a `package.json` is found.
+ * @param path Path to start looking
+ * @param lookIn
+ */
+function findProjectRoot(path: string): string | undefined {
+  let current = path;
+  while (true) {
+    const pkgPath = joinPaths(current, "package.json");
+    const stats = checkFile(pkgPath);
+    if (stats?.isFile()) {
+      return current;
+    }
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      return undefined;
+    }
+    current = parent;
+  }
+}
+
 export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
@@ -75,16 +101,14 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
     // await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
     if (root) {
-      const generatedFolder = outputFolder.endsWith("src")
-        ? resolvePath(outputFolder, "Generated")
-        : resolvePath(outputFolder, "src", "Generated");
+      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
 
       await program.host.writeFile(
-        resolvePath(generatedFolder, tspOutputFileName),
+        resolvePath(outputFolder, tspOutputFileName),
         prettierOutput(stringifyRefs(root, null, 1, PreserveType.Objects))
       );
 
@@ -128,36 +152,47 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       };
 
       await program.host.writeFile(
-        resolvePath(generatedFolder, configurationFileName),
+        resolvePath(outputFolder, configurationFileName),
         prettierOutput(JSON.stringify(configurations, null, 2))
       );
 
       if (options.skipSDKGeneration !== true) {
-        const csProjFile = resolvePath(outputFolder, `${configurations["library-name"]}.csproj`);
+        const csProjFile = resolvePath(
+          outputFolder,
+          "src",
+          `${configurations["library-name"]}.csproj`
+        );
         logger.info(`Checking if ${csProjFile} exists`);
+        const newProjectOption = "";
+        // TODO uncomment when https://github.com/Azure/autorest.csharp/issues/4463 is resolved
+        //  options["new-project"] || !existsSync(csProjFile) ? "--new-project" : "";
+        const existingProjectOption = options["existing-project-folder"]
+          ? `--existing-project-folder ${options["existing-project-folder"]}`
+          : "";
+        const debugFlag = options.debug ?? false ? " --debug" : "";
 
-        logger.info("TODO connect the dotnet generator");
-        //const command = `dotnet --roll-forward Major ${resolvePath(
-        //  options.csharpGeneratorPath
-        //)} --project-path ${outputFolder} ${newProjectOption} ${existingProjectOption} --clear-output-folder ${
-        //  options["clear-output-folder"]
-        //}${debugFlag}`;
-        //logger.info(command);
-        //
-        //try {
-        //  execSync(command, { stdio: "inherit" });
-        //} catch (error: any) {
-        //  if (error.message) logger.info(error.message);
-        //  if (error.stderr) logger.error(error.stderr);
-        //  if (error.stdout) logger.verbose(error.stdout);
-        //  throw error;
-        //}
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+        const generatorPath = resolvePath(
+          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.exe"
+        );
+
+        const command = `${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        logger.info(command);
+
+        try {
+          execSync(command, { stdio: "inherit" });
+        } catch (error: any) {
+          if (error.message) logger.info(error.message);
+          if (error.stderr) logger.error(error.stderr);
+          if (error.stdout) logger.verbose(error.stdout);
+          throw error;
+        }
       }
 
       if (!options["save-inputs"]) {
         // delete
-        deleteFile(resolvePath(generatedFolder, tspOutputFileName));
-        deleteFile(resolvePath(generatedFolder, configurationFileName));
+        deleteFile(resolvePath(outputFolder, tspOutputFileName));
+        deleteFile(resolvePath(outputFolder, configurationFileName));
       }
     }
   }
@@ -175,4 +210,12 @@ function deleteFile(filePath: string) {
 
 function prettierOutput(output: string) {
   return output + "\n";
+}
+
+function checkFile(pkgPath: string) {
+  try {
+    return statSync(pkgPath);
+  } catch (error) {
+    return undefined;
+  }
 }
