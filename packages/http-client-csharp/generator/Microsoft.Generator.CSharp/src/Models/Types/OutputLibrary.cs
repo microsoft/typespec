@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -17,6 +17,35 @@ namespace Microsoft.Generator.CSharp
         {
             EnumMappings = new Dictionary<InputEnumType, EnumTypeProvider>();
             ModelMappings = new Dictionary<InputModelType, ModelTypeProvider>();
+
+            _allModels = new(InitializeAllModels);
+        }
+
+        private readonly Lazy<(EnumTypeProvider[] Enums, ModelTypeProvider[] Models)> _allModels;
+
+        private (EnumTypeProvider[] Enums, ModelTypeProvider[] Models) InitializeAllModels()
+        {
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+
+            var enums = new EnumTypeProvider[input.Enums.Count];
+            for (int i = 0; i < enums.Length; i++)
+            {
+                var inputEnum = input.Enums[i];
+                var enumType = new EnumTypeProvider(inputEnum, null);
+                enums[i] = enumType;
+                EnumMappings.Add(inputEnum, enumType);
+            }
+
+            var models = new ModelTypeProvider[input.Models.Count];
+            for (int i = 0; i < models.Length; i++)
+            {
+                var inputModel = input.Models[i];
+                var model = new ModelTypeProvider(inputModel, null);
+                models[i] = model;
+                ModelMappings.Add(inputModel, model);
+            }
+
+            return (enums, models);
         }
 
         public IReadOnlyList<EnumTypeProvider> Enums => _enums ??= BuildEnums();
@@ -28,42 +57,12 @@ namespace Microsoft.Generator.CSharp
 
         public virtual EnumTypeProvider[] BuildEnums()
         {
-            // TODO -- this is not correct, enums are only built when `Enums` is called which is only called when we are trying to write the enums.
-            // when building the model's property, we still have the possibility (very very likely) to need enums
-            // TODO -- we need to change how these things are loaded
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var enumsCount = input.Enums.Count;
-            var enumProviders = new EnumTypeProvider[enumsCount];
-
-            for (int i = 0; i < enumsCount; i++)
-            {
-                var inputEnum = input.Enums[i];
-                var enumType = new EnumTypeProvider(inputEnum, null);
-                enumProviders[i] = enumType;
-                EnumMappings.Add(inputEnum, enumType);
-            }
-
-            return enumProviders;
+            return _allModels.Value.Enums;
         }
 
         public virtual ModelTypeProvider[] BuildModels()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var modelsCount = input.Models.Count;
-            ModelTypeProvider[] modelProviders = new ModelTypeProvider[modelsCount];
-
-            for (int i = 0; i < modelsCount; i++)
-            {
-                var model = input.Models[i];
-                var typeProvider = new ModelTypeProvider(model, null);
-
-                modelProviders[i] = typeProvider;
-                ModelMappings.Add(model, typeProvider);
-            }
-
-            return modelProviders;
+            return _allModels.Value.Models;
         }
 
         public virtual ClientTypeProvider[] BuildClients()

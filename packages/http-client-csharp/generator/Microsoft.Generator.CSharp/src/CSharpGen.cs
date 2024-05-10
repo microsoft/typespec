@@ -37,6 +37,14 @@ namespace Microsoft.Generator.CSharp
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
             }
 
+            foreach (var enumType in output.Enums)
+            {
+                CodeWriter writer = new CodeWriter();
+                ExpressionTypeProviderWriter enumWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, enumType);
+                enumWriter.Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{enumType.Name}.cs"), writer.ToString()));
+            }
+
             foreach (var client in output.Clients)
             {
                 CodeWriter writer = new CodeWriter();

@@ -18,8 +18,8 @@ namespace Microsoft.Generator.CSharp
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
-            // TODO -- figure out how to get namespaces of clients
-            Namespace = string.Empty;
+            // TODO -- figure out how to correctly get namespaces of clients
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
         }
 
         protected override CSharpMethod[] BuildMethods()

@@ -563,6 +563,13 @@ namespace Microsoft.Generator.CSharp
 
                 return literalType;
             }
+            else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
+            {
+                var literalType = new CSharpType(enumType, isValueType: true, isEnum: true, isNullable: type.IsNullable);
+                literalType._literal = literalValue;
+
+                return literalType;
+            }
 
             throw new NotSupportedException("Literals are not supported in non-framework type");
         }
