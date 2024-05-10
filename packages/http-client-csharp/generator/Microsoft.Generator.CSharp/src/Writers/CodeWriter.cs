@@ -298,7 +298,7 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
 
-            Append($"{property.PropertyType} ");
+            Append($"{property.Type} ");
 
             if (property.ExplicitInterface is not null)
             {
@@ -313,7 +313,7 @@ namespace Microsoft.Generator.CSharp
                 Append($"{property.Name:I}");
             }
 
-            switch (property.PropertyBody)
+            switch (property.Body)
             {
                 case ExpressionPropertyBody(var expression):
                     expression.Write(AppendRaw(" => "));
@@ -346,7 +346,7 @@ namespace Microsoft.Generator.CSharp
                     AppendRaw("}");
                     break;
                 default:
-                    throw new InvalidOperationException($"Unhandled property body type {property.PropertyBody}");
+                    throw new InvalidOperationException($"Unhandled property body type {property.Body}");
             }
 
             WriteLine();
