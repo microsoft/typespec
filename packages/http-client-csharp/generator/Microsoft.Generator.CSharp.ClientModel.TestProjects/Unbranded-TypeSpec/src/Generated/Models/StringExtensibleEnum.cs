@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ComponentModel;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -24,7 +25,25 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
+        public static StringExtensibleEnum One { get; } = new StringExtensibleEnum(OneValue);
+
+        public static StringExtensibleEnum Two { get; } = new StringExtensibleEnum(TwoValue);
+
+        public static StringExtensibleEnum Four { get; } = new StringExtensibleEnum(FourValue);
+
         // Add Methods
+        public static bool operator ==(StringExtensibleEnum left, StringExtensibleEnum right) => left.Equals(right);
+
+        public static bool operator !=(StringExtensibleEnum left, StringExtensibleEnum right) => !left.Equals(right);
+
+        public static implicit operator StringExtensibleEnum(string value) => new StringExtensibleEnum(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => obj is StringExtensibleEnum other && Equals(other);
+
+        public bool Equals(StringExtensibleEnum other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
+
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
         // Add Nested Type
     }

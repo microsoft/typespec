@@ -3,12 +3,14 @@
 #nullable disable
 
 using System;
+using System.ComponentModel;
 
 namespace UnbrandedTypeSpec.Models
 {
     public readonly partial struct ThingRequiredLiteralFloat : IEquatable<ThingRequiredLiteralFloat>
     {
         private readonly float _value;
+        /// <summary> 1.23. </summary>
         private const float _123Value = 1.23F;
 
         // Add Constructors
@@ -17,7 +19,22 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
+        /// <summary> 1.23. </summary>
+        public static ThingRequiredLiteralFloat _123 { get; } = new ThingRequiredLiteralFloat(_123Value);
+
         // Add Methods
+        public static bool operator ==(ThingRequiredLiteralFloat left, ThingRequiredLiteralFloat right) => left.Equals(right);
+
+        public static bool operator !=(ThingRequiredLiteralFloat left, ThingRequiredLiteralFloat right) => !left.Equals(right);
+
+        public static implicit operator ThingRequiredLiteralFloat(float value) => new ThingRequiredLiteralFloat(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => obj is ThingRequiredLiteralFloat other && Equals(other);
+
+        public bool Equals(ThingRequiredLiteralFloat other) => Equals(_value, other._value);
+
+        public override int GetHashCode() => _value.GetHashCode();
 
         // Add Nested Type
     }

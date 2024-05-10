@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -30,6 +30,17 @@ namespace Microsoft.Generator.CSharp
                 using (writer.WriteMethodDeclaration(method.Signature))
                 {
                     body.Write(writer);
+                }
+            }
+
+            if (method.Expression is { } expression)
+            {
+                using (writer.WriteMethodDeclarationNoScope(method.Signature))
+                {
+                    writer.AppendRaw(" => ");
+                    expression.Write(writer);
+                    writer.AppendRaw(";")
+                        .WriteLine();
                 }
             }
 

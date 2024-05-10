@@ -3,12 +3,14 @@
 #nullable disable
 
 using System;
+using System.ComponentModel;
 
 namespace UnbrandedTypeSpec.Models
 {
     public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
     {
         private readonly string _value;
+        /// <summary> reject. </summary>
         private const string RejectValue = "reject";
 
         // Add Constructors
@@ -22,7 +24,22 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
+        /// <summary> reject. </summary>
+        public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
+
         // Add Methods
+        public static bool operator ==(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => left.Equals(right);
+
+        public static bool operator !=(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => !left.Equals(right);
+
+        public static implicit operator ThingOptionalLiteralString(string value) => new ThingOptionalLiteralString(value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && Equals(other);
+
+        public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
+
+        public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
         // Add Nested Type
     }

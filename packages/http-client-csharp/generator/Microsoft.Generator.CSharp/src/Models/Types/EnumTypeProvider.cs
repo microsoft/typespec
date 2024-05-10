@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -12,6 +13,9 @@ namespace Microsoft.Generator.CSharp
 {
     public class EnumTypeProvider : TypeProvider
     {
+        private const string OperatorKind = "Operator";
+        private const string MethodKind = "Method";
+
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly ModelTypeMapping? _typeMapping;
 
@@ -113,7 +117,7 @@ namespace Microsoft.Generator.CSharp
             foreach (var value in Values)
             {
                 var field = new FieldDeclaration(
-                    Description: null,
+                    Description: FormattableStringHelpers.FromString(value.Description),
                     Modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     Type: ValueType,
                     Name: GetFieldName(enumName, value.Name, Values),
@@ -173,6 +177,27 @@ namespace Microsoft.Generator.CSharp
             return fields;
         }
 
+        protected override PropertyDeclaration[] BuildProperties()
+        {
+            if (!IsExtensible)
+                return Array.Empty<PropertyDeclaration>();
+
+            var properties = new PropertyDeclaration[Values.Count];
+
+            var index = 0;
+            foreach (var (value, field) in ValueFields)
+            {
+                properties[index++] = new PropertyDeclaration(
+                    Description: FormattableStringHelpers.FromString(value.Description),
+                    Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                    Type: Type,
+                    Name: value.Name,
+                    Body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)));
+            }
+
+            return properties;
+        }
+
         protected override CSharpMethod[] BuildConstructors()
         {
             if (!IsExtensible)
@@ -195,6 +220,99 @@ namespace Microsoft.Generator.CSharp
             };
 
             return [new CSharpMethod(signature, body, CSharpMethodKinds.Constructor)];
+        }
+
+        protected override CSharpMethod[] BuildMethods()
+        {
+            // TODO -- to be implemented
+            if (!IsExtensible)
+                return Array.Empty<CSharpMethod>();
+
+            return BuildExtensibleEnumMethods();
+        }
+
+        private CSharpMethod[] BuildExtensibleEnumMethods()
+        {
+            var methods = new List<CSharpMethod>();
+
+            var leftParameter = new Parameter("left", null, Type, null, ValidationType.None, null);
+            var rightParameter = new Parameter("right", null, Type, null, ValidationType.None, null);
+            var left = (ValueExpression)leftParameter;
+            var right = (ValueExpression)rightParameter;
+            var equalitySignature = new MethodSignature(
+                Name: "==",
+                Summary: null,
+                Description: $"Determines if two {Type:C} values are the same.",
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator,
+                ReturnType: typeof(bool),
+                ReturnDescription: null,
+                Parameters: [leftParameter, rightParameter]);
+
+            methods.Add(new(equalitySignature, left.InvokeEquals(right), OperatorKind));
+
+            var inequalitySignature = equalitySignature with
+            {
+                Name = "!=",
+                Description = $"Determines if two {Type:C} values are not the same.",
+            };
+
+            methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), OperatorKind));
+
+            var valueParameter = new Parameter("value", null, ValueType, null, ValidationType.None, null);
+            var castSignature = new MethodSignature(
+                Name: string.Empty,
+                Summary: null,
+                Description: $"Converts a string to a {Type:C}",
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
+                ReturnType: Type,
+                ReturnDescription: null,
+                Parameters: [valueParameter]);
+
+            methods.Add(new(castSignature, New.Instance(Type, valueParameter), OperatorKind));
+
+            var objParameter = new Parameter("obj", null, typeof(object), null, ValidationType.None, null);
+            var equalsSignature = new MethodSignature(
+                Name: nameof(object.Equals),
+                Summary: null,
+                Description: null,
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
+                ReturnType: typeof(bool),
+                ReturnDescription: null,
+                Parameters: [objParameter],
+                Attributes: [new CSharpAttribute(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
+
+            methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolExpression(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), MethodKind));
+
+            var otherParameter = new Parameter("other", null, Type, null, ValidationType.None, null);
+            equalsSignature = equalsSignature with
+            {
+                Modifiers = MethodSignatureModifiers.Public,
+                Parameters = [otherParameter],
+                Attributes = Array.Empty<CSharpAttribute>()
+            };
+
+            var valueField = new TypedValueExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField);
+            var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
+            methods.Add(new(equalsSignature, IsStringValueType
+                ? new InvokeInstanceMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                : new InvokeInstanceMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]),
+                MethodKind));
+
+            var getHashCodeSignature = new MethodSignature(
+                Name: nameof(object.GetHashCode),
+                Summary: null,
+                Description: null,
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
+                ReturnType: typeof(int),
+                ReturnDescription: null,
+                Parameters: Array.Empty<Parameter>());
+
+            methods.Add(new(getHashCodeSignature, IsStringValueType
+                ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
+                : valueField.InvokeGetHashCode(),
+                MethodKind));
+
+            return methods.ToArray();
         }
     }
 }

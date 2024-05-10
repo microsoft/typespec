@@ -1078,13 +1078,26 @@ namespace Microsoft.Generator.CSharp
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                if (method.ReturnType != null)
+                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                if (!isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType} ");
+                    if (method.ReturnType != null)
+                    {
+                        Append($"{method.ReturnType} ");
+                    }
+                    else
+                    {
+                        AppendRaw("void ");
+                    }
                 }
-                else
+
+                AppendRawIf("implicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit))
+                    .AppendRawIf("explicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit))
+                    .AppendRawIf("operator ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+                if (isImplicitOrExplicit)
                 {
-                    AppendRaw("void ");
+                    Append($"{method.ReturnType}");
                 }
 
                 if (method.ExplicitInterface is not null)
