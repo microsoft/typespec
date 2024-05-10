@@ -1,5 +1,6 @@
-import { Type, getTypeName } from "../core/index.js";
-import { EmitEntity } from "./types.js";
+import { getTypeName } from "../core/helpers/type-name-utils.js";
+import type { Type } from "../core/index.js";
+import type { EmitEntity } from "./types.js";
 
 export interface ReferenceCycleEntry {
   type: Type;

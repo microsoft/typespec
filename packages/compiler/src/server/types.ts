@@ -37,7 +37,7 @@ import {
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
 import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
-import { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../index.js";
+import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
 
 export interface ServerHost {
   readonly compilerHost: CompilerHost;

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
@@ -50,17 +52,17 @@ namespace Microsoft.Generator.CSharp
         private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
+            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(property.Type);
             var propHasSetter = PropertyHasSetter(propertyType, property);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            // Add Remarks and Example for BinaryData Properties https://github.com/Azure/autorest.csharp/issues/4617
             var propertyDeclaration = new PropertyDeclaration(
-                    Description: FormattableStringHelpers.FromString(property.Description),
-                    Modifiers: MethodSignatureModifiers.Public,
-                    PropertyType: propertyType,
-                    Name: property.Name.FirstCharToUpperCase(),
-                    PropertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                    );
+                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                Modifiers: MethodSignatureModifiers.Public,
+                PropertyType: propertyType,
+                Name: property.Name.FirstCharToUpperCase(),
+                PropertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                );
 
             return propertyDeclaration;
         }

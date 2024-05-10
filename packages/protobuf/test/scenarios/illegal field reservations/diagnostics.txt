@@ -1,2 +1,2 @@
-<in core> - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
-<in core> - error @typespec/protobuf/illegal-reservation: reservation value must be a string literal, uint32 literal, or a tuple of two uint32 literals denoting a range
+/test/main.tsp:13:34 - error invalid-argument: Argument of type 'string' is not assignable to parameter of type 'valueof string | [uint32, uint32] | uint32'
+/test/main.tsp:13:42 - error invalid-argument: Argument of type 'uint32' is not assignable to parameter of type 'valueof string | [uint32, uint32] | uint32'

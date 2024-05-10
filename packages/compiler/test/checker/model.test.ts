@@ -2,7 +2,13 @@ import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
-import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
+import {
+  Numeric,
+  Operation,
+  getDoc,
+  isArrayModelType,
+  isRecordModelType,
+} from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -103,17 +109,17 @@ describe("compiler: models", () => {
     ]);
   });
 
-  describe("assign default values", () => {
-    const testCases: [string, string, any][] = [
-      ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
-      ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
-      ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
-      ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
-      ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
-    ];
+  describe("property defaults", () => {
+    describe("set defaultValue", () => {
+      const testCases: [string, string, { kind: string; value: any }][] = [
+        ["boolean", `false`, { kind: "BooleanValue", value: false }],
+        ["boolean", `true`, { kind: "BooleanValue", value: true }],
+        ["string", `"foo"`, { kind: "StringValue", value: "foo" }],
+        ["int32", `123`, { kind: "NumericValue", value: Numeric("123") }],
+        ["int32 | null", `null`, { kind: "NullValue", value: null }],
+      ];
 
-    for (const [type, defaultValue, expectedValue] of testCases) {
-      it(`foo?: ${type} = ${defaultValue}`, async () => {
+      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
@@ -121,9 +127,119 @@ describe("compiler: models", () => {
           `
         );
         const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
-        deepStrictEqual({ ...foo.default }, expectedValue);
+        strictEqual(foo.defaultValue?.valueKind, expectedValue.kind);
+        expect((foo.defaultValue as any).value).toMatchObject(expectedValue.value);
       });
-    }
+
+      it(`foo?: string[] = #["abc"]`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: string[] = #["abc"] }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "ArrayValue");
+      });
+
+      it(`foo?: {name: string} = #{name: "abc"}`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: {name: string} = #{name: "abc"} }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "ObjectValue");
+      });
+
+      it(`assign scalar for primitive types if not yet`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        const a = 123;
+        model A { @test foo?: int32 = a }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "NumericValue");
+        strictEqual(foo.defaultValue.scalar?.kind, "Scalar");
+        strictEqual(foo.defaultValue.scalar?.name, "int32");
+      });
+
+      it(`foo?: Enum = Enum.up`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: TestEnum = TestEnum.up }
+        enum TestEnum {up, down}
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "EnumValue");
+        deepStrictEqual(foo.defaultValue?.value.kind, "EnumMember");
+        deepStrictEqual(foo.defaultValue?.value.name, "up");
+      });
+
+      it(`foo?: Union = Union.up`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: Direction = Direction.up }
+        union Direction {up: "up-value", down: "down-value"}
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        strictEqual(foo.defaultValue?.valueKind, "StringValue");
+        deepStrictEqual(foo.defaultValue?.value, "up-value");
+      });
+    });
+
+    describe("set deprecated default property", () => {
+      const testCases: [string, string, any][] = [
+        ["boolean", `false`, { kind: "Boolean", value: false, isFinished: false }],
+        ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
+        ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
+        ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
+        ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
+      ];
+
+      it.each(testCases)(`foo?: %s = %s`, async (type, defaultValue, expectedValue) => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+          model A { @test foo?: ${type} = ${defaultValue} }
+          `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
+        expect({ ...foo.default }).toMatchObject(expectedValue);
+      });
+
+      it(`foo?: string[] = #["abc"] result is not set`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: string[] = #["abc"] }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
+        deepStrictEqual(foo.default, undefined);
+      });
+
+      it(`foo?: {name: string} = #{name: "abc"} result is not set`, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+        model A { @test foo?: {name: string} = #{name: "abc"} }
+        `
+        );
+        const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+        // eslint-disable-next-line deprecation/deprecation
+        deepStrictEqual(foo.default, undefined);
+      });
+    });
   });
 
   describe("doesn't allow a default of different type than the property type", () => {
@@ -131,7 +247,7 @@ describe("compiler: models", () => {
       ["string", "123", "Type '123' is not assignable to type 'string'"],
       ["int32", `"foo"`, `Type '"foo"' is not assignable to type 'int32'`],
       ["boolean", `"foo"`, `Type '"foo"' is not assignable to type 'boolean'`],
-      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'string'`],
+      ["string[]", `#["foo", 123]`, `Type '123' is not assignable to type 'string'`],
       [`"foo" | "bar"`, `"foo1"`, `Type '"foo1"' is not assignable to type '"foo" | "bar"'`],
     ];
 
@@ -161,13 +277,13 @@ describe("compiler: models", () => {
     testHost.addTypeSpecFile("main.tsp", source);
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
-      code: "unsupported-default",
-      message: "Default must be have a value type but has type 'TemplateParameter'.",
+      code: "expect-value",
+      message: "D refers to a type, but is being used as a value here.",
       pos,
     });
   });
 
-  it(`doesn't emit unsupported-default diagnostic when type is an error`, async () => {
+  it(`doesn't emit additional diagnostic when type is an error`, async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
@@ -459,8 +575,9 @@ describe("compiler: models", () => {
 
       strictEqual(Pet.derivedModels[1].name, "TPet");
       ok(Pet.derivedModels[1].templateMapper?.args);
-      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].kind, "Scalar");
-      strictEqual(Pet.derivedModels[1].templateMapper?.args[0].name, "string");
+      ok("kind" in Pet.derivedModels[1].templateMapper!.args[0]);
+      strictEqual(Pet.derivedModels[1].templateMapper.args[0].kind, "Scalar");
+      strictEqual(Pet.derivedModels[1].templateMapper.args[0].name, "string");
 
       strictEqual(Pet.derivedModels[2], Cat);
       strictEqual(Pet.derivedModels[3], Dog);

@@ -89,6 +89,12 @@ const libDef = {
         default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
       },
     },
+    "made-required-optional": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}?' marked with @madeRequired but is optional. Should be '${"name"}'`,
+      },
+    },
     "renamed-duplicate-property": {
       severity: "error",
       messages: {

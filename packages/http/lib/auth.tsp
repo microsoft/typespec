@@ -111,7 +111,7 @@ model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
  * @template Scopes The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows.
  */
 @doc("")
-model OAuth2Auth<Flows extends OAuth2Flow[], Scopes extends valueof string[] = []> {
+model OAuth2Auth<Flows extends OAuth2Flow[], Scopes extends string[] = []> {
   @doc("OAuth2 authentication")
   type: AuthType.oauth2;
 
@@ -212,7 +212,7 @@ model ClientCredentialsFlow {
  * https://server.com/.well-known/openid-configuration
  * ```
  */
-model OpenIdConnectAuth<ConnectUrl extends valueof string> {
+model OpenIdConnectAuth<ConnectUrl extends string> {
   /** Auth type */
   type: AuthType.openIdConnect;
 

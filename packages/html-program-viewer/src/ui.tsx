@@ -94,6 +94,7 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
 
 type NamedType = Type & { name: string };
 const omittedProps = [
+  "entityKind",
   "kind",
   "name",
   "node",
@@ -268,6 +269,7 @@ const ScalarUI: FunctionComponent<{ type: Scalar }> = ({ type }) => {
       properties={{
         baseScalar: "ref",
         derivedScalars: "ref",
+        constructors: "nested",
       }}
     />
   );
@@ -283,6 +285,7 @@ const ModelPropertyUI: FunctionComponent<{ type: ModelProperty }> = ({ type }) =
         optional: "value",
         sourceProperty: "ref",
         default: "value",
+        defaultValue: "value",
       }}
     />
   );

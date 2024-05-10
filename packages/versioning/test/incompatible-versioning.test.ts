@@ -479,6 +479,19 @@ describe("versioning: validate incompatible references", () => {
         message: "Property 'name' marked with @madeOptional but is required. Should be 'name?'",
       });
     });
+
+    it("emit diagnostic when property marked @madeRequired but is optional", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          @madeRequired(Versions.v2)
+          name?: string;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/made-required-optional",
+        message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
+      });
+    });
   });
 
   describe("complex type references", () => {

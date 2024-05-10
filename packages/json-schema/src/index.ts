@@ -5,6 +5,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  Numeric,
   Program,
   Scalar,
   Tuple,
@@ -35,7 +36,7 @@ import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 
 export { JsonSchemaEmitter } from "./json-schema-emitter.js";
-export { $lib, EmitterOptionsSchema, JSONSchemaEmitterOptions } from "./lib.js";
+export { $flags, $lib, EmitterOptionsSchema, JSONSchemaEmitterOptions } from "./lib.js";
 
 export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;
@@ -123,13 +124,16 @@ const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
 export const $multipleOf: MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => {
   context.program.stateMap(multipleOfKey).set(target, value);
 };
 
-export function getMultipleOf(program: Program, target: Type) {
+export function getMultipleOfAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(multipleOfKey).get(target);
+}
+export function getMultipleOf(program: Program, target: Type): number | undefined {
+  return getMultipleOfAsNumeric(program, target)?.asNumber() ?? undefined;
 }
 
 const idKey = createStateSymbol("JsonSchema.id");
