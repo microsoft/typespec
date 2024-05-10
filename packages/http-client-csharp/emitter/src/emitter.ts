@@ -172,15 +172,23 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
         const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
         const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.exe"
+          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
         );
 
-        const command = `${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
         logger.info(command);
 
         await execAsync(
-          generatorPath,
-          [outputFolder, newProjectOption, existingProjectOption, debugFlag],
+          "dotnet",
+          [
+            "--roll-forward",
+            "Major",
+            generatorPath,
+            outputFolder,
+            newProjectOption,
+            existingProjectOption,
+            debugFlag,
+          ],
           { stdio: "inherit" }
         )
           .then(() => {
