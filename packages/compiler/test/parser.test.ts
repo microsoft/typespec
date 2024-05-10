@@ -162,12 +162,15 @@ describe("compiler: parser", () => {
       `namespace Foo { 
         scalar uuid extends string;}
         `,
+      `scalar uuid {
+        init fromString(def: string)
+      }`,
+      `scalar bar extends uuid {
+        init fromOther(abc: string)
+      }`,
     ]);
 
-    parseErrorEach([
-      ["scalar uuid extends string { }", [/Statement expected./]],
-      ["scalar uuid is string;", [/Statement expected./]],
-    ]);
+    parseErrorEach([["scalar uuid is string;", [{ message: "'{' expected." }]]]);
   });
 
   describe("interface statements", () => {
@@ -223,12 +226,62 @@ describe("compiler: parser", () => {
     parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
+  describe("const statements", () => {
+    parseEach([
+      `const a = 123;`,
+      `const a: Info = 123;`,
+      `const a: {inline: string} = #{inline: "abc"};`,
+      `const a: string | int32 = int32;`,
+    ]);
+    parseErrorEach([
+      [`const = 123;`, [/Identifier expected/]],
+      [`const a`, [{ message: "'=' expected." }]],
+      [`const a =`, [/Expression expected./]],
+    ]);
+  });
+
+  describe("call expressions", () => {
+    parseEach([
+      `const a = int8(123);`,
+      `const a = utcDateTime.fromISO("abc");`,
+      `const a = utcDateTime.fromISO("abc", "def");`,
+    ]);
+    parseErrorEach([
+      [`const a = int8(123;`, [{ message: "')' expected." }]],
+      [`const a = utcDateTime.fromISO(;`, [{ message: "Expression expected." }]],
+    ]);
+  });
+
+  describe("object literals", () => {
+    parseEach([
+      `const A = #{a: "abc"};`,
+      `const A = #{a: "abc", b: "def"};`,
+      `const A = #{a: "abc", ...B};`,
+      `const A = #{a: "abc", ...B, c: "ghi"};`,
+    ]);
+  });
+
+  describe("array literals", () => {
+    parseEach([
+      `const A = #["abc"];`,
+      `const A = #["abc", 123];`,
+      `const A = #["abc", 123, #{nested: true}];`,
+    ]);
+  });
+
   describe("valueof expressions", () => {
     parseEach([
-      "alias A = valueof string;",
-      "alias A = valueof int32;",
-      "alias A = valueof {a: string, b: int32};",
-      "alias A = valueof int8[];",
+      "model Foo<T extends valueof string> {}",
+      "model Foo<T extends valueof int32> {}",
+      "model Foo<T extends valueof {a: string, b: int32}> {}",
+      "model Foo<T extends valueof int8[]> {}",
+    ]);
+  });
+
+  describe("typeof expressions", () => {
+    parseEach([`const a: typeof "123" = 123;`, `alias A = Foo<typeof "abc">;`]);
+    parseErrorEach([
+      [`alias A = typeof #{}`, [{ message: "Typeof expects a value literal or value reference." }]],
     ]);
   });
 

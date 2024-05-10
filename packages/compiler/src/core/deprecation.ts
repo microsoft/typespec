@@ -1,4 +1,4 @@
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import { BaseNode, Node, SyntaxKind, Type } from "./types.js";
 
 function createStateSymbol(name: string) {

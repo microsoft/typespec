@@ -9,6 +9,14 @@ import {
   TypeSpecTestLibraryInit,
 } from "./types.js";
 
+export function resolveVirtualPath(path: string, ...paths: string[]) {
+  // NB: We should always resolve an absolute path, and there is no absolute
+  // path that works across OSes. This ensures that we can still rely on API
+  // like pathToFileURL in tests.
+  const rootDir = process.platform === "win32" ? "Z:/test" : "/test";
+  return resolvePath(rootDir, path, ...paths);
+}
+
 /** Find the package root from the provided file */
 export function findTestPackageRoot(fileUrl: string): Promise<string> {
   return findProjectRoot(NodeHost.stat, fileURLToPath(fileUrl)) as Promise<string>;

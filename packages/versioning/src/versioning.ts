@@ -20,6 +20,7 @@ import {
 import {
   AddedDecorator,
   MadeOptionalDecorator,
+  MadeRequiredDecorator,
   RenamedFromDecorator,
   ReturnTypeChangedFromDecorator,
   TypeChangedFromDecorator,
@@ -37,6 +38,7 @@ const useDependencyNamespaceKey = createStateSymbol("useDependencyNamespace");
 const useDependencyEnumKey = createStateSymbol("useDependencyEnum");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
+const madeRequiredKey = createStateSymbol("madeRequired");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
 const returnTypeChangedFromKey = createStateSymbol("returnTypeChangedFrom");
 
@@ -236,6 +238,19 @@ export const $madeOptional: MadeOptionalDecorator = (
   program.stateMap(madeOptionalKey).set(t, version);
 };
 
+export const $madeRequired: MadeRequiredDecorator = (
+  context: DecoratorContext,
+  t: ModelProperty,
+  v: EnumMember
+) => {
+  const { program } = context;
+  const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
+  if (!version) {
+    return;
+  }
+  program.stateMap(madeRequiredKey).set(t, version);
+};
+
 /**
  * @returns the array of RenamedFrom metadata if applicable.
  */
@@ -318,6 +333,13 @@ export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined
  */
 export function getMadeOptionalOn(p: Program, t: Type): Version | undefined {
   return p.stateMap(madeOptionalKey).get(t);
+}
+
+/**
+ * @returns version when the given type was made required if applicable.
+ */
+export function getMadeRequiredOn(p: Program, t: Type): Version | undefined {
+  return p.stateMap(madeRequiredKey).get(t);
 }
 
 export class VersionMap {
@@ -880,6 +902,17 @@ export function madeOptionalAfter(program: Program, type: Type, versionKey: Obje
     return false;
   }
   return versioningState.timeline.isBefore(versioningState.projectingMoment, madeOptionalAtVersion);
+}
+
+export function madeRequiredAfter(program: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(program, versionKey);
+
+  const madeRequiredAtVersion = getMadeRequiredOn(program, type);
+  if (madeRequiredAtVersion === undefined) {
+    return false;
+  }
+
+  return versioningState.timeline.isBefore(versioningState.projectingMoment, madeRequiredAtVersion);
 }
 
 export function hasDifferentTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {

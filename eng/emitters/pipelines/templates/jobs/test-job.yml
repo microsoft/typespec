@@ -32,6 +32,14 @@ parameters:
     type: boolean
     default: false
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
+
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -52,7 +60,9 @@ jobs:
         parameters:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: $(nodeVersion)
+          BuildArtifactName: ${{ parameters.BuildArtifactName }}
           ${{ if ne(length(parameters.TestMatrix), 0) }}:
             TestArgs: $(TestArguments)
           ${{ else }}:

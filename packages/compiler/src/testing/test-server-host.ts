@@ -6,12 +6,8 @@ import { parse, visitChildren } from "../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { createStringMap } from "../utils/misc.js";
-import {
-  StandardTestLibrary,
-  TestHostOptions,
-  createTestFileSystem,
-  resolveVirtualPath,
-} from "./test-host.js";
+import { StandardTestLibrary, TestHostOptions, createTestFileSystem } from "./test-host.js";
+import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {

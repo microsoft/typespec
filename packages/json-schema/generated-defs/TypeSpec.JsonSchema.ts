@@ -1,4 +1,11 @@
-import type { DecoratorContext, ModelProperty, Namespace, Scalar, Type } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  ModelProperty,
+  Namespace,
+  Numeric,
+  Scalar,
+  Type,
+} from "@typespec/compiler";
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.
@@ -44,7 +51,7 @@ export type IdDecorator = (context: DecoratorContext, target: Type, id: string) 
 export type MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number
+  value: Numeric
 ) => void;
 
 /**

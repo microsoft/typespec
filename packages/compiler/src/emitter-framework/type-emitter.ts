@@ -1,18 +1,18 @@
-import {
+import { compilerAssert } from "../core/diagnostics.js";
+import { emitFile } from "../core/emitter-utils.js";
+import type { Program } from "../core/program.js";
+import { isTemplateDeclaration } from "../core/type-utils.js";
+import type {
   BooleanLiteral,
-  compilerAssert,
-  emitFile,
   Enum,
   EnumMember,
   Interface,
   IntrinsicType,
-  isTemplateDeclaration,
   Model,
   ModelProperty,
   Namespace,
   NumericLiteral,
   Operation,
-  Program,
   Scalar,
   StringLiteral,
   StringTemplate,
@@ -20,8 +20,8 @@ import {
   Type,
   Union,
   UnionVariant,
-} from "../core/index.js";
-import { code, StringBuilder } from "./builders/string-builder.js";
+} from "../core/types.js";
+import { StringBuilder, code } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { ReferenceCycle } from "./reference-cycle.js";
@@ -780,6 +780,12 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     let unspeakable = false;
 
     const parameterNames = declarationType.templateMapper.args.map((t) => {
+      if (t.entityKind === "Indeterminate") {
+        t = t.type;
+      }
+      if (!("kind" in t)) {
+        return undefined;
+      }
       switch (t.kind) {
         case "Model":
         case "Scalar":
