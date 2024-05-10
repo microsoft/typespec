@@ -13,7 +13,7 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 
-import { execSync } from "child_process";
+import { SpawnOptions, spawn } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -179,23 +179,62 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const command = `${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
         logger.info(command);
 
-        try {
-          execSync(command, { stdio: "inherit" });
-        } catch (error: any) {
-          if (error.message) logger.info(error.message);
-          if (error.stderr) logger.error(error.stderr);
-          if (error.stdout) logger.verbose(error.stdout);
-          throw error;
-        }
-      }
-
-      if (!options["save-inputs"]) {
-        // delete
-        deleteFile(resolvePath(outputFolder, tspOutputFileName));
-        deleteFile(resolvePath(outputFolder, configurationFileName));
+        execAsync(
+          generatorPath,
+          [outputFolder, newProjectOption, existingProjectOption, debugFlag],
+          { stdio: "inherit" }
+        )
+          .then(() => {
+            if (!options["save-inputs"]) {
+              // delete
+              deleteFile(resolvePath(outputFolder, tspOutputFileName));
+              deleteFile(resolvePath(outputFolder, configurationFileName));
+            }
+          })
+          .catch((error: any) => {
+            if (error.message) logger.info(error.message);
+            if (error.stderr) logger.error(error.stderr);
+            if (error.stdout) logger.verbose(error.stdout);
+            throw error;
+          });
       }
     }
   }
+}
+
+async function execAsync(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {}
+): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
+  const child = spawn(command, args, options);
+
+  return new Promise((resolve, reject) => {
+    child.on("error", (error) => {
+      reject(error);
+    });
+    const stdio: Buffer[] = [];
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    child.stdout?.on("data", (data) => {
+      stdout.push(data);
+      stdio.push(data);
+    });
+    child.stderr?.on("data", (data) => {
+      stderr.push(data);
+      stdio.push(data);
+    });
+
+    child.on("exit", (exitCode) => {
+      resolve({
+        exitCode: exitCode ?? -1,
+        stdio: Buffer.concat(stdio).toString(),
+        stdout: Buffer.concat(stdout).toString(),
+        stderr: Buffer.concat(stderr).toString(),
+        proc: child,
+      });
+    });
+  });
 }
 
 function deleteFile(filePath: string) {
