@@ -1,5 +1,6 @@
 import "../dist/src/index.js";
-import "./http-decorators.tsp";
+import "./decorators.tsp";
+import "./private.decorators.tsp";
 import "./auth.tsp";
 
 namespace TypeSpec.Http;
@@ -103,4 +104,11 @@ model ConflictResponse is Response<409>;
 @plainData
 model PlainData<Data> {
   ...Data;
+}
+
+@Private.httpFile
+model File {
+  contentType?: string;
+  filename?: string;
+  contents: bytes;
 }

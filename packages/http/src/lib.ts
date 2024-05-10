@@ -144,6 +144,7 @@ export const $lib = createTypeSpecLibrary({
     body: { description: "State for the @body decorator" },
     bodyRoot: { description: "State for the @bodyRoot decorator" },
     bodyIgnore: { description: "State for the @bodyIgnore decorator" },
+    multipartBody: { description: "State for the @bodyIgnore decorator" },
     statusCode: { description: "State for the @statusCode decorator" },
     verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
     servers: { description: "State for the @server decorator" },
@@ -157,6 +158,9 @@ export const $lib = createTypeSpecLibrary({
     routes: {},
     sharedRoutes: { description: "State for the @sharedRoute decorator" },
     routeOptions: {},
+
+    // private
+    file: { description: "State for the @Private.file decorator" },
   },
 } as const);
 
