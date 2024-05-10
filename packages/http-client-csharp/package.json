@@ -41,9 +41,6 @@
     "dist/**"
   ],
   "dependencies": {
-    "@azure-tools/ts-genapi": "^1.0.7",
-    "@microsoft/api-extractor-model": "^7.28.2",
-    "js-tokens": "^8.0.0",
     "json-serialize-refs": "0.1.0-0",
     "winston": "^3.8.2"
   },
