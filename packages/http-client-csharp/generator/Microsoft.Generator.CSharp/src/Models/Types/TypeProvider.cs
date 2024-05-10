@@ -34,12 +34,8 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            isValueType: TypeKind is TypeKind.Struct or TypeKind.Enum,
-            isEnum: this is EnumTypeProvider,
-            isNullable: false,
             arguments: TypeArguments,
-            ns: Namespace,
-            name: Name);
+            isNullable: false);
 
         public TypeSignatureModifiers DeclarationModifiers { get; protected init; }
 
@@ -50,6 +46,8 @@ namespace Microsoft.Generator.CSharp
         public bool IsEnum => TypeKind is TypeKind.Enum;
 
         public bool IsStruct => TypeKind is TypeKind.Struct;
+
+        public bool IsValueType => TypeKind is TypeKind.Enum or TypeKind.Struct;
 
         private CSharpType[]? _typeArguments;
         public virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
