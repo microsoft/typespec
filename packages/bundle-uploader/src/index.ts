@@ -64,19 +64,22 @@ export async function bundleAndUploadPackages({
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
   await uploader.createIfNotExists();
 
-  const importMap: Record<string, string> = {};
+  const existingIndex = await uploader.getIndex(indexName, indexVersion);
+  const importMap: Record<string, string> = { ...existingIndex?.imports };
   for (const project of projects) {
     const bundle = await createTypeSpecBundle(resolve(repoRoot, project.dir));
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
       logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
-      // Only register imports that are modified
+    } else {
+      logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
+    }
+    // If there is no index always register everything
+    if (existingIndex === undefined || result.status === "uploaded") {
       for (const [key, value] of Object.entries(result.imports)) {
         importMap[joinUnix(project.manifest.name!, key)] = value;
       }
-    } else {
-      logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
     }
   }
   logInfo(`Import map for ${indexVersion}:`, importMap);
