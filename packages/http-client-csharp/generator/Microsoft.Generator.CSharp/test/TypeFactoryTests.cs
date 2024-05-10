@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -84,6 +84,11 @@ namespace Microsoft.Generator.CSharp.Tests
             }
 
             public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override SerializationInterfaces GetSerializationInterfaces(TypeProvider typeProvider, bool hasJson, bool hasXml)
             {
                 throw new NotImplementedException();
             }

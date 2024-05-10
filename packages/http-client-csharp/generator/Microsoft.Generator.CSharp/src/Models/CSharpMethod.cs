@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp
         public CSharpMethodKinds Kind { get; }
         public MethodSignatureBase Signature { get; }
         public MethodBodyStatement? Body { get; }
+        public ValueExpression? BodyExpression { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body statement and method signature.
@@ -27,6 +28,19 @@ namespace Microsoft.Generator.CSharp
         {
             Signature = signature;
             Body = body;
+            Kind = kind;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body expression and method signature.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="bodyExpression">The method body expression.</param>
+        /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
+        public CSharpMethod(MethodSignatureBase signature, ValueExpression bodyExpression, CSharpMethodKinds kind)
+        {
+            Signature = signature;
+            BodyExpression = bodyExpression;
             Kind = kind;
         }
     }

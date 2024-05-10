@@ -99,6 +99,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
             }
         }
 
+        // <inheritdoc/>
+        public override SerializationInterfaces GetSerializationInterfaces(TypeProvider typeProvider, bool hasJson, bool hasXml)
+        {
+            return new ScmSerializationInterfaces(typeProvider, hasJson, hasXml);
+        }
+
         /// <summary>
         /// Returns the <see cref="OperationKinds"/> of the given operation.
         /// By default, the operation kind is <see cref="OperationKinds.Default"/>.

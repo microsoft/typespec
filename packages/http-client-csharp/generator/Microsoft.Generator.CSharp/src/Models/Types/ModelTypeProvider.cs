@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
@@ -13,13 +10,20 @@ namespace Microsoft.Generator.CSharp
     public sealed class ModelTypeProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-
         public override string Name { get; }
+
+        public bool IsPropertyBag { get; }
+
+        /// <summary>
+        /// The serialization of the model type provider.
+        /// </summary>
+        public TypeProvider? Serialization { get; }
 
         public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
             Name = inputModel.Name.ToCleanName();
+            Serialization = new ModelTypeSerializationProvider(this);
 
             if (inputModel.Accessibility == "internal")
             {
@@ -31,6 +35,8 @@ namespace Microsoft.Generator.CSharp
             {
                 DeclarationModifiers |= TypeSignatureModifiers.Abstract;
             }
+
+            IsPropertyBag = inputModel.IsPropertyBag;
 
             _inputModel = inputModel;
         }

@@ -10,7 +10,6 @@ namespace UnbrandedTypeSpec.Models
     {
         // Add Constructors
 
-        // Add Methods
         internal void CreateSayHiRequest(System.Uri unbrandedTypeSpecUrl, string headParameter, string queryParameter, string optionalQuery, string accept)
         {
         }

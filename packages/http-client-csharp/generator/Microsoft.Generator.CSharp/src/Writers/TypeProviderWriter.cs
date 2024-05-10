@@ -72,8 +72,6 @@ namespace Microsoft.Generator.CSharp.Writers
                 WriteConstructors();
 
                 WriteProperties();
-
-                _writer.WriteLine($"// Add Methods"); // https://github.com/Azure/autorest.csharp/issues/4476
                 WriteMethods();
 
                 _writer.WriteLine($"// Add Nested Type");

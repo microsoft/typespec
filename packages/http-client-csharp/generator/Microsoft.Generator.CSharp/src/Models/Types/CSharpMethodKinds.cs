@@ -15,10 +15,15 @@ namespace Microsoft.Generator.CSharp
         internal const string ConvenienceValue = "Convenience";
         internal const string ProtocolValue = "Protocol";
         internal const string CreateMessageValue = "CreateMessage";
+        internal const string JsonModelSerializationValue = "JsonModelSerialization";
+        internal const string JsonModelDeserializationValue = "JsonModelDeserialization";
+        internal const string IModelDeserializationValue = "IModelDeserialization";
+        internal const string IModelSerializationValue = "IModelSerialization";
+        internal const string IModelGetFormatValue = "IModelGetFormat";
 
         private readonly string _value;
 
-        /// <summary> Initializes a new instance of the <see cref="MethodKinds"/> structure.</summary>
+        /// <summary> Initializes a new instance of the <see cref="CSharpMethodKinds"/> structure.</summary>
         /// <param name="value">The string value of the instance.</param>
         /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public CSharpMethodKinds(string value)
@@ -40,6 +45,31 @@ namespace Microsoft.Generator.CSharp
         /// CreateMessage method kind.
         /// </summary>
         public static CSharpMethodKinds CreateMessage { get; } = new CSharpMethodKinds(CreateMessageValue);
+
+        /// <summary>
+        /// JsonModelSerialization method kind.
+        /// </summary>
+        public static CSharpMethodKinds JsonModelSerialization { get; } = new CSharpMethodKinds(JsonModelSerializationValue);
+
+        /// <summary>
+        /// JsonModelDeserialization method kind.
+        /// </summary>
+        public static CSharpMethodKinds JsonModelDeserialization { get; } = new CSharpMethodKinds(JsonModelDeserializationValue);
+
+        /// <summary>
+        /// IModelSerialization method kind.
+        /// </summary>
+        public static CSharpMethodKinds IModelSerialization { get; } = new CSharpMethodKinds(IModelSerializationValue);
+
+        /// <summary>
+        /// IModelDeserialization method kind.
+        /// </summary>
+        public static CSharpMethodKinds IModelDeserialization { get; } = new CSharpMethodKinds(IModelDeserializationValue);
+
+        /// <summary>
+        /// IModelGetFormat method kind.
+        /// </summary>
+        public static CSharpMethodKinds IModelGetFormat { get; } = new CSharpMethodKinds(IModelGetFormatValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);
