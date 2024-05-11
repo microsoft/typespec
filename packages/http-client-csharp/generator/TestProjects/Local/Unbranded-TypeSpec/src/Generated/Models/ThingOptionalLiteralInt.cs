@@ -39,6 +39,8 @@ namespace UnbrandedTypeSpec.Models
 
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
+        internal int ToSerialInt32() => _value;
+
         // Add Nested Type
     }
 }

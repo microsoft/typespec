@@ -67,9 +67,11 @@ namespace Microsoft.Generator.CSharp
 
             Description = input.Description;
 
+            _serializationMethodName = IsStringValueType && IsExtensible ? nameof(object.ToString) : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
             _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
         }
 
+        private readonly string _serializationMethodName;
         private readonly FieldDeclaration _valueField;
 
         public CSharpType ValueType { get; }
@@ -342,6 +344,24 @@ namespace Microsoft.Generator.CSharp
                             ? valueField
                             : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
             methods.Add(new(toStringSignature, toStringExpressionBody, MethodKind));
+
+            // for string-based extensible enums, we are using `ToString` as its serialization
+            // for non-string-based extensible enums, we need a method to serialize them
+            if (!IsStringValueType)
+            {
+                var toSerialSignature = new MethodSignature(
+                    Name: _serializationMethodName,
+                    Modifiers: MethodSignatureModifiers.Internal,
+                    ReturnType: ValueType,
+                    Parameters: Array.Empty<Parameter>(),
+                    Summary: null, Description: null, ReturnDescription: null);
+
+                // writes the method:
+                // internal float ToSerialSingle() => _value; // when ValueType is float
+                // internal int ToSerialInt32() => _value; // when ValueType is int
+                // etc
+                methods.Add(new(toSerialSignature, valueField, MethodKind));
+            }
 
             return methods.ToArray();
         }
