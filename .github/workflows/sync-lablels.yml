@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      - run: pnpm tsx ./eng/common/scripts/sync-labels.ts --update-github-labels --dry-run
+      - run: pnpm sync-labels --update-github-labels --dry-run
         name: Sync labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
