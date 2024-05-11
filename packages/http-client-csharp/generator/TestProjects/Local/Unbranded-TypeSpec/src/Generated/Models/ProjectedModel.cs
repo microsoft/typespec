@@ -6,13 +6,7 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ProjectedModel
     {
-        // Add Constructors
-
         /// <summary> name of the ModelWithProjectedName. </summary>
         public string Name { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

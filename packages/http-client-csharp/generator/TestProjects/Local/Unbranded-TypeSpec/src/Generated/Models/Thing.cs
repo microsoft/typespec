@@ -9,8 +9,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class Thing
     {
-        // Add Constructors
-
         /// <summary> name of the Thing. </summary>
         public string Name { get; set; }
 
@@ -92,9 +90,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable collection. </summary>
         public IList<int> RequiredNullableList { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

@@ -14,7 +14,6 @@ namespace UnbrandedTypeSpec.Models
         private const string TwoValue = "2";
         private const string FourValue = "4";
 
-        // Add Constructors
         public StringExtensibleEnum(string value)
         {
             if (value == null)
@@ -31,7 +30,6 @@ namespace UnbrandedTypeSpec.Models
 
         public static StringExtensibleEnum Four { get; } = new StringExtensibleEnum(FourValue);
 
-        // Add Methods
         public static bool operator ==(StringExtensibleEnum left, StringExtensibleEnum right) => left.Equals(right);
 
         public static bool operator !=(StringExtensibleEnum left, StringExtensibleEnum right) => !left.Equals(right);
@@ -46,7 +44,5 @@ namespace UnbrandedTypeSpec.Models
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
         public override string ToString() => _value;
-
-        // Add Nested Type
     }
 }

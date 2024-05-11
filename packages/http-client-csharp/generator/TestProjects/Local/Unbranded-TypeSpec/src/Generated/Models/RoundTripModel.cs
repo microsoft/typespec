@@ -9,8 +9,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class RoundTripModel
     {
-        // Add Constructors
-
         /// <summary> Required string, illustrating a reference type property. </summary>
         public string RequiredString { get; set; }
 
@@ -265,9 +263,5 @@ namespace UnbrandedTypeSpec.Models
         /// </para>
         /// </summary>
         public System.BinaryData RequiredBytes { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

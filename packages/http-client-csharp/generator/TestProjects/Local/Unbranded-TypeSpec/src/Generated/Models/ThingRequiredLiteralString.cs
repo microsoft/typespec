@@ -13,7 +13,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> accept. </summary>
         private const string AcceptValue = "accept";
 
-        // Add Constructors
         public ThingRequiredLiteralString(string value)
         {
             if (value == null)
@@ -27,7 +26,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> accept. </summary>
         public static ThingRequiredLiteralString Accept { get; } = new ThingRequiredLiteralString(AcceptValue);
 
-        // Add Methods
         public static bool operator ==(ThingRequiredLiteralString left, ThingRequiredLiteralString right) => left.Equals(right);
 
         public static bool operator !=(ThingRequiredLiteralString left, ThingRequiredLiteralString right) => !left.Equals(right);
@@ -42,7 +40,5 @@ namespace UnbrandedTypeSpec.Models
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
         public override string ToString() => _value;
-
-        // Add Nested Type
     }
 }

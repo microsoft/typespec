@@ -15,7 +15,6 @@ namespace UnbrandedTypeSpec.Models
         private const int TwoValue = 2;
         private const int FourValue = 4;
 
-        // Add Constructors
         public IntExtensibleEnum(int value)
         {
             _value = value;
@@ -27,7 +26,6 @@ namespace UnbrandedTypeSpec.Models
 
         public static IntExtensibleEnum Four { get; } = new IntExtensibleEnum(FourValue);
 
-        // Add Methods
         public static bool operator ==(IntExtensibleEnum left, IntExtensibleEnum right) => left.Equals(right);
 
         public static bool operator !=(IntExtensibleEnum left, IntExtensibleEnum right) => !left.Equals(right);
@@ -44,7 +42,5 @@ namespace UnbrandedTypeSpec.Models
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         internal int ToSerialInt32() => _value;
-
-        // Add Nested Type
     }
 }

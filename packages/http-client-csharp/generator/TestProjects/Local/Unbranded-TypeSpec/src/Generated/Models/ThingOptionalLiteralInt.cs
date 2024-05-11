@@ -14,7 +14,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 456. </summary>
         private const int _456Value = 456;
 
-        // Add Constructors
         public ThingOptionalLiteralInt(int value)
         {
             _value = value;
@@ -23,7 +22,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 456. </summary>
         public static ThingOptionalLiteralInt _456 { get; } = new ThingOptionalLiteralInt(_456Value);
 
-        // Add Methods
         public static bool operator ==(ThingOptionalLiteralInt left, ThingOptionalLiteralInt right) => left.Equals(right);
 
         public static bool operator !=(ThingOptionalLiteralInt left, ThingOptionalLiteralInt right) => !left.Equals(right);
@@ -40,7 +38,5 @@ namespace UnbrandedTypeSpec.Models
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         internal int ToSerialInt32() => _value;
-
-        // Add Nested Type
     }
 }

@@ -6,13 +6,7 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class Friend
     {
-        // Add Constructors
-
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

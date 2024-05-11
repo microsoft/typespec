@@ -6,8 +6,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithRequiredNullableProperties
     {
-        // Add Constructors
-
         /// <summary> required nullable primitive type. </summary>
         public int? RequiredNullablePrimitive { get; set; }
 
@@ -16,9 +14,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable fixed enum type. </summary>
         public StringFixedEnum? RequiredFixedEnum { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

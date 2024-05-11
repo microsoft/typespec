@@ -8,9 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class IntFixedEnumExtensions
     {
-        // Add Constructors
-
-        // Add Methods
         public static IntFixedEnum ToIntFixedEnum(this int value)
         {
             if (value == 1)
@@ -27,7 +24,5 @@ namespace UnbrandedTypeSpec.Models
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown IntFixedEnum value.");
         }
-
-        // Add Nested Type
     }
 }

@@ -8,16 +8,10 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithFormat
     {
-        // Add Constructors
-
         /// <summary> url format. </summary>
         public System.Uri SourceUrl { get; set; }
 
         /// <summary> uuid format. </summary>
         public Guid Guid { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

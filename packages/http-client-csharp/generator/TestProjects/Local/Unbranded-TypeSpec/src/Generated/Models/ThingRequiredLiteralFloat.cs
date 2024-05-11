@@ -14,7 +14,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 1.23. </summary>
         private const float _123Value = 1.23F;
 
-        // Add Constructors
         public ThingRequiredLiteralFloat(float value)
         {
             _value = value;
@@ -23,7 +22,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 1.23. </summary>
         public static ThingRequiredLiteralFloat _123 { get; } = new ThingRequiredLiteralFloat(_123Value);
 
-        // Add Methods
         public static bool operator ==(ThingRequiredLiteralFloat left, ThingRequiredLiteralFloat right) => left.Equals(right);
 
         public static bool operator !=(ThingRequiredLiteralFloat left, ThingRequiredLiteralFloat right) => !left.Equals(right);
@@ -40,7 +38,5 @@ namespace UnbrandedTypeSpec.Models
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         internal float ToSerialSingle() => _value;
-
-        // Add Nested Type
     }
 }

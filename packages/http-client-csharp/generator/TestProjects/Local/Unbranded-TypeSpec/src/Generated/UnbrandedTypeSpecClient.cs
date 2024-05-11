@@ -8,9 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class UnbrandedTypeSpecClient
     {
-        // Add Constructors
-
-        // Add Methods
         internal void CreateSayHiRequest(System.Uri unbrandedTypeSpecUrl, string headParameter, string queryParameter, string optionalQuery, string accept)
         {
         }
@@ -86,7 +83,5 @@ namespace UnbrandedTypeSpec.Models
         internal void CreateHeadAsBooleanRequest(System.Uri unbrandedTypeSpecUrl, string id, string accept)
         {
         }
-
-        // Add Nested Type
     }
 }

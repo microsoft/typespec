@@ -8,9 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class StringFixedEnumExtensions
     {
-        // Add Constructors
-
-        // Add Methods
         public static string ToSerialString(this StringFixedEnum value) => value switch
         {
             StringFixedEnum.One => "1",
@@ -35,7 +32,5 @@ namespace UnbrandedTypeSpec.Models
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown StringFixedEnum value.");
         }
-
-        // Add Nested Type
     }
 }

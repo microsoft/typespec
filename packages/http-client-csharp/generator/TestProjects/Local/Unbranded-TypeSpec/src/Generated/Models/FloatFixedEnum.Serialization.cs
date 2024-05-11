@@ -8,9 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class FloatFixedEnumExtensions
     {
-        // Add Constructors
-
-        // Add Methods
         public static float ToSerialSingle(this FloatFixedEnum value) => value switch
         {
             FloatFixedEnum.One => 1.1F,
@@ -35,7 +32,5 @@ namespace UnbrandedTypeSpec.Models
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
         }
-
-        // Add Nested Type
     }
 }
