@@ -24,8 +24,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
-    "build:generator": "dotnet build ./generator/Microsoft.Generator.CSharp.ClientModel/src/Microsoft.Generator.CSharp.ClientModel.csproj",
-    "build:generatorAndTest": "dotnet build ./generator",
+    "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
