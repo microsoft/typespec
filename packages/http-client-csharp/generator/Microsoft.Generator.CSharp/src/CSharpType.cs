@@ -563,15 +563,19 @@ namespace Microsoft.Generator.CSharp
         {
             if (type.IsFrameworkType)
             {
-                var literalType = new CSharpType(type.FrameworkType, type.Arguments, type.IsNullable);
-                literalType._literal = literalValue;
+                var literalType = new CSharpType(type.FrameworkType, type.Arguments, type.IsNullable)
+                {
+                    _literal = literalValue
+                };
 
                 return literalType;
             }
             else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
             {
-                var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable);
-                literalType._literal = literalValue;
+                var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
+                {
+                    _literal = literalValue
+                };
 
                 return literalType;
             }
