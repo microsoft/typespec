@@ -1,6 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import { readFile } from "fs/promises";
 import { dirname, resolve } from "path";
+import pc from "picocolors";
 import { fileURLToPath } from "url";
 import { inspect, parseArgs } from "util";
 import { parse } from "yaml";
@@ -29,12 +30,22 @@ async function main() {
   });
   const content = await readFile(labelFile, "utf8");
   const labels = parse(content);
-  console.log("Labels:", labels);
+  logLabels("Labels:", labels);
   for (const label of labels) {
     validateLabel(label);
   }
   if (options.values["update-github-labels"]) {
     await updateGithubLabels(labels, { dryRun: options.values["dry-run"] });
+  }
+}
+
+function logLabels(message: string, labels: Label[]) {
+  console.log(message);
+  const max = labels.reduce((max, label) => Math.max(max, label.name.length), 0);
+  for (const label of labels) {
+    console.log(
+      `  ${pc.cyan(label.name).padEnd(max)} #${pc.blue(label.color)} ${pc.gray(label.description)}`
+    );
   }
 }
 
@@ -52,7 +63,7 @@ async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOpt
   );
 
   const existingLabels = await fetchAllLabels(octokit);
-  console.log("Existing labels", existingLabels);
+  logLabels("Existing labels", existingLabels as any);
   const labelToUpdate: Label[] = [];
   const labelsToCreate: Label[] = [];
   const exitingLabelMap = new Map(existingLabels.map((label) => [label.name, label]));
