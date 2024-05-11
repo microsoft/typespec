@@ -1016,7 +1016,7 @@ export function navigateModels(
     {
       model: (m) => {
         const realModel = getRealType(m);
-        return realModel.kind === "Model" && realModel.name != "" && computeType(realModel);
+        return realModel.kind === "Model" && realModel.name !== "" && computeType(realModel);
       },
       enum: (e) => {
         const realEnum = getRealType(e);
