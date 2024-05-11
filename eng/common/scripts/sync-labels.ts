@@ -6,6 +6,7 @@ import { format, resolveConfig } from "prettier";
 import { fileURLToPath } from "url";
 import { inspect, parseArgs } from "util";
 import { parse } from "yaml";
+
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const labelFileRelative = "eng/common/labels.yaml";
 const labelFile = resolve(repoRoot, labelFileRelative);
@@ -40,27 +41,33 @@ interface Label {
 
 interface ActionOptions {
   readonly dryRun?: boolean;
-}
-interface ContributingSyncOptions {
   readonly check?: boolean;
-  readonly dryRun?: boolean;
 }
 
 async function main() {
   const options = parseArgs({
     args: process.argv.slice(2),
     options: {
-      "dry-run": { type: "boolean" },
-      check: { type: "boolean" },
-      "update-github-labels": { type: "boolean" },
+      "dry-run": {
+        type: "boolean",
+        description: "Do not make any changes, log what action would be taken.",
+      },
+      check: {
+        type: "boolean",
+        description: "Check if labels are in sync, return non zero exit code if not.",
+      },
+      github: { type: "boolean", description: "Include github labels" },
     },
   });
   const content = await readFile(labelFile, "utf8");
   const labels = loadLabels(content);
   logLabelConfig(labels);
 
-  if (options.values["update-github-labels"]) {
-    await updateGithubLabels(labels.labels, { dryRun: options.values["dry-run"] });
+  if (options.values["github"]) {
+    await updateGithubLabels(labels.labels, {
+      dryRun: options.values["dry-run"],
+      check: options.values.check,
+    });
   }
 
   updateContributingFile(labels, {
@@ -218,7 +225,7 @@ function validateLabel(label: Label) {
   }
 }
 
-async function updateContributingFile(labels: LabelsConfig, options: ContributingSyncOptions) {
+async function updateContributingFile(labels: LabelsConfig, options: ActionOptions) {
   console.log("Updating contributing file", contributingFile);
   const content = await readFile(contributingFile, "utf8");
   const startIndex = content.indexOf(magicComment.start);
