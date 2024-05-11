@@ -3,112 +3,112 @@
 issue_kinds:
   description: "Issue kinds"
   labels:
-    - name: bug
+    bug:
       color: cccccc
       description: Something isn't working
-    - name: feature
+    feature:
       color: cccccc
       description: New feature or request
-    - name: docs
+    docs:
       color: cccccc
       description: Improvements or additions to documentation
 
 area:
   description: "Area of the codebase"
   labels:
-    - name: compiler:core
+    compiler:core:
       color: "453261"
       description: Issues for @typespec/compiler
-    - name: compiler:emitter-framework
+    compiler:emitter-framework:
       color: "453261"
       description: Issues for the emitter framework
-    - name: ide
+    ide:
       color: 846da1
       description: Issues for VS, VSCode, Monaco, etc.
-    - name: lib:http
+    lib:http:
       color: c7aee6
       description: ""
-    - name: lib:openapi
+    lib:openapi:
       color: c7aee6
       description: ""
-    - name: lib:rest
+    lib:rest:
       color: c7aee6
       description: ""
-    - name: lib:versioning
+    lib:versioning:
       color: c7aee6
       description: ""
-    - name: meta:blog
+    meta:blog:
       color: 007dc8
       description: Blog updates
-    - name: meta:website
+    meta:website:
       color: 007dc8
       description: TypeSpec.io updates
-    - name: Service Codegen
+    Service Codegen:
       color: 7C4B1E
       description: ""
-    - name: tspd
+    tspd:
       color: "004185"
       description: Issues for the tspd tool
-    - name: epic
+    epic:
       color: cccccc
       description: ""
-    - name: emitter:client:csharp
+    emitter:client:csharp:
       color: e1b300
       description: ""
-    - name: emitter:json-schema
+    emitter:json-schema:
       color: "957300"
       description: ""
-    - name: emitter:protobuf
+    emitter:protobuf:
       color: "957300"
       description: The protobuf emitter
-    - name: emitter:service:csharp
+    emitter:service:csharp:
       color: "967200"
       description: ""
-    - name: emitter:service:js
+    emitter:service:js:
       color: "967200"
       description: ""
-    - name: eng
+    eng:
       color: 65bfff
       description: ""
 
 breaking-change:
   description: "Labels around annotating issues and PR if they contain breaking change or deprecation"
   labels:
-    - name: breaking-change
+    breaking-change:
       color: B60205
       description: A change that might cause specs or code to break
-    - name: deprecation
+    deprecation:
       color: "760205"
       description: A previously supported feature will now report a warning and eventually be removed
 
 design-issues:
   description: "Design issue management"
   labels:
-    - name: design:accepted
+    design:accepted:
       color: 1a4421
       description: Proposal for design has been discussed and accepted.
-    - name: design:needed
+    design:needed:
       color: 96c499
       description: A design request has been raised that needs a proposal
-    - name: design:proposed
+    design:proposed:
       color: 56815a
       description: Proposal has been added and ready for discussion
 
 misc:
   description: "Misc labels"
   labels:
-    - name: Client Emitter Migration
+    Client Emitter Migration:
       color: FD92F0
       description: ""
-    - name: good first issue
+    good first issue:
       color: 7057ff
       description: Good for newcomers
-    - name: needs-triage
+    needs-triage:
       color: ffffff
       description: ""
-    - name: needs-info
+    needs-info:
       color: ffffff
       description: Mark an issue that needs reply from the author or it will be closed automatically
-    - name: triaged:core
+    triaged:core:
       color: "5319e7"
       description: ""

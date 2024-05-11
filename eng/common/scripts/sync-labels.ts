@@ -49,10 +49,14 @@ async function main() {
 }
 
 function loadLabels(yamlContent: string): LabelsConfig {
-  const data: Record<string, { description: string; labels: Label[] }> = parse(yamlContent);
+  const data: Record<
+    string,
+    { description: string; labels: Record<string, { color: string; description: string }> }
+  > = parse(yamlContent);
   const labels = [];
   const categories: LabelCategory[] = [];
-  for (const [categoryName, { description, labels: categoryLabels }] of Object.entries(data)) {
+  for (const [categoryName, { description, labels: labelMap }] of Object.entries(data)) {
+    const categoryLabels = Object.entries(labelMap).map(([name, data]) => ({ name, ...data }));
     const category = { name: categoryName, description, labels: categoryLabels };
     categories.push(category);
     for (const label of categoryLabels) {
