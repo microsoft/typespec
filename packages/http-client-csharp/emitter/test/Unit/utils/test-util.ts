@@ -1,5 +1,9 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  getAllModels,
+  SdkContext,
+} from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,
@@ -126,5 +130,8 @@ export function navigateModels(
 export function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
-  return createSdkContext(program, "@azure-tools/typespec-azure");
+  const sdkContext = createSdkContext(program, "@azure-tools/typespec-azure");
+  // initialize TCGC
+  getAllModels(sdkContext);
+  return sdkContext;
 }
