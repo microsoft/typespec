@@ -32,17 +32,22 @@ namespace Microsoft.Generator.CSharp
             foreach (var model in output.Models)
             {
                 CodeWriter writer = new CodeWriter();
-                ExpressionTypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model);
-                modelWriter.Write();
+                CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
             }
 
             foreach (var enumType in output.Enums)
             {
                 CodeWriter writer = new CodeWriter();
-                ExpressionTypeProviderWriter enumWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, enumType);
-                enumWriter.Write();
+                CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, enumType).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), writer.ToString()));
+
+                if (enumType.Serialization is { } serialization)
+                {
+                    writer = new CodeWriter();
+                    CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, serialization).Write();
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{enumType.Name}.Serialization.cs"), writer.ToString()));
+                }
             }
 
             foreach (var client in output.Clients)

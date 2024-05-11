@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -67,11 +68,16 @@ namespace Microsoft.Generator.CSharp
 
             Description = input.Description;
 
-            _serializationMethodName = IsStringValueType && IsExtensible ? nameof(object.ToString) : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
             _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
+            SerializationMethodName = IsStringValueType && IsExtensible ? nameof(object.ToString) : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
+            DeserializationMethodName = $"To{Name}";
+
+            if (!IsExtensible)
+            {
+                Serialization = new EnumTypeSerializationProvider(this, sourceInputModel);
+            }
         }
 
-        private readonly string _serializationMethodName;
         private readonly FieldDeclaration _valueField;
 
         public CSharpType ValueType { get; }
@@ -85,15 +91,10 @@ namespace Microsoft.Generator.CSharp
         public override string Namespace { get; }
         protected override TypeKind TypeKind => IsExtensible ? TypeKind.Struct : TypeKind.Enum;
         public bool IsAccessibilityOverridden { get; }
+        internal string SerializationMethodName { get; }
+        internal string DeserializationMethodName { get; }
 
-        protected override CSharpType[] BuildImplements()
-        {
-            if (!IsExtensible)
-                return Array.Empty<CSharpType>();
-
-            // extensible enums implement IEquatable<Self>
-            return [new CSharpType(typeof(IEquatable<>), Type)];
-        }
+        public EnumTypeSerializationProvider? Serialization { get; }
 
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration>? _valueFields;
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> ValueFields => _valueFields ??= BuildValueFields();
@@ -113,24 +114,38 @@ namespace Microsoft.Generator.CSharp
             return values;
         }
 
+        // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
         {
             var enumName = Type.Name;
             var values = new Dictionary<EnumTypeValue, FieldDeclaration>();
             foreach (var value in Values)
             {
+                var modifiers = IsExtensible
+                                ? FieldModifiers.Private | FieldModifiers.Const
+                                : FieldModifiers.Public | FieldModifiers.Static;
+                // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
+                // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
+                var name = IsExtensible
+                                ? GetExtensibleFieldName(enumName, value.Name, Values)
+                                : value.Name;
+                // for initializationValue, if the enum is extensible, we always need it
+                // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
+                var initializationValue = IsExtensible || IsIntValueType
+                                ? Literal(value.Value)
+                                : null;
                 var field = new FieldDeclaration(
                     Description: FormattableStringHelpers.FromString(value.Description),
-                    Modifiers: FieldModifiers.Private | FieldModifiers.Const,
+                    Modifiers: modifiers,
                     Type: ValueType,
-                    Name: GetFieldName(enumName, value.Name, Values),
-                    InitializationValue: Literal(value.Value));
+                    Name: name,
+                    InitializationValue: initializationValue);
                 values.Add(value, field);
             }
             return values;
         }
 
-        private static string GetFieldName(string enumName, string valueName, IReadOnlyList<EnumTypeValue> values)
+        private static string GetExtensibleFieldName(string enumName, string valueName, IReadOnlyList<EnumTypeValue> values)
         {
             var nameCandidate = $"{valueName}Value";
 
@@ -153,13 +168,20 @@ namespace Microsoft.Generator.CSharp
             return nameCandidate;
         }
 
-        protected override FieldDeclaration[] BuildFields()
-        {
-            // TODO -- to be implemented
-            if (!IsExtensible)
-                return Array.Empty<FieldDeclaration>();
+        protected override CSharpType[] BuildImplements()
+            => IsExtensible
+                ? [new CSharpType(typeof(IEquatable<>), Type)] // extensible enums implement IEquatable<Self>
+                : Array.Empty<CSharpType>();
 
-            return BuildExtensibleFields();
+        protected override FieldDeclaration[] BuildFields()
+            => IsExtensible
+                ? BuildExtensibleFields()
+                : BuildFixedFields();
+
+        private FieldDeclaration[] BuildFixedFields()
+        {
+            // the fields of a fixed enum is just the values it has
+            return ValueFields.Values.ToArray();
         }
 
         private FieldDeclaration[] BuildExtensibleFields()
@@ -182,6 +204,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override PropertyDeclaration[] BuildProperties()
         {
+            // fixed enums do not have properties
             if (!IsExtensible)
                 return Array.Empty<PropertyDeclaration>();
 
@@ -203,6 +226,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildConstructors()
         {
+            // fixed enums do not have ctors
             if (!IsExtensible)
                 return Array.Empty<CSharpMethod>();
 
@@ -350,7 +374,7 @@ namespace Microsoft.Generator.CSharp
             if (!IsStringValueType)
             {
                 var toSerialSignature = new MethodSignature(
-                    Name: _serializationMethodName,
+                    Name: SerializationMethodName,
                     Modifiers: MethodSignatureModifiers.Internal,
                     ReturnType: ValueType,
                     Parameters: Array.Empty<Parameter>(),
@@ -365,8 +389,5 @@ namespace Microsoft.Generator.CSharp
 
             return methods.ToArray();
         }
-
-        public TypedValueExpression ToSerial(ValueExpression instance)
-            => new FrameworkTypeExpression(ValueType.FrameworkType, new InvokeInstanceMethodExpression(instance, _serializationMethodName, Array.Empty<ValueExpression>()));
     }
 }

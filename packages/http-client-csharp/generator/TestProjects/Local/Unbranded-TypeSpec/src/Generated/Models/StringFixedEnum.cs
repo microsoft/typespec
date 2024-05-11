@@ -6,5 +6,8 @@ namespace UnbrandedTypeSpec.Models
 {
     public enum StringFixedEnum
     {
+        One,
+        Two,
+        Four
     }
 }
