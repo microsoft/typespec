@@ -44,14 +44,16 @@ function logLabels(message: string, labels: Label[]) {
   const max = labels.reduce((max, label) => Math.max(max, label.name.length), 0);
   for (const label of labels) {
     console.log(
-      `  ${pc.cyan(label.name).padEnd(max)} #${pc.blue(label.color)} ${pc.gray(label.description)}`
+      `  ${pc.cyan(label.name.padEnd(max))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`
     );
   }
+  console.log("");
 }
 
 interface UpdateGithubLabelOptions {
   readonly dryRun?: boolean;
 }
+
 async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOptions = {}) {
   if (!options.dryRun && !process.env.GITHUB_TOKEN) {
     throw new Error(
