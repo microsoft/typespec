@@ -27,7 +27,6 @@ import {
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
-import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
 import {
   InputEnumType,
@@ -139,7 +138,7 @@ export function getUsages(
   for (const type of usages.types) {
     let typeName = "";
     if ("name" in type) typeName = type.name ?? "";
-    let effectiveType = type;
+    const effectiveType = type;
     if (type.kind === "Enum") {
       typeName = getTypeName(context, type);
     }
@@ -147,7 +146,7 @@ export function getUsages(
       typeName = getTypeName(context, effectiveType as Model);
     }
     if (type.kind === "Union") {
-      let clientType = getClientType(context, type); // TODO -- we should also pass in an operation as well
+      const clientType = getClientType(context, type); // TODO -- we should also pass in an operation as well
       if (clientType.kind === "enum" && clientType.isFixed === false) {
         typeName = clientType.name;
       }
@@ -173,9 +172,8 @@ export function getUsages(
   }
 
   for (const op of ops) {
-    const resourceOperation = getResourceOperation(program, op.operation);
     if (!op.parameters.body?.parameter && op.parameters.body?.type) {
-      var effectiveBodyType = undefined;
+      let effectiveBodyType: Type | undefined = undefined;
       const affectTypes: Set<string> = new Set<string>();
       effectiveBodyType = getEffectiveSchemaType(context, op.parameters.body.type);
       if (effectiveBodyType.kind === "Model") {
@@ -240,7 +238,7 @@ export function getUsages(
     // iterate all models to find if it contains literal type properties
     for (const [name, model] of modelMap) {
       // get the usage of this model
-      let usage = usagesMap.get(name);
+      const usage = usagesMap.get(name);
       for (const prop of model.Properties) {
         const type = prop.Type;
         if (!isInputLiteralType(type)) continue;

@@ -328,7 +328,7 @@ export function loadOperation(
       return undefined;
     }
 
-    var bodyType = undefined;
+    let bodyType: InputType | undefined = undefined;
     if (
       op.verb !== "delete" &&
       metadata.finalResult !== undefined &&

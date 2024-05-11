@@ -207,7 +207,7 @@ export function fromSdkEnumType(
   enums: Map<string, InputEnumType>,
   addToCollection: boolean = true
 ): InputEnumType {
-  let enumName = enumType.name;
+  const enumName = enumType.name;
   let inputEnumType = enums.get(enumName);
   if (inputEnumType === undefined) {
     const newInputEnumType: InputEnumType = {
@@ -549,7 +549,6 @@ function fromScalarType(scalarType: SdkType): InputPrimitiveType {
 }
 
 function fromIntrinsicType(scalarType: SdkType): InputIntrinsicType {
-  const name = (scalarType.__raw! as IntrinsicType).name;
   return {
     Kind: InputTypeKind.Intrinsic,
     Name: getCSharpInputTypeKindByIntrinsic(scalarType.__raw! as IntrinsicType),
@@ -563,7 +562,7 @@ function fromUnionType(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ): InputUnionType | InputType {
-  let itemTypes: InputType[] = [];
+  const itemTypes: InputType[] = [];
   for (const value of union.values) {
     const inputType = fromSdkType(value, context, models, enums);
     itemTypes.push(inputType);
