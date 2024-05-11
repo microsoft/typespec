@@ -227,7 +227,6 @@ async function fetchAllLabels(octokit: Octokit): Promise<GithubLabel[]> {
     }`
   );
 
-  console.log("A", repository);
   return repository.labels.nodes;
 }
 
