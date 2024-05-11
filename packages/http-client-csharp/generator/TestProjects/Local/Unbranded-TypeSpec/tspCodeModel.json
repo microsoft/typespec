@@ -2345,7 +2345,7 @@
        "Type": {
         "$id": "250",
         "Kind": "Primitive",
-        "Name": "DateTime",
+        "Name": "DateTimeRFC7231",
         "IsNullable": false
        },
        "Location": "Header",
