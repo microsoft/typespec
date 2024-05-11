@@ -94,15 +94,9 @@ design-issues:
       color: 56815a
       description: Proposal has been added and ready for discussion
 
-misc:
-  description: "Misc labels"
+process:
+  description: "Process labels"
   labels:
-    Client Emitter Migration:
-      color: FD92F0
-      description: ""
-    good first issue:
-      color: 7057ff
-      description: Good for newcomers
     needs-triage:
       color: ffffff
       description: ""
@@ -112,3 +106,13 @@ misc:
     triaged:core:
       color: "5319e7"
       description: ""
+
+misc:
+  description: "Misc labels"
+  labels:
+    Client Emitter Migration:
+      color: FD92F0
+      description: ""
+    good first issue:
+      color: 7057ff
+      description: Good for newcomers

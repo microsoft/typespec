@@ -1,4 +1,8 @@
-# Prerequisites
+# Developper guide
+
+This section goes over the setup of the repo for development.
+
+## Repo setup
 
 - Install [Node.js](https://nodejs.org/) 20 LTS
 - Install [pnpm](https://pnpm.io/)
@@ -7,163 +11,69 @@
 npm install -g pnpm
 ```
 
-# Installing NPM dependencies
+- Install dependencies
 
 ```bash
 pnpm install
 ```
 
-This will install all of the npm dependencies of all projects in the
-repo. Do this whenever you `git pull` or your workspace is freshly
-cleaned/cloned.
+- Build the dependencies
 
-Note that `pnpm install` must be done before building in VS Code or
-using the command line.
+```bash
+pnpm build
+```
 
-# Install playwright browsers for UI testing
+- (Optional) Install [Playwright](https://playwright.dev/) browsers for UI testing
 
 ```bash
 npx playwright install
 ```
 
-# Using command line
+- Start the build in watch mode to automatically rebuild on save
+
+```bash
+pnpm run watch
+```
+
+## Using command line
 
 **If you are not at the root of the repo you have to use `-w` option to specify you want to run the command for the workspace. `pnpm -w <command>`.**
+Those commands can be run on the workspace or in a specific package(`cd ./packages/<pkg>`).
 
-## Rebuild the whole repo
+| Command                     | Description                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm build`                | Build                                                                                                                                                     |
+| `pnpm test`                 | Test                                                                                                                                                      |
+| `pnpm test:watch`           | Run test in watch mode(only when inside a package)                                                                                                        |
+| `pnpm watch`                | Build in watch mode, Starting this command will rebuild the typescript files on save.                                                                     |
+| `pnpm clean`                | Clean, sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state. |
+| `pnpm format`               | Format                                                                                                                                                    |
+| `pnpm format:check`         | Validate files are formatted                                                                                                                              |
+| `pnpm gen-extern-signature` | Regenerate TypeScript signature for decorators(except compiler)                                                                                           |
+| `pnpm change add`           | Add a change description                                                                                                                                  |
+| `pnpm lint`                 | Run linters                                                                                                                                               |
+| `pnpm lint:fix`             | Fix autofixable issues                                                                                                                                    |
+| `pnpm regen-samples`        | Regen the samples(when the samples test fail)                                                                                                             |
+| `pnpm regen-docs`           | Regen the reference docs                                                                                                                                  |
 
-```bash
-pnpm build
-```
-
-This will build all projects in the correct dependency order.
-
-## Build the whole repo incrementally
-
-```bash
-pnpm build
-```
-
-This will build all projects that have changed since the last `pnpm build` in
-dependency order.
-
-## Build an individual package on the command line
-
-```bash
-cd packages/<project>
-pnpm build
-```
-
-## Run all tests for the whole repo
-
-```bash
-pnpm test
-```
-
-## Start compile on save
-
-Starting this command will rebuild the typescript files on save.
-
-```bash
-pnpm watch
-```
-
-## Cleanup
-
-Sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state.
-
-```bash
-pnpm clean
-```
-
-## Run tests for an individual package
-
-```bash
-cd packages/<project>
-pnpm test
-```
-
-## Verbose test logging
+### Verbose test logging
 
 Tests sometimes log extra info using `logVerboseTestOutput` To see
 this output on the command line, set environment variable
 TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 
-## Reformat source code
-
-```bash
-pnpm format
-```
-
-PR validation enforces code formatting style rules for the repo. This
-command will reformat code automatically so that it passes.
-
-You can also check if your code is formatted correctly without
-reformatting anything using `pnpm check-format`.
-
-See also below for having this happen automatically in VS Code
-whenever you save.
-
-## Generate TypeScript signature for decorators
-
-For all packages except the compiler this will be done automatically as part of each package `build` script.
-
-If you want to regenerate decorator signatures without a full build you can run:
-
-```
-pnpm gen-extern-signature
-```
-
 **For the compiler you will need to run it manually or run the whole workspace build. This is because for the tool to run it needs the compiler to build first.**
 
-## Generate changelogs
+## Using VS Code
 
-```bash
-pnpm change
-```
+### Recommended extensions
 
-## Linting
+1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=vitest.explorer): Run tests from the IDE.
+2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Automatically keep code formatted correctly on save.
+3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Show eslint errors in warnings in UI.
+4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker): Show spell check errors in document.
 
-```bash
-pnpm lint
-```
-
-PR validation enforces linting rules for the repo. This
-command will run the linter on all packages.
-
-## Regenerate Samples
-
-```bash
-pnpm regen-samples
-```
-
-PR validation runs OpenAPI emitters on samples and compares them to known,
-reviewed, checked-in versions. If your PR would change the generated output,
-run this command to regenerate any samples and check those files in with
-your PR. Carefully review whether the changes are intentional.
-
-## Regenerate Reference Docs
-
-```bash
-pnpm regen-docs
-```
-
-PR validation will ensure that reference docs are up to date.
-
-# Using VS Code
-
-## Recommended extensions
-
-1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=ZixuanChen.vitest-explorer):
-   Run tests from the IDE. (Version `0.2.43` is bugged on OSX, use `0.2.42` instead)
-2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode):
-   Automatically keep code formatted correctly on save.
-3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint):
-   Show eslint errors in warnings in UI.
-4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker):
-   Show spell check errors in document.
-
-## Opening the repo as workspace
+### Opening the repo as workspace
 
 Always open the root of the repo as the workspace. Things are setup to
 allow easy development across packages rather than opening one package
@@ -173,7 +83,7 @@ at a time in the IDE.
   cloned
 - Or run `code /path/to/repo/root` on the command line
 
-## Building
+### Building
 
 - Terminal -> Run Build Task (`Ctrl+Shift+B`)
 
@@ -189,17 +99,17 @@ Terminal pane will have three parallel watch tasks running:
 - `watch-tmlanguage`: process that regenerates typespec.tmlanguage when
   tmlanguage.ts changes
 
-## Testing
+### Testing
 
 ```bash
 # Run all the tests
 pnpm test
 
 # Run in a specific package tests in watch mode
-npm run test:watch
+pnpm test:watch
 ```
 
-## Debugging
+### Debugging
 
 There are several "Run and Debug" tasks set up. Click on the Run and
 Debug icon on the sidebar, pick one from its down, and press F5 to
@@ -226,16 +136,16 @@ debug the last one you chose.
    typespec.tmlanguage file that provides syntax highlighting of TypeSpec in VS
    and VS Code. Select this to debug its build process.
 
-# Developing the Visual Studio Extension
+## Developing the Visual Studio Extension
 
-## Prerequisites
+### Prerequisites
 
 Install [Visual Studio](https://visualstudio.microsoft.com/vs/) 17.0
 or later. It is not currently possible to build the VS extension
 without it, and of course you'll need Visual Studio to run and debug
 the Visual Studio extension.
 
-## Build VS extension on the command line
+### Build VS extension on the command line
 
 See the command line build steps above. If you have VS installed,
 the VS extension will be included in your command line full repo
@@ -245,7 +155,7 @@ If you do not have VS installed the command line build steps above
 will simply skip building the VS extension and only build the VS Code
 extension.
 
-## Build VS extension in VS
+### Build VS extension in VS
 
 - Open packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.sln in Visual Studio
 - Build -> Build solution (`Ctrl+Shift+B`)
@@ -254,7 +164,7 @@ Unlike TypeScript in VS Code above, this is not a watching build, but
 it is relatively fast to run. Press Ctrl+Shift+B again to build any
 changes after you make them.
 
-## Debug VS extension
+### Debug VS extension
 
 - Click on the play icon in the toolbar or press `F5`
 
@@ -266,9 +176,9 @@ The VS debugger will attach only to the VS client process. Use "Attach
 to Language Server" described above to debug the language server in
 VS Code.
 
-# Installing your build
+### Installing your build
 
-```
+```bash
 pnpm dogfood
 ```
 
@@ -291,6 +201,16 @@ configuration in Visual Studio, then you can install it by
 double-clicking on packages/typespec-vs/Microsoft.TypeSpec.VisualStudio.vsix
 that gets produced.
 
+## TypeSpec website
+
+### Run locally
+
+Go to `packages/website` and run the command:
+
+```bash
+pnpm start
+```
+
 # Pull request
 
 ## Trigger TypeSpec Playground Try It build
@@ -298,28 +218,9 @@ that gets produced.
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
 As a contributor you can run the following command to trigger the build and create a TypeSpec playground link for this PR.
 
-```
+```bash
 /azp run typespec - pr tools
 ```
-
-# TypeSpec website
-
-## Run locally
-
-Go to `packages/website` and run the command:
-
-```
-npm start
-```
-
-## Publish website to github.io
-
-The website on github.io should be published when releasing new packages.
-
-To release:
-
-- Go to https://github.com/microsoft/typespec/actions/workflows/website-gh-pages.yml
-- Click the `Run workflow` dropdown and select the `main` branch.
 
 # Labels for issues and PRs
 
