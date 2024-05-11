@@ -13,6 +13,15 @@ on:
       - "eng/common/scripts/sync-labels.ts"
       - ".github/workflows/sync-labels.yml"
 
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "package.json"
+      - "eng/common/labels.yml"
+      - "eng/common/scripts/sync-labels.ts"
+      - ".github/workflows/sync-labels.yml"
+
   workflow_dispatch: {}
 
 permissions:
@@ -28,7 +37,14 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm sync-labels --update-github-labels --dry-run
+      - run: |
+        if [[ ${{ github.event_name }} == "pull_request" ]]; then
+          echo "Pull request, checking CONTRIBUTING sync."
+          pnpm sync-labels
+        else
+          echo "CI, checking github labels are up to date."
+          pnpm sync-labels --update-github-labels --dry-run
+        fi
         name: Sync labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
