@@ -1,4 +1,6 @@
-import { Octokit } from "@octokit/rest";
+import { Octokit as OctokitCore } from "@octokit/core";
+import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
+import { restEndpointMethods } from "@octokit/plugin-rest-endpoint-methods";
 import { readFile, writeFile } from "fs/promises";
 import { dirname, resolve } from "path";
 import pc from "picocolors";
@@ -6,6 +8,9 @@ import { format, resolveConfig } from "prettier";
 import { fileURLToPath } from "url";
 import { inspect, parseArgs } from "util";
 import { parse } from "yaml";
+
+const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
+type Octokit = InstanceType<typeof Octokit>;
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const labelFileRelative = "eng/common/labels.yaml";
@@ -64,7 +69,7 @@ async function main() {
   logLabelConfig(labels);
 
   if (options.values["github"]) {
-    await updateGithubLabels(labels.labels, {
+    await syncGithubLabels(labels.labels, {
       dryRun: options.values["dry-run"],
       check: options.values.check,
     });
@@ -125,10 +130,10 @@ function prettyLabel(label: Label, padEnd: number = 0) {
   return `${pc.cyan(label.name.padEnd(padEnd))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`;
 }
 
-async function updateGithubLabels(labels: Label[], options: ActionOptions = {}) {
-  if (!options.dryRun && !process.env.GITHUB_TOKEN) {
+async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
+  if (!options.dryRun && !process.env.GITHUB_TOKEN && !options.check) {
     throw new Error(
-      "GITHUB_TOKEN environment variable is required when not running in dry-run mode"
+      "GITHUB_TOKEN environment variable is required when not running in dry-run mode or check mode."
     );
   }
   const octokit = new Octokit(
@@ -154,23 +159,76 @@ async function updateGithubLabels(labels: Label[], options: ActionOptions = {}) 
   const labelsToDelete = Array.from(exitingLabelMap.values());
   logLabels("Labels to update", labelToUpdate);
   logLabels("Labels to create", labelsToCreate);
-  logLabels("Labels to delete", labelsToDelete as any);
+  logLabels("Labels to delete", labelsToDelete);
   console.log("");
 
-  logAction("Applying changes", options);
-  await updateLabels(octokit, labelToUpdate, options);
-  await createLabels(octokit, labelsToCreate, options);
-  await deleteLabels(
-    octokit,
-    labelsToDelete.map((x) => x.name),
-    options
-  );
-  logAction("Done applying changes", options);
+  if (options.check) {
+    if (labelsToDelete.length > 0) {
+      checkLabelsToDelete(labelsToDelete);
+    }
+  } else {
+    logAction("Applying changes", options);
+    await updateLabels(octokit, labelToUpdate, options);
+    await createLabels(octokit, labelsToCreate, options);
+    await deleteLabels(
+      octokit,
+      labelsToDelete.map((x) => x.name),
+      options
+    );
+    logAction("Done applying changes", options);
+  }
 }
 
-async function fetchAllLabels(octokit: Octokit) {
-  const result = await octokit.paginate(octokit.rest.issues.listLabelsForRepo, repo);
-  return result;
+async function checkLabelsToDelete(labels: GithubLabel[]) {
+  console.log("Checking labels that will be deleted don't have any issues assigned.");
+  let hasError = false;
+  for (const label of labels) {
+    if (label.issues.totalCount > 0) {
+      console.error(
+        pc.red(
+          `Label ${label.name} has ${label.issues.totalCount} issues assigned to it, make sure to rename the label manually first to not lose assignment.`
+        )
+      );
+      hasError = true;
+    }
+  }
+  if (hasError) {
+    process.exit(1);
+  } else {
+    console.error(pc.green(`Labels looks good to delete.`));
+  }
+}
+
+interface GithubLabel {
+  readonly name: string;
+  readonly color: string;
+  readonly description: string;
+  readonly issues: { readonly totalCount: number };
+}
+async function fetchAllLabels(octokit: Octokit): Promise<GithubLabel[]> {
+  const { repository } = await octokit.graphql.paginate(
+    `query paginate($cursor: String) {
+      repository(owner: "Microsoft", name: "typespec") {
+        labels(first: 100, after: $cursor) {
+          nodes {
+            color
+            name
+            description
+            issues(filterBy: {states: OPEN}) {
+              totalCount
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }
+    }`
+  );
+
+  console.log("A", repository);
+  return repository.labels.nodes;
 }
 
 function logAction(message: string, options: ActionOptions) {

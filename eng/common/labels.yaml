@@ -45,9 +45,6 @@ area:
     meta:website:
       color: 007dc8
       description: TypeSpec.io updates
-    Service Codegen:
-      color: 7C4B1E
-      description: ""
     tspd:
       color: "004185"
       description: Issues for the tspd tool
