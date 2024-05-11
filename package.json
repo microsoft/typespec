@@ -37,6 +37,7 @@
     "@chronus/chronus": "^0.10.1",
     "@chronus/github": "^0.3.2",
     "@eslint/js": "^8.57.0",
+    "@octokit/rest": "^20.1.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "@types/node": "~18.11.19",
     "@typescript-eslint/parser": "^7.6.0",
@@ -52,9 +53,11 @@
     "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.5",
     "syncpack": "^12.3.0",
+    "tsx": "^4.9.4",
     "typescript": "~5.4.5",
     "typescript-eslint": "^7.6.0",
-    "vitest": "^1.5.0"
+    "vitest": "^1.5.0",
+    "yaml": "~2.4.1"
   },
   "syncpack": {
     "dependencyTypes": [
