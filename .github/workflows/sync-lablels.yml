@@ -2,7 +2,15 @@ name: Sync labels
 
 on:
   push:
-    branches: ["main", "label-sync"]
+    branches:
+      - "main"
+      - "label-sync"
+    paths:
+      - "package.json"
+      - "eng/common/labels.yml"
+      - "eng/common/scripts/sync-labels.ts"
+      - ".github/workflows/sync-labels.yml"
+
   workflow_dispatch: {}
 
 permissions:
