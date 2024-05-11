@@ -1,9 +1,11 @@
 import { Octokit } from "@octokit/rest";
 import { readFile } from "fs/promises";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 import { inspect, parseArgs } from "util";
 import { parse } from "yaml";
 
-const labelFile = "../labels.yaml";
+const labelFile = resolve(dirname(fileURLToPath(import.meta.url)), "../labels.yaml");
 
 const repo = {
   owner: "microsoft",
