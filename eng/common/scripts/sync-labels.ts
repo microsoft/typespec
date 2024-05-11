@@ -40,6 +40,10 @@ async function main() {
 }
 
 function logLabels(message: string, labels: Label[]) {
+  if (labels.length === 0) {
+    console.log(message, pc.cyan("none"));
+    return;
+  }
   console.log(message);
   const max = labels.reduce((max, label) => Math.max(max, label.name.length), 0);
   for (const label of labels) {
@@ -82,16 +86,20 @@ async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOpt
     }
     exitingLabelMap.delete(label.name);
   }
-  const labelsToDelete = Array.from(exitingLabelMap.values()).map((x) => x.name);
+  const labelsToDelete = Array.from(exitingLabelMap.values());
   logLabels("Labels to update", labelToUpdate);
   logLabels("Labels to create", labelsToCreate);
-  console.log("Labels to delete", labelsToDelete);
+  logLabels("Labels to delete", labelsToDelete as any);
   console.log("");
 
   logAction("Applying changes", options);
   await updateLabels(octokit, labelToUpdate, options);
   await createLabels(octokit, labelsToCreate, options);
-  await deleteLabels(octokit, labelsToDelete, options);
+  await deleteLabels(
+    octokit,
+    labelsToDelete.map((x) => x.name),
+    options
+  );
   logAction("Done applying changes", options);
 }
 
@@ -101,7 +109,7 @@ async function fetchAllLabels(octokit: Octokit) {
 }
 
 function logAction(message: string, options: UpdateGithubLabelOptions) {
-  const prefix = options.dryRun ? "[dry-run] " : "";
+  const prefix = options.dryRun ? `${pc.gray("[dry-run]")} ` : "";
   console.log(prefix + message);
 }
 
