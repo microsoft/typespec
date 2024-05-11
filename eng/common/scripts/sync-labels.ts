@@ -14,6 +14,17 @@ const repo = {
 };
 await main();
 
+interface LabelsConfig {
+  readonly categories: LabelCategory[];
+  readonly labels: Label[];
+}
+
+interface LabelCategory {
+  readonly name: string;
+  readonly description: string;
+  readonly labels: Label[];
+}
+
 interface Label {
   readonly name: string;
   readonly color: string;
@@ -29,14 +40,40 @@ async function main() {
     },
   });
   const content = await readFile(labelFile, "utf8");
-  const labels = parse(content);
-  logLabels("Labels:", labels);
-  for (const label of labels) {
-    validateLabel(label);
-  }
+  const labels = loadLabels(content);
+  logLabelConfig(labels);
+
   if (options.values["update-github-labels"]) {
-    await updateGithubLabels(labels, { dryRun: options.values["dry-run"] });
+    await updateGithubLabels(labels.labels, { dryRun: options.values["dry-run"] });
   }
+}
+
+function loadLabels(yamlContent: string): LabelsConfig {
+  const data: Record<string, { description: string; labels: Label[] }> = parse(yamlContent);
+  const labels = [];
+  const categories: LabelCategory[] = [];
+  for (const [categoryName, { description, labels: categoryLabels }] of Object.entries(data)) {
+    const category = { name: categoryName, description, labels: categoryLabels };
+    categories.push(category);
+    for (const label of categoryLabels) {
+      validateLabel(label);
+      labels.push(label);
+    }
+  }
+  return { labels, categories };
+}
+
+function logLabelConfig(config: LabelsConfig) {
+  console.log("Label config:");
+  const max = config.labels.reduce((max, label) => Math.max(max, label.name.length), 0);
+  for (const category of config.categories) {
+    console.log(`  ${pc.green(category.name)} ${pc.gray(category.description)}`);
+    for (const label of category.labels) {
+      console.log(`    ${prettyLabel(label, max)}`);
+    }
+    console.log("");
+  }
+  console.log("");
 }
 
 function logLabels(message: string, labels: Label[]) {

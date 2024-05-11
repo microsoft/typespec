@@ -299,15 +299,7 @@ For contributors of the repo the build will trigger automatically but for other'
 As a contributor you can run the following command to trigger the build and create a TypeSpec playground link for this PR.
 
 ```
-/azp run TypeSpec Pull Request Try It
-```
-
-## Run formatter
-
-Trigger a workflow that will format the code, commit and push.
-
-```
-/typespeceng format
+/azp run typespec - pr tools
 ```
 
 # TypeSpec website
@@ -328,6 +320,8 @@ To release:
 
 - Go to https://github.com/microsoft/typespec/actions/workflows/website-gh-pages.yml
 - Click the `Run workflow` dropdown and select the `main` branch.
+
+# Labels for issues and PRs
 
 # TypeSpec Emitters
 
