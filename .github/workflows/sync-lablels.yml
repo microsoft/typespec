@@ -1,8 +1,6 @@
 name: Sync labels
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: ["main", "label-sync"]
   workflow_dispatch: {}
@@ -11,12 +9,11 @@ permissions:
   issues: write
 
 jobs:
-  test:
+  sync:
     runs-on: ubuntu-latest
-
     steps:
-       - uses: actions/checkout@v4
-       - uses: ./.github/actions/setup
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
       - run: pnpm tsx ./eng/common/scripts/sync-labels.ts --update-github-labels --dry-run
         name: Sync labels
