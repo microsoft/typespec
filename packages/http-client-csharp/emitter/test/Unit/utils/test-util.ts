@@ -18,7 +18,7 @@ import { createTestHost, TestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
-import { getFormattedType, getInputType } from "../../../src/lib/model.js";
+import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
 
@@ -111,8 +111,7 @@ export function navigateModels(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
-  const computeModel = (x: Type) =>
-    getInputType(context, getFormattedType(context.program, x), models, enums) as any;
+  const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
   navigateTypesInNamespace(
     namespace,
