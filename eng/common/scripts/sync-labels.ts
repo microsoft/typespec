@@ -38,11 +38,20 @@ interface Label {
   readonly description: string;
 }
 
+interface ActionOptions {
+  readonly dryRun?: boolean;
+}
+interface ContributingSyncOptions {
+  readonly check?: boolean;
+  readonly dryRun?: boolean;
+}
+
 async function main() {
   const options = parseArgs({
     args: process.argv.slice(2),
     options: {
       "dry-run": { type: "boolean" },
+      check: { type: "boolean" },
       "update-github-labels": { type: "boolean" },
     },
   });
@@ -54,7 +63,10 @@ async function main() {
     await updateGithubLabels(labels.labels, { dryRun: options.values["dry-run"] });
   }
 
-  updateContributingFile(labels, { dryRun: options.values["dry-run"] });
+  updateContributingFile(labels, {
+    dryRun: options.values["dry-run"],
+    check: options.values.check,
+  });
 }
 
 function loadLabels(yamlContent: string): LabelsConfig {
@@ -104,10 +116,6 @@ function logLabels(message: string, labels: Label[]) {
 
 function prettyLabel(label: Label, padEnd: number = 0) {
   return `${pc.cyan(label.name.padEnd(padEnd))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`;
-}
-
-interface ActionOptions {
-  readonly dryRun?: boolean;
 }
 
 async function updateGithubLabels(labels: Label[], options: ActionOptions = {}) {
@@ -210,7 +218,7 @@ function validateLabel(label: Label) {
   }
 }
 
-async function updateContributingFile(labels: LabelsConfig, options: ActionOptions) {
+async function updateContributingFile(labels: LabelsConfig, options: ContributingSyncOptions) {
   console.log("Updating contributing file", contributingFile);
   const content = await readFile(contributingFile, "utf8");
   const startIndex = content.indexOf(magicComment.start);
@@ -228,11 +236,20 @@ async function updateContributingFile(labels: LabelsConfig, options: ActionOptio
   const newContent = `${start}\n${warning}\n${generateLabelsDoc(labels)}\n${end}`;
   const { plugins, ...prettierOptions } = (await resolveConfig(contributingFile)) ?? {};
   const formatted = await format(newContent, { ...prettierOptions, filepath: contributingFile });
-  await doAction(
-    () => writeFile(contributingFile, formatted),
-    "Updated contributing file",
-    options
-  );
+  if (options.check) {
+    if (formatted !== content) {
+      console.error(
+        "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it"
+      );
+      process.exit(1);
+    }
+  } else {
+    await doAction(
+      () => writeFile(contributingFile, formatted),
+      "Updated contributing file",
+      options
+    );
+  }
 }
 
 function generateLabelsDoc(labels: LabelsConfig) {
