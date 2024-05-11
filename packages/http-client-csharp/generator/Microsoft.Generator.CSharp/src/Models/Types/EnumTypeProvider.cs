@@ -247,13 +247,9 @@ namespace Microsoft.Generator.CSharp
         }
 
         protected override CSharpMethod[] BuildMethods()
-        {
-            // TODO -- to be implemented
-            if (!IsExtensible)
-                return Array.Empty<CSharpMethod>();
-
-            return BuildExtensibleEnumMethods();
-        }
+            => IsExtensible
+                ? BuildExtensibleEnumMethods()
+                : Array.Empty<CSharpMethod>();
 
         private CSharpMethod[] BuildExtensibleEnumMethods()
         {

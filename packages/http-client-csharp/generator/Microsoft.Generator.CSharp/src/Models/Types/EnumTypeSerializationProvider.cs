@@ -71,6 +71,10 @@ namespace Microsoft.Generator.CSharp
             var value = (ValueExpression)deserializationValueParameter;
             var stringComparer = new MemberExpression(typeof(StringComparer), nameof(StringComparer.OrdinalIgnoreCase));
             var deserializationBody = new List<MethodBodyStatement>();
+
+            // in general, this loop builds up if statements for each value, it looks like:
+            // if (<condition>) { return EnumType.TheValue; }
+            // the condition could be different depending on the type of the underlying value type of the enum
             for (int i = 0; i < _enumType.Fields.Count; i++)
             {
                 var enumField = _enumType.Fields[i];
@@ -79,13 +83,17 @@ namespace Microsoft.Generator.CSharp
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively
+                    // this is either
+                    // StringComparer.OrdinalIgnoreCase.Equals(value, "<the value>")
+                    // or
+                    // string.Equals(value, "<the value>", StringComparison.InvariantCultureIgnoreCase)
                     condition = new(enumValue.Value is string strValue && strValue.All(char.IsAscii)
                                 ? stringComparer.Invoke(nameof(IEqualityComparer<string>.Equals), value, Literal(strValue))
                                 : new InvokeStaticMethodExpression(_enumType.ValueType, nameof(object.Equals), [value, Literal(enumValue.Value), FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)]));
                 }
                 else
                 {
-                    // when the values are not strings, we just compare them using `==` operator
+                    // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
                     condition = Equal(value, Literal(enumValue.Value));
                 }
                 deserializationBody.Add(new IfStatement(condition)
