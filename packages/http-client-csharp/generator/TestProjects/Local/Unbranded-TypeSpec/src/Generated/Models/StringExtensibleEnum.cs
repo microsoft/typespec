@@ -45,6 +45,8 @@ namespace UnbrandedTypeSpec.Models
 
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
 
+        public override string ToString() => _value;
+
         // Add Nested Type
     }
 }

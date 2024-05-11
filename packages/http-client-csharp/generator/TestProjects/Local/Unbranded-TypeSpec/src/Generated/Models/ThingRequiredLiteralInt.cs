@@ -4,6 +4,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -35,6 +36,8 @@ namespace UnbrandedTypeSpec.Models
         public bool Equals(ThingRequiredLiteralInt other) => Equals(_value, other._value);
 
         public override int GetHashCode() => _value.GetHashCode();
+
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         // Add Nested Type
     }

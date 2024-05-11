@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -281,6 +282,8 @@ namespace Microsoft.Generator.CSharp
                 Parameters: [objParameter],
                 Attributes: [new CSharpAttribute(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
 
+            // writes the method:
+            // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
             methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolExpression(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), MethodKind));
 
             var otherParameter = new Parameter("other", null, Type, null, ValidationType.None, null);
@@ -291,12 +294,16 @@ namespace Microsoft.Generator.CSharp
                 Attributes = Array.Empty<CSharpAttribute>()
             };
 
+            // writes the method:
+            // public bool Equals(EnumType other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
+            // or
+            // public bool Equals(EnumType other) => int/float.Equals(_value, other._value);
             var valueField = new TypedValueExpression(ValueType.WithNullable(!ValueType.IsValueType), _valueField);
             var otherValue = ((ValueExpression)otherParameter).Property(_valueField.Name);
-            methods.Add(new(equalsSignature, IsStringValueType
-                ? new InvokeInstanceMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
-                : new InvokeInstanceMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]),
-                MethodKind));
+            var equalsExpressionBody = IsStringValueType
+                            ? new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
+                            : new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]);
+            methods.Add(new(equalsSignature, equalsExpressionBody, MethodKind));
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
@@ -307,10 +314,34 @@ namespace Microsoft.Generator.CSharp
                 ReturnDescription: null,
                 Parameters: Array.Empty<Parameter>());
 
-            methods.Add(new(getHashCodeSignature, IsStringValueType
-                ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
-                : valueField.InvokeGetHashCode(),
-                MethodKind));
+            // writes the method:
+            // for string
+            // public override int GetHashCode() => _value?.GetHashCode() ?? 0;
+            // for others
+            // public override int GetHashCode() => _value.GetHashCode();
+            var getHashCodeExpressionBody = IsStringValueType
+                            ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
+                            : valueField.InvokeGetHashCode();
+            methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, MethodKind));
+
+            var toStringSignature = new MethodSignature(
+                Name: nameof(object.ToString),
+                Summary: null,
+                Description: null,
+                Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
+                ReturnType: typeof(string),
+                ReturnDescription: null,
+                Parameters: Array.Empty<Parameter>());
+
+            // writes the method:
+            // for string
+            // public override string ToString() => _value;
+            // for others
+            // public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+            ValueExpression toStringExpressionBody = IsStringValueType
+                            ? valueField
+                            : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
+            methods.Add(new(toStringSignature, toStringExpressionBody, MethodKind));
 
             return methods.ToArray();
         }
