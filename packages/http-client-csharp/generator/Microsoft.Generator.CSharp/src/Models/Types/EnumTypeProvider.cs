@@ -365,5 +365,8 @@ namespace Microsoft.Generator.CSharp
 
             return methods.ToArray();
         }
+
+        public TypedValueExpression ToSerial(ValueExpression instance)
+            => new FrameworkTypeExpression(ValueType.FrameworkType, new InvokeInstanceMethodExpression(instance, _serializationMethodName, Array.Empty<ValueExpression>()));
     }
 }
