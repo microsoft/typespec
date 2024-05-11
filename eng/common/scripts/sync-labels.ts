@@ -237,9 +237,13 @@ async function updateContributingFile(labels: LabelsConfig, options: Contributin
   const { plugins, ...prettierOptions } = (await resolveConfig(contributingFile)) ?? {};
   const formatted = await format(newContent, { ...prettierOptions, filepath: contributingFile });
   if (options.check) {
-    if (formatted !== content) {
+    if (formatted === content) {
+      console.log(pc.green("CONTRIBUTING.md is up to date."));
+    } else {
       console.error(
-        "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it"
+        pc.red(
+          "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it"
+        )
       );
       process.exit(1);
     }
