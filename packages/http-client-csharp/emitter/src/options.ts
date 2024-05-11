@@ -4,6 +4,7 @@ import { tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/logger.js";
 
 export type NetEmitterOptions = {
+  "api-version"?: string;
   outputFile?: string;
   logFile?: string;
   namespace: string;
@@ -12,7 +13,6 @@ export type NetEmitterOptions = {
   skipSDKGeneration?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
-  csharpGeneratorPath?: string;
   "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
   "model-namespace"?: boolean;
@@ -36,6 +36,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "api-version": { type: "string", nullable: true },
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },
     namespace: { type: "string" },
@@ -48,17 +49,13 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
       nullable: true,
     },
     "new-project": { type: "boolean", nullable: true },
-    csharpGeneratorPath: {
-      type: "string",
-      default: "fake-location",
-      nullable: true,
-    },
     "clear-output-folder": { type: "boolean", nullable: true },
     "save-inputs": { type: "boolean", nullable: true },
     "model-namespace": { type: "boolean", nullable: true },
     "generate-protocol-methods": { type: "boolean", nullable: true },
     "generate-convenience-methods": { type: "boolean", nullable: true },
     "filter-out-core-models": { type: "boolean", nullable: true },
+    "flatten-union-as-enum": { type: "boolean", nullable: true },
     "package-name": { type: "string", nullable: true },
     "existing-project-folder": { type: "string", nullable: true },
     "keep-non-overloadable-protocol-signature": {
@@ -115,11 +112,11 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
 };
 
 const defaultOptions = {
+  "api-version": "latest",
   outputFile: tspOutputFileName,
   logFile: "log.json",
   skipSDKGeneration: false,
   "new-project": false,
-  csharpGeneratorPath: "fake-location",
   "clear-output-folder": false,
   "save-inputs": false,
   "generate-protocol-methods": true,

@@ -106,8 +106,6 @@ describe("versioning: reference versioned library", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message:
-          "Argument '[[VersionedLib.Versions.l1, VersionedLib.Versions.l1]]' is not assignable to parameter of type 'EnumMember'",
       });
     });
   });
@@ -785,6 +783,32 @@ describe("versioning: dependencies", () => {
           }
         }
       `)) as { MyService: Namespace };
+
+    const [v1] = runProjections(runner.program, MyService);
+    ok(v1.projectedTypes.get(MyService));
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/3263
+  it("service is a nested namespace inside a versioned namespace", async () => {
+    const { MyService } = (await runner.compile(`
+      @versioned(Versions)
+      namespace My.Service {
+        enum Versions {
+          @useDependency(Lib.Versions.v1) v1
+        }
+      
+        @service
+        @test("MyService")
+        namespace Sub {
+          model Foo is Lib.Bar;
+        }
+      }
+      @versioned(Versions)
+      namespace Lib {
+        enum Versions { v1 }
+        model Bar {}
+      }
+    `)) as { MyService: Namespace };
 
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));

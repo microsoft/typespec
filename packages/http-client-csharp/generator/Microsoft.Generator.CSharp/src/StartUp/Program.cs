@@ -42,8 +42,7 @@ namespace Microsoft.Generator.CSharp
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error: {ex.Message}");
-                Console.Error.WriteLine($"{ex.StackTrace}");
+                Console.Error.WriteLine($"Error: {ex.Message}: {ex.StackTrace}");
                 return 1;
             }
 

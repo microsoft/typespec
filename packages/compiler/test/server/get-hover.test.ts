@@ -4,7 +4,7 @@ import { Hover, MarkupKind } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: on hover", () => {
-  describe("get hover for scalar", () => {
+  describe("scalar", () => {
     it("scalar declaration", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -35,7 +35,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for enum", () => {
+  describe("enum", () => {
     it("normal enum", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -76,7 +76,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for alias", () => {
+  describe("alias", () => {
     it("test alias declaration", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -109,7 +109,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for decorator", () => {
+  describe("decorator", () => {
     it("test decorator", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -137,7 +137,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for namespace", () => {
+  describe("namespace", () => {
     it("normal namespace", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -173,7 +173,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for model", () => {
+  describe("model", () => {
     it("model declaration", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -273,7 +273,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for interface", () => {
+  describe("interface", () => {
     it("interface declaration", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -328,7 +328,7 @@ describe("compiler: server: on hover", () => {
     });
   });
 
-  describe("get hover for operation", () => {
+  describe("operation", () => {
     it("operation declaration", async () => {
       const hover = await getHoverAtCursor(
         `
@@ -443,6 +443,37 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "op TestNs.IActions.Eat<T, P>(food: string): string\n" + "```",
+        },
+      });
+    });
+  });
+
+  describe("const", () => {
+    it("declaration", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          const a┆bc = #{ a: 123 };
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
+        },
+      });
+    });
+
+    it("reference", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          const abc = #{ a: 123 };
+          const def = a┆bc;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
         },
       });
     });

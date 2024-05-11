@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Writers
             {
                 foreach (var field in _provider.Fields)
                 {
-                    _writer.Append($"{field.Declaration:D}");
+                    _writer.Append($"{field.Name}");
                     if (field.InitializationValue != null)
                     {
                         _writer.AppendRaw(" = ");
@@ -118,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Writers
         {
             foreach (var field in _provider.Fields)
             {
-                _writer.WriteField(field, declareInCurrentScope: true);
+                _writer.WriteField(field);
             }
             _writer.WriteLine();
         }

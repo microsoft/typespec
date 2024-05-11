@@ -1,12 +1,13 @@
 import { createDiagnosticCreator } from "./diagnostic-creator.js";
 import { compilerAssert } from "./diagnostics.js";
-import { Program } from "./program.js";
+import type { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   DiagnosticMessages,
   JSONSchemaValidator,
   LinterDefinition,
   LinterRuleDefinition,
+  PackageFlags,
   StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
@@ -100,6 +101,10 @@ export function createTypeSpecLibrary<
   function getTracer(program: Program) {
     return program.tracer.sub(lib.name);
   }
+}
+
+export function definePackageFlags(flags: PackageFlags): PackageFlags {
+  return flags;
 }
 
 export function defineLinter(def: LinterDefinition): LinterDefinition {

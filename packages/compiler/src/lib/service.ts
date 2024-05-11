@@ -2,7 +2,7 @@ import { ServiceDecorator } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
 import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
-import { Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
 
 export interface ServiceDetails {

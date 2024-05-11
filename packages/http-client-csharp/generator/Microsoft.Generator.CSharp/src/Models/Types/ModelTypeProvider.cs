@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -49,17 +52,17 @@ namespace Microsoft.Generator.CSharp
         private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
+            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(property.Type);
             var propHasSetter = PropertyHasSetter(propertyType, property);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            // Add Remarks and Example for BinaryData Properties https://github.com/Azure/autorest.csharp/issues/4617
             var propertyDeclaration = new PropertyDeclaration(
-                    description: FormattableStringHelpers.FromString(property.Description),
-                    modifiers: MethodSignatureModifiers.Public,
-                    propertyType: propertyType,
-                    name: property.Name.FirstCharToUpperCase(),
-                    propertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                    );
+                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                Modifiers: MethodSignatureModifiers.Public,
+                Type: propertyType,
+                Name: property.Name.FirstCharToUpperCase(),
+                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                );
 
             return propertyDeclaration;
         }
@@ -99,23 +102,20 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        private ConstantExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
+        private ValueExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
         {
             if (!property.IsRequired)
                 return null;
 
-            // The IsLiteral is returning false for int and float enum value types - https://github.com/Azure/autorest.csharp/issues/4630
-            // if (propertyType.IsLiteral && propertyType.Literal?.Value != null)
-            if (property.Type is InputLiteralType literal)
+            if (propertyType.IsLiteral)
             {
                 if (!propertyType.IsNullable)
                 {
-                    var constant = Constant.Parse(literal.Value, propertyType);
-                    return new ConstantExpression(constant);
+                    return Literal(propertyType.Literal);
                 }
                 else
                 {
-                    return new ConstantExpression(Constant.NewInstanceOf(propertyType));
+                    return DefaultOf(propertyType);
                 }
             }
 

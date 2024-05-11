@@ -1,5 +1,16 @@
 # Change Log - @typespec/rest
 
+## 0.56.0
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+### Features
+
+- [#2945](https://github.com/microsoft/typespec/pull/2945) Add support for new `@bodyRoot` and `@body` distinction
+
+
 ## 0.55.0
 
 ### Bump dependencies

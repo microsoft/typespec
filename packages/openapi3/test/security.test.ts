@@ -304,7 +304,7 @@ describe("openapi3: security", () => {
       `
       namespace Test;
 
-      alias MyOauth<T extends valueof string[]> = OAuth2Auth<Flows=[{
+      alias MyOauth<T extends string[]> = OAuth2Auth<Flows=[{
         type: OAuth2FlowType.implicit;
         authorizationUrl: "https://api.example.com/oauth2/authorize";
         refreshUrl: "https://api.example.com/oauth2/refresh";

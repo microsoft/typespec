@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -17,10 +17,10 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(Type type) => new TypeReference(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReference(type);
         public static implicit operator ValueExpression(Parameter parameter) => new ParameterReference(parameter);
-        public static implicit operator ValueExpression(FieldDeclaration name) => new VariableReference(name.Type, name.Declaration);
-        public static implicit operator ValueExpression(PropertyDeclaration name) => new VariableReference(name.PropertyType, name.Declaration);
+        public static implicit operator ValueExpression(FieldDeclaration field) => new MemberExpression(null, field.Name);
+        public static implicit operator ValueExpression(PropertyDeclaration property) => new MemberExpression(null, property.Name);
 
-        public ValueExpression NullableStructValue(CSharpType candidateType) => this is not ConstantExpression && candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
+        public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringExpression InvokeToString() => new(Invoke(nameof(ToString)));
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
 

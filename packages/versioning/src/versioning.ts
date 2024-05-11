@@ -20,6 +20,7 @@ import {
 import {
   AddedDecorator,
   MadeOptionalDecorator,
+  MadeRequiredDecorator,
   RenamedFromDecorator,
   ReturnTypeChangedFromDecorator,
   TypeChangedFromDecorator,
@@ -37,6 +38,7 @@ const useDependencyNamespaceKey = createStateSymbol("useDependencyNamespace");
 const useDependencyEnumKey = createStateSymbol("useDependencyEnum");
 const renamedFromKey = createStateSymbol("renamedFrom");
 const madeOptionalKey = createStateSymbol("madeOptional");
+const madeRequiredKey = createStateSymbol("madeRequired");
 const typeChangedFromKey = createStateSymbol("typeChangedFrom");
 const returnTypeChangedFromKey = createStateSymbol("returnTypeChangedFrom");
 
@@ -236,6 +238,19 @@ export const $madeOptional: MadeOptionalDecorator = (
   program.stateMap(madeOptionalKey).set(t, version);
 };
 
+export const $madeRequired: MadeRequiredDecorator = (
+  context: DecoratorContext,
+  t: ModelProperty,
+  v: EnumMember
+) => {
+  const { program } = context;
+  const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
+  if (!version) {
+    return;
+  }
+  program.stateMap(madeRequiredKey).set(t, version);
+};
+
 /**
  * @returns the array of RenamedFrom metadata if applicable.
  */
@@ -318,6 +333,13 @@ export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined
  */
 export function getMadeOptionalOn(p: Program, t: Type): Version | undefined {
   return p.stateMap(madeOptionalKey).get(t);
+}
+
+/**
+ * @returns version when the given type was made required if applicable.
+ */
+export function getMadeRequiredOn(p: Program, t: Type): Version | undefined {
+  return p.stateMap(madeRequiredKey).get(t);
 }
 
 export class VersionMap {
@@ -569,10 +591,10 @@ function resolveDependencyVersions(
  * @param program
  * @param rootNs Root namespace.
  */
-export function resolveVersions(program: Program, rootNs: Namespace): VersionResolution[] {
-  const versions = getVersion(program, rootNs);
+export function resolveVersions(program: Program, namespace: Namespace): VersionResolution[] {
+  const [rootNs, versions] = getVersions(program, namespace);
   const dependencies =
-    getVersionDependencies(program, rootNs) ??
+    (rootNs && getVersionDependencies(program, rootNs)) ??
     new Map<Namespace, Map<Version, Version> | Version>();
   if (!versions) {
     if (dependencies.size === 0) {
@@ -581,7 +603,7 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
       const map = new Map();
       for (const [dependencyNs, version] of dependencies) {
         if (version instanceof Map) {
-          const rootNsName = getNamespaceFullName(rootNs);
+          const rootNsName = getNamespaceFullName(namespace);
           const dependencyNsName = getNamespaceFullName(dependencyNs);
           throw new Error(
             `Unexpected error: Namespace ${rootNsName} version dependency to ${dependencyNsName} should be a picked version.`
@@ -593,7 +615,7 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
     }
   } else {
     return versions.getVersions().map((version) => {
-      const resolutions = resolveDependencyVersions(program, new Map([[rootNs, version]]));
+      const resolutions = resolveDependencyVersions(program, new Map([[rootNs!, version]]));
       return {
         rootVersion: version,
         versions: resolutions,
@@ -686,51 +708,62 @@ export function getVersionsForEnum(program: Program, en: Enum): [Namespace, Vers
 }
 
 export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
-  if (versionCache.has(t)) {
-    return versionCache.get(t)!;
+  const existing = versionCache.get(t);
+  if (existing) {
+    return existing;
   }
 
-  if (t.kind === "Namespace") {
-    const nsVersion = getVersion(p, t);
+  switch (t.kind) {
+    case "Namespace":
+      return resolveVersionsForNamespace(p, t);
+    case "Operation":
+    case "Interface":
+    case "Model":
+    case "Union":
+    case "Scalar":
+    case "Enum":
+      if (t.namespace) {
+        return cacheVersion(t, getVersions(p, t.namespace) || []);
+      } else if (t.kind === "Operation" && t.interface) {
+        return cacheVersion(t, getVersions(p, t.interface) || []);
+      } else {
+        return cacheVersion(t, []);
+      }
+    case "ModelProperty":
+      if (t.sourceProperty) {
+        return getVersions(p, t.sourceProperty);
+      } else if (t.model) {
+        return getVersions(p, t.model);
+      } else {
+        return cacheVersion(t, []);
+      }
+    case "EnumMember":
+      return cacheVersion(t, getVersions(p, t.enum) || []);
+    case "UnionVariant":
+      return cacheVersion(t, getVersions(p, t.union) || []);
+    default:
+      return cacheVersion(t, []);
+  }
+}
 
-    if (nsVersion !== undefined) {
-      return cacheVersion(t, [t, nsVersion]);
-    } else if (getUseDependencies(p, t) !== undefined) {
-      return cacheVersion(t, [t, undefined!]);
-    } else if (t.namespace) {
-      return cacheVersion(t, getVersions(p, t.namespace));
-    } else {
-      return cacheVersion(t, [t, undefined!]);
-    }
-  } else if (
-    t.kind === "Operation" ||
-    t.kind === "Interface" ||
-    t.kind === "Model" ||
-    t.kind === "Union" ||
-    t.kind === "Scalar" ||
-    t.kind === "Enum"
-  ) {
-    if (t.namespace) {
-      return cacheVersion(t, getVersions(p, t.namespace) || []);
-    } else if (t.kind === "Operation" && t.interface) {
-      return cacheVersion(t, getVersions(p, t.interface) || []);
-    } else {
-      return cacheVersion(t, []);
-    }
-  } else if (t.kind === "ModelProperty") {
-    if (t.sourceProperty) {
-      return getVersions(p, t.sourceProperty);
-    } else if (t.model) {
-      return getVersions(p, t.model);
-    } else {
-      return cacheVersion(t, []);
-    }
-  } else if (t.kind === "EnumMember") {
-    return cacheVersion(t, getVersions(p, t.enum) || []);
-  } else if (t.kind === "UnionVariant") {
-    return cacheVersion(t, getVersions(p, t.union) || []);
+function resolveVersionsForNamespace(
+  program: Program,
+  namespace: Namespace
+): [Namespace, VersionMap] | [] {
+  const nsVersion = getVersion(program, namespace);
+
+  if (nsVersion !== undefined) {
+    return cacheVersion(namespace, [namespace, nsVersion]);
+  }
+
+  const parentNamespaceVersion =
+    namespace.namespace && getVersions(program, namespace.namespace)[1];
+  const hasDependencies = getUseDependencies(program, namespace);
+
+  if (parentNamespaceVersion || hasDependencies) {
+    return cacheVersion(namespace, [namespace, parentNamespaceVersion!]);
   } else {
-    return cacheVersion(t, []);
+    return cacheVersion(namespace, [namespace, undefined!]);
   }
 }
 
@@ -869,6 +902,17 @@ export function madeOptionalAfter(program: Program, type: Type, versionKey: Obje
     return false;
   }
   return versioningState.timeline.isBefore(versioningState.projectingMoment, madeOptionalAtVersion);
+}
+
+export function madeRequiredAfter(program: Program, type: Type, versionKey: ObjectType): boolean {
+  const versioningState = getVersioningState(program, versionKey);
+
+  const madeRequiredAtVersion = getMadeRequiredOn(program, type);
+  if (madeRequiredAtVersion === undefined) {
+    return false;
+  }
+
+  return versioningState.timeline.isBefore(versioningState.projectingMoment, madeRequiredAtVersion);
 }
 
 export function hasDifferentTypeAtVersion(p: Program, type: Type, version: ObjectType): boolean {

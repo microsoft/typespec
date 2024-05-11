@@ -162,6 +162,22 @@ namespace TypeSpec {
     extern dec madeOptional(target: ModelProperty, version: EnumMember);
 
     /**
+     * Identifies when a target was made required.
+     * @param version The version that the target was made required in.
+     *
+     * @example
+     *
+     * ```tsp
+     * model Foo {
+     *   name: string;
+     *   @madeRequired(Versions.v2)
+     *   nickname: string;
+     * }
+     * ```
+     */
+    extern dec madeRequired(target: ModelProperty, version: EnumMember);
+
+    /**
      * Identifies when the target type changed.
      * @param version The version that the target type changed in.
      * @param oldType The previous type of the target.
@@ -192,6 +208,12 @@ namespace TypeSpec {
      * @param version The version to check.
      */
     extern fn madeOptionalAfter(target: unknown, version: EnumMember): boolean;
+
+    /**
+     * Returns whether the target was made required after the given version.
+     * @param version The version to check.
+     */
+    extern fn madeRequiredAfter(target: unknown, version: EnumMember): boolean;
 
     /**
      * Returns whether the version exists for the provided enum member.

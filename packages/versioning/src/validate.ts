@@ -3,6 +3,7 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
+  isType,
   Namespace,
   navigateProgram,
   NoTarget,
@@ -17,6 +18,7 @@ import {
   findVersionedNamespace,
   getAvailabilityMap,
   getMadeOptionalOn,
+  getMadeRequiredOn,
   getRenamedFrom,
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
@@ -68,6 +70,9 @@ export function $onValidate(program: Program) {
 
           // Validate model property type is correct when madeOptional
           validateMadeOptional(program, prop);
+
+          // Validate model property type is correct when madeRequired
+          validateMadeRequired(program, prop);
         }
         validateVersionedPropertyNames(program, model);
       },
@@ -457,6 +462,26 @@ function validateMadeOptional(program: Program, target: Type) {
   }
 }
 
+function validateMadeRequired(program: Program, target: Type) {
+  if (target.kind === "ModelProperty") {
+    const madeRequiredOn = getMadeRequiredOn(program, target);
+    if (!madeRequiredOn) {
+      return;
+    }
+    // if the @madeRequired decorator is on a property, it MUST NOT be optional
+    if (target.optional) {
+      reportDiagnostic(program, {
+        code: "made-required-optional",
+        format: {
+          name: target.name,
+        },
+        target: target,
+      });
+      return;
+    }
+  }
+}
+
 interface IncompatibleVersionValidateOptions {
   isTargetADependent?: boolean;
 }
@@ -473,7 +498,9 @@ function validateReference(program: Program, source: Type, target: Type) {
 
   if ("templateMapper" in target) {
     for (const param of target.templateMapper?.args ?? []) {
-      validateTargetVersionCompatible(program, source, param);
+      if (isType(param)) {
+        validateTargetVersionCompatible(program, source, param);
+      }
     }
   }
 

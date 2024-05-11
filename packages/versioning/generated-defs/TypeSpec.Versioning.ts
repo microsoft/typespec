@@ -182,6 +182,25 @@ export type MadeOptionalDecorator = (
 ) => void;
 
 /**
+ * Identifies when a target was made required.
+ *
+ * @param version The version that the target was made required in.
+ * @example
+ * ```tsp
+ * model Foo {
+ * name: string;
+ * @madeRequired(Versions.v2)
+ * nickname: string;
+ * }
+ * ```
+ */
+export type MadeRequiredDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  version: EnumMember
+) => void;
+
+/**
  * Identifies when the target type changed.
  *
  * @param version The version that the target type changed in.

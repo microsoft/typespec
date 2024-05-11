@@ -32,7 +32,7 @@ same set of properties when non-payload properties are excluded.
 
 ***
 
-### isEmptied()
+### ~~isEmptied()~~
 
 ```ts
 isEmptied(type, visibility): boolean
@@ -57,6 +57,10 @@ itself is also removed.
 #### Returns
 
 `boolean`
+
+#### Deprecated
+
+This produces inconsistent behaviors and should be avoided.
 
 ***
 
@@ -85,7 +89,10 @@ response payload for the given visibility.
 ### isPayloadProperty()
 
 ```ts
-isPayloadProperty(property, visibility): boolean
+isPayloadProperty(
+   property, 
+   visibility, 
+   inExplicitBody?): boolean
 ```
 
 Determines if the given property is part of the request or response
@@ -98,6 +105,7 @@ filtered out by the given visibility.
 | :------ | :------ |
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
+| `inExplicitBody`? | `boolean` |
 
 #### Returns
 
