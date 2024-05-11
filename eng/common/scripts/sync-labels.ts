@@ -43,11 +43,13 @@ function logLabels(message: string, labels: Label[]) {
   console.log(message);
   const max = labels.reduce((max, label) => Math.max(max, label.name.length), 0);
   for (const label of labels) {
-    console.log(
-      `  ${pc.cyan(label.name.padEnd(max))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`
-    );
+    console.log(`  ${prettyLabel(label, max)}`);
   }
   console.log("");
+}
+
+function prettyLabel(label: Label, padEnd: number = 0) {
+  return `${pc.cyan(label.name.padEnd(padEnd))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`;
 }
 
 interface UpdateGithubLabelOptions {
@@ -65,7 +67,7 @@ async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOpt
   );
 
   const existingLabels = await fetchAllLabels(octokit);
-  logLabels("Existing labels", existingLabels as any);
+  logLabels("Existing github labels", existingLabels as any);
   const labelToUpdate: Label[] = [];
   const labelsToCreate: Label[] = [];
   const exitingLabelMap = new Map(existingLabels.map((label) => [label.name, label]));
@@ -81,8 +83,8 @@ async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOpt
     exitingLabelMap.delete(label.name);
   }
   const labelsToDelete = Array.from(exitingLabelMap.values()).map((x) => x.name);
-  console.log("Labels to update", labelToUpdate);
-  console.log("Labels to create", labelsToCreate);
+  logLabels("Labels to update", labelToUpdate);
+  logLabels("Labels to create", labelsToCreate);
   console.log("Labels to delete", labelsToDelete);
   console.log("");
 
