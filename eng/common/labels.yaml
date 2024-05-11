@@ -90,7 +90,7 @@
   color: 7C4B1E
   description: ""
 - name: triaged:core
-  color: 5319e7
+  color: "5319e7"
   description: ""
 - name: tspd
   color: "004185"

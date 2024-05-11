@@ -42,7 +42,14 @@ interface UpdateGithubLabelOptions {
   readonly dryRun?: boolean;
 }
 async function updateGithubLabels(labels: Label[], options: UpdateGithubLabelOptions = {}) {
-  const octokit = new Octokit({ auth: `token ${process.env.GITHUB_TOKEN}` });
+  if (!options.dryRun && !process.env.GITHUB_TOKEN) {
+    throw new Error(
+      "GITHUB_TOKEN environment variable is required when not running in dry-run mode"
+    );
+  }
+  const octokit = new Octokit(
+    process.env.GITHUB_TOKEN ? { auth: `token ${process.env.GITHUB_TOKEN}` } : {}
+  );
 
   const existingLabels = await fetchAllLabels(octokit);
   console.log("Existing labels", existingLabels);
