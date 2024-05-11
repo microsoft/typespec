@@ -12,7 +12,9 @@ issue_kinds:
     docs:
       color: cccccc
       description: Improvements or additions to documentation
-
+    epic:
+      color: cccccc
+      description: ""
 area:
   description: "Area of the codebase"
   labels:
@@ -49,9 +51,6 @@ area:
     tspd:
       color: "004185"
       description: Issues for the tspd tool
-    epic:
-      color: cccccc
-      description: ""
     emitter:client:csharp:
       color: e1b300
       description: ""
