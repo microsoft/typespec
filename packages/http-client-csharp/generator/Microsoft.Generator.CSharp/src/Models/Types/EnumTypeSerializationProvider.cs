@@ -31,7 +31,6 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildMethods()
         {
-            const string MethodKind = "Method";
             var methods = new List<CSharpMethod>();
             // serialization method
             if (!_enumType.IsIntValueType)
@@ -57,7 +56,7 @@ namespace Microsoft.Generator.CSharp
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
                 var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);
-                methods.Add(new(serializationSignature, serializationBody, MethodKind));
+                methods.Add(new(serializationSignature, serializationBody, CSharpMethodKinds.Serialization));
             }
 
             // deserialization method
@@ -98,7 +97,7 @@ namespace Microsoft.Generator.CSharp
             // add a fallback throw statement to ensure every path of this method returns a value
             deserializationBody.Add(Throw(New.ArgumentOutOfRangeException(_enumType, deserializationValueParameter)));
 
-            methods.Add(new(deserializationSignature, deserializationBody, MethodKind));
+            methods.Add(new(deserializationSignature, deserializationBody, CSharpMethodKinds.Serialization));
 
             return methods.ToArray();
         }

@@ -15,9 +15,6 @@ namespace Microsoft.Generator.CSharp
 {
     public class EnumTypeProvider : TypeProvider
     {
-        private const string OperatorKind = "Operator";
-        private const string MethodKind = "Method";
-
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly ModelTypeMapping? _typeMapping;
 
@@ -275,7 +272,7 @@ namespace Microsoft.Generator.CSharp
                 ReturnDescription: null,
                 Parameters: [leftParameter, rightParameter]);
 
-            methods.Add(new(equalitySignature, left.InvokeEquals(right), OperatorKind));
+            methods.Add(new(equalitySignature, left.InvokeEquals(right), CSharpMethodKinds.Operator));
 
             var inequalitySignature = equalitySignature with
             {
@@ -283,7 +280,7 @@ namespace Microsoft.Generator.CSharp
                 Description = $"Determines if two {Type:C} values are not the same.",
             };
 
-            methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), OperatorKind));
+            methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right)), CSharpMethodKinds.Operator));
 
             var valueParameter = new Parameter("value", null, ValueType, null, ValidationType.None, null);
             var castSignature = new MethodSignature(
@@ -295,7 +292,7 @@ namespace Microsoft.Generator.CSharp
                 ReturnDescription: null,
                 Parameters: [valueParameter]);
 
-            methods.Add(new(castSignature, New.Instance(Type, valueParameter), OperatorKind));
+            methods.Add(new(castSignature, New.Instance(Type, valueParameter), CSharpMethodKinds.Operator));
 
             var objParameter = new Parameter("obj", null, typeof(object), null, ValidationType.None, null);
             var equalsSignature = new MethodSignature(
@@ -310,7 +307,7 @@ namespace Microsoft.Generator.CSharp
 
             // writes the method:
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
-            methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolExpression(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), MethodKind));
+            methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolExpression(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), CSharpMethodKinds.Method));
 
             var otherParameter = new Parameter("other", null, Type, null, ValidationType.None, null);
             equalsSignature = equalsSignature with
@@ -329,7 +326,7 @@ namespace Microsoft.Generator.CSharp
             var equalsExpressionBody = IsStringValueType
                             ? new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue, FrameworkEnumValue(StringComparison.InvariantCultureIgnoreCase)])
                             : new InvokeStaticMethodExpression(ValueType, nameof(object.Equals), [valueField, otherValue]);
-            methods.Add(new(equalsSignature, equalsExpressionBody, MethodKind));
+            methods.Add(new(equalsSignature, equalsExpressionBody, CSharpMethodKinds.Method));
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
@@ -348,7 +345,7 @@ namespace Microsoft.Generator.CSharp
             var getHashCodeExpressionBody = IsStringValueType
                             ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
                             : valueField.InvokeGetHashCode();
-            methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, MethodKind));
+            methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, CSharpMethodKinds.Method));
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
@@ -367,7 +364,7 @@ namespace Microsoft.Generator.CSharp
             ValueExpression toStringExpressionBody = IsStringValueType
                             ? valueField
                             : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
-            methods.Add(new(toStringSignature, toStringExpressionBody, MethodKind));
+            methods.Add(new(toStringSignature, toStringExpressionBody, CSharpMethodKinds.Method));
 
             // for string-based extensible enums, we are using `ToString` as its serialization
             // for non-string-based extensible enums, we need a method to serialize them
@@ -384,7 +381,7 @@ namespace Microsoft.Generator.CSharp
                 // internal float ToSerialSingle() => _value; // when ValueType is float
                 // internal int ToSerialInt32() => _value; // when ValueType is int
                 // etc
-                methods.Add(new(toSerialSignature, valueField, MethodKind));
+                methods.Add(new(toSerialSignature, valueField, CSharpMethodKinds.Method));
             }
 
             return methods.ToArray();
