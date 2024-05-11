@@ -21,6 +21,7 @@ import {
   NeverType,
   Operation,
   Program,
+  ProjectedProgram,
   Scalar,
   Type,
   Union,
@@ -1007,15 +1008,30 @@ export function navigateModels(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
-  const computeModel = (x: Type) =>
+  const computeType = (x: Type) =>
     getInputType(context, getFormattedType(context.program, x), models, enums) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
   navigateTypesInNamespace(
     namespace,
     {
-      model: (x) => x.name !== "" && x.kind === "Model" && computeModel(x),
-      enum: computeModel,
+      model: (m) => {
+        const realModel = getRealType(m);
+        return realModel.kind === "Model" && realModel.name !== "" && computeType(realModel);
+      },
+      enum: (e) => {
+        const realEnum = getRealType(e);
+        return realEnum.kind === "Enum" && computeType(realEnum);
+      },
     },
     { skipSubNamespaces }
   );
+
+  // TODO: we should try to remove this when we adopt getModels
+  // we should avoid handling raw type definitions because they could be not correctly projected
+  // in the given api version
+  function getRealType(type: Type): Type {
+    if ("projector" in context.program)
+      return (context.program as ProjectedProgram).projector.projectedTypes.get(type) ?? type;
+    return type;
+  }
 }
