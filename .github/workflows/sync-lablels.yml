@@ -15,6 +15,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
+      - run: pnpm install
+        name: Install dependencies
+
       - run: pnpm sync-labels --update-github-labels --dry-run
         name: Sync labels
         env:
