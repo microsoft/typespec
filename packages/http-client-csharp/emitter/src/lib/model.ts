@@ -480,7 +480,7 @@ export function getInputType(
     if (context.modelsMap!.has(m)) {
       return fromSdkModelType(context.modelsMap!.get(m) as SdkModelType, context, models, enums);
     }
-    var createdSdkModelType = getClientType(context, m) as SdkModelType;
+    const createdSdkModelType = getClientType(context, m) as SdkModelType;
     context.modelsMap!.set(m, createdSdkModelType);
     return fromSdkModelType(createdSdkModelType, context, models, enums);
   }
