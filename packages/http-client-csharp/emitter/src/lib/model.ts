@@ -4,21 +4,17 @@
 import { getLroMetadata, isFixed } from "@azure-tools/typespec-azure-core";
 import {
   SdkContext,
-  getAccess,
+  SdkEnumType,
+  SdkModelType,
+  getAllModels,
   getClientType,
-  getUsageOverride,
-  getWireName,
-  isInternal,
 } from "@azure-tools/typespec-client-generator-core";
 import {
   EncodeData,
   Enum,
-  EnumMember,
   IntrinsicType,
   Model,
   ModelProperty,
-  Namespace,
-  NeverType,
   Operation,
   Program,
   ProjectedProgram,
@@ -27,18 +23,13 @@ import {
   Union,
   UsageFlags,
   getDeprecated,
-  getDiscriminator,
   getDoc,
   getEffectiveModelType,
   getEncode,
   getFormat,
   getKnownValues,
-  getVisibility,
   isArrayModelType,
-  isGlobalNamespace,
   isRecordModelType,
-  isVoidType,
-  navigateTypesInNamespace,
   resolveUsages,
 } from "@typespec/compiler";
 import {
@@ -49,11 +40,10 @@ import {
   isStatusCode,
 } from "@typespec/http";
 import { NetEmitterOptions } from "../options.js";
-import { fromSdkEnumType } from "../type/converter.js";
+import { fromSdkEnumType, fromSdkModelType } from "../type/converter.js";
 import { FormattedType } from "../type/formatted-type.js";
 import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
 import { InputIntrinsicTypeKind } from "../type/input-intrinsic-type-kind.js";
-import { InputModelProperty } from "../type/input-model-property.js";
 import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
 import { InputTypeKind } from "../type/input-type-kind.js";
 import {
@@ -66,22 +56,17 @@ import {
   InputPrimitiveType,
   InputType,
   InputUnionType,
-  isInputDictionaryType,
   isInputEnumType,
   isInputIntrinsicType,
-  isInputListType,
   isInputLiteralType,
-  isInputModelType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { Usage } from "../type/usage.js";
 import { logger } from "./logger.js";
 import { capitalize, getFullNamespaceString, getTypeName } from "./utils.js";
 /**
  * Map calType to csharp InputTypeKind
  */
 export function mapTypeSpecTypeToCSharpInputTypeKind(
-  context: SdkContext,
   typespecType: Type,
   format?: string,
   encode?: EncodeData
@@ -89,7 +74,7 @@ export function mapTypeSpecTypeToCSharpInputTypeKind(
   const kind = typespecType.kind;
   switch (kind) {
     case "Model":
-      return getCSharpInputTypeKindByIntrinsicModelName(typespecType.name, format, encode);
+      return getCSharpInputTypeKindByPrimitiveModelName(typespecType.name, format, encode);
     case "ModelProperty":
       return InputPrimitiveTypeKind.Object;
     case "Enum":
@@ -107,11 +92,11 @@ export function mapTypeSpecTypeToCSharpInputTypeKind(
       if (format === "uri") return InputPrimitiveTypeKind.Uri;
       return InputPrimitiveTypeKind.String;
     default:
-      return InputPrimitiveTypeKind.UnKnownKind;
+      throw new Error(`Unsupported primitive kind ${kind}`);
   }
 }
 
-function getCSharpInputTypeKindByIntrinsicModelName(
+export function getCSharpInputTypeKindByPrimitiveModelName(
   name: string,
   format?: string,
   encode?: EncodeData
@@ -267,10 +252,6 @@ export function getDefaultValue(type: Type): any {
   }
 }
 
-function isNeverType(type: Type): type is NeverType {
-  return type.kind === "Intrinsic" && type.name === "never";
-}
-
 export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   formattedType: FormattedType,
@@ -278,8 +259,10 @@ export function getInputType(
   enums: Map<string, InputEnumType>,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
-  const type =
-    formattedType.type.kind === "ModelProperty" ? formattedType.type.type : formattedType.type;
+  const type = getRealType(
+    formattedType.type.kind === "ModelProperty" ? formattedType.type.type : formattedType.type,
+    context
+  );
   logger.debug(`getInputType for kind: ${type.kind}`);
   const program = context.program;
 
@@ -319,7 +302,7 @@ export function getInputType(
         const sdkType = getClientType(context, type);
         return {
           Kind: InputTypeKind.Primitive,
-          Name: getCSharpInputTypeKindByIntrinsicModelName(
+          Name: getCSharpInputTypeKindByPrimitiveModelName(
             sdkType.kind,
             formattedType.format,
             formattedType.encode
@@ -390,7 +373,6 @@ export function getInputType(
     // For literal types, we just want to emit them directly as well.
     const type = formattedType.type;
     const builtInKind: InputPrimitiveTypeKind = mapTypeSpecTypeToCSharpInputTypeKind(
-      context,
       type,
       formattedType.format,
       formattedType.encode
@@ -454,53 +436,25 @@ export function getInputType(
   function getInputTypeForEnum(e: Enum, addToCollection: boolean = true): InputEnumType {
     const name = getTypeName(context, e);
     let enumType = enums.get(name);
-    if (!enumType) {
-      if (e.members.size === 0) {
-        throw new Error(`Enum type '${e.name}' doesn't define any values.`);
-      }
-      const allowValues: InputEnumTypeValue[] = [];
-      const enumValueType = enumMemberType(e.members.entries().next().value[1]);
 
-      for (const key of e.members.keys()) {
-        const option = e.members.get(key);
-        if (!option) {
-          throw Error(`No member value for $key`);
-        }
-        if (enumValueType !== enumMemberType(option)) {
-          throw new Error("The enum member value type is not consistent.");
-        }
-        const member: InputEnumTypeValue = {
-          Name: getTypeName(context, option),
-          Value: option.value ?? option?.name,
-          Description: getDoc(program, option),
-        };
-        allowValues.push(member);
-      }
+    if (enumType) return enumType;
 
-      enumType = {
-        Kind: InputTypeKind.Enum,
-        Name: name,
-        EnumValueType: enumValueType, //EnumValueType and  AllowedValues should be the first field after id and name, so that it can be corrected serialized.
-        AllowedValues: allowValues,
-        Namespace: getFullNamespaceString(e.namespace),
-        Accessibility: getAccess(context, e),
-        Deprecated: getDeprecated(program, e),
-        Description: getDoc(program, e) ?? "",
-        IsExtensible: false,
-        IsNullable: false,
-        Usage: "None",
-      };
-      setUsage(context, e, enumType);
-      if (addToCollection) enums.set(name, enumType);
+    // if it's in TCGC model cache, then construct from TCGC
+    if (context.modelsMap?.has(e)) {
+      return fromSdkEnumType(
+        context.modelsMap!.get(e) as SdkEnumType,
+        context,
+        enums,
+        addToCollection
+      );
     }
+
+    const createdSdkEnumType = getClientType(context, e) as SdkEnumType;
+    context.modelsMap!.set(e, createdSdkEnumType);
+    enumType = fromSdkEnumType(createdSdkEnumType, context, enums);
+    if (addToCollection) enums.set(name, enumType);
+
     return enumType;
-
-    function enumMemberType(member: EnumMember): string {
-      if (typeof member.value === "number") {
-        return "Float32";
-      }
-      return "String";
-    }
   }
 
   function getInputTypeForArray(elementType: Type): InputListType {
@@ -523,200 +477,12 @@ export function getInputType(
   }
 
   function getInputModelForModel(m: Model): InputModelType {
-    const name = getTypeName(context, m);
-    let model = models.get(name);
-    if (!model) {
-      const { baseModel, inheritedDictionaryType } = getInputModelBaseType(m);
-      model = models.get(name);
-      if (model) return model;
-      const properties: InputModelProperty[] = [];
-
-      const discriminator = getDiscriminator(program, m);
-      model = {
-        Kind: InputTypeKind.Model,
-        Name: name,
-        Namespace: getFullNamespaceString(m.namespace),
-        // TODO: stop using deprecated field
-        // eslint-disable-next-line deprecation/deprecation
-        Accessibility: isInternal(context, m) ? "internal" : getAccess(context, m),
-        Deprecated: getDeprecated(program, m),
-        Description: getDoc(program, m),
-        IsNullable: false,
-        DiscriminatorPropertyName: discriminator?.propertyName,
-        DiscriminatorValue: getDiscriminatorValue(m, baseModel),
-        Usage: Usage.None,
-        InheritedDictionaryType: inheritedDictionaryType, // InheritedDictionaryType represent the type of additional properties property
-        BaseModel: baseModel, // BaseModel should be the last but one assigned to model
-        Properties: properties, // Properties should be the last assigned to model
-      };
-      setUsage(context, m, model);
-
-      // open generic type model which has un-instanced template parameter will not be generated. e.g.
-      // model GenericModel<T> { value: T }
-      if (m.isFinished) {
-        models.set(name, model);
-      }
-
-      // Resolve properties after model is added to the map to resolve possible circular dependencies
-      addModelProperties(model, m.properties, properties);
+    if (context.modelsMap!.has(m)) {
+      return fromSdkModelType(context.modelsMap!.get(m) as SdkModelType, context, models, enums);
     }
-
-    return model;
-  }
-
-  function getDiscriminatorValue(m: Model, baseModel?: InputModelType): string | undefined {
-    const discriminatorPropertyName = baseModel?.DiscriminatorPropertyName;
-
-    if (discriminatorPropertyName) {
-      const discriminatorProperty = m.properties.get(discriminatorPropertyName);
-      if (
-        discriminatorProperty?.type.kind === "String" ||
-        // discriminator property cannot be number, but enum support number values
-        // typespec compiler will do the check, but here we do a double check just in case
-        (discriminatorProperty?.type.kind === "EnumMember" &&
-          typeof discriminatorProperty?.type.value !== "number")
-      ) {
-        return String(discriminatorProperty.type.value ?? discriminatorProperty.type.name);
-      }
-      if (
-        discriminatorProperty?.type.kind === "UnionVariant" &&
-        discriminatorProperty?.type.type.kind === "String"
-      ) {
-        return String(discriminatorProperty.type.type.value ?? discriminatorProperty.type.name);
-      }
-    }
-
-    return undefined;
-  }
-
-  function addModelProperties(
-    model: InputModelType,
-    inputProperties: Map<string, ModelProperty>,
-    outputProperties: InputModelProperty[]
-  ): void {
-    let discriminatorPropertyDefined = false;
-    inputProperties.forEach((value: ModelProperty, key: string) => {
-      if (
-        value.name !== model.BaseModel?.DiscriminatorPropertyName &&
-        isSchemaProperty(context, value)
-      ) {
-        const vis = getVisibility(program, value);
-        let isReadOnly: boolean = false;
-        if (vis && vis.includes("read") && vis.length === 1) {
-          isReadOnly = true;
-        }
-        if (isNeverType(value.type) || isVoidType(value.type)) return;
-        const name = getTypeName(context, value);
-        const serializedName = getWireName(context, value);
-        const literalTypeContext: LiteralTypeContext = {
-          ModelName: model.Name,
-          PropertyName: name,
-          Namespace: model.Namespace,
-        };
-        const inputType = getInputType(
-          context,
-          getFormattedType(program, value),
-          models,
-          enums,
-          literalTypeContext
-        );
-        if (
-          model.Namespace === "Azure.Core.Foundations" &&
-          model.Name === "Error" &&
-          isInputModelType(inputType)
-        ) {
-          inputType.Accessibility = undefined;
-        }
-        const inputProp = {
-          Name: name,
-          SerializedName: serializedName,
-          Description: getDoc(program, value) ?? "",
-          Type: inputType,
-          IsRequired: !value.optional,
-          IsReadOnly: isReadOnly,
-        } as InputModelProperty;
-
-        if (name === model.DiscriminatorPropertyName) {
-          inputProp.IsDiscriminator = true;
-          discriminatorPropertyDefined = true;
-        }
-        outputProperties.push(inputProp);
-      }
-    });
-
-    if (model.DiscriminatorPropertyName && !discriminatorPropertyDefined) {
-      // if the discriminator property has already been defined on one of the base models of myself,
-      // we still need to add a property here because the `IsDiscriminator` property would be different from the one inherited from the base model
-      // TODO -- need to confirm how TCGC handles this case
-      logger.info(
-        `No specified type for discriminator property '${model.DiscriminatorPropertyName}'. Assume it is a string.`
-      );
-      const discriminatorProperty: InputModelProperty = {
-        Name: model.DiscriminatorPropertyName,
-        SerializedName: model.DiscriminatorPropertyName,
-        Description: "Discriminator",
-        IsRequired: true,
-        IsReadOnly: false,
-        Type: {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.String,
-          IsNullable: false,
-        } as InputPrimitiveType,
-        IsDiscriminator: true,
-      };
-      // put default discriminator property as the first property to keep previous behavior
-      outputProperties.unshift(discriminatorProperty);
-    }
-  }
-
-  // in the real cases of tsp, because now we use `extends` or `is` to represent additional properties,
-  // and tsp only supports one base model, we can only have one of baseModel and sourceModel defined
-  // but it is valid case that a model has a base model as well as additional properties
-  // which is the reason we did not define the return type as `InputModelType | InputDictionaryType | undefined`
-  // to keep the possibility that we could have both `baseModel` and `inheritedDictionaryType` defined in the future
-  // tsp might support this in the future.
-  function getInputModelBaseType(m: Model): {
-    baseModel?: InputModelType;
-    inheritedDictionaryType?: InputDictionaryType;
-  } {
-    const baseModel = m.baseModel;
-    const sourceModel = m.sourceModel;
-
-    // we cannot have both `extends` and `is`, therefore only one of baseModel and sourceModel can be defined
-    if (sourceModel && isRecordModelType(program, sourceModel)) {
-      return {
-        inheritedDictionaryType: getInputTypeForMap(
-          sourceModel.indexer.key,
-          sourceModel.indexer.value
-        ),
-      };
-    }
-
-    if (baseModel) {
-      const baseModelType = getInputModelType(baseModel);
-
-      if (isInputListType(baseModelType)) {
-        // tsp never allows array to be the base model of a model
-        // meaning that it should be invalid tsp if you write:
-        // model Foo extends Bar[] {}
-        // or
-        // model Foo extends Array<Bar> {}
-        // therefore it is safe that here we just return empty result here because this will be unreachable
-        return {};
-      }
-
-      if (isInputDictionaryType(baseModelType)) {
-        return {
-          inheritedDictionaryType: baseModelType,
-        };
-      }
-
-      return {
-        baseModel: baseModelType,
-      };
-    }
-
-    return {};
+    const createdSdkModelType = getClientType(context, m) as SdkModelType;
+    context.modelsMap!.set(m, createdSdkModelType);
+    return fromSdkModelType(createdSdkModelType, context, models, enums);
   }
 
   function getInputModelForIntrinsicType(type: IntrinsicType): InputIntrinsicType {
@@ -777,21 +543,6 @@ export function getInputType(
           IsNullable: false,
         }
       : itemTypes[0];
-  }
-}
-
-export function setUsage(
-  context: SdkContext,
-  source: Model | Enum,
-  target: InputModelType | InputEnumType
-) {
-  const sourceUsage = getUsageOverride(context, source);
-  if (sourceUsage === UsageFlags.Input) {
-    target.Usage = Usage.Input;
-  } else if (sourceUsage === UsageFlags.Output) {
-    target.Usage = Usage.Output;
-  } else if (sourceUsage === (UsageFlags.Input | UsageFlags.Output)) {
-    target.Usage = Usage.RoundTrip;
   }
 }
 
@@ -1001,37 +752,23 @@ export function getFormattedType(program: Program, type: Type): FormattedType {
   };
 }
 
-// This is a temporary solution. After we uptake getAllModels we should delete this.
 export function navigateModels(
   context: SdkContext<NetEmitterOptions>,
-  namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
-  const computeType = (x: Type) =>
-    getInputType(context, getFormattedType(context.program, x), models, enums) as any;
-  const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
-  navigateTypesInNamespace(
-    namespace,
-    {
-      model: (m) => {
-        const realModel = getRealType(m);
-        return realModel.kind === "Model" && realModel.name !== "" && computeType(realModel);
-      },
-      enum: (e) => {
-        const realEnum = getRealType(e);
-        return realEnum.kind === "Enum" && computeType(realEnum);
-      },
-    },
-    { skipSubNamespaces }
+  getAllModels(context).forEach((model) =>
+    model.kind === "model"
+      ? fromSdkModelType(model, context, models, enums)
+      : fromSdkEnumType(model, context, enums)
   );
+}
 
-  // TODO: we should try to remove this when we adopt getModels
-  // we should avoid handling raw type definitions because they could be not correctly projected
-  // in the given api version
-  function getRealType(type: Type): Type {
-    if ("projector" in context.program)
-      return (context.program as ProjectedProgram).projector.projectedTypes.get(type) ?? type;
-    return type;
-  }
+// TODO: we should try to remove this when we adopt getAllOperations
+// we should avoid handling raw type definitions because they could be not correctly projected
+// in the given api version
+function getRealType(type: Type, context: SdkContext<NetEmitterOptions>): Type {
+  if ("projector" in context.program)
+    return (context.program as ProjectedProgram).projector.projectedTypes.get(type) ?? type;
+  return type;
 }
