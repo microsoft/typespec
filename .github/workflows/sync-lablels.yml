@@ -38,13 +38,13 @@ jobs:
         name: Install dependencies
 
       - run: |
-        if [[ ${{ github.event_name }} == "pull_request" ]]; then
-          echo "Pull request, checking CONTRIBUTING sync."
-          pnpm sync-labels
-        else
-          echo "CI, checking github labels are up to date."
-          pnpm sync-labels --update-github-labels --dry-run
-        fi
+          if [[ ${{ github.event_name }} == "pull_request" ]]; then
+            echo "Pull request, checking CONTRIBUTING sync."
+            pnpm sync-labels
+          else
+            echo "CI, checking github labels are up to date."
+            pnpm sync-labels --update-github-labels --dry-run
+          fi
         name: Sync labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
