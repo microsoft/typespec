@@ -12,11 +12,11 @@ namespace Microsoft.Generator.CSharp.Input
             Description = description;
         }
 
-        public string Name { get; internal set; }
-        public object Value { get; internal set; }
-        public string? Description { get; internal set; }
+        public string Name { get; }
+        public object Value { get; }
+        public string? Description { get; }
 
         public virtual string GetJsonValueString() => GetValueString();
-        public string GetValueString() => (Value.ToString() ?? string.Empty);
+        public string GetValueString() => Value.ToString() ?? string.Empty;
     }
 }

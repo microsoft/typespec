@@ -12,6 +12,6 @@ namespace Microsoft.Generator.CSharp.Input
             UnionItemTypes = unionItemTypes;
         }
 
-        public IReadOnlyList<InputType> UnionItemTypes { get; internal set; }
+        public IReadOnlyList<InputType> UnionItemTypes { get; }
     }
 }

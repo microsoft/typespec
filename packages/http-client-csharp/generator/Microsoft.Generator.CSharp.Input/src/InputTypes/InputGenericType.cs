@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Input
             Arguments = arguments;
         }
 
-        public Type Type { get; internal set; }
-        public IReadOnlyList<InputType> Arguments { get; internal set; }
+        public Type Type { get; }
+        public IReadOnlyList<InputType> Arguments { get; }
     }
 }

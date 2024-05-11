@@ -38,8 +38,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string? DiscriminatorValue { get; internal set; }
         public string? DiscriminatorPropertyName { get; internal set; }
         public InputDictionary? InheritedDictionaryType { get; internal set; }
-        public bool IsUnknownDiscriminatorModel { get; internal set; }
-        public bool IsPropertyBag { get; internal set; }
+        public bool IsUnknownDiscriminatorModel { get; init; }
+        public bool IsPropertyBag { get; init; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);
 

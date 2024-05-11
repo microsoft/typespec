@@ -13,8 +13,8 @@ namespace Microsoft.Generator.CSharp.Input
             ItemName = itemName;
         }
 
-        public string? NextLinkName { get; internal set; }
-        public string? ItemName { get; internal set; }
+        public string? NextLinkName { get; }
+        public string? ItemName { get; }
         internal Func<InputOperation>? NextLinkOperationRef { get; init; }
         internal InputOperation? NextLinkOperation => NextLinkOperationRef?.Invoke() ?? null;
     }

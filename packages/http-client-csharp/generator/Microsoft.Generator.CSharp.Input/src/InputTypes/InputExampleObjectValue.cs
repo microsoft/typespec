@@ -12,6 +12,6 @@ namespace Microsoft.Generator.CSharp.Input
             Values = values;
         }
 
-        public IReadOnlyDictionary<string, InputExampleValue> Values { get; internal set; }
+        public IReadOnlyDictionary<string, InputExampleValue> Values { get; }
     }
 }

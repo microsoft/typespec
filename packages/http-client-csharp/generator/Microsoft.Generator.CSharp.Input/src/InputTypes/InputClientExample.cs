@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
             ClientParameters = clientParameters;
         }
 
-        public InputClient Client { get; internal set; }
-        public IReadOnlyList<InputParameterExample> ClientParameters { get; internal set; }
+        public InputClient Client { get; init; }
+        public IReadOnlyList<InputParameterExample> ClientParameters { get; init; }
     }
 }

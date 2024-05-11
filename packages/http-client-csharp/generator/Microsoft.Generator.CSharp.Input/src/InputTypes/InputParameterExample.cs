@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
             ExampleValue = exampleValue;
         }
 
-        public InputParameter Parameter { get; internal set; }
-        public InputExampleValue ExampleValue { get; internal set; }
+        public InputParameter Parameter { get; }
+        public InputExampleValue ExampleValue { get; }
     }
 }

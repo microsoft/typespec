@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Input
             IsEmbeddingsVector = isEmbeddingsVector;
         }
 
-        public InputType ElementType { get; internal set; }
-        public bool IsEmbeddingsVector { get; internal set; }
+        public InputType ElementType { get; }
+        public bool IsEmbeddingsVector { get; }
     }
 }

@@ -10,6 +10,6 @@ namespace Microsoft.Generator.CSharp.Input
             RawValue = rawValue;
         }
 
-        public object? RawValue { get; internal set; }
+        public object? RawValue { get; }
     }
 }

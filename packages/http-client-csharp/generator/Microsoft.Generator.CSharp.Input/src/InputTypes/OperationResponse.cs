@@ -23,11 +23,11 @@ namespace Microsoft.Generator.CSharp.Input
 
         public OperationResponse() : this(Array.Empty<int>(), null, BodyMediaType.None, Array.Empty<OperationResponseHeader>(), false, Array.Empty<string>()) { }
 
-        public IReadOnlyList<int> StatusCodes { get; internal set; }
-        public InputType? BodyType { get; internal set; }
-        public BodyMediaType BodyMediaType { get; internal set; }
-        public IReadOnlyList<OperationResponseHeader> Headers { get; internal set; }
-        public bool IsErrorResponse { get; internal set; }
-        public IReadOnlyList<string> ContentTypes { get; internal set; }
+        public IReadOnlyList<int> StatusCodes { get; }
+        public InputType? BodyType { get; }
+        public BodyMediaType BodyMediaType { get; }
+        public IReadOnlyList<OperationResponseHeader> Headers { get; }
+        public bool IsErrorResponse { get; }
+        public IReadOnlyList<string> ContentTypes { get; }
     }
 }

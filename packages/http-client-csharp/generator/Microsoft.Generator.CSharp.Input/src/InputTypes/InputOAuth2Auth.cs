@@ -15,6 +15,6 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputOAuth2Auth() : this(Array.Empty<string>()) { }
 
-        public IReadOnlyCollection<string> Scopes { get; internal set; }
+        public IReadOnlyCollection<string> Scopes { get; }
     }
 }

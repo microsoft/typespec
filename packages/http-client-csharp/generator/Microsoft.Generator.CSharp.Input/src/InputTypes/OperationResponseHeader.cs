@@ -23,9 +23,9 @@ namespace Microsoft.Generator.CSharp.Input
 
         public OperationResponseHeader() : this(string.Empty, string.Empty, string.Empty, InputPrimitiveType.String) { }
 
-        public string Name { get; internal set; }
-        public string NameInResponse { get; internal set; }
-        public string Description { get; internal set; }
-        public InputType Type { get; internal set; }
+        public string Name { get; }
+        public string NameInResponse { get; }
+        public string Description { get; }
+        public InputType Type { get; }
     }
 }

@@ -21,12 +21,12 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputNamespace() : this(name: string.Empty, description: string.Empty, apiVersions: Array.Empty<string>(), enums: Array.Empty<InputEnumType>(), models: Array.Empty<InputModelType>(), clients: Array.Empty<InputClient>(), auth: new InputAuth()) { }
 
-        public string Name { get; internal set; }
-        public string Description { get; internal set; }
-        public IReadOnlyList<string> ApiVersions { get; internal set; }
-        public IReadOnlyList<InputEnumType> Enums { get; internal set; }
-        public IReadOnlyList<InputModelType> Models { get; internal set; }
-        public IReadOnlyList<InputClient> Clients { get; internal set; }
-        public InputAuth Auth { get; internal set; }
+        public string Name { get; init; }
+        public string Description { get; init; }
+        public IReadOnlyList<string> ApiVersions { get; init; }
+        public IReadOnlyList<InputEnumType> Enums { get; init; }
+        public IReadOnlyList<InputModelType> Models { get; init; }
+        public IReadOnlyList<InputClient> Clients { get; init; }
+        public InputAuth Auth { get; init; }
     }
 }

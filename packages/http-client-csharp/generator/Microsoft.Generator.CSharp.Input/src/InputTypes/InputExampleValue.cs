@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
         }
 
-        public InputType Type { get; internal set; }
+        public InputType Type { get; }
 
         public static InputExampleValue Null(InputType type) => new InputExampleRawValue(type, null);
         public static InputExampleValue Value(InputType type, object? rawValue) => new InputExampleRawValue(type, rawValue);

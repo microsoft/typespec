@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Input
             ValueType = valueType;
         }
 
-        public InputType KeyType { get; internal set; }
-        public InputType ValueType { get; internal set; }
+        public InputType KeyType { get; }
+        public InputType ValueType { get; }
     }
 }

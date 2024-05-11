@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Input
             Type = type;
         }
 
-        public object? Value { get; internal set; }
-        public InputType Type { get; internal set; }
+        public object? Value { get; }
+        public InputType Type { get; }
     }
 }

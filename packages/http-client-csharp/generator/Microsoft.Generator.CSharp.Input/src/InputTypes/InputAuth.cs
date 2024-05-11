@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputAuth() : this(null, null) { }
 
-        public InputApiKeyAuth? ApiKey { get; internal set; }
-        public InputOAuth2Auth? OAuth2 { get; internal set; }
+        public InputApiKeyAuth? ApiKey { get; init; }
+        public InputOAuth2Auth? OAuth2 { get; init; }
     }
 }

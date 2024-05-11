@@ -16,9 +16,9 @@ namespace Microsoft.Generator.CSharp.Input
 
         public OperationLongRunning() : this(1, new OperationResponse(), null) { }
 
-        public int FinalStateVia { get; internal set; }
-        public OperationResponse FinalResponse { get; internal set; }
-        public string? ResultPath { get; internal set; }
+        public int FinalStateVia { get; }
+        public OperationResponse FinalResponse { get; }
+        public string? ResultPath { get; }
 
         /// <summary>
         /// Meaningful return type of the long running operation.

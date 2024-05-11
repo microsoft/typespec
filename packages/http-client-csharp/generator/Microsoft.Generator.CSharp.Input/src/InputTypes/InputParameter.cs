@@ -63,22 +63,22 @@ namespace Microsoft.Generator.CSharp.Input
             headerCollectionPrefix: null)
         { }
 
-        public string Name { get; internal set; }
-        public string NameInRequest { get; internal set; }
-        public string? Description { get; internal set; }
-        public InputType Type { get; internal set; }
-        public RequestLocation Location { get; internal set; }
-        public InputConstant? DefaultValue { get; internal set; }
-        public InputParameter? GroupedBy { get; internal set; }
-        public InputOperationParameterKind Kind { get; internal set; }
-        public bool IsRequired { get; internal set; }
-        public bool IsApiVersion { get; internal set; }
-        public bool IsResourceParameter { get; internal set; }
-        public bool IsContentType { get; internal set; }
-        public bool IsEndpoint { get; internal set; }
-        public bool SkipUrlEncoding { get; internal set; }
-        public bool Explode { get; internal set; }
-        public string? ArraySerializationDelimiter { get; internal set; }
-        public string? HeaderCollectionPrefix { get; internal set; }
+        public string Name { get; }
+        public string NameInRequest { get; }
+        public string? Description { get; }
+        public InputType Type { get; }
+        public RequestLocation Location { get; }
+        public InputConstant? DefaultValue { get; }
+        public InputParameter? GroupedBy { get; }
+        public InputOperationParameterKind Kind { get; }
+        public bool IsRequired { get; }
+        public bool IsApiVersion { get; }
+        public bool IsResourceParameter { get; }
+        public bool IsContentType { get; }
+        public bool IsEndpoint { get; }
+        public bool SkipUrlEncoding { get; }
+        public bool Explode { get; }
+        public string? ArraySerializationDelimiter { get; }
+        public string? HeaderCollectionPrefix { get; }
     }
 }

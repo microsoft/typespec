@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
             Parameters = parameters;
         }
 
-        public InputOperation Operation { get; internal set; }
-        public IReadOnlyList<InputParameterExample> Parameters { get; internal set; }
+        public InputOperation Operation { get; }
+        public IReadOnlyList<InputParameterExample> Parameters { get; }
     }
 }

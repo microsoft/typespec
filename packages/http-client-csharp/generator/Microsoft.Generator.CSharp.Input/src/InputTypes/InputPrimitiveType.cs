@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Input
             Kind = kind;
         }
 
-        public InputPrimitiveTypeKind Kind { get; internal set; }
+        public InputPrimitiveTypeKind Kind { get; }
 
         public static InputPrimitiveType BinaryData { get; } = new(InputPrimitiveTypeKind.BinaryData);
         public static InputPrimitiveType Boolean { get; } = new(InputPrimitiveTypeKind.Boolean);

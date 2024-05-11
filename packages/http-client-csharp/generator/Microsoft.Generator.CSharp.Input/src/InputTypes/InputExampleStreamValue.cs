@@ -10,6 +10,6 @@ namespace Microsoft.Generator.CSharp.Input
             Filename = filename;
         }
 
-        public string Filename { get; internal set; }
+        public string Filename { get; }
     }
 }
