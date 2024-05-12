@@ -71,6 +71,7 @@ import {
   OperationSignature,
   OperationStatementNode,
   ParseOptions,
+  PositionDetail,
   ProjectionBlockExpressionNode,
   ProjectionEnumMemberSelectorNode,
   ProjectionEnumSelectorNode,
@@ -3712,6 +3713,30 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
   return;
 }
 
+export function getNodeAtPositionDetail(
+  script: TypeSpecScriptNode,
+  position: number,
+  filter?: (node: Node) => boolean
+): PositionDetail | undefined {
+  const node = getNodeAtPosition(script, position, filter);
+  if (!node) return undefined;
+
+  const lineAndChar = script.file.getLineAndCharacterOfPosition(node.pos);
+  const char = script.file.text.charCodeAt(position);
+  const preChar = position >= 0 ? script.file.text.charCodeAt(position - 1) : NaN;
+  const nextChar =
+    position < script.file.text.length ? script.file.text.charCodeAt(position + 1) : NaN;
+
+  return {
+    node,
+    lineAndChar,
+    position,
+    preChar,
+    nextChar,
+    char,
+  };
+}
+
 /**
  * Resolve the node in the syntax tree that that is at the given position.
  * @param script TypeSpec Script node
@@ -3843,6 +3868,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
       break;
     case SyntaxKind.TemplateArgument:
       kind = IdentifierKind.TemplateArgument;
+      break;
+    case SyntaxKind.ObjectLiteralProperty:
+      kind = IdentifierKind.ObjectLiteralProperty;
       break;
     case SyntaxKind.ModelProperty:
       switch (node.parent?.kind) {

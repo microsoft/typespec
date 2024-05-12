@@ -11,20 +11,16 @@ import { CharCode } from "../core/charcode.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
-  DecoratorExpressionNode,
   IdentifierNode,
-  ModelExpressionNode,
-  ModelStatementNode,
-  Node,
   NodeFlags,
   NodePackage,
+  PositionDetail,
   Program,
   StringLiteralNode,
   SymbolFlags,
   SyntaxKind,
   Type,
   TypeSpecScriptNode,
-  getFirstAncestor,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,
@@ -36,6 +32,7 @@ import {
 import { printId } from "../formatter/print/printer.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
+import { getSymbolSignature } from "./type-signature.js";
 
 export type CompletionContext = {
   program: Program;
@@ -46,9 +43,11 @@ export type CompletionContext = {
 
 export async function resolveCompletion(
   context: CompletionContext,
-  node: Node | undefined
+  posDetail: PositionDetail | undefined
 ): Promise<CompletionList> {
+  const node = posDetail?.node;
   if (
+    posDetail === undefined ||
     node === undefined ||
     node.kind === SyntaxKind.InvalidStatement ||
     (node.kind === SyntaxKind.Identifier &&
@@ -74,29 +73,9 @@ export async function resolveCompletion(
         }
         break;
       case SyntaxKind.ModelStatement:
-        // we can provide completions for overrides when the model has base model
-        if (node.extends) {
-          addModelCompletion(context, node);
-        }
-        break;
+      case SyntaxKind.ObjectLiteral:
       case SyntaxKind.ModelExpression:
-        // check for following scenario:
-        // a model expresssion as a decorator argument like `@dec({ | })`
-        let decNode: DecoratorExpressionNode | undefined = undefined;
-        if (node.parent?.kind === SyntaxKind.DecoratorExpression) {
-          decNode = node.parent;
-        } else {
-          const argNode = getFirstAncestor(
-            node,
-            (n) =>
-              n.kind === SyntaxKind.ModelExpression &&
-              n.parent?.kind === SyntaxKind.DecoratorExpression
-          );
-          decNode = argNode?.parent as DecoratorExpressionNode;
-        }
-        if (decNode) {
-          addModelCompletion(context, node);
-        }
+        addModelCompletion(context, posDetail);
         break;
     }
   }
@@ -268,21 +247,27 @@ async function addRelativePathCompletion(
   }
 }
 
-function addModelCompletion(
-  context: CompletionContext,
-  node: ModelStatementNode | ModelExpressionNode
-) {
-  // skip the scenario like `{ ... }|`
-  const { line, character } = context.file.file.getLineAndCharacterOfPosition(node.end);
-  if (line === context.params.position.line && character === context.params.position.character) {
-    const endChar = context.file.file.text.charCodeAt(node.end - 1);
-    if (endChar === CharCode.CloseBrace) {
-      return;
-    }
+function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
+  const node = posDetail.node;
+  if (
+    node.kind !== SyntaxKind.ModelStatement &&
+    node.kind !== SyntaxKind.ModelExpression &&
+    node.kind !== SyntaxKind.ObjectLiteral
+  ) {
+    return;
   }
-  // create a fake identifier node in the model to further resolve the completions
+  // skip the scenario like `{ ... }|`
+  if (node.end === posDetail.position && posDetail.preChar === CharCode.CloseBrace) {
+    return;
+  }
+  // create a fake identifier node to further resolve the completions for the model/object
+  // it's a little tricky but can help to keep things clean and simple while the cons. is limited
+  // TODO: consider adding support in resolveCompletions for non-identifier-node directly when we find more scenario and worth the cost
   const fakeProp = {
-    kind: SyntaxKind.ModelProperty,
+    kind:
+      node.kind === SyntaxKind.ObjectLiteral
+        ? SyntaxKind.ObjectLiteralProperty
+        : SyntaxKind.ModelProperty,
     flags: NodeFlags.None,
     parent: node,
   };
@@ -324,7 +309,11 @@ function addIdentifierCompletion(
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
-    const documentation = getSymbolDetails(program, sym);
+    const signature = getSymbolSignature(program, sym);
+    const documentation = getSymbolDetails(program, sym, {
+      includeSignature: false,
+      includeParameterTags: true,
+    });
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
@@ -335,6 +324,8 @@ function addIdentifierCompletion(
         : undefined,
       kind,
       insertText: printId(key) + (suffix ?? ""),
+      // remove fence(```typespec\n and \n```) from the signature
+      detail: signature?.replace(/^```typespec\n([\s\S]*?)\n```$/gm, "$1"),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];

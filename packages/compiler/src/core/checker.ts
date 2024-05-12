@@ -131,6 +131,7 @@ import {
   NumericLiteralNode,
   NumericValue,
   ObjectLiteralNode,
+  ObjectLiteralPropertyNode,
   ObjectValue,
   ObjectValuePropertyDescriptor,
   Operation,
@@ -2699,7 +2700,8 @@ export function createChecker(program: Program): Checker {
 
     switch (kind) {
       case IdentifierKind.ModelExpressionProperty:
-        const model = getReferencedModelFromDecoratorArgument(node as ModelPropertyNode);
+      case IdentifierKind.ObjectLiteralProperty:
+        const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
         if (model) {
           sym = getMemberSymbol(model.node!.symbol, id.sv);
         } else {
@@ -2788,61 +2790,151 @@ export function createChecker(program: Program): Checker {
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
-  function getReferencedModelFromDecoratorArgument(
-    modelExpressionProperty: ModelPropertyNode
+  function getReferencedModel(
+    propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode
   ): Model | undefined {
-    if (modelExpressionProperty.parent?.kind !== SyntaxKind.ModelExpression) {
+    const ARRAY_MODEL_FLAG = "@@array_model_flag@@";
+
+    if (propertyNode.kind === SyntaxKind.ModelProperty) {
+      return getReferencedModelFromDecoratorArgument(propertyNode);
+    } else if (propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
+      let r = getReferencedModelFromScalarConstructor(propertyNode);
+      r ??= getReferencedModelFromConstAssignment(propertyNode);
+      r ??= getReferencedModelFromDecoratorArgument(propertyNode);
+      return r;
+    } else {
       return undefined;
     }
-    const path: string[] = [];
-    const decArgNode = getFirstAncestor(modelExpressionProperty, (n) => {
-      if (
-        n.kind === SyntaxKind.ModelExpression &&
-        n.parent?.kind === SyntaxKind.DecoratorExpression
-      ) {
-        return true;
-      } else if (n.kind === SyntaxKind.ModelProperty) {
-        path.unshift(n.id.sv);
+
+    function pushToModelPath(node: Node, path: string[]) {
+      if (node.kind === SyntaxKind.ArrayLiteral || node.kind === SyntaxKind.TupleExpression) {
+        path.unshift(ARRAY_MODEL_FLAG);
       }
-      return false;
-    });
-    const decNode = decArgNode?.parent;
-    if (!decArgNode || decNode?.kind !== SyntaxKind.DecoratorExpression) {
-      return undefined;
+      if (
+        node.kind === SyntaxKind.ModelProperty ||
+        node.kind === SyntaxKind.ObjectLiteralProperty
+      ) {
+        path.unshift(node.id.sv);
+      }
     }
 
-    const decSym = program.checker.resolveIdentifier(
-      decNode.target.kind === SyntaxKind.MemberExpression ? decNode.target.id : decNode.target
-    );
-    if (!decSym) {
-      return undefined;
+    function getNestedModel(model: Model | undefined, path: string[]): Model | undefined {
+      let cur = model;
+      for (const seg of path) {
+        if (cur?.kind !== "Model") {
+          return undefined;
+        }
+        if (seg === ARRAY_MODEL_FLAG && cur.name === "Array") {
+          cur = cur.templateMapper?.args[0] as Model;
+        } else if (seg !== ARRAY_MODEL_FLAG && cur.name !== "Array") {
+          cur = cur?.properties.get(seg)?.type as Model;
+        } else {
+          return undefined;
+        }
+      }
+      return cur?.kind === "Model" ? cur : undefined;
     }
 
-    const decDecl: DecoratorDeclarationStatementNode | undefined = decSym.declarations.find(
-      (x): x is DecoratorDeclarationStatementNode =>
-        x.kind === SyntaxKind.DecoratorDeclarationStatement
-    );
-    if (!decDecl) {
-      return undefined;
+    function getReferencedModelFromScalarConstructor(propertyNode: ObjectLiteralPropertyNode) {
+      const path: string[] = [];
+      const argNode = getFirstAncestor(propertyNode, (n) => {
+        pushToModelPath(n, path);
+        return (
+          (n.kind === SyntaxKind.ArrayLiteral || n.kind === SyntaxKind.ObjectLiteral) &&
+          n.parent?.kind === SyntaxKind.CallExpression
+        );
+      });
+      const callExpNode = argNode?.parent;
+      if (callExpNode?.kind !== SyntaxKind.CallExpression) {
+        return undefined;
+      }
+
+      const ctorType = checkCallExpressionTarget(callExpNode, undefined);
+
+      if (ctorType?.kind !== "ScalarConstructor") {
+        return undefined;
+      }
+
+      const argIndex = callExpNode.arguments.findIndex((n) => n === argNode);
+      if (argIndex >= ctorType.parameters.length) {
+        return undefined;
+      }
+      const arg = ctorType.parameters[argIndex];
+
+      return arg.type?.kind === "Model" ? getNestedModel(arg.type, path) : undefined;
     }
 
-    const decType = program.checker.getTypeForNode(decDecl);
-    compilerAssert(decType.kind === "Decorator", "Expected type to be a decorator.");
+    function getReferencedModelFromConstAssignment(
+      propertyNode: ObjectLiteralPropertyNode
+    ): Model | undefined {
+      const path: string[] = [];
+      const valueNode = getFirstAncestor(propertyNode, (n) => {
+        pushToModelPath(n, path);
+        return (
+          n.parent?.kind === SyntaxKind.ConstStatement &&
+          (n.kind === SyntaxKind.ArrayLiteral || n.kind === SyntaxKind.ObjectLiteral)
+        );
+      });
+      const constNode = valueNode?.parent;
+      if (
+        !constNode ||
+        constNode.kind !== SyntaxKind.ConstStatement ||
+        !constNode.type ||
+        constNode.value !== valueNode
+      ) {
+        return undefined;
+      }
 
-    const argIndex = decNode.arguments.findIndex((n) => n === decArgNode);
-    if (argIndex >= decType.parameters.length) {
-      return undefined;
+      const type = program.checker.getTypeForNode(constNode.type);
+      return type?.kind === "Model" ? getNestedModel(type, path) : undefined;
     }
-    const decArg = decType.parameters[argIndex];
 
-    let parentType: Model | undefined = decArg.type as Model;
-    if (parentType?.kind !== "Model") return undefined;
-    for (const seg of path) {
-      parentType = parentType?.properties.get(seg)?.type as Model;
-      if (parentType?.kind !== "Model") return undefined;
+    function getReferencedModelFromDecoratorArgument(
+      propertyNode: ModelPropertyNode | ObjectLiteralPropertyNode
+    ): Model | undefined {
+      const path: string[] = [];
+      const decArgNode = getFirstAncestor(propertyNode, (n) => {
+        pushToModelPath(n, path);
+        return (
+          (n.kind === SyntaxKind.ModelExpression ||
+            n.kind === SyntaxKind.ObjectLiteral ||
+            n.kind === SyntaxKind.TupleExpression ||
+            n.kind === SyntaxKind.ArrayLiteral) &&
+          n.parent?.kind === SyntaxKind.DecoratorExpression
+        );
+      });
+      const decNode = decArgNode?.parent;
+      if (decNode?.kind !== SyntaxKind.DecoratorExpression) {
+        return undefined;
+      }
+
+      const decSym = program.checker.resolveIdentifier(
+        decNode.target.kind === SyntaxKind.MemberExpression ? decNode.target.id : decNode.target
+      );
+      if (!decSym) {
+        return undefined;
+      }
+
+      const decDecl: DecoratorDeclarationStatementNode | undefined = decSym.declarations.find(
+        (x): x is DecoratorDeclarationStatementNode =>
+          x.kind === SyntaxKind.DecoratorDeclarationStatement
+      );
+      if (!decDecl) {
+        return undefined;
+      }
+
+      const decType = program.checker.getTypeForNode(decDecl);
+      compilerAssert(decType.kind === "Decorator", "Expected type to be a Decorator.");
+
+      const argIndex = decNode.arguments.findIndex((n) => n === decArgNode);
+      if (argIndex >= decType.parameters.length) {
+        return undefined;
+      }
+      const decArg = decType.parameters[argIndex];
+
+      const type = decArg.type.type ?? decArg.type.valueType;
+      return type?.kind === "Model" ? getNestedModel(type, path) : undefined;
     }
-
-    return parentType;
   }
 
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
@@ -2856,6 +2948,7 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.TypeReference:
       case IdentifierKind.ModelExpressionProperty:
       case IdentifierKind.ModelStatementProperty:
+      case IdentifierKind.ObjectLiteralProperty:
         break; // supported
       case IdentifierKind.Other:
         return completions; // not implemented
@@ -2896,17 +2989,26 @@ export function createChecker(program: Program): Checker {
           }
         }
       }
-    } else if (kind === IdentifierKind.ModelExpressionProperty) {
-      // When a ModelExpression is used as decorator model argument, we should be
-      // able to figure out completions from the decorator argument's definition
-      const model = getReferencedModelFromDecoratorArgument(ancestor as ModelPropertyNode);
-      if (!model) return completions;
-      const editingPropertyNames = (ancestor.parent as ModelExpressionNode)?.properties
-        .filter((p) => p.kind === SyntaxKind.ModelProperty && p.id.sv !== identifier.sv)
-        .map((p) => (p as ModelPropertyNode).id.sv);
+    } else if (
+      kind === IdentifierKind.ModelExpressionProperty ||
+      kind === IdentifierKind.ObjectLiteralProperty
+    ) {
+      const model = getReferencedModel(ancestor as ModelPropertyNode | ObjectLiteralPropertyNode);
+      if (!model) {
+        return completions;
+      }
+      const curModelNode = ancestor.parent as ModelExpressionNode | ObjectLiteralNode;
 
       for (const prop of walkPropertiesInherited(model)) {
-        if (!editingPropertyNames?.includes(prop.name)) {
+        if (
+          identifier.sv === prop.name ||
+          !curModelNode.properties.find(
+            (p) =>
+              (p.kind === SyntaxKind.ModelProperty ||
+                p.kind === SyntaxKind.ObjectLiteralProperty) &&
+              p.id.sv === prop.name
+          )
+        ) {
           const sym = getMemberSymbol(model.node!.symbol, prop.name);
           if (sym) {
             addCompletion(prop.name, sym);
@@ -3020,6 +3122,7 @@ export function createChecker(program: Program): Checker {
       switch (kind) {
         case IdentifierKind.ModelExpressionProperty:
         case IdentifierKind.ModelStatementProperty:
+        case IdentifierKind.ObjectLiteralProperty:
           return !!(sym.flags & SymbolFlags.ModelProperty);
         case IdentifierKind.Decorator:
           // Only return decorators and namespaces when completing decorator
