@@ -119,6 +119,7 @@ const defaultOptions = {
   "new-project": false,
   "clear-output-folder": false,
   "save-inputs": false,
+  "filter-out-core-models": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
   "package-name": undefined,
