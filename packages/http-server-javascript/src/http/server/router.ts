@@ -1,5 +1,11 @@
 import { Operation, Type } from "@typespec/compiler";
-import { HttpOperation, HttpService, HttpVerb, OperationContainer } from "@typespec/http";
+import {
+  HttpOperation,
+  HttpService,
+  HttpVerb,
+  OperationContainer,
+  getHttpOperation,
+} from "@typespec/http";
 import {
   createOrGetModuleForNamespace,
   emitNamespaceInterfaceReference,
@@ -13,6 +19,8 @@ import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../feature.js";
 
 import { module as routerHelper } from "../../helpers/router.js";
+import { reportDiagnostic } from "../../lib.js";
+import { UnimplementedError } from "../../util/error.js";
 
 /**
  * Emit a router for the HTTP operations defined in a given service.
@@ -181,10 +189,10 @@ function* emitRouterDefinition(
   yield `  });`;
   yield "";
   yield `  return {`;
-  yield `    dispatch(request, response) { return dispatch(request, response, onRouteNotFound); },`;
+  yield `    dispatch(request, response) { return dispatch(request, response, onRouteNotFound).catch((e) => onInternalError(e, request, response)); },`;
 
   if (ctx.httpOptions.express) {
-    yield `    expressMiddleware: function (req, res, next) { void dispatch(req, res, function () { next(); }); },`;
+    yield `    expressMiddleware: function (req, res, next) { void dispatch(req, res, function () { next(); }).catch((e) => onInternalError(e, request, response)); },`;
   }
 
   yield "  }";
@@ -208,7 +216,7 @@ function* emitRouteHandler(
   const mustTerminate = routeTree.edges.length === 0 && !routeTree.bind;
 
   yield `if (path.length === 0) {`;
-  if (routeTree.operations.length > 0) {
+  if (routeTree.operations.size > 0) {
     yield* indent(emitRouteOperationDispatch(ctx, routeTree.operations, backends));
   } else {
     // Not found
@@ -260,11 +268,90 @@ function* emitRouteHandler(
  */
 function* emitRouteOperationDispatch(
   ctx: HttpContext,
-  operations: RouteOperation[],
+  operations: Map<HttpVerb, RouteOperation[]>,
   backends: Map<OperationContainer, [ReCase, string]>
 ): Iterable<string> {
   yield `switch (request.method) {`;
+  for (const [verb, operationList] of operations.entries()) {
+    if (operationList.length === 1) {
+      const operation = operationList[0];
+      const [backend] = backends.get(operation.container)!;
+      const operationName = keywordSafe(
+        backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase
+      );
+
+      const backendMemberName = backend.camelCase;
+
+      const parameters =
+        operation.parameters.length > 0
+          ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
+          : "";
+
+      yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
+      yield `    return routeHandlers.${operationName}(request, response, ${backendMemberName}${parameters});`;
+    } else {
+      // Shared route
+      const route = getHttpOperation(ctx.program, operationList[0].operation)[0].path;
+      yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
+      yield* indent(
+        indent(emitRouteOperationDispatchMultiple(ctx, operationList, route, backends))
+      );
+    }
+  }
+
+  yield `  default:`;
+  yield `    return onRouteNotFound(request, response);`;
+
+  yield "}";
+}
+
+/**
+ * Writes the dispatch code for a specific set of operations mapped to the same route.
+ *
+ * @param ctx - The emitter context.
+ * @param operations - The operations mapped to the route.
+ * @param backends - The map of backends for operations.
+ */
+function* emitRouteOperationDispatchMultiple(
+  ctx: HttpContext,
+  operations: RouteOperation[],
+  route: string,
+  backends: Map<OperationContainer, [ReCase, string]>
+): Iterable<string> {
+  // TODO/wtemple - Only supporting differentiation by content-type for now. We could maybe do something in the future
+  // that is more sophisticated, allowing differentiation by arbitrary headers or even path parameters, but content-type
+  // is the most common case of differentiation that I've seen.
+  const usedContentTypes = new Set<string>();
+  const contentTypeMap = new Map<RouteOperation, string>();
+
   for (const operation of operations) {
+    const [httpOperation] = getHttpOperation(ctx.program, operation.operation);
+    const operationContentType = httpOperation.parameters.parameters.find(
+      (param) => param.type === "header" && param.name === "content-type"
+    )?.param.type;
+
+    if (!operationContentType || operationContentType.kind !== "String") {
+      throw new UnimplementedError(
+        "Only string content-types are supported for route differentiation."
+      );
+    }
+
+    if (usedContentTypes.has(operationContentType.value)) {
+      reportDiagnostic(ctx.program, {
+        code: "undifferentiable-route",
+        target: httpOperation.operation,
+      });
+    }
+
+    usedContentTypes.add(operationContentType.value);
+
+    contentTypeMap.set(operation, operationContentType.value);
+  }
+
+  yield `const contentType = request.headers["content-type"];`;
+  yield `switch (contentType) {`;
+
+  for (const [operation, contentType] of contentTypeMap.entries()) {
     const [backend] = backends.get(operation.container)!;
     const operationName = keywordSafe(
       backend.snakeCase + "_" + parseCase(operation.operation.name).snakeCase
@@ -277,13 +364,12 @@ function* emitRouteOperationDispatch(
         ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
         : "";
 
-    yield `  case ${JSON.stringify(operation.verb.toUpperCase())}:`;
+    yield `  case ${JSON.stringify(contentType)}:`;
     yield `    return routeHandlers.${operationName}(request, response, ${backendMemberName}${parameters});`;
   }
 
   yield `  default:`;
-  yield `    return onRouteNotFound(request, response);`;
-
+  yield `    return onInvalidRequest(request, response, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${contentType}"\`);`;
   yield "}";
 }
 
@@ -294,7 +380,7 @@ interface RouteTree {
   /**
    * A list of operations that can be dispatched at this node.
    */
-  operations: RouteOperation[];
+  operations: Map<HttpVerb, RouteOperation[]>;
   /**
    * A set of parameters that are bound in this position before proceeding along the subsequent tree.
    */
@@ -450,8 +536,20 @@ function intoRouteTree(routes: Route[]): RouteTree {
     bind = [parameters, intoRouteTree(nextRoutes)];
   }
 
+  const operationMap = new Map<HttpVerb, RouteOperation[]>();
+
+  for (const operation of operations) {
+    let operations = operationMap.get(operation.verb);
+    if (!operations) {
+      operations = [];
+      operationMap.set(operation.verb, operations);
+    }
+
+    operations.push(operation);
+  }
+
   return {
-    operations,
+    operations: operationMap,
     bind,
     edges,
   };

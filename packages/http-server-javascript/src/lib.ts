@@ -55,6 +55,12 @@ export const $lib = createTypeSpecLibrary({
         default: "No services found in program.",
       },
     },
+    "undifferentiable-route": {
+      severity: "error",
+      messages: {
+        default: "Shared route cannot be differentiated from other routes.",
+      },
+    },
   },
 });
 

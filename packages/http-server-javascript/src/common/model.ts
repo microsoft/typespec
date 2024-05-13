@@ -1,16 +1,12 @@
 import { Model, getFriendlyName, isTemplateInstance } from "@typespec/compiler";
-import { parseCase } from "../util/case.js";
 import { JsContext, Module } from "../ctx.js";
+import { parseCase } from "../util/case.js";
 import { indent } from "../util/indent.js";
 import { KEYWORDS } from "../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
-import {
-  getRecordValueName,
-  getArrayElementName,
-  asArrayType,
-} from "../util/pluralism.js";
-import { emitTypeReference } from "./reference.js";
+import { asArrayType, getArrayElementName, getRecordValueName } from "../util/pluralism.js";
 import { emitDocumentation } from "./documentation.js";
+import { emitTypeReference } from "./reference.js";
 
 /**
  * Emit a model declaration.
@@ -34,11 +30,8 @@ export function* emitModel(
     friendlyName
       ? friendlyName
       : isTemplate
-        ? model
-            .templateMapper!.args.map((a) =>
-              "name" in a ? String(a.name) : ""
-            )
-            .join("_") + model.name
+        ? model.templateMapper!.args.map((a) => ("name" in a ? String(a.name) : "")).join("_") +
+          model.name
         : model.name
   );
 
@@ -66,13 +59,9 @@ export function* emitModel(
     const nameCase = parseCase(field.name);
     const basicName = nameCase.camelCase;
 
-    const typeReference = emitTypeReference(
-      ctx,
-      field.type,
-      field,
-      module,
-      modelNameCase.pascalCase + nameCase.pascalCase
-    );
+    const typeReference = emitTypeReference(ctx, field.type, field, module, {
+      altName: modelNameCase.pascalCase + nameCase.pascalCase,
+    });
 
     const name = KEYWORDS.has(basicName) ? `_${basicName}` : basicName;
 
@@ -113,24 +102,15 @@ export function emitWellKnownModel(
   const arg = type.indexer!.value;
   switch (type.name) {
     case "Record": {
-      return `{ [k: string]: ${emitTypeReference(
-        ctx,
-        arg,
-        type,
-        module,
-        preferredAlternativeName && getRecordValueName(preferredAlternativeName)
-      )} }`;
+      return `{ [k: string]: ${emitTypeReference(ctx, arg, type, module, {
+        altName: preferredAlternativeName && getRecordValueName(preferredAlternativeName),
+      })} }`;
     }
     case "Array": {
       return asArrayType(
-        emitTypeReference(
-          ctx,
-          arg,
-          type,
-          module,
-          preferredAlternativeName &&
-            getArrayElementName(preferredAlternativeName)
-        )
+        emitTypeReference(ctx, arg, type, module, {
+          altName: preferredAlternativeName && getArrayElementName(preferredAlternativeName),
+        })
       );
     }
     default:

@@ -73,13 +73,9 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
     const paramNameCase = parseCase(param.name);
     const paramName = paramNameCase.camelCase;
 
-    const outputTypeReference = emitTypeReference(
-      ctx,
-      param.type,
-      param,
-      module,
-      opNameCase.pascalCase + paramNameCase.pascalCase
-    );
+    const outputTypeReference = emitTypeReference(ctx, param.type, param, module, {
+      altName: opNameCase.pascalCase + paramNameCase.pascalCase,
+    });
 
     params.push(`${paramName}: ${outputTypeReference}`);
   }
@@ -132,13 +128,9 @@ export function emitOptionsType(
   ctx.syntheticModule.declarations.push([
     `export interface ${optionsTypeName} {`,
     ...options.flatMap((p) => [
-      `  ${parseCase(p.name).camelCase}?: ${emitTypeReference(
-        ctx,
-        p.type,
-        p,
-        module,
-        optionsTypeName + parseCase(p.name).pascalCase
-      )};`,
+      `  ${parseCase(p.name).camelCase}?: ${emitTypeReference(ctx, p.type, p, module, {
+        altName: optionsTypeName + parseCase(p.name).pascalCase,
+      })};`,
     ]),
     "}",
     "",
@@ -197,20 +189,18 @@ export function splitReturnType(
       successVariants.length === 0
         ? DEFAULT_NO_VARIANT_RETURN_TYPE
         : successVariants.length === 1
-          ? emitTypeReference(
-              ctx,
-              successVariants[0].type,
-              successVariants[0],
-              module,
-              successAltName
-            )
+          ? emitTypeReference(ctx, successVariants[0].type, successVariants[0], module, {
+              altName: successAltName,
+            })
           : emitUnionType(ctx, successVariants, module);
 
     const errorTypeReference =
       errorVariants.length === 0
         ? DEFAULT_NO_VARIANT_RETURN_TYPE
         : errorVariants.length === 1
-          ? emitTypeReference(ctx, errorVariants[0].type, errorVariants[0], module, errorAltName)
+          ? emitTypeReference(ctx, errorVariants[0].type, errorVariants[0], module, {
+              altName: errorAltName,
+            })
           : emitUnionType(ctx, errorVariants, module);
 
     const successSplit: SplitReturnType =
@@ -248,13 +238,9 @@ export function splitReturnType(
     // No splitting, just figure out if the type is an error type or not and make the other infallible.
 
     if (isErrorModel(ctx.program, type)) {
-      const typeReference = emitTypeReference(
-        ctx,
-        type,
-        type,
-        module,
-        altBaseName + "ErrorResponse"
-      );
+      const typeReference = emitTypeReference(ctx, type, type, module, {
+        altName: altBaseName + "ErrorResponse",
+      });
 
       return [
         DEFAULT_NO_VARIANT_SPLIT,
@@ -265,13 +251,9 @@ export function splitReturnType(
         },
       ];
     } else {
-      const typeReference = emitTypeReference(
-        ctx,
-        type,
-        type,
-        module,
-        altBaseName + "SuccessResponse"
-      );
+      const typeReference = emitTypeReference(ctx, type, type, module, {
+        altName: altBaseName + "SuccessResponse",
+      });
       return [
         {
           kind: "ordinary",

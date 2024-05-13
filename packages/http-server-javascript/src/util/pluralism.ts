@@ -26,7 +26,7 @@ export function getRecordValueName(typeName: string): string {
  * @returns a good representation of an array of the base type
  */
 export function asArrayType(typeName: string): string {
-  if (/[a-zA-Z_]+/.test(typeName)) {
+  if (/^[a-zA-Z_]+$/.test(typeName)) {
     return typeName + "[]";
   } else {
     return `Array<${typeName}>`;

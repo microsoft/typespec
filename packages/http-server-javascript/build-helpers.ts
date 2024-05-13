@@ -27,7 +27,7 @@ async function main() {
 
   const ctxPath = path.resolve("src", "ctx.js");
 
-  await fs.rmdir(HELPER_DECLARATION_PATH, { recursive: true });
+  await fs.rm(HELPER_DECLARATION_PATH, { recursive: true, force: true });
 
   function addIndex(dir: string, file: string) {
     const index = indices.get(dir);

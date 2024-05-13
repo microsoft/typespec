@@ -1,14 +1,9 @@
 import { Union, UnionVariant } from "@typespec/compiler";
-import {
-  PartialUnionSynthetic,
-  JsContext,
-  Module,
-  isImportableType,
-} from "../ctx.js";
+import { JsContext, Module, PartialUnionSynthetic, isImportableType } from "../ctx.js";
 import { parseCase } from "../util/case.js";
-import { emitTypeReference } from "./reference.js";
 import { emitDocumentation } from "./documentation.js";
 import { createOrGetModuleForNamespace } from "./namespace.js";
+import { emitTypeReference } from "./reference.js";
 
 /**
  * Emit an inline union type. This will automatically import any referenced types that are part of the union.
@@ -18,11 +13,7 @@ import { createOrGetModuleForNamespace } from "./namespace.js";
  * @param module - The module that this union is written into.
  * @returns a string that can be used as a type reference
  */
-export function emitUnionType(
-  ctx: JsContext,
-  variants: UnionVariant[],
-  module: Module
-): string {
+export function emitUnionType(ctx: JsContext, variants: UnionVariant[], module: Module): string {
   // Treat empty unions as never so that we always return a good type reference here.
   if (variants.length === 0) return "never";
 
@@ -74,13 +65,9 @@ export function* emitUnion(
     : union.variants.entries();
 
   const variantTypes = [...variants].map(([_, v]) =>
-    emitTypeReference(
-      ctx,
-      v.type,
-      v,
-      module,
-      name + parseCase(String(v.name)).pascalCase
-    )
+    emitTypeReference(ctx, v.type, v, module, {
+      altName: name + parseCase(String(v.name)).pascalCase,
+    })
   );
 
   yield `export type ${name} = ${variantTypes.join(" | ")};`;

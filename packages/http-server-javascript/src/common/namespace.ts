@@ -63,7 +63,11 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
  * @param namespace - The namespace to create a module for.
  * @returns the module for the namespace.
  */
-export function createOrGetModuleForNamespace(ctx: JsContext, namespace: Namespace): Module {
+export function createOrGetModuleForNamespace(
+  ctx: JsContext,
+  namespace: Namespace,
+  root: Module = ctx.globalNamespaceModule
+): Module {
   if (ctx.namespaceModules.has(namespace)) {
     return ctx.namespaceModules.get(namespace)!;
   }
@@ -72,7 +76,10 @@ export function createOrGetModuleForNamespace(ctx: JsContext, namespace: Namespa
     throw new Error("UNREACHABLE: no parent namespace in createOrGetModuleForNamespace");
   }
 
-  const parent = createOrGetModuleForNamespace(ctx, namespace.namespace);
+  const parent =
+    namespace.namespace === ctx.globalNamespace
+      ? root
+      : createOrGetModuleForNamespace(ctx, namespace.namespace);
   const name = namespace.name === "TypeSpec" ? "typespec" : parseCase(namespace.name).kebabCase;
 
   const module: Module = createModule(name, parent, namespace);

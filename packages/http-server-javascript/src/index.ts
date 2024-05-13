@@ -1,12 +1,6 @@
 import { EmitContext, NoTarget, listServices } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
-import {
-  JsContext,
-  Module,
-  completePendingDeclarations,
-  createModule,
-  createPathCursor,
-} from "./ctx.js";
+import { JsContext, Module, createModule, createPathCursor } from "./ctx.js";
 import { JsEmitterFeature, getFeatureHandler } from "./feature.js";
 import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
 import { parseCase } from "./util/case.js";
@@ -18,6 +12,7 @@ import { createModule as initializeHelperModule } from "./helpers/index.js";
 
 // #region features
 
+import { emitSerialization } from "./common/serialization/index.js";
 import "./http/feature.js";
 
 // #endregion
@@ -70,6 +65,7 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
 
   const jsCtx: JsContext = {
     program: context.program,
+    globalNamespace,
     service,
 
     typeQueue: createOnceQueue(),
@@ -81,6 +77,9 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     namespaceModules: new Map([[globalNamespace, allModule]]),
     syntheticModule,
     modelsModule,
+    globalNamespaceModule: allModule,
+
+    serializations: createOnceQueue(),
   };
 
   for (const [name, options] of Object.entries(context.options.features ?? {}) as [
@@ -98,7 +97,8 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     visitAllTypes(jsCtx, service.type);
   }
 
-  completePendingDeclarations(jsCtx);
+  // Emit serialization code for all required types.
+  emitSerialization(jsCtx);
 
   try {
     const stat = await context.program.host.stat(context.emitterOutputDir);

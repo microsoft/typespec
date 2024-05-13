@@ -14,6 +14,7 @@ import {
 } from "@typespec/compiler";
 import { emitDeclaration } from "./common/declaration.js";
 import { createOrGetModuleForNamespace } from "./common/namespace.js";
+import { SerializableType } from "./common/serialization/index.js";
 import { emitUnion } from "./common/union.js";
 import { UnimplementedError } from "./util/error.js";
 import { OnceQueue } from "./util/once-queue.js";
@@ -51,6 +52,13 @@ export interface JsContext {
    * The TypeSpec Program that this emitter instance operates over.
    */
   program: Program;
+
+  /**
+   * The global (root) namespace of the program.
+   *
+   * TODO: is this not the same as baseNamespace?
+   */
+  globalNamespace: Namespace;
 
   /**
    * The service definition to use for emit.
@@ -97,6 +105,15 @@ export interface JsContext {
    * The root module for all named declarations of types referenced by the program.
    */
   modelsModule: Module;
+  /**
+   * The module within `models` that maps to the global namespace.
+   */
+  globalNamespaceModule: Module;
+
+  /**
+   * A map of all types that require serialization code to the formats they require.
+   */
+  serializations: OnceQueue<SerializableType>;
 }
 
 /**

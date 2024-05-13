@@ -20,6 +20,21 @@ import { emitUnionType } from "./union.js";
 export type NamespacedType = Extract<Type, { namespace?: Namespace }>;
 
 /**
+ * Options for emitting a type reference.
+ */
+export interface EmitTypeReferenceOptions {
+  /**
+   * An optional alternative name to use for the type if it is not named.
+   */
+  altName?: string;
+
+  /**
+   * Require a declaration for types that may be represented anonymously.
+   */
+  requireDeclaration?: boolean;
+}
+
+/**
  * Emits a reference to a host type.
  *
  * This function will automatically ensure that the referenced type is included in the emit graph, and will import the
@@ -45,7 +60,7 @@ export function emitTypeReference(
   type: Type,
   position: DiagnosticTarget | typeof NoTarget,
   module: Module,
-  preferredAlternativeName?: string
+  options: EmitTypeReferenceOptions = {}
 ): string {
   switch (type.kind) {
     case "Scalar":
@@ -56,13 +71,9 @@ export function emitTypeReference(
       if (isArrayModelType(ctx.program, type)) {
         const argumentType = type.templateMapper!.args[0];
 
-        const argTypeReference = emitTypeReference(
-          ctx,
-          argumentType,
-          position,
-          module,
-          preferredAlternativeName && getArrayElementName(preferredAlternativeName)
-        );
+        const argTypeReference = emitTypeReference(ctx, argumentType, position, module, {
+          altName: options.altName && getArrayElementName(options.altName),
+        });
 
         if (isImportableType(ctx, argumentType) && argumentType.namespace) {
           module.imports.push({
@@ -76,7 +87,7 @@ export function emitTypeReference(
 
       // Now other well-known models.
       if (isWellKnownModel(ctx, type)) {
-        return emitWellKnownModel(ctx, type, module, preferredAlternativeName);
+        return emitWellKnownModel(ctx, type, module, options.altName);
       }
 
       // Try to reduce the model to an effective model if possible.
@@ -86,29 +97,34 @@ export function emitTypeReference(
         // We might have seen the model before and synthesized a declaration for it already.
         if (ctx.syntheticNames.has(effectiveModel)) {
           // TODO/witemple: I feel like I'm missing an import here.
-          return ctx.syntheticNames.get(effectiveModel)!;
+          const name = ctx.syntheticNames.get(effectiveModel)!;
+          module.imports.push({
+            binder: [name],
+            from: ctx.syntheticModule,
+          });
+          return name;
         }
 
         // Require preferredAlternativeName at this point, as we have an anonymous model that we have not visited.
-        if (!preferredAlternativeName) {
+        if (!options.altName) {
           throw new Error("UNREACHABLE: anonymous model without preferredAlternativeName");
         }
 
         // Anonymous model, synthesize a new model with the preferredName
         ctx.synthetics.push({
           kind: "anonymous",
-          name: preferredAlternativeName,
+          name: options.altName,
           underlying: effectiveModel,
         });
 
         module.imports.push({
-          binder: [preferredAlternativeName],
+          binder: [options.altName],
           from: ctx.syntheticModule,
         });
 
-        ctx.syntheticNames.set(effectiveModel, preferredAlternativeName);
+        ctx.syntheticNames.set(effectiveModel, options.altName);
 
-        return preferredAlternativeName;
+        return options.altName;
       } else {
         // The effective model is good for a declaration, so enqueue it.
         ctx.typeQueue.add(effectiveModel);
@@ -143,7 +159,58 @@ export function emitTypeReference(
       return templatedName.pascalCase;
     }
     case "Union": {
-      return emitUnionType(ctx, [...type.variants.values()], module);
+      if (type.variants.size === 0) return "never";
+      else if (type.variants.size === 1)
+        return emitTypeReference(ctx, [...type.variants.values()][0], position, module, options);
+
+      if (options.requireDeclaration) {
+        if (type.name) {
+          const nameCase = parseCase(type.name);
+
+          ctx.typeQueue.add(type);
+
+          module.imports.push({
+            binder: [nameCase.pascalCase],
+            from: createOrGetModuleForNamespace(ctx, type.namespace!),
+          });
+
+          return type.name;
+        } else {
+          const existingSyntheticName = ctx.syntheticNames.get(type);
+
+          if (existingSyntheticName) {
+            module.imports.push({
+              binder: [existingSyntheticName],
+              from: ctx.syntheticModule,
+            });
+
+            return existingSyntheticName;
+          } else {
+            const altName = options.altName;
+
+            if (!altName) {
+              throw new Error("UNREACHABLE: anonymous union without preferredAlternativeName");
+            }
+
+            ctx.synthetics.push({
+              kind: "anonymous",
+              name: altName,
+              underlying: type,
+            });
+
+            module.imports.push({
+              binder: [altName],
+              from: ctx.syntheticModule,
+            });
+
+            ctx.syntheticNames.set(type, altName);
+
+            return altName;
+          }
+        }
+      } else {
+        return emitUnionType(ctx, [...type.variants.values()], module);
+      }
     }
     case "Enum": {
       ctx.typeQueue.add(type);
@@ -203,7 +270,7 @@ export function emitTypeReference(
     }
     case "ModelProperty": {
       // Forward to underlying type.
-      return emitTypeReference(ctx, type.type, position, module, preferredAlternativeName);
+      return emitTypeReference(ctx, type.type, position, module, options);
     }
     default:
       throw new Error(`UNREACHABLE: ${type.kind}`);

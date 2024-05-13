@@ -16,6 +16,7 @@ import {
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
 import { parseTemplateForScalar } from "../../common/scalar.js";
+import { SerializableType, requireSerialization } from "../../common/serialization/index.js";
 import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
 import { bifilter } from "../../util/bifilter.js";
 import { parseCase } from "../../util/case.js";
@@ -165,7 +166,7 @@ function* emitRawServerOperation(
       body.type,
       body.parameter?.type ?? operation.operation.node,
       module,
-      defaultBodyTypeName
+      { altName: defaultBodyTypeName }
     );
 
     bodyName = bodyNameCase.camelCase;
@@ -179,6 +180,7 @@ function* emitRawServerOperation(
     switch (contentType) {
       case "application/merge-patch+json":
       case "application/json": {
+        requireSerialization(ctx, body.type as SerializableType, "application/json");
         yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
         yield `    const chunks: Array<Buffer> = [];`;
         yield `    request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
