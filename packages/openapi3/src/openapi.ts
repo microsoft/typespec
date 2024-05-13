@@ -60,6 +60,8 @@ import {
   HeaderFieldOptions,
   HttpAuth,
   HttpOperation,
+  HttpOperationBody,
+  HttpOperationMultipartBody,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationRequestBody,
@@ -692,7 +694,7 @@ function createOAPIEmitter(
       operations: operations.map((op) => op.operation),
       parameters: {
         parameters: [],
-      },
+      } as any,
       bodies: undefined,
       authentication: operations[0].authentication,
       responses: new Map<string, HttpOperationResponse[]>(),
@@ -1019,12 +1021,7 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(
-              data.body.type,
-              Visibility.Read,
-              data.body.isExplicit && data.body.containsMetadataAnnotations,
-              undefined
-            );
+          : getSchemaForBody(data.body, Visibility.Read, contentType);
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -1128,6 +1125,28 @@ function createOAPIEmitter(
   }
 
   function getSchemaForBody(
+    body: HttpOperationBody | HttpOperationMultipartBody,
+    visibility: Visibility,
+    contentType: string
+  ): any {
+    const isBinary = isBinaryPayload(body.type, contentType);
+    if (isBinary) {
+      return { type: "string", format: "binary" };
+    }
+    switch (body.bodyKind) {
+      case "single":
+        return getSchemaForSingleBody(
+          body.type,
+          visibility,
+          body.isExplicit && body.containsMetadataAnnotations,
+          contentType
+        );
+      case "multipart":
+      // return getSchemaForMultipartBody(body, visibility);
+    }
+  }
+
+  function getSchemaForSingleBody(
     type: Type,
     visibility: Visibility,
     ignoreMetadataAnnotations: boolean,
@@ -1211,15 +1230,7 @@ function createOAPIEmitter(
       }
       const contentTypes = body.contentTypes.length > 0 ? body.contentTypes : ["application/json"];
       for (const contentType of contentTypes) {
-        const isBinary = isBinaryPayload(body.type, contentType);
-        const bodySchema = isBinary
-          ? { type: "string", format: "binary" }
-          : getSchemaForBody(
-              body.type,
-              visibility,
-              body.isExplicit,
-              contentType.startsWith("multipart/") ? contentType : undefined
-            );
+        const bodySchema = getSchemaForBody(body, visibility, contentType);
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(bodySchema);
         } else {
@@ -1241,14 +1252,28 @@ function createOAPIEmitter(
     currentEndpoint.requestBody = requestBody;
   }
 
-  function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
+  function emitRequestBody(
+    body: HttpOperationBody | HttpOperationMultipartBody | undefined,
+    visibility: Visibility
+  ) {
     if (body === undefined || isVoidType(body.type)) {
       return;
     }
 
+    switch (body.bodyKind) {
+      case "single":
+        emitSingleRequestBody(body, visibility);
+        break;
+      case "multipart":
+        // emitMultipartRequestBody(body, visibility);
+        break;
+    }
+  }
+
+  function emitSingleRequestBody(body: HttpOperationBody, visibility: Visibility) {
     const requestBody: any = {
-      description: body.parameter ? getDoc(program, body.parameter) : undefined,
-      required: body.parameter ? !body.parameter.optional : true,
+      description: body.property ? getDoc(program, body.property) : undefined,
+      required: body.property ? !body.property.optional : true,
       content: {},
     };
 
@@ -1257,7 +1282,7 @@ function createOAPIEmitter(
       const isBinary = isBinaryPayload(body.type, contentType);
       const bodySchema = isBinary
         ? { type: "string", format: "binary" }
-        : getSchemaForBody(
+        : getSchemaForSingleBody(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,

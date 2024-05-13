@@ -14,7 +14,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { resolveBody, ResolvedBody } from "./body.js";
+import { resolveBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
@@ -25,7 +25,7 @@ import {
 } from "./decorators.js";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { gatherMetadata, Visibility } from "./metadata.js";
-import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
+import { HttpBody, HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -153,7 +153,8 @@ function processResponseType(
     if (resolvedBody !== undefined) {
       response.responses.push({
         body: {
-          contentTypes: contentTypes,
+          bodyKind: "single",
+          contentTypes,
           ...resolvedBody,
         },
         headers,
@@ -255,7 +256,7 @@ function getResponseDescription(
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  body: ResolvedBody | undefined
+  body: HttpBody | undefined
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the

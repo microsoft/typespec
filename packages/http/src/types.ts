@@ -2,10 +2,12 @@ import {
   DiagnosticResult,
   Interface,
   ListOperationOptions,
+  Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
+  Tuple,
   Type,
 } from "@typespec/compiler";
 
@@ -317,28 +319,18 @@ export type HttpOperationParameter = (
 };
 
 /**
- * Represent the body information for an http request.
- *
- * @note the `type` must be a `Model` if the content type is multipart.
+ * @deprecated use {@link HttpOperationBody}
  */
-export interface HttpOperationRequestBody extends HttpOperationBody {
-  /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
-   */
-  parameter?: ModelProperty;
-}
-
-export interface HttpOperationResponseBody extends HttpOperationBody {
-  /**
-   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
-   */
-  readonly property?: ModelProperty;
-}
+export type HttpOperationRequestBody = HttpOperationBody;
+/**
+ * @deprecated use {@link HttpOperationBody}
+ */
+export type HttpOperationResponseBody = HttpOperationBody;
 
 export interface HttpOperationParameters {
   parameters: HttpOperationParameter[];
 
-  body?: HttpOperationRequestBody;
+  body?: HttpOperationBody | HttpOperationMultipartBody;
 
   /** @deprecated use {@link body.type} */
   bodyType?: Type;
@@ -446,25 +438,57 @@ export interface HttpOperationResponse {
 
 export interface HttpOperationResponseContent {
   headers?: Record<string, ModelProperty>;
-  body?: HttpOperationResponseBody;
+  body?: HttpOperationBody | HttpOperationMultipartBody;
 }
 
-export interface HttpOperationBody {
-  /**
-   * Content types.
-   */
-  contentTypes: string[];
+export interface HttpOperationBodyBase {
+  /** Content types. */
+  readonly contentTypes: string[];
+}
 
-  /**
-   * Type of the operation body.
-   */
-  type: Type;
+export interface HttpBody {
+  readonly type: Type;
 
   /** If the body was explicitly set with `@body`. */
   readonly isExplicit: boolean;
 
   /** If the body contains metadata annotations to ignore. For example `@header`. */
   readonly containsMetadataAnnotations: boolean;
+
+  /**
+   * @deprecated use {@link parameter}
+   */
+  parameter?: ModelProperty;
+
+  /**
+   * If the body was explicitly set as a property. Correspond to the property with `@body` or `@bodyRoot`
+   */
+  readonly property?: ModelProperty;
+}
+
+export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
+  readonly bodyKind: "single";
+}
+
+/** Body marked with `@multipartBody` */
+export interface HttpOperationMultipartBody extends HttpOperationBodyBase {
+  readonly bodyKind: "multipart";
+  readonly type: Model | Tuple;
+  /** Property annotated with `@multipartBody` */
+  readonly property: ModelProperty;
+  readonly parts: HttpOperationPart[];
+}
+
+/** Represent an part in a multipart body. */
+export interface HttpOperationPart {
+  /** Part name */
+  readonly name?: string;
+  /** Part body */
+  readonly body: HttpOperationBody;
+  /** Part headers */
+  readonly headers?: Record<string, ModelProperty>;
+  /** If there can be multiple of that part */
+  readonly multi: boolean;
 }
 
 export interface HttpStatusCodeRange {

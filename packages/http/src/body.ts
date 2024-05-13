@@ -1,6 +1,5 @@
 import {
   Diagnostic,
-  DuplicateTracker,
   ModelProperty,
   Program,
   Type,
@@ -10,6 +9,7 @@ import {
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
+import { DuplicateTracker } from "@typespec/compiler/utils";
 import {
   isBody,
   isBodyRoot,
@@ -20,16 +20,7 @@ import {
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility, isVisible } from "./metadata.js";
-
-export interface ResolvedBody {
-  readonly type: Type;
-  /** `true` if the body was specified with `@body` */
-  readonly isExplicit: boolean;
-  /** If the body original model contained property annotated with metadata properties. */
-  readonly containsMetadataAnnotations: boolean;
-  /** If body is defined with `@body` or `@bodyRoot` this is the property */
-  readonly property?: ModelProperty;
-}
+import { HttpBody } from "./types.js";
 
 export function resolveBody(
   program: Program,
@@ -38,11 +29,12 @@ export function resolveBody(
   rootPropertyMap: Map<ModelProperty, ModelProperty>,
   visibility: Visibility,
   usedIn: "request" | "response"
-): [ResolvedBody | undefined, readonly Diagnostic[]] {
+): [HttpBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   // non-model or intrinsic/array model -> response body is response type
   if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
     return diagnostics.wrap({
+      bodyKind: "single",
       type: requestOrResponseType,
       isExplicit: false,
       containsMetadataAnnotations: false,
@@ -52,7 +44,7 @@ export function resolveBody(
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   // look for explicit body
-  let resolvedBody: ResolvedBody | undefined;
+  let resolvedBody: HttpBody | undefined;
   for (const property of metadata) {
     const isBodyVal = isBody(program, property);
     const isBodyRootVal = isBodyRoot(program, property);

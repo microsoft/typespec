@@ -5,7 +5,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { resolveBody, ResolvedBody } from "./body.js";
+import { resolveBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
@@ -18,10 +18,11 @@ import {
 import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
 import {
+  HttpBody,
   HttpOperation,
+  HttpOperationBody,
   HttpOperationParameter,
   HttpOperationParameters,
-  HttpOperationRequestBody,
   HttpVerb,
   OperationParameterOptions,
 } from "./types.js";
@@ -145,16 +146,16 @@ function getOperationParametersForVerb(
       return body?.type;
     },
     get bodyParameter() {
-      return body?.parameter;
+      return body?.property;
     },
   });
 }
 
 function computeHttpOperationBody(
   operation: Operation,
-  resolvedBody: ResolvedBody | undefined,
+  resolvedBody: HttpBody | undefined,
   contentTypes: string[] | undefined
-): [HttpOperationRequestBody | undefined, readonly Diagnostic[]] {
+): [HttpOperationBody | undefined, readonly Diagnostic[]] {
   contentTypes ??= [];
   const diagnostics: Diagnostic[] = [];
   if (resolvedBody === undefined) {
@@ -179,14 +180,14 @@ function computeHttpOperationBody(
     return [undefined, diagnostics];
   }
 
-  const body: HttpOperationRequestBody = {
+  const body: HttpOperationBody = {
+    bodyKind: "single",
     type: resolvedBody.type,
     isExplicit: resolvedBody.isExplicit,
     containsMetadataAnnotations: resolvedBody.containsMetadataAnnotations,
     contentTypes,
+    property: resolvedBody.property,
+    parameter: resolvedBody.property,
   };
-  if (resolvedBody.property) {
-    body.parameter = resolvedBody.property;
-  }
   return [body, diagnostics];
 }
