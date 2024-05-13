@@ -170,11 +170,7 @@ async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
     logAction("Applying changes", options);
     await updateLabels(octokit, labelToUpdate, options);
     await createLabels(octokit, labelsToCreate, options);
-    await deleteLabels(
-      octokit,
-      labelsToDelete.map((x) => x.name),
-      options
-    );
+    await deleteLabels(octokit, labelsToDelete, options);
     logAction("Done applying changes", options);
   }
 }
@@ -259,11 +255,13 @@ async function updateLabels(octokit: Octokit, labels: Label[], options: ActionOp
     );
   }
 }
-async function deleteLabels(octokit: Octokit, labels: string[], options: ActionOptions) {
-  for (const name of labels) {
+async function deleteLabels(octokit: Octokit, labels: GithubLabel[], options: ActionOptions) {
+  checkLabelsToDelete(labels);
+
+  for (const label of labels) {
     await doAction(
-      () => octokit.rest.issues.deleteLabel({ ...repo, name }),
-      `Deleted label ${name}`,
+      () => octokit.rest.issues.deleteLabel({ ...repo, name: label.name }),
+      `Deleted label ${label.name}`,
       options
     );
     console.log(`Deleted label ${name}`);
