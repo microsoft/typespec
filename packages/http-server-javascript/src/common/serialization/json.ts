@@ -213,6 +213,8 @@ function transposeExpressionToJson(
     case "FunctionParameter":
     case "Object":
     case "Projection":
+    case "ScalarConstructor":
+    default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);
   }
 }
@@ -343,6 +345,8 @@ function transposeExpressionFromJson(
     case "FunctionParameter":
     case "Object":
     case "Projection":
+    case "ScalarConstructor":
+    default:
       throw new UnimplementedError(`transformJsonExprForType: ${type.kind}`);
   }
 }

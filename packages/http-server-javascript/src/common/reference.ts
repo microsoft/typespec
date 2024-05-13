@@ -69,7 +69,7 @@ export function emitTypeReference(
     case "Model": {
       // First handle arrays.
       if (isArrayModelType(ctx.program, type)) {
-        const argumentType = type.templateMapper!.args[0];
+        const argumentType = type.indexer.value;
 
         const argTypeReference = emitTypeReference(ctx, argumentType, position, module, {
           altName: options.altName && getArrayElementName(options.altName),
