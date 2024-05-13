@@ -8,7 +8,25 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithFormat
     {
-        // Add Constructors
+        /// <summary> Initializes a new instance of <see cref="ModelWithFormat"/>. </summary>
+        /// <param name="sourceUrl"> url format. </param>
+        /// <param name="guid"> uuid format. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="sourceUrl"/> is null. </exception>
+        public ModelWithFormat(System.Uri sourceUrl, Guid guid)
+        {
+            if (sourceUrl == null)
+            {
+                throw new ArgumentNullException(nameof(sourceUrl));
+            }
+
+            SourceUrl = sourceUrl;
+            Guid = guid;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="ModelWithFormat"/>. </summary>
+        internal ModelWithFormat()
+        {
+        }
 
         /// <summary> url format. </summary>
         public System.Uri SourceUrl { get; set; }

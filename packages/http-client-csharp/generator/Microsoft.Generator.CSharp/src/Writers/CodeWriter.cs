@@ -267,6 +267,40 @@ namespace Microsoft.Generator.CSharp
             CodeModelPlugin.Instance.CodeWriterExtensionMethods.WriteMethod(this, method);
         }
 
+        public CodeWriter WriteMethodDocumentation(MethodSignatureBase methodBase)
+        {
+            if (methodBase.IsRawSummaryText)
+            {
+                return WriteRawXmlDocumentation(methodBase.Description);
+            }
+
+            if (methodBase.NonDocumentComment is { } comment)
+            {
+                WriteLine($"// {comment}");
+            }
+
+            if (methodBase.SummaryText is { } summaryText)
+            {
+                WriteXmlDocumentationSummary(summaryText);
+            }
+
+            return WriteMethodDocumentationSignature(methodBase);
+        }
+
+        public CodeWriter WriteMethodDocumentationSignature(MethodSignatureBase methodBase)
+        {
+            WriteXmlDocumentationParameters(methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public) ? methodBase.Parameters : methodBase.Parameters.Where(p => p.Description is not null));
+
+            WriteXmlDocumentationRequiredParametersException(methodBase.Parameters);
+            WriteXmlDocumentationNonEmptyParametersException(methodBase.Parameters);
+            if (methodBase is MethodSignature { ReturnDescription: { } } method)
+            {
+                WriteXmlDocumentationReturns(method.ReturnDescription);
+            }
+
+            return this;
+        }
+
         public void WriteProperty(PropertyDeclaration property)
         {
             if (property.Description is not null)
