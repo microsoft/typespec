@@ -10,6 +10,7 @@ namespace Microsoft.Generator.CSharp
     {
         private IReadOnlyList<ModelTypeProvider>? _models;
         private IReadOnlyList<ClientTypeProvider>? _clients;
+        private IReadOnlyList<TypeProvider>? _helpers;
 
         public OutputLibrary()
         {
@@ -19,6 +20,7 @@ namespace Microsoft.Generator.CSharp
 
         public IReadOnlyList<ModelTypeProvider> Models => _models ??= BuildModels();
         public IReadOnlyList<ClientTypeProvider> Clients => _clients ??= BuildClients();
+        public IReadOnlyList<TypeProvider> Helpers => _helpers ??= BuildHelpers();
 
         public IDictionary<InputEnumType, EnumType> EnumMappings { get; }
         public IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
@@ -55,6 +57,11 @@ namespace Microsoft.Generator.CSharp
             }
 
             return clientProviders;
+        }
+
+        public virtual TypeProvider[] BuildHelpers()
+        {
+            return [ChangeTrackingListProvider.Instance];
         }
     }
 }

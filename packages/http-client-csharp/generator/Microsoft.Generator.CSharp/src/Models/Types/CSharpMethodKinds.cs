@@ -12,9 +12,11 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public readonly partial struct CSharpMethodKinds : IEquatable<CSharpMethodKinds>
     {
-        internal const string ConvenienceValue = "Convenience";
-        internal const string ProtocolValue = "Protocol";
-        internal const string CreateMessageValue = "CreateMessage";
+        private const string ConvenienceValue = "Convenience";
+        private const string ProtocolValue = "Protocol";
+        private const string CreateMessageValue = "CreateMessage";
+        private const string ConstructorValue = "Constructor";
+        private const string MethodValue = "Method";
 
         private readonly string _value;
 
@@ -40,6 +42,16 @@ namespace Microsoft.Generator.CSharp
         /// CreateMessage method kind.
         /// </summary>
         public static CSharpMethodKinds CreateMessage { get; } = new CSharpMethodKinds(CreateMessageValue);
+
+        /// <summary>
+        /// Constructor method kind.
+        /// </summary>
+        public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);
+
+        /// <summary>
+        /// Method method kind.
+        /// </summary>
+        public static CSharpMethodKinds Method { get; } = new CSharpMethodKinds(MethodValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);

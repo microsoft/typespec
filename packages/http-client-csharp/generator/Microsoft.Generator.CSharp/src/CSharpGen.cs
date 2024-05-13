@@ -45,6 +45,13 @@ namespace Microsoft.Generator.CSharp
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
             }
 
+            foreach (var helper in output.Helpers)
+            {
+                CodeWriter writer = new();
+                CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, helper).Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{helper.Name}.cs"), writer.ToString()));
+            }
+
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 

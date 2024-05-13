@@ -73,6 +73,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static MethodBodyStatement EmptyLine => new EmptyLineStatement();
         public static KeywordStatement Continue => new("continue", null);
         public static KeywordStatement Break => new("break", null);
+        public static KeywordStatement YieldBreak => new KeywordStatement("yield break", null);
+        public static MethodBodyStatement YieldReturn(ValueExpression expression) => new KeywordStatement("yield return", expression);
         public static KeywordStatement Return(ValueExpression expression) => new("return", expression);
         public static KeywordStatement Return() => new("return", null);
         public static KeywordStatement Throw(ValueExpression expression) => new("throw", expression);

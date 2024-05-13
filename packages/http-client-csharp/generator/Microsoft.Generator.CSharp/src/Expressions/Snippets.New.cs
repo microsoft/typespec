@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -15,8 +15,12 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             public static ValueExpression ArgumentOutOfRangeException(EnumType enumType, Parameter valueParameter)
                 => Instance(typeof(ArgumentOutOfRangeException), Nameof(valueParameter), valueParameter, Literal($"Unknown {enumType.Name} value."));
+
             public static ValueExpression ArgumentOutOfRangeException(ValueExpression valueParameter, string message, bool wrapInNameOf = true)
                 => Instance(typeof(ArgumentOutOfRangeException), wrapInNameOf ? Nameof(valueParameter) : valueParameter, Literal(message));
+
+            public static ValueExpression ArgumentOutOfRangeException(ValueExpression parameterName)
+                => Instance(typeof(ArgumentOutOfRangeException), parameterName);
 
             public static ValueExpression NotImplementedException(ValueExpression message)
                 => Instance(typeof(NotImplementedException), message);
