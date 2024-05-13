@@ -6,7 +6,6 @@ import {
   Program,
 } from "@typespec/compiler";
 import { extractBodyAndMetadata } from "./body.js";
-import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
   getOperationVerb,
@@ -18,9 +17,7 @@ import {
 import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import {
-  HttpBody,
   HttpOperation,
-  HttpOperationBody,
   HttpOperationParameter,
   HttpOperationParameters,
   HttpVerb,
@@ -70,7 +67,6 @@ function getOperationParametersForVerb(
   const { body: resolvedBody, metadata } = diagnostics.pipe(
     extractBodyAndMetadata(program, operation.parameters, visibility, "request")
   );
-  let contentTypes: string[] | undefined;
 
   for (const param of metadata) {
     const queryOptions = getQueryParamOptions(program, param);
@@ -116,9 +112,6 @@ function getOperationParametersForVerb(
         param,
       });
     } else if (headerOptions) {
-      if (isContentTypeHeader(program, param)) {
-        contentTypes = diagnostics.pipe(getContentTypes(param));
-      }
       parameters.push({
         ...headerOptions,
         param,
@@ -126,7 +119,7 @@ function getOperationParametersForVerb(
     }
   }
 
-  const body = diagnostics.pipe(computeHttpOperationBody(operation, resolvedBody, contentTypes));
+  const body = resolvedBody;
 
   return diagnostics.wrap({
     parameters,
@@ -139,45 +132,4 @@ function getOperationParametersForVerb(
       return body?.property;
     },
   });
-}
-
-function computeHttpOperationBody(
-  operation: Operation,
-  resolvedBody: HttpBody | undefined,
-  contentTypes: string[] | undefined
-): [HttpOperationBody | undefined, readonly Diagnostic[]] {
-  contentTypes ??= [];
-  const diagnostics: Diagnostic[] = [];
-  if (resolvedBody === undefined) {
-    if (contentTypes.length > 0) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "content-type-ignored",
-          target: operation.parameters,
-        })
-      );
-    }
-    return [undefined, diagnostics];
-  }
-
-  if (contentTypes.includes("multipart/form-data") && resolvedBody.type.kind !== "Model") {
-    diagnostics.push(
-      createDiagnostic({
-        code: "multipart-model",
-        target: resolvedBody.property ?? operation.parameters,
-      })
-    );
-    return [undefined, diagnostics];
-  }
-
-  const body: HttpOperationBody = {
-    bodyKind: "single",
-    type: resolvedBody.type,
-    isExplicit: resolvedBody.isExplicit,
-    containsMetadataAnnotations: resolvedBody.containsMetadataAnnotations,
-    contentTypes,
-    property: resolvedBody.property,
-    parameter: resolvedBody.property,
-  };
-  return [body, diagnostics];
 }

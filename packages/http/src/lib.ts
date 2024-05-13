@@ -129,6 +129,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Expect item to be an HttpPart model.",
       },
     },
+    "multipart-nested": {
+      severity: "error",
+      messages: {
+        default: "Cannot use @multipartBody inside of an HttpPart",
+      },
+    },
     "header-format-required": {
       severity: "error",
       messages: {
