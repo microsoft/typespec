@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Tests
     internal class ExpressionTypeProviderWriterTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private ExpressionTypeProviderWriter _expressionTypeProviderWriter;
+        private TypeProviderWriter _expressionTypeProviderWriter;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [SetUp]
@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.That(_expressionTypeProviderWriter.Write, Throws.Exception.TypeOf<NotImplementedException>());
         }
 
-        internal class MockExpressionTypeProviderWriter : ExpressionTypeProviderWriter
+        internal class MockExpressionTypeProviderWriter : TypeProviderWriter
         {
             public MockExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) : base(writer, provider) { }
 
