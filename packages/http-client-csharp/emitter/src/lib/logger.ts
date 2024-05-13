@@ -36,7 +36,11 @@ export class Logger {
     if (!this.initialized) {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
-    if (this.level <= LoggerLevel.INFO) {
+    if (
+      this.level === LoggerLevel.INFO ||
+      this.level === LoggerLevel.DEBUG ||
+      this.level === LoggerLevel.VERBOSE
+    ) {
       this.tracer.trace(LoggerLevel.INFO, message);
     }
   }
@@ -45,7 +49,7 @@ export class Logger {
     if (!this.initialized) {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
-    if (this.level <= LoggerLevel.DEBUG) {
+    if (this.level === LoggerLevel.DEBUG || this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.DEBUG, message);
     }
   }
@@ -54,7 +58,7 @@ export class Logger {
     if (!this.initialized) {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
-    if (this.level <= LoggerLevel.VERBOSE) {
+    if (this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.VERBOSE, message);
     }
   }
