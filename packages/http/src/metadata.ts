@@ -8,12 +8,11 @@ import {
   ModelProperty,
   Operation,
   Program,
-  Queue,
-  TwoLevelMap,
   Type,
   Union,
   walkPropertiesInherited,
 } from "@typespec/compiler";
+import { Queue, TwoLevelMap } from "@typespec/compiler/utils";
 import {
   includeInapplicableMetadataInPayload,
   isBody,

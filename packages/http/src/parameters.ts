@@ -5,7 +5,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { resolveBody } from "./body.js";
+import { extractBodyAndMetadata } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
@@ -16,7 +16,7 @@ import {
   isBodyRoot,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
+import { resolveRequestVisibility } from "./metadata.js";
 import {
   HttpBody,
   HttpOperation,
@@ -61,24 +61,14 @@ function getOperationParametersForVerb(
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const visibility = resolveRequestVisibility(program, operation, verb);
-  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
-  const metadata = gatherMetadata(
-    program,
-    diagnostics,
-    operation.parameters,
-    visibility,
-    (_, param) => isMetadata(program, param) || isImplicitPathParam(param),
-    rootPropertyMap
-  );
-
   function isImplicitPathParam(param: ModelProperty) {
     const isTopLevel = param.model === operation.parameters;
     return isTopLevel && knownPathParamNames.includes(param.name);
   }
 
   const parameters: HttpOperationParameter[] = [];
-  const resolvedBody = diagnostics.pipe(
-    resolveBody(program, operation.parameters, metadata, rootPropertyMap, visibility, "request")
+  const { body: resolvedBody, metadata } = diagnostics.pipe(
+    extractBodyAndMetadata(program, operation.parameters, visibility, "request")
   );
   let contentTypes: string[] | undefined;
 

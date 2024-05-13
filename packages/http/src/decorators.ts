@@ -227,7 +227,7 @@ export const $multipartBody: MultipartBodyDecorator = (
   context.program.stateSet(HttpStateKeys.multipartBody).add(entity);
 };
 
-export function isMultipartBody(program: Program, entity: Type): boolean {
+export function isMultipartBodyProperty(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.multipartBody).has(entity);
 }
 

@@ -14,7 +14,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { resolveBody } from "./body.js";
+import { extractBodyAndMetadata } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
@@ -24,7 +24,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { gatherMetadata, Visibility } from "./metadata.js";
+import { Visibility } from "./metadata.js";
 import { HttpBody, HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -86,16 +86,10 @@ function processResponseType(
   responses: ResponseIndex,
   responseType: Type
 ) {
-  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
-  const metadata = gatherMetadata(
-    program,
-    diagnostics,
-    responseType,
-    Visibility.Read,
-    undefined,
-    rootPropertyMap
+  // Get body
+  let { body: resolvedBody, metadata } = diagnostics.pipe(
+    extractBodyAndMetadata(program, responseType, Visibility.Read, "response")
   );
-
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
     getResponseStatusCodes(program, responseType, metadata)
@@ -106,11 +100,6 @@ function processResponseType(
 
   // Get response headers
   const headers = getResponseHeaders(program, metadata);
-
-  // Get body
-  let resolvedBody = diagnostics.pipe(
-    resolveBody(program, responseType, metadata, rootPropertyMap, Visibility.Read, "response")
-  );
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {

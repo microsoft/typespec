@@ -123,6 +123,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Multipart request body must be a model.",
       },
     },
+    "multipart-part": {
+      severity: "error",
+      messages: {
+        default: "Expect item to be an HttpPart model.",
+      },
+    },
     "header-format-required": {
       severity: "error",
       messages: {
