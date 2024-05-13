@@ -22,7 +22,7 @@ export type NetEmitterOptions = {
   "additional-intrinsic-types-to-treat-empty-string-as-null"?: string[];
   "methods-to-keep-client-default-value"?: string[];
   "deserialize-null-collection-as-null-value"?: boolean;
-  logLevel?: string;
+  logLevel?: number;
   "package-dir"?: string;
   "head-as-boolean"?: boolean;
   flavor?: string;
@@ -81,14 +81,8 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
       nullable: true,
     },
     logLevel: {
-      type: "string",
-      enum: [
-        LoggerLevel.ERROR,
-        LoggerLevel.WARN,
-        LoggerLevel.INFO,
-        LoggerLevel.DEBUG,
-        LoggerLevel.VERBOSE,
-      ],
+      type: "number",
+      enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
     },
     "package-dir": { type: "string", nullable: true },

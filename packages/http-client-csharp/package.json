@@ -41,8 +41,7 @@
     "dist/**"
   ],
   "dependencies": {
-    "json-serialize-refs": "0.1.0-0",
-    "winston": "^3.8.2"
+    "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.36.0 <1.0.0",

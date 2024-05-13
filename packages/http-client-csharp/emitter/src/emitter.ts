@@ -5,11 +5,9 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   Program,
-  createTypeSpecLibrary,
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
-  paramMessage,
   resolvePath,
 } from "@typespec/compiler";
 
@@ -20,41 +18,9 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { LoggerLevel, logger } from "./lib/logger.js";
-import {
-  NetEmitterOptions,
-  NetEmitterOptionsSchema,
-  resolveOptions,
-  resolveOutputFolder,
-} from "./options.js";
+import { Logger, LoggerLevel, logger } from "./lib/logger.js";
+import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { Configuration } from "./type/configuration.js";
-
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-csharp",
-  diagnostics: {
-    "No-APIVersion": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No APIVersion Provider for service ${"service"}`,
-      },
-    },
-    "No-Route": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No Route for service for service ${"service"}`,
-      },
-    },
-    "Invalid-Name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
-  },
-  emitter: {
-    options: NetEmitterOptionsSchema,
-  },
-});
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -82,9 +48,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const outputFolder = resolveOutputFolder(context);
 
   /* set the loglevel. */
-  for (const transport of logger.transports) {
-    transport.level = options.logLevel ?? LoggerLevel.INFO;
-  }
+  Logger.initialize(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -247,7 +211,7 @@ async function execAsync(
 function deleteFile(filePath: string) {
   fs.unlink(filePath, (err) => {
     if (err) {
-      logger.error(`stderr: ${err}`);
+      //logger.error(`stderr: ${err}`);
     } else {
       logger.info(`File ${filePath} is deleted.`);
     }

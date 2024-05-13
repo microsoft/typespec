@@ -27,7 +27,6 @@ import {
   getServers,
 } from "@typespec/http";
 import { getVersions } from "@typespec/versioning";
-import { $lib } from "../emitter.js";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { ClientKind } from "../type/client-kind.js";
 import { CodeModel } from "../type/code-model.js";
@@ -41,6 +40,7 @@ import { InputTypeKind } from "../type/input-type-kind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
+import { reportDiagnostic } from "./lib.js";
 import { logger } from "./logger.js";
 import { getUsages, navigateModels } from "./model.js";
 import { loadOperation } from "./operation.js";
@@ -121,7 +121,7 @@ export function createModelForService(
   const [services] = getAllHttpServices(program);
   const routes = services[0].operations;
   if (routes.length === 0) {
-    $lib.reportDiagnostic(program, {
+    reportDiagnostic(program, {
       code: "No-Route",
       format: { service: services[0].namespace.name },
       target: NoTarget,
@@ -200,7 +200,7 @@ export function createModelForService(
       clientName === "Models" &&
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
     ) {
-      $lib.reportDiagnostic(program, {
+      reportDiagnostic(program, {
         code: "Invalid-Name",
         format: { name: clientName },
         target: client.type,
