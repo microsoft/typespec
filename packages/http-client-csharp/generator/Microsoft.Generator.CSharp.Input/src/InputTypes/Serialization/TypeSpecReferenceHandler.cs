@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 if (!_referenceIdToObjectMap.TryAdd(referenceId, value))
                 {
-                    throw new JsonException();
+                    throw new JsonException($"Failed to add reference ID '{referenceId}' with value type '{value.GetType()}'");
                 }
             }
 
