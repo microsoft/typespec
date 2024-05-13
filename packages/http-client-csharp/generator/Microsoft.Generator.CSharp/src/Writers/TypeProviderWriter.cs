@@ -1,16 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Linq;
 
 namespace Microsoft.Generator.CSharp.Writers
 {
-    public class ExpressionTypeProviderWriter
+    public class TypeProviderWriter
     {
         protected readonly TypeProvider _provider;
         protected readonly CodeWriter _writer;
 
-        public ExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider)
+        public TypeProviderWriter(CodeWriter writer, TypeProvider provider)
         {
             _provider = provider;
             _writer = writer;
@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Writers
         {
             foreach (var nested in _provider.NestedTypes)
             {
-                var nestedWriter = new ExpressionTypeProviderWriter(_writer, nested);
+                var nestedWriter = new TypeProviderWriter(_writer, nested);
                 nestedWriter.Write();
                 _writer.WriteLine();
             }
