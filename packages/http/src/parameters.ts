@@ -65,7 +65,9 @@ function getOperationParametersForVerb(
 
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
-    extractBodyAndMetadata(program, operation.parameters, visibility, "request")
+    extractBodyAndMetadata(program, operation.parameters, visibility, "request", {
+      isImplicitPathParam,
+    })
   );
 
   for (const param of metadata) {

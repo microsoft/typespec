@@ -23,19 +23,23 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { Visibility, gatherMetadata, isVisible } from "./metadata.js";
+import { Visibility, gatherMetadata, isMetadata, isVisible } from "./metadata.js";
 import { getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
-interface BodyAndMetadata {
+export interface BodyAndMetadata {
   body?: HttpOperationBody | HttpOperationMultipartBody;
   metadata: Set<ModelProperty>;
+}
+export interface ExtractBodyAndMetadataOptions {
+  isImplicitPathParam?: (param: ModelProperty) => boolean;
 }
 export function extractBodyAndMetadata(
   program: Program,
   type: Type,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart"
+  usedIn: "request" | "response" | "multipart",
+  options: ExtractBodyAndMetadataOptions = {}
 ): [BodyAndMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
@@ -45,7 +49,9 @@ export function extractBodyAndMetadata(
     diagnostics,
     type,
     visibility,
-    undefined,
+    (_, param) =>
+      isMetadata(program, param) ||
+      Boolean(options.isImplicitPathParam && options.isImplicitPathParam(param)),
     rootPropertyMap
   );
 
