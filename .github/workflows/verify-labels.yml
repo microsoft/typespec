@@ -5,7 +5,7 @@ on:
       - "main"
     paths:
       - "package.json"
-      - "eng/common/labels.yml"
+      - "eng/common/labels.yaml"
       - "eng/common/scripts/sync-labels.ts"
       - ".github/workflows/sync-labels.yml"
       - "CONTRIBUTING.md"
