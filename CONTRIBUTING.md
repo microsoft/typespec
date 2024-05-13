@@ -239,7 +239,7 @@ Issue kinds
 
 | Name      | Color   | Description                                |
 | --------- | ------- | ------------------------------------------ |
-| `bug`     | #cccccc | Something isn't working                    |
+| `bug`     | #d93f0b | Something isn't working                    |
 | `feature` | #cccccc | New feature or request                     |
 | `docs`    | #cccccc | Improvements or additions to documentation |
 | `epic`    | #cccccc |                                            |
@@ -259,7 +259,6 @@ Area of the codebase
 | `lib:versioning`             | #c7aee6 |                                     |
 | `meta:blog`                  | #007dc8 | Blog updates                        |
 | `meta:website`               | #007dc8 | TypeSpec.io updates                 |
-| `Service Codegen`            | #7C4B1E |                                     |
 | `tspd`                       | #004185 | Issues for the tspd tool            |
 | `emitter:client:csharp`      | #e1b300 |                                     |
 | `emitter:json-schema`        | #957300 |                                     |
