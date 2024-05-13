@@ -264,7 +264,7 @@ async function deleteLabels(octokit: Octokit, labels: GithubLabel[], options: Ac
       `Deleted label ${label.name}`,
       options
     );
-    console.log(`Deleted label ${name}`);
+    console.log(`Deleted label ${label.name}`);
   }
 }
 
