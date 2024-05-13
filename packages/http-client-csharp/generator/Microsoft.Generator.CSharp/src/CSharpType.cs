@@ -592,5 +592,11 @@ namespace Microsoft.Generator.CSharp
                 return new CSharpType(Implementation, isValueType: IsValueType, isEnum: IsEnum, isNullable: IsNullable, arguments: Arguments, declaringType: DeclaringType, ns: Namespace, name: Name);
             }
         }
+
+        public CSharpType MarkArrayType()
+        {
+            // TODO -- this currently does not work because it will not pass the validation
+            return new CSharpType(typeof(Array), this);
+        }
     }
 }

@@ -71,6 +71,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static BoolExpression Not(BoolExpression operand) => new(new UnaryOperatorExpression("!", operand, false));
 
         public static MethodBodyStatement EmptyLine => new EmptyLineStatement();
+        public static KeywordExpression Value => new("value", null);
         public static KeywordStatement Continue => new("continue", null);
         public static KeywordStatement Break => new("break", null);
         public static KeywordStatement YieldBreak => new KeywordStatement("yield break", null);

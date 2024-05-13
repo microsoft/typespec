@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp
 
         public virtual TypeProvider[] BuildHelpers()
         {
-            return [ChangeTrackingListProvider.Instance];
+            return [ChangeTrackingListProvider.Instance, ChangeTrackingDictionaryProvider.Instance];
         }
     }
 }

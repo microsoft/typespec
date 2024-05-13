@@ -39,19 +39,27 @@ namespace Microsoft.Generator.CSharp
 
             _innerListField = new FieldDeclaration(FieldModifiers.Private, _iListOfT, "_innerList");
             _isUndefinedProperty = new PropertyDeclaration(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(Equal(_innerListField, Null)));
+            IsUndefined = new BoolExpression(_isUndefinedProperty);
+
+            _ensureListSignature = new MethodSignature(
+                Name: _ensureList,
+                Modifiers: MethodSignatureModifiers.Private,
+                ReturnType: _iListOfT,
+                Parameters: Array.Empty<Parameter>(),
+                Summary: null, Description: null, ReturnDescription: null);
+            EnsureList = This.Invoke(_ensureListSignature);
+
             _isReadOnlyProperty = new PropertyDeclaration(null, MethodSignatureModifiers.Public, typeof(bool), "IsReadOnly",
-                new ExpressionPropertyBody(new TernaryConditionalOperator(IsUndefined, False, EnsureList().Property(nameof(IList<object>.IsReadOnly)))));
+                new ExpressionPropertyBody(new TernaryConditionalOperator(IsUndefined, False, EnsureList.Property(nameof(IList<object>.IsReadOnly)))));
             _countProperty = new PropertyDeclaration(null, MethodSignatureModifiers.Public, typeof(int), "Count",
-                new ExpressionPropertyBody(new TernaryConditionalOperator(IsUndefined, Int(0), EnsureList().Property(nameof(IList<object>.Count)))));
+                new ExpressionPropertyBody(new TernaryConditionalOperator(IsUndefined, Int(0), EnsureList.Property(nameof(IList<object>.Count)))));
         }
 
+        private readonly MethodSignature _ensureListSignature;
         private const string _ensureList = "EnsureList";
 
-        private BoolExpression? _isUndefined;
-        private BoolExpression IsUndefined => _isUndefined ??= new(_isUndefinedProperty);
-
-        private ValueExpression? _ensureListExpression;
-        private ValueExpression EnsureList() => _ensureListExpression ??= new InvokeInstanceMethodExpression(null, _ensureList, Array.Empty<ValueExpression>());
+        private BoolExpression IsUndefined { get; }
+        private ValueExpression EnsureList { get; }
 
         public override string Name { get; }
 
@@ -60,17 +68,20 @@ namespace Microsoft.Generator.CSharp
         protected override CSharpType[] BuildImplements() => [_iListOfT, _iReadOnlyListOfT];
 
         protected override CSharpMethod[] BuildConstructors()
-        {
-            var ctors = new CSharpMethod[3];
+            => [DefaultConstructor(), ConstructorWithIList(), ConstructorWithIReadOnlyList()];
 
-            // the parameterless ctor
+        private CSharpMethod DefaultConstructor()
+        {
             var ctorSignature = new ConstructorSignature(
                 Type: Type,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: Array.Empty<Parameter>(),
                 Summary: null, Description: null);
-            ctors[0] = new(ctorSignature, EmptyStatement, CSharpMethodKinds.Constructor);
+            return new(ctorSignature, EmptyStatement, CSharpMethodKinds.Constructor);
+        }
 
+        private CSharpMethod ConstructorWithIList()
+        {
             var iListParameter = new Parameter("innerList", null, _iListOfT, null, ValidationType.None, null);
             var iListSignature = new ConstructorSignature(
                 Type: Type,
@@ -82,12 +93,12 @@ namespace Microsoft.Generator.CSharp
             {
                 Assign(_innerListField, iList)
             };
-            ctors[1] = new(iListSignature, iListBody, CSharpMethodKinds.Constructor);
+            return new(iListSignature, iListBody, CSharpMethodKinds.Constructor);
+        }
 
-            var iReadOnlyListParameter = iListParameter with
-            {
-                Type = _iReadOnlyListOfT
-            };
+        private CSharpMethod ConstructorWithIReadOnlyList()
+        {
+            var iReadOnlyListParameter = new Parameter("innerList", null, _iReadOnlyListOfT, null, ValidationType.None, null);
             var iReadOnlyListSignature = new ConstructorSignature(
                 Type: Type,
                 Modifiers: MethodSignatureModifiers.Public,
@@ -98,9 +109,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Assign(_innerListField, Linq.ToList(iReadOnlyList))
             };
-            ctors[2] = new(iReadOnlyListSignature, iReadOnlyListBody, CSharpMethodKinds.Constructor);
-
-            return ctors;
+            return new(iReadOnlyListSignature, iReadOnlyListBody, CSharpMethodKinds.Constructor);
         }
 
         protected override FieldDeclaration[] BuildFields() => [_innerListField];
@@ -117,7 +126,7 @@ namespace Microsoft.Generator.CSharp
                         {
                             Throw(New.ArgumentOutOfRangeException(Nameof(index)))
                         },
-                        Return(new ArrayElementExpression(EnsureList(), index))
+                        Return(new ArrayElementExpression(EnsureList, index))
                     },
                     new MethodBodyStatement[]
                     {
@@ -125,7 +134,7 @@ namespace Microsoft.Generator.CSharp
                         {
                             Throw(New.ArgumentOutOfRangeException(Nameof(index)))
                         },
-                        Assign(new ArrayElementExpression(EnsureList(), index), new KeywordExpression("value", null))
+                        Assign(new ArrayElementExpression(EnsureList, index), Value)
                     }));
 
             return [_isUndefinedProperty, _countProperty, _isReadOnlyProperty, indexerProperty];
@@ -173,7 +182,7 @@ namespace Microsoft.Generator.CSharp
                     new DeclareLocalFunctionStatement(new CodeWriterDeclaration("EnumerateEmpty"), Array.Empty<Parameter>(), iEnumeratorOfT, YieldBreak),
                     Return(new InvokeStaticMethodExpression(null, "EnumerateEmpty", Array.Empty<ValueExpression>()))
                 },
-                Return(EnsureList().Invoke(nameof(IEnumerable<object>.GetEnumerator)))
+                Return(EnsureList.Invoke(nameof(IEnumerable<object>.GetEnumerator)))
             }, CSharpMethodKinds.Method);
         }
 
@@ -198,7 +207,7 @@ namespace Microsoft.Generator.CSharp
                 ReturnType: null,
                 Parameters: [genericParameter],
                 Summary: null, Description: null, ReturnDescription: null);
-            return new(signature, new InvokeInstanceMethodStatement(EnsureList(), nameof(IList<object>.Add), genericParameter), CSharpMethodKinds.Method);
+            return new(signature, new InvokeInstanceMethodStatement(EnsureList, nameof(IList<object>.Add), genericParameter), CSharpMethodKinds.Method);
         }
 
         private CSharpMethod BuildClear()
@@ -209,7 +218,7 @@ namespace Microsoft.Generator.CSharp
                 ReturnType: null,
                 Parameters: Array.Empty<Parameter>(),
                 Summary: null, Description: null, ReturnDescription: null);
-            return new(signature, new InvokeInstanceMethodStatement(EnsureList(), nameof(IList<object>.Clear)), CSharpMethodKinds.Method);
+            return new(signature, new InvokeInstanceMethodStatement(EnsureList, nameof(IList<object>.Clear)), CSharpMethodKinds.Method);
         }
 
         private CSharpMethod BuildContains()
@@ -227,7 +236,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     Return(False)
                 },
-                Return(EnsureList().Invoke(signature))
+                Return(EnsureList.Invoke(signature))
             }, CSharpMethodKinds.Method);
         }
 
@@ -247,7 +256,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     Return()
                 },
-                new InvokeInstanceMethodStatement(EnsureList(), "CopyTo", [(ValueExpression)arrayParameter, (ValueExpression)indexParameter], false)
+                new InvokeInstanceMethodStatement(EnsureList, nameof(IList<object>.CopyTo), [(ValueExpression)arrayParameter, (ValueExpression)indexParameter], false)
             }, CSharpMethodKinds.Method);
         }
 
@@ -266,7 +275,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     Return(False)
                 },
-                Return(EnsureList().Invoke(signature))
+                Return(EnsureList.Invoke(signature))
             }, CSharpMethodKinds.Method);
         }
 
@@ -285,7 +294,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     Return(Literal(-1))
                 },
-                Return(EnsureList().Invoke(signature))
+                Return(EnsureList.Invoke(signature))
             }, CSharpMethodKinds.Method);
         }
 
@@ -301,7 +310,7 @@ namespace Microsoft.Generator.CSharp
                 Summary: null, Description: null, ReturnDescription: null);
             return new(signature, new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList(), "Insert", [(ValueExpression)indexParameter, (ValueExpression)itemParameter], false)
+                new InvokeInstanceMethodStatement(EnsureList, nameof(IList<object>.Insert), [(ValueExpression)indexParameter, (ValueExpression)itemParameter], false)
             }, CSharpMethodKinds.Method);
         }
 
@@ -321,19 +330,13 @@ namespace Microsoft.Generator.CSharp
                 {
                     Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(index)))
                 },
-                new InvokeInstanceMethodStatement(EnsureList(), nameof(IList<object>.RemoveAt), [index], false)
+                new InvokeInstanceMethodStatement(EnsureList, nameof(IList<object>.RemoveAt), [index], false)
             }, CSharpMethodKinds.Method);
         }
 
         private CSharpMethod BuildEnsureList()
         {
-            var signature = new MethodSignature(
-                Name: _ensureList,
-                Modifiers: MethodSignatureModifiers.Private,
-                ReturnType: _iListOfT,
-                Parameters: Array.Empty<Parameter>(),
-                Summary: null, Description: null, ReturnDescription: null);
-            return new(signature, new MethodBodyStatement[]
+            return new(_ensureListSignature, new MethodBodyStatement[]
             {
                 Return(new BinaryOperatorExpression("??=", _innerListField, New.Instance(new CSharpType(typeof(List<>), _tType))))
             }, CSharpMethodKinds.Method);
