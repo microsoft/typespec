@@ -1,19 +1,46 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, Constant? DefaultValue, ValidationType Validation, FormattableString? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
+    public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, ValueExpression? DefaultValue, ValidationType Validation, ValueExpression? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
     {
         internal bool IsRawData { get; init; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
         internal bool IsOptionalInSignature => DefaultValue != null;
+
+        /// <summary>
+        /// Creates a <see cref="Parameter"/> from an <see cref="InputParameter"/>.
+        /// </summary>
+        /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
+        public static Parameter FromInputParameter(InputParameter inputParameter)
+        {
+            // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
+            var csharpType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            FormattableString? description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
+            var validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
+
+            return new Parameter(
+                inputParameter.Name,
+                description,
+                csharpType,
+                null,
+                validation,
+                null,
+                IsApiVersionParameter: inputParameter.IsApiVersion,
+                IsEndpoint: inputParameter.IsEndpoint,
+                IsResourceIdentifier: inputParameter.IsResourceParameter,
+                SkipUrlEncoding: inputParameter.SkipUrlEncoding,
+                RequestLocation: inputParameter.Location,
+                SerializationFormat: SerializationFormat.Default);
+        }
 
         internal Parameter WithRef(bool isRef = true) => IsRef == isRef ? this : this with { IsRef = isRef };
         internal Parameter ToRequired()

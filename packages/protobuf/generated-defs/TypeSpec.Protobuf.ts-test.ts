@@ -1,6 +1,6 @@
 /** An error here would mean that the decorator is not exported or doesn't have the right name. */
 import { $field, $message, $package, $reserve, $service, $stream } from "@typespec/protobuf";
-import {
+import type {
   FieldDecorator,
   MessageDecorator,
   PackageDecorator,

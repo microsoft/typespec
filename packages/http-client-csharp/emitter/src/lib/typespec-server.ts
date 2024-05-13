@@ -17,7 +17,7 @@ import {
   InputType,
 } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { getFormattedType, getInputType } from "./model.js";
+import { getInputType } from "./model.js";
 
 export interface TypeSpecServer {
   url: string;
@@ -60,7 +60,7 @@ export function resolveServers(
             Name: InputPrimitiveTypeKind.Uri,
             IsNullable: false,
           } as InputPrimitiveType)
-        : getInputType(context, getFormattedType(context.program, prop), models, enums);
+        : getInputType(context, prop, models, enums);
 
       if (value) {
         defaultValue = {

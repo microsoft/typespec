@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp
@@ -29,12 +28,21 @@ namespace Microsoft.Generator.CSharp
             var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
             List<Task> generateFilesTasks = new();
+
             foreach (var model in output.Models)
             {
                 CodeWriter writer = new CodeWriter();
                 ExpressionTypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model);
                 modelWriter.Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
+            }
+
+            foreach (var client in output.Clients)
+            {
+                CodeWriter writer = new CodeWriter();
+                ExpressionTypeProviderWriter clientWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, client);
+                clientWriter.Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
             }
 
             // Add all the generated files to the workspace

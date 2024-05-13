@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -81,7 +81,7 @@
     "clsx": "^2.1.0",
     "debounce": "~2.0.0",
     "lzutf8": "0.6.3",
-    "monaco-editor": "~0.47.0",
+    "monaco-editor": "~0.46.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
     "swagger-ui-dist": "^5.15.2",

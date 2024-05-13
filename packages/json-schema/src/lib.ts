@@ -1,4 +1,9 @@
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import {
+  createTypeSpecLibrary,
+  definePackageFlags,
+  JSONSchemaType,
+  paramMessage,
+} from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";
@@ -80,7 +85,7 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
   required: [],
 };
 
-export const libDef = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
   diagnostics: {
     "invalid-default": {
@@ -105,9 +110,11 @@ export const libDef = {
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
   },
-} as const;
+} as const);
 
-export const $lib = createTypeSpecLibrary(libDef);
+export const $flags = definePackageFlags({
+  decoratorArgMarshalling: "new",
+});
 
 export const { reportDiagnostic, createStateSymbol } = $lib;
 

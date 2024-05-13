@@ -3,7 +3,7 @@
     "Unbranded-TypeSpec": {
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
-      "commandLineArgs": "$(SolutionDir)/Microsoft.Generator.CSharp.ClientModel.TestProjects/Unbranded-TypeSpec"
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec"
     }
   }
 }

@@ -8,13 +8,20 @@ parameters:
   - name: PackagePath
     type: string
 
-  # Arguments needed to run unit tests
-  - name: UnitTestArgs
+  # Arguments needed to run tests
+  - name: TestArgs
     type: string
+    default: ""
+
+  # Indicates the build matrix to use for post-build autorest validation
+  - name: TestMatrix
+    type: object
+    default: {}
 
   # Node version
   - name: NodeVersion
     type: string
+    default: "20.x"
 
   # Operation system to use
   - name: Os
@@ -24,6 +31,14 @@ parameters:
   - name: EmitArtifacts
     type: boolean
     default: false
+
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
 
 jobs:
   - job: Test_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
@@ -37,13 +52,21 @@ jobs:
         name: $(WINDOWSPOOL)
         image: $(WINDOWSVMIMAGE)
         os: windows
+    ${{ if ne(length(parameters.TestMatrix), 0) }}:
+      strategy:
+        matrix: ${{ parameters.TestMatrix }}
     steps:
       - template: /eng/emitters/pipelines/templates/steps/test-step.yml
         parameters:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: $(nodeVersion)
-          UnitTestArgs: ${{ parameters.UnitTestArgs }}
+          BuildArtifactName: ${{ parameters.BuildArtifactName }}
+          ${{ if ne(length(parameters.TestMatrix), 0) }}:
+            TestArgs: $(TestArguments)
+          ${{ else }}:
+            TestArgs: ${{ parameters.TestArgs }}
     ${{ if parameters.EmitArtifacts }}:
       templateContext:
         outputs:

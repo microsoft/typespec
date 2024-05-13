@@ -34,6 +34,10 @@ parameters:
   - name: NodeVersion
     type: string
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
 steps:
   - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
       - script: |

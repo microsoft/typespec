@@ -1,8 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -47,39 +51,71 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
         {
-            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateType(property.Type);
-            MethodSignatureModifiers setterModifier = !property.IsReadOnly ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
+            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
+            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(property.Type);
+            var propHasSetter = PropertyHasSetter(propertyType, property);
+            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            // Exclude setter generation for collection properties https://github.com/Azure/autorest.csharp/issues/4616
-            // Add Remarks and Example for BinaryData Properties https://github.com/Azure/autorest.csharp/issues/4617
             var propertyDeclaration = new PropertyDeclaration(
-                    description: FormattableStringHelpers.FromString(property.Description),
-                    modifiers: MethodSignatureModifiers.Public,
-                    propertyType: propertyType,
-                    name: property.Name.FirstCharToUpperCase(),
-                    propertyBody: new AutoPropertyBody(!property.IsReadOnly, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                    );
+                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                Modifiers: MethodSignatureModifiers.Public,
+                Type: propertyType,
+                Name: property.Name.FirstCharToUpperCase(),
+                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                );
 
             return propertyDeclaration;
         }
 
-        private ConstantExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
+        /// <summary>
+        /// Returns true if the property has a setter.
+        /// </summary>
+        /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
+        /// <param name="prop">The <see cref="InputModelProperty"/>.</param>
+        private bool PropertyHasSetter(CSharpType type, InputModelProperty prop)
+        {
+            if (prop.IsDiscriminator)
+            {
+                return true;
+            }
+
+            if (prop.IsReadOnly)
+            {
+                return false;
+            }
+
+            if (IsStruct)
+            {
+                return false;
+            }
+
+            if (type.IsLiteral && prop.IsRequired)
+            {
+                return false;
+            }
+
+            if (type.IsCollection && !type.IsReadOnlyMemory)
+            {
+                return type.IsNullable;
+            }
+
+            return true;
+        }
+
+        private ValueExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
         {
             if (!property.IsRequired)
                 return null;
 
-            // The IsLiteral is returning false for int and float enum value types - https://github.com/Azure/autorest.csharp/issues/4630
-            // if (propertyType.IsLiteral && propertyType.Literal?.Value != null)
-            if (property.Type is InputLiteralType literal)
+            if (propertyType.IsLiteral)
             {
                 if (!propertyType.IsNullable)
                 {
-                    var constant = Constant.Parse(literal.Value, propertyType);
-                    return new ConstantExpression(constant);
+                    return Literal(propertyType.Literal);
                 }
                 else
                 {
-                    return new ConstantExpression(Constant.NewInstanceOf(propertyType));
+                    return DefaultOf(propertyType);
                 }
             }
 

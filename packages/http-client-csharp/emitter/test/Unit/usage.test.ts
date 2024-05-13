@@ -402,31 +402,11 @@ describe("Test getUsages", () => {
     assert(usages.outputs.includes("NestedModel"));
   });
 
-  it("Get usage for the model which is renamed by projected name", async () => {
-    const program = await typeSpecCompile(
-      `
-            @doc("This is a model.")
-            @projectedName("azure", "FooRenamed")
-            model Foo {
-                @doc("name of the Foo")
-                name: string;
-            }
-            op test(@path id: string, @body foo: Foo): Foo;
-      `,
-      runner
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const usages = getUsages(sdkContext, services[0].operations);
-    assert(usages.roundTrips.includes("FooRenamed"));
-  });
-
-  it("Test the usage of enum which is renamed via @projectedName.", async () => {
+  it("Test the usage of enum which is renamed via @clientName.", async () => {
     const program = await typeSpecCompile(
       `
             @doc("fixed string enum")
-            @projectedName("azure", "SimpleEnumRenamed")
+            @clientName("SimpleEnumRenamed")
             enum SimpleEnum {
                 @doc("Enum value one")
                 One: "1",
@@ -439,7 +419,7 @@ describe("Test getUsages", () => {
             op test(@path id: SimpleEnum): void;
       `,
       runner,
-      { IsNamespaceNeeded: true, IsAzureCoreNeeded: false }
+      { IsNamespaceNeeded: true, IsTCGCNeeded: true }
     );
 
     const context = createEmitterContext(program);

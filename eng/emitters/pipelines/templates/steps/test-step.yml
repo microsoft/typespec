@@ -12,16 +12,25 @@ parameters:
   #  Currently not installing node in this template, but keeping this parameter for future use
   - name: NodeVersion
     type: string
+    default: "20.x"
 
-  # Arguments needed to run unit tests
-  - name: UnitTestArgs
+  # Arguments needed to run tests
+  - name: TestArgs
     type: string
+
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
 
 steps:
   - checkout: self
 
   - download: current
-    artifact: build_artifacts
+    artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
 
   - ${{ parameters.AdditionalInitializeSteps }}
@@ -39,5 +48,5 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Test-Packages.ps1
-      arguments: ${{ parameters.UnitTestArgs }}
+      arguments: ${{ parameters.TestArgs }}
       workingDirectory: $(selfRepositoryPath)

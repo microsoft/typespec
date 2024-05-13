@@ -7,6 +7,7 @@ dictionaries:
 words:
   - atrule
   - autorest
+  - AQID
   - azsdk
   - azsdkengsys
   - azurecr
@@ -113,6 +114,11 @@ words:
   - xlarge
   - xplat
   - TCGC
+  - VITE
+  - uncollapsed
+  - nupkg
+  - Vsts
+  - tsdoc
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -127,8 +133,14 @@ ignorePaths:
   - packages/compiler/test/formatter/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
+  - ".git/**"
+  - ".gitignore"
+  - ".vscode/**"
+  - ".editorconfig"
+  - .github/CODEOWNERS
   - packages/samples/test/output/**
 useGitignore: true
+enableGlobDot: true
 enableFiletypes:
   - cadl
 patterns:

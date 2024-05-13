@@ -10,8 +10,7 @@ import {
 } from "../core/index.js";
 import { createLinterRuleContext } from "../core/linter.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
-import { resolveVirtualPath } from "./test-host.js";
-import { trimBlankLines } from "./test-utils.js";
+import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
 import { BasicTestRunner } from "./types.js";
 
 export interface LinterRuleTester {

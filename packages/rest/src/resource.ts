@@ -156,7 +156,7 @@ export function $copyResourceKeyParameters(
     return reportNoKeyError();
   }
 
-  if (templateArguments[0].kind !== "Model") {
+  if ((templateArguments[0] as any).kind !== "Model") {
     if (isErrorType(templateArguments[0])) {
       return;
     }

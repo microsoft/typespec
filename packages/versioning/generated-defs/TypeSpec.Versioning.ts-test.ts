@@ -2,6 +2,7 @@
 import {
   $added,
   $madeOptional,
+  $madeRequired,
   $removed,
   $renamedFrom,
   $returnTypeChangedFrom,
@@ -9,9 +10,10 @@ import {
   $useDependency,
   $versioned,
 } from "@typespec/versioning";
-import {
+import type {
   AddedDecorator,
   MadeOptionalDecorator,
+  MadeRequiredDecorator,
   RemovedDecorator,
   RenamedFromDecorator,
   ReturnTypeChangedFromDecorator,
@@ -27,6 +29,7 @@ type Decorators = {
   $removed: RemovedDecorator;
   $renamedFrom: RenamedFromDecorator;
   $madeOptional: MadeOptionalDecorator;
+  $madeRequired: MadeRequiredDecorator;
   $typeChangedFrom: TypeChangedFromDecorator;
   $returnTypeChangedFrom: ReturnTypeChangedFromDecorator;
 };
@@ -39,6 +42,7 @@ const _: Decorators = {
   $removed,
   $renamedFrom,
   $madeOptional,
+  $madeRequired,
   $typeChangedFrom,
   $returnTypeChangedFrom,
 };

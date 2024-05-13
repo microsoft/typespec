@@ -1,5 +1,5 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
@@ -408,6 +408,44 @@ describe("compiler: interfaces", () => {
       const returnType = bar.returnType;
       strictEqual(returnType.kind, "Scalar" as const);
       strictEqual(returnType.name, "int32");
+    });
+
+    it("instantiating an templated interface doesn't finish template operation inside", async () => {
+      const $track = vi.fn();
+      testHost.addJsFile("dec.js", { $track });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+         
+         interface Base<A> {
+          @track bar<B>(input: A): B;
+        }
+
+        alias My = Base<string>;
+        `
+      );
+      await testHost.compile("./");
+      expect($track).not.toHaveBeenCalled();
+    });
+
+    it("templated interface extending another templated interface doesn't run decorator on extended interface operations", async () => {
+      const $track = vi.fn();
+      testHost.addJsFile("dec.js", { $track });
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./dec.js";
+         
+        interface Base<T> {
+          @track bar(): T;
+        }
+
+        interface Foo<T> extends Base<T> {}
+        `
+      );
+      await testHost.compile("./");
+      expect($track).not.toHaveBeenCalled();
     });
 
     it("emit warning if shadowing parent templated type", async () => {
