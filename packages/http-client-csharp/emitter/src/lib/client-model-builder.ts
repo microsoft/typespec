@@ -126,7 +126,7 @@ export function createModelForService(
   const routes = services[0].operations;
   if (routes.length === 0) {
     reportDiagnostic(program, {
-      code: "No-Route",
+      code: "no-route",
       format: { service: services[0].namespace.name },
       target: NoTarget,
     });
@@ -205,7 +205,7 @@ export function createModelForService(
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
     ) {
       reportDiagnostic(program, {
-        code: "Invalid-Name",
+        code: "invalid-name",
         format: { name: clientName },
         target: client.type,
       });

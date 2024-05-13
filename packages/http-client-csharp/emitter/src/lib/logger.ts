@@ -65,7 +65,7 @@ export class Logger {
 
   warn(message: string): void {
     reportDiagnostic(this.program, {
-      code: "General-Warning",
+      code: "general-warning",
       format: { message: message },
       target: NoTarget,
     });
@@ -73,7 +73,7 @@ export class Logger {
 
   error(message: string): void {
     reportDiagnostic(this.program, {
-      code: "General-Error",
+      code: "general-error",
       format: { message: message },
       target: NoTarget,
     });

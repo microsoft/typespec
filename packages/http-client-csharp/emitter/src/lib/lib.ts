@@ -7,31 +7,31 @@ import { NetEmitterOptionsSchema } from "../options.js";
 const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
   diagnostics: {
-    "No-APIVersion": {
+    "no-apiVersion": {
       severity: "error",
       messages: {
         default: paramMessage`No APIVersion Provider for service ${"service"}`,
       },
     },
-    "No-Route": {
+    "no-route": {
       severity: "error",
       messages: {
         default: paramMessage`No Route for service for service ${"service"}`,
       },
     },
-    "Invalid-Name": {
+    "invalid-name": {
       severity: "warning",
       messages: {
         default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
       },
     },
-    "General-Warning": {
+    "general-warning": {
       severity: "warning",
       messages: {
         default: paramMessage`${"message"}`,
       },
     },
-    "General-Error": {
+    "general-error": {
       severity: "error",
       messages: {
         default: paramMessage`${"message"}`,
