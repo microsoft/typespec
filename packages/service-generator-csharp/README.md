@@ -32,3 +32,9 @@ emit:
 **Type:** `boolean`
 
 Skips formatting of generated C# Types. By default, C# files are formatted using 'dotnet format'.
+
+#### `output-type`
+
+**Type:** `"models" | "all"`
+
+Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.

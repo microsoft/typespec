@@ -3,6 +3,8 @@ import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/c
 export interface CSharpServiceEmitterOptions {
   /**Skip formatting of output. Default is false (generated c-sharp files are formatted) */
   "skip-format"?: boolean;
+  /** Choose which service artifacts to emit.  Default is 'all'.*/
+  "output-type"?: "models" | "all";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -14,6 +16,14 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       nullable: true,
       description:
         "Skips formatting of generated C# Types.  By default, C# files are formatted using 'dotnet format'.",
+    },
+    "output-type": {
+      type: "string",
+      enum: ["models", "all"],
+      nullable: true,
+      default: "all",
+      description:
+        "Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.",
     },
   },
   required: [],

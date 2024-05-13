@@ -89,6 +89,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #sourceTypeKey: string = "sourceType";
     #libraryFiles: LibrarySourceFile[] = getSerializationSourceFiles(this.emitter);
     #baseNamespace: string | undefined = undefined;
+    #emitterOutputType = context.options["output-type"];
 
     #metaInfo: MetadataInfo = createMetadataInfo(this.emitter.getProgram(), {
       canonicalVisibility: Visibility.Read,
@@ -1003,7 +1004,28 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       for (const source of this.#libraryFiles) {
         sourceFiles.push(source.source);
       }
-      return super.writeOutput(sourceFiles);
+
+      const emittedSourceFiles: SourceFile<string>[] = [];
+      for (const source of sourceFiles) {
+        switch (this.#emitterOutputType) {
+          case "models":
+            {
+              switch (source.meta[this.#sourceTypeKey]) {
+                case CSharpSourceType.Controller:
+                  // do nothing
+                  break;
+                default:
+                  emittedSourceFiles.push(source);
+                  break;
+              }
+            }
+            break;
+          default:
+            emittedSourceFiles.push(source);
+            break;
+        }
+      }
+      return super.writeOutput(emittedSourceFiles);
     }
 
     #getOrSetBaseNamespace(type: Type & { namespace?: Namespace }): string {

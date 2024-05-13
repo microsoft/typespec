@@ -78,6 +78,31 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Generate petstore",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
+      "args": [
+        "compile",
+        "../samples/specs/rest/petstore",
+        "--output-dir=temp/petstore-output",
+        "--emit=${workspaceFolder}/packages/service-generator-csharp/",
+        "--option",
+        "@typespec/service-generator-csharp.output-type=models"
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js",
+        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
+      ],
+      "cwd": "${workspaceFolder}/packages/compiler",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Compile Scratch (nostdlib)",
       "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": ["compile", "../samples/scratch", "--output-dir=temp/scratch-output", "--nostdlib"],
