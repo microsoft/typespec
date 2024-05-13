@@ -580,9 +580,6 @@ function getRouteSegments(ctx: HttpContext, operation: HttpOperation): RouteSegm
   //    - It will parse fine as a route segment in this library but will be very difficult to match in the router
   //      implementation, since attempting to expand the parameter may greedily capture characters that are part of
   //      the next segment.
-  //
-  // TODO/witemple: This is only slightly different from operation.pathSegments in that it preserves the slashes between segments,
-  //       making it a much more direct representation of the route template.
 
   const segments: RouteSegment[] = [];
 

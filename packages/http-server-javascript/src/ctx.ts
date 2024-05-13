@@ -55,8 +55,6 @@ export interface JsContext {
 
   /**
    * The global (root) namespace of the program.
-   *
-   * TODO: is this not the same as baseNamespace?
    */
   globalNamespace: Namespace;
 
@@ -87,10 +85,6 @@ export interface JsContext {
    */
   rootModule: Module;
 
-  /**
-   * A reference to the base (nameless) root namespace of the program.
-   */
-  baseNamespace: Namespace;
   /**
    * A map relating each namespace to the module that contains its declarations.
    *

@@ -73,7 +73,6 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     syntheticNames: new Map(),
 
     rootModule,
-    baseNamespace: service.type,
     namespaceModules: new Map([[globalNamespace, allModule]]),
     syntheticModule,
     modelsModule,
