@@ -1,7 +1,7 @@
 import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
-import { LoggerLevel } from "./lib/logger.js";
+import { LoggerLevel } from "./lib/log-level.js";
 
 export type NetEmitterOptions = {
   outputFile?: string;
@@ -22,7 +22,7 @@ export type NetEmitterOptions = {
   "additional-intrinsic-types-to-treat-empty-string-as-null"?: string[];
   "methods-to-keep-client-default-value"?: string[];
   "deserialize-null-collection-as-null-value"?: boolean;
-  logLevel?: number;
+  logLevel?: LoggerLevel;
   "package-dir"?: string;
   "head-as-boolean"?: boolean;
   flavor?: string;
@@ -81,7 +81,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
       nullable: true,
     },
     logLevel: {
-      type: "number",
+      type: "string",
       enum: [LoggerLevel.INFO, LoggerLevel.DEBUG, LoggerLevel.VERBOSE],
       nullable: true,
     },

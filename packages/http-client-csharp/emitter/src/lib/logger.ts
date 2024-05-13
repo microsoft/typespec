@@ -3,19 +3,13 @@
 
 import { NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic } from "./lib.js";
-
-export enum LoggerLevel {
-  INFO = 1,
-  DEBUG = 2,
-  VERBOSE = 3,
-}
+import { LoggerLevel } from "./log-level.js";
 
 export class Logger {
   private static instance: Logger;
   private initialized: boolean = false;
   private tracer: Tracer;
   private level: LoggerLevel;
-  private area: string = "@typespec/http-client-csharp";
   private program: Program;
 
   private constructor(program: Program, level: LoggerLevel) {
@@ -43,7 +37,7 @@ export class Logger {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
     if (this.level <= LoggerLevel.INFO) {
-      this.tracer.trace(this.area, `[${LoggerLevel.INFO}] ${message}`);
+      this.tracer.trace(LoggerLevel.INFO, message);
     }
   }
 
@@ -52,7 +46,7 @@ export class Logger {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
     if (this.level <= LoggerLevel.DEBUG) {
-      this.tracer.trace(this.area, `[${LoggerLevel.DEBUG}] ${message}`);
+      this.tracer.trace(LoggerLevel.DEBUG, message);
     }
   }
 
@@ -61,14 +55,11 @@ export class Logger {
       throw new Error("Logger is not initialized. Call initialize() first.");
     }
     if (this.level <= LoggerLevel.VERBOSE) {
-      this.tracer.trace(this.area, `[${LoggerLevel.VERBOSE}] ${message}`);
+      this.tracer.trace(LoggerLevel.VERBOSE, message);
     }
   }
 
   warn(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     reportDiagnostic(this.program, {
       code: "General-Warning",
       format: { message: message },
@@ -77,9 +68,6 @@ export class Logger {
   }
 
   error(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     reportDiagnostic(this.program, {
       code: "General-Error",
       format: { message: message },
@@ -87,6 +75,3 @@ export class Logger {
     });
   }
 }
-
-// Export a single instance of the Logger class
-export const logger = Logger.getInstance();

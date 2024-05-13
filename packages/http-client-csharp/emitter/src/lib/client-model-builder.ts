@@ -41,7 +41,7 @@ import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
 import { reportDiagnostic } from "./lib.js";
-import { logger } from "./logger.js";
+import { Logger } from "./logger.js";
 import { getUsages, navigateModels } from "./model.js";
 import { loadOperation } from "./operation.js";
 import { processServiceAuthentication } from "./service-authentication.js";
@@ -127,7 +127,7 @@ export function createModelForService(
       target: NoTarget,
     });
   }
-  logger.info("routes:" + routes.length);
+  Logger.getInstance().info("routes:" + routes.length);
 
   const clients: InputClient[] = [];
   const dpgClients = listClients(sdkContext);

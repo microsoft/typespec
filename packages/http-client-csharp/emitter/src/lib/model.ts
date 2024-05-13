@@ -74,7 +74,7 @@ import {
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { Usage } from "../type/usage.js";
-import { logger } from "./logger.js";
+import { Logger } from "./logger.js";
 import { capitalize, getFullNamespaceString, getTypeName } from "./utils.js";
 /**
  * Map calType to csharp InputTypeKind
@@ -124,7 +124,7 @@ function getCSharpInputTypeKindByIntrinsicModelName(
         case "base64url":
           return InputPrimitiveTypeKind.BytesBase64Url;
         default:
-          logger.warn(`invalid encode ${encode?.encoding} for bytes.`);
+          Logger.getInstance().warn(`invalid encode ${encode?.encoding} for bytes.`);
           return InputPrimitiveTypeKind.Bytes;
       }
     case "int8":
@@ -165,7 +165,7 @@ function getCSharpInputTypeKindByIntrinsicModelName(
           return InputPrimitiveTypeKind.Guid;
         default:
           if (format) {
-            logger.warn(`invalid format ${format}`);
+            Logger.getInstance().warn(`invalid format ${format}`);
           }
           return InputPrimitiveTypeKind.String;
       }
@@ -189,7 +189,7 @@ function getCSharpInputTypeKindByIntrinsicModelName(
         case "unixTimestamp":
           return InputPrimitiveTypeKind.DateTimeUnix;
         default:
-          logger.warn(`invalid encode ${encode?.encoding} for date time.`);
+          Logger.getInstance().warn(`invalid encode ${encode?.encoding} for date time.`);
           return InputPrimitiveTypeKind.DateTime;
       }
     case "time":
@@ -206,7 +206,7 @@ function getCSharpInputTypeKindByIntrinsicModelName(
             return InputPrimitiveTypeKind.DurationSeconds;
           }
         default:
-          logger.warn(`invalid encode ${encode?.encoding} for duration.`);
+          Logger.getInstance().warn(`invalid encode ${encode?.encoding} for duration.`);
           return InputPrimitiveTypeKind.DurationISO8601;
       }
     case "azureLocation":
@@ -279,7 +279,7 @@ export function getInputType(
 ): InputType {
   const type =
     formattedType.type.kind === "ModelProperty" ? formattedType.type.type : formattedType.type;
-  logger.debug(`getInputType for kind: ${type.kind}`);
+  Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
   const program = context.program;
 
   if (type.kind === "Model") {
@@ -647,7 +647,7 @@ export function getInputType(
       // if the discriminator property has already been defined on one of the base models of myself,
       // we still need to add a property here because the `IsDiscriminator` property would be different from the one inherited from the base model
       // TODO -- need to confirm how TCGC handles this case
-      logger.info(
+      Logger.getInstance().info(
         `No specified type for discriminator property '${model.DiscriminatorPropertyName}'. Assume it is a string.`
       );
       const discriminatorProperty: InputModelProperty = {
