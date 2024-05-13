@@ -4,7 +4,7 @@ issue_kinds:
   description: "Issue kinds"
   labels:
     bug:
-      color: cccccc
+      color: d93f0b
       description: Something isn't working
     feature:
       color: cccccc
