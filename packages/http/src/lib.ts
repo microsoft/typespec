@@ -161,6 +161,7 @@ export const $lib = createTypeSpecLibrary({
 
     // private
     file: { description: "State for the @Private.file decorator" },
+    httpPart: { description: "State for the @Private.httpPart decorator" },
   },
 } as const);
 

@@ -7,6 +7,7 @@ export * from "./decorators.js";
 export * from "./metadata.js";
 export * from "./operations.js";
 export * from "./parameters.js";
+export { isHttpFile } from "./private.decorators.js";
 export * from "./responses.js";
 export * from "./route.js";
 export * from "./types.js";

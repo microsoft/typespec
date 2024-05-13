@@ -112,3 +112,11 @@ model File {
   filename?: string;
   contents: bytes;
 }
+
+model HttpPartOptions {
+  /** Name of the part when using the array form. */
+  name?: string;
+}
+
+@Private.httpPart(Type, Options)
+model HttpPart<Type, Options extends valueof HttpPartOptions = #{}> {}

@@ -7,3 +7,8 @@ namespace TypeSpec.Http.Private;
 
 extern dec plainData(target: TypeSpec.Reflection.Model);
 extern dec httpFile(target: TypeSpec.Reflection.Model);
+extern dec httpPart(
+  target: TypeSpec.Reflection.Model,
+  type: unknown,
+  options: valueof HttpPartOptions
+);
