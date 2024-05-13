@@ -184,6 +184,7 @@ function resolveContentTypes(
   }
   return [{ contentTypes: ["application/json"] }, []];
 }
+
 function resolveExplicitBodyProperty(
   program: Program,
   metadata: Set<ModelProperty>,
@@ -355,7 +356,7 @@ function resolvePart(
   if (part) {
     const [{ body, metadata }, diagnostics] = extractBodyAndMetadata(
       program,
-      type,
+      part.type,
       visibility,
       "multipart"
     );

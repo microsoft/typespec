@@ -19,6 +19,7 @@ import {
   isBodyIgnore,
   isBodyRoot,
   isHeader,
+  isMultipartBodyProperty,
   isPathParam,
   isQueryParam,
   isStatusCode,
@@ -347,7 +348,12 @@ function isApplicableMetadataCore(
     return false; // no metadata is applicable to collection items
   }
 
-  if (treatBodyAsMetadata && (isBody(program, property) || isBodyRoot(program, property))) {
+  if (
+    treatBodyAsMetadata &&
+    (isBody(program, property) ||
+      isBodyRoot(program, property) ||
+      isMultipartBodyProperty(program, property))
+  ) {
     return true;
   }
 
