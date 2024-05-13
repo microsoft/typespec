@@ -27,7 +27,7 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm sync-labels --github --dry-run
+      - run: pnpm sync-labels --github
         name: Sync labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
