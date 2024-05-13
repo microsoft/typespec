@@ -140,7 +140,7 @@
      "Value": "4"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "Namespace": "",
    "Description": "Simple enum",
    "IsExtensible": false,
    "IsNullable": true,
@@ -150,7 +150,7 @@
    "$id": "18",
    "Kind": "Enum",
    "Name": "StringExtensibleEnum",
-   "EnumValueType": "string",
+   "EnumValueType": "String",
    "AllowedValues": [
     {
      "$id": "19",
@@ -178,7 +178,7 @@
    "$id": "22",
    "Kind": "Enum",
    "Name": "IntExtensibleEnum",
-   "EnumValueType": "int32",
+   "EnumValueType": "Int32",
    "AllowedValues": [
     {
      "$id": "23",
@@ -206,7 +206,7 @@
    "$id": "26",
    "Kind": "Enum",
    "Name": "FloatExtensibleEnum",
-   "EnumValueType": "float32",
+   "EnumValueType": "Float32",
    "AllowedValues": [
     {
      "$id": "27",
@@ -262,7 +262,7 @@
    "$id": "34",
    "Kind": "Enum",
    "Name": "IntFixedEnum",
-   "EnumValueType": "Float32",
+   "EnumValueType": "Int32",
    "AllowedValues": [
     {
      "$id": "35",
@@ -2345,7 +2345,7 @@
        "Type": {
         "$id": "250",
         "Kind": "Primitive",
-        "Name": "DateTime",
+        "Name": "DateTimeRFC7231",
         "IsNullable": false
        },
        "Location": "Header",

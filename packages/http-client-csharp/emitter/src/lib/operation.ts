@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-// TODO: stop using deprecated API
-/* eslint-disable deprecation/deprecation */
+
 import { getLroMetadata } from "@azure-tools/typespec-azure-core";
 import {
   SdkContext,
   getAccess,
   isApiVersion,
-  isInternal,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
@@ -37,6 +35,7 @@ import {
   InputListType,
   InputModelType,
   InputType,
+  isInputEnumType,
   isInputLiteralType,
   isInputModelType,
   isInputUnionType,
@@ -50,12 +49,7 @@ import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js
 import { Usage } from "../type/usage.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
 import { Logger } from "./logger.js";
-import {
-  getDefaultValue,
-  getEffectiveSchemaType,
-  getFormattedType,
-  getInputType,
-} from "./model.js";
+import { getDefaultValue, getEffectiveSchemaType, getInputType } from "./model.js";
 import { capitalize, createContentTypeOrAcceptParameter, getTypeName } from "./utils.js";
 
 export function loadOperation(
@@ -146,6 +140,12 @@ export function loadOperation(
         throw "Media type of content type should be string.";
       }
       mediaTypes.push(...mediaTypeValues);
+    } else if (isInputEnumType(contentTypeParameter.Type)) {
+      const mediaTypeValues = contentTypeParameter.Type.AllowedValues.map((value) => value.Value);
+      if (mediaTypeValues.some((item) => item === undefined)) {
+        throw "Media type of content type should be string.";
+      }
+      mediaTypes.push(...mediaTypeValues);
     }
   }
   const requestMethod = parseHttpRequestMethod(verb);
@@ -184,7 +184,7 @@ export function loadOperation(
     Summary: summary,
     Deprecated: getDeprecated(program, op),
     Description: desc,
-    Accessibility: isInternal(sdkContext, op) ? "internal" : getAccess(sdkContext, op),
+    Accessibility: getAccess(sdkContext, op),
     Parameters: parameters,
     Responses: responses,
     HttpMethod: requestMethod,
@@ -207,19 +207,14 @@ export function loadOperation(
     const { type: location, name, param } = parameter;
     const format = parameter.type === "path" ? undefined : parameter.format;
     const typespecType = param.type;
-    const inputType: InputType = getInputType(
-      context,
-      getFormattedType(program, param),
-      models,
-      enums
-    );
-    let defaultValue = undefined;
+    const inputType: InputType = getInputType(context, param, models, enums, operation.operation);
+    let defaultValue: InputConstant | undefined = undefined;
     const value = getDefaultValue(typespecType);
     if (value) {
       defaultValue = {
         Type: inputType,
         Value: value,
-      } as InputConstant;
+      };
     }
     const requestLocation = requestLocationMap[location];
     const isApiVer: boolean = isApiVersion(sdkContext, parameter);
@@ -256,12 +251,7 @@ export function loadOperation(
     context: SdkContext<NetEmitterOptions>,
     body: ModelProperty | Model
   ): InputParameter {
-    const inputType: InputType = getInputType(
-      context,
-      getFormattedType(program, body),
-      models,
-      enums
-    );
+    const inputType: InputType = getInputType(context, body, models, enums, operation.operation);
     const requestLocation = RequestLocation.Body;
     const kind: InputOperationParameterKind = InputOperationParameterKind.Method;
     return {
@@ -298,9 +288,10 @@ export function loadOperation(
       const typespecType = getEffectiveSchemaType(context, body.type);
       const inputType: InputType = getInputType(
         context,
-        getFormattedType(program, typespecType),
+        typespecType,
         models,
-        enums
+        enums,
+        operation.operation
       );
       type = inputType;
     }
@@ -313,7 +304,7 @@ export function loadOperation(
           Name: key,
           NameInResponse: headers[key].name,
           Description: getDoc(program, headers[key]) ?? "",
-          Type: getInputType(context, getFormattedType(program, headers[key].type), models, enums),
+          Type: getInputType(context, headers[key].type, models, enums, operation.operation),
         } as HttpResponseHeader);
       }
     }
@@ -337,14 +328,19 @@ export function loadOperation(
       return undefined;
     }
 
-    let bodyType = undefined;
+    let bodyType: InputType | undefined = undefined;
     if (
       op.verb !== "delete" &&
       metadata.finalResult !== undefined &&
       metadata.finalResult !== "void"
     ) {
-      const formattedType = getFormattedType(program, metadata.finalEnvelopeResult as Model);
-      bodyType = getInputType(context, formattedType, models, enums);
+      bodyType = getInputType(
+        context,
+        metadata.finalEnvelopeResult as Model,
+        models,
+        enums,
+        op.operation
+      );
     }
 
     return {

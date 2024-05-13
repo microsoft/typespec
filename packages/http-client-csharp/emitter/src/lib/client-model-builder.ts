@@ -5,6 +5,7 @@ import {
   SdkClient,
   SdkContext,
   SdkOperationGroup,
+  getAllModels,
   getLibraryName,
   listClients,
   listOperationGroups,
@@ -49,6 +50,9 @@ import { resolveServers } from "./typespec-server.js";
 import { createContentTypeOrAcceptParameter } from "./utils.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+  // initialize tcgc model
+  if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
+
   const services = listServices(sdkContext.emitContext.program);
   if (services.length === 0) {
     services.push({
@@ -155,7 +159,7 @@ export function createModelForService(
     }
   }
 
-  navigateModels(sdkContext, serviceNamespaceType, modelMap, enumMap);
+  navigateModels(sdkContext, modelMap, enumMap);
 
   const usages = getUsages(sdkContext, convenienceOperations, modelMap);
   setUsage(usages, modelMap);
