@@ -59,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var prop1 = properties[0];
             Assert.IsNotNull(prop1);
 
-            var autoPropertyBody = prop1.PropertyBody as AutoPropertyBody;
+            var autoPropertyBody = prop1.Body as AutoPropertyBody;
             Assert.IsNotNull(autoPropertyBody);
             Assert.AreEqual(hasSetter, autoPropertyBody?.HasSetter);
         }

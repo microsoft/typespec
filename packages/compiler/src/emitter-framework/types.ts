@@ -1,4 +1,4 @@
-import {
+import type {
   Enum,
   Interface,
   IntrinsicType,
@@ -12,7 +12,7 @@ import {
   Union,
 } from "../core/index.js";
 import { Placeholder } from "./placeholder.js";
-import { TypeEmitter } from "./type-emitter.js";
+import type { TypeEmitter } from "./type-emitter.js";
 
 type AssetEmitterOptions<TOptions extends object> = {
   noEmit: boolean;

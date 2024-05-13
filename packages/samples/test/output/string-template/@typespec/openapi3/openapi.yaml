@@ -9,12 +9,10 @@ components:
     Cat:
       type: object
       required:
-        - kind
+        - named
       properties:
-        kind:
+        named:
           type: string
-          enum:
-            - Cat
       description: 'Animal named: Cat'
     Person:
       type: object

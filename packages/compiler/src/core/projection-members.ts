@@ -1,7 +1,7 @@
 import { camelCase, kebabCase, pascalCase, snakeCase } from "change-case";
-import { Checker } from "./checker.js";
+import type { Checker } from "./checker.js";
 import { ProjectionError, assertType } from "./diagnostics.js";
-import { ObjectType, Type, UnionVariant } from "./types.js";
+import type { ObjectType, Type, UnionVariant } from "./types.js";
 
 export function createProjectionMembers(checker: Checker): {
   [TKind in Type["kind"]]?: Record<string, (base: Type & { kind: TKind }) => Type>;

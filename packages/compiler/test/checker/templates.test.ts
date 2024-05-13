@@ -8,6 +8,7 @@ import {
   TestHost,
   createTestHost,
   createTestRunner,
+  expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
   extractSquiggles,
@@ -110,6 +111,22 @@ describe("compiler: templates", () => {
     strictEqual((a.type as StringLiteral).value, "bye");
     strictEqual(b.type.kind, "String");
     strictEqual((b.type as StringLiteral).value, "hi");
+  });
+
+  it("indeterminate defaults", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model B<T extends valueof string> {}
+        @test model A<T extends valueof string = ""> {
+          b: B<T>
+        }
+        alias Test = A;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnosticEmpty(diagnostics);
   });
 
   it("allows default template parameters that are models", async () => {
@@ -226,6 +243,24 @@ describe("compiler: templates", () => {
     });
   });
 
+  it("emits diagnostics when passing value to template parameter without constraint", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T> { }
+        const a = "abc";
+        alias B = A<a>;
+      `
+    );
+
+    const diagnostics = await testHost.diagnose("main.tsp");
+    expectDiagnostics(diagnostics, {
+      code: "value-in-type",
+      message:
+        "Template parameter has no constraint but a value is passed. Add `extends valueof unknown` to accept any value.",
+    });
+  });
+
   describe("instantiating a template with invalid args", () => {
     it("shouldn't pass thru the invalid args", async () => {
       const { pos, source } = extractCursor(`
@@ -239,8 +274,8 @@ describe("compiler: templates", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'unknown' is not assignable to type '{}'",
+        code: "invalid-argument",
+        message: "Argument of type 'T' is not assignable to parameter of type '{}'",
         pos,
       });
     });
@@ -279,8 +314,8 @@ describe("compiler: templates", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: `Type '"abc"' is not assignable to type '{}'`,
+        code: "invalid-argument",
+        message: `Argument of type '"abc"' is not assignable to parameter of type '{}'`,
         pos,
       });
     });
@@ -481,8 +516,8 @@ describe("compiler: templates", () => {
       `);
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '456' is not assignable to type 'string'",
+        code: "invalid-argument",
+        message: "Argument of type '456' is not assignable to parameter of type 'string'",
         pos,
         end,
       });
@@ -508,8 +543,8 @@ describe("compiler: templates", () => {
       `);
       const diagnostics = await runner.diagnose(source);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'unknown' is not assignable to type 'string'",
+        code: "invalid-argument",
+        message: "Argument of type 'T' is not assignable to parameter of type 'string'",
         pos,
         end,
       });

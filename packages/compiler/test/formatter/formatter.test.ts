@@ -820,6 +820,37 @@ scalar Foo;
 `,
       });
     });
+
+    it("format with constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+}
+`,
+      });
+    });
+    it("format with multiple constructors", async () => {
+      await assertFormat({
+        code: `
+scalar
+   Foo { init fromFoo(
+    value:      string);  init fromBar(
+      value:      string, other: string)}
+`,
+        expected: `
+scalar Foo {
+  init fromFoo(value: string);
+  init fromBar(value: string, other: string);
+}
+`,
+      });
+    });
   });
   describe("comments", () => {
     it("format comment at position 0", async () => {
@@ -1007,6 +1038,42 @@ model Foo {
 model Foo {
   // empty model 1
   // empty model 2
+}
+`,
+      });
+    });
+
+    it("format empty scalar with comment inside", async () => {
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar
+}
+`,
+      });
+
+      await assertFormat({
+        code: `
+scalar foo {
+  // empty scalar 1
+
+
+     // empty scalar 2
+
+  
+}
+`,
+        expected: `
+scalar foo {
+  // empty scalar 1
+  // empty scalar 2
 }
 `,
       });
@@ -2462,10 +2529,10 @@ model Foo {
     it("format simple valueof", async () => {
       await assertFormat({
         code: `
-alias A =      valueof        string;
+model Foo<T extends      valueof        string>{}
 `,
         expected: `
-alias A = valueof string;
+model Foo<T extends valueof string> {}
 `,
       });
     });
@@ -2473,21 +2540,10 @@ alias A = valueof string;
     it("keeps parentheses around valueof inside a union", async () => {
       await assertFormat({
         code: `
-alias A =      (valueof        string) | Model;
+model Foo<T extends      (valueof        string) | Model   >{}
 `,
         expected: `
-alias A = (valueof string) | Model;
-`,
-      });
-    });
-
-    it("keeps parentheses around valueof inside a array expression", async () => {
-      await assertFormat({
-        code: `
-alias A =      (valueof        string)[];
-`,
-        expected: `
-alias A = (valueof string)[];
+model Foo<T extends (valueof string) | Model> {}
 `,
       });
     });
@@ -2804,6 +2860,30 @@ alias T = """
   lines
   """;`,
         });
+      });
+    });
+  });
+
+  describe("const", () => {
+    it("format const without type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  =   123;
+`,
+        expected: `
+const a = 123;
+`,
+      });
+    });
+
+    it("format const with type annotations", async () => {
+      await assertFormat({
+        code: `
+const     a  : in32=   123;
+`,
+        expected: `
+const a: in32 = 123;
+`,
       });
     });
   });

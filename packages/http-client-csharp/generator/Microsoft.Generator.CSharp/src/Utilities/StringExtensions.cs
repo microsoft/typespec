@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.Generator.CSharp
@@ -11,6 +14,7 @@ namespace Microsoft.Generator.CSharp
     internal static class StringExtensions
     {
         private static bool IsWordSeparator(char c) => !SyntaxFacts.IsIdentifierPartCharacter(c) || c == '_';
+        private static readonly Regex HumanizedCamelCaseRegex = new Regex(@"([A-Z])", RegexOptions.Compiled);
 
         [return: NotNullIfNotNull("name")]
         public static string ToCleanName(this string name, bool isCamelCase = true)
@@ -217,6 +221,12 @@ namespace Microsoft.Generator.CSharp
             strSpan.CopyTo(span);
             span[0] = char.ToUpper(span[0]);
             return new string(span);
+        }
+
+        public static IEnumerable<string> SplitByCamelCase(this string camelCase)
+        {
+            var humanizedString = HumanizedCamelCaseRegex.Replace(camelCase, "$1");
+            return humanizedString.Split(' ').Select(w => w.FirstCharToUpperCase());
         }
     }
 }

@@ -303,10 +303,17 @@ namespace Microsoft.Generator.CSharp
 
         public void WriteProperty(PropertyDeclaration property)
         {
+            if (!CurrentLine.IsEmpty)
+            {
+                WriteLine();
+            }
+
             if (property.Description is not null)
             {
-                WriteLine().WriteXmlDocumentationSummary(property.Description);
+                WriteXmlDocumentationSummary(property.Description);
             }
+
+            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
 
             if (property.Exceptions is not null)
             {
@@ -325,34 +332,35 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
 
-            Append($"{property.PropertyType} ");
+            Append($"{property.Type} ");
+
+            if (property.ExplicitInterface is not null)
+            {
+                Append($"{property.ExplicitInterface}.");
+            }
             if (property is IndexerDeclaration indexer)
             {
-                Append($"this[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
             else
             {
-                if (property.ExplicitInterface is not null)
-                {
-                    Append($"{property.ExplicitInterface}.");
-                }
-                Append($"{property.Declaration:I}");
+                Append($"{property.Name:I}");
             }
 
-            switch (property.PropertyBody)
+            switch (property.Body)
             {
                 case ExpressionPropertyBody(var expression):
                     expression.Write(AppendRaw(" => "));
                     AppendRaw(";");
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
-                    AppendRaw("{ get; ");
+                    AppendRaw("{ get;");
                     if (hasSetter)
                     {
                         WritePropertyAccessorModifiers(setterModifiers);
-                        AppendRaw(" set; ");
+                        AppendRaw("set;");
                     }
-                    AppendRaw("}");
+                    AppendRaw(" }");
                     if (initialization is not null)
                     {
                         initialization.Write(AppendRaw(" = "));
@@ -360,6 +368,7 @@ namespace Microsoft.Generator.CSharp
                     }
                     break;
                 case MethodPropertyBody(var getter, var setter, var setterModifiers):
+                    WriteLine();
                     WriteRawLine("{");
                     // write getter
                     WriteMethodPropertyAccessor("get", getter);
@@ -371,7 +380,7 @@ namespace Microsoft.Generator.CSharp
                     AppendRaw("}");
                     break;
                 default:
-                    throw new InvalidOperationException($"Unhandled property body type {property.PropertyBody}");
+                    throw new InvalidOperationException($"Unhandled property body type {property.Body}");
             }
 
             WriteLine();
@@ -452,50 +461,35 @@ namespace Microsoft.Generator.CSharp
             AppendRaw(",");
         }
 
-        public CodeWriter WriteField(FieldDeclaration field, bool declareInCurrentScope = true)
+        public CodeWriter WriteField(FieldDeclaration field)
         {
+            if (!CurrentLine.IsEmpty)
+            {
+                WriteLine();
+            }
+
             if (field.Description != null)
             {
-                WriteLine().WriteXmlDocumentationSummary(field.Description);
+                WriteXmlDocumentationSummary(field.Description);
             }
 
             var modifiers = field.Modifiers;
 
-            if (field.WriteAsProperty)
-            {
-                AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "));
-            }
-            else
-            {
-                AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "))
-                    .AppendRawIf("const ", modifiers.HasFlag(FieldModifiers.Const))
-                    .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
-                    .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
-            }
+            AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "))
+                .AppendRawIf("const ", modifiers.HasFlag(FieldModifiers.Const))
+                .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
+                .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            if (declareInCurrentScope)
-            {
-                Append($"{field.Type} {field.Declaration:D}");
-            }
-            else
-            {
-                Append($"{field.Type} {field.Declaration:I}");
-            }
-
-            if (field.WriteAsProperty)
-            {
-                AppendRaw(modifiers.HasFlag(FieldModifiers.ReadOnly) ? "{ get; }" : "{ get; set; }");
-            }
+            Append($"{field.Type} {field.Name:I}");
 
             if (field.InitializationValue != null &&
                 (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
             {
                 AppendRaw(" = ");
-                field.InitializationValue.Write(AppendRaw(" = "));
-                return WriteLine($";");
+                field.InitializationValue.Write(this);
             }
 
-            return field.WriteAsProperty ? WriteLine() : WriteLine($";");
+            return WriteLine($";");
         }
 
         public CodeWriter WriteParameterNullChecks(IReadOnlyCollection<Parameter> parameters)
@@ -1210,7 +1204,6 @@ namespace Microsoft.Generator.CSharp
             {
                 return string.Empty;
             }
-
             var builder = new StringBuilder(_length);
             IEnumerable<string> namespaces = _usingNamespaces
                 .OrderByDescending(ns => ns.StartsWith("System"))
@@ -1218,7 +1211,12 @@ namespace Microsoft.Generator.CSharp
             if (header)
             {
                 string licenseString = CodeModelPlugin.Instance.CodeWriterExtensionMethods.LicenseString;
-                builder.Append(licenseString);
+                if (!string.IsNullOrEmpty(licenseString))
+                {
+                    builder.Append(licenseString);
+                    builder.Append(_newLine);
+                    builder.Append(_newLine);
+                }
                 builder.Append("// <auto-generated/>");
                 builder.Append(_newLine);
                 builder.Append(_newLine);

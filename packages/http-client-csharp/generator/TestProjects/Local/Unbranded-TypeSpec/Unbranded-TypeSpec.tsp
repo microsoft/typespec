@@ -204,6 +204,9 @@ model RoundTripModel {
 
   @doc("this is a model with required nullable properties")
   modelWithRequiredNullable: ModelWithRequiredNullableProperties;
+
+  @doc("Required bytes")
+  requiredBytes: bytes;
 }
 
 union DaysOfWeekExtensibleEnum {
@@ -219,7 +222,7 @@ union DaysOfWeekExtensibleEnum {
 
 model ModelWithFormat {
   @doc("url format")
-  @format("Uri")
+  @format("uri")
   sourceUrl: string;
 
   @doc("uuid format")

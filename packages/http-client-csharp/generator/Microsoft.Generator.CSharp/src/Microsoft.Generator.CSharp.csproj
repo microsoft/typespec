@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <Version>1.0.0-beta.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

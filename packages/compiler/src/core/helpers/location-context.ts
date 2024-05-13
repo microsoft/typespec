@@ -1,6 +1,6 @@
 import { getSourceLocation } from "../diagnostics.js";
-import { Program } from "../program.js";
-import { DiagnosticTarget, LocationContext } from "../types.js";
+import type { Program } from "../program.js";
+import type { DiagnosticTarget, LocationContext } from "../types.js";
 
 export function getLocationContext(program: Program, type: DiagnosticTarget): LocationContext {
   const sourceLocation = getSourceLocation(type);

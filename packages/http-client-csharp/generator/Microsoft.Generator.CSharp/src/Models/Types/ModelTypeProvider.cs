@@ -64,17 +64,17 @@ namespace Microsoft.Generator.CSharp
         private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
+            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(property.Type);
             var propHasSetter = PropertyHasSetter(propertyType, property);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            // Add Remarks and Example for BinaryData Properties https://github.com/Azure/autorest.csharp/issues/4617
             var propertyDeclaration = new PropertyDeclaration(
-                    description: FormattableStringHelpers.FromString(property.Description),
-                    modifiers: MethodSignatureModifiers.Public,
-                    propertyType: propertyType,
-                    name: property.Name.FirstCharToUpperCase(),
-                    propertyBody: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                    );
+                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                Modifiers: MethodSignatureModifiers.Public,
+                Type: propertyType,
+                Name: property.Name.FirstCharToUpperCase(),
+                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
+                );
 
             return propertyDeclaration;
         }
@@ -274,13 +274,13 @@ namespace Microsoft.Generator.CSharp
             {
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.Declaration.ActualName.ToVariableName(), out var parameter) || IsStruct)
+                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || IsStruct)
                 {
                     if (parameter != null)
                     {
                         initializationValue = new ParameterReference(parameter);
 
-                        if (CSharpType.RequiresToList(parameter.Type, property.PropertyType))
+                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
                             initializationValue = parameter.Type.IsNullable ?
                                 Linq.ToList(new NullConditionalExpression(initializationValue)) :
@@ -288,14 +288,14 @@ namespace Microsoft.Generator.CSharp
                         }
                     }
                 }
-                else if (initializationValue == null && property.PropertyType.IsCollection)
+                else if (initializationValue == null && property.Type.IsCollection)
                 {
-                    initializationValue = New.Instance(property.PropertyType.PropertyInitializationType);
+                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 
                 if (initializationValue != null)
                 {
-                    methodBodyStatements.Add(Assign(new VariableReference(property.PropertyType, property.Declaration), initializationValue));
+                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
                 }
             }
 

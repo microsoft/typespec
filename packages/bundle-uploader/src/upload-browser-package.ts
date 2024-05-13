@@ -52,7 +52,20 @@ export class TypeSpecBundledPackageUploader {
     return { status: "uploaded", imports };
   }
 
-  async uploadIndex(name: string, index: PackageIndex) {
+  async getIndex(name: string, version: string): Promise<PackageIndex | undefined> {
+    const blob = this.#container.getBlockBlobClient(`indexes/${name}/${version}.json`);
+    if (await blob.exists()) {
+      const response = await blob.download();
+      const body = await response.blobBody;
+      const existingContent = await body?.text();
+      if (existingContent) {
+        const parsed = JSON.parse(existingContent);
+        return parsed;
+      }
+    }
+    return undefined;
+  }
+  async updateIndex(name: string, index: PackageIndex) {
     const blob = this.#container.getBlockBlobClient(`indexes/${name}/${index.version}.json`);
     const content = JSON.stringify(index);
     await blob.upload(content, content.length, {
