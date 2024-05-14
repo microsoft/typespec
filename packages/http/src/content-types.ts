@@ -39,6 +39,8 @@ export function getContentTypes(property: ModelProperty): [string[], readonly Di
     }
 
     return diagnostics.wrap(contentTypes);
+  } else if (property.type.kind === "Scalar" && property.type.name === "string") {
+    return [["*/*"], []];
   }
 
   return [[], [createDiagnostic({ code: "content-type-string", target: property })]];

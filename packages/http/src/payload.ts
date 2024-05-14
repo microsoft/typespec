@@ -24,7 +24,7 @@ import {
 } from "./http-property.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
-import { getHttpPart } from "./private.decorators.js";
+import { getHttpFileModel, getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
 export interface HttpPayload {
@@ -75,6 +75,19 @@ function resolveBody(
   const { contentTypes, contentTypeProperty } = diagnostics.pipe(
     resolveContentTypes(program, metadata, usedIn)
   );
+
+  const file = getHttpFileModel(program, requestOrResponseType);
+  if (file !== undefined) {
+    const file = getHttpFileModel(program, requestOrResponseType)!;
+    return diagnostics.wrap({
+      bodyKind: "single",
+      contentTypes: diagnostics.pipe(getContentTypes(file.contentType)),
+      type: file.contents.type,
+      isExplicit: false,
+      containsMetadataAnnotations: false,
+    });
+  }
+
   // non-model or intrinsic/array model -> response body is response type
   if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
     return diagnostics.wrap({

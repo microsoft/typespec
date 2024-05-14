@@ -1,4 +1,11 @@
-import { DecoratorContext, Model, Program, Type } from "@typespec/compiler";
+import {
+  DecoratorContext,
+  Model,
+  ModelProperty,
+  Program,
+  Type,
+  getProperty,
+} from "@typespec/compiler";
 import {
   HttpFileDecorator,
   HttpPartDecorator,
@@ -43,8 +50,45 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
 /**
  * Check if the given type is an `HttpFile`
  */
-export function isHttpFile(program: Program, target: Type) {
-  return program.stateSet(HttpStateKeys.file).has(target);
+export function isHttpFile(program: Program, type: Type) {
+  return program.stateSet(HttpStateKeys.file).has(type);
+}
+
+export function isOrExtendsHttpFile(program: Program, type: Type) {
+  if (type.kind !== "Model") {
+    return false;
+  }
+
+  let current: Model | undefined = type;
+
+  while (current) {
+    if (isHttpFile(program, current)) {
+      return true;
+    }
+
+    current = current.baseModel;
+  }
+
+  return false;
+}
+
+export interface HttpFileModel {
+  readonly type: Type;
+  readonly contentType: ModelProperty;
+  readonly filename: ModelProperty;
+  readonly contents: ModelProperty;
+}
+
+export function getHttpFileModel(program: Program, type: Type): HttpFileModel | undefined {
+  if (type.kind !== "Model" || !isOrExtendsHttpFile(program, type)) {
+    return undefined;
+  }
+
+  const contentType = getProperty(type, "contentType")!;
+  const filename = getProperty(type, "filename")!;
+  const contents = getProperty(type, "contents")!;
+
+  return { contents, contentType, filename, type };
 }
 
 export interface HttpPartOptions {
