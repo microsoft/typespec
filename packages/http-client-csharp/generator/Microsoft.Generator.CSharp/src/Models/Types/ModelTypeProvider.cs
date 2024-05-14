@@ -127,24 +127,22 @@ namespace Microsoft.Generator.CSharp
             List<CSharpMethod> constructors = new List<CSharpMethod>();
 
             var initializationConstructor = BuildInitializationConstructor();
-            var skipInitializerConstructor = _inputModel.IsUnknownDiscriminatorModel;
-            if (!skipInitializerConstructor)
+            if (initializationConstructor != null)
             {
                 constructors.Add(initializationConstructor);
             }
 
             var serializationConstructor = BuildSerializationConstructor();
-            bool serializationParametersMatchInitialization = serializationConstructor != null &&
+            bool serializationParametersMatchInitialization = initializationConstructor != null &&
                 !serializationConstructor.Signature.Parameters.Any(p => p.Type.IsList) &&
                 initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
 
-            if (serializationConstructor != null && !serializationParametersMatchInitialization)
+            if (!serializationParametersMatchInitialization)
             {
                 constructors.Add(serializationConstructor);
             }
 
-            var initCtorParameterCount = skipInitializerConstructor ? int.MaxValue : initializationConstructor.Signature.Parameters.Count; // if the ctor is skipped, we return a large number to avoid the case that the skipped ctor has 0 parameter.
-            if (initCtorParameterCount > 0)
+            if (initializationConstructor?.Signature.Parameters.Count > 0)
             {
                 var emptyConstructor = BuildEmptyConstructor();
                 constructors.Add(emptyConstructor);
@@ -222,8 +220,13 @@ namespace Microsoft.Generator.CSharp
             return ValidationType.AssertNotNull;
         }
 
-        private CSharpMethod BuildInitializationConstructor()
+        private CSharpMethod? BuildInitializationConstructor()
         {
+            if (_inputModel.IsUnknownDiscriminatorModel)
+            {
+                return null;
+            }
+
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? MethodSignatureModifiers.Protected
                 : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
@@ -248,12 +251,8 @@ namespace Microsoft.Generator.CSharp
             return constructor;
         }
 
-        private CSharpMethod? BuildSerializationConstructor()
+        private CSharpMethod BuildSerializationConstructor()
         {
-            // The property bag never needs deserialization, therefore we return the null here
-            if (_inputModel.IsPropertyBag)
-                return null;
-
             var constructorParameters = BuildConstructorParameters(true);
 
             return new CSharpMethod(
@@ -271,7 +270,7 @@ namespace Microsoft.Generator.CSharp
                 kind: CSharpMethodKinds.Constructor);
         }
 
-        private MethodBodyStatement[] GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
+        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
@@ -308,7 +307,7 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            return methodBodyStatements.ToArray();
+            return methodBodyStatements;
         }
 
         private CSharpMethod BuildEmptyConstructor()

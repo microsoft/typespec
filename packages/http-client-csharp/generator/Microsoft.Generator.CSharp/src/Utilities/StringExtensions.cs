@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp
             return nameBuilder.ToString();
         }
 
-        [return: NotNullIfNotNull("name")]
+        [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name) => ToCleanName(name, isCamelCase: false);
 
 
