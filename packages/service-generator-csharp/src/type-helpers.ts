@@ -1,4 +1,4 @@
-import { Program, Type } from "@typespec/compiler";
+import { IndeterminateEntity, Program, Type, Value } from "@typespec/compiler";
 
 /**
  * Utility function to determine if a given type is a record type
@@ -24,4 +24,23 @@ export function getRecordType(program: Program, type: Type): Type | undefined {
  */
 export function getUnknownType(program: Program): Type {
   return program.checker.createType({ kind: "Intrinsic", name: "unknown", isFinished: true });
+}
+
+/**
+ * Determines if the given type is a known value or literal type
+ * @param program
+ */
+export function isKnownReferenceType(
+  program: Program,
+  type: Type | Value | IndeterminateEntity
+): boolean {
+  if (type.entityKind === "Indeterminate" || type.entityKind === "Value") return false;
+
+  return (
+    type.kind !== "Boolean" &&
+    type.kind !== "Intrinsic" &&
+    type.kind !== "Number" &&
+    type.kind !== "String" &&
+    type.kind !== "Tuple"
+  );
 }

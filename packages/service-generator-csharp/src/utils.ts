@@ -543,19 +543,23 @@ export function getModelInstantiationName(program: Program, model: Model, name: 
   const names: string[] = [name];
   if (model.templateMapper !== undefined) {
     for (const paramType of model.templateMapper!.args) {
-      switch (paramType.kind) {
-        case "Enum":
-        case "EnumMember":
-        case "Model":
-        case "ModelProperty":
-        case "Namespace":
-        case "Scalar":
-        case "Union":
-          names.push(getCSharpIdentifier(paramType?.name ?? paramType.kind, NameCasingType.Class));
-          break;
-        default:
-          names.push(getCSharpIdentifier(paramType.kind, NameCasingType.Class));
-          break;
+      if (paramType.entityKind === "Type") {
+        switch (paramType.kind) {
+          case "Enum":
+          case "EnumMember":
+          case "Model":
+          case "ModelProperty":
+          case "Namespace":
+          case "Scalar":
+          case "Union":
+            names.push(
+              getCSharpIdentifier(paramType?.name ?? paramType.kind, NameCasingType.Class)
+            );
+            break;
+          default:
+            names.push(getCSharpIdentifier(paramType.kind, NameCasingType.Class));
+            break;
+        }
       }
     }
   }

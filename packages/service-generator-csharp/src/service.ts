@@ -59,7 +59,7 @@ import {
   NameCasingType,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
-import { getRecordType } from "./type-helpers.js";
+import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
   HttpMetadata,
   UnknownType,
@@ -305,8 +305,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const [typeName, typeDefault] = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property);
+      // eslint-disable-next-line deprecation/deprecation
       const defaultValue = property.default
-        ? code`${this.emitter.emitType(property.default)}`
+        ? // eslint-disable-next-line deprecation/deprecation
+          code`${this.emitter.emitType(property.default)}`
         : typeDefault;
       return this.emitter.result
         .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${typeName}${
@@ -722,8 +724,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         NameCasingType.Parameter
       );
       const [emittedType, emittedDefault] = this.#findPropertyType(parameter);
+      // eslint-disable-next-line deprecation/deprecation
       const defaultValue = parameter.default
-        ? code`${this.emitter.emitType(parameter.default)}`
+        ? // eslint-disable-next-line deprecation/deprecation
+          code`${this.emitter.emitType(parameter.default)}`
         : emittedDefault;
       return this.emitter.result.rawCode(
         code`${httpParam.type !== "path" ? this.#emitParameterAttribute(httpParam) : ""}${emittedType} ${emittedName}${defaultValue === undefined ? "" : ` = ${defaultValue}`}`
@@ -949,14 +953,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (!model.templateMapper) return "";
       let i = 0;
       const params = new StringBuilder();
-      const args = model.templateMapper.args.filter(
-        (parameter) =>
-          parameter.kind !== "Boolean" &&
-          parameter.kind !== "Intrinsic" &&
-          parameter.kind !== "Number" &&
-          parameter.kind !== "String" &&
-          parameter.kind !== "Tuple"
-      );
+      const args: Type[] = model.templateMapper.args
+        .flatMap((parm) => parm as Type)
+        .filter((arg) => arg !== null && isKnownReferenceType(this.emitter.getProgram(), arg));
       for (const parameter of args) {
         i++;
         params.push(code`${this.emitter.emitTypeReference(parameter)}`);
