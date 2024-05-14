@@ -84,7 +84,7 @@ it("issues diagnostics for invalid content types", async () => {
 
       @route("/test1")
       @get
-      op test1(): { @header contentType: string, @body body: Foo };
+      op test1(): { @header contentType: int32, @body body: Foo };
       @route("/test2")
       @get
       op test2(): { @header contentType: 42, @body body: Foo };

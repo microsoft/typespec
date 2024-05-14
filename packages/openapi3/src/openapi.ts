@@ -96,7 +96,7 @@ import { buildVersionProjections, VersionProjections } from "@typespec/versionin
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
-import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
   OpenAPI3Encoding,
@@ -1145,7 +1145,7 @@ function createOAPIEmitter(
           ),
         };
       case "multipart":
-        return getBodyContentForMultipartBody(body, visibility);
+        return getBodyContentForMultipartBody(body, visibility, contentType);
     }
   }
 
@@ -1166,30 +1166,55 @@ function createOAPIEmitter(
 
   function getBodyContentForMultipartBody(
     body: HttpOperationMultipartBody,
-    visibility: Visibility
+    visibility: Visibility,
+    contentType: string
   ): OpenAPI3MediaType {
     const properties: Record<string, OpenAPI3Schema> = {};
+    const requiredProperties: string[] = [];
     const encodings: Record<string, OpenAPI3Encoding> = {};
     for (const [partIndex, part] of body.parts.entries()) {
       const partName = part.name ?? `part${partIndex}`;
-      const schema = getSchemaForSingleBody(
-        part.body.type,
-        visibility,
-        part.body.isExplicit && part.body.containsMetadataAnnotations,
-        "application/json"
-      );
+      let schema = isBytesKeptRaw(program, part.body.type)
+        ? { type: "string", format: "binary" }
+        : getSchemaForSingleBody(
+            part.body.type,
+            visibility,
+            part.body.isExplicit && part.body.containsMetadataAnnotations,
+            part.body.type.kind === "Union" ? contentType : undefined
+          );
+
+      if (part.multi) {
+        schema = {
+          type: "array",
+          items: schema,
+        };
+      }
       properties[partName] = schema;
 
       const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
       if (encoding) {
         encodings[partName] = encoding;
       }
+      if (!part.optional) {
+        requiredProperties.push(partName);
+      }
+    }
+
+    const schema: OpenAPI3Schema = {
+      type: "object",
+      properties,
+      required: requiredProperties,
+    };
+
+    const name =
+      "name" in body.type && body.type.name !== ""
+        ? getOpenAPITypeName(program, body.type, typeNameOptions)
+        : undefined;
+    if (name) {
+      root.components!.schemas![name] = schema;
     }
     const result: OpenAPI3MediaType = {
-      schema: {
-        type: "object",
-        properties,
-      },
+      schema: name ? { $ref: "#/components/schemas/" + name } : schema,
     };
 
     if (Object.keys(encodings).length > 0) {
@@ -1202,7 +1227,7 @@ function createOAPIEmitter(
     part: HttpOperationPart,
     visibility: Visibility,
     schema: OpenAPI3Schema
-  ): OpenAPI3Encoding {
+  ): OpenAPI3Encoding | undefined {
     const encoding: OpenAPI3Encoding = {};
     if (!isDefaultContentTypeForOpenAPI3(part.body.contentTypes, schema)) {
       encoding.contentType = part.body.contentTypes.join(", ");
@@ -1215,6 +1240,9 @@ function createOAPIEmitter(
           encoding.headers[header.options.name] = schema;
         }
       }
+    }
+    if (Object.keys(encoding).length === 0) {
+      return undefined;
     }
     return encoding;
   }
@@ -1235,7 +1263,12 @@ function createOAPIEmitter(
       case "text/plain":
         return schema.type === "string" || schema.type === "number";
       case "application/octet-stream":
-        return schema.type === "string" && schema.format === "binary";
+        return (
+          (schema.type === "string" && schema.format === "binary") ||
+          (schema.type === "array" &&
+            (schema.items as any)?.type === "string" &&
+            (schema.items as any)?.format === "binary")
+        );
       case "application/json":
         return schema.type === "object";
     }

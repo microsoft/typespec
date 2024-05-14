@@ -159,19 +159,22 @@ describe("resolving part payload", () => {
       ["File", "*/*"],
       ["string", "text/plain"],
       ["int32", "text/plain"],
+      ["string[]", "application/json"],
       ["Foo", "application/json", `model Foo { value: string }`],
     ])("%s body", async (type, expectedContentType, extra?: string) => {
       const body = await getMultipartBody(`
-        op read(
+        op upload(
           @header contentType: "multipart/mixed",
           @multipartBody body: [
-            HttpPart<${type}>
+            HttpPart<${type}>,
+            HttpPart<${type}>[]
           ]): void;
         ${extra ?? ""}
       `);
 
-      strictEqual(body.parts.length, 1);
+      strictEqual(body.parts.length, 2);
       deepStrictEqual(body.parts[0].body.contentTypes, [expectedContentType]);
+      deepStrictEqual(body.parts[1].body.contentTypes, [expectedContentType]);
     });
   });
 });

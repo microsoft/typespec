@@ -307,7 +307,7 @@ function resolveMultiPartBodyFromModel(
   for (const item of type.properties.values()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
     if (part) {
-      parts.push({ ...part, name: item.name });
+      parts.push({ ...part, name: item.name, optional: item.optional });
     }
   }
 
@@ -395,13 +395,14 @@ function resolvePart(
     }
 
     if (body.contentTypes.length === 0) {
-      body = { ...body, contentTypes: [resolveDefaultContentTypeForPart(program, body.type)] };
+      body = { ...body, contentTypes: resolveDefaultContentTypeForPart(program, body.type) };
     }
     return [
       {
         multi: false,
         name: part.options.name,
         body,
+        optional: false,
         headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
       },
       diagnostics,
@@ -410,22 +411,33 @@ function resolvePart(
   return [undefined, [createDiagnostic({ code: "multipart-part", target: type })]];
 }
 
-function resolveDefaultContentTypeForPart(program: Program, type: Type): string {
-  if (type.kind === "Scalar") {
-    const encodedAs = getEncode(program, type);
-    if (encodedAs) {
-      type = encodedAs.type;
-    }
-    if (
-      ignoreDiagnostics(
-        program.checker.isTypeAssignableTo(type, program.checker.getStdType("bytes"), type)
-      )
-    ) {
-      return "application/octet-stream";
+function resolveDefaultContentTypeForPart(program: Program, type: Type): string[] {
+  function resolve(type: Type): string[] {
+    if (type.kind === "Scalar") {
+      const encodedAs = getEncode(program, type);
+      if (encodedAs) {
+        type = encodedAs.type;
+      }
+
+      if (
+        ignoreDiagnostics(
+          program.checker.isTypeAssignableTo(
+            type.projectionBase ?? type,
+            program.checker.getStdType("bytes"),
+            type
+          )
+        )
+      ) {
+        return ["application/octet-stream"];
+      } else {
+        return ["text/plain"];
+      }
+    } else if (type.kind === "Union") {
+      return [...type.variants.values()].flatMap((x) => resolve(x.type));
     } else {
-      return "text/plain";
+      return ["application/json"];
     }
-  } else {
-    return "application/json";
   }
+
+  return [...new Set(resolve(type))];
 }

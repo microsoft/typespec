@@ -484,6 +484,8 @@ export interface HttpOperationMultipartBody extends HttpOperationBodyBase {
 export interface HttpOperationPart {
   /** Part name */
   readonly name?: string;
+  /** If the part is optional */
+  readonly optional: boolean;
   /** Part body */
   readonly body: HttpOperationBody;
   /** Part headers */
