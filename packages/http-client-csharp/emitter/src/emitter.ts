@@ -5,11 +5,9 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   Program,
-  createTypeSpecLibrary,
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
-  paramMessage,
   resolvePath,
 } from "@typespec/compiler";
 
@@ -20,41 +18,10 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { LoggerLevel, logger } from "./lib/logger.js";
-import {
-  NetEmitterOptions,
-  NetEmitterOptionsSchema,
-  resolveOptions,
-  resolveOutputFolder,
-} from "./options.js";
+import { LoggerLevel } from "./lib/log-level.js";
+import { Logger } from "./lib/logger.js";
+import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { Configuration } from "./type/configuration.js";
-
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-csharp",
-  diagnostics: {
-    "No-APIVersion": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No APIVersion Provider for service ${"service"}`,
-      },
-    },
-    "No-Route": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No Route for service for service ${"service"}`,
-      },
-    },
-    "Invalid-Name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
-  },
-  emitter: {
-    options: NetEmitterOptionsSchema,
-  },
-});
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -82,9 +49,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const outputFolder = resolveOutputFolder(context);
 
   /* set the loglevel. */
-  for (const transport of logger.transports) {
-    transport.level = options.logLevel ?? LoggerLevel.INFO;
-  }
+  Logger.initialize(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -161,7 +126,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           "src",
           `${configurations["library-name"]}.csproj`
         );
-        logger.info(`Checking if ${csProjFile} exists`);
+        Logger.getInstance().info(`Checking if ${csProjFile} exists`);
         const newProjectOption = "";
         // TODO uncomment when https://github.com/Azure/autorest.csharp/issues/4463 is resolved
         //  options["new-project"] || !existsSync(csProjFile) ? "--new-project" : "";
@@ -176,7 +141,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         );
 
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
-        logger.info(command);
+        Logger.getInstance().info(command);
 
         await execAsync(
           "dotnet",
@@ -199,9 +164,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           })
           .catch((error: any) => {
-            if (error.message) logger.info(error.message);
-            if (error.stderr) logger.error(error.stderr);
-            if (error.stdout) logger.verbose(error.stdout);
+            if (error.message) Logger.getInstance().info(error.message);
+            if (error.stderr) Logger.getInstance().error(error.stderr);
+            if (error.stdout) Logger.getInstance().verbose(error.stdout);
             throw error;
           });
       }
@@ -247,9 +212,9 @@ async function execAsync(
 function deleteFile(filePath: string) {
   fs.unlink(filePath, (err) => {
     if (err) {
-      logger.error(`stderr: ${err}`);
+      //logger.error(`stderr: ${err}`);
     } else {
-      logger.info(`File ${filePath} is deleted.`);
+      Logger.getInstance().info(`File ${filePath} is deleted.`);
     }
   });
 }
