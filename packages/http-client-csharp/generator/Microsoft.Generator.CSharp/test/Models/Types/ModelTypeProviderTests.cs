@@ -139,7 +139,8 @@ namespace Microsoft.Generator.CSharp.Tests
             }
         }
 
-        public void BuildConstructor_ValidateConstructors(InputModelTypeUsage usage)
+        [Test]
+        public void BuildConstructor_ValidateConstructors()
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
             var mockTypeFactory = new Mock<TypeFactory>() { };
