@@ -1192,7 +1192,7 @@ function createOAPIEmitter(
       },
     };
 
-    if (Object.keys(encodings).length === 0) {
+    if (Object.keys(encodings).length > 0) {
       result.encoding = encodings;
     }
     return result;
