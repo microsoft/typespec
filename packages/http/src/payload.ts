@@ -292,6 +292,11 @@ function resolveMultiPartBodyFromModel(
   return diagnostics.wrap({ bodyKind: "multipart", contentTypes, parts, property, type });
 }
 
+const multipartContentTypes = {
+  formData: "multipart/form-data",
+  mixed: "multipart/mixed",
+} as const;
+
 function resolveMultiPartBodyFromTuple(
   program: Program,
   property: ModelProperty,
@@ -301,8 +306,16 @@ function resolveMultiPartBodyFromTuple(
 ): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationPart[] = [];
-  for (const item of type.values) {
+  for (const [index, item] of type.values.entries()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item, visibility));
+    if (part?.name === undefined && contentTypes.includes(multipartContentTypes.formData)) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "multipart-part",
+          target: type.node.values[index],
+        })
+      );
+    }
     if (part) {
       parts.push(part);
     }

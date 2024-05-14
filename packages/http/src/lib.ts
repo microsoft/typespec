@@ -135,6 +135,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Cannot use @multipartBody inside of an HttpPart",
       },
     },
+    "formdata-no-part-name": {
+      severity: "error",
+      messages: {
+        default: "Part used in application/form-data must have a name.",
+      },
+    },
     "header-format-required": {
       severity: "error",
       messages: {
