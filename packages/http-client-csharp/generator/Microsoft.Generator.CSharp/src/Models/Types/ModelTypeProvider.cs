@@ -134,7 +134,6 @@ namespace Microsoft.Generator.CSharp
 
             var serializationConstructor = BuildSerializationConstructor();
             bool serializationParametersMatchInitialization = initializationConstructor != null &&
-                !serializationConstructor.Signature.Parameters.Any(p => p.Type.IsList) &&
                 initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
 
             if (!serializationParametersMatchInitialization)
