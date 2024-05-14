@@ -1141,7 +1141,7 @@ function createOAPIEmitter(
             body.type,
             visibility,
             body.isExplicit && body.containsMetadataAnnotations,
-            contentType
+            contentType.startsWith("multipart/") ? contentType : undefined
           ),
         };
       case "multipart":
