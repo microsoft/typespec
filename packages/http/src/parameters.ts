@@ -6,15 +6,7 @@ import {
   Program,
 } from "@typespec/compiler";
 import { extractBodyAndMetadata } from "./body.js";
-import {
-  getHeaderFieldOptions,
-  getOperationVerb,
-  getPathParamOptions,
-  getQueryParamOptions,
-  isBody,
-  isBodyRoot,
-} from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { getOperationVerb } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,
@@ -70,54 +62,16 @@ function getOperationParametersForVerb(
     })
   );
 
-  for (const param of metadata) {
-    const queryOptions = getQueryParamOptions(program, param);
-    const pathOptions =
-      getPathParamOptions(program, param) ??
-      (isImplicitPathParam(param) && { type: "path", name: param.name });
-    const headerOptions = getHeaderFieldOptions(program, param);
-    const isBodyVal = isBody(program, param);
-    const isBodyRootVal = isBodyRoot(program, param);
-    const defined = [
-      ["query", queryOptions],
-      ["path", pathOptions],
-      ["header", headerOptions],
-      ["body", isBodyVal || isBodyRootVal],
-    ].filter((x) => !!x[1]);
-    if (defined.length >= 2) {
-      diagnostics.add(
-        createDiagnostic({
-          code: "operation-param-duplicate-type",
-          format: { paramName: param.name, types: defined.map((x) => x[0]).join(", ") },
-          target: param,
-        })
-      );
-    }
-
-    if (queryOptions) {
-      parameters.push({
-        ...queryOptions,
-        param,
-      });
-    } else if (pathOptions) {
-      if (param.optional) {
-        diagnostics.add(
-          createDiagnostic({
-            code: "optional-path-param",
-            format: { paramName: param.name },
-            target: operation,
-          })
-        );
-      }
-      parameters.push({
-        ...pathOptions,
-        param,
-      });
-    } else if (headerOptions) {
-      parameters.push({
-        ...headerOptions,
-        param,
-      });
+  for (const item of metadata) {
+    switch (item.kind) {
+      case "path":
+      case "query":
+      case "header":
+        parameters.push({
+          ...item.options,
+          param: item.property,
+        });
+        break;
     }
   }
 

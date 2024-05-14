@@ -13,15 +13,8 @@ import {
 } from "@typespec/compiler";
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
-import {
-  isBody,
-  isBodyRoot,
-  isHeader,
-  isMultipartBodyProperty,
-  isPathParam,
-  isQueryParam,
-  isStatusCode,
-} from "./decorators.js";
+import { isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
+import { GetHttpPropertyOptions, HttpProperty, getHttpProperty } from "./http-property.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility, gatherMetadata, isMetadata, isVisible } from "./metadata.js";
 import { getHttpPart } from "./private.decorators.js";
@@ -29,11 +22,9 @@ import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from
 
 export interface BodyAndMetadata {
   body?: HttpOperationBody | HttpOperationMultipartBody;
-  metadata: Set<ModelProperty>;
+  metadata: HttpProperty[];
 }
-export interface ExtractBodyAndMetadataOptions {
-  isImplicitPathParam?: (param: ModelProperty) => boolean;
-}
+export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
 export function extractBodyAndMetadata(
   program: Program,
   type: Type,
@@ -44,16 +35,18 @@ export function extractBodyAndMetadata(
   const diagnostics = createDiagnosticCollector();
 
   const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
-  const metadata = gatherMetadata(
-    program,
-    diagnostics,
-    type,
-    visibility,
-    (_, param) =>
-      isMetadata(program, param) ||
-      Boolean(options.isImplicitPathParam && options.isImplicitPathParam(param)),
-    rootPropertyMap
-  );
+  const metadata = [
+    ...gatherMetadata(
+      program,
+      diagnostics,
+      type,
+      visibility,
+      (_, param) =>
+        isMetadata(program, param) ||
+        Boolean(options.isImplicitPathParam && options.isImplicitPathParam(param)),
+      rootPropertyMap
+    ),
+  ].map((x) => diagnostics.pipe(getHttpProperty(program, x, options)));
 
   const body = diagnostics.pipe(
     resolveBody(program, type, metadata, rootPropertyMap, visibility, usedIn)
@@ -81,7 +74,7 @@ export function extractBodyAndMetadata(
 function resolveBody(
   program: Program,
   requestOrResponseType: Type,
-  metadata: Set<ModelProperty>,
+  metadata: HttpProperty[],
   rootPropertyMap: Map<ModelProperty, ModelProperty>,
   visibility: Visibility,
   usedIn: "request" | "response" | "multipart"
@@ -139,7 +132,8 @@ function resolveBody(
   const unannotatedProperties = filterModelProperties(
     program,
     requestOrResponseType,
-    (p) => !metadata.has(p) && p !== bodyRoot && isVisible(program, p, visibility)
+    (p) =>
+      !metadata.some((x) => x.property === p) && p !== bodyRoot && isVisible(program, p, visibility)
   );
 
   if (unannotatedProperties.properties.size > 0) {
@@ -174,12 +168,12 @@ function resolveBody(
 
 function resolveContentTypes(
   program: Program,
-  metadata: Set<ModelProperty>
+  metadata: HttpProperty[]
 ): [{ contentTypes: string[]; contentTypeProperty?: ModelProperty }, readonly Diagnostic[]] {
   for (const prop of metadata) {
-    if (isContentTypeHeader(program, prop)) {
-      const [contentTypes, diagnostics] = getContentTypes(prop);
-      return [{ contentTypes, contentTypeProperty: prop }, diagnostics];
+    if (prop.kind === "header" && isContentTypeHeader(program, prop.property)) {
+      const [contentTypes, diagnostics] = getContentTypes(prop.property);
+      return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
     }
   }
   return [{ contentTypes: ["application/json"] }, []];
@@ -187,7 +181,7 @@ function resolveContentTypes(
 
 function resolveExplicitBodyProperty(
   program: Program,
-  metadata: Set<ModelProperty>,
+  metadata: HttpProperty[],
   contentTypes: string[],
   visibility: Visibility,
   usedIn: "request" | "response" | "multipart"
@@ -196,34 +190,35 @@ function resolveExplicitBodyProperty(
   let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
-  for (const property of metadata) {
-    const isBodyVal = isBody(program, property);
-    const isBodyRootVal = isBodyRoot(program, property);
-    const isMultiPartBody = isMultipartBodyProperty(program, property);
-
-    if (isBodyVal || isBodyRootVal || isMultiPartBody) {
-      duplicateTracker.track("body", property);
+  for (const item of metadata) {
+    if (item.kind === "body" || item.kind === "bodyRoot" || item.kind === "multipartBody") {
+      duplicateTracker.track("body", item.property);
     }
-    if (isBodyVal || isBodyRootVal) {
-      let containsMetadataAnnotations = false;
-      if (isBodyVal) {
-        const valid = diagnostics.pipe(validateBodyProperty(program, property, usedIn));
-        containsMetadataAnnotations = !valid;
-      }
-      if (resolvedBody === undefined) {
-        resolvedBody = {
-          bodyKind: "single",
-          contentTypes,
-          type: property.type,
-          isExplicit: isBodyVal,
-          containsMetadataAnnotations,
-          property,
-        };
-      }
-    } else if (isMultiPartBody) {
-      resolvedBody = diagnostics.pipe(
-        resolveMultiPartBody(program, property, contentTypes, visibility)
-      );
+
+    switch (item.kind) {
+      case "body":
+      case "bodyRoot":
+        let containsMetadataAnnotations = false;
+        if (item.kind === "body") {
+          const valid = diagnostics.pipe(validateBodyProperty(program, item.property, usedIn));
+          containsMetadataAnnotations = !valid;
+        }
+        if (resolvedBody === undefined) {
+          resolvedBody = {
+            bodyKind: "single",
+            contentTypes,
+            type: item.property.type,
+            isExplicit: item.kind === "body",
+            containsMetadataAnnotations,
+            property: item.property,
+          };
+        }
+        break;
+      case "multipartBody":
+        resolvedBody = diagnostics.pipe(
+          resolveMultiPartBody(program, item.property, contentTypes, visibility)
+        );
+        break;
     }
   }
   for (const [_, items] of duplicateTracker.entries()) {

@@ -15,13 +15,9 @@ import {
   Type,
 } from "@typespec/compiler";
 import { extractBodyAndMetadata } from "./body.js";
-import {
-  getHeaderFieldName,
-  getStatusCodeDescription,
-  getStatusCodesWithDiagnostics,
-  isHeader,
-  isStatusCode,
-} from "./decorators.js";
+import { isContentTypeHeader } from "./content-types.js";
+import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
+import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
 import {
@@ -156,14 +152,14 @@ function processResponseType(
 function getResponseStatusCodes(
   program: Program,
   responseType: Type,
-  metadata: Set<ModelProperty>
+  metadata: HttpProperty[]
 ): [HttpStatusCodes, readonly Diagnostic[]] {
   const codes: HttpStatusCodes = [];
   const diagnostics = createDiagnosticCollector();
 
   let statusFound = false;
   for (const prop of metadata) {
-    if (isStatusCode(program, prop)) {
+    if (prop.kind === "statusCode") {
       if (statusFound) {
         reportDiagnostic(program, {
           code: "multiple-status-codes",
@@ -171,7 +167,7 @@ function getResponseStatusCodes(
         });
       }
       statusFound = true;
-      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop)));
+      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop.property)));
     }
   }
 
@@ -195,13 +191,12 @@ function getExplicitSetStatusCode(program: Program, entity: Model | ModelPropert
  */
 function getResponseHeaders(
   program: Program,
-  metadata: Set<ModelProperty>
+  metadata: HttpProperty[]
 ): Record<string, ModelProperty> {
   const responseHeaders: Record<string, ModelProperty> = {};
   for (const prop of metadata) {
-    const headerName = getHeaderFieldName(program, prop);
-    if (isHeader(program, prop) && headerName !== "content-type") {
-      responseHeaders[headerName] = prop;
+    if (prop.kind === "header" && !isContentTypeHeader(program, prop.property)) {
+      responseHeaders[prop.options.name] = prop.property;
     }
   }
   return responseHeaders;
