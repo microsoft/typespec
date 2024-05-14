@@ -17,7 +17,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredFixedEnum = requiredFixedEnum;
         }
 
-        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/> for deserialization. </summary>
         internal ModelWithRequiredNullableProperties()
         {
         }

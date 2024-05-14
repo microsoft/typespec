@@ -315,7 +315,7 @@ namespace Microsoft.Generator.CSharp
         {
             var accessibility = IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new CSharpMethod(
-                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C}", null, accessibility, Array.Empty<Parameter>()),
+                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
                 body: new MethodBodyStatement(),
                 kind: CSharpMethodKinds.Constructor);
         }

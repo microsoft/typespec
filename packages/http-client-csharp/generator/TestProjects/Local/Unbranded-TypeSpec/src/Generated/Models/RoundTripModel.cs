@@ -123,7 +123,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredBytes = requiredBytes;
         }
 
-        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>
         internal RoundTripModel()
         {
         }

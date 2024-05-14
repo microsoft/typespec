@@ -23,7 +23,7 @@ namespace UnbrandedTypeSpec.Models
             Guid = guid;
         }
 
-        /// <summary> Initializes a new instance of <see cref="ModelWithFormat"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ModelWithFormat"/> for deserialization. </summary>
         internal ModelWithFormat()
         {
         }

@@ -69,7 +69,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredNullableList = requiredNullableList;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
         internal Thing()
         {
         }
