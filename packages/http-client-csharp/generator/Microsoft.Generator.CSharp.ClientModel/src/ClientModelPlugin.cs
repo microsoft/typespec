@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private OutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
-        public override ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public override TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
 
         public override TypeFactory TypeFactory { get; }
 

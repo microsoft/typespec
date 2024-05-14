@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -35,6 +35,6 @@ namespace Microsoft.Generator.CSharp
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary { get; }
-        public virtual ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
     }
 }
