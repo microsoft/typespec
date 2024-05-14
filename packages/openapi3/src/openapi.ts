@@ -65,7 +65,6 @@ import {
   HttpOperationParameter,
   HttpOperationParameters,
   HttpOperationPart,
-  HttpOperationRequestBody,
   HttpOperationResponse,
   HttpOperationResponseContent,
   HttpServer,
@@ -533,8 +532,8 @@ function createOAPIEmitter(
   /**
    * Validates that common bodies are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonBodies(ops: HttpOperation[]): HttpOperationRequestBody[] | undefined {
-    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationRequestBody[];
+  function validateCommonBodies(ops: HttpOperation[]): HttpOperationBody[] | undefined {
+    const allBodies = ops.map((op) => op.parameters.body) as HttpOperationBody[];
     return [...new Set(allBodies)];
   }
 
@@ -594,7 +593,7 @@ function createOAPIEmitter(
     summary: string | undefined;
     verb: HttpVerb;
     parameters: HttpOperationParameters;
-    bodies: HttpOperationRequestBody[] | undefined;
+    bodies: HttpOperationBody[] | undefined;
     authentication?: Authentication;
     responses: Map<string, HttpOperationResponse[]>;
     operations: Operation[];
