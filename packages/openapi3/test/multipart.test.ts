@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { OpenAPI3Encoding, OpenAPI3Schema } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 
 it("create dedicated model for multipart", async () => {
@@ -157,6 +158,54 @@ it("bytes inside a json part will be treated as base64 encoded by default(same a
     {
       type: "string",
       format: "byte",
+    }
+  );
+});
+
+describe("part mapping", () => {
+  it.each([
+    [`string`, { type: "string" }],
+    [`bytes`, { type: "string", format: "binary" }],
+    [`string[]`, { type: "array", items: { type: "string" } }, { contentType: "application/json" }],
+    [
+      `bytes[]`,
+      { type: "array", items: { type: "string", format: "byte" } },
+      { contentType: "application/json" },
+    ],
+    [
+      `{@header contentType: "image/png", @body image: bytes}`,
+      { type: "string", format: "binary" },
+      { contentType: "image/png" },
+    ],
+    [`File`, { type: "string", format: "binary" }, { contentType: "*/*" }],
+    [
+      `{@header extra: string, @body body: string}`,
+      { type: "string" },
+      {
+        headers: {
+          extra: {
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
+      },
+    ],
+  ] satisfies [string, OpenAPI3Schema, OpenAPI3Encoding?][])(
+    `HttpPart<%s>`,
+    async (type: string, expectedSchema: OpenAPI3Schema, expectedEncoding?: OpenAPI3Encoding) => {
+      const res = await openApiFor(
+        `
+      op upload(@header contentType: "multipart/form-data", @multipartBody _: { part: HttpPart<${type}> }): void;
+      `
+      );
+      const content = res.paths["/"].post.requestBody.content["multipart/form-data"];
+      expect(content.schema.properties.part).toEqual(expectedSchema);
+
+      if (expectedEncoding || content.encoding?.part) {
+        expect(content.encoding?.part).toEqual(expectedEncoding);
+      }
     }
   );
 });
