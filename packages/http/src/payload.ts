@@ -30,7 +30,7 @@ export interface HttpPayload {
   readonly metadata: HttpProperty[];
 }
 export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
-export function extractBodyAndMetadata(
+export function resolveHttpPayload(
   program: Program,
   type: Type,
   visibility: Visibility,
@@ -334,7 +334,7 @@ function resolvePart(
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   const part = getHttpPart(program, type);
   if (part) {
-    const [{ body, metadata }, diagnostics] = extractBodyAndMetadata(
+    const [{ body, metadata }, diagnostics] = resolveHttpPayload(
       program,
       part.type,
       visibility,

@@ -19,7 +19,7 @@ import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decor
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
-import { extractBodyAndMetadata } from "./payload.js";
+import { resolveHttpPayload } from "./payload.js";
 import {
   HttpOperationBody,
   HttpOperationMultipartBody,
@@ -89,7 +89,7 @@ function processResponseType(
 ) {
   // Get body
   let { body: resolvedBody, metadata } = diagnostics.pipe(
-    extractBodyAndMetadata(program, responseType, Visibility.Read, "response")
+    resolveHttpPayload(program, responseType, Visibility.Read, "response")
   );
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
