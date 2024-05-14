@@ -2,10 +2,14 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
+model Jpeg extends File {
+  contentType: "image/jpeg";
+}
+
 model Data {
   id: HttpPart<string>;
-  profileImage: HttpPart<bytes>;
-  photos: HttpPart<bytes>[];
+  profileImage: HttpPart<File>;
+  photos: HttpPart<Jpeg>[];
   address: HttpPart<Address>;
 }
 

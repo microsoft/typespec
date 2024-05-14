@@ -73,6 +73,7 @@ import {
   HttpStatusCodesEntry,
   HttpVerb,
   isContentTypeHeader,
+  isOrExtendsHttpFile,
   isOverloadSameEndpoint,
   MetadataInfo,
   QueryParameterOptions,
@@ -1583,6 +1584,9 @@ function createOAPIEmitter(
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
+        if (isOrExtendsHttpFile(program, type)) {
+          return;
+        }
         if (
           visibilityUsage.isUnreachable(type) &&
           !paramModels.has(type) &&

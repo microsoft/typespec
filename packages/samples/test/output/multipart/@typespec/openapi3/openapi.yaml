@@ -22,6 +22,10 @@ paths:
             schema:
               $ref: '#/components/schemas/Data'
             encoding:
+              profileImage:
+                contentType: '*/*'
+              photos:
+                contentType: image/jpeg
               address:
                 contentType: application/json
 components:
@@ -44,9 +48,15 @@ components:
         profileImage:
           type: string
           format: binary
+        photos:
+          type: array
+          items:
+            type: string
+            format: binary
         address:
           $ref: '#/components/schemas/Address'
       required:
         - id
         - profileImage
+        - photos
         - address
