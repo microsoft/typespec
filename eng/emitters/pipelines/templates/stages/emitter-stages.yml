@@ -215,6 +215,14 @@ stages:
               BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
               Os: windows
               TestMatrix: ${{ parameters.TestMatrix }}
+          - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+            parameters:
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              PackagePath: ${{ parameters.PackagePath }}
+              LanguageShortName: ${{ parameters.LanguageShortName }}
+              BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+              Os: linux
+              TestMatrix: ${{ parameters.TestMatrix }}
 
   # Publish stage
   # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`

@@ -1,5 +1,9 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  getAllModels,
+  SdkContext,
+} from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
   CompilerOptions,
@@ -14,7 +18,9 @@ import { createTestHost, TestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
-import { getFormattedType, getInputType } from "../../../src/lib/model.js";
+import { LoggerLevel } from "../../../src/lib/log-level.js";
+import { Logger } from "../../../src/lib/logger.js";
+import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
 
@@ -107,8 +113,7 @@ export function navigateModels(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ) {
-  const computeModel = (x: Type) =>
-    getInputType(context, getFormattedType(context.program, x), models, enums) as any;
+  const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
   navigateTypesInNamespace(
     namespace,
@@ -126,5 +131,9 @@ export function navigateModels(
 export function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>
 ): SdkContext<NetEmitterOptions> {
-  return createSdkContext(program, "@azure-tools/typespec-azure");
+  Logger.initialize(program.program, LoggerLevel.INFO);
+  const sdkContext = createSdkContext(program, "@azure-tools/typespec-azure");
+  // initialize TCGC
+  getAllModels(sdkContext);
+  return sdkContext;
 }

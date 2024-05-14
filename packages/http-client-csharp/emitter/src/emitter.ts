@@ -5,51 +5,43 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   Program,
-  createTypeSpecLibrary,
+  getDirectoryPath,
+  joinPaths,
   logDiagnostics,
-  paramMessage,
   resolvePath,
 } from "@typespec/compiler";
 
-import fs from "fs";
+import { SpawnOptions, spawn } from "child_process";
+import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { LoggerLevel, logger } from "./lib/logger.js";
-import {
-  NetEmitterOptions,
-  NetEmitterOptionsSchema,
-  resolveOptions,
-  resolveOutputFolder,
-} from "./options.js";
+import { LoggerLevel } from "./lib/log-level.js";
+import { Logger } from "./lib/logger.js";
+import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { Configuration } from "./type/configuration.js";
 
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-csharp",
-  diagnostics: {
-    "No-APIVersion": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No APIVersion Provider for service ${"service"}`,
-      },
-    },
-    "No-Route": {
-      severity: "error",
-      messages: {
-        default: paramMessage`No Route for service for service ${"service"}`,
-      },
-    },
-    "Invalid-Name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
-  },
-  emitter: {
-    options: NetEmitterOptionsSchema,
-  },
-});
+/**
+ * Look for the project root by looking up until a `package.json` is found.
+ * @param path Path to start looking
+ */
+function findProjectRoot(path: string): string | undefined {
+  let current = path;
+  while (true) {
+    const pkgPath = joinPaths(current, "package.json");
+    const stats = checkFile(pkgPath);
+    if (stats?.isFile()) {
+      return current;
+    }
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      return undefined;
+    }
+    current = parent;
+  }
+}
 
 export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const program: Program = context.program;
@@ -57,9 +49,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const outputFolder = resolveOutputFolder(context);
 
   /* set the loglevel. */
-  for (const transport of logger.transports) {
-    transport.level = options.logLevel ?? LoggerLevel.INFO;
-  }
+  Logger.initialize(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -75,16 +65,14 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
     // await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
     if (root) {
-      const generatedFolder = outputFolder.endsWith("src")
-        ? resolvePath(outputFolder, "Generated")
-        : resolvePath(outputFolder, "src", "Generated");
+      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
 
       await program.host.writeFile(
-        resolvePath(generatedFolder, tspOutputFileName),
+        resolvePath(outputFolder, tspOutputFileName),
         prettierOutput(stringifyRefs(root, null, 1, PreserveType.Objects))
       );
 
@@ -128,51 +116,117 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       };
 
       await program.host.writeFile(
-        resolvePath(generatedFolder, configurationFileName),
+        resolvePath(outputFolder, configurationFileName),
         prettierOutput(JSON.stringify(configurations, null, 2))
       );
 
       if (options.skipSDKGeneration !== true) {
-        const csProjFile = resolvePath(outputFolder, `${configurations["library-name"]}.csproj`);
-        logger.info(`Checking if ${csProjFile} exists`);
+        const csProjFile = resolvePath(
+          outputFolder,
+          "src",
+          `${configurations["library-name"]}.csproj`
+        );
+        Logger.getInstance().info(`Checking if ${csProjFile} exists`);
+        const newProjectOption = "";
+        // TODO uncomment when https://github.com/Azure/autorest.csharp/issues/4463 is resolved
+        //  options["new-project"] || !existsSync(csProjFile) ? "--new-project" : "";
+        const existingProjectOption = options["existing-project-folder"]
+          ? `--existing-project-folder ${options["existing-project-folder"]}`
+          : "";
+        const debugFlag = options.debug ?? false ? " --debug" : "";
 
-        logger.info("TODO connect the dotnet generator");
-        //const command = `dotnet --roll-forward Major ${resolvePath(
-        //  options.csharpGeneratorPath
-        //)} --project-path ${outputFolder} ${newProjectOption} ${existingProjectOption} --clear-output-folder ${
-        //  options["clear-output-folder"]
-        //}${debugFlag}`;
-        //logger.info(command);
-        //
-        //try {
-        //  execSync(command, { stdio: "inherit" });
-        //} catch (error: any) {
-        //  if (error.message) logger.info(error.message);
-        //  if (error.stderr) logger.error(error.stderr);
-        //  if (error.stdout) logger.verbose(error.stdout);
-        //  throw error;
-        //}
-      }
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(import.meta.url)));
+        const generatorPath = resolvePath(
+          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll"
+        );
 
-      if (!options["save-inputs"]) {
-        // delete
-        deleteFile(resolvePath(generatedFolder, tspOutputFileName));
-        deleteFile(resolvePath(generatedFolder, configurationFileName));
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
+        Logger.getInstance().info(command);
+
+        await execAsync(
+          "dotnet",
+          [
+            "--roll-forward",
+            "Major",
+            generatorPath,
+            outputFolder,
+            newProjectOption,
+            existingProjectOption,
+            debugFlag,
+          ],
+          { stdio: "inherit" }
+        )
+          .then(() => {
+            if (!options["save-inputs"]) {
+              // delete
+              deleteFile(resolvePath(outputFolder, tspOutputFileName));
+              deleteFile(resolvePath(outputFolder, configurationFileName));
+            }
+          })
+          .catch((error: any) => {
+            if (error.message) Logger.getInstance().info(error.message);
+            if (error.stderr) Logger.getInstance().error(error.stderr);
+            if (error.stdout) Logger.getInstance().verbose(error.stdout);
+            throw error;
+          });
       }
     }
   }
 }
 
+async function execAsync(
+  command: string,
+  args: string[] = [],
+  options: SpawnOptions = {}
+): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
+  const child = spawn(command, args, options);
+
+  return new Promise((resolve, reject) => {
+    child.on("error", (error) => {
+      reject(error);
+    });
+    const stdio: Buffer[] = [];
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    child.stdout?.on("data", (data) => {
+      stdout.push(data);
+      stdio.push(data);
+    });
+    child.stderr?.on("data", (data) => {
+      stderr.push(data);
+      stdio.push(data);
+    });
+
+    child.on("exit", (exitCode) => {
+      resolve({
+        exitCode: exitCode ?? -1,
+        stdio: Buffer.concat(stdio).toString(),
+        stdout: Buffer.concat(stdout).toString(),
+        stderr: Buffer.concat(stderr).toString(),
+        proc: child,
+      });
+    });
+  });
+}
+
 function deleteFile(filePath: string) {
   fs.unlink(filePath, (err) => {
     if (err) {
-      logger.error(`stderr: ${err}`);
+      //logger.error(`stderr: ${err}`);
     } else {
-      logger.info(`File ${filePath} is deleted.`);
+      Logger.getInstance().info(`File ${filePath} is deleted.`);
     }
   });
 }
 
 function prettierOutput(output: string) {
   return output + "\n";
+}
+
+function checkFile(pkgPath: string) {
+  try {
+    return statSync(pkgPath);
+  } catch (error) {
+    return undefined;
+  }
 }
