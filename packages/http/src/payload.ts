@@ -26,8 +26,8 @@ import { getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
 export interface HttpPayload {
-  body?: HttpOperationBody | HttpOperationMultipartBody;
-  metadata: HttpProperty[];
+  readonly body?: HttpOperationBody | HttpOperationMultipartBody;
+  readonly metadata: HttpProperty[];
 }
 export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
 export function extractBodyAndMetadata(
