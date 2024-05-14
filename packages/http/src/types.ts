@@ -487,7 +487,7 @@ export interface HttpOperationPart {
   /** Part body */
   readonly body: HttpOperationBody;
   /** Part headers */
-  readonly headers?: HeaderProperty[];
+  readonly headers: HeaderProperty[];
   /** If there can be multiple of that part */
   readonly multi: boolean;
 }

@@ -1178,9 +1178,9 @@ function createOAPIEmitter(
         part.body.isExplicit && part.body.containsMetadataAnnotations,
         "application/json"
       );
-      properties[part.name ?? partIndex.toString()] = schema;
+      properties[partName] = schema;
 
-      const encoding = resolveEncodingForMultipartPart(part);
+      const encoding = resolveEncodingForMultipartPart(part, visibility);
       if (encoding) {
         encodings[partName] = encoding;
       }
@@ -1198,10 +1198,22 @@ function createOAPIEmitter(
     return result;
   }
 
-  function resolveEncodingForMultipartPart(part: HttpOperationPart): OpenAPI3Encoding {
+  function resolveEncodingForMultipartPart(
+    part: HttpOperationPart,
+    visibility: Visibility
+  ): OpenAPI3Encoding {
     const encoding: OpenAPI3Encoding = {};
     if (part.body.contentTypes) {
       encoding.contentType = part.body.contentTypes.join(", ");
+    }
+    if (part.headers.length > 0) {
+      encoding.headers = {};
+      for (const header of part.headers) {
+        const schema = getOpenAPIParameterBase(header.property, visibility);
+        if (schema !== undefined) {
+          encoding.headers[header.options.name] = schema;
+        }
+      }
     }
     return encoding;
   }
