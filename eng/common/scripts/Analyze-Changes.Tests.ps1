@@ -57,4 +57,20 @@ Describe 'Analyze-Changes' {
         $_ | Should -BeIn $expected
       }
   }
+
+  It 'Should not return runCore for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json' {
+    $actual = Get-ActiveVariables @(
+      ".prettierignore",
+      ".prettierrc.json",
+      "cspell.yaml",
+      "esling.config.json"
+      "packages/http-client-csharp/emitter/src/constants.ts"
+    )
+
+    $expected = @('RunCore', 'RunCSharp')
+
+    $actual | ForEach-Object {
+      $_ | Should -BeIn $expected
+    }
+}
 }
