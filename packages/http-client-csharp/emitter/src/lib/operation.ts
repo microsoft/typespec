@@ -48,7 +48,7 @@ import { RequestLocation, requestLocationMap } from "../type/request-location.js
 import { RequestMethod, parseHttpRequestMethod } from "../type/request-method.js";
 import { Usage } from "../type/usage.js";
 import { getExternalDocs, getOperationId, hasDecorator } from "./decorators.js";
-import { logger } from "./logger.js";
+import { Logger } from "./logger.js";
 import { getDefaultValue, getEffectiveSchemaType, getInputType } from "./model.js";
 import { capitalize, createContentTypeOrAcceptParameter, getTypeName } from "./utils.js";
 
@@ -63,7 +63,7 @@ export function loadOperation(
 ): InputOperation {
   const { path: fullPath, operation: op, verb, parameters: typespecParameters } = operation;
   const program = sdkContext.program;
-  logger.info(`load operation: ${op.name}, path:${fullPath} `);
+  Logger.getInstance().info(`load operation: ${op.name}, path:${fullPath} `);
   const resourceOperation = getResourceOperation(program, op);
   const desc = getDoc(program, op);
   const summary = getSummary(program, op);

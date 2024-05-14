@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp
             foreach (var model in output.Models)
             {
                 CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model).Write();
+                CodeModelPlugin.Instance.GetWriter(writer, model).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
             }
 
@@ -53,8 +53,7 @@ namespace Microsoft.Generator.CSharp
             foreach (var client in output.Clients)
             {
                 CodeWriter writer = new CodeWriter();
-                ExpressionTypeProviderWriter clientWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, client);
-                clientWriter.Write();
+                CodeModelPlugin.Instance.GetWriter(writer, client).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
             }
 
