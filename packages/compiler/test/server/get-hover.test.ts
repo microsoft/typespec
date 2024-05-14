@@ -33,6 +33,27 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
+
+    it("scalar init with object literal argument", async () => {
+      const hover = await getHoverAtCursor(`          
+      model MyModel {
+        /**
+         * name of the model
+         */
+        name: string;
+      }
+      scalar MyString extends string{
+        init createFromModel(arg: MyModel);
+      }
+      const abc = MyString.createFromModel(#{ na┆me: "hello" });
+      `);
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+        },
+      });
+    });
   });
 
   describe("enum", () => {
@@ -575,6 +596,26 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
+        },
+      });
+    });
+
+    it("object literal property", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          model MyModel {
+            /**
+             * name of the model
+             */
+            name: string;
+          }
+          const abc : MyModel = #{ na┆me: "hello" };
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
         },
       });
     });

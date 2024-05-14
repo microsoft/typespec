@@ -32,7 +32,6 @@ import {
 import { printId } from "../formatter/print/printer.js";
 import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
-import { getSymbolSignature } from "./type-signature.js";
 
 export type CompletionContext = {
   program: Program;
@@ -309,11 +308,7 @@ function addIdentifierCompletion(
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
-    const signature = getSymbolSignature(program, sym);
-    const documentation = getSymbolDetails(program, sym, {
-      includeSignature: false,
-      includeParameterTags: true,
-    });
+    const documentation = getSymbolDetails(program, sym);
     const item: CompletionItem = {
       label: label ?? key,
       documentation: documentation
@@ -324,8 +319,6 @@ function addIdentifierCompletion(
         : undefined,
       kind,
       insertText: printId(key) + (suffix ?? ""),
-      // remove fence(```typespec\n and \n```) from the signature
-      detail: signature?.replace(/^```typespec\n([\s\S]*?)\n```$/gm, "$1"),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];

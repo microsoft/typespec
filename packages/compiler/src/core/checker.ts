@@ -2932,7 +2932,18 @@ export function createChecker(program: Program): Checker {
       }
       const decArg = decType.parameters[argIndex];
 
-      const type = decArg.type.type ?? decArg.type.valueType;
+      let type: Type | undefined;
+      if (propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
+        type = decArg.type.valueType;
+      } else if (propertyNode.kind === SyntaxKind.ModelProperty) {
+        type = decArg.type.type ?? decArg.type.valueType;
+      } else {
+        compilerAssert(
+          false,
+          "not expected node type to get reference model from decorator argument"
+        );
+      }
+
       return type?.kind === "Model" ? getNestedModel(type, path) : undefined;
     }
   }
