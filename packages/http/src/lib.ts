@@ -117,6 +117,12 @@ export const $lib = createTypeSpecLibrary({
         default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
       },
     },
+    "multipart-invalid-content-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Content type '${"contentType"}' is not a multipart content type. Supported content types are: ${"supportedContentTypes"}.`,
+      },
+    },
     "multipart-model": {
       severity: "error",
       messages: {
@@ -138,7 +144,7 @@ export const $lib = createTypeSpecLibrary({
     "formdata-no-part-name": {
       severity: "error",
       messages: {
-        default: "Part used in application/form-data must have a name.",
+        default: "Part used in multipart/form-data must have a name.",
       },
     },
     "header-format-required": {

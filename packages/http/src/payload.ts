@@ -307,7 +307,7 @@ function resolveMultiPartBodyFromModel(
   for (const item of type.properties.values()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item.type, visibility));
     if (part) {
-      parts.push(part);
+      parts.push({ ...part, name: item.name });
     }
   }
 
@@ -318,6 +318,7 @@ const multipartContentTypes = {
   formData: "multipart/form-data",
   mixed: "multipart/mixed",
 } as const;
+const multipartContentTypesValues = Object.values(multipartContentTypes);
 
 function resolveMultiPartBodyFromTuple(
   program: Program,
@@ -328,12 +329,24 @@ function resolveMultiPartBodyFromTuple(
 ): [HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const parts: HttpOperationPart[] = [];
+
+  for (const contentType of contentTypes) {
+    if (!multipartContentTypesValues.includes(contentType as any)) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "multipart-invalid-content-type",
+          format: { contentType, valid: multipartContentTypesValues.join(", ") },
+          target: type,
+        })
+      );
+    }
+  }
   for (const [index, item] of type.values.entries()) {
     const part = diagnostics.pipe(resolvePartOrParts(program, item, visibility));
     if (part?.name === undefined && contentTypes.includes(multipartContentTypes.formData)) {
       diagnostics.add(
         createDiagnostic({
-          code: "multipart-part",
+          code: "formdata-no-part-name",
           target: type.node.values[index],
         })
       );
