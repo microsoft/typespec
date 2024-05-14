@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
         // This test validates the json model deserialization method is built correctly
         [Test]
-        public void TestBuildJsonModelDeerializationMethod()
+        public void TestBuildJsonModelDeserializationMethod()
         {
             var jsonInterface = new CSharpType(typeof(IJsonModel<object>));
             var snippets = new SystemExtensibleSnippets.SystemModelSnippets();
