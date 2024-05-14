@@ -5,10 +5,10 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { extractBodyAndMetadata } from "./body.js";
 import { getOperationVerb } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
+import { extractBodyAndMetadata } from "./payload.js";
 import {
   HttpOperation,
   HttpOperationParameter,

@@ -25,7 +25,7 @@ import { Visibility } from "./metadata.js";
 import { getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
-export interface BodyAndMetadata {
+export interface HttpPayload {
   body?: HttpOperationBody | HttpOperationMultipartBody;
   metadata: HttpProperty[];
 }
@@ -36,7 +36,7 @@ export function extractBodyAndMetadata(
   visibility: Visibility,
   usedIn: "request" | "response" | "multipart",
   options: ExtractBodyAndMetadataOptions = {}
-): [BodyAndMetadata, readonly Diagnostic[]] {
+): [HttpPayload, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
   const metadata = diagnostics.pipe(resolvePayloadProperties(program, type, visibility, options));

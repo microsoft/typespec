@@ -14,12 +14,12 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { extractBodyAndMetadata } from "./body.js";
 import { isContentTypeHeader } from "./content-types.js";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
+import { extractBodyAndMetadata } from "./payload.js";
 import {
   HttpOperationBody,
   HttpOperationMultipartBody,
