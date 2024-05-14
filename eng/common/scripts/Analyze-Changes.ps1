@@ -74,6 +74,11 @@ class TreeNode {
 
         # if anything in first level is not 'packages', return true
         foreach ($child in $this.Children) {
+            # skip .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json since these are all covered by github actions globally
+            if ($child.Name -in @('.prettierignore', '.prettierrc.json', 'cspell.yaml', 'esling.config.json')) {
+                continue
+            }
+
             if ($child.Name -ne 'packages') {
                 return $true
             }

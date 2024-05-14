@@ -5,6 +5,7 @@ import {
   SdkClient,
   SdkContext,
   SdkOperationGroup,
+  getAllModels,
   getLibraryName,
   listClients,
   listOperationGroups,
@@ -27,7 +28,6 @@ import {
   getServers,
 } from "@typespec/http";
 import { getVersions } from "@typespec/versioning";
-import { $lib } from "../emitter.js";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { ClientKind } from "../type/client-kind.js";
 import { CodeModel } from "../type/code-model.js";
@@ -41,7 +41,8 @@ import { InputTypeKind } from "../type/input-type-kind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
-import { logger } from "./logger.js";
+import { reportDiagnostic } from "./lib.js";
+import { Logger } from "./logger.js";
 import { getUsages, navigateModels } from "./model.js";
 import { loadOperation } from "./operation.js";
 import { processServiceAuthentication } from "./service-authentication.js";
@@ -49,6 +50,9 @@ import { resolveServers } from "./typespec-server.js";
 import { createContentTypeOrAcceptParameter } from "./utils.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+  // initialize tcgc model
+  if (!sdkContext.operationModelsMap) getAllModels(sdkContext);
+
   const services = listServices(sdkContext.emitContext.program);
   if (services.length === 0) {
     services.push({
@@ -121,13 +125,13 @@ export function createModelForService(
   const [services] = getAllHttpServices(program);
   const routes = services[0].operations;
   if (routes.length === 0) {
-    $lib.reportDiagnostic(program, {
-      code: "No-Route",
+    reportDiagnostic(program, {
+      code: "no-route",
       format: { service: services[0].namespace.name },
       target: NoTarget,
     });
   }
-  logger.info("routes:" + routes.length);
+  Logger.getInstance().info("routes:" + routes.length);
 
   const clients: InputClient[] = [];
   const dpgClients = listClients(sdkContext);
@@ -155,7 +159,7 @@ export function createModelForService(
     }
   }
 
-  navigateModels(sdkContext, serviceNamespaceType, modelMap, enumMap);
+  navigateModels(sdkContext, modelMap, enumMap);
 
   const usages = getUsages(sdkContext, convenienceOperations, modelMap);
   setUsage(usages, modelMap);
@@ -200,8 +204,8 @@ export function createModelForService(
       clientName === "Models" &&
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
     ) {
-      $lib.reportDiagnostic(program, {
-        code: "Invalid-Name",
+      reportDiagnostic(program, {
+        code: "invalid-name",
         format: { name: clientName },
         target: client.type,
       });

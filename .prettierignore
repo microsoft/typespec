@@ -61,3 +61,6 @@ eng/feeds/
 
 # Tm Grammars generated files
 grammars/
+
+# auto generated code model files
+packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
