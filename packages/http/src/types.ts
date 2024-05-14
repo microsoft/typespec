@@ -10,6 +10,7 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
+import { HeaderProperty } from "./http-property.js";
 
 /**
  * @deprecated use `HttpOperation`. To remove in November 2022 release.
@@ -486,7 +487,7 @@ export interface HttpOperationPart {
   /** Part body */
   readonly body: HttpOperationBody;
   /** Part headers */
-  readonly headers?: Record<string, ModelProperty>;
+  readonly headers?: HeaderProperty[];
   /** If there can be multiple of that part */
   readonly multi: boolean;
 }

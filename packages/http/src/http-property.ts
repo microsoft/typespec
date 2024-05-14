@@ -1,9 +1,15 @@
 import {
+  DiagnosticResult,
+  Model,
+  Type,
   compilerAssert,
+  createDiagnosticCollector,
+  walkPropertiesInherited,
   type Diagnostic,
   type ModelProperty,
   type Program,
 } from "@typespec/compiler";
+import { Queue } from "@typespec/compiler/utils";
 import {
   getHeaderFieldOptions,
   getPathParamOptions,
@@ -14,6 +20,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
+import { Visibility, isVisible } from "./metadata.js";
 import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "./types.js";
 
 export type HttpProperty =
@@ -112,15 +119,6 @@ export function getHttpProperty(
   } else if (annotations.query) {
     return createResult({ kind: "query", options: annotations.query, property });
   } else if (annotations.path) {
-    if (property.optional) {
-      diagnostics.push(
-        createDiagnostic({
-          code: "optional-path-param",
-          format: { paramName: property.name },
-          target: property,
-        })
-      );
-    }
     return createResult({ kind: "path", options: annotations.path, property });
   } else if (annotations.statusCode) {
     return createResult({ kind: "statusCode", property });
@@ -132,4 +130,81 @@ export function getHttpProperty(
     return createResult({ kind: "multipartBody", property });
   }
   compilerAssert(false, `Unexpected http property type`, property);
+}
+
+/**
+ * Walks the given input(request parameters or response) and return all the properties and where they should be included(header, query, path, body, as a body property, etc.)
+ *
+ * @param rootMapOut If provided, the map will be populated to link nested metadata properties to their root properties.
+ */
+export function resolvePayloadProperties(
+  program: Program,
+  type: Type,
+  visibility: Visibility,
+  options: GetHttpPropertyOptions = {}
+): DiagnosticResult<HttpProperty[]> {
+  const diagnostics = createDiagnosticCollector();
+  const httpProperties = new Map<ModelProperty, HttpProperty>();
+
+  if (type.kind !== "Model" || type.properties.size === 0) {
+    return diagnostics.wrap([]);
+  }
+
+  const visited = new Set();
+  const queue = new Queue<[Model, ModelProperty | undefined]>([[type, undefined]]);
+
+  while (!queue.isEmpty()) {
+    const [model, rootOpt] = queue.dequeue();
+    visited.add(model);
+
+    for (const property of walkPropertiesInherited(model)) {
+      const root = rootOpt ?? property;
+
+      if (!isVisible(program, property, visibility)) {
+        continue;
+      }
+
+      let httpProperty = diagnostics.pipe(getHttpProperty(program, property, options));
+      if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
+        httpProperty = { kind: "bodyProperty", property };
+      }
+      httpProperties.set(property, httpProperty);
+      if (
+        property !== root &&
+        (httpProperty.kind === "body" ||
+          httpProperty.kind === "bodyRoot" ||
+          httpProperty.kind === "multipartBody")
+      ) {
+        const parent = httpProperties.get(root);
+        if (parent?.kind === "bodyProperty") {
+          httpProperties.delete(root);
+        }
+      }
+      if (httpProperty.kind === "body" || httpProperty.kind === "multipartBody") {
+        continue; // We ignore any properties under `@body` or `@multipartBody`
+      }
+
+      if (
+        property.type.kind === "Model" &&
+        !type.indexer &&
+        type.properties.size > 0 &&
+        !visited.has(property.type)
+      ) {
+        queue.enqueue([property.type, root]);
+      }
+    }
+  }
+
+  return diagnostics.wrap([...httpProperties.values()]);
+}
+
+function shouldTreatAsBodyProperty(property: HttpProperty, visibility: Visibility): boolean {
+  if (visibility & Visibility.Read) {
+    return property.kind === "query" || property.kind === "path";
+  }
+
+  if (!(visibility & Visibility.Read)) {
+    return property.kind === "statusCode";
+  }
+  return false;
 }

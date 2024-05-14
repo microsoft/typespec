@@ -14,9 +14,14 @@ import {
 import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import { isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
-import { GetHttpPropertyOptions, HttpProperty, getHttpProperty } from "./http-property.js";
+import {
+  GetHttpPropertyOptions,
+  HeaderProperty,
+  HttpProperty,
+  resolvePayloadProperties,
+} from "./http-property.js";
 import { createDiagnostic } from "./lib.js";
-import { Visibility, gatherMetadata, isMetadata, isVisible } from "./metadata.js";
+import { Visibility } from "./metadata.js";
 import { getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
@@ -34,23 +39,9 @@ export function extractBodyAndMetadata(
 ): [BodyAndMetadata, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
-  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
-  const metadata = [
-    ...gatherMetadata(
-      program,
-      diagnostics,
-      type,
-      visibility,
-      (_, param) =>
-        isMetadata(program, param) ||
-        Boolean(options.isImplicitPathParam && options.isImplicitPathParam(param)),
-      rootPropertyMap
-    ),
-  ].map((x) => diagnostics.pipe(getHttpProperty(program, x, options)));
+  const metadata = diagnostics.pipe(resolvePayloadProperties(program, type, visibility, options));
 
-  const body = diagnostics.pipe(
-    resolveBody(program, type, metadata, rootPropertyMap, visibility, usedIn)
-  );
+  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, usedIn));
 
   if (body) {
     if (
@@ -75,7 +66,6 @@ function resolveBody(
   program: Program,
   requestOrResponseType: Type,
   metadata: HttpProperty[],
-  rootPropertyMap: Map<ModelProperty, ModelProperty>,
   visibility: Visibility,
   usedIn: "request" | "response" | "multipart"
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
@@ -127,13 +117,8 @@ function resolveBody(
     }
   }
 
-  const bodyRoot = resolvedBody?.property ? rootPropertyMap.get(resolvedBody.property) : undefined;
-
-  const unannotatedProperties = filterModelProperties(
-    program,
-    requestOrResponseType,
-    (p) =>
-      !metadata.some((x) => x.property === p) && p !== bodyRoot && isVisible(program, p, visibility)
+  const unannotatedProperties = filterModelProperties(program, requestOrResponseType, (p) =>
+    metadata.some((x) => x.property === p && x.kind === "bodyProperty")
   );
 
   if (unannotatedProperties.properties.size > 0) {
@@ -361,7 +346,15 @@ function resolvePart(
       return [undefined, [createDiagnostic({ code: "multipart-nested", target: type })]];
     }
 
-    return [{ multi: false, name: part.options.name, body, headers: {} }, diagnostics];
+    return [
+      {
+        multi: false,
+        name: part.options.name,
+        body,
+        headers: metadata.filter((x): x is HeaderProperty => x.kind === "header"),
+      },
+      diagnostics,
+    ];
   }
   return [undefined, [createDiagnostic({ code: "multipart-part", target: type })]];
 }

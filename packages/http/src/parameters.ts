@@ -7,6 +7,7 @@ import {
 } from "@typespec/compiler";
 import { extractBodyAndMetadata } from "./body.js";
 import { getOperationVerb } from "./decorators.js";
+import { createDiagnostic } from "./lib.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,
@@ -65,6 +66,16 @@ function getOperationParametersForVerb(
   for (const item of metadata) {
     switch (item.kind) {
       case "path":
+        if (item.property.optional) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "optional-path-param",
+              format: { paramName: item.property.name },
+              target: item.property,
+            })
+          );
+        }
+      // eslint-disable-next-line no-fallthrough
       case "query":
       case "header":
         parameters.push({

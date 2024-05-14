@@ -1,6 +1,5 @@
 import {
   compilerAssert,
-  DiagnosticCollector,
   getEffectiveModelType,
   getParameterVisibility,
   isVisible as isVisibleCore,
@@ -10,9 +9,8 @@ import {
   Program,
   Type,
   Union,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { Queue, TwoLevelMap } from "@typespec/compiler/utils";
+import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   includeInapplicableMetadataInPayload,
   isBody,
@@ -217,72 +215,6 @@ export function resolveRequestVisibility(
     visibility |= Visibility.Patch;
   }
   return visibility;
-}
-
-/**
- * Walks the given type and collects all applicable metadata and `@body`
- * properties recursively.
- *
- * @param rootMapOut If provided, the map will be populated to link
- * nested metadata properties to their root properties.
- */
-export function gatherMetadata(
-  program: Program,
-  diagnostics: DiagnosticCollector, // currently unused, but reserved for future diagnostics
-  type: Type,
-  visibility: Visibility,
-  isMetadataCallback = isMetadata,
-  rootMapOut?: Map<ModelProperty, ModelProperty>
-): Set<ModelProperty> {
-  const metadata = new Map<string, ModelProperty>();
-  if (type.kind !== "Model" || type.properties.size === 0) {
-    return new Set();
-  }
-
-  const visited = new Set();
-  const queue = new Queue<[Model, ModelProperty | undefined]>([[type, undefined]]);
-
-  while (!queue.isEmpty()) {
-    const [model, rootOpt] = queue.dequeue();
-    visited.add(model);
-
-    for (const property of walkPropertiesInherited(model)) {
-      const root = rootOpt ?? property;
-
-      if (!isVisible(program, property, visibility)) {
-        continue;
-      }
-
-      // ISSUE: This should probably be an error, but that's a breaking
-      // change that currently breaks some samples and tests.
-      //
-      // The traversal here is level-order so that the preferred metadata in
-      // the case of duplicates, which is the most compatible with prior
-      // behavior where nested metadata was always dropped.
-      if (metadata.has(property.name)) {
-        continue;
-      }
-
-      if (isApplicableMetadataOrBody(program, property, visibility, isMetadataCallback)) {
-        metadata.set(property.name, property);
-        rootMapOut?.set(property, root);
-        if (isBody(program, property)) {
-          continue; // We ignore any properties under `@body`
-        }
-      }
-
-      if (
-        property.type.kind === "Model" &&
-        !type.indexer &&
-        type.properties.size > 0 &&
-        !visited.has(property.type)
-      ) {
-        queue.enqueue([property.type, root]);
-      }
-    }
-  }
-
-  return new Set(metadata.values());
 }
 
 /**
@@ -607,7 +539,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
 
   /**
    * If the type is an anonymous model, tries to find a named model that has the same
-   * set of properties when non-payload properties are excluded.
+   * set of properties when non-payload properties are excluded.we
    */
   function getEffectivePayloadType(type: Type, visibility: Visibility): Type {
     if (type.kind === "Model" && !type.name) {
