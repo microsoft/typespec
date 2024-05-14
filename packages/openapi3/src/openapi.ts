@@ -1180,7 +1180,7 @@ function createOAPIEmitter(
       );
       properties[partName] = schema;
 
-      const encoding = resolveEncodingForMultipartPart(part, visibility);
+      const encoding = resolveEncodingForMultipartPart(part, visibility, schema);
       if (encoding) {
         encodings[partName] = encoding;
       }
@@ -1200,10 +1200,11 @@ function createOAPIEmitter(
 
   function resolveEncodingForMultipartPart(
     part: HttpOperationPart,
-    visibility: Visibility
+    visibility: Visibility,
+    schema: OpenAPI3Schema
   ): OpenAPI3Encoding {
     const encoding: OpenAPI3Encoding = {};
-    if (part.body.contentTypes) {
+    if (!isDefaultContentTypeForOpenAPI3(part.body.contentTypes, schema)) {
       encoding.contentType = part.body.contentTypes.join(", ");
     }
     if (part.headers.length > 0) {
@@ -1216,6 +1217,30 @@ function createOAPIEmitter(
       }
     }
     return encoding;
+  }
+
+  function isDefaultContentTypeForOpenAPI3(
+    contentTypes: string[],
+    schema: OpenAPI3Schema
+  ): boolean {
+    if (contentTypes.length === 0) {
+      return false;
+    }
+    if (contentTypes.length > 1) {
+      return false;
+    }
+    const contentType = contentTypes[0];
+
+    switch (contentType) {
+      case "text/plain":
+        return schema.type === "string" || schema.type === "number";
+      case "application/octet-stream":
+        return schema.type === "string" && schema.format === "binary";
+      case "application/json":
+        return schema.type === "object";
+    }
+
+    return false;
   }
 
   function getParamPlaceholder(property: ModelProperty) {
