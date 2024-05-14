@@ -20,7 +20,10 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/DataMultiPart'
+              $ref: '#/components/schemas/Data'
+            encoding:
+              address:
+                contentType: application/json
 components:
   schemas:
     Address:
@@ -33,12 +36,8 @@ components:
           type: string
         street:
           type: string
-    DataMultiPart:
+    Data:
       type: object
-      required:
-        - id
-        - profileImage
-        - address
       properties:
         id:
           type: string
@@ -47,3 +46,7 @@ components:
           format: binary
         address:
           $ref: '#/components/schemas/Address'
+      required:
+        - id
+        - profileImage
+        - address
