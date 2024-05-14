@@ -39,13 +39,13 @@ namespace Microsoft.Generator.CSharp
             foreach (var enumType in output.Enums)
             {
                 CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, enumType).Write();
+                CodeModelPlugin.Instance.GetWriter(writer, enumType).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), writer.ToString()));
 
                 if (enumType.Serialization is { } serialization)
                 {
                     writer = new CodeWriter();
-                    CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, serialization).Write();
+                    CodeModelPlugin.Instance.GetWriter(writer, serialization).Write();
                     generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{enumType.Name}.Serialization.cs"), writer.ToString()));
                 }
             }

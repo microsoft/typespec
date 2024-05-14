@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp
             DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Public;
         }
 
-        public abstract string Namespace { get; }
+        public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         public abstract string Name { get; }
         protected virtual TypeKind TypeKind { get; } = TypeKind.Class;
         protected INamedTypeSymbol? ExistingType => _existingType.Value;

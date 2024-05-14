@@ -25,9 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 arguments.Add(cancellationToken);
             }
 
-            // uncomment when this is implemented
-            //return ClientPipelineExtensionsProvider.Instance.ProcessMessage(arguments, async);
-            throw new NotImplementedException();
+            return ClientPipelineExtensionsProvider.Instance.ProcessMessage(arguments, async);
         }
 
         public ResultExpression ProcessHeadAsBoolMessage(TypedValueExpression message, RequestOptionsExpression? requestContext, bool async)
@@ -39,9 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 requestContext ?? Snippets.Null
             };
 
-            // uncomment when this is implemented
-            //return ClientPipelineExtensionsProvider.Instance.ProcessHeadAsBoolMessage(arguments, async);
-            throw new NotImplementedException();
+            return ClientPipelineExtensionsProvider.Instance.ProcessHeadAsBoolMessage(arguments, async);
         }
     }
 }
