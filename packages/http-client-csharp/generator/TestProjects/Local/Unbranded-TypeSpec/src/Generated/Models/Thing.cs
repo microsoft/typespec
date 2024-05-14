@@ -4,12 +4,75 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UnbrandedTypeSpec.Models
 {
     public partial class Thing
     {
-        // Add Constructors
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
+        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (requiredUnion == null)
+            {
+                throw new ArgumentNullException(nameof(requiredUnion));
+            }
+            if (requiredBadDescription == null)
+            {
+                throw new ArgumentNullException(nameof(requiredBadDescription));
+            }
+
+            Name = name;
+            RequiredUnion = requiredUnion;
+            RequiredBadDescription = requiredBadDescription;
+            OptionalNullableList = new List<int>();
+            RequiredNullableList = requiredNullableList?.ToList();
+        }
+
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList)
+        {
+            Name = name;
+            RequiredUnion = requiredUnion;
+            RequiredLiteralString = requiredLiteralString;
+            RequiredLiteralInt = requiredLiteralInt;
+            RequiredLiteralFloat = requiredLiteralFloat;
+            RequiredLiteralBool = requiredLiteralBool;
+            OptionalLiteralString = optionalLiteralString;
+            OptionalLiteralInt = optionalLiteralInt;
+            OptionalLiteralFloat = optionalLiteralFloat;
+            OptionalLiteralBool = optionalLiteralBool;
+            RequiredBadDescription = requiredBadDescription;
+            OptionalNullableList = optionalNullableList;
+            RequiredNullableList = requiredNullableList;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
+        internal Thing()
+        {
+        }
 
         /// <summary> name of the Thing. </summary>
         public string Name { get; set; }

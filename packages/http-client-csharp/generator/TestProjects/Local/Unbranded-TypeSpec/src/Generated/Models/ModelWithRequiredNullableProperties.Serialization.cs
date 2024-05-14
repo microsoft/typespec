@@ -10,8 +10,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithRequiredNullableProperties : System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>
     {
-        // Add Constructors
-
         void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

@@ -10,8 +10,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ReturnsAnonymousModelResponse : System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>
     {
-        // Add Constructors
-
         void System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

@@ -10,8 +10,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class Friend : System.ClientModel.Primitives.IJsonModel<Friend>
     {
-        // Add Constructors
-
         void System.ClientModel.Primitives.IJsonModel<Friend>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

@@ -10,8 +10,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class RoundTripModel : System.ClientModel.Primitives.IJsonModel<RoundTripModel>
     {
-        // Add Constructors
-
         void System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

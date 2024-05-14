@@ -10,8 +10,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithFormat : System.ClientModel.Primitives.IJsonModel<ModelWithFormat>
     {
-        // Add Constructors
-
         void System.ClientModel.Primitives.IJsonModel<ModelWithFormat>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

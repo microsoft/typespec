@@ -20,6 +20,7 @@ namespace Microsoft.Generator.CSharp
         internal const string IModelDeserializationValue = "IModelDeserialization";
         internal const string IModelSerializationValue = "IModelSerialization";
         internal const string IModelGetFormatValue = "IModelGetFormat";
+        internal const string ConstructorValue = "Constructor";
 
         private readonly string _value;
 
@@ -70,6 +71,9 @@ namespace Microsoft.Generator.CSharp
         /// IModelGetFormat method kind.
         /// </summary>
         public static CSharpMethodKinds IModelGetFormat { get; } = new CSharpMethodKinds(IModelGetFormatValue);
+        /// Constructor method kind.
+        /// </summary>
+        public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);
