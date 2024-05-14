@@ -8,6 +8,8 @@ import {
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
+  getEncode,
+  ignoreDiagnostics,
   isArrayModelType,
   navigateType,
 } from "@typespec/compiler";
@@ -71,7 +73,7 @@ function resolveBody(
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const { contentTypes, contentTypeProperty } = diagnostics.pipe(
-    resolveContentTypes(program, metadata)
+    resolveContentTypes(program, metadata, usedIn)
   );
   // non-model or intrinsic/array model -> response body is response type
   if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
@@ -153,7 +155,8 @@ function resolveBody(
 
 function resolveContentTypes(
   program: Program,
-  metadata: HttpProperty[]
+  metadata: HttpProperty[],
+  usedIn: "request" | "response" | "multipart"
 ): [{ contentTypes: string[]; contentTypeProperty?: ModelProperty }, readonly Diagnostic[]] {
   for (const prop of metadata) {
     if (prop.kind === "header" && isContentTypeHeader(program, prop.property)) {
@@ -161,7 +164,13 @@ function resolveContentTypes(
       return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
     }
   }
-  return [{ contentTypes: ["application/json"] }, []];
+  switch (usedIn) {
+    case "multipart":
+      // Figure this out later
+      return [{ contentTypes: [] }, []];
+    default:
+      return [{ contentTypes: ["application/json"] }, []];
+  }
 }
 
 function resolveExplicitBodyProperty(
@@ -347,7 +356,7 @@ function resolvePart(
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   const part = getHttpPart(program, type);
   if (part) {
-    const [{ body, metadata }, diagnostics] = resolveHttpPayload(
+    let [{ body, metadata }, diagnostics] = resolveHttpPayload(
       program,
       part.type,
       visibility,
@@ -359,6 +368,9 @@ function resolvePart(
       return [undefined, [createDiagnostic({ code: "multipart-nested", target: type })]];
     }
 
+    if (body.contentTypes.length === 0) {
+      body = { ...body, contentTypes: [resolveDefaultContentTypeForPart(program, body.type)] };
+    }
     return [
       {
         multi: false,
@@ -370,4 +382,24 @@ function resolvePart(
     ];
   }
   return [undefined, [createDiagnostic({ code: "multipart-part", target: type })]];
+}
+
+function resolveDefaultContentTypeForPart(program: Program, type: Type): string {
+  if (type.kind === "Scalar") {
+    const encodedAs = getEncode(program, type);
+    if (encodedAs) {
+      type = encodedAs.type;
+    }
+    if (
+      ignoreDiagnostics(
+        program.checker.isTypeAssignableTo(type, program.checker.getStdType("bytes"), type)
+      )
+    ) {
+      return "application/octet-stream";
+    } else {
+      return "text/plain";
+    }
+  } else {
+    return "application/json";
+  }
 }
