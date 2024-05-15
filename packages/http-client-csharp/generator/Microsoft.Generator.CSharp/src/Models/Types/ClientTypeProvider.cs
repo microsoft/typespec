@@ -11,15 +11,12 @@ namespace Microsoft.Generator.CSharp
         private readonly InputClient _inputClient;
 
         public override string Name { get; }
-        public override string Namespace { get; }
 
         public ClientTypeProvider(InputClient inputClient, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
-            // TODO -- figure out how to correctly get namespaces of clients
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
         }
 
         protected override CSharpMethod[] BuildMethods()
