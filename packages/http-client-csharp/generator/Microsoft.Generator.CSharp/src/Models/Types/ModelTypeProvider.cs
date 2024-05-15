@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp
             : base(sourceInputModel)
         {
             Name = inputModel.Name.ToCleanName();
-            Serialization = new ModelTypeSerializationProvider(this);
+            Serialization = CodeModelPlugin.Instance.GetSerializationTypeProvider(this);
 
             if (inputModel.Accessibility == "internal")
             {

@@ -88,11 +88,6 @@ namespace Microsoft.Generator.CSharp.Tests
                 throw new NotImplementedException();
             }
 
-            public override SerializationInterfaces GetSerializationInterfaces(TypeProvider typeProvider, bool hasJson, bool hasXml)
-            {
-                throw new NotImplementedException();
-            }
-
             public override CSharpType CreateCSharpType(InputType input)
             {
                 switch (input)

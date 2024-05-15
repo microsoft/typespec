@@ -17,6 +17,5 @@ namespace Microsoft.Generator.CSharp.Input
         public bool IsAttribute { get; }
         public bool IsContent { get; }
         public bool IsWrapped { get; }
-
     }
 }

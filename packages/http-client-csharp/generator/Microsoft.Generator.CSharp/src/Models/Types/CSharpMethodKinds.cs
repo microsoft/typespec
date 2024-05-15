@@ -15,11 +15,6 @@ namespace Microsoft.Generator.CSharp
         internal const string ConvenienceValue = "Convenience";
         internal const string ProtocolValue = "Protocol";
         internal const string CreateMessageValue = "CreateMessage";
-        internal const string JsonModelSerializationValue = "JsonModelSerialization";
-        internal const string JsonModelDeserializationValue = "JsonModelDeserialization";
-        internal const string IModelDeserializationValue = "IModelDeserialization";
-        internal const string IModelSerializationValue = "IModelSerialization";
-        internal const string IModelGetFormatValue = "IModelGetFormat";
         internal const string ConstructorValue = "Constructor";
 
         private readonly string _value;
@@ -47,30 +42,6 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public static CSharpMethodKinds CreateMessage { get; } = new CSharpMethodKinds(CreateMessageValue);
 
-        /// <summary>
-        /// JsonModelSerialization method kind.
-        /// </summary>
-        public static CSharpMethodKinds JsonModelSerialization { get; } = new CSharpMethodKinds(JsonModelSerializationValue);
-
-        /// <summary>
-        /// JsonModelDeserialization method kind.
-        /// </summary>
-        public static CSharpMethodKinds JsonModelDeserialization { get; } = new CSharpMethodKinds(JsonModelDeserializationValue);
-
-        /// <summary>
-        /// IModelSerialization method kind.
-        /// </summary>
-        public static CSharpMethodKinds IModelSerialization { get; } = new CSharpMethodKinds(IModelSerializationValue);
-
-        /// <summary>
-        /// IModelDeserialization method kind.
-        /// </summary>
-        public static CSharpMethodKinds IModelDeserialization { get; } = new CSharpMethodKinds(IModelDeserializationValue);
-
-        /// <summary>
-        /// IModelGetFormat method kind.
-        /// </summary>
-        public static CSharpMethodKinds IModelGetFormat { get; } = new CSharpMethodKinds(IModelGetFormatValue);
         /// Constructor method kind.
         /// </summary>
         public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);

@@ -36,5 +36,11 @@ namespace Microsoft.Generator.CSharp
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary { get; }
         public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+
+        /// <summary>
+        /// Returns a serialization type provider for the given model type provider.
+        /// </summary>
+        /// <param name="provider">The model type provider.</param>
+        public abstract TypeProvider? GetSerializationTypeProvider(ModelTypeProvider provider);
     }
 }

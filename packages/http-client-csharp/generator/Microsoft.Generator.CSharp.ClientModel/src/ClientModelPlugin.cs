@@ -25,6 +25,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override ExtensibleSnippets ExtensibleSnippets { get; }
 
+        /// <summary>
+        /// Returns a serialization type provider of type <see cref="SystemModelSerializationTypeProvider"/> for the given model type provider.
+        /// </summary>
+        /// <param name="provider">The model type provider.</param>
+        public override TypeProvider? GetSerializationTypeProvider(ModelTypeProvider provider) => new SystemModelSerializationTypeProvider(provider);
+
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)
             : base(context)

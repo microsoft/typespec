@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.ClientModel
 {
     internal sealed class JsonObjectSerialization
     {

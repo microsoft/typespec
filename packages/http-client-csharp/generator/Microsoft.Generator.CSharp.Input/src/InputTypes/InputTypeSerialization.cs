@@ -5,17 +5,15 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputTypeSerialization
     {
-        public InputTypeSerialization(bool json, InputTypeXmlSerialization? xml, bool includeConverter)
+        public InputTypeSerialization(bool json, InputTypeXmlSerialization? xml)
         {
             Json = json;
             Xml = xml;
-            IncludeConverter = includeConverter;
         }
 
         public bool Json { get; }
         public InputTypeXmlSerialization? Xml { get; }
-        public bool IncludeConverter { get; }
 
-        public static InputTypeSerialization Default { get; } = new(true, null, false);
+        public static InputTypeSerialization Default { get; } = new(true, null);
     }
 }

@@ -31,14 +31,6 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation);
 
         /// <summary>
-        /// Returns the serialization interfaces for the specified type provider.
-        /// </summary>
-        /// <param name="typeProvider">The type provider to get the interfaces for.</param>
-        /// <param name="hasJson"><c>true</c> if <paramref name="typeProvider"/> supports JSON serialization.</param>
-        /// <param name="hasXml"><c>true</c> if <paramref name="typeProvider"/> supports XML serialization.</param>
-        public abstract SerializationInterfaces GetSerializationInterfaces(TypeProvider typeProvider, bool hasJson, bool hasXml);
-
-        /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
         /// </summary>
         /// <param name="input">The <see cref="InputType"/> to retrieve the serialization format for.</param>
