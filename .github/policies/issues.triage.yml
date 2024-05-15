@@ -1,26 +1,60 @@
 id: issues.triage
 name: New Issue Assign labels
 description: Assign labels to new issues
-owner:
 resource: repository
 disabled: false
-where:
 configuration:
   resourceManagementConfiguration:
-    scheduledSearches: []
     eventResponderTasks:
       - description: Adds `needs-triage` label for new unassigned issues
         if:
           - payloadType: Issues
           - isAction:
               action: Opened
-          - and:
-              - not:
-                  and:
-                    - isAssignedToSomeone
+          - not:
+              and:
+                - isAssignedToSomeone
         then:
           - addLabel:
               label: needs-triage
-
-onFailure:
-onSuccess:
+      - description: Remove `needs-triage` label when an area label is added
+        if:
+          - payloadType: Issues
+          - hasLabel:
+              label: needs-triage
+          - or:
+              - labelAdded:
+                  label: compiler:core
+              - labelAdded:
+                  label: compiler:emitter-framework
+              - labelAdded:
+                  label: ide
+              - labelAdded:
+                  label: lib:http
+              - labelAdded:
+                  label: lib:openapi
+              - labelAdded:
+                  label: lib:rest
+              - labelAdded:
+                  label: lib:versioning
+              - labelAdded:
+                  label: meta:blog
+              - labelAdded:
+                  label: meta:website
+              - labelAdded:
+                  label: tspd
+              - labelAdded:
+                  label: emitter:client:csharp
+              - labelAdded:
+                  label: emitter:json-schema
+              - labelAdded:
+                  label: emitter:protobuf
+              - labelAdded:
+                  label: emitter:service:csharp
+              - labelAdded:
+                  label: emitter:service:js
+              - labelAdded:
+                  label: eng
+        then:
+          - removeLabel:
+              label: needs-triage
