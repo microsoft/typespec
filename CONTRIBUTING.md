@@ -229,13 +229,13 @@ As a contributor you can run the following command to trigger the build and crea
 Each team might use their own way of triaging issues however figuring out the area is a common process.
 
 ```mermaid
-flowchart LR
+flowchart TD
     created["Issue created"] --> add-needs-triage
     add-needs-triage{Auto label 'needs-triage'}
     add-area-label[Issue is labelled with area]
     remove-needs-triage{Remove 'needs-triage'}
     remove-area-label[Remove all area labels]
-    team-triage[Team triage issues with their label into their projectÏ]
+    team-triage[Team triage issues with their label into their project]
     add-needs-triage --> add-area-label
     add-area-label --> remove-needs-triage
     remove-needs-triage ---> team-triage
