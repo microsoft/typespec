@@ -16,6 +16,8 @@ namespace Microsoft.Generator.CSharp
         public override string Name { get; }
         public InputModelTypeUsage Usage { get; }
 
+        public IReadOnlyList<InputModelType> DerivedModels { get; }
+
         /// <summary>
         /// The serializations providers for the model provider.
         /// </summary>
@@ -38,7 +40,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             Usage = inputModel.Usage;
-
+            DerivedModels = inputModel.DerivedModels;
             SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
         }
 
@@ -65,6 +67,7 @@ namespace Microsoft.Generator.CSharp
 
             var propertyDeclaration = new PropertyDeclaration(
                 Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
+                OriginalDescription: property.Description,
                 Modifiers: MethodSignatureModifiers.Public,
                 Type: propertyType,
                 Name: property.Name.FirstCharToUpperCase(),
@@ -131,33 +134,37 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildConstructors()
         {
-            List<CSharpMethod> constructors = new List<CSharpMethod>();
-
-            var initializationConstructor = BuildInitializationConstructor();
-            if (initializationConstructor != null)
+            if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                constructors.Add(initializationConstructor);
+                return Array.Empty<CSharpMethod>();
             }
 
-            var serializationConstructor = BuildSerializationConstructor();
-            bool serializationParametersMatchInitialization = initializationConstructor != null &&
-                initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
+            // Build the initialization constructor
+            var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                ? MethodSignatureModifiers.Protected
+                : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                    ? MethodSignatureModifiers.Public
+                    : MethodSignatureModifiers.Internal;
+            var constructorParameters = BuildConstructorParameters();
 
-            if (!serializationParametersMatchInitialization)
-            {
-                constructors.Add(serializationConstructor);
-            }
+            var constructor = new CSharpMethod(
+                signature: new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {Type:C}",
+                    null,
+                    accessibility,
+                    constructorParameters),
+                bodyStatements: new MethodBodyStatement[]
+                {
+                    new ParameterValidationBlock(constructorParameters),
+                    GetPropertyInitializers(constructorParameters)
+                },
+                kind: CSharpMethodKinds.Constructor);
 
-            if (initializationConstructor?.Signature.Parameters.Count > 0)
-            {
-                var emptyConstructor = BuildEmptyConstructor();
-                constructors.Add(emptyConstructor);
-            }
-
-            return constructors.ToArray();
+            return new CSharpMethod[] { constructor };
         }
 
-        private IReadOnlyList<Parameter> BuildConstructorParameters(bool isSerializationConstructor)
+        private IReadOnlyList<Parameter> BuildConstructorParameters()
         {
             List<Parameter> constructorParameters = new List<Parameter>();
 
@@ -175,21 +182,13 @@ namespace Microsoft.Generator.CSharp
                    Validation: parameterValidation,
                    Initializer: null);
 
-                // All properties should be included in the serialization ctor
-                if (isSerializationConstructor)
+                // For classes, only required + not readonly + not initialization value + not discriminator could get into the public ctor
+                // For structs, all properties must be set in the public ctor
+                if (IsStruct || (property is { IsRequired: true, IsDiscriminator: false } && initializationValue == null))
                 {
-                    constructorParameters.Add(parameter with { Validation = ValidationType.None });
-                }
-                else
-                {
-                    // For classes, only required + not readonly + not initialization value + not discriminator could get into the public ctor
-                    // For structs, all properties must be set in the public ctor
-                    if (IsStruct || (property is { IsRequired: true, IsDiscriminator: false } && initializationValue == null))
+                    if (!property.IsReadOnly)
                     {
-                        if (!property.IsReadOnly)
-                        {
-                            constructorParameters.Add(parameter with { Type = parameter.Type.InputType });
-                        }
+                        constructorParameters.Add(parameter with { Type = parameter.Type.InputType });
                     }
                 }
             }
@@ -224,56 +223,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return ValidationType.AssertNotNull;
-        }
-
-        private CSharpMethod? BuildInitializationConstructor()
-        {
-            if (_inputModel.IsUnknownDiscriminatorModel)
-            {
-                return null;
-            }
-
-            var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                ? MethodSignatureModifiers.Protected
-                : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
-                    ? MethodSignatureModifiers.Public
-                    : MethodSignatureModifiers.Internal;
-            var constructorParameters = BuildConstructorParameters(false);
-
-            var constructor = new CSharpMethod(
-                signature: new ConstructorSignature(
-                    Type,
-                    $"Initializes a new instance of {Type:C}",
-                    null,
-                    accessibility,
-                    constructorParameters),
-                bodyStatements: new MethodBodyStatement[]
-                {
-                    new ParameterValidationBlock(constructorParameters),
-                    GetPropertyInitializers(constructorParameters)
-                },
-                kind: CSharpMethodKinds.Constructor);
-
-            return constructor;
-        }
-
-        private CSharpMethod BuildSerializationConstructor()
-        {
-            var constructorParameters = BuildConstructorParameters(true);
-
-            return new CSharpMethod(
-                signature: new ConstructorSignature(
-                    Type,
-                    $"Initializes a new instance of {Type:C}",
-                    null,
-                    MethodSignatureModifiers.Internal,
-                    constructorParameters),
-                bodyStatements: new MethodBodyStatement[]
-                {
-                    new ParameterValidationBlock(constructorParameters),
-                    GetPropertyInitializers(constructorParameters)
-                },
-                kind: CSharpMethodKinds.Constructor);
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
@@ -314,15 +263,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return methodBodyStatements;
-        }
-
-        private CSharpMethod BuildEmptyConstructor()
-        {
-            var accessibility = IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
-            return new CSharpMethod(
-                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
-                bodyStatements: new MethodBodyStatement(),
-                kind: CSharpMethodKinds.Constructor);
         }
     }
 }

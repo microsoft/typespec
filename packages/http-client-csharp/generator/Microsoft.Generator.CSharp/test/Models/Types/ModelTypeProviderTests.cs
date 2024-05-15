@@ -176,19 +176,11 @@ namespace Microsoft.Generator.CSharp.Tests
             var ctors = modelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(3, ctors.Count);
+            Assert.AreEqual(1, ctors.Count);
 
             var initializationCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor.Signature.Modifiers);
             Assert.AreEqual(3, initializationCtor.Signature.Parameters.Count);
-
-            var serializationCtor = ctors[1];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
-
-            var emptyCtor = ctors[2];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
-            Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }
     }
 }

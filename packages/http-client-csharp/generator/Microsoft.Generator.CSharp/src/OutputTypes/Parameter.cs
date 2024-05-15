@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp
             return ValidationType.None;
         }
 
-        internal static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();
+        public static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();
 
         private struct ParameterByTypeEqualityComparer : IEqualityComparer<Parameter>
         {

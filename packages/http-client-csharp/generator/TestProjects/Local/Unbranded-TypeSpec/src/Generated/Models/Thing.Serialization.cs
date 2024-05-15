@@ -4,12 +4,83 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
     public partial class Thing : System.ClientModel.Primitives.IJsonModel<Thing>
     {
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
+        /// <param name="name"> name of the Thing. </param>
+        /// <param name="requiredUnion"> required Union. </param>
+        /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredLiteralInt"> required literal int. </param>
+        /// <param name="requiredLiteralFloat"> required literal float. </param>
+        /// <param name="requiredLiteralBool"> required literal bool. </param>
+        /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="optionalLiteralInt"> optional literal int. </param>
+        /// <param name="optionalLiteralFloat"> optional literal float. </param>
+        /// <param name="optionalLiteralBool"> optional literal bool. </param>
+        /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
+        /// <param name="optionalNullableList"> optional nullable collection. </param>
+        /// <param name="requiredNullableList"> required nullable collection. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, System.BinaryData> serializedAdditionalRawData)
+        {
+            Name = name;
+            RequiredUnion = requiredUnion;
+            RequiredLiteralString = requiredLiteralString;
+            RequiredLiteralInt = requiredLiteralInt;
+            RequiredLiteralFloat = requiredLiteralFloat;
+            RequiredLiteralBool = requiredLiteralBool;
+            OptionalLiteralString = optionalLiteralString;
+            OptionalLiteralInt = optionalLiteralInt;
+            OptionalLiteralFloat = optionalLiteralFloat;
+            OptionalLiteralBool = optionalLiteralBool;
+            RequiredBadDescription = requiredBadDescription;
+            OptionalNullableList = optionalNullableList;
+            RequiredNullableList = requiredNullableList;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
+        internal Thing()
+        {
+        }
+
         void System.ClientModel.Primitives.IJsonModel<Thing>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
