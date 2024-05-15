@@ -4,12 +4,101 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
     public partial class RoundTripModel : System.ClientModel.Primitives.IJsonModel<RoundTripModel>
     {
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
+        /// <param name="requiredString"> Required string, illustrating a reference type property. </param>
+        /// <param name="requiredInt"> Required int, illustrating a value type property. </param>
+        /// <param name="requiredCollection"> Required collection of enums. </param>
+        /// <param name="requiredDictionary"> Required dictionary of enums. </param>
+        /// <param name="requiredModel"> Required model. </param>
+        /// <param name="intExtensibleEnum"> this is an int based extensible enum. </param>
+        /// <param name="intExtensibleEnumCollection"> this is a collection of int based extensible enum. </param>
+        /// <param name="floatExtensibleEnum"> this is a float based extensible enum. </param>
+        /// <param name="floatExtensibleEnumCollection"> this is a collection of float based extensible enum. </param>
+        /// <param name="floatFixedEnum"> this is a float based fixed enum. </param>
+        /// <param name="floatFixedEnumCollection"> this is a collection of float based fixed enum. </param>
+        /// <param name="intFixedEnum"> this is a int based fixed enum. </param>
+        /// <param name="intFixedEnumCollection"> this is a collection of int based fixed enum. </param>
+        /// <param name="stringFixedEnum"> this is a string based fixed enum. </param>
+        /// <param name="requiredUnknown"> required unknown. </param>
+        /// <param name="optionalUnknown"> optional unknown. </param>
+        /// <param name="requiredRecordUnknown"> required record of unknown. </param>
+        /// <param name="optionalRecordUnknown"> optional record of unknown. </param>
+        /// <param name="readOnlyRequiredRecordUnknown"> required readonly record of unknown. </param>
+        /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
+        /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
+        /// <param name="requiredBytes"> Required bytes. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal RoundTripModel(string requiredString, int requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, int intExtensibleEnum, IList<int> intExtensibleEnumCollection, int floatExtensibleEnum, IList<int> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, int intFixedEnum, IList<int> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes, IDictionary<string, System.BinaryData> serializedAdditionalRawData)
+        {
+            RequiredString = requiredString;
+            RequiredInt = requiredInt;
+            RequiredCollection = requiredCollection;
+            RequiredDictionary = requiredDictionary;
+            RequiredModel = requiredModel;
+            IntExtensibleEnum = intExtensibleEnum;
+            IntExtensibleEnumCollection = intExtensibleEnumCollection;
+            FloatExtensibleEnum = floatExtensibleEnum;
+            FloatExtensibleEnumCollection = floatExtensibleEnumCollection;
+            FloatFixedEnum = floatFixedEnum;
+            FloatFixedEnumCollection = floatFixedEnumCollection;
+            IntFixedEnum = intFixedEnum;
+            IntFixedEnumCollection = intFixedEnumCollection;
+            StringFixedEnum = stringFixedEnum;
+            RequiredUnknown = requiredUnknown;
+            OptionalUnknown = optionalUnknown;
+            RequiredRecordUnknown = requiredRecordUnknown;
+            OptionalRecordUnknown = optionalRecordUnknown;
+            ReadOnlyRequiredRecordUnknown = readOnlyRequiredRecordUnknown;
+            ReadOnlyOptionalRecordUnknown = readOnlyOptionalRecordUnknown;
+            ModelWithRequiredNullable = modelWithRequiredNullable;
+            RequiredBytes = requiredBytes;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="RoundTripModel"/> for deserialization. </summary>
+        internal RoundTripModel()
+        {
+        }
+
         void System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }

@@ -48,16 +48,16 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _inputType;
         private CSharpType? _outputType;
         internal bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
-        internal bool IsList => _isList ??= TypeIsList();
+        public bool IsList => _isList ??= TypeIsList();
         internal bool IsArray => _isArray ??= TypeIsArray();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
-        internal bool IsDictionary => _isDictionary ??= TypeIsDictionary();
+        public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
         internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
-        internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
+        public bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
         /// Constructs a <see cref="CSharpType"/> from a <see cref="Type"/>.
@@ -423,7 +423,7 @@ namespace Microsoft.Generator.CSharp
         /// Method checks if object of "<c>from</c>" type can be converted to "<c>to</c>" type by calling `ToList` extension method.
         /// It returns true if "<c>from</c>" is <see cref="IEnumerable{T}"/> and "<c>to</c>" is <see cref="IReadOnlyList{T}"/> or <see cref="IList{T}"/>.
         /// </summary>
-        internal static bool RequiresToList(CSharpType from, CSharpType to)
+        public static bool RequiresToList(CSharpType from, CSharpType to)
         {
             if (!to.IsFrameworkType || !from.IsFrameworkType || from.FrameworkType != typeof(IEnumerable<>))
             {

@@ -21,11 +21,6 @@ namespace UnbrandedTypeSpec.Models
             Name = name;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>
-        internal Friend()
-        {
-        }
-
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
 
