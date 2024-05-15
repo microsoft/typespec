@@ -8,6 +8,7 @@ import {
   hasLabel,
   isAction,
   labelAdded,
+  labelRemoved,
   not,
   or,
   payloadType,
@@ -46,6 +47,23 @@ const policyConfig = {
             hasLabel("needs-triage"),
             "isOpen",
             or(Object.keys(AreaLabels).map((area) => labelAdded(area))),
+          ],
+          then: [
+            {
+              removeLabel: {
+                label: "needs-triage",
+              },
+            },
+          ],
+        }),
+        eventResponderTask({
+          description: "Add `needs-triage` back when all area labels are removed",
+          if: [
+            payloadType("Issues"),
+            not(hasLabel("needs-triage")),
+            "isOpen",
+            or(Object.keys(AreaLabels).map((area) => labelRemoved(area))),
+            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
           ],
           then: [
             {

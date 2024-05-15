@@ -28,6 +28,9 @@ export type IsAction = {
 export type LabelAdded = {
   labelAdded: { label: string };
 };
+export type LabelRemoved = {
+  labelRemoved: { label: string };
+};
 
 export type HasLabel = {
   hasLabel: { label: string };
@@ -48,6 +51,7 @@ export type Condition =
   | IsAction
   | LabelAdded
   | HasLabel
+  | LabelRemoved
   | Or
   | And
   | Not
@@ -73,6 +77,13 @@ export function labelAdded(label: string): LabelAdded {
     labelAdded: { label },
   };
 }
+
+export function labelRemoved(label: string): LabelRemoved {
+  return {
+    labelRemoved: { label },
+  };
+}
+
 export function hasLabel(label: string): HasLabel {
   return {
     hasLabel: { label },
