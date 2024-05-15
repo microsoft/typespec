@@ -4,7 +4,18 @@ packages:
   - "@typespec/compiler"
 ---
 
-Support completion for Model Expression, Object/Array Literal as decorator argument
-Support completion for Object/Array Literal in const assignment with type definition
-Support completion for Object/Array Literal as scalar constructor argument
-Support completion for Model with extended properties
+Support completion for object values and model expression properties.
+
+  Example
+  ```tsp
+  model User {
+    name: string;
+    age: int32;
+    address: string;
+  }
+
+  const user: User = #{name: "Bob", ┆}
+                                    | [age]
+                                    | [address]
+  ```
+
