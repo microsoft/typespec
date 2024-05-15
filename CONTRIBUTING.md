@@ -224,6 +224,25 @@ As a contributor you can run the following command to trigger the build and crea
 
 # Issue and Pr processes
 
+## Triage process
+
+Each team might use their own way of triaging issues however figuring out the area is a common process.
+
+```mermaid
+flowchart LR
+    created["Issue created"] --> add-needs-triage
+    add-needs-triage{Auto label 'needs-triage'}
+    add-area-label[Issue is labelled with area]
+    remove-needs-triage{Remove 'needs-triage'}
+    remove-area-label[Remove all area labels]
+    team-triage[Team triage issues with their label into their projectÏ]
+    add-needs-triage --> add-area-label
+    add-area-label --> remove-needs-triage
+    remove-needs-triage ---> team-triage
+    remove-needs-triage --> remove-area-label
+    remove-area-label --> add-needs-triage
+```
+
 ## Labels
 
 TypeSpec repo use labels to help categorize and manage issues and PRs. The following is a list of labels and their descriptions.
