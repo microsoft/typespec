@@ -68,7 +68,6 @@ namespace Microsoft.Generator.CSharp.Writers
             {
                 WriteFields();
 
-                _writer.WriteLine($"// Add Constructors"); // https://github.com/Azure/autorest.csharp/issues/4474
                 WriteConstructors();
 
                 WriteProperties();

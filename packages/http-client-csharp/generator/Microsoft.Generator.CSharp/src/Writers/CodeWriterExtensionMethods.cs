@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -24,6 +24,8 @@ namespace Microsoft.Generator.CSharp
         {
             ArgumentNullException.ThrowIfNull(writer, nameof(writer));
             ArgumentNullException.ThrowIfNull(method, nameof(method));
+
+            writer.WriteMethodDocumentation(method.Signature);
 
             if (method.Body is { } body)
             {
