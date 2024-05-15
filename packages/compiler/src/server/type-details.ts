@@ -67,7 +67,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   if (!type) {
     const entity = program.checker.getTypeOrValueForNode(symbol.declarations[0]);
     if (entity && isType(entity)) {
-      type = entity as Type;
+      type = entity;
     }
   }
   if (type) {

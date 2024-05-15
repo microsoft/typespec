@@ -3721,7 +3721,6 @@ export function getNodeAtPositionDetail(
   const node = getNodeAtPosition(script, position, filter);
   if (!node) return undefined;
 
-  const lineAndChar = script.file.getLineAndCharacterOfPosition(node.pos);
   const char = script.file.text.charCodeAt(position);
   const preChar = position >= 0 ? script.file.text.charCodeAt(position - 1) : NaN;
   const nextChar =
@@ -3729,7 +3728,6 @@ export function getNodeAtPositionDetail(
 
   return {
     node,
-    lineAndChar,
     position,
     preChar,
     nextChar,

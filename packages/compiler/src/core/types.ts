@@ -1051,7 +1051,6 @@ export interface TemplateDeclarationNode {
  */
 export interface PositionDetail {
   readonly node: Node;
-  readonly lineAndChar: LineAndCharacter;
   readonly position: number;
   readonly char: number;
   readonly preChar: number;
