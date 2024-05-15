@@ -4,12 +4,63 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithRequiredNullableProperties : System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>
     {
+        /// <summary>
+        /// Keeps track of any properties unknown to the library.
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
+        /// <para>
+        /// Examples:
+        /// <list type="bullet">
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// <item>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// </item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
+        /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
+        /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
+        /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, string requiredExtensibleEnum, string requiredFixedEnum, IDictionary<string, System.BinaryData> serializedAdditionalRawData)
+        {
+            RequiredNullablePrimitive = requiredNullablePrimitive;
+            RequiredExtensibleEnum = requiredExtensibleEnum;
+            RequiredFixedEnum = requiredFixedEnum;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/> for deserialization. </summary>
+        internal ModelWithRequiredNullableProperties()
+        {
+        }
+
         void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
