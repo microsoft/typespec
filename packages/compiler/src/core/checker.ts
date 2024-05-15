@@ -2795,16 +2795,13 @@ export function createChecker(program: Program): Checker {
   ): Model | undefined {
     const ARRAY_MODEL_FLAG = "@@array_model_flag@@";
 
-    if (propertyNode.kind === SyntaxKind.ModelProperty) {
-      return getReferencedModelFromDecoratorArgument(propertyNode);
-    } else if (propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
-      let r = getReferencedModelFromScalarConstructor(propertyNode);
+    let r = getReferencedModelFromDecoratorArgument(propertyNode);
+    r ??= getReferencedModelFromTemplateDeclaration(propertyNode);
+    if (!r && propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
+      r = getReferencedModelFromScalarConstructor(propertyNode);
       r ??= getReferencedModelFromConstAssignment(propertyNode);
-      r ??= getReferencedModelFromDecoratorArgument(propertyNode);
-      return r;
-    } else {
-      return undefined;
     }
+    return r;
 
     function pushToModelPath(node: Node, path: string[]) {
       if (node.kind === SyntaxKind.ArrayLiteral || node.kind === SyntaxKind.TupleExpression) {
@@ -2833,6 +2830,48 @@ export function createChecker(program: Program): Checker {
         }
       }
       return cur?.kind === "Model" ? cur : undefined;
+    }
+
+    function getReferencedModelFromTemplateDeclaration(
+      propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode
+    ) {
+      const path: string[] = [];
+      const dftNode = getFirstAncestor(propertyNode, (n) => {
+        pushToModelPath(n, path);
+        return (
+          (n.kind === SyntaxKind.ModelExpression ||
+            n.kind === SyntaxKind.ObjectLiteral ||
+            n.kind === SyntaxKind.TupleExpression ||
+            n.kind === SyntaxKind.ArrayLiteral) &&
+          n.parent?.kind === SyntaxKind.TemplateParameterDeclaration
+        );
+      });
+      const templateParmaeterDeclNode = dftNode?.parent;
+      if (
+        templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
+        !templateParmaeterDeclNode.constraint ||
+        !templateParmaeterDeclNode.default ||
+        templateParmaeterDeclNode.default !== dftNode
+      ) {
+        return undefined;
+      }
+
+      let constraintType: Type | undefined;
+      if (
+        propertyNode.kind === SyntaxKind.ObjectLiteralProperty &&
+        templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
+      ) {
+        constraintType = program.checker.getTypeForNode(
+          templateParmaeterDeclNode.constraint.target
+        );
+      } else if (
+        propertyNode.kind === SyntaxKind.ModelProperty &&
+        templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
+      ) {
+        constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);
+      }
+
+      return constraintType?.kind === "Model" ? getNestedModel(constraintType, path) : undefined;
     }
 
     function getReferencedModelFromScalarConstructor(propertyNode: ObjectLiteralPropertyNode) {
