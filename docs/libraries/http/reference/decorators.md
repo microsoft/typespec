@@ -225,6 +225,32 @@ Specify if inapplicable metadata should be included in the payload for the given
 | ----- | ----------------- | --------------------------------------------------------------- |
 | value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
+### `@multipartBody` {#@TypeSpec.Http.multipartBody}
+
+```typespec
+@TypeSpec.Http.multipartBody
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```tsp
+op upload(
+  @header `content-type`: "multipart/form-data",
+  @multipartBody body: {
+    fullName: HttpPart<string>;
+    headShots: HttpPart<Image>[];
+  },
+): void;
+```
+
 ### `@patch` {#@TypeSpec.Http.patch}
 
 Specify the HTTP verb for the target operation to be `PATCH`.
