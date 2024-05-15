@@ -7,7 +7,6 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
-import { CharCode } from "../core/charcode.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
@@ -256,7 +255,7 @@ function addModelCompletion(context: CompletionContext, posDetail: PositionDetai
     return;
   }
   // skip the scenario like `{ ... }|`
-  if (node.end === posDetail.position && posDetail.preChar === CharCode.CloseBrace) {
+  if (node.end === posDetail.position) {
     return;
   }
   // create a fake identifier node to further resolve the completions for the model/object
