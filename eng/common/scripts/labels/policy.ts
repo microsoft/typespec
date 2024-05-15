@@ -36,8 +36,23 @@ export type HasLabel = {
 export type Or = {
   or: Condition[];
 };
+export type And = {
+  and: Condition[];
+};
+export type Not = {
+  not: Condition;
+};
 
-export type Condition = PayloadType | IsAction | LabelAdded | HasLabel | Or;
+export type Condition =
+  | PayloadType
+  | IsAction
+  | LabelAdded
+  | HasLabel
+  | Or
+  | And
+  | Not
+  | "isAssignedToSomeone"
+  | "isOpen";
 
 export function payloadType(payloadType: "Issues"): PayloadType {
   return {
@@ -66,4 +81,19 @@ export function hasLabel(label: string): HasLabel {
 
 export function or(conditions: Condition[]): Or {
   return { or: conditions };
+}
+export function not(condition: Condition): Not {
+  return { not: condition };
+}
+export function and(conditions: Condition[]): And {
+  return { and: conditions };
+}
+
+export type EventResponderTask = {
+  description: string;
+  if: Condition[];
+  then: any;
+};
+export function eventResponderTask(options: EventResponderTask): EventResponderTask {
+  return options;
 }

@@ -22,6 +22,7 @@ configuration:
           - payloadType: Issues
           - hasLabel:
               label: needs-triage
+          - isOpen
           - or:
               - labelAdded:
                   label: compiler:core

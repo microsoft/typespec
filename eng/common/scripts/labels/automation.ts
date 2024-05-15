@@ -2,7 +2,16 @@ import { resolve } from "path";
 import { stringify } from "yaml";
 import { AreaLabels } from "../../config/labels.js";
 import { CheckOptions, repoRoot, syncFile } from "../common.js";
-import { hasLabel, isAction, labelAdded, or, payloadType } from "./policy.js";
+import {
+  and,
+  eventResponderTask,
+  hasLabel,
+  isAction,
+  labelAdded,
+  not,
+  or,
+  payloadType,
+} from "./policy.js";
 
 export interface SyncLabelAutomationOptions extends CheckOptions {}
 
@@ -19,17 +28,9 @@ const policyConfig = {
   configuration: {
     resourceManagementConfiguration: {
       eventResponderTasks: [
-        {
+        eventResponderTask({
           description: "Adds `needs-triage` label for new unassigned issues",
-          if: [
-            payloadType("Issues"),
-            isAction("Opened"),
-            {
-              not: {
-                and: ["isAssignedToSomeone"],
-              },
-            },
-          ],
+          if: [payloadType("Issues"), isAction("Opened"), not(and(["isAssignedToSomeone"]))],
           then: [
             {
               addLabel: {
@@ -37,12 +38,13 @@ const policyConfig = {
               },
             },
           ],
-        },
-        {
+        }),
+        eventResponderTask({
           description: "Remove `needs-triage` label when an area label is added",
           if: [
             payloadType("Issues"),
             hasLabel("needs-triage"),
+            "isOpen",
             or(Object.keys(AreaLabels).map((area) => labelAdded(area))),
           ],
           then: [
@@ -52,7 +54,7 @@ const policyConfig = {
               },
             },
           ],
-        },
+        }),
       ],
     },
   },
