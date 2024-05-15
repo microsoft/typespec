@@ -31,7 +31,6 @@ namespace Microsoft.Generator.CSharp
             {
                 DeclarationModifiers = TypeSignatureModifiers.Public;
             }
-            IsAccessibilityOverridden = input.Accessibility != null;
 
             var isExtensible = input.IsExtensible;
             if (ExistingType != null)
@@ -87,7 +86,6 @@ namespace Microsoft.Generator.CSharp
         public override string Name { get; }
         public override string Namespace { get; }
         protected override TypeKind TypeKind => IsExtensible ? TypeKind.Struct : TypeKind.Enum;
-        public bool IsAccessibilityOverridden { get; }
         internal string SerializationMethodName { get; }
         internal string DeserializationMethodName { get; }
 
