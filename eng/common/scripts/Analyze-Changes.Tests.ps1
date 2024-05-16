@@ -72,13 +72,17 @@ Describe 'Analyze-Changes' {
       ".prettierrc.json",
       "cspell.yaml",
       "esling.config.json"
-      "packages/http-client-csharp/emitter/src/constants.ts"
     )
 
-    $expected = @('RunCore', 'RunCSharp')
+    $actual | Should -Not -Contain 'RunCore'
+  }
 
-    $actual | ForEach-Object {
-      $_ | Should -BeIn $expected
-    }
-}
+  It 'Should return runCore for arbitrary files in the root directory' {
+    $actual = Get-ActiveVariables @(
+      "some.file",
+      "file/in/deep/directory"
+    )
+
+    $actual | Should -Contain 'RunCore'
+  }
 }
