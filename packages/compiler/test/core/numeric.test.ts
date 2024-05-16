@@ -39,6 +39,11 @@ describe("parsing", () => {
     it("simple decimal", () => {
       expectNumericData("123.456", 123456n, 3);
     });
+
+    it("decimal with trailing zeros", () => {
+      expectNumericData("100.0", 100n, 3);
+    });
+
     it("negative decimal", () => {
       expectNumericData("-123.456", 123456n, 3, -1);
     });
