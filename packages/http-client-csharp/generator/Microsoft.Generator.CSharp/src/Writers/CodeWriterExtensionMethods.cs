@@ -25,6 +25,8 @@ namespace Microsoft.Generator.CSharp
             ArgumentNullException.ThrowIfNull(writer, nameof(writer));
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
+            writer.WriteMethodDocumentation(method.Signature);
+
             if (method.Body is { } body)
             {
                 using (writer.WriteMethodDeclaration(method.Signature))
