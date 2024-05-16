@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -57,7 +57,6 @@ namespace Microsoft.Generator.CSharp.Tests
 
         internal class CustomTypeFactory : TypeFactory
         {
-
             public override CSharpType RequestConditionsType()
             {
                 throw new NotImplementedException();
@@ -102,6 +101,10 @@ namespace Microsoft.Generator.CSharp.Tests
                         throw new NotImplementedException("Unknown input type");
                 }
             }
+
+            public override CSharpType ChangeTrackingListType => throw new NotImplementedException();
+
+            public override CSharpType ChangeTrackingDictionaryType => throw new NotImplementedException();
         }
     }
 }

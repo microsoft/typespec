@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -15,8 +15,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// </summary>
     internal class SystemApiTypes : ApiTypes
     {
-        public override Type ChangeTrackingListType => typeof(OptionalList<>);
-        public override Type ChangeTrackingDictionaryType => typeof(OptionalDictionary<,>);
         public override Type ResponseType => typeof(Result);
         public override Type ResponseOfTType => typeof(Result<>);
         public override string ResponseParameterName => "result";

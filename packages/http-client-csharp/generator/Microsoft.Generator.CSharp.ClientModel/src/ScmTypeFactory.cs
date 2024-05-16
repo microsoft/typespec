@@ -136,5 +136,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
+
+        public override CSharpType ChangeTrackingListType => new CSharpType(typeof(List<>));
+
+        public override CSharpType ChangeTrackingDictionaryType => throw new NotImplementedException();
     }
 }

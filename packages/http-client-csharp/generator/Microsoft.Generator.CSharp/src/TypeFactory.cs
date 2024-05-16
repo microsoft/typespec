@@ -76,6 +76,6 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// The type for change tracking dictionaries.
         /// </summary>
-        public abstract Type ChangeTrackingDictionaryType { get; }
+        public abstract CSharpType ChangeTrackingDictionaryType { get; }
     }
 }
