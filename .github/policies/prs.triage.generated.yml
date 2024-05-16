@@ -15,7 +15,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/compiler
+                    - packages/compiler/
             then:
               - addLabel:
                   label: compiler:core
@@ -29,49 +29,49 @@ configuration:
               - includesModifiedFiles:
                   files:
                     - packages/typespec-vscode
-                    - packages/typespec-vs
+                    - packages/typespec-vs/
             then:
               - addLabel:
                   label: ide
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/http
+                    - packages/http/
             then:
               - addLabel:
                   label: lib:http
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/openapi
+                    - packages/openapi/
             then:
               - addLabel:
                   label: lib:openapi
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/rest
+                    - packages/rest/
             then:
               - addLabel:
                   label: lib:rest
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/versioning
+                    - packages/versioning/
             then:
               - addLabel:
                   label: lib:versioning
           - if:
               - includesModifiedFiles:
                   files:
-                    - blog
+                    - blog/
             then:
               - addLabel:
                   label: meta:blog
           - if:
               - includesModifiedFiles:
                   files:
-                    - website
+                    - website/
             then:
               - addLabel:
                   label: meta:website
@@ -85,24 +85,31 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/http-client-csharp
+                    - packages/http-client-csharp/
             then:
               - addLabel:
                   label: emitter:client:csharp
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/json-schema
+                    - packages/json-schema/
             then:
               - addLabel:
                   label: emitter:json-schema
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/protobuf
+                    - packages/protobuf/
             then:
               - addLabel:
                   label: emitter:protobuf
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/openapi3/
+            then:
+              - addLabel:
+                  label: emitter:openapi3
           - if:
               - includesModifiedFiles:
                   files: []
@@ -118,8 +125,8 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - eng
-                    - .github
+                    - eng/
+                    - .github/
             then:
               - addLabel:
                   label: eng

@@ -312,24 +312,25 @@ Issue kinds
 
 Area of the codebase
 
-| Name                         | Color   | Description                         |
-| ---------------------------- | ------- | ----------------------------------- |
-| `compiler:core`              | #453261 | Issues for @typespec/compiler       |
-| `compiler:emitter-framework` | #453261 | Issues for the emitter framework    |
-| `ide`                        | #846da1 | Issues for VS, VSCode, Monaco, etc. |
-| `lib:http`                   | #c7aee6 |                                     |
-| `lib:openapi`                | #c7aee6 |                                     |
-| `lib:rest`                   | #c7aee6 |                                     |
-| `lib:versioning`             | #c7aee6 |                                     |
-| `meta:blog`                  | #007dc8 | Blog updates                        |
-| `meta:website`               | #007dc8 | TypeSpec.io updates                 |
-| `tspd`                       | #004185 | Issues for the tspd tool            |
-| `emitter:client:csharp`      | #e1b300 |                                     |
-| `emitter:json-schema`        | #957300 |                                     |
-| `emitter:protobuf`           | #957300 | The protobuf emitter                |
-| `emitter:service:csharp`     | #967200 |                                     |
-| `emitter:service:js`         | #967200 |                                     |
-| `eng`                        | #65bfff |                                     |
+| Name                         | Color   | Description                           |
+| ---------------------------- | ------- | ------------------------------------- |
+| `compiler:core`              | #453261 | Issues for @typespec/compiler         |
+| `compiler:emitter-framework` | #453261 | Issues for the emitter framework      |
+| `ide`                        | #846da1 | Issues for VS, VSCode, Monaco, etc.   |
+| `lib:http`                   | #c7aee6 |                                       |
+| `lib:openapi`                | #c7aee6 |                                       |
+| `lib:rest`                   | #c7aee6 |                                       |
+| `lib:versioning`             | #c7aee6 |                                       |
+| `meta:blog`                  | #007dc8 | Blog updates                          |
+| `meta:website`               | #007dc8 | TypeSpec.io updates                   |
+| `tspd`                       | #004185 | Issues for the tspd tool              |
+| `emitter:client:csharp`      | #e1b300 |                                       |
+| `emitter:json-schema`        | #957300 |                                       |
+| `emitter:protobuf`           | #957300 | The protobuf emitter                  |
+| `emitter:openapi3`           | #957300 | Issues for @typespec/openapi3 emitter |
+| `emitter:service:csharp`     | #967200 |                                       |
+| `emitter:service:js`         | #967200 |                                       |
+| `eng`                        | #65bfff |                                       |
 
 #### breaking-change
 

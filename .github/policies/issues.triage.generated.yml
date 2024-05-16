@@ -52,6 +52,8 @@ configuration:
               - labelAdded:
                   label: emitter:protobuf
               - labelAdded:
+                  label: emitter:openapi3
+              - labelAdded:
                   label: emitter:service:csharp
               - labelAdded:
                   label: emitter:service:js
@@ -95,6 +97,8 @@ configuration:
               - labelRemoved:
                   label: emitter:protobuf
               - labelRemoved:
+                  label: emitter:openapi3
+              - labelRemoved:
                   label: emitter:service:csharp
               - labelRemoved:
                   label: emitter:service:js
@@ -128,6 +132,8 @@ configuration:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
+                - hasLabel:
+                    label: emitter:openapi3
                 - hasLabel:
                     label: emitter:service:csharp
                 - hasLabel:
