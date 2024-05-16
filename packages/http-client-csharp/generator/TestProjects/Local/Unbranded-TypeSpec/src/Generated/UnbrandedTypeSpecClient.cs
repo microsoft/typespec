@@ -3,11 +3,19 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class UnbrandedTypeSpecClient
     {
+        /// <summary> Return hi. </summary>
+        /// <param name="unbrandedTypeSpecUrl"></param>
+        /// <param name="headParameter"></param>
+        /// <param name="queryParameter"></param>
+        /// <param name="optionalQuery"></param>
+        /// <param name="accept"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="headParameter"/>, <paramref name="queryParameter"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateSayHiRequest(System.Uri unbrandedTypeSpecUrl, string headParameter, string queryParameter, string optionalQuery, string accept)
         {
         }

@@ -14,6 +14,8 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 4.56. </summary>
         private const float _456Value = 4.56F;
 
+        /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralFloat"/>. </summary>
+        /// <param name="value"></param>
         public ThingOptionalLiteralFloat(float value)
         {
             _value = value;
@@ -22,15 +24,25 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> 4.56. </summary>
         public static ThingOptionalLiteralFloat _456 { get; } = new ThingOptionalLiteralFloat(_456Value);
 
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator ==(ThingOptionalLiteralFloat left, ThingOptionalLiteralFloat right) => left.Equals(right);
 
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are not the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator !=(ThingOptionalLiteralFloat left, ThingOptionalLiteralFloat right) => !left.Equals(right);
 
+        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralFloat"/>. </summary>
+        /// <param name="value"></param>
         public static implicit operator ThingOptionalLiteralFloat(float value) => new ThingOptionalLiteralFloat(value);
 
+        /// <param name="obj"></param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is ThingOptionalLiteralFloat other && Equals(other);
 
+        /// <param name="other"></param>
         public bool Equals(ThingOptionalLiteralFloat other) => Equals(_value, other._value);
 
         public override int GetHashCode() => _value.GetHashCode();

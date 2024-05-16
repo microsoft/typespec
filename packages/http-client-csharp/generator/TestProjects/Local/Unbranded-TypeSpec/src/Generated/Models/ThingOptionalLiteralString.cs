@@ -13,6 +13,9 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> reject. </summary>
         private const string RejectValue = "reject";
 
+        /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralString"/>. </summary>
+        /// <param name="value"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public ThingOptionalLiteralString(string value)
         {
             if (value == null)
@@ -26,15 +29,25 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> reject. </summary>
         public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
 
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator ==(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => left.Equals(right);
 
+        /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are not the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator !=(ThingOptionalLiteralString left, ThingOptionalLiteralString right) => !left.Equals(right);
 
+        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralString"/>. </summary>
+        /// <param name="value"></param>
         public static implicit operator ThingOptionalLiteralString(string value) => new ThingOptionalLiteralString(value);
 
+        /// <param name="obj"></param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && Equals(other);
 
+        /// <param name="other"></param>
         public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;

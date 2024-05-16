@@ -14,6 +14,9 @@ namespace UnbrandedTypeSpec.Models
         private const string TwoValue = "2";
         private const string FourValue = "4";
 
+        /// <summary> Initializes a new instance of <see cref="StringExtensibleEnum"/>. </summary>
+        /// <param name="value"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public StringExtensibleEnum(string value)
         {
             if (value == null)
@@ -30,15 +33,25 @@ namespace UnbrandedTypeSpec.Models
 
         public static StringExtensibleEnum Four { get; } = new StringExtensibleEnum(FourValue);
 
+        /// <summary> Determines if two <see cref="StringExtensibleEnum"/> values are the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator ==(StringExtensibleEnum left, StringExtensibleEnum right) => left.Equals(right);
 
+        /// <summary> Determines if two <see cref="StringExtensibleEnum"/> values are not the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
         public static bool operator !=(StringExtensibleEnum left, StringExtensibleEnum right) => !left.Equals(right);
 
+        /// <summary> Converts a string to a <see cref="StringExtensibleEnum"/>. </summary>
+        /// <param name="value"></param>
         public static implicit operator StringExtensibleEnum(string value) => new StringExtensibleEnum(value);
 
+        /// <param name="obj"></param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is StringExtensibleEnum other && Equals(other);
 
+        /// <param name="other"></param>
         public bool Equals(StringExtensibleEnum other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         public override int GetHashCode() => _value?.GetHashCode() ?? 0;
