@@ -693,6 +693,13 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function getTypeForTypeOrIndeterminate(entity: Type | IndeterminateEntity): Type {
+    if (entity.entityKind === "Indeterminate") {
+      return entity.type;
+    }
+    return entity;
+  }
+
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
     const entity = checkNode(node, mapper);
     if (entity === null) {
@@ -1634,7 +1641,7 @@ export function createChecker(program: Program): Checker {
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
-    let baseType: Type;
+    let baseType: Type | IndeterminateEntity;
     if (
       sym.flags &
       (SymbolFlags.Model |
@@ -1664,7 +1671,7 @@ export function createChecker(program: Program): Checker {
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(sym, mapper);
         } else {
-          baseType = checkDeclaredType(sym, decl, mapper);
+          baseType = checkDeclaredTypeOrIndeterminate(sym, decl, mapper);
         }
       } else {
         const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
@@ -1726,7 +1733,7 @@ export function createChecker(program: Program): Checker {
     // don't raise deprecation when the usage site is also a deprecated
     // declaration.
     const declarationNode = sym?.declarations[0];
-    if (declarationNode && mapper === undefined) {
+    if (declarationNode && mapper === undefined && isType(baseType)) {
       if (!isTypeReferenceContextDeprecated(node.parent!)) {
         checkDeprecated(baseType, declarationNode, node);
       }
@@ -1734,8 +1741,7 @@ export function createChecker(program: Program): Checker {
 
     // Elements that could be used as type or values depending on the context
     if (
-      baseType.kind === "EnumMember" ||
-      baseType.kind === "UnionVariant" ||
+      (isType(baseType) && (baseType.kind === "EnumMember" || baseType.kind === "UnionVariant")) ||
       isNullType(baseType)
     ) {
       return createIndeterminateEntity(baseType);
@@ -1780,11 +1786,11 @@ export function createChecker(program: Program): Checker {
    * @param mapper Type mapper for template resolution
    * @returns The declared type for the given node.
    */
-  function checkDeclaredType(
+  function checkDeclaredTypeOrIndeterminate(
     sym: Sym,
     node: TemplateableNode,
     mapper: TypeMapper | undefined
-  ): Type {
+  ): Type | IndeterminateEntity {
     const type =
       sym.flags & SymbolFlags.Model
         ? checkModelStatement(node as ModelStatementNode, mapper)
@@ -1799,6 +1805,14 @@ export function createChecker(program: Program): Checker {
                 : checkUnion(node as UnionStatementNode, mapper);
 
     return type;
+  }
+
+  function checkDeclaredType(
+    sym: Sym,
+    node: TemplateableNode,
+    mapper: TypeMapper | undefined
+  ): Type {
+    return getTypeForTypeOrIndeterminate(checkDeclaredTypeOrIndeterminate(sym, node, mapper));
   }
 
   function getOrInstantiateTemplate(
@@ -5430,7 +5444,10 @@ export function createChecker(program: Program): Checker {
     return finishType(member);
   }
 
-  function checkAlias(node: AliasStatementNode, mapper: TypeMapper | undefined): Type {
+  function checkAlias(
+    node: AliasStatementNode,
+    mapper: TypeMapper | undefined
+  ): Type | IndeterminateEntity {
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -5454,10 +5471,13 @@ export function createChecker(program: Program): Checker {
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = getTypeForNode(node.value, mapper);
-    if (!isValue(type)) {
-      linkType(links, type, mapper);
+    const type = checkNode(node.value, mapper);
+    if (type === null || isValue(type)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
+      links.declaredType = errorType;
+      return errorType;
     }
+    linkType(links, type as any, mapper);
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
 
     return type;
