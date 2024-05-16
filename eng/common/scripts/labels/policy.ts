@@ -1,7 +1,12 @@
 // Typed helper to write microsoft policy files https://eng.ms/docs/more/github-inside-microsoft/policies
 
 export type PayloadType = {
-  payloadType: "Issues";
+  payloadType:
+    | "Issues"
+    | "Pull_Request"
+    | "Issue_Comment"
+    | "Pull_Request_Review"
+    | "Pull_Request_Review_Comment";
 };
 
 export type IsAction = {
@@ -45,6 +50,9 @@ export type And = {
 export type Not = {
   not: Condition;
 };
+export type IncludesModifiedFiles = {
+  includesModifiedFiles: { files: string[] };
+};
 
 export type Condition =
   | PayloadType
@@ -52,13 +60,14 @@ export type Condition =
   | LabelAdded
   | HasLabel
   | LabelRemoved
+  | IncludesModifiedFiles
   | Or
   | And
   | Not
   | "isAssignedToSomeone"
   | "isOpen";
 
-export function payloadType(payloadType: "Issues"): PayloadType {
+export function payloadType(payloadType: PayloadType["payloadType"]): PayloadType {
   return {
     payloadType,
   };
@@ -81,6 +90,12 @@ export function labelAdded(label: string): LabelAdded {
 export function labelRemoved(label: string): LabelRemoved {
   return {
     labelRemoved: { label },
+  };
+}
+
+export function includesModifiedFiles(files: string[]): IncludesModifiedFiles {
+  return {
+    includesModifiedFiles: { files },
   };
 }
 
