@@ -56,6 +56,10 @@ export const AreaLabels = defineLabels({
     color: "957300",
     description: "The protobuf emitter",
   },
+  "emitter:openapi3": {
+    color: "957300",
+    description: "Issues for @typespec/openapi3 emitter",
+  },
   "emitter:service:csharp": {
     color: "967200",
     description: "",
