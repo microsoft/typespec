@@ -22,7 +22,7 @@ describe("parsing", () => {
 
   describe("invalid number", () => {
     // cspell: ignore babc
-    it.each(["0babc", "0xGHI", "0o999", "a123", "1d.3"])("%s", (a) => {
+    it.each(["0babc", "0xGHI", "0o999", "a123", "1d.3", "1.2.3"])("%s", (a) => {
       expect(() => Numeric(a)).toThrow(`Invalid numeric value: ${a}`);
     });
   });
