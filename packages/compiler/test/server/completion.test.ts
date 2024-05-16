@@ -1155,6 +1155,8 @@ describe("identifiers", () => {
             `model TestModel<T extends valueof MyLogArg = #{┆}>{};`,
             `model TestModel<T extends MyLogArg[] = [{┆}]>{};`,
             `model TestModel<T extends valueof MyLogArg[] = #[#{┆}]>{};`,
+            `model TestModel<T extends [string, MyLogArg] = ["abc", {┆}]>{};`,
+            `model TestModel<T extends valueof [string, MyLogArg] = #["abc", #{┆}]>{};`,
           ].map(async (item) => await complete(`${def}\n${item}`))
         )
       ).forEach((completions) => {
@@ -1304,6 +1306,7 @@ describe("identifiers", () => {
       init createFromLog(value: MyLogArg);
       init createFromLog2(value: MyLogArg[]);
       init createFromLog3(value: string);
+      init createFromLog4(value1: int, value2: [{arg: [MyLogArg, string]}])
     }
     `;
 
@@ -1355,6 +1358,50 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c = TestString.createFromLog2(#[#{┆}]);
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+    it("show all properties of tuple->object->tuple->object", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog4(1, #[#{arg:#[#{┆},"abc"]}]);
         `
       );
       check(
@@ -1453,6 +1500,10 @@ describe("identifiers", () => {
        * my log context
        */
       context: MyLogContext<string>[];
+      /**
+       * my log context2
+       */
+      context2: [MyLogContext<string>, int16];
     }
     `;
     it("show all properties literal model", async () => {
@@ -1490,6 +1541,16 @@ describe("identifiers", () => {
               kind: MarkupKind.Markdown,
               value:
                 "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+          {
+            label: "context2",
+            insertText: "context2",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
             },
           },
         ],
@@ -1537,6 +1598,16 @@ describe("identifiers", () => {
                 "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
             },
           },
+          {
+            label: "context2",
+            insertText: "context2",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+            },
+          },
         ],
         {
           fullDocs: true,
@@ -1549,6 +1620,81 @@ describe("identifiers", () => {
       const completions = await complete(
         `${def}
          const c : MyLogArg = #{context:#[#{┆}]};
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of literal model -> tuple -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{context2:#[#{┆}]};
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of alias -> tuple -> literal model -> array -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         alias A = [MyLogArg];
+         const c : A = #[#{context:#[#{┆}]}];
         `
       );
       check(
@@ -1655,7 +1801,7 @@ describe("identifiers", () => {
         context: MyLogContext<string>;
       }
 
-      extern dec myDec(target, arg: MyLogArg, arg2: valueof MyLogArg);
+      extern dec myDec(target, arg: MyLogArg, arg2: valueof MyLogArg, arg3: [string, MyLogArg, int], arg4: valueof [MyLogArg]);
       `;
 
     it("show all properties", async () => {
@@ -1668,7 +1814,13 @@ describe("identifiers", () => {
 
       (
         await Promise.all(
-          [`@myDec({┆})`, `@myDec({}, #{┆})`, `@myDec({}, {┆})`].map(async (dec) => {
+          [
+            `@myDec({┆})`,
+            `@myDec({}, #{┆})`,
+            `@myDec({}, {┆})`,
+            `@myDec({}, {}, ["abc", {┆}, 16])`,
+            `@myDec({}, {}, #[], #[#{┆}])`,
+          ].map(async (dec) => {
             return await complete(
               `${decArgModelDef}
         ${dec}

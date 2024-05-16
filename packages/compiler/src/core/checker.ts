@@ -2793,59 +2793,102 @@ export function createChecker(program: Program): Checker {
   function getReferencedModel(
     propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode
   ): Model | undefined {
-    const ARRAY_MODEL_FLAG = "@@array_model_flag@@";
+    type ModelOrArrayValueNode = ArrayLiteralNode | ObjectLiteralNode;
+    type ModelOrArrayTypeNode = ModelExpressionNode | TupleExpressionNode;
+    type ModelOrArrayNode = ModelOrArrayValueNode | ModelOrArrayTypeNode;
+    type PathSeg = { propertyName?: string; tupleIndex?: number };
+    const isModelOrArrayValue = (n: Node | undefined) =>
+      n?.kind === SyntaxKind.ArrayLiteral || n?.kind === SyntaxKind.ObjectLiteral;
+    const isModelOrArrayType = (n: Node | undefined) =>
+      n?.kind === SyntaxKind.ModelExpression || n?.kind === SyntaxKind.TupleExpression;
+    const isModelOrArray = (n: Node | undefined) => isModelOrArrayValue(n) || isModelOrArrayType(n);
 
-    let r = getReferencedModelFromDecoratorArgument(propertyNode);
-    r ??= getReferencedModelFromTemplateDeclaration(propertyNode);
-    if (!r && propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
-      r = getReferencedModelFromScalarConstructor(propertyNode);
-      r ??= getReferencedModelFromConstAssignment(propertyNode);
+    const path: PathSeg[] = [];
+    let preNode: Node | undefined;
+    const foundNode = getFirstAncestor(propertyNode, (n) => {
+      pushToModelPath(n, preNode, path);
+      preNode = n;
+      return (
+        (isModelOrArray(n) &&
+          (n.parent?.kind === SyntaxKind.TemplateParameterDeclaration ||
+            n.parent?.kind === SyntaxKind.DecoratorExpression)) ||
+        (isModelOrArrayValue(n) &&
+          (n.parent?.kind === SyntaxKind.CallExpression ||
+            n.parent?.kind === SyntaxKind.ConstStatement))
+      );
+    });
+
+    let refType: Type | undefined;
+    switch (foundNode?.parent?.kind) {
+      case SyntaxKind.TemplateParameterDeclaration:
+        refType = getReferencedTypeFromTemplateDeclaration(foundNode as ModelOrArrayNode);
+        break;
+      case SyntaxKind.DecoratorExpression:
+        refType = getReferencedTypeFromDecoratorArgument(foundNode as ModelOrArrayNode);
+        break;
+      case SyntaxKind.CallExpression:
+        refType = getReferencedTypeFromScalarConstructor(foundNode as ModelOrArrayValueNode);
+        break;
+      case SyntaxKind.ConstStatement:
+        refType = getReferencedTypeFromConstAssignment(foundNode as ModelOrArrayValueNode);
+        break;
     }
-    return r;
+    return refType?.kind === "Model" || refType?.kind === "Tuple"
+      ? getNestedModel(refType, path)
+      : undefined;
 
-    function pushToModelPath(node: Node, path: string[]) {
+    function pushToModelPath(node: Node, preNode: Node | undefined, path: PathSeg[]) {
       if (node.kind === SyntaxKind.ArrayLiteral || node.kind === SyntaxKind.TupleExpression) {
-        path.unshift(ARRAY_MODEL_FLAG);
+        const index = node.values.findIndex((n) => n === preNode);
+        if (index >= 0) {
+          path.unshift({ tupleIndex: index });
+        } else {
+          compilerAssert(false, "not expected, can't find child from the parent?");
+        }
       }
       if (
         node.kind === SyntaxKind.ModelProperty ||
         node.kind === SyntaxKind.ObjectLiteralProperty
       ) {
-        path.unshift(node.id.sv);
+        path.unshift({ propertyName: node.id.sv });
       }
     }
 
-    function getNestedModel(model: Model | undefined, path: string[]): Model | undefined {
-      let cur = model;
+    function getNestedModel(
+      modelOrTuple: Model | Tuple | undefined,
+      path: PathSeg[]
+    ): Model | undefined {
+      let cur: Type | undefined = modelOrTuple;
       for (const seg of path) {
-        if (cur?.kind !== "Model") {
-          return undefined;
-        }
-        if (seg === ARRAY_MODEL_FLAG && cur.name === "Array") {
-          cur = cur.templateMapper?.args[0] as Model;
-        } else if (seg !== ARRAY_MODEL_FLAG && cur.name !== "Array") {
-          cur = cur?.properties.get(seg)?.type as Model;
-        } else {
-          return undefined;
+        switch (cur?.kind) {
+          case "Tuple":
+            if (
+              seg.tupleIndex !== undefined &&
+              seg.tupleIndex >= 0 &&
+              seg.tupleIndex < cur.values.length
+            ) {
+              cur = cur.values[seg.tupleIndex];
+            } else {
+              return undefined;
+            }
+            break;
+          case "Model":
+            if (cur.name === "Array" && seg.tupleIndex !== undefined) {
+              cur = cur.templateMapper?.args[0] as Model;
+            } else if (cur.name !== "Array" && seg.propertyName) {
+              cur = cur.properties.get(seg.propertyName)?.type;
+            } else {
+              return undefined;
+            }
+            break;
+          default:
+            return undefined;
         }
       }
       return cur?.kind === "Model" ? cur : undefined;
     }
 
-    function getReferencedModelFromTemplateDeclaration(
-      propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode
-    ) {
-      const path: string[] = [];
-      const dftNode = getFirstAncestor(propertyNode, (n) => {
-        pushToModelPath(n, path);
-        return (
-          (n.kind === SyntaxKind.ModelExpression ||
-            n.kind === SyntaxKind.ObjectLiteral ||
-            n.kind === SyntaxKind.TupleExpression ||
-            n.kind === SyntaxKind.ArrayLiteral) &&
-          n.parent?.kind === SyntaxKind.TemplateParameterDeclaration
-        );
-      });
+    function getReferencedTypeFromTemplateDeclaration(dftNode: ModelOrArrayNode): Type | undefined {
       const templateParmaeterDeclNode = dftNode?.parent;
       if (
         templateParmaeterDeclNode?.kind !== SyntaxKind.TemplateParameterDeclaration ||
@@ -2858,31 +2901,25 @@ export function createChecker(program: Program): Checker {
 
       let constraintType: Type | undefined;
       if (
-        propertyNode.kind === SyntaxKind.ObjectLiteralProperty &&
+        isModelOrArrayValue(dftNode) &&
         templateParmaeterDeclNode.constraint.kind === SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(
           templateParmaeterDeclNode.constraint.target
         );
       } else if (
-        propertyNode.kind === SyntaxKind.ModelProperty &&
+        isModelOrArrayType(dftNode) &&
         templateParmaeterDeclNode.constraint.kind !== SyntaxKind.ValueOfExpression
       ) {
         constraintType = program.checker.getTypeForNode(templateParmaeterDeclNode.constraint);
       }
 
-      return constraintType?.kind === "Model" ? getNestedModel(constraintType, path) : undefined;
+      return constraintType;
     }
 
-    function getReferencedModelFromScalarConstructor(propertyNode: ObjectLiteralPropertyNode) {
-      const path: string[] = [];
-      const argNode = getFirstAncestor(propertyNode, (n) => {
-        pushToModelPath(n, path);
-        return (
-          (n.kind === SyntaxKind.ArrayLiteral || n.kind === SyntaxKind.ObjectLiteral) &&
-          n.parent?.kind === SyntaxKind.CallExpression
-        );
-      });
+    function getReferencedTypeFromScalarConstructor(
+      argNode: ModelOrArrayValueNode
+    ): Type | undefined {
       const callExpNode = argNode?.parent;
       if (callExpNode?.kind !== SyntaxKind.CallExpression) {
         return undefined;
@@ -2895,25 +2932,17 @@ export function createChecker(program: Program): Checker {
       }
 
       const argIndex = callExpNode.arguments.findIndex((n) => n === argNode);
-      if (argIndex >= ctorType.parameters.length) {
+      if (argIndex < 0 || argIndex >= ctorType.parameters.length) {
         return undefined;
       }
       const arg = ctorType.parameters[argIndex];
 
-      return arg.type?.kind === "Model" ? getNestedModel(arg.type, path) : undefined;
+      return arg.type;
     }
 
-    function getReferencedModelFromConstAssignment(
-      propertyNode: ObjectLiteralPropertyNode
-    ): Model | undefined {
-      const path: string[] = [];
-      const valueNode = getFirstAncestor(propertyNode, (n) => {
-        pushToModelPath(n, path);
-        return (
-          n.parent?.kind === SyntaxKind.ConstStatement &&
-          (n.kind === SyntaxKind.ArrayLiteral || n.kind === SyntaxKind.ObjectLiteral)
-        );
-      });
+    function getReferencedTypeFromConstAssignment(
+      valueNode: ModelOrArrayValueNode
+    ): Type | undefined {
       const constNode = valueNode?.parent;
       if (
         !constNode ||
@@ -2924,24 +2953,12 @@ export function createChecker(program: Program): Checker {
         return undefined;
       }
 
-      const type = program.checker.getTypeForNode(constNode.type);
-      return type?.kind === "Model" ? getNestedModel(type, path) : undefined;
+      return program.checker.getTypeForNode(constNode.type);
     }
 
-    function getReferencedModelFromDecoratorArgument(
-      propertyNode: ModelPropertyNode | ObjectLiteralPropertyNode
-    ): Model | undefined {
-      const path: string[] = [];
-      const decArgNode = getFirstAncestor(propertyNode, (n) => {
-        pushToModelPath(n, path);
-        return (
-          (n.kind === SyntaxKind.ModelExpression ||
-            n.kind === SyntaxKind.ObjectLiteral ||
-            n.kind === SyntaxKind.TupleExpression ||
-            n.kind === SyntaxKind.ArrayLiteral) &&
-          n.parent?.kind === SyntaxKind.DecoratorExpression
-        );
-      });
+    function getReferencedTypeFromDecoratorArgument(
+      decArgNode: ModelOrArrayNode
+    ): Type | undefined {
       const decNode = decArgNode?.parent;
       if (decNode?.kind !== SyntaxKind.DecoratorExpression) {
         return undefined;
@@ -2966,15 +2983,15 @@ export function createChecker(program: Program): Checker {
       compilerAssert(decType.kind === "Decorator", "Expected type to be a Decorator.");
 
       const argIndex = decNode.arguments.findIndex((n) => n === decArgNode);
-      if (argIndex >= decType.parameters.length) {
+      if (argIndex < 0 || argIndex >= decType.parameters.length) {
         return undefined;
       }
       const decArg = decType.parameters[argIndex];
 
       let type: Type | undefined;
-      if (propertyNode.kind === SyntaxKind.ObjectLiteralProperty) {
+      if (isModelOrArrayValue(decArgNode)) {
         type = decArg.type.valueType;
-      } else if (propertyNode.kind === SyntaxKind.ModelProperty) {
+      } else if (isModelOrArrayType(decArgNode)) {
         type = decArg.type.type ?? decArg.type.valueType;
       } else {
         compilerAssert(
@@ -2982,8 +2999,7 @@ export function createChecker(program: Program): Checker {
           "not expected node type to get reference model from decorator argument"
         );
       }
-
-      return type?.kind === "Model" ? getNestedModel(type, path) : undefined;
+      return type;
     }
   }
 
