@@ -141,5 +141,5 @@ configuration:
                 - hasLabel:
                     label: eng
         then:
-          - removeLabel:
+          - addLabel:
               label: needs-area
