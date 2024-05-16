@@ -10,7 +10,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class EnumTypeSerializationProvider : TypeProvider
+    internal class EnumTypeSerializationProvider : TypeProvider
     {
         private readonly EnumTypeProvider _enumType;
 

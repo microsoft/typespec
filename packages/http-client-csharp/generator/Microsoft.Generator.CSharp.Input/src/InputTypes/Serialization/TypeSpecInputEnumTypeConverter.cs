@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -73,32 +73,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("Enum must have at least one value");
             }
 
-            InputPrimitiveType? currentType = null;
-            foreach (var value in allowedValues)
-            {
-                switch (value.Value)
-                {
-                    case int i:
-                        if (currentType == InputPrimitiveType.String)
-                            throw new JsonException($"Enum value types are not consistent.");
-                        if (currentType != InputPrimitiveType.Float32)
-                            currentType = InputPrimitiveType.Int32;
-                        break;
-                    case float f:
-                        if (currentType == InputPrimitiveType.String)
-                            throw new JsonException($"Enum value types are not consistent.");
-                        currentType = InputPrimitiveType.Float32;
-                        break;
-                    case string:
-                        if (currentType == InputPrimitiveType.Int32 || currentType == InputPrimitiveType.Float32)
-                            throw new JsonException($"Enum value types are not consistent.");
-                        currentType = InputPrimitiveType.String;
-                        break;
-                    default:
-                        throw new JsonException($"Unsupported enum value type, expect string, int or float.");
-                }
-            }
-            valueType = currentType ?? throw new JsonException("Enum value type must be set.");
+            valueType = valueType ?? throw new JsonException("Enum value type must be set.");
 
             var enumType = new InputEnumType(name, ns, accessibility, deprecated, description, usage, valueType, NormalizeValues(allowedValues, valueType), isExtendable, isNullable);
             if (id != null)
@@ -129,17 +104,7 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputTypeKind.Float32:
                     foreach (var value in allowedValues)
                     {
-                        switch (value.Value)
-                        {
-                            case int i:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, i, value.Description));
-                                break;
-                            case float f:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, f, value.Description));
-                                break;
-                            default:
-                                throw new JsonException($"Enum value type of ${value.Name} cannot cast to float.");
-                        }
+                        concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)value.Value, value.Description));
                     }
                     break;
                 default:

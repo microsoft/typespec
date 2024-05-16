@@ -68,20 +68,18 @@ namespace Microsoft.Generator.CSharp
             SerializationMethodName = IsStringValueType && IsExtensible ? nameof(object.ToString) : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
             DeserializationMethodName = $"To{Name}";
 
-            if (!IsExtensible)
-            {
-                Serialization = new EnumTypeSerializationProvider(this, sourceInputModel);
-            }
+            _serialization = new(BuildSerialization);
         }
 
         private readonly FieldDeclaration _valueField;
+        private readonly Lazy<TypeProvider?> _serialization;
 
-        public CSharpType ValueType { get; }
-        public bool IsExtensible { get; }
-        public bool IsIntValueType { get; }
-        public bool IsFloatValueType { get; }
-        public bool IsStringValueType { get; }
-        public bool IsNumericValueType { get; }
+        internal CSharpType ValueType { get; }
+        internal bool IsExtensible { get; }
+        internal bool IsIntValueType { get; }
+        internal bool IsFloatValueType { get; }
+        internal bool IsStringValueType { get; }
+        internal bool IsNumericValueType { get; }
         public string? Description { get; }
         public override string Name { get; }
         public override string Namespace { get; }
@@ -89,7 +87,10 @@ namespace Microsoft.Generator.CSharp
         internal string SerializationMethodName { get; }
         internal string DeserializationMethodName { get; }
 
-        public EnumTypeSerializationProvider? Serialization { get; }
+        public TypeProvider? Serialization { get; }
+
+        protected virtual TypeProvider? BuildSerialization()
+            => IsExtensible ? null : new EnumTypeSerializationProvider(this, _sourceInputModel);
 
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration>? _valueFields;
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> ValueFields => _valueFields ??= BuildValueFields();
