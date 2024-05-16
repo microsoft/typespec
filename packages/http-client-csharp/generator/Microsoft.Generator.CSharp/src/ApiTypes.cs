@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -12,15 +12,6 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public abstract class ApiTypes
     {
-        /// <summary>
-        /// The type for change tracking lists.
-        /// </summary>
-        public abstract Type ChangeTrackingListType { get; }
-        /// <summary>
-        /// The type for change tracking dictionaries.
-        /// </summary>
-        public abstract Type ChangeTrackingDictionaryType { get; }
-
         /// <summary>
         ///  The sample value for the endpoint.
         /// </summary>
