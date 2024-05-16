@@ -17,6 +17,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         internal static readonly Parameter SerializationOptionsParameter =
             new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
+        private readonly CSharpType _iJsonModelTInterface;
+        private readonly CSharpType? _iJsonModelObjectInterface;
+        private readonly CSharpType _iPersistableModelTInterface;
+        private readonly CSharpType? _iPersistableModelObjectInterface;
 
         public SystemModelSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
@@ -24,49 +28,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
             Name = model.Name;
             Json = BuildJsonSerialization();
             // Initialize the serialization interfaces
-            IJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), Model.Type);
-            IJsonModelObjectInterface = Model.IsStruct ? new CSharpType(typeof(IJsonModel<object>)) : null;
-            IPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), Model.Type);
-            IPersistableModelObjectInterface = Model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), Model.Type);
+            _iJsonModelObjectInterface = Model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+            _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), Model.Type);
+            _iPersistableModelObjectInterface = Model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
         }
 
         public override string Name { get; }
         public ModelTypeProvider Model { get; }
         public JsonObjectSerialization? Json { get; }
-        public CSharpType IJsonModelTInterface { get; }
-        public CSharpType? IJsonModelObjectInterface { get; }
-        public CSharpType IPersistableModelTInterface { get; }
-        public CSharpType? IPersistableModelObjectInterface { get; }
-
-        protected override CSharpMethod[] BuildMethods()
-        {
-            return BuildSerializationMethods();
-        }
-
-        /// <summary>
-        /// Builds the types that the model type serialization implements.
-        /// </summary>
-        /// <returns>An array of <see cref="CSharpType"/> types that the model implements.</returns>
-        protected override CSharpType[] BuildImplements()
-        {
-            var interfaces = new List<CSharpType>
-            {
-                IJsonModelTInterface,
-            };
-
-            if (IJsonModelObjectInterface != null)
-            {
-                interfaces.Add(IJsonModelObjectInterface);
-            }
-
-            return interfaces.ToArray();
-        }
 
         /// <summary>
         /// Builds the serialization methods for the model. If the serialization supports JSON, it will build the JSON serialization methods.
         /// </summary>
         /// <returns>A list of serialization and deserialization methods for the model.</returns>
-        private CSharpMethod[] BuildSerializationMethods()
+        protected override CSharpMethod[] BuildMethods()
         {
             var methods = new List<CSharpMethod>();
 
@@ -89,6 +65,25 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         /// <summary>
+        /// Builds the types that the model type serialization implements.
+        /// </summary>
+        /// <returns>An array of <see cref="CSharpType"/> types that the model implements.</returns>
+        protected override CSharpType[] BuildImplements()
+        {
+            var interfaces = new List<CSharpType>
+            {
+                _iJsonModelTInterface,
+            };
+
+            if (_iJsonModelObjectInterface != null)
+            {
+                interfaces.Add(_iJsonModelObjectInterface);
+            }
+
+            return interfaces.ToArray();
+        }
+
+        /// <summary>
         /// Builds the JSON serialization methods for the model.
         /// </summary>
         /// <returns>A list of JSON serialization and deserialization methods for the model.</returns>
@@ -96,8 +91,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             var methods = new List<CSharpMethod>
             {
-                BuildJsonModelWriteMethod(IJsonModelTInterface),
-                BuildJsonModelCreateMethod(IJsonModelTInterface)
+                BuildJsonModelWriteMethod(_iJsonModelTInterface),
+                BuildJsonModelCreateMethod(_iJsonModelTInterface)
             };
 
             return methods;
@@ -111,9 +106,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             var methods = new List<CSharpMethod>
             {
-                BuildIModelWriteMethod(IPersistableModelTInterface),
-                BuildIModelCreateMethod(IPersistableModelTInterface),
-                BuildIModelGetFormatFromOptionsMethod(IPersistableModelTInterface)
+                BuildIModelWriteMethod(_iPersistableModelTInterface),
+                BuildIModelCreateMethod(_iPersistableModelTInterface),
+                BuildIModelGetFormatFromOptionsMethod(_iPersistableModelTInterface)
             };
 
             return methods;
