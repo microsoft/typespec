@@ -105,7 +105,7 @@ configuration:
               - labelRemoved:
                   label: eng
           - not:
-              and:
+              or:
                 - hasLabel:
                     label: compiler:core
                 - hasLabel:
