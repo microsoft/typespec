@@ -118,14 +118,8 @@ function parse(original: string): InternalData {
     }
 
     let end = stringValue.length;
-    let index = end;
-    while (stringValue[index - 1] === "0") {
-      if (index > adjustedPointIndex) {
-        end--;
-      } else {
-        break;
-      }
-      index--;
+    while (stringValue[end - 1] === "0" && end > adjustedPointIndex) {
+      end--;
     }
 
     try {
