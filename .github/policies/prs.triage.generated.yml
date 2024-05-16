@@ -78,7 +78,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/tspd
+                    - packages/tspd/
             then:
               - addLabel:
                   label: tspd

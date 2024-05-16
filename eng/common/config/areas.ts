@@ -13,7 +13,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "lib:versioning": ["packages/versioning/"],
   "meta:blog": ["blog/"],
   "meta:website": ["website/"],
-  tspd: ["packages/tspd"],
+  tspd: ["packages/tspd/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
