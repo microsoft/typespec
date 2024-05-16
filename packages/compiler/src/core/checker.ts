@@ -5472,7 +5472,11 @@ export function createChecker(program: Program): Checker {
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
     const type = checkNode(node.value, mapper);
-    if (type === null || isValue(type)) {
+    if (type === null) {
+      links.declaredType = errorType;
+      return errorType;
+    }
+    if (isValue(type)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node.value }));
       links.declaredType = errorType;
       return errorType;
