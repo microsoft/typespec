@@ -459,6 +459,8 @@ export function createScanner(
         return getStringTokenValue(token, tokenFlags);
       case Token.Identifier:
         return getIdentifierTokenValue();
+      case Token.DocText:
+        return getDocTextValue();
       default:
         return getTokenText();
     }
@@ -655,6 +657,10 @@ export function createScanner(
         // fallthrough
         case CharCode.LineFeed:
           return next(Token.NewLine);
+
+        case CharCode.Backslash:
+          tokenFlags |= TokenFlags.Escaped;
+          return next(Token.DocText, 2);
 
         case CharCode.Space:
         case CharCode.Tab:
@@ -1036,6 +1042,14 @@ export function createScanner(
     return text;
   }
 
+  function getDocTextValue(): string {
+    if (tokenFlags & TokenFlags.Escaped) {
+      return unescapeString(tokenPosition, position);
+    } else {
+      return input.substring(tokenPosition, position);
+    }
+  }
+
   function findTripleQuotedStringIndent(start: number, end: number): [number, number] {
     end = end - 3; // Remove the """
     // remove whitespace before closing delimiter and record it as required
@@ -1231,6 +1245,8 @@ export function createScanner(
         return "\\";
       case CharCode.$:
         return "$";
+      case CharCode.At:
+        return "@";
       case CharCode.Backtick:
         return "`";
       default:
