@@ -76,7 +76,7 @@ const issueTriageConfig: PolicyServiceConfig = {
             not(hasLabel("needs-area")),
             "isOpen",
             or(Object.keys(AreaLabels).map((area) => labelRemoved(area))),
-            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
+            not(and(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
           ],
           then: [
             {
