@@ -1,5 +1,18 @@
 // Typed helper to write microsoft policy files https://eng.ms/docs/more/github-inside-microsoft/policies
 
+export type PolicyServiceConfig = {
+  id: string;
+  name: string;
+  description: string;
+  resource: "repository";
+  disabled: boolean;
+  configuration: {
+    resourceManagementConfiguration: {
+      eventResponderTasks: EventResponderTask[];
+    };
+  };
+};
+
 export type PayloadType = {
   payloadType:
     | "Issues"

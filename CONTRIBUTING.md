@@ -230,17 +230,62 @@ Each team might use their own way of triaging issues however figuring out the ar
 
 ```mermaid
 flowchart TD
-    created["Issue created"] --> add-needs-triage
-    add-needs-triage{Auto label 'needs-triage'}
-    add-area-label[Issue is labelled with area]
-    remove-needs-triage{Remove 'needs-triage'}
-    remove-area-label[Remove all area labels]
-    team-triage[Team triage issues with their label into their project]
-    add-needs-triage --> add-area-label
-    add-area-label --> remove-needs-triage
-    remove-needs-triage ---> team-triage
-    remove-needs-triage --> remove-area-label
-    remove-area-label --> add-needs-triage
+    classDef bot fill:#69f
+    classDef user fill:#9c6
+
+
+    subgraph "Legend"
+      a([User action])
+      b[\Automation detect/]:::bot
+      c[Automation action]:::bot
+      d{{state}}
+    end
+
+    subgraph "Issue creation"
+        select_template([User select template])
+
+        select_template --> bug_template
+        select_template --> feature_template
+        select_template --> plain
+
+        bug_template([Bug]) --> add_bug_label[🤖 add `bug` label]:::bot --> start
+        feature_template([Feature]) --> add_feature_label["🤖 add `feature` label"]:::bot --> start
+        plain([Plain]) --> start
+        start{{"✅ Issue created"}}
+    end
+
+
+
+    subgraph "Area triage"
+        auto-triage[\🤖 Detect if issue has area checkbox/]:::bot
+        add-needs-area[🤖 label 'needs-area']:::bot
+        auto-area-label["🤖 label '{area}'"]:::bot
+        add-area-label(["Issue is labelled with {area}"])
+        remove-needs-area[🤖 Remove 'needs-area']:::bot
+    end
+
+    subgraph "Team triage"
+
+        team-triage{{Issue Labeled with Team area}}
+        team-triage -- wrong area --> remove_area([Remove area label])
+        team-triage -- correct area --> triage([Triage/add to project])
+
+    end
+
+
+
+
+    start --> auto-triage
+
+    auto-triage -- no --> add-needs-area
+    auto-triage -- yes --> auto-area-label
+
+    auto-area-label --> remove-needs-area
+
+    add-needs-area --> add-area-label
+    add-area-label --> remove-needs-area
+    remove-needs-area ---> team-triage
+    remove_area --> add-needs-area
 ```
 
 ## Labels
@@ -311,7 +356,7 @@ Process labels
 
 | Name           | Color   | Description                                                                       |
 | -------------- | ------- | --------------------------------------------------------------------------------- |
-| `needs-triage` | #ffffff |                                                                                   |
+| `needs-area`   | #ffffff |                                                                                   |
 | `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
 | `triaged:core` | #5319e7 |                                                                                   |
 

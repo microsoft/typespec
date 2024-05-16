@@ -7,7 +7,7 @@ disabled: false
 configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
-      - description: Adds `needs-triage` label for new unassigned issues
+      - description: Adds `needs-area` label for new unassigned issues
         if:
           - payloadType: Issues
           - isAction:
@@ -17,12 +17,12 @@ configuration:
                 - isAssignedToSomeone
         then:
           - addLabel:
-              label: needs-triage
-      - description: Remove `needs-triage` label when an area label is added
+              label: needs-area
+      - description: Remove `needs-area` label when an area label is added
         if:
           - payloadType: Issues
           - hasLabel:
-              label: needs-triage
+              label: needs-area
           - isOpen
           - or:
               - labelAdded:
@@ -59,13 +59,13 @@ configuration:
                   label: eng
         then:
           - removeLabel:
-              label: needs-triage
-      - description: Add `needs-triage` back when all area labels are removed
+              label: needs-area
+      - description: Add `needs-area` back when all area labels are removed
         if:
           - payloadType: Issues
           - not:
               hasLabel:
-                label: needs-triage
+                label: needs-area
           - isOpen
           - or:
               - labelRemoved:
@@ -136,4 +136,4 @@ configuration:
                     label: eng
         then:
           - removeLabel:
-              label: needs-triage
+              label: needs-area

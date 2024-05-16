@@ -131,7 +131,7 @@ export default {
   process: {
     description: "Process labels",
     labels: {
-      "needs-triage": {
+      "needs-area": {
         color: "ffffff",
         description: "",
       },
