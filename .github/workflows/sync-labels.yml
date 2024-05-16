@@ -8,8 +8,8 @@ on:
       - "main"
     paths:
       - "package.json"
-      - "eng/common/labels.yaml"
-      - "eng/common/scripts/sync-labels.ts"
+      - "eng/common/config/"
+      - "eng/common/labels/"
       - ".github/workflows/sync-labels.yml"
 
   workflow_dispatch: {}
