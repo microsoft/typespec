@@ -120,11 +120,10 @@ function parse(original: string): InternalData {
     let end = stringValue.length;
     let index = end;
     while (stringValue[index - 1] === "0") {
-      if (index < adjustedPointIndex - 1) {
-        // if we are looking at a zero before the decimal point, we need to decrease the exponent
-        exp++;
-      } else {
+      if (index > adjustedPointIndex) {
         end--;
+      } else {
+        break;
       }
       index--;
     }

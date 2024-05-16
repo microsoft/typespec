@@ -40,8 +40,17 @@ describe("parsing", () => {
       expectNumericData("123.456", 123456n, 3);
     });
 
-    it("decimal with trailing zeros", () => {
-      expectNumericData("100.0", 100n, 3);
+    describe("decimal with trailing zeros", () => {
+      it.each([
+        ["0.0", 0n, 1],
+        ["1.0", 1n, 1],
+        ["10.0", 10n, 2],
+        ["100.0", 100n, 3],
+        ["1000.0", 1000n, 4],
+        ["1000000000.0", 1000000000n, 10],
+      ])(`%s`, (a, b, c) => {
+        expectNumericData(a, b, c);
+      });
     });
 
     it("negative decimal", () => {
