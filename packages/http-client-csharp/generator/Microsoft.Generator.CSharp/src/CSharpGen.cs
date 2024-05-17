@@ -11,7 +11,10 @@ namespace Microsoft.Generator.CSharp
 {
     public sealed class CSharpGen
     {
-        private static readonly string[] _filesToKeep = [Constants.DefaultCodeModelFileName, Constants.DefaultConfigurationFileName];
+        private const string ConfigurationFileName = "Configuration.json";
+        private const string CodeModelFileName = "tspCodeModel.json";
+
+        private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
         /// <summary>
         /// Executes the generator task with the <see cref="CodeModelPlugin"/> instance.
@@ -20,7 +23,7 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", Constants.DefaultGeneratedCodeFolderName);
+            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", "Generated");
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
