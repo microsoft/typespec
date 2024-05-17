@@ -102,17 +102,19 @@ const prTriageConfig: PolicyServiceConfig = {
       eventResponderTasks: [
         eventResponderTask({
           if: [payloadType("Pull_Request")],
-          then: Object.entries(AreaPaths).map(([label, files]) => {
-            return {
-              if: [filesMatchPattern(files.map((file) => `${file}.*`))],
-              then: [
-                {
-                  addLabel: {
-                    label,
+          then: Object.entries(AreaPaths).flatMap(([label, files]) => {
+            return files.map((file) => {
+              return {
+                if: [filesMatchPattern(`${file}.*`)],
+                then: [
+                  {
+                    addLabel: {
+                      label,
+                    },
                   },
-                },
-              ],
-            };
+                ],
+              };
+            });
           }),
         }),
       ],

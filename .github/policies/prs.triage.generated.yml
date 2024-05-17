@@ -12,119 +12,97 @@ configuration:
         then:
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/compiler/.*
+                  pattern: packages/compiler/.*
             then:
               - addLabel:
                   label: compiler:core
           - if:
               - filesMatchPattern:
-                  pattern: []
-            then:
-              - addLabel:
-                  label: compiler:emitter-framework
-          - if:
-              - filesMatchPattern:
-                  pattern:
-                    - packages/typespec-vscode/.*
-                    - packages/typespec-vs/.*
+                  pattern: packages/typespec-vscode/.*
             then:
               - addLabel:
                   label: ide
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/http/.*
+                  pattern: packages/typespec-vs/.*
+            then:
+              - addLabel:
+                  label: ide
+          - if:
+              - filesMatchPattern:
+                  pattern: packages/http/.*
             then:
               - addLabel:
                   label: lib:http
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/openapi/.*
+                  pattern: packages/openapi/.*
             then:
               - addLabel:
                   label: lib:openapi
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/rest/.*
+                  pattern: packages/rest/.*
             then:
               - addLabel:
                   label: lib:rest
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/versioning/.*
+                  pattern: packages/versioning/.*
             then:
               - addLabel:
                   label: lib:versioning
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - blog/.*
+                  pattern: blog/.*
             then:
               - addLabel:
                   label: meta:blog
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - website/.*
+                  pattern: website/.*
             then:
               - addLabel:
                   label: meta:website
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/tspd/.*
+                  pattern: packages/tspd/.*
             then:
               - addLabel:
                   label: tspd
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/http-client-csharp/.*
+                  pattern: packages/http-client-csharp/.*
             then:
               - addLabel:
                   label: emitter:client:csharp
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/json-schema/.*
+                  pattern: packages/json-schema/.*
             then:
               - addLabel:
                   label: emitter:json-schema
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/protobuf/.*
+                  pattern: packages/protobuf/.*
             then:
               - addLabel:
                   label: emitter:protobuf
           - if:
               - filesMatchPattern:
-                  pattern:
-                    - packages/openapi3/.*
+                  pattern: packages/openapi3/.*
             then:
               - addLabel:
                   label: emitter:openapi3
           - if:
               - filesMatchPattern:
-                  pattern: []
+                  pattern: eng/.*
             then:
               - addLabel:
-                  label: emitter:service:csharp
+                  label: eng
           - if:
               - filesMatchPattern:
-                  pattern: []
-            then:
-              - addLabel:
-                  label: emitter:service:js
-          - if:
-              - filesMatchPattern:
-                  pattern:
-                    - eng/.*
-                    - .github/.*
+                  pattern: .github/.*
             then:
               - addLabel:
                   label: eng

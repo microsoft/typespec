@@ -67,7 +67,7 @@ export type IncludesModifiedFiles = {
   includesModifiedFiles: { files: string[] };
 };
 export type FilesMatchPattern = {
-  filesMatchPattern: { pattern: string[] };
+  filesMatchPattern: { pattern: string };
 };
 
 export type Condition =
@@ -122,7 +122,7 @@ export function includesModifiedFiles(files: string[]): IncludesModifiedFiles {
 /**
  * Check if the pattern of files modified match the given regex(s).
  */
-export function filesMatchPattern(pattern: string[]): FilesMatchPattern {
+export function filesMatchPattern(pattern: string): FilesMatchPattern {
   return {
     filesMatchPattern: { pattern },
   };
