@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -8,8 +8,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public abstract JsonElementSnippets JsonElement { get; }
         public abstract ModelSnippets Model { get; }
         public abstract RestOperationsSnippets RestOperations { get; }
-        public abstract XElementSnippets XElement { get; }
-        public abstract XmlWriterSnippets XmlWriter { get; }
 
         protected static InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, ValueExpression instance, string methodName)
             => new(extensionType, methodName, new[] { instance }, CallAsAsync: false, CallAsExtension: true);
