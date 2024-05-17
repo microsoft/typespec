@@ -8,6 +8,7 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class FloatFixedEnumExtensions
     {
+        /// <param name="value"></param>
         public static float ToSerialSingle(this FloatFixedEnum value) => value switch
         {
             FloatFixedEnum.One => 1.1F,
@@ -16,6 +17,7 @@ namespace UnbrandedTypeSpec.Models
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
         };
 
+        /// <param name="value"></param>
         public static FloatFixedEnum ToFloatFixedEnum(this float value)
         {
             if (value == 1.1F)

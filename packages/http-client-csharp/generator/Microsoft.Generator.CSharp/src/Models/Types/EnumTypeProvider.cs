@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp
         internal string SerializationMethodName { get; }
         internal string DeserializationMethodName { get; }
 
-        public TypeProvider? Serialization { get; }
+        public TypeProvider? Serialization => _serialization.Value;
 
         protected virtual TypeProvider? BuildSerialization()
             => IsExtensible ? null : new EnumTypeSerializationProvider(this, _sourceInputModel);
@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
                 var name = IsExtensible
-                                ? GetExtensibleFieldName(enumName, value.Name, Values)
+                                ? $"{value.Name}Value"
                                 : value.Name;
                 // for initializationValue, if the enum is extensible, we always need it
                 // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
@@ -139,29 +139,6 @@ namespace Microsoft.Generator.CSharp
                 values.Add(value, field);
             }
             return values;
-        }
-
-        private static string GetExtensibleFieldName(string enumName, string valueName, IReadOnlyList<EnumTypeValue> values)
-        {
-            var nameCandidate = $"{valueName}Value";
-
-            // check if this name is validate, because the name of a type's member cannot be the same as the type itself
-            if (enumName != nameCandidate)
-            {
-                return nameCandidate;
-            }
-
-            // append an index to the name and if there is a conflict within other values, increment it until we have a valid name
-            int index = 1;
-            foreach (var value in values)
-            {
-                nameCandidate = $"{valueName}Value{index}";
-                if (value.Name != nameCandidate)
-                {
-                    index++;
-                }
-            }
-            return nameCandidate;
         }
 
         protected override CSharpType[] BuildImplements()
