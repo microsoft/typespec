@@ -4,5 +4,5 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Microsoft.Generator.CSharp.Tests")]
-[assembly: InternalsVisibleTo("Microsoft.Generator.CSharp.Plugin.Tests")]
+[assembly: InternalsVisibleTo("Microsoft.Generator.CSharp.Plugins.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

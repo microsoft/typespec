@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.Local.Tests", "TestProjects\Local\TestProjects.Local.Tests.csproj", "{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.Plugin.Tests", "Microsoft.Generator.CSharp.Plugin.Tests\Microsoft.Generator.CSharp.Plugin.Tests.csproj", "{8DF5425D-EFD5-4689-BE0A-84A8620AEB47}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.Plugins.Tests", "Microsoft.Generator.CSharp.Plugins.Tests\Microsoft.Generator.CSharp.Plugins.Tests.csproj", "{8DF5425D-EFD5-4689-BE0A-84A8620AEB47}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.Plugins.Tests", "TestProjects\Plugins\TestProjects.Plugins.Tests.csproj", "{EBF88882-6367-469D-B768-28643831B410}"
 EndProject

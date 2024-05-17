@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using Microsoft.Generator.CSharp.Input;
 using System.Net.Http.Headers;
 using Microsoft.Generator.CSharp.Plugin.Tests;

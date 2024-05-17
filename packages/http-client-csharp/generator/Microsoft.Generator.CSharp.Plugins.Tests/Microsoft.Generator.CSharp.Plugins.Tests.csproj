@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <OutputType>Exe</OutputType>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Microsoft.Generator.CSharp.Plugin.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,6 +24,6 @@
     <ItemGroup>
       <SourceDir Include="$(OutputPath)**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\dist\generator\%(RecursiveDir)" />
+    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\testdist\generator\%(RecursiveDir)" />
   </Target>
 </Project>

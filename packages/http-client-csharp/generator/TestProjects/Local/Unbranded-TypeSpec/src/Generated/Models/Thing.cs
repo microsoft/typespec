@@ -16,7 +16,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<long> requiredNullableList)
         {
             if (name == null)
             {
@@ -34,7 +34,7 @@ namespace UnbrandedTypeSpec.Models
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = new List<int>();
+            OptionalNullableList = new List<long>();
             RequiredNullableList = requiredNullableList?.ToList();
         }
 
@@ -52,7 +52,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList)
+        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, long requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, long optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<long> optionalNullableList, IList<long> requiredNullableList)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -96,7 +96,7 @@ namespace UnbrandedTypeSpec.Models
         /// <description><see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/></description>
         /// </item>
         /// <item>
-        /// <description><see cref="int"/></description>
+        /// <description><see cref="long"/></description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -127,7 +127,7 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
-        public int RequiredLiteralInt { get; } = 123;
+        public long RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
         public float RequiredLiteralFloat { get; } = 1.23F;
@@ -139,7 +139,7 @@ namespace UnbrandedTypeSpec.Models
         public string OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public int OptionalLiteralInt { get; set; }
+        public long OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
         public float OptionalLiteralFloat { get; set; }
@@ -151,10 +151,10 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>
-        public IList<int> OptionalNullableList { get; set; }
+        public IList<long> OptionalNullableList { get; set; }
 
         /// <summary> required nullable collection. </summary>
-        public IList<int> RequiredNullableList { get; set; }
+        public IList<long> RequiredNullableList { get; set; }
 
         // Add Methods
 

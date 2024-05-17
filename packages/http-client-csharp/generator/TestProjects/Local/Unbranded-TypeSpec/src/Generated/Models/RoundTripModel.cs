@@ -21,7 +21,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
-        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
+        public RoundTripModel(string requiredString, long requiredInt, IEnumerable<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
             if (requiredString == null)
             {
@@ -61,10 +61,10 @@ namespace UnbrandedTypeSpec.Models
             RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnumCollection = new List<int>();
-            FloatExtensibleEnumCollection = new List<int>();
+            IntExtensibleEnumCollection = new List<long>();
+            FloatExtensibleEnumCollection = new List<long>();
             FloatFixedEnumCollection = new List<float>();
-            IntFixedEnumCollection = new List<int>();
+            IntFixedEnumCollection = new List<long>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
             OptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
@@ -97,7 +97,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        internal RoundTripModel(string requiredString, int requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, int intExtensibleEnum, IList<int> intExtensibleEnumCollection, int floatExtensibleEnum, IList<int> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, int intFixedEnum, IList<int> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
+        internal RoundTripModel(string requiredString, long requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, long intExtensibleEnum, IList<long> intExtensibleEnumCollection, long floatExtensibleEnum, IList<long> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, long intFixedEnum, IList<long> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
             RequiredString = requiredString;
             RequiredInt = requiredInt;
@@ -132,7 +132,7 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredString { get; set; }
 
         /// <summary> Required int, illustrating a value type property. </summary>
-        public int RequiredInt { get; set; }
+        public long RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
         public IList<string> RequiredCollection { get; }
@@ -144,16 +144,16 @@ namespace UnbrandedTypeSpec.Models
         public Thing RequiredModel { get; set; }
 
         /// <summary> this is an int based extensible enum. </summary>
-        public int IntExtensibleEnum { get; set; }
+        public long IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<int> IntExtensibleEnumCollection { get; }
+        public IList<long> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public int FloatExtensibleEnum { get; set; }
+        public long FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<int> FloatExtensibleEnumCollection { get; }
+        public IList<long> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public float FloatFixedEnum { get; set; }
@@ -162,10 +162,10 @@ namespace UnbrandedTypeSpec.Models
         public IList<float> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
-        public int IntFixedEnum { get; set; }
+        public long IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<int> IntFixedEnumCollection { get; }
+        public IList<long> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
         public string StringFixedEnum { get; set; }
