@@ -129,7 +129,7 @@ export function and(conditions: Condition[]): And {
 }
 
 export type EventResponderTask = {
-  description: string;
+  description?: string;
   if: Condition[];
   then: any;
 };

@@ -101,8 +101,7 @@ const prTriageConfig: PolicyServiceConfig = {
     resourceManagementConfiguration: {
       eventResponderTasks: [
         eventResponderTask({
-          description: "Assign area labels to PRs based on modified files",
-          if: [payloadType("Pull_Request"), "isOpen"],
+          if: [payloadType("Pull_Request")],
           then: Object.entries(AreaPaths).map(([label, files]) => {
             return {
               if: [includesModifiedFiles(files)],
