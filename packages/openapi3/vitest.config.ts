@@ -6,7 +6,6 @@ export default mergeConfig(
   defineConfig({
     test: {
       testTimeout: 10000,
-      watchExclude: ["dist/**"],
     },
   })
 );
