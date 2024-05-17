@@ -6,7 +6,7 @@ import { type AreaLabels } from "./labels.js";
 export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "compiler:core": ["packages/compiler/"],
   "compiler:emitter-framework": [],
-  ide: ["packages/typespec-vscode", "packages/typespec-vs/"],
+  ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
   "lib:http": ["packages/http/"],
   "lib:openapi": ["packages/openapi/"],
   "lib:rest": ["packages/rest/"],

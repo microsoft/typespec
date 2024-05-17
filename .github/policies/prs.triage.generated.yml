@@ -26,7 +26,7 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
-                    - packages/typespec-vscode
+                    - packages/typespec-vscode/
                     - packages/typespec-vs/
             then:
               - addLabel:
