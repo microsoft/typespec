@@ -10,8 +10,15 @@ import {
 } from "vscode-languageclient/node.js";
 
 let client: LanguageClient | undefined;
+const outputChannel = vscode.window.createOutputChannel("TypeSpec");
 
 export async function activate(context: ExtensionContext) {
+  context.subscriptions.push(
+    commands.registerCommand("typespec.showOutputChannel", () => {
+      outputChannel.show(true /*preserveFocus*/);
+    })
+  );
+
   context.subscriptions.push(
     commands.registerCommand("typespec.restartServer", restartTypeSpecServer)
   );
@@ -50,6 +57,7 @@ async function launchLanguageClient(context: ExtensionContext) {
       { scheme: "file", language: "typespec" },
       { scheme: "untitled", language: "typespec" },
     ],
+    outputChannel,
   };
 
   const name = "TypeSpec";

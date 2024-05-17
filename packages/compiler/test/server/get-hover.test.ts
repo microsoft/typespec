@@ -33,6 +33,27 @@ describe("compiler: server: on hover", () => {
         },
       });
     });
+
+    it("scalar init with object literal argument", async () => {
+      const hover = await getHoverAtCursor(`          
+      model MyModel {
+        /**
+         * name of the model
+         */
+        name: string;
+      }
+      scalar MyString extends string{
+        init createFromModel(arg: MyModel);
+      }
+      const abc = MyString.createFromModel(#{ na┆me: "hello" });
+      `);
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+        },
+      });
+    });
   });
 
   describe("enum", () => {
@@ -132,6 +153,107 @@ describe("compiler: server: on hover", () => {
             "dec single(context: unknown)\n" +
             "```\n\n" +
             "description of single decorator",
+        },
+      });
+    });
+
+    const decArgModelDef = `
+    import "./dec-types.js";
+
+    /**
+     * my log context
+     */
+    model MyLogContext<T> {
+      /**
+       * name of log context 
+       */
+      name: string;
+      /**
+       * items of context
+       */
+      item: Record<T>;
+    }
+
+    /**
+     * my log argument
+     */
+    model MyLogArg{
+      /**
+       * my log message
+       */
+      msg: string;
+      /**
+       * my log id
+       */
+      id: int16;
+      /**
+       * my log context
+       */
+      context: MyLogContext<string>;
+    }
+
+    extern dec single(target, arg: MyLogArg);`;
+
+    it("test model expression as decorator parameter value", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          ${decArgModelDef}
+          @single({
+            ms┆g: "hello",
+            id: 1,
+            context: {
+              name: "my context",
+              item: {
+                key: "value"
+              }
+            }
+          
+          })
+          namespace TestNS;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n" +
+            "```typespec\n" +
+            "MyLogArg.msg: string\n" +
+            "```\n" +
+            "\n" +
+            "my log message",
+        },
+      });
+    });
+
+    it("test nested model expression as decorator parameter value", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          ${decArgModelDef}
+          @single({
+            msg: "hello",
+            id: 1,
+            context: {
+              name: "my context",
+              it┆em: {
+                key: "value"
+              }
+            }
+          
+          })
+          namespace TestNS;
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n" +
+            "```typespec\n" +
+            "MyLogContext<T>.item: Record<Element>\n" +
+            "```\n" +
+            "\n" +
+            "items of context",
         },
       });
     });
@@ -474,6 +596,26 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
+        },
+      });
+    });
+
+    it("object literal property", async () => {
+      const hover = await getHoverAtCursor(
+        `
+          model MyModel {
+            /**
+             * name of the model
+             */
+            name: string;
+          }
+          const abc : MyModel = #{ na┆me: "hello" };
+        `
+      );
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
         },
       });
     });

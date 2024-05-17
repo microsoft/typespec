@@ -66,6 +66,9 @@ export type Not = {
 export type IncludesModifiedFiles = {
   includesModifiedFiles: { files: string[] };
 };
+export type FilesMatchPattern = {
+  filesMatchPattern: { pattern: string };
+};
 
 export type Condition =
   | PayloadType
@@ -106,9 +109,22 @@ export function labelRemoved(label: string): LabelRemoved {
   };
 }
 
+/**
+ * Exact path to files that should be modified.
+ * DOES NOT support glob patterns or paths.
+ */
 export function includesModifiedFiles(files: string[]): IncludesModifiedFiles {
   return {
     includesModifiedFiles: { files },
+  };
+}
+
+/**
+ * Check if the pattern of files modified match the given regex(s).
+ */
+export function filesMatchPattern(pattern: string): FilesMatchPattern {
+  return {
+    filesMatchPattern: { pattern },
   };
 }
 
@@ -129,7 +145,7 @@ export function and(conditions: Condition[]): And {
 }
 
 export type EventResponderTask = {
-  description: string;
+  description?: string;
   if: Condition[];
   then: any;
 };
