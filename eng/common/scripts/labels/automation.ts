@@ -7,8 +7,8 @@ import {
   PolicyServiceConfig,
   and,
   eventResponderTask,
+  filesMatchPattern,
   hasLabel,
-  includesModifiedFiles,
   isAction,
   labelAdded,
   labelRemoved,
@@ -104,7 +104,7 @@ const prTriageConfig: PolicyServiceConfig = {
           if: [payloadType("Pull_Request")],
           then: Object.entries(AreaPaths).map(([label, files]) => {
             return {
-              if: [includesModifiedFiles(files)],
+              if: [filesMatchPattern(files.map((file) => `${file}.*`))],
               then: [
                 {
                   addLabel: {

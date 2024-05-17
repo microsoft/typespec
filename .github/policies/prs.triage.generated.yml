@@ -11,120 +11,120 @@ configuration:
           - payloadType: Pull_Request
         then:
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/compiler/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/compiler/.*
             then:
               - addLabel:
                   label: compiler:core
           - if:
-              - includesModifiedFiles:
-                  files: []
+              - filesMatchPattern:
+                  pattern: []
             then:
               - addLabel:
                   label: compiler:emitter-framework
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/typespec-vscode/
-                    - packages/typespec-vs/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/typespec-vscode/.*
+                    - packages/typespec-vs/.*
             then:
               - addLabel:
                   label: ide
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/http/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/http/.*
             then:
               - addLabel:
                   label: lib:http
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/openapi/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/openapi/.*
             then:
               - addLabel:
                   label: lib:openapi
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/rest/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/rest/.*
             then:
               - addLabel:
                   label: lib:rest
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/versioning/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/versioning/.*
             then:
               - addLabel:
                   label: lib:versioning
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - blog/
+              - filesMatchPattern:
+                  pattern:
+                    - blog/.*
             then:
               - addLabel:
                   label: meta:blog
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - website/
+              - filesMatchPattern:
+                  pattern:
+                    - website/.*
             then:
               - addLabel:
                   label: meta:website
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/tspd/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/tspd/.*
             then:
               - addLabel:
                   label: tspd
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/http-client-csharp/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/http-client-csharp/.*
             then:
               - addLabel:
                   label: emitter:client:csharp
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/json-schema/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/json-schema/.*
             then:
               - addLabel:
                   label: emitter:json-schema
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/protobuf/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/protobuf/.*
             then:
               - addLabel:
                   label: emitter:protobuf
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - packages/openapi3/
+              - filesMatchPattern:
+                  pattern:
+                    - packages/openapi3/.*
             then:
               - addLabel:
                   label: emitter:openapi3
           - if:
-              - includesModifiedFiles:
-                  files: []
+              - filesMatchPattern:
+                  pattern: []
             then:
               - addLabel:
                   label: emitter:service:csharp
           - if:
-              - includesModifiedFiles:
-                  files: []
+              - filesMatchPattern:
+                  pattern: []
             then:
               - addLabel:
                   label: emitter:service:js
           - if:
-              - includesModifiedFiles:
-                  files:
-                    - eng/
-                    - .github/
+              - filesMatchPattern:
+                  pattern:
+                    - eng/.*
+                    - .github/.*
             then:
               - addLabel:
                   label: eng
