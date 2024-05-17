@@ -48,9 +48,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Assert.IsNotNull(interfaces);
             Assert.AreEqual(1, interfaces.Count);
 
-            var expectediJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
+            var expectedJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
 
-            Assert.That(interfaces.Any(i => i.Equals(expectediJsonModelTInterface)));
+            Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
         }
 
         // This test validates the json model serialization write method is built correctly
@@ -64,11 +64,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.IsNotNull(method);
 
-            var expectediJsonModelInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
+            var expectedJsonModelInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
             var methodSignature = method?.Signature as MethodSignature;
             Assert.IsNotNull(methodSignature);
             Assert.AreEqual("Write", methodSignature?.Name);
-            Assert.AreEqual(expectediJsonModelInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual(expectedJsonModelInterface, methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             Assert.IsNull(methodSignature?.ReturnType);
         }

@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override ExtensibleSnippets ExtensibleSnippets { get; }
 
         /// <summary>
-        /// Returns the serialization type providers of type <see cref="JsonMrwSerializationTypeProvider"/> for the given model type provider.
+        /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider)
