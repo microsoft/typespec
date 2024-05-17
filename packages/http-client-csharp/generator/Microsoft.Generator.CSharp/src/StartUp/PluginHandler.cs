@@ -14,18 +14,11 @@ namespace Microsoft.Generator.CSharp
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using (CompositionContainer container = new(directoryCatalog))
             {
-                try
+                container.ComposeExportedValue(new GeneratorContext(Configuration.Load(outputDirectory)));
+                var plugin = container.GetExportedValue<CodeModelPlugin>();
+                if (plugin == null)
                 {
-                    container.ComposeExportedValue(new GeneratorContext(Configuration.Load(outputDirectory)));
-                    var plugin = container.GetExportedValue<CodeModelPlugin>();
-                    if (plugin == null)
-                    {
-                        throw new InvalidOperationException($"Cannot find exported value in current directory {AppContext.BaseDirectory}.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Failed to load client model plugin from {AppContext.BaseDirectory}.", ex);
+                    throw new InvalidOperationException($"Cannot find exported value in current directory {AppContext.BaseDirectory}.");
                 }
             }
         }
