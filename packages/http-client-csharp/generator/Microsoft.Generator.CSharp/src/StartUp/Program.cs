@@ -40,13 +40,12 @@ namespace Microsoft.Generator.CSharp
             {
                 await runner.RunAsync(options);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Console.Error.WriteLine($"Error: {ex.Message}: {ex.StackTrace}");
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine(e.StackTrace);
                 return 1;
             }
-
-            Console.Error.WriteLine("Shutting Down");
             return 0;
         }
     }
