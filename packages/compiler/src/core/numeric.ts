@@ -118,14 +118,10 @@ function parse(original: string): InternalData {
     }
 
     let end = stringValue.length;
-    while (stringValue[end - 1] === "0") {
-      if (end < adjustedPointIndex) {
-        // if we are looking at a zero before the decimal point, we need to decrease the exponent
-        exp++;
-      } else {
-        end--;
-      }
+    while (stringValue[end - 1] === "0" && end > adjustedPointIndex) {
+      end--;
     }
+
     try {
       stringValue = stringValue.slice(0, end);
       stringValue = stringValue + "0".repeat(Math.max(exp - stringValue.length, 0)); // add remaining zeros for cases like 3e30
