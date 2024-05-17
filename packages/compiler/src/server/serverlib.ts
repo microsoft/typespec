@@ -52,7 +52,7 @@ import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
@@ -67,6 +67,7 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
+  PositionDetail,
   SourceFile,
   SyntaxKind,
   TextRange,
@@ -670,7 +671,7 @@ export function createServer(host: ServerHost): Server {
     const result = await compileService.compile(params.textDocument);
     if (result) {
       const { script, document, program } = result;
-      const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
+      const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
       return await resolveCompletion(
         {
@@ -679,7 +680,7 @@ export function createServer(host: ServerHost): Server {
           completions,
           params,
         },
-        node
+        posDetail
       );
     }
 
@@ -1076,10 +1077,10 @@ export function getCompletionNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
   filter: (node: Node) => boolean = (node: Node) => true
-): Node | undefined {
-  const realNode = getNodeAtPosition(script, position, filter);
-  if (realNode?.kind === SyntaxKind.StringLiteral) {
-    return realNode;
+): PositionDetail | undefined {
+  const detail = getNodeAtPositionDetail(script, position, filter);
+  if (detail?.node.kind === SyntaxKind.StringLiteral) {
+    return detail;
   }
   // If we're not immediately after an identifier character, then advance
   // the position past any trivia. This is done because a zero-width
@@ -1089,8 +1090,8 @@ export function getCompletionNodeAtPosition(
   if (!cp || !isIdentifierContinue(cp)) {
     const newPosition = skipTrivia(script.file.text, position);
     if (newPosition !== position) {
-      return getNodeAtPosition(script, newPosition, filter);
+      return getNodeAtPositionDetail(script, newPosition, filter);
     }
   }
-  return realNode;
+  return detail;
 }
