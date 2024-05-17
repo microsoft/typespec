@@ -11,8 +11,9 @@ import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
   IdentifierNode,
-  Node,
+  NodeFlags,
   NodePackage,
+  PositionDetail,
   Program,
   StringLiteralNode,
   SymbolFlags,
@@ -40,9 +41,11 @@ export type CompletionContext = {
 
 export async function resolveCompletion(
   context: CompletionContext,
-  node: Node | undefined
+  posDetail: PositionDetail | undefined
 ): Promise<CompletionList> {
+  const node = posDetail?.node;
   if (
+    posDetail === undefined ||
     node === undefined ||
     node.kind === SyntaxKind.InvalidStatement ||
     (node.kind === SyntaxKind.Identifier &&
@@ -66,6 +69,11 @@ export async function resolveCompletion(
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
           await addImportCompletion(context, node);
         }
+        break;
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.ObjectLiteral:
+      case SyntaxKind.ModelExpression:
+        addModelCompletion(context, posDetail);
         break;
     }
   }
@@ -235,6 +243,39 @@ async function addRelativePathCompletion(
         break;
     }
   }
+}
+
+function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
+  const node = posDetail.node;
+  if (
+    node.kind !== SyntaxKind.ModelStatement &&
+    node.kind !== SyntaxKind.ModelExpression &&
+    node.kind !== SyntaxKind.ObjectLiteral
+  ) {
+    return;
+  }
+  // skip the scenario like `{ ... }|`
+  if (node.end === posDetail.position) {
+    return;
+  }
+  // create a fake identifier node to further resolve the completions for the model/object
+  // it's a little tricky but can help to keep things clean and simple while the cons. is limited
+  // TODO: consider adding support in resolveCompletions for non-identifier-node directly when we find more scenario and worth the cost
+  const fakeProp = {
+    kind:
+      node.kind === SyntaxKind.ObjectLiteral
+        ? SyntaxKind.ObjectLiteralProperty
+        : SyntaxKind.ModelProperty,
+    flags: NodeFlags.None,
+    parent: node,
+  };
+  const fakeId = {
+    kind: SyntaxKind.Identifier,
+    sv: "",
+    flags: NodeFlags.None,
+    parent: fakeProp,
+  };
+  addIdentifierCompletion(context, fakeId as IdentifierNode);
 }
 
 /**
