@@ -255,6 +255,9 @@ describe("Test getUsages", () => {
   it("Test the usage of body parameter and return type of azure core resource operation.", async () => {
     const program = await typeSpecCompile(
       `
+            alias ResourceOperations = global.Azure.Core.ResourceOperations<NoConditionalRequests &
+            NoRepeatableRequests &
+            NoClientRequestId>;
             @doc("This is a model.")
             @resource("items")
             model Foo {
@@ -268,7 +271,7 @@ describe("Test getUsages", () => {
 
             interface FooClient{
                 @doc("create Foo")
-                createFoo is ResourceCreateOrUpdate<Foo>;
+                createFoo is ResourceOperations.ResourceCreateOrUpdate<Foo>;
             }
       `,
       runner,
