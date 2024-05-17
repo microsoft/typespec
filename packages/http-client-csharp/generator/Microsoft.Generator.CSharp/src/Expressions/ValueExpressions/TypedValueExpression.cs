@@ -14,7 +14,8 @@ namespace Microsoft.Generator.CSharp.Expressions
     public abstract record TypedValueExpression(CSharpType Type, ValueExpression Untyped) : ValueExpression
     {
         public override void Write(CodeWriter writer) => Untyped.Write(writer);
-        public static implicit operator TypedValueExpression(FieldDeclaration name) => new VariableReference(name.Type, name.Declaration);
+        public static implicit operator TypedValueExpression(FieldDeclaration field) => new TypedMemberExpression(null, field.Name, field.Type);
+        public static implicit operator TypedValueExpression(PropertyDeclaration property) => new TypedMemberExpression(null, property.Name, property.Type);
         public static implicit operator TypedValueExpression(Parameter parameter) => new ParameterReference(parameter);
 
         public TypedValueExpression NullableStructValue() => Type is { IsNullable: true, IsValueType: true } ? new TypedMemberExpression(this, nameof(Nullable<int>.Value), Type.WithNullable(false)) : this;

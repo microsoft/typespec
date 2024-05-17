@@ -34,6 +34,10 @@ parameters:
   - name: NodeVersion
     type: string
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
 steps:
   - ${{ if notIn(parameters.Publish, 'none', 'internal', 'public') }}:
       - script: |
@@ -50,6 +54,12 @@ steps:
             condition: always()
 
   - checkout: self
+
+  - task: NodeTool@0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.NodeVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
