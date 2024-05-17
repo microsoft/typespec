@@ -104,13 +104,16 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputTypeKind.Float32:
                     foreach (var value in allowedValues)
                     {
-                        if (value.Value is int i)
+                        switch (value.Value)
                         {
-                            concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
-                        }
-                        else
-                        {
-                            concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)value.Value, value.Description));
+                            case int i:
+                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
+                                break;
+                            case float f:
+                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, f, value.Description));
+                                break;
+                            default:
+                                throw new JsonException($"Enum value type of ${value.Name} cannot cast to float.");
                         }
                     }
                     break;
