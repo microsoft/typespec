@@ -80,7 +80,7 @@ const issueTriageConfig: PolicyServiceConfig = {
           ],
           then: [
             {
-              removeLabel: {
+              addLabel: {
                 label: "needs-area",
               },
             },
