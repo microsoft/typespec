@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ComponentModel.Composition;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
+    [InheritedExport]
     public abstract class TypeFactory
     {
         /// <summary>

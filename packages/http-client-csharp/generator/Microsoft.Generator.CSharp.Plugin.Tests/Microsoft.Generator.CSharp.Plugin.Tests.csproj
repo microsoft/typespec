@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Microsoft.Generator.CSharp\src\Microsoft.Generator.CSharp.csproj" />
+    </ItemGroup>
+
+  <ItemGroup>
+<!--    <PackageReference Include="Microsoft.NET.Test.Sdk" />-->
+<!--    <PackageReference Include="Moq" />-->
+<!--    <PackageReference Include="NUnit" />-->
+<!--    <PackageReference Include="NUnit3TestAdapter" />-->
+  </ItemGroup>
+
+  <!-- Copy output to package dist path for local execution and  -->
+  <Target Name="CopyForNpmPackage" AfterTargets="Build">
+    <Message Text="Copying output to dist path" Importance="high" />
+    <ItemGroup>
+      <SourceDir Include="$(OutputPath)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\dist\generator\%(RecursiveDir)" />
+  </Target>
+</Project>
