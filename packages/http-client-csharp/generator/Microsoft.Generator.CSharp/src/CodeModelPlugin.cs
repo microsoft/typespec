@@ -25,8 +25,10 @@ namespace Microsoft.Generator.CSharp
         {
             _instance = this;
             Configuration = context.Configuration;
-            InputLibrary = new InputLibrary(Instance.Configuration.OutputDirectory);
+            _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
         }
+
+        private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
         public abstract ApiTypes ApiTypes { get; }
@@ -34,7 +36,7 @@ namespace Microsoft.Generator.CSharp
         public abstract TypeFactory TypeFactory { get; }
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
-        public InputLibrary InputLibrary { get; }
+        public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
 
         /// <summary>
