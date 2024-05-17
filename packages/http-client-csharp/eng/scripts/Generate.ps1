@@ -4,11 +4,12 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
-Invoke "npm run build"
+Invoke "npm run build:emitter"
+# we don't want to build the entire solution because the test projects might not build until after regeneration
+# generating Microsoft.Generator.CSharp.ClientModel.csproj is enough
+Invoke "dotnet build $repoRoot/generator/Microsoft.Generator.CSharp.ClientModel/src"
 
-$mgcArtifactRoot = Join-Path $repoRoot 'dist' 'generator'
-$clientModelTestProjectsDirectory = Join-Path $repoRoot 'generator' 'Microsoft.Generator.CSharp.ClientModel.TestProjects'
+$testProjectsLocalDir = Join-Path $repoRoot 'generator' 'TestProjects' 'Local'
 
-$mgcPath = Join-Path $mgcArtifactRoot "Microsoft.Generator.CSharp.exe"
-$unbrandedTypespecTestProject = Join-Path $clientModelTestProjectsDirectory "Unbranded-TypeSpec"
-Invoke "$mgcPath $unbrandedTypespecTestProject"
+$unbrandedTypespecTestProject = Join-Path $testProjectsLocalDir "Unbranded-TypeSpec"
+Invoke "npx tsp compile $unbrandedTypespecTestProject/Unbranded-TypeSpec.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=$unbrandedTypespecTestProject --option @typespec/http-client-csharp.save-inputs=true"

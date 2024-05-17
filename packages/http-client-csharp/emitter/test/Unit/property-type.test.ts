@@ -134,7 +134,10 @@ describe("Test GetInputType for enum", () => {
         IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type
+      root.Clients[0].Operations[0].Parameters[0].Type,
+      `Enum type is not correct, got ${JSON.stringify(
+        root.Clients[0].Operations[0].Parameters[0].Type
+      )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
     assert(type.EnumValueType !== undefined);
@@ -173,7 +176,7 @@ describe("Test GetInputType for enum", () => {
         Accessibility: undefined,
         Deprecated: undefined,
         Description: "Fixed int enum",
-        EnumValueType: "Float32",
+        EnumValueType: "Int32",
         AllowedValues: [
           {
             Name: "One",
@@ -195,7 +198,10 @@ describe("Test GetInputType for enum", () => {
         IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type
+      root.Clients[0].Operations[0].Parameters[0].Type,
+      `Enum type is not correct, got ${JSON.stringify(
+        root.Clients[0].Operations[0].Parameters[0].Type
+      )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
     assert(type.EnumValueType !== undefined);
@@ -237,7 +243,10 @@ describe("Test GetInputType for enum", () => {
         IsNullable: false,
         Usage: "Input",
       } as InputEnumType,
-      root.Clients[0].Operations[0].Parameters[0].Type
+      root.Clients[0].Operations[0].Parameters[0].Type,
+      `Enum type is not correct, got ${JSON.stringify(
+        root.Clients[0].Operations[0].Parameters[0].Type
+      )}`
     );
     const type = root.Clients[0].Operations[0].Parameters[0].Type as InputEnumType;
     assert(type.EnumValueType !== undefined);
