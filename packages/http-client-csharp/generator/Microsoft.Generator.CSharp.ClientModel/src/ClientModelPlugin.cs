@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -26,10 +27,19 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override ExtensibleSnippets ExtensibleSnippets { get; }
 
         /// <summary>
-        /// Returns a serialization type provider of type <see cref="SystemModelSerializationTypeProvider"/> for the given model type provider.
+        /// Returns the serialization type providers of type <see cref="JsonMrwSerializationTypeProvider"/> for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public override TypeProvider? GetSerializationTypeProvider(ModelTypeProvider provider) => new SystemModelSerializationTypeProvider(provider);
+        public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider)
+        {
+            // Add JSON serialization type provider
+            if (provider.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return new TypeProvider[] { new JsonMrwSerializationTypeProvider(provider) };
+            }
+
+            return Array.Empty<TypeProvider>();
+        }
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)

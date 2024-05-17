@@ -17,4 +17,13 @@
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Mocks\Configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Mocks\tspCodeModel.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

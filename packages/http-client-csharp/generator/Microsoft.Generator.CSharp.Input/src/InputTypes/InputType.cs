@@ -15,7 +15,6 @@ namespace Microsoft.Generator.CSharp.Input
             Name = name;
             IsNullable = isNullable;
         }
-        public InputTypeSerialization Serialization { get; init; } = InputTypeSerialization.Default;
 
         public string Name { get; }
         public bool IsNullable { get; }

@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp
         internal const string ProtocolValue = "Protocol";
         internal const string CreateMessageValue = "CreateMessage";
         internal const string ConstructorValue = "Constructor";
+        internal const string UndefinedValue = "Undefined";
 
         private readonly string _value;
 
@@ -42,9 +43,15 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public static CSharpMethodKinds CreateMessage { get; } = new CSharpMethodKinds(CreateMessageValue);
 
+        /// <summary>
         /// Constructor method kind.
         /// </summary>
         public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);
+
+        /// <summary>
+        /// Undefined method kind.
+        /// </summary>
+        internal static CSharpMethodKinds Undefined { get; } = new CSharpMethodKinds(UndefinedValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);

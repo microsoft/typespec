@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp
         /// Initializes the configuration from the given path to the configuration file.
         /// </summary>
         /// <param name="outputPath">The path to the configuration JSON file.</param>
-        internal static Configuration Load(string outputPath, string? json = null)
+        public static Configuration Load(string outputPath, string? json = null)
         {
             var configFile = Path.Combine(outputPath, ConfigurationFileName);
             if (!File.Exists(configFile) && json is null)
@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp
                 : JsonDocument.Parse(json).RootElement;
 
             return new Configuration(
-                outputPath.Equals(string.Empty) ? outputPath :Path.GetFullPath(outputPath),
+                outputPath.Equals(string.Empty) ? outputPath : Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
                 ReadOption(root, Options.GenerateModelFactory),

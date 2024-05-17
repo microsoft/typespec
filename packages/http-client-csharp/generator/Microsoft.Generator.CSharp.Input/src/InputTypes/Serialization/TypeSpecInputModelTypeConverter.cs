@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -102,6 +102,9 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 Enum.TryParse(usageString, ignoreCase: true, out usage);
             }
+
+            // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
+            usage |= InputModelTypeUsage.Json;
 
             var derivedModels = new List<InputModelType>();
             var model = new InputModelType(name, ns, accessibility, deprecated, description, usage, properties, baseModel, derivedModels, discriminatorValue, discriminatorPropertyValue, inheritedDictionaryType, isNullable: isNullable);

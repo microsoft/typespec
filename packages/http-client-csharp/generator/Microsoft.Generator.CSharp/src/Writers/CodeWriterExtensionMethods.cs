@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp
 
             writer.WriteMethodDocumentation(method.Signature);
 
-            if (method.Body is { } body)
+            if (method.BodyStatements is { } body)
             {
                 using (writer.WriteMethodDeclaration(method.Signature))
                 {
