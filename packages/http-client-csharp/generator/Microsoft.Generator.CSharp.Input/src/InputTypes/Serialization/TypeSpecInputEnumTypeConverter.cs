@@ -104,7 +104,14 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputTypeKind.Float32:
                     foreach (var value in allowedValues)
                     {
-                        concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)value.Value, value.Description));
+                        if (value.Value is int i)
+                        {
+                            concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
+                        }
+                        else
+                        {
+                            concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)value.Value, value.Description));
+                        }
                     }
                     break;
                 default:

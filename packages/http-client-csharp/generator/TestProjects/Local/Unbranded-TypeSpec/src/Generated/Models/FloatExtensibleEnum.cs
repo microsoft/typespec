@@ -10,14 +10,14 @@ namespace UnbrandedTypeSpec.Models
 {
     public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>
     {
-        private readonly int _value;
-        private const int OneValue = 1;
-        private const int TwoValue = 2;
-        private const int FourValue = 4;
+        private readonly float _value;
+        private const float OneValue = 1F;
+        private const float TwoValue = 2F;
+        private const float FourValue = 4F;
 
         /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnum"/>. </summary>
         /// <param name="value"></param>
-        public FloatExtensibleEnum(int value)
+        public FloatExtensibleEnum(float value)
         {
             _value = value;
         }
@@ -40,7 +40,7 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> Converts a string to a <see cref="FloatExtensibleEnum"/>. </summary>
         /// <param name="value"></param>
-        public static implicit operator FloatExtensibleEnum(int value) => new FloatExtensibleEnum(value);
+        public static implicit operator FloatExtensibleEnum(float value) => new FloatExtensibleEnum(value);
 
         /// <param name="obj"></param>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -53,6 +53,6 @@ namespace UnbrandedTypeSpec.Models
 
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
-        internal int ToSerialInt32() => _value;
+        internal float ToSerialSingle() => _value;
     }
 }
