@@ -2,30 +2,45 @@ import { Octokit as OctokitCore } from "@octokit/core";
 import { paginateGraphQL } from "@octokit/plugin-paginate-graphql";
 import { restEndpointMethods } from "@octokit/plugin-rest-endpoint-methods";
 import { readFile, writeFile } from "fs/promises";
-import { dirname, resolve } from "path";
+import { resolve } from "path";
 import pc from "picocolors";
 import { format, resolveConfig } from "prettier";
-import { fileURLToPath } from "url";
-import { inspect, parseArgs } from "util";
-import { parse } from "yaml";
+import { inspect } from "util";
+import rawLabels from "../../config/labels.js";
+import { repo, repoRoot } from "../common.js";
 
 const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
 type Octokit = InstanceType<typeof Octokit>;
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const labelFileRelative = "eng/common/labels.yaml";
-const labelFile = resolve(repoRoot, labelFileRelative);
+const labelFileRelative = "eng/common/config/labels.ts";
 const contributingFile = resolve(repoRoot, "CONTRIBUTING.md");
 const magicComment = {
   start: "<!-- LABEL GENERATED REF START -->",
   end: "<!-- LABEL GENERATED REF END -->",
 } as const;
 
-const repo = {
-  owner: "microsoft",
-  repo: "typespec",
-};
-await main();
+export interface SyncLabelsOptions {
+  readonly github?: boolean;
+  readonly check?: boolean;
+  readonly dryRun?: boolean;
+}
+
+export async function syncLabelsDefinitions(options: SyncLabelsOptions = {}) {
+  const labels = loadLabels();
+  logLabelConfig(labels);
+
+  if (options.github) {
+    await syncGithubLabels(labels.labels, {
+      dryRun: options.dryRun,
+      check: options.check,
+    });
+  }
+
+  updateContributingFile(labels, {
+    dryRun: options.dryRun,
+    check: options.check,
+  });
+}
 
 interface LabelsConfig {
   readonly categories: LabelCategory[];
@@ -49,43 +64,8 @@ interface ActionOptions {
   readonly check?: boolean;
 }
 
-async function main() {
-  const options = parseArgs({
-    args: process.argv.slice(2),
-    options: {
-      "dry-run": {
-        type: "boolean",
-        description: "Do not make any changes, log what action would be taken.",
-      },
-      check: {
-        type: "boolean",
-        description: "Check if labels are in sync, return non zero exit code if not.",
-      },
-      github: { type: "boolean", description: "Include github labels" },
-    },
-  });
-  const content = await readFile(labelFile, "utf8");
-  const labels = loadLabels(content);
-  logLabelConfig(labels);
-
-  if (options.values["github"]) {
-    await syncGithubLabels(labels.labels, {
-      dryRun: options.values["dry-run"],
-      check: options.values.check,
-    });
-  }
-
-  updateContributingFile(labels, {
-    dryRun: options.values["dry-run"],
-    check: options.values.check,
-  });
-}
-
-function loadLabels(yamlContent: string): LabelsConfig {
-  const data: Record<
-    string,
-    { description: string; labels: Record<string, { color: string; description: string }> }
-  > = parse(yamlContent);
+function loadLabels(): LabelsConfig {
+  const data = rawLabels;
   const labels = [];
   const categories: LabelCategory[] = [];
   for (const [categoryName, { description, labels: labelMap }] of Object.entries(data)) {

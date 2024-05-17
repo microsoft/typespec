@@ -640,6 +640,91 @@ describe("identifiers", () => {
     );
   });
 
+  it("completes extended model properties", async () => {
+    const completions = await complete(
+      `
+       model N {
+        name: string;
+        value: int16
+       }
+       model M extends N {
+        test: string;
+        ┆
+       }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "name",
+          insertText: "name",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.name: string\n```",
+          },
+        },
+        {
+          label: "value",
+          insertText: "value",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.value: int16\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
+  it("completes extended model typing and remaining properties", async () => {
+    const completions = await complete(
+      `
+       model N {
+        name: string;
+        value: int16;
+        extra: boolean;
+       }
+       model M extends N {
+        name: string;
+        va┆
+       }
+      `
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "value",
+          insertText: "value",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.value: int16\n```",
+          },
+        },
+        {
+          label: "extra",
+          insertText: "extra",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nN.extra: boolean\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      }
+    );
+  });
+
   it("completes template parameter uses", async () => {
     const completions = await complete(
       `
@@ -1025,6 +1110,1001 @@ describe("identifiers", () => {
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
+  });
+
+  describe("completion for objectliteral/arrayliteral as template parameter default value", () => {
+    const def = `
+      /**
+       * my log context
+       */
+      model MyLogContext<T> {
+        /**
+         * name of log context 
+         */
+        name: string;
+        /**
+         * items of context
+         */
+        item: Array<T>;
+      }
+  
+      /**
+       * my log argument
+       */
+      model MyLogArg{
+        /**
+         * my log message
+         */
+        msg: string;
+        /**
+         * my log id
+         */
+        id: int16;
+        /**
+         * my log context
+         */
+        context: MyLogContext<string>[];
+      }
+      `;
+
+    it("show all properties literal object, array, type", async () => {
+      (
+        await Promise.all(
+          [
+            `model TestModel<T extends MyLogArg = {┆}>{};`,
+            `model TestModel<T extends valueof MyLogArg = #{┆}>{};`,
+            `model TestModel<T extends MyLogArg[] = [{┆}]>{};`,
+            `model TestModel<T extends valueof MyLogArg[] = #[#{┆}]>{};`,
+            `model TestModel<T extends [string, MyLogArg] = ["abc", {┆}]>{};`,
+            `model TestModel<T extends valueof [string, MyLogArg] = #["abc", #{┆}]>{};`,
+          ].map(async (item) => await complete(`${def}\n${item}`))
+        )
+      ).forEach((completions) => {
+        check(
+          completions,
+          [
+            {
+              label: "msg",
+              insertText: "msg",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              },
+            },
+            {
+              label: "id",
+              insertText: "id",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              },
+            },
+            {
+              label: "context",
+              insertText: "context",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        );
+      });
+    });
+
+    it("show all properties of literal model -> literal array -> literal model", async () => {
+      (
+        await Promise.all(
+          [
+            `model TestModel<T extends MyLogArg = {context: [{┆}]}>{};`,
+            `model TestModel<T extends valueof MyLogArg = #{context: #[#{┆}]}>{};`,
+          ].map(async (item) => await complete(`${def}\n${item}`))
+        )
+      ).forEach((completions) => {
+        check(
+          completions,
+          [
+            {
+              label: "name",
+              insertText: "name",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+              },
+            },
+            {
+              label: "item",
+              insertText: "item",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        );
+      });
+    });
+
+    it("no completion for type to value", async () => {
+      const completions = await complete(
+        `${def}
+        model TestModel<T extends valueof MyLogArg = {┆}>{};
+          `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+
+    it("no completion for value to type", async () => {
+      const completions = await complete(
+        `${def}
+        model TestModel<T extends MyLogArg = #{┆}>{};
+          `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+    it("no completion when cursor is after }", async () => {
+      const completions = await complete(
+        `${def}
+        model TestModel<T extends MyLogArg = #{}┆>{};
+          `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+  });
+
+  describe("completion for scalar init objectliteral/arrayliteral arg", () => {
+    const def = `
+    /**
+     * my log context
+     */
+    model MyLogContext<T> {
+      /**
+       * name of log context 
+       */
+      name: string;
+      /**
+       * items of context
+       */
+      item: Array<T>;
+    }
+
+    /**
+     * my log argument
+     */
+    model MyLogArg{
+      /**
+       * my log message
+       */
+      msg: string;
+      /**
+       * my log id
+       */
+      id: int16;
+      /**
+       * my log context
+       */
+      context: MyLogContext<string>[];
+    }
+
+    scalar TestString extends string{
+      init createFromLog(value: MyLogArg);
+      init createFromLog2(value: MyLogArg[]);
+      init createFromLog3(value: string);
+      init createFromLog4(value1: int, value2: [{arg: [MyLogArg, string]}])
+    }
+    `;
+
+    it("show all properties literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog(#{┆});
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+    it("show all properties of literal array -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog2(#[#{┆}]);
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+    it("show all properties of tuple->object->tuple->object", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog4(1, #[#{arg:#[#{┆},"abc"]}]);
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+    it("no completion for model", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog({┆});
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+    it("no completion for non-literalobject type", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog3(┆);
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+    it("no completion when cursor is after }", async () => {
+      const completions = await complete(
+        `${def}
+         const c = TestString.createFromLog({}┆);
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+  });
+
+  describe("completion for const assignment of objectliteral/arrayliteral", () => {
+    const def = `
+    /**
+     * my log context
+     */
+    model MyLogContext<T> {
+      /**
+       * name of log context 
+       */
+      name: string;
+      /**
+       * items of context
+       */
+      item: Array<T>;
+    }
+
+    /**
+     * my log argument
+     */
+    model MyLogArg{
+      /**
+       * my log message
+       */
+      msg: string;
+      /**
+       * my log id
+       */
+      id: int16;
+      /**
+       * my log context
+       */
+      context: MyLogContext<string>[];
+      /**
+       * my log context2
+       */
+      context2: [MyLogContext<string>, int16];
+    }
+    `;
+    it("show all properties literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{┆};
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+          {
+            label: "context2",
+            insertText: "context2",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of literal array -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg[] = #[#{┆}];
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "msg",
+            insertText: "msg",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+            },
+          },
+          {
+            label: "id",
+            insertText: "id",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+            },
+          },
+          {
+            label: "context",
+            insertText: "context",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+            },
+          },
+          {
+            label: "context2",
+            insertText: "context2",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of literal model -> literal array -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{context:#[#{┆}]};
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of literal model -> tuple -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{context2:#[#{┆}]};
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("show all properties of alias -> tuple -> literal model -> array -> literal model", async () => {
+      const completions = await complete(
+        `${def}
+         alias A = [MyLogArg];
+         const c : A = #[#{context:#[#{┆}]}];
+        `
+      );
+      check(
+        completions,
+        [
+          {
+            label: "name",
+            insertText: "name",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+            },
+          },
+          {
+            label: "item",
+            insertText: "item",
+            kind: CompletionItemKind.Field,
+            documentation: {
+              kind: MarkupKind.Markdown,
+              value:
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+            },
+          },
+        ],
+        {
+          fullDocs: true,
+          allowAdditionalCompletions: false,
+        }
+      );
+    });
+
+    it("no completion for scalar array in literal object", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{context:#[#{item: #[┆]}]};
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for scalar array");
+    });
+
+    it("no completion for model", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = {┆};
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for model");
+    });
+
+    it("no completion when cursor is after }", async () => {
+      const completions = await complete(
+        `${def}
+         const c : MyLogArg = #{}┆;
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected after }");
+    });
+
+    it("no completion for const without type", async () => {
+      const completions = await complete(
+        `${def}
+         const c = #{┆};
+        `
+      );
+      ok(completions.items.length === 0, "No completions expected for const without type");
+    });
+  });
+
+  describe("completion for decorator model/value argument", () => {
+    const decArgModelDef = `
+      import "./decorators.js";
+
+      /**
+       * my log context
+       */
+      model MyLogContext<T> {
+        /**
+         * name of log context 
+         */
+        name: string;
+        /**
+         * items of context
+         */
+        item: Record<T>;
+      }
+
+      /**
+       * my log argument
+       */
+      model MyLogArg{
+        /**
+         * my log message
+         */
+        msg: string;
+        /**
+         * my log id
+         */
+        id: int16;
+        /**
+         * my log context
+         */
+        context: MyLogContext<string>;
+      }
+
+      extern dec myDec(target, arg: MyLogArg, arg2: valueof MyLogArg, arg3: [string, MyLogArg, int], arg4: valueof [MyLogArg]);
+      `;
+
+    it("show all properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      (
+        await Promise.all(
+          [
+            `@myDec({┆})`,
+            `@myDec({}, #{┆})`,
+            `@myDec({}, {┆})`,
+            `@myDec({}, {}, ["abc", {┆}, 16])`,
+            `@myDec({}, {}, #[], #[#{┆}])`,
+          ].map(async (dec) => {
+            return await complete(
+              `${decArgModelDef}
+        ${dec}
+        model M {}
+        `,
+              js
+            );
+          })
+        )
+      ).forEach((completions) =>
+        check(
+          completions,
+          [
+            {
+              label: "msg",
+              insertText: "msg",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              },
+            },
+            {
+              label: "id",
+              insertText: "id",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              },
+            },
+            {
+              label: "context",
+              insertText: "context",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        )
+      );
+
+      const result = await complete(
+        `${decArgModelDef}
+        @myDec(#{┆})
+        model M {}
+        `,
+        js
+      );
+      ok(result.items.length === 0, "No completions expected when value is used for type");
+    });
+
+    it("show all properties of nested model", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      (
+        await Promise.all(
+          [
+            `@myDec({ context: {┆} })`,
+            `@myDec({ context: {} }, #{ context: #{┆} })`,
+            `@myDec({ context: {} }, { context: {┆} })`,
+          ].map(async (dec) => {
+            return await complete(
+              `${decArgModelDef}
+          ${dec}
+          model M {}
+          `,
+              js
+            );
+          })
+        )
+      ).forEach((completions) => {
+        check(
+          completions,
+          [
+            {
+              label: "name",
+              insertText: "name",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+              },
+            },
+            {
+              label: "item",
+              insertText: "item",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        );
+      });
+
+      const result = await complete(
+        `${decArgModelDef}
+        @myDec(#{ context: #{┆} }, { context: {} })
+        model M {}
+        `,
+        js
+      );
+      ok(result.items.length === 0, "No completions expected when value is used for type");
+    });
+
+    it("show the left properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      (
+        await Promise.all(
+          [
+            `@myDec({ context: { name: "abc", ┆} })`,
+            `@myDec({}, #{ context: #{ name: "abc", ┆} })`,
+            `@myDec({}, { context: { name: "abc", ┆} })`,
+          ].map(async (dec) => {
+            return await complete(
+              `${decArgModelDef}
+        ${dec}
+        model M {}
+        `,
+              js
+            );
+          })
+        )
+      ).forEach((completions) => {
+        check(
+          completions,
+          [
+            {
+              label: "item",
+              insertText: "item",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        );
+      });
+      const result = await complete(
+        `${decArgModelDef}
+      @myDec(#{ context: #{ name: "abc", ┆} })
+      model M {}
+      `,
+        js
+      );
+      ok(result.items.length === 0, "No completions expected when value is used for type");
+    });
+
+    it("show the typing and left properties", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      (
+        await Promise.all(
+          [
+            `@myDec({ msg: "msg", conte┆xt})`,
+            `@myDec({}, { msg: "msg", conte┆xt})`,
+            `@myDec({}, #{ msg: "msg", conte┆xt})`,
+          ].map(async (dec) => {
+            return await complete(
+              `${decArgModelDef}
+        ${dec}
+        model M {}
+        `,
+              js
+            );
+          })
+        )
+      ).forEach((completions) =>
+        check(
+          completions,
+          [
+            {
+              label: "id",
+              insertText: "id",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              },
+            },
+            {
+              label: "context",
+              insertText: "context",
+              kind: CompletionItemKind.Field,
+              documentation: {
+                kind: MarkupKind.Markdown,
+                value:
+                  "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+              },
+            },
+          ],
+          {
+            fullDocs: true,
+            allowAdditionalCompletions: false,
+          }
+        )
+      );
+      const result = await complete(
+        `${decArgModelDef}
+      @myDec(#{ msg: "msg", conte┆xt})
+      model M {}
+      `,
+        js
+      );
+      ok(result.items.length === 0, "No completions expected when value is used for type");
+    });
+
+    it("no completion when cursor is after }", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decArgModelDef}
+        @myDec({}┆)
+        model M {}
+        `,
+        js
+      );
+      ok(completions.items.length === 0, "No completions expected when cursor is after }");
+    });
+
+    it("no completion when the model expression is not decorator argument value", async () => {
+      const js = {
+        name: "test/decorators.js",
+        js: {
+          $myDec: function () {},
+        },
+      };
+
+      const completions = await complete(
+        `${decArgModelDef}
+        @myDec({})
+        model M {}
+
+        op op1() : {
+          na┆me: string;
+          value: string
+        }
+        `,
+        js
+      );
+      ok(completions.items.length === 0, "No completions expected for normal model expression }");
+    });
   });
 
   describe("directives", () => {
