@@ -13,7 +13,7 @@ import type {
  * ```typespec
  * @autoRoute
  * interface Pets {
- * get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
+ *   get(@segment("pets") @path id: string): void; //-> route: /pets/{id}
  * }
  * ```
  */
