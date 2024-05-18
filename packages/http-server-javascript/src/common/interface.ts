@@ -19,7 +19,7 @@ export function* emitInterface(ctx: JsContext, iface: Interface, module: Module)
   const name = parseCase(iface.name).pascalCase;
 
   yield* emitDocumentation(ctx, iface);
-  yield `export interface ${name} {`;
+  yield `export interface ${name}<Context = unknown> {`;
   yield* emitOperationGroup(ctx, iface.operations.values(), module);
   yield "}";
   yield "";
@@ -57,9 +57,13 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const hasOptions = getAllProperties(op.parameters).some((p) => p.optional);
 
-  const [successResult, _] = splitReturnType(ctx, op.returnType, module, opNameCase.pascalCase);
+  // const [successResult, _] = splitReturnType(ctx, op.returnType, module, opNameCase.pascalCase);
 
-  const returnType = `Promise<${successResult.typeReference}>`;
+  const returnTypeReference = emitTypeReference(ctx, op.returnType, op, module, {
+    altName: opNameCase.pascalCase + "Result",
+  });
+
+  const returnType = `Promise<${returnTypeReference}>`;
 
   const params: string[] = [];
 
@@ -94,12 +98,12 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
     const paramsFragment = params.length > 0 ? `${paramsDeclarationLine}, ` : "";
 
     // prettier-ignore
-    yield `  ${opName}(${paramsFragment}options?: ${optionsTypeName}): ${returnType};`;
+    yield `  ${opName}(ctx: Context, ${paramsFragment}options?: ${optionsTypeName}): ${returnType};`;
     yield "";
   } else {
     yield* indent(documentation);
     // prettier-ignore
-    yield `  ${opName}(${paramsDeclarationLine}): ${returnType};`;
+    yield `  ${opName}(ctx: Context, ${paramsDeclarationLine}): ${returnType};`;
     yield "";
   }
 }

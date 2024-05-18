@@ -61,6 +61,25 @@ export const $lib = createTypeSpecLibrary({
         default: "Shared route cannot be differentiated from other routes.",
       },
     },
+    "undifferentiable-scalar": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Scalar type cannot be differentiated from other scalar type '${"competitor"}'.`,
+      },
+    },
+    "undifferentiable-model": {
+      severity: "error",
+      messages: {
+        default:
+          "Model type does not have enough unique properties to be differentiated from other models in some contexts.",
+      },
+    },
+    "unrepresentable-numeric-constant": {
+      severity: "error",
+      messages: {
+        default: "JavaScript cannot accurately represent this numeric constant.",
+      },
+    },
   },
 });
 

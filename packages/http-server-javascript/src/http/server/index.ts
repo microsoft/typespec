@@ -1,4 +1,4 @@
-import { ModelProperty, Type, getMaxValue, getMinValue } from "@typespec/compiler";
+import { ModelProperty, Type } from "@typespec/compiler";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -7,12 +7,6 @@ import {
   isHeader,
   isStatusCode,
 } from "@typespec/http";
-import {
-  SplitReturnType,
-  UnionSplitReturnType,
-  isInfallible,
-  splitReturnType,
-} from "../../common/interface.js";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
 import { parseTemplateForScalar } from "../../common/scalar.js";
@@ -25,6 +19,14 @@ import { getAllProperties } from "../../util/extends.js";
 import { indent } from "../../util/indent.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../feature.js";
+
+import { module as routerHelpers } from "../../helpers/router.js";
+import {
+  PreciseType,
+  differentiateTypes,
+  isPreciseType,
+  writeCodeTree,
+} from "../../util/differentiate.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -41,6 +43,11 @@ export function emitRawServer(ctx: HttpContext, operationsModule: Module): Modul
   serverRawModule.imports.push({
     binder: "* as http",
     from: "node:http",
+  });
+
+  serverRawModule.imports.push({
+    binder: ["HttpContext"],
+    from: routerHelpers,
   });
 
   for (const operation of ctx.httpService.operations) {
@@ -72,13 +79,6 @@ function* emitRawServerOperation(
     from: createOrGetModuleForNamespace(ctx, container.namespace!),
   });
 
-  const [successType, errorType] = splitReturnType(
-    ctx,
-    op.returnType,
-    module,
-    operationNameCase.pascalCase
-  );
-
   completePendingDeclarations(ctx);
 
   const pathParameters = operation.parameters.parameters.filter(function isPathParameter(param) {
@@ -88,7 +88,7 @@ function* emitRawServerOperation(
   const functionName = keywordSafe(containerNameCase.snakeCase + "_" + operationNameCase.snakeCase);
 
   yield `export async function ${functionName}(`;
-  // prettier-ignore
+  yield `  ctx: HttpContext,`;
   yield `  request: http.IncomingMessage,`;
   yield `  response: http.ServerResponse,`;
   yield `  operations: ${containerNameCase.pascalCase},`;
@@ -239,8 +239,6 @@ function* emitRawServerOperation(
     yield "";
   }
 
-  const fallible = !isInfallible(errorType);
-
   let hasOptions = false;
   const optionalParams = new Map<string, string>();
 
@@ -280,31 +278,11 @@ function* emitRawServerOperation(
     );
   }
 
-  const successProcessingBody = [
-    `  const result = await operations.${operationNameCase.camelCase}(`,
-    ...indent(indent(paramLines)),
-    `  );`,
-    "",
-  ];
+  yield `  const result = await operations.${operationNameCase.camelCase}(ctx, `;
+  yield* indent(indent(paramLines));
+  yield `  );`, yield "";
 
-  successProcessingBody.push(...indent(emitResultProcessing(ctx, successType)));
-
-  // TODO/witemple: the whole way error processing works is broken, need to come up with
-  // a better way to have business logic return errors.
-  if (fallible) {
-    // yield `  try {`;
-    yield* indent(successProcessingBody);
-    // yield `  } catch (_e) {`;
-    // yield `    const error = _e as ${errorType.typeReference};`;
-
-    // // TODO/witemple: not handling error cases correctly, but all cases are detected as success responses for some other reason,
-    // // so this is actually dead code.
-    // yield `    throw _e;`;
-
-    // yield `  }`;
-  } else {
-    yield* successProcessingBody;
-  }
+  yield* indent(emitResultProcessing(ctx, op.returnType));
 
   yield "}";
 
@@ -319,18 +297,36 @@ function* emitRawServerOperation(
  * @param ctx - The HTTP emitter context.
  * @param split - The SplitReturnType instance representing the return type of the operation.
  */
-function* emitResultProcessing(ctx: HttpContext, split: SplitReturnType): Iterable<string> {
-  if (split.kind === "ordinary") {
+function* emitResultProcessing(ctx: HttpContext, t: Type): Iterable<string> {
+  if (t.kind !== "Union") {
     // Single target type
-    if (typeof split.target === "undefined" || Array.isArray(split.target)) {
-      throw new Error("Unimplemented: splitReturnType target array or undefined");
-    }
-    yield* emitResultProcessingForType(ctx, split.target);
+    yield* emitResultProcessingForType(ctx, t);
   } else {
     // Union target, we need to make a decision tree to determine which type was actually returned and process it.
-    const decisionTree = createResultProcessingDecisionTree(ctx, split);
+    for (const variant of t.variants.values()) {
+      if (!isPreciseType(variant.type)) {
+        throw new UnimplementedError(
+          `imprecise type '${variant.type.kind}' as union variant in operation result`
+        );
+      }
+    }
 
-    yield* emitDecisionTreeResultProcessing(ctx, decisionTree);
+    const codeTree = differentiateTypes(
+      ctx,
+      new Map(
+        [...t.variants].map(([, variant]) => [
+          variant.type as PreciseType,
+          emitResultProcessingForType(ctx, variant.type),
+        ])
+      )
+    );
+
+    yield* writeCodeTree(ctx, codeTree, {
+      subject: "result",
+      referenceModelProperty(p) {
+        return "result." + parseCase(p.name).camelCase;
+      },
+    });
   }
 }
 
@@ -342,7 +338,7 @@ function* emitResultProcessing(ctx: HttpContext, split: SplitReturnType): Iterab
  */
 function* emitResultProcessingForType(ctx: HttpContext, target: Type): Iterable<string> {
   if (target.kind !== "Model") {
-    throw new Error(`Unimplemented: result processing for type kind '${target.kind}'`);
+    throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
 
   const body = [...target.properties.values()].find((p) => isBody(ctx.program, p));
@@ -401,6 +397,7 @@ interface OutputDecisionTreeSwitch {
   kind: "switch";
   path: [string, ...string[]];
   values: Map<JsValue, OutputDecisionTree>;
+  default?: OutputDecisionTree;
 }
 
 /**
@@ -410,6 +407,7 @@ interface OutputDecisionTreeIfChain {
   kind: "if-chain";
   path: [string, ...string[]];
   conditions: Map<OdtCondition, OutputDecisionTree>;
+  else?: OutputDecisionTree;
 }
 
 /**
@@ -431,155 +429,6 @@ interface OdtExactCondition {
 interface OdtRangeCondition {
   kind: "range";
   bounds: [number, number];
-}
-
-/**
- * Creates a decision tree rooted at the given split return type. The decision tree will determine which particular type
- * a value has at runtime and run the appropriate processing code for it.
- *
- * @param ctx - The HTTP emitter context.
- * @param split - The split return type to create a decision tree for.
- * @returns a decision tree that determines the type of a value and dispatches it to the correct processing code.
- */
-function createResultProcessingDecisionTree(
-  ctx: HttpContext,
-  split: UnionSplitReturnType
-): OutputDecisionTree {
-  // We can only switch if all the types have a statusCode property that is a single number.
-  const canSwitch = split.variants.every(
-    (v) =>
-      v.type.kind === "Model" &&
-      v.type.properties.has("statusCode") &&
-      v.type.properties.get("statusCode")!.type.kind === "Number"
-  );
-
-  if (canSwitch) {
-    // TODO/witemple: just assuming statusCode exists on all these types and that they're all models
-    const output: OutputDecisionTreeSwitch = {
-      kind: "switch",
-      path: ["statusCode"],
-      values: new Map(),
-    };
-
-    for (const variant of split.variants) {
-      if (variant.type.kind !== "Model") {
-        throw new Error(`Output decision tree: variant is not a model, got ${variant.type.kind}`);
-      }
-
-      const statusCode = variant.type.properties.get("statusCode");
-
-      if (!statusCode || statusCode.type.kind !== "Number") {
-        throw new Error(
-          `Output decision tree: status code property cannot be converted to a number, got kind '${statusCode?.type.kind}'.`
-        );
-      }
-
-      output.values.set(statusCode.type.value, {
-        kind: "result",
-        type: variant.type,
-      });
-    }
-
-    return output;
-  } else {
-    // Use an if chain
-    const output: OutputDecisionTreeIfChain = {
-      kind: "if-chain",
-      path: ["statusCode"],
-      conditions: new Map(),
-    };
-
-    for (const variant of split.variants) {
-      if (variant.type.kind !== "Model") {
-        throw new Error(`Output decision tree: variant is not a model, got ${variant.type.kind}`);
-      }
-
-      const statusCode = variant.type.properties.get("statusCode");
-
-      if (!statusCode) {
-        throw new Error(
-          `Output decision tree: output model ${variant.type.name ?? "<anonymous>"} does not have a status code.`
-        );
-      }
-
-      if (statusCode.type.kind === "Number") {
-        output.conditions.set(
-          { kind: "exact", value: statusCode.type.value },
-          { kind: "result", type: variant.type }
-        );
-      } else if (statusCode.type.kind === "Scalar") {
-        // TODO/witemple: just _assuming_ this is an int type. The HTTP layer should check this, but I'm not actually validating
-        // that the `statusCode` property is the HTTP status code.
-        const minValue = getMinValue(ctx.program, statusCode);
-        const maxValue = getMaxValue(ctx.program, statusCode);
-
-        if (minValue === undefined || maxValue === undefined) {
-          throw new Error(
-            `Output decision tree: status code property is not a number or scalar with bounds, got ${statusCode.type.name}`
-          );
-        }
-
-        output.conditions.set(
-          { kind: "range", bounds: [minValue, maxValue] },
-          { kind: "result", type: variant.type }
-        );
-      }
-    }
-
-    return output;
-  }
-}
-
-/**
- * Convert the OutputDecisionTree DSL structure into TypeScript code.
- * @param ctx - The HTTP emitter context.
- * @param tree - The decision tree to generate code for.
- */
-function* emitDecisionTreeResultProcessing(
-  ctx: HttpContext,
-  tree: OutputDecisionTree
-): Iterable<string> {
-  switch (tree.kind) {
-    case "result":
-      yield* emitResultProcessingForType(ctx, tree.type);
-      break;
-    case "switch":
-      yield `switch (result.${tree.path.join(".")}) {`;
-      for (const [value, subtree] of tree.values) {
-        yield `  case ${JSON.stringify(value)}:`;
-        yield* indent(emitDecisionTreeResultProcessing(ctx, subtree));
-        yield `    break;`;
-      }
-      yield "}";
-      break;
-    case "if-chain":
-      let first = true;
-      for (const [condition, subtree] of tree.conditions) {
-        let conditionExpr: string;
-        if (condition.kind === "exact") {
-          const valueExpr =
-            typeof condition.value === "string" ? JSON.stringify(condition.value) : condition.value;
-          conditionExpr = `result.${tree.path.join(".")} === ${valueExpr}`;
-        } else {
-          const [start, end] = condition.bounds;
-          conditionExpr = `result.${tree.path.join(".")} >= ${start} && result.${tree.path.join(".")} <= ${end}`;
-        }
-
-        if (first) {
-          first = false;
-          yield `if (${conditionExpr}) {`;
-        } else {
-          yield `} else if (${conditionExpr}) {`;
-        }
-        yield* indent(emitDecisionTreeResultProcessing(ctx, subtree));
-      }
-      yield "}";
-      break;
-    default:
-      throw new Error(
-        `Unimplemented: decision tree kind '${(tree satisfies never as any).kind}' for result processing`
-      );
-  }
 }
 
 /**

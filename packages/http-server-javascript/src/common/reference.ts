@@ -12,7 +12,7 @@ import {
 import { JsContext, Module, isImportableType } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { asArrayType, getArrayElementName } from "../util/pluralism.js";
-import { emitWellKnownModel, isWellKnownModel } from "./model.js";
+import { emitModelLiteral, emitWellKnownModel, isWellKnownModel } from "./model.js";
 import { createOrGetModuleForNamespace } from "./namespace.js";
 import { getJsScalar } from "./scalar.js";
 import { emitUnionType } from "./union.js";
@@ -107,7 +107,7 @@ export function emitTypeReference(
 
         // Require preferredAlternativeName at this point, as we have an anonymous model that we have not visited.
         if (!options.altName) {
-          throw new Error("UNREACHABLE: anonymous model without preferredAlternativeName");
+          return emitModelLiteral(ctx, effectiveModel, module);
         }
 
         // Anonymous model, synthesize a new model with the preferredName

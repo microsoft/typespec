@@ -87,7 +87,7 @@ function* emitRouterDefinition(
   }
 
   module.imports.push({
-    binder: ["RouterOptions", "createPolicyChain", "createPolicyChainForRoute"],
+    binder: ["RouterOptions", "createPolicyChain", "createPolicyChainForRoute", "HttpContext"],
     from: routerHelper,
   });
 
@@ -130,7 +130,7 @@ function* emitRouterDefinition(
 
   yield `  options: RouterOptions<{`;
   for (const [param] of backends.values()) {
-    yield `    ${param.camelCase}: ${param.pascalCase},`;
+    yield `    ${param.camelCase}: ${param.pascalCase}<HttpContext>,`;
   }
   yield `  }> = {}`;
   yield `): ${routerName} {`;
@@ -176,7 +176,7 @@ function* emitRouterDefinition(
   yield "";
 
   // Core routing function definition
-  yield `  const dispatch = createPolicyChain("${routerName}Dispatch", options.policies ?? [], async function(request, response, onRouteNotFound) {`;
+  yield `  const dispatch = createPolicyChain("${routerName}Dispatch", options.policies ?? [], async function(ctx, request, response, onRouteNotFound) {`;
   yield `    const url = new URL(request.url!, \`http://\${request.headers.host}\`);`;
   yield `    let path = url.pathname;`;
   yield "";
@@ -189,10 +189,10 @@ function* emitRouterDefinition(
   yield `  });`;
   yield "";
   yield `  return {`;
-  yield `    dispatch(request, response) { return dispatch(request, response, onRouteNotFound).catch((e) => onInternalError(e, request, response)); },`;
+  yield `    dispatch(request, response) { return dispatch({ request, response }, request, response, onRouteNotFound).catch((e) => onInternalError(e, request, response)); },`;
 
   if (ctx.httpOptions.express) {
-    yield `    expressMiddleware: function (req, res, next) { void dispatch(req, res, function () { next(); }).catch((e) => onInternalError(e, request, response)); },`;
+    yield `    expressMiddleware: function (request, response, next) { void dispatch({ request, response }, request, response, function () { next(); }).catch((e) => onInternalError(e, request, response)); },`;
   }
 
   yield "  }";
@@ -288,7 +288,7 @@ function* emitRouteOperationDispatch(
           : "";
 
       yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
-      yield `    return routeHandlers.${operationName}(request, response, ${backendMemberName}${parameters});`;
+      yield `    return routeHandlers.${operationName}(ctx, request, response, ${backendMemberName}${parameters});`;
     } else {
       // Shared route
       const route = getHttpOperation(ctx.program, operationList[0].operation)[0].path;
@@ -365,7 +365,7 @@ function* emitRouteOperationDispatchMultiple(
         : "";
 
     yield `  case ${JSON.stringify(contentType)}:`;
-    yield `    return routeHandlers.${operationName}(request, response, ${backendMemberName}${parameters});`;
+    yield `    return routeHandlers.${operationName}(ctx, request, response, ${backendMemberName}${parameters});`;
   }
 
   yield `  default:`;

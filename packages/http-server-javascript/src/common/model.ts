@@ -1,4 +1,9 @@
-import { Model, getFriendlyName, isTemplateInstance } from "@typespec/compiler";
+import {
+  Model,
+  getFriendlyName,
+  isTemplateDeclaration,
+  isTemplateInstance,
+} from "@typespec/compiler";
 import { JsContext, Module } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { indent } from "../util/indent.js";
@@ -24,6 +29,10 @@ export function* emitModel(
 ): Iterable<string> {
   const isTemplate = isTemplateInstance(model);
   const friendlyName = getFriendlyName(ctx.program, model);
+
+  if (isTemplateDeclaration(model)) {
+    return;
+  }
 
   // TODO/witemple: this code is repeated elsewhere.
   const modelNameCase = parseCase(
@@ -75,6 +84,19 @@ export function* emitModel(
 
   yield "}";
   yield "";
+}
+
+export function emitModelLiteral(ctx: JsContext, model: Model, module: Module): string {
+  const properties = [...model.properties.values()].map((prop) => {
+    const nameCase = parseCase(prop.name);
+    const qmark = prop.optional ? "?" : "";
+
+    const name = KEYWORDS.has(nameCase.camelCase) ? `_${nameCase.camelCase}` : nameCase.camelCase;
+
+    return `${name}${qmark}: ${emitTypeReference(ctx, prop.type, prop, module)}`;
+  });
+
+  return `{ ${properties.join("; ")} }`;
 }
 
 /**

@@ -4,7 +4,7 @@
 import type * as http from "http";
 
 /** A policy that can be applied to a route or a set of routes. */
-interface Policy {
+export interface Policy {
   /** Optional policy name. */
   name?: string;
 
@@ -40,6 +40,7 @@ interface Policy {
  */
 export function createPolicyChain<
   Out extends (
+    ctx: HttpContext,
     request: http.IncomingMessage,
     response: http.ServerResponse,
     ...rest: any[]
@@ -51,23 +52,29 @@ export function createPolicyChain<
   }
 
   function applyPolicy(
+    ctx: HttpContext,
     request: http.IncomingMessage,
     response: http.ServerResponse,
     index: number
   ) {
     if (index >= policies.length) {
-      return out(request, response, ...outParams);
+      return out(ctx, request, response, ...outParams);
     }
 
     policies[index](request, response, (nextRequest) => {
-      applyPolicy(nextRequest ?? request, response, index + 1);
+      applyPolicy(ctx, nextRequest ?? request, response, index + 1);
     });
   }
 
   return {
-    [name](request: http.IncomingMessage, response: http.ServerResponse, ...params: any[]) {
+    [name](
+      ctx: HttpContext,
+      request: http.IncomingMessage,
+      response: http.ServerResponse,
+      ...params: any[]
+    ) {
       outParams = params;
-      applyPolicy(request, response, 0);
+      applyPolicy(ctx, request, response, 0);
     },
   }[name] as Out;
 }
@@ -77,12 +84,12 @@ export function createPolicyChain<
  *
  * TODO/witemple: Need to define shape of error object in a common location.
  */
-type ValidationError = string;
+export type ValidationError = string;
 
 /**
  * An object specifying the policies for a given route configuration.
  */
-type RoutePolicies<RouteConfig extends { [k: string]: object }> = {
+export type RoutePolicies<RouteConfig extends { [k: string]: object }> = {
   [Interface in keyof RouteConfig]?: {
     before?: Policy[];
     after?: Policy[];
@@ -109,6 +116,7 @@ export function createPolicyChainForRoute<
   RouteConfig extends { [k: string]: object },
   InterfaceName extends keyof RouteConfig,
   Out extends (
+    ctx: HttpContext,
     request: http.IncomingMessage,
     response: http.ServerResponse,
     ...rest: any[]
@@ -226,4 +234,12 @@ export interface RouterOptions<
     request: http.IncomingMessage,
     response: http.ServerResponse
   ): void;
+}
+
+/** Context information for operations carried over the HTTP protocol. */
+export interface HttpContext {
+  /** The incoming request to the server. */
+  request: http.IncomingMessage;
+  /** The outgoing response object. */
+  response: http.ServerResponse;
 }

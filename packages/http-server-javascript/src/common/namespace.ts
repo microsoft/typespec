@@ -49,7 +49,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
     parentModule.declarations.push([
       // prettier-ignore
       `/** An interface representing the operations defined in the '${getNamespaceFullName(namespace)}' namespace. */`,
-      `export interface ${parseCase(namespace.name).pascalCase} {`,
+      `export interface ${parseCase(namespace.name).pascalCase}<Context = unknown> {`,
       ...emitOperationGroup(ctx, operations.values(), parentModule),
       "}",
     ]);

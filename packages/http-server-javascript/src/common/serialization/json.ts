@@ -27,41 +27,37 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
   }
 
   // Assume the type is serializable until proven otherwise, in case this model is encountered recursively.
+  // This isn't an exactly correct algorithm, but in the recursive case it will at least produce something that
+  // is correct.
   _REQUIRES_JSON_SERIALIZATION.set(type, true);
+
+  let requiresSerialization: boolean;
 
   switch (type.kind) {
     case "Model": {
-      const requiresSerialization = [...type.properties.values()].some((property) =>
+      requiresSerialization = [...type.properties.values()].some((property) =>
         propertyRequiresSerialization(ctx, property)
       );
-
-      _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
-
-      return requiresSerialization;
+      break;
     }
     case "Scalar": {
-      const requiresSerialization = getEncode(ctx.program, type) !== undefined;
-
-      _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
-
-      return requiresSerialization;
+      requiresSerialization = getEncode(ctx.program, type) !== undefined;
+      break;
     }
     case "Union": {
-      const requiresSerialization = [...type.variants.values()].some((variant) =>
+      requiresSerialization = [...type.variants.values()].some((variant) =>
         requiresJsonSerialization(ctx, variant)
       );
-
-      _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
-
-      return requiresSerialization;
+      break;
     }
     case "ModelProperty":
-      const requiresSerialization = requiresJsonSerialization(ctx, type.type);
-
-      _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
-
-      return requiresSerialization;
+      requiresSerialization = requiresJsonSerialization(ctx, type.type);
+      break;
   }
+
+  _REQUIRES_JSON_SERIALIZATION.set(type, requiresSerialization);
+
+  return requiresSerialization;
 }
 
 function propertyRequiresSerialization(ctx: JsContext, property: ModelProperty): boolean {

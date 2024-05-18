@@ -1,8 +1,7 @@
 import { Union, UnionVariant } from "@typespec/compiler";
-import { JsContext, Module, PartialUnionSynthetic, isImportableType } from "../ctx.js";
+import { JsContext, Module, PartialUnionSynthetic } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { emitDocumentation } from "./documentation.js";
-import { createOrGetModuleForNamespace } from "./namespace.js";
 import { emitTypeReference } from "./reference.js";
 
 /**
@@ -24,12 +23,12 @@ export function emitUnionType(ctx: JsContext, variants: UnionVariant[], module: 
 
     variantTypes.push(name);
 
-    if (isImportableType(ctx, v.type)) {
-      module.imports.push({
-        binder: [name],
-        from: createOrGetModuleForNamespace(ctx, v.type.namespace!),
-      });
-    }
+    // if (isImportableType(ctx, v.type)) {
+    //   module.imports.push({
+    //     binder: [name],
+    //     from: createOrGetModuleForNamespace(ctx, v.type.namespace!),
+    //   });
+    // }
   }
 
   return variantTypes.join(" | ");
