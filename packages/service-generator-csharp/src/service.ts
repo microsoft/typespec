@@ -192,9 +192,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<string> {
       switch (intrinsic.name) {
         case "unknown":
-          return this.emitter.result.rawCode(code`JsonNode`);
+          return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
         case "null":
-          return this.emitter.result.rawCode(code`JsonNode`);
+          return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
         case "ErrorType":
         case "never":
         case "void":

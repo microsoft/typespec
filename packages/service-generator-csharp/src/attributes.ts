@@ -6,14 +6,18 @@ import {
   Type,
   getEncode,
   getFormat,
-  getMaxLength,
-  getMinLength,
-  getPattern,
+  getMaxItems,
+  getMaxValue,
+  getMaxValueExclusive,
+  getMinItems,
+  getMinValue,
+  getMinValueExclusive,
   resolveEncodedName,
 } from "@typespec/compiler";
 import {
   Attribute,
   AttributeType,
+  BooleanValue,
   CSharpType,
   HelperNamespace,
   NumericValue,
@@ -21,7 +25,8 @@ import {
   RawValue,
   StringValue,
 } from "./interfaces.js";
-import { getCSharpIdentifier } from "./utils.js";
+import { getStringConstraint, isArrayType } from "./type-helpers.js";
+import { getCSharpIdentifier, getCSharpTypeForScalar } from "./utils.js";
 
 export const JsonNamespace: string = "System.Text.Json";
 
@@ -35,27 +40,6 @@ export function getEncodingValue(
 
 export function getFormatValue(program: Program, type: Scalar | ModelProperty): string | undefined {
   return getFormat(program, type);
-}
-
-export function getPatternAttribute(
-  program: Program,
-  type: ModelProperty | Scalar
-): Attribute | undefined {
-  const pattern = getPattern(program, type);
-  if (!pattern) return undefined;
-  return new Attribute(new AttributeType({ name: "Pattern", namespace: HelperNamespace }), [
-    new Parameter({
-      name: "pattern",
-      optional: false,
-      value: new StringValue(pattern),
-      type: new CSharpType({
-        name: "string",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: false,
-      }),
-    }),
-  ]);
 }
 
 /**
@@ -183,49 +167,217 @@ function getJsonConverterAttribute(converterType: string): Attribute {
 }
 
 /**
- * Return min and max length attributes
+ * Return min and max length attributes for string
  * @param program The program being processed
  * @param type The type to check
  * @returns The attributes associated with the type, or none
  */
-export function getLengthAttribute(
+export function getStringConstraintAttribute(
   program: Program,
   type: ModelProperty | Scalar
 ): Attribute | undefined {
-  let minLength: number | undefined = getMinLength(program, type);
-  const maxLength = getMaxLength(program, type);
-  if (!minLength && !maxLength) return undefined;
+  const constraint = getStringConstraint(program, type);
+  if (constraint === undefined) return undefined;
+  const minLength: number | undefined = constraint.minLength;
+  const maxLength = constraint.maxLength;
+  const pattern = constraint.pattern;
+  if (minLength === undefined && maxLength === undefined && pattern === undefined) return undefined;
   const attr: Attribute = new Attribute(
     new AttributeType({
-      name: "Length",
+      name: "StringConstraint",
       namespace: HelperNamespace,
     }),
     []
   );
 
-  minLength = minLength ?? 0;
-  attr.parameters.push(
-    new Parameter({
-      name: "minLength",
-      value: new NumericValue(minLength),
-      optional: false,
-      type: new CSharpType({
-        name: "int",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: true,
-      }),
-    })
-  );
-
-  if (maxLength) {
+  if (minLength !== undefined) {
     attr.parameters.push(
       new Parameter({
-        name: "maxLength",
-        value: new NumericValue(maxLength),
-        optional: false,
+        name: "MinLength",
+        value: new NumericValue(minLength),
+        optional: true,
         type: new CSharpType({
           name: "int",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  if (maxLength !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MaxLength",
+        value: new NumericValue(maxLength),
+        optional: true,
+        type: new CSharpType({
+          name: "int",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  if (pattern !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "Pattern",
+        value: new StringValue(pattern),
+        optional: true,
+        type: new CSharpType({
+          name: "string",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  return attr;
+}
+
+/**
+ * Return min and max length attributes for string
+ * @param program The program being processed
+ * @param type The type to check
+ * @returns The attributes associated with the type, or none
+ */
+export function getArrayConstraintAttribute(
+  program: Program,
+  type: ModelProperty | Scalar
+): Attribute | undefined {
+  if (!isArrayType(program, type)) return undefined;
+  const minItems: number | undefined = getMinItems(program, type);
+  const maxItems = getMaxItems(program, type);
+  if (minItems === undefined && maxItems === undefined) return undefined;
+  const attr: Attribute = new Attribute(
+    new AttributeType({
+      name: "ArrayConstraint",
+      namespace: HelperNamespace,
+    }),
+    []
+  );
+
+  if (minItems !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MinItems",
+        value: new NumericValue(minItems),
+        optional: true,
+        type: new CSharpType({
+          name: "int",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  if (maxItems !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MaxItems",
+        value: new NumericValue(maxItems),
+        optional: true,
+        type: new CSharpType({
+          name: "int",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  return attr;
+}
+
+/**
+ * Return min and max length attributes for string
+ * @param program The program being processed
+ * @param type The type to check
+ * @returns The attributes associated with the type, or none
+ */
+export function getNumericConstraintAttribute(
+  program: Program,
+  type: ModelProperty | Scalar
+): Attribute | undefined {
+  if (type.kind === "Scalar" || type.type.kind !== "Scalar") return undefined;
+  const minValue: number | undefined = getMinValue(program, type);
+  const maxValue = getMaxValue(program, type);
+  const minValueExclusive: number | undefined = getMinValueExclusive(program, type);
+  const maxValueExclusive = getMaxValueExclusive(program, type);
+  if (
+    minValue === undefined &&
+    maxValue === undefined &&
+    minValueExclusive === undefined &&
+    maxValueExclusive === undefined
+  )
+    return undefined;
+  const scalarType = getCSharpTypeForScalar(program, type.type);
+  if (scalarType === undefined) return undefined;
+  const attr: Attribute = new Attribute(
+    new AttributeType({
+      name: `NumericConstraint<${scalarType.getTypeReference()}>`,
+      namespace: HelperNamespace,
+    }),
+    []
+  );
+
+  const actualMin = minValue === undefined ? minValueExclusive : minValue;
+  if (actualMin !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MinValue",
+        value: new NumericValue(actualMin),
+        optional: true,
+        type: scalarType,
+      })
+    );
+  }
+
+  const actualMax = maxValue === undefined ? maxValueExclusive : maxValue;
+  if (actualMax !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MaxValue",
+        value: new NumericValue(actualMax),
+        optional: true,
+        type: scalarType,
+      })
+    );
+  }
+
+  if (minValueExclusive !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MinValueExclusive",
+        value: new BooleanValue(true),
+        optional: true,
+        type: new CSharpType({
+          name: "bool",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      })
+    );
+  }
+
+  if (maxValueExclusive !== undefined) {
+    attr.parameters.push(
+      new Parameter({
+        name: "MaxValueExclusive",
+        value: new BooleanValue(true),
+        optional: true,
+        type: new CSharpType({
+          name: "bool",
           namespace: "System",
           isBuiltIn: true,
           isValueType: true,
@@ -267,11 +419,13 @@ export function getAttributes(program: Program, type: Type, cSharpName?: string)
     case "Model":
       break;
     case "ModelProperty": {
-      const pattern = getPatternAttribute(program, type);
-      const length = getLengthAttribute(program, type);
+      const arrayAttr = getArrayConstraintAttribute(program, type);
+      const stringAttr = getStringConstraintAttribute(program, type);
+      const numberAttr = getNumericConstraintAttribute(program, type);
       const name = getEncodedNameAttribute(program, type);
-      if (pattern) result.add(pattern);
-      if (length) result.add(length);
+      if (arrayAttr) result.add(arrayAttr);
+      if (stringAttr) result.add(stringAttr);
+      if (numberAttr) result.add(numberAttr);
       if (name) result.add(name);
       const encodingAttributes = getEncodingAttributes(program, type);
       for (const encoder of encodingAttributes) {
@@ -285,11 +439,7 @@ export function getAttributes(program: Program, type: Type, cSharpName?: string)
     }
     case "Scalar":
       {
-        const pattern = getPatternAttribute(program, type);
-        const length = getLengthAttribute(program, type);
         const safeInt = getSafeIntAttribute(type);
-        if (pattern) result.add(pattern);
-        if (length) result.add(length);
         if (safeInt) result.add(safeInt);
       }
 

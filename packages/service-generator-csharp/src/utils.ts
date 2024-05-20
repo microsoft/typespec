@@ -20,6 +20,7 @@ import {
   Visibility,
   createMetadataInfo,
   isBody,
+  isBodyRoot,
   isMetadata,
   isStatusCode,
 } from "@typespec/http";
@@ -613,7 +614,7 @@ export class HttpMetadata {
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
-          (p: ModelProperty) => isBody(program, p)
+          (p: ModelProperty) => isBody(program, p) || isBodyRoot(program, p)
         );
         if (bodyProp !== undefined)
           return metaInfo.getEffectivePayloadType(bodyProp.type, Visibility.Read);

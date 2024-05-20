@@ -8,7 +8,7 @@ import {
   SourceFile,
 } from "@typespec/compiler/emitter-framework";
 
-export const HelperNamespace: string = "Microsoft.TypeSpec.Service.Models";
+export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
 export interface CSharpTypeMetadata {
   name: string;
@@ -156,8 +156,8 @@ export class Parameter implements CSharpTypeMetadata {
   public getCallString(scope?: Scope<string>): string {
     if (!this.value) return "";
     const sb: string[] = [];
-    if (this.optional) sb.push(`${this.name} = `);
-    sb.push(this.value.emitValue(scope));
+    if (this.optional) sb.push(`${this.name} = ${this.value.emitValue(scope)}`);
+    else sb.push(this.value.emitValue(scope));
     return sb.join(", ");
   }
 }

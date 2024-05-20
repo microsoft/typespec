@@ -153,6 +153,61 @@ describe("service-generator-csharp: core service generation", () => {
     );
   });
 
+  it("generates numeric constraints", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+      /** A simple test model*/
+      model Foo {
+
+        /** int */
+        @minValue(100)
+        @maxValue(1000)
+        int32Prop?: int32;
+        /** Uint32 */
+        @maxValue(5000)
+        uint32Prop?: uint32;
+        /** float */
+        @minValueExclusive(0.0)
+        f32Prop?: float32;
+      }
+      `,
+      "Foo.cs",
+      [
+        "public partial class Foo",
+        "[TypeSpec.Helpers.JsonConverters.NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
+        "public int? Int32Prop { get; set; }",
+        "[TypeSpec.Helpers.JsonConverters.NumericConstraint<UInt32>( MaxValue = 5000)]",
+        "public UInt32? Uint32Prop { get; set; }",
+        "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
+        "public float? F32Prop { get; set; }",
+      ]
+    );
+  });
+
+  it("generates string constraints", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+      /** A simple test model*/
+      model Foo {
+        /** string */
+        @minLength(3)
+        @maxLength(72)
+        stringProp?: string;
+        /** resource locator prop */
+        urlProp?: url;
+      }
+      `,
+      "Foo.cs",
+      [
+        "public partial class Foo",
+        "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
+        "public string StringProp { get; set; }",
+      ]
+    );
+  });
+
   it("handles scalar extensions", async () => {
     await compileAndValidateSingleModel(
       runner,
@@ -347,6 +402,32 @@ describe("service-generator-csharp: core service generation", () => {
         "public DateTimeOffset[] ArrutcDateTimeProp { get; set; }",
         "public DateTimeOffset[] ArroffsetDateTimeProp { get; set; }",
         "public string[] ArrStringProp { get; set; }",
+      ]
+    );
+  });
+
+  it("generates standard scalar array  constraints", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+      /** A simple test model*/
+      model Foo {
+        /** SByte */
+        @minItems(1)
+        @maxItems(10)
+        arrSbyteProp: int8[];
+        /** Byte */
+        @maxItems(10)
+        arrByteProp: uint8[];
+      }
+      `,
+      "Foo.cs",
+      [
+        "public partial class Foo",
+        "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+        "public SByte[] ArrSbyteProp { get; set; }",
+        "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
+        "public Byte[] ArrByteProp { get; set; }",
       ]
     );
   });
