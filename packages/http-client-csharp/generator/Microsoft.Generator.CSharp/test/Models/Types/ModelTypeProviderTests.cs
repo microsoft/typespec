@@ -120,10 +120,10 @@ namespace Microsoft.Generator.CSharp.Tests
                     {
                         var primitiveType = (InputPrimitiveType)type;
 
-                        if (primitiveType.Kind is InputTypeKind.String)
+                        if (primitiveType.Kind is InputPrimitiveTypeKind.String)
                             return new CSharpType(typeof(string));
 
-                        if (primitiveType.Kind is InputTypeKind.Int32)
+                        if (primitiveType.Kind is InputPrimitiveTypeKind.Int32)
                             return new CSharpType(typeof(int));
 
                         throw new ArgumentException("Unsupported input type.");
@@ -148,8 +148,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputTypeKind.String, false), false, false), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputTypeKind.String, false), new InputPrimitiveType(InputTypeKind.String, false), false), true, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
                     new InputModelProperty("optionalUnknown", "optional unknown", "", new InputIntrinsicType(InputIntrinsicTypeKind.Unknown), false, false, false),
              };
 
