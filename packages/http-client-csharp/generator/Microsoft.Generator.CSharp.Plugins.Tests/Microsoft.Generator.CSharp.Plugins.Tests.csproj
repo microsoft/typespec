@@ -11,13 +11,6 @@
       <ProjectReference Include="..\Microsoft.Generator.CSharp\src\Microsoft.Generator.CSharp.csproj" />
     </ItemGroup>
 
-  <ItemGroup>
-<!--    <PackageReference Include="Microsoft.NET.Test.Sdk" />-->
-<!--    <PackageReference Include="Moq" />-->
-<!--    <PackageReference Include="NUnit" />-->
-<!--    <PackageReference Include="NUnit3TestAdapter" />-->
-  </ItemGroup>
-
   <!-- Copy output to package dist path for local execution and  -->
   <Target Name="CopyForNpmPackage" AfterTargets="Build">
     <Message Text="Copying output to dist path" Importance="high" />

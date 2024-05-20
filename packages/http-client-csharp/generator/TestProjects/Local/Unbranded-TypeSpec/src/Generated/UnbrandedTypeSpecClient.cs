@@ -69,7 +69,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="p3"></param>
         /// <param name="accept"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="p2"/>, <paramref name="p3"/> or <paramref name="accept"/> is null. </exception>
-        internal void CreateHelloLiteralRequest(System.Uri unbrandedTypeSpecUrl, string p1, long p2, bool p3, string accept)
+        internal void CreateHelloLiteralRequest(System.Uri unbrandedTypeSpecUrl, string p1, int p2, bool p3, string accept)
         {
         }
 

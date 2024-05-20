@@ -7,9 +7,7 @@ namespace Microsoft.Generator.CSharp
 {
     internal class GeneratorRunner
     {
-        public async Task RunAsync(CommandLineOptions options) => await RunAsync(options, null);
-
-        internal async Task RunAsync(CommandLineOptions options, CodeModelPlugin? plugin)
+        public async Task RunAsync(CommandLineOptions options)
         {
             PluginHandler pluginHandler = new();
             pluginHandler.LoadPlugin(options.OutputDirectory);

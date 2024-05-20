@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 InputTypeKind.Guid => new CSharpType(typeof(Guid), inputType.IsNullable),
                 InputTypeKind.SByte => new CSharpType(typeof(sbyte), inputType.IsNullable),
                 InputTypeKind.Byte => new CSharpType(typeof(byte), inputType.IsNullable),
-                InputTypeKind.Int32 => new CSharpType(typeof(long), inputType.IsNullable),
+                InputTypeKind.Int32 => new CSharpType(typeof(int), inputType.IsNullable),
                 InputTypeKind.Int64 => new CSharpType(typeof(long), inputType.IsNullable),
                 InputTypeKind.SafeInt => new CSharpType(typeof(long), inputType.IsNullable),
                 InputTypeKind.IPAddress => new CSharpType(typeof(IPAddress), inputType.IsNullable),
