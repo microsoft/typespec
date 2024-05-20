@@ -5,8 +5,9 @@
   "packageManager": "pnpm@8.13.1",
   "type": "module",
   "scripts": {
-    "build": "pnpm build:all && pnpm gen-compiler-extern-signature",
-    "build:all": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build  && pnpm gen-compiler-extern-signature",
+    "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
+    "build:all": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build",
+    "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" run build",
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",

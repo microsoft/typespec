@@ -1046,6 +1046,17 @@ export interface TemplateDeclarationNode {
   readonly locals?: SymbolTable;
 }
 
+/**
+ * owner node and other related information according to the position
+ */
+export interface PositionDetail {
+  readonly node: Node;
+  readonly position: number;
+  readonly char: number;
+  readonly preChar: number;
+  readonly nextChar: number;
+}
+
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
@@ -1869,6 +1880,9 @@ export enum IdentifierKind {
   Function,
   Using,
   Declaration,
+  ModelExpressionProperty,
+  ModelStatementProperty,
+  ObjectLiteralProperty,
   Other,
 }
 

@@ -64,7 +64,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static MethodBodyStatement Var(string name, ListExpression value, out ListExpression variable)
             => Var(name, value, d => new ListExpression(value.ItemType, d), out variable);
 
-
         public static MethodBodyStatement Var(string name, TypedValueExpression value, out TypedValueExpression variable)
         {
             var reference = new VariableReference(value.Type, name);

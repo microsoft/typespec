@@ -93,6 +93,11 @@
         "command": "typespec.restartServer",
         "title": "Restart TypeSpec server",
         "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOutputChannel",
+        "title": "Show Output Channel",
+        "category": "TypeSpec"
       }
     ],
     "semanticTokenScopes": [

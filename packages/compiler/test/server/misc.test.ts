@@ -13,7 +13,7 @@ describe("compiler: server: misc", () => {
       const { source, pos } = extractCursor(sourceWithCursor);
       const root = parse(source);
       dumpAST(root);
-      return { node: getCompletionNodeAtPosition(root, pos), root };
+      return { node: getCompletionNodeAtPosition(root, pos)?.node, root };
     }
 
     it("return identifier for property return type", async () => {
