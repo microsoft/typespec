@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp
         {
             Signature = signature;
             BodyStatements = bodyStatements;
-            Kind = kind ?? CSharpMethodKinds.Undefined;
+            Kind = kind ?? new CSharpMethodKinds("Undefined");
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            Kind = kind ?? CSharpMethodKinds.Undefined;
+            Kind = kind ?? new CSharpMethodKinds("Undefined");
         }
     }
 }

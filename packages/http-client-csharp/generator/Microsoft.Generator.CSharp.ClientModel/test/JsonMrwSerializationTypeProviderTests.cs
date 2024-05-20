@@ -21,10 +21,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         [SetUp]
         public void Setup()
         {
-            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
+            string configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var mockGeneratorContext = new Mock<GeneratorContext>(Configuration.Load(configFilePath));
+            // invoke the load method with the config file path
+            var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
+            object[] parameters = new object[] { configFilePath, null! };
+            var config = loadMethod?.Invoke(null, parameters);
+            var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

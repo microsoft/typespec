@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp
         /// Initializes the configuration from the given path to the configuration file.
         /// </summary>
         /// <param name="outputPath">The path to the configuration JSON file.</param>
-        public static Configuration Load(string outputPath, string? json = null)
+        internal static Configuration Load(string outputPath, string? json = null)
         {
             var configFile = Path.Combine(outputPath, ConfigurationFileName);
             if (!File.Exists(configFile) && json is null)

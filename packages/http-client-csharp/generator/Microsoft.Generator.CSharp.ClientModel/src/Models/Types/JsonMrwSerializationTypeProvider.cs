@@ -21,20 +21,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType? _iJsonModelObjectInterface;
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
+        private ModelTypeProvider _model;
 
         public JsonMrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
-            Model = model;
+            _model = model;
             Name = model.Name;
             // Initialize the serialization interfaces
-            _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), Model.Type);
-            _iJsonModelObjectInterface = Model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
-            _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), Model.Type);
-            _iPersistableModelObjectInterface = Model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
+            _iJsonModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+            _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
+            _iPersistableModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
         }
 
         public override string Name { get; }
-        internal ModelTypeProvider Model { get; }
 
         /// <summary>
         /// Builds the serialization methods for the model. If the serialization supports JSON, it will build the JSON serialization methods.
@@ -141,7 +141,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildIModelGetFormatFromOptionsMethod()
         {
-            ValueExpression jsonWireFormat = SystemSnippets.SerializationsJsonFormat.JsonFormat;
+            ValueExpression jsonWireFormat = SystemSnippets.JsonFormatSerialization;
             // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new CSharpMethod
             (

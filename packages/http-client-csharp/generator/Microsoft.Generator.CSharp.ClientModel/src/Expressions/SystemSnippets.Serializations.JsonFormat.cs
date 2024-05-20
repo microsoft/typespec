@@ -7,9 +7,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
 {
     internal static partial class SystemSnippets
     {
-        internal static class SerializationsJsonFormat
-        {
-            internal static StringExpression JsonFormat = Snippets.Literal("J");
-        }
+        internal static StringExpression JsonFormatSerialization = Snippets.Literal("J");
     }
 }
