@@ -3,7 +3,7 @@
 
 namespace Microsoft.Generator.CSharp.Input
 {
-    // TODO -- after we have adopted getAllModels in our emitter, we no longer need to have this type.
+    // TODO -- after we have adopted getAllModels in our emitter, we no longer need to have this type. https://github.com/microsoft/typespec/issues/3338
     // The only thing we need in these "intrinsic types" is the "unknown", and TCGC put it in the primitive type. Others we will never generate therefore we do not need to have others
     public class InputIntrinsicType : InputType
     {
