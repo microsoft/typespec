@@ -1,4 +1,4 @@
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 import { TypeSpecConfigJsonSchema } from "../config/config-schema.js";
 import { TypeSpecRawConfig } from "../config/types.js";
 
