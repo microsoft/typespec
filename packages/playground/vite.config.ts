@@ -24,6 +24,7 @@ const externals = [
 const config = defineConfig({
   build: {
     target: "esnext",
+    minify: false,
     chunkSizeWarningLimit: 3000,
     lib: {
       entry: {
