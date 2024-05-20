@@ -47,7 +47,7 @@
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-   "@types/node": "~18.11.19",
+    "@types/node": "~18.11.19",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.32",
     "@vitest/coverage-v8": "^1.6.0",

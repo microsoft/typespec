@@ -37,7 +37,7 @@
     "plist": "~3.1.0"
   },
   "devDependencies": {
-   "@types/node": "~18.11.19",
+    "@types/node": "~18.11.19",
     "@types/plist": "~3.0.5",
     "rimraf": "~5.0.7",
     "typescript": "~5.4.5"
