@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         /// <summary>
-        /// Builds the raw data field for the model to be used for serializatin.
+        /// Builds the raw data field for the model to be used for serialization.
         /// </summary>
         /// <returns>The constructed <see cref="FieldDeclaration"/> if the model should generate the field.</returns>
         private FieldDeclaration BuildRawDataField()
