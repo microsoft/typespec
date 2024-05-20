@@ -7,8 +7,8 @@ import {
   PolicyServiceConfig,
   and,
   eventResponderTask,
+  filesMatchPattern,
   hasLabel,
-  includesModifiedFiles,
   isAction,
   labelAdded,
   labelRemoved,
@@ -44,7 +44,12 @@ const issueTriageConfig: PolicyServiceConfig = {
       eventResponderTasks: [
         eventResponderTask({
           description: "Adds `needs-area` label for new unassigned issues",
-          if: [payloadType("Issues"), isAction("Opened"), not(and(["isAssignedToSomeone"]))],
+          if: [
+            payloadType("Issues"),
+            isAction("Opened"),
+            not(and(["isAssignedToSomeone"])),
+            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
+          ],
           then: [
             {
               addLabel: {
@@ -101,19 +106,20 @@ const prTriageConfig: PolicyServiceConfig = {
     resourceManagementConfiguration: {
       eventResponderTasks: [
         eventResponderTask({
-          description: "Assign area labels to PRs based on modified files",
-          if: [payloadType("Pull_Request"), "isOpen"],
-          then: Object.entries(AreaPaths).map(([label, files]) => {
-            return {
-              if: [includesModifiedFiles(files)],
-              then: [
-                {
-                  addLabel: {
-                    label,
+          if: [payloadType("Pull_Request")],
+          then: Object.entries(AreaPaths).flatMap(([label, files]) => {
+            return files.map((file) => {
+              return {
+                if: [filesMatchPattern(`${file}.*`)],
+                then: [
+                  {
+                    addLabel: {
+                      label,
+                    },
                   },
-                },
-              ],
-            };
+                ],
+              };
+            });
           }),
         }),
       ],

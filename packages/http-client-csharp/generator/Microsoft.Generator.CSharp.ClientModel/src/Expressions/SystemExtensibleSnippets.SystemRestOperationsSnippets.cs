@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -61,11 +61,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 content = contentVar;
                 writer = new Utf8JsonRequestBodyExpression(content).JsonWriter;
                 return Snippets.Var(contentVar, Snippets.New.Instance(typeof(Utf8JsonRequestBody)));
-            }
-
-            public override MethodBodyStatement DeclareContentWithXmlWriter(out TypedValueExpression content, out XmlWriterExpression writer)
-            {
-                throw new NotImplementedException("Xml serialization isn't supported in System.Net.ClientModel yet");
             }
 
             public override MethodBodyStatement InvokeServiceOperationCallAndReturnHeadAsBool(TypedValueExpression pipeline, TypedValueExpression message, TypedValueExpression clientDiagnostics, bool async)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -72,9 +72,6 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public static MethodBodyStatement Var(string name, Utf8JsonWriterExpression value, out Utf8JsonWriterExpression variable)
             => Var(name, value, d => new Utf8JsonWriterExpression(d), out variable);
-
-        public static MethodBodyStatement Var(string name, XDocumentExpression value, out XDocumentExpression variable)
-            => Var(name, value, d => new XDocumentExpression(d), out variable);
 
         public static MethodBodyStatement Var(string name, TypedValueExpression value, out TypedValueExpression variable)
         {
