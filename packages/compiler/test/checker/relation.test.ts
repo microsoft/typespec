@@ -1290,7 +1290,16 @@ describe("compiler: checker: type relations", () => {
   describe("Value constraint", () => {
     describe("valueof string", () => {
       it("can assign string literal", async () => {
-        await checkValueAssignableToConstraint({ source: `"foo bar"`, target: "string" });
+        await checkValueAssignableToConstraint({ source: `"foo bar"`, target: "valueof string" });
+      });
+
+      it("can assign string literal via alias", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Foo<T extends valueof string> {}
+          alias Test = Foo<A>;
+          alias A = "abc";
+          `);
+        expectDiagnosticEmpty(diagnostics);
       });
 
       it("cannot assign numeric literal", async () => {

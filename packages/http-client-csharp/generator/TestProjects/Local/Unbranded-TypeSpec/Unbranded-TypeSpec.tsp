@@ -326,7 +326,9 @@ op projectedNameModel(...ModelWithProjectedName): ModelWithProjectedName;
 @doc("return anonymous model")
 @post
 @convenientAPI(true)
-op returnsAnonymousModel(): {};
+op returnsAnonymousModel(): {
+  @body body: {};
+};
 
 @get
 @route("/unknown-value")

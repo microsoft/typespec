@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -18,8 +18,8 @@ namespace Microsoft.Generator.CSharp
 {
     internal class GeneratedCodeWorkspace
     {
-        public static readonly string GeneratedFolder = Constants.DefaultGeneratedCodeFolderName;
-        public static readonly string GeneratedTestFolder = Constants.DefaultGeneratedTestFolderName;
+        private const string GeneratedFolder = "Generated";
+        private const string GeneratedCodeProjectName = "GeneratedCode";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp
             var workspace = new AdhocWorkspace();
             var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
-            Project generatedCodeProject = workspace.AddProject(Constants.DefaultGeneratedCodeProjectFolderName, LanguageNames.CSharp);
+            Project generatedCodeProject = workspace.AddProject(GeneratedCodeProjectName, LanguageNames.CSharp);
 
             generatedCodeProject = generatedCodeProject
                 .AddMetadataReferences(_assemblyMetadataReferences.Value)
