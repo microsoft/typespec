@@ -2,6 +2,7 @@ import { readFile, writeFile } from "fs/promises";
 import { dirname, resolve } from "path";
 import pc from "picocolors";
 import { fileURLToPath } from "url";
+
 export const repo = {
   owner: "microsoft",
   repo: "typespec",
