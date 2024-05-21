@@ -28,5 +28,6 @@ console.log("##[endgroup]");
 const areaChanged = findAreasChanged(files);
 
 for (const area of areaChanged) {
+  console.log(`Setting output variable Run${area} to true`);
   setOutputVariable(`Run${area}`, "true");
 }
