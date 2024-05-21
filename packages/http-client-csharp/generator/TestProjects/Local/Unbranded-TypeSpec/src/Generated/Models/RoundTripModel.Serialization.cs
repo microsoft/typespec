@@ -101,6 +101,13 @@ namespace UnbrandedTypeSpec.Models
 
         void System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IJsonModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{format}' format.");
+            }
+
+            writer.WriteStartObject();
         }
 
         RoundTripModel System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)

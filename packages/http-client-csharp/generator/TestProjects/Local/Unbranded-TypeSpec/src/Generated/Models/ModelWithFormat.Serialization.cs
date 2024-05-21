@@ -61,6 +61,13 @@ namespace UnbrandedTypeSpec.Models
 
         void System.ClientModel.Primitives.IJsonModel<ModelWithFormat>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IJsonModel<ModelWithFormat>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ModelWithFormat)} does not support writing '{format}' format.");
+            }
+
+            writer.WriteStartObject();
         }
 
         ModelWithFormat System.ClientModel.Primitives.IJsonModel<ModelWithFormat>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)

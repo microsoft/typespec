@@ -52,6 +52,13 @@ namespace UnbrandedTypeSpec.Models
 
         void System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ReturnsAnonymousModelResponse)} does not support writing '{format}' format.");
+            }
+
+            writer.WriteStartObject();
         }
 
         ReturnsAnonymousModelResponse System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)

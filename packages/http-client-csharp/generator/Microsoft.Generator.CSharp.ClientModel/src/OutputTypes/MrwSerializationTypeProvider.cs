@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.ClientModel.OutputTypes;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
@@ -18,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// </summary>
     internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
-        private readonly Parameter SerializationOptionsParameter =
+        private readonly Parameter _serializationOptionsParameter =
             new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
         private const string _privateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string _privateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
@@ -148,10 +149,24 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
-              // TO-DO: Add body for json properties' serialization https://github.com/microsoft/typespec/issues/3330
-              EmptyStatement
+              new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
+              new MethodBodyStatement[]
+              {
+                  BuildJsonModelWriteMethodBody(utf8JsonWriterParameter)
+              }
             );
+        }
+
+        private MethodBodyStatement[] BuildJsonModelWriteMethodBody(Parameter utf8JsonWriterParameter)
+        {
+            var options = new ModelReaderWriterOptionsExpression(_serializationOptionsParameter);
+            var writer = new Utf8JsonWriterExpression(utf8JsonWriterParameter);
+            var validateJsonFormatStatement = SystemSnippets.ValidateJsonFormat(options, _iJsonModelTInterface, SerializationFormatValidationType.Write);
+            return new MethodBodyStatement[]
+            {
+                validateJsonFormatStatement,
+                writer.WriteStartObject(),
+            };
         }
 
         /// <summary>
@@ -164,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
               Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
@@ -179,7 +194,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var returnType = typeof(BinaryData);
             return new CSharpMethod
             (
-                new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
                 Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
             );
@@ -195,7 +210,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
               Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
@@ -210,7 +225,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               jsonWireFormat
             );
         }

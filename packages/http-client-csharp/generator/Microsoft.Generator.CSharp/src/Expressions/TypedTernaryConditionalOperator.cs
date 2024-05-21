@@ -1,8 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    internal record TypedTernaryConditionalOperator(BoolExpression Condition, TypedValueExpression Consequent, ValueExpression Alternative)
+    public record TypedTernaryConditionalOperator(BoolExpression Condition, TypedValueExpression Consequent, ValueExpression Alternative)
         : TypedValueExpression(Consequent.Type, new TernaryConditionalOperator(Condition, Consequent, Alternative));
 }
