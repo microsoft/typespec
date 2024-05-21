@@ -1,14 +1,22 @@
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { findAreasChanged } from "./find-area-changed.js";
 
-it("Should return package variables if package specific changes are detected", () => {
-  const areas = findAreasChanged(["packages/http-client-csharp/src/constants.ts"]);
-  expect(areas).toEqual(["CSharp"]);
+describe("paths that should trigger CSharp CI", () => {
+  it.each(["packages/http-client-csharp/src/constants.ts"])("%s", (path) => {
+    const areas = findAreasChanged([path]);
+    expect(areas).toEqual(["CSharp"]);
+  });
 });
 
-it("Should return Core if common files are changed", () => {
-  const areas = findAreasChanged(["packages/compiler/package.json"]);
-  expect(areas).toEqual(["Core"]);
+describe("paths that should trigger Core CI", () => {
+  it.each([
+    "packages/compiler/package.json",
+    "packages/http/package.json",
+    "packages/openapi3/package.json",
+  ])("%s", (path) => {
+    const areas = findAreasChanged([path]);
+    expect(areas).toEqual(["Core"]);
+  });
 });
 
 it("Should return a combination of core and isolated packages", () => {
