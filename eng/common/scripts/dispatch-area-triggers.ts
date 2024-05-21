@@ -19,7 +19,7 @@ if (!targetBranch) {
 
 console.log("Checking for changes in current branch compared to $TargetBranch");
 
-const files = await listChangedFilesSince(targetBranch, { repositoryPath: repoRoot });
+const files = await listChangedFilesSince(`origin/${targetBranch}`, { repositoryPath: repoRoot });
 
 console.log("##[group]Files changed in this pr");
 console.log(files.map((x) => ` - ${x}`).join("\n"));

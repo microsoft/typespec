@@ -33,7 +33,7 @@ extends:
               - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
 
-              - script: pnpm tsx ./eng/common/scripts/analyze-change.ts --target-branch $(TARGET_BRANCH)
+              - script: pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
 
       # Run csharp stages if RunCSharp == true
