@@ -453,6 +453,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const declParams = this.#emitHttpOperationParameters(httpOperation);
+      const responseInfo = this.#getOperationResponse(httpOperation);
+      let status: string = "200";
+      let response: CSharpType = new CSharpType({
+        name: "void",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      });
+      if (responseInfo !== undefined) {
+        [status, response] = responseInfo;
+      }
+
+      const hasResponseValue = response.name !== "void";
+      const resultString = `${status === "204" ? "NoContent" : "Ok"}`;
       return this.emitter.result.declaration(
         operation.name,
         code`
@@ -463,15 +477,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         public virtual async Task<IActionResult> ${operationName}(${declParams})
         {
           ${
-            httpOperation.verb !== "delete"
+            hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
                   httpOperation
                 )});
-          return Ok(result);`
+          return ${resultString}(result);`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
                   httpOperation
                 )});
-          return NoContent();`
+          return ${resultString}();`
           }
         }`
       );
@@ -496,6 +510,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const declParams = this.#emitHttpOperationParameters(httpOperation);
+      const responseInfo = this.#getOperationResponse(httpOperation);
+      let status: string = "200";
+      let response: CSharpType = new CSharpType({
+        name: "void",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      });
+      if (responseInfo !== undefined) {
+        [status, response] = responseInfo;
+      }
+
+      const hasResponseValue = response.name !== "void";
+      const resultString = `${status === "204" ? "NoContent" : "Ok"}`;
       return this.emitter.result.declaration(
         operation.name,
         code`
@@ -506,15 +534,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         public virtual async Task<IActionResult> ${operationName}(${declParams})
         {
           ${
-            httpOperation.verb !== "delete"
+            hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
                   httpOperation
                 )});
-          return Ok(result);`
+          return ${resultString}(result);`
               : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
                   httpOperation
                 )});
-          return NoContent();`
+          return ${resultString}();`
           }
         }`
       );
@@ -524,6 +552,25 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.#emitOperationResponses(httpOperation);
     }
 
+    #getOperationResponse(operation: HttpOperation): [string, CSharpType] | undefined {
+      const validResponses = operation.responses.filter(
+        (r) =>
+          !isErrorModel(this.emitter.getProgram(), r.type) &&
+          getCSharpStatusCode(r.statusCodes) !== undefined
+      );
+      if (validResponses.length < 1) return undefined;
+      const response = validResponses[0];
+      const statusCode = getCSharpStatusCode(response.statusCodes);
+      if (statusCode === undefined) return undefined;
+      const responseType = new HttpMetadata().resolveLogicalResponseType(
+        this.emitter.getProgram(),
+        response
+      );
+      const context = this.emitter.getContext();
+      const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
+      const resultType = result?.type || UnknownType;
+      return [statusCode, resultType];
+    }
     #emitOperationResponses(operation: HttpOperation): EmitterOutput<string> {
       const builder: StringBuilder = new StringBuilder();
       let i = 0;

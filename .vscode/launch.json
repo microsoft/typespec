@@ -84,9 +84,7 @@
         "compile",
         "../samples/specs/rest/petstore",
         "--output-dir=temp/petstore-output",
-        "--emit=${workspaceFolder}/packages/service-generator-csharp/",
-        "--option",
-        "@typespec/service-generator-csharp.output-type=models"
+        "--emit=${workspaceFolder}/packages/service-generator-csharp/"
       ],
       "smartStep": true,
       "sourceMaps": true,
