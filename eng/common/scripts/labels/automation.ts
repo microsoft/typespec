@@ -2,7 +2,7 @@ import { resolve } from "path";
 import { stringify } from "yaml";
 import { AreaPaths } from "../../config/areas.js";
 import { AreaLabels } from "../../config/labels.js";
-import { CheckOptions, repoRoot, syncFile } from "../common.js";
+import { CheckOptions, repoRoot, syncFile } from "../utils/common.js";
 import {
   PolicyServiceConfig,
   and,

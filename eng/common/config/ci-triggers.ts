@@ -5,14 +5,19 @@ import { AreaPaths } from "./areas.js";
  */
 const all = ["eng/common/", "vitest.config.ts"];
 
-/**
- * Path that should trigger only isolated packages
- */
-const isolatedPackages = {
-  "http-client-csharp": [...AreaPaths["emitter:client:csharp"]],
+export const CIRules = {
+  CSharp: [...AreaPaths["emitter:client:csharp"], ".editorconfig", ...all],
+  Core: [
+    "*",
+    "**/*",
+    "!.prettierignore",
+    "!.prettierrc.json",
+    "!cspell.yaml",
+    "!esling.config.json",
+    ...ignore(AreaPaths["emitter:client:csharp"]),
+  ],
 };
 
-/**
- * Path that shouldn't trigger the core CI build
- */
-const coreIgnore = [".prettierignore", ".prettierrc.json", "cspell.yaml", "esling.config.json"];
+function ignore(paths: string[]) {
+  return paths.map((x) => `!${x}`);
+}

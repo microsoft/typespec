@@ -1,5 +1,5 @@
 import { parseArgs } from "util";
-import { repoRoot } from "./common.js";
+import { repoRoot } from "./utils/common.js";
 import { listChangedFilesSince } from "./utils/git.js";
 
 const args = parseArgs({

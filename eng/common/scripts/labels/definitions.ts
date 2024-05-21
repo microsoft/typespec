@@ -7,7 +7,7 @@ import pc from "picocolors";
 import { format, resolveConfig } from "prettier";
 import { inspect } from "util";
 import rawLabels from "../../config/labels.js";
-import { repo, repoRoot } from "../common.js";
+import { repo, repoRoot } from "../utils/common.js";
 
 const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
 type Octokit = InstanceType<typeof Octokit>;
