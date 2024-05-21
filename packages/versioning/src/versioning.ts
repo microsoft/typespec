@@ -15,6 +15,7 @@ import {
   Type,
   Union,
   UnionVariant,
+  compilerAssert,
   getNamespaceFullName,
 } from "@typespec/compiler";
 import {
@@ -818,8 +819,10 @@ export function getAvailabilityMap(
   if (!added.length) {
     if (parentMap !== undefined) {
       parentMap.forEach((key, value) => {
-        if (value === Availability.Added) {
-          added.push(allVersions.find((x) => x.name === key)!);
+        if (key === Availability.Added.valueOf()) {
+          const match = allVersions.find((x) => x.name === value);
+          compilerAssert(match !== undefined, "Version not found");
+          added.push(match);
         }
       });
     } else {
