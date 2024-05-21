@@ -14,12 +14,11 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
-        public InputModelTypeUsage Usage { get; }
 
         /// <summary>
         /// The serializations providers for the model provider.
         /// </summary>
-        public TypeProvider[] SerializationProviders { get; }
+        public TypeProvider[] SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
         public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
@@ -37,9 +36,10 @@ namespace Microsoft.Generator.CSharp
                 DeclarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            Usage = inputModel.Usage;
-
-            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+            }
         }
 
         protected override PropertyDeclaration[] BuildProperties()

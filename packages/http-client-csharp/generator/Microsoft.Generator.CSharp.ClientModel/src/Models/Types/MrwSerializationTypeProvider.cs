@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    internal sealed class JsonMrwSerializationTypeProvider : TypeProvider
+    internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
         private readonly Parameter SerializationOptionsParameter =
             new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType? _iPersistableModelObjectInterface;
         private ModelTypeProvider _model;
 
-        public JsonMrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
+        public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
             _model = model;
             Name = model.Name;

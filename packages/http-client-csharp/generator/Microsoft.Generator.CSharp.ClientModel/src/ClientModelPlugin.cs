@@ -33,12 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider)
         {
             // Add JSON serialization type provider
-            if (provider.Usage.HasFlag(InputModelTypeUsage.Json))
-            {
-                return new TypeProvider[] { new JsonMrwSerializationTypeProvider(provider) };
-            }
-
-            return Array.Empty<TypeProvider>();
+            return new TypeProvider[] { new MrwSerializationTypeProvider(provider) };
         }
 
         [ImportingConstructor]
