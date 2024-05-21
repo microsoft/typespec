@@ -28,6 +28,7 @@ const storyHost = createBrowserHostInternal({
 
 const meta: Meta<typeof FooterVersionItem> = {
   component: FooterVersionItem,
+  title: "Footer/FooterVersionItem",
   decorators: [
     (Story) => (
       <FluentProvider theme={webLightTheme}>
