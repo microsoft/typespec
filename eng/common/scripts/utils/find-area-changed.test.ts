@@ -32,7 +32,7 @@ it("Should return CSharp and Core if .editorconfig is changed", () => {
   expect(areas).toEqual(["CSharp", "Core"]);
 });
 
-it("Should not return runCore for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
+it("Should not return Core for .prettierignore, .prettierrc.json, cspell.yaml, esling.config.json", () => {
   const areas = findAreasChanged([
     ".prettierignore",
     ".prettierrc.json",
@@ -41,4 +41,9 @@ it("Should not return runCore for .prettierignore, .prettierrc.json, cspell.yaml
     "packages/http-client-csharp/emitter/src/constants.ts",
   ]);
   expect(areas).toEqual(["CSharp"]);
+});
+
+it("should return Core for random files at the root", () => {
+  const areas = findAreasChanged(["some.file", "file/in/deep/directory"]);
+  expect(areas).toEqual(["Core"]);
 });
