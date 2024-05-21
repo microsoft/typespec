@@ -1,5 +1,7 @@
 import { parseArgs } from "util";
+import { setOutputVariable } from "./utils/ado.js";
 import { repoRoot } from "./utils/common.js";
+import { findAreasChanged } from "./utils/find-area-changed.js";
 import { listChangedFilesSince } from "./utils/git.js";
 
 const args = parseArgs({
@@ -22,3 +24,9 @@ const files = await listChangedFilesSince(targetBranch, { repositoryPath: repoRo
 console.log("##[group]Files changed in this pr");
 console.log(files.map((x) => ` - ${x}`).join("\n"));
 console.log("##[endgroup]");
+
+const areaChanged = findAreasChanged(files);
+
+for (const area of areaChanged) {
+  setOutputVariable(`Run${area}`, "true");
+}
