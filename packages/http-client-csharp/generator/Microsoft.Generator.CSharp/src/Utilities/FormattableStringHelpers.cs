@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Security.AccessControl;
@@ -83,6 +83,9 @@ namespace Microsoft.Generator.CSharp
         public static bool IsNullOrEmpty(this FormattableString? fs) =>
             fs is null || string.IsNullOrEmpty(fs.Format) && fs.ArgumentCount == 0;
 
+        public static FormattableString Join(this ICollection<FormattableString> fss, string separator, string? lastSeparator = null)
+            => fss.Count == 1 ? fss.First() : Join(fss, fss.Count, static fs => fs, separator, lastSeparator, null);
+
         public static FormattableString GetTypesFormattable(this IReadOnlyCollection<Parameter> parameters)
             => GetTypesFormattable(parameters, parameters.Count);
 
@@ -93,81 +96,6 @@ namespace Microsoft.Generator.CSharp
         {
             var position = text.LastIndexOf(oldValue, StringComparison.Ordinal);
             return position < 0 ? text : text.Substring(0, position) + newValue + text.Substring(position + oldValue.Length);
-        }
-
-        public static FormattableString GetReferenceFormattable(this Reference reference)
-        {
-            var parts = reference.Name.Split(".").ToArray<object>();
-            return Join(parts, parts.Length, static s => s, ".", null, 'I');
-        }
-
-        public static FormattableString GetReferenceOrConstantFormattable(this ReferenceOrConstant value)
-            => value.IsConstant ? value.Constant.GetConstantFormattable() : value.Reference.GetReferenceFormattable();
-
-        /// <summary>
-        /// This method parses the <see cref="Constant"/> into a <see cref="FormattableString"/>.
-        /// </summary>
-        /// <param name="constant">The <see cref="Constant"/> to parse.</param>
-        /// <param name="writeAsString">Flag used to determine if the constant should be written as a string.</param>
-        /// <returns>The <see cref="FormattableString"/> representing the <see cref="Constant"/>.</returns>
-        internal static FormattableString GetConstantFormattable(this Constant constant, bool writeAsString = false)
-        {
-            if (constant.Value == null)
-            {
-                // Cast helps the overload resolution
-                return $"({constant.Type}){null:L}";
-            }
-
-            if (constant.IsNewInstanceSentinel)
-            {
-                return $"new {constant.Type}()";
-            }
-
-            if (constant.Value is Constant.Expression expression)
-            {
-                return expression.ExpressionValue;
-            }
-            // TO-DO: Implement once enum types are implemented : https://github.com/Azure/autorest.csharp/issues/4198
-            //if (constant is { Type: { IsFrameworkType: false }, Value: EnumTypeValue enumTypeValue })
-            //{
-            //    return $"{constant.Type}.{enumTypeValue.Declaration.Name}";
-            //}
-
-
-            if (constant.Type is { IsFrameworkType: false, Implementation: EnumType enumType })
-            {
-                if (enumType.IsStringValueType)
-                    return $"new {constant.Type}({constant.Value:L})";
-                else
-                    return $"new {constant.Type}(({enumType.ValueType}){constant.Value})";
-            }
-
-            Type frameworkType = constant.Type.FrameworkType;
-            if (frameworkType == typeof(DateTimeOffset))
-            {
-                var d = (DateTimeOffset)constant.Value;
-                d = d.ToUniversalTime();
-                return $"new {typeof(DateTimeOffset)}({d.Year:L}, {d.Month:L}, {d.Day:L} ,{d.Hour:L}, {d.Minute:L}, {d.Second:L}, {d.Millisecond:L}, {typeof(TimeSpan)}.{nameof(TimeSpan.Zero)})";
-            }
-
-            if (frameworkType == typeof(byte[]))
-            {
-                var bytes = (byte[])constant.Value;
-                var joinedBytes = string.Join(", ", bytes);
-                return $"new byte[] {{{joinedBytes}}}";
-            }
-
-            if (frameworkType == typeof(ResourceType))
-            {
-                return $"{((ResourceType)constant.Value).ToString():L}";
-            }
-
-            if (frameworkType == typeof(bool) && writeAsString)
-            {
-                return $"\"{constant.Value!.ToString()!.ToLower()}\"";
-            }
-
-            return $"{constant.Value:L}";
         }
     }
 }

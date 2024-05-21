@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
@@ -44,7 +44,7 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi3/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference"
   },
   "files": [
     "lib/*.tsp",
@@ -52,7 +52,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "yaml": "~2.4.1"
+    "yaml": "~2.4.2"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",
@@ -69,11 +69,11 @@
     "@typespec/rest": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
     "c8": "^9.1.0",
-    "rimraf": "~5.0.5",
+    "rimraf": "~5.0.7",
     "typescript": "~5.4.5",
-    "vitest": "^1.5.0"
+    "vitest": "^1.6.0"
   }
 }

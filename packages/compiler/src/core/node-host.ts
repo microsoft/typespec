@@ -2,7 +2,6 @@ import { realpath } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import { findProjectRoot } from "../utils/misc.js";
-import { fetch } from "./fetch.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths } from "./path-utils.js";
 import { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
@@ -16,7 +15,7 @@ export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(im
  */
 export const NodeHost: CompilerHost = {
   readUrl: async (url: string) => {
-    const response = await fetch(url);
+    const response = await fetch(url, { redirect: "follow" });
     const text = await response.text();
     return createSourceFile(text, response.url);
   },

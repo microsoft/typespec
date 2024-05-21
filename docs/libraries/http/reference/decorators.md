@@ -358,7 +358,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-@TypeSpec.Http.route(path: valueof string, options?: (anonymous model))
+@TypeSpec.Http.route(path: valueof string, options?: { shared: boolean })
 ```
 
 #### Target
@@ -411,8 +411,8 @@ namespace PetStore;
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
-@doc("Region name")
-region?: string = "westus",
+  @doc("Region name")
+  region?: string = "westus",
 })
 ```
 

@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -19,11 +20,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private OutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
-        public override ExpressionTypeProviderWriter GetExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public override TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
 
         public override TypeFactory TypeFactory { get; }
 
         public override ExtensibleSnippets ExtensibleSnippets { get; }
+
+        /// <summary>
+        /// Returns the serialization type providers for the given model type provider.
+        /// </summary>
+        /// <param name="provider">The model type provider.</param>
+        public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider)
+        {
+            // Add JSON serialization type provider
+            return new TypeProvider[] { new MrwSerializationTypeProvider(provider) };
+        }
 
         [ImportingConstructor]
         public ClientModelPlugin(GeneratorContext context)

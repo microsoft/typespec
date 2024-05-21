@@ -18,11 +18,19 @@ parameters:
   - name: TestArgs
     type: string
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
+
 steps:
   - checkout: self
 
   - download: current
-    artifact: build_artifacts
+    artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
 
   - ${{ parameters.AdditionalInitializeSteps }}

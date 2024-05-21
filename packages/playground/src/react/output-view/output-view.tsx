@@ -1,5 +1,5 @@
 import { tokens } from "@fluentui/react-components";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { FileOutput } from "../file-output/file-output.js";

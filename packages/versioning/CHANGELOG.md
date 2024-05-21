@@ -1,5 +1,16 @@
 # Change Log - @typespec/versioning
 
+## 0.56.0
+
+### Bug Fixes
+
+- [#3264](https://github.com/microsoft/typespec/pull/3264) Fix crash when `@service` appears inside a versioned namespace
+
+### Bump dependencies
+
+- [#3169](https://github.com/microsoft/typespec/pull/3169) Update dependencies
+
+
 ## 0.55.0
 
 ### Bump dependencies

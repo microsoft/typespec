@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="System.ClientModel" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="./**/*.*" />
+    <Compile Remove="./**/*.*" />
+    <Compile Include="./**/*.cs" Exclude="./**/Properties/**/*.cs" />
+  </ItemGroup>
+
+</Project>

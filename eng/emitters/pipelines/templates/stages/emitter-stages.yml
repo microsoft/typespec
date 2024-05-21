@@ -61,6 +61,13 @@ parameters:
     type: object
     default: []
 
+  - name: LanguageShortName
+    type: string
+
+  - name: HasNugetPackages
+    type: boolean
+    default: false
+
 stages:
   # Build stage
   # Responsible for building the autorest generator and typespec emitter packages
@@ -84,6 +91,8 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
+          BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
           NodeVersion: 20.x
           Os: linux
           EmitArtifacts: true # Emit artifacts only for the first job
@@ -95,6 +104,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: linux
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -105,6 +115,7 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 20.x
           Os: windows
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -115,8 +126,103 @@ stages:
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           NodeVersion: 18.x
           Os: windows
+      - ${{ if eq(parameters.Publish, 'none') }}:
+          - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
+            parameters:
+              LanguageShortName: ${{ parameters.LanguageShortName }}
+              DependsOn: Build_linux_20
+              BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+              Artifacts:
+                - ${{ each package in parameters.Packages }}:
+                    - name: ${{ package.name }}
+
+  # Test stage
+  # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
+  # Will only run if the parameter `TestMatrix` is not empty.
+  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
+  - ${{ if or(parameters.UnitTestArgs, ne(length(parameters.TestMatrix), 0)) }}:
+      - stage: ${{ parameters.StagePrefix }}_Test
+        displayName: ${{ parameters.StagePrefix }} - Test
+        condition: and(succeeded(), ${{ parameters.Condition }})
+        dependsOn:
+          - ${{ parameters.DependsOn }}
+          - ${{ parameters.StagePrefix }}_Build
+        variables:
+          selfRepositoryPath: $(Build.SourcesDirectory)
+          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+        jobs:
+          - ${{ if parameters.UnitTestArgs }}:
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 20.x
+                  Os: linux
+                  EmitArtifacts: true # Emit artifacts only for the first job
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 18.x
+                  Os: linux
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 20.x
+                  Os: windows
+              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+                parameters:
+                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+                  PackagePath: ${{ parameters.PackagePath }}
+                  TestArgs: ${{ parameters.UnitTestArgs }}
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
+                  BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  NodeVersion: 18.x
+                  Os: windows
+
+  # Regen Test stage
+  # Responsible for running any regen tests needed to validate no manual changes were done.
+  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
+  - ${{ if ne(length(parameters.TestMatrix), 0) }}:
+      - stage: ${{ parameters.StagePrefix }}_Regen_Test
+        displayName: ${{ parameters.StagePrefix }} - Regen - Test
+        condition: and(succeeded(), ${{ parameters.Condition }})
+        dependsOn:
+          - ${{ parameters.DependsOn }}
+          - ${{ parameters.StagePrefix }}_Build
+        variables:
+          selfRepositoryPath: $(Build.SourcesDirectory)
+          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
+        jobs:
+          - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+            parameters:
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              PackagePath: ${{ parameters.PackagePath }}
+              LanguageShortName: ${{ parameters.LanguageShortName }}
+              BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+              Os: windows
+              TestMatrix: ${{ parameters.TestMatrix }}
+          - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
+            parameters:
+              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
+              PackagePath: ${{ parameters.PackagePath }}
+              LanguageShortName: ${{ parameters.LanguageShortName }}
+              BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+              Os: linux
+              TestMatrix: ${{ parameters.TestMatrix }}
 
   # Publish stage
   # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
@@ -132,9 +238,10 @@ stages:
           - ${{ parameters.StagePrefix }}_Build
           - ${{ if and(parameters.PublishDependsOnTest, ne(length(parameters.TestMatrix), 0)) }}:
               - ${{ parameters.StagePrefix }}_Test
+              - ${{ parameters.StagePrefix }}_Regen_Test
         variables:
           toolsRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
+          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts_${{ parameters.LanguageShortName }}
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
@@ -145,7 +252,7 @@ stages:
               - checkout: self
 
               - download: current
-                artifact: build_artifacts
+                artifact: build_artifacts_${{ parameters.LanguageShortName }}
                 displayName: Download build artifacts
 
               # Create authenticated .npmrc file for publishing
@@ -169,76 +276,27 @@ stages:
                           npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
                         displayName: Publish ${{ package.name }}
                         workingDirectory: $(buildArtifactsPath)/packages
+              - ${{ if parameters.HasNugetPackages }}:
+                  - task: 1ES.PublishNuget@1
+                    displayName: Publish Nuget packages
+                    inputs:
+                      packagesToPush: $(buildArtifactsPath)/packages/*.nupkg
+                      packageParentPath: $(buildArtifactsPath)/packages
+                      # todo update so we can publish publicly to nuget
+                      publishVstsFeed: "29ec6040-b234-4e31-b139-33dc4287b756/fa8c16a3-dbe0-4de2-a297-03065ec1ba3f"
+                      nuGetFeedType: internal
+
+              - template: /eng/emitters/pipelines/templates/steps/create-apireview.yml
+                parameters:
+                  Artifacts:
+                    - ${{ each package in parameters.Packages }}:
+                        - name: ${{ package.name }}
+                  ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
+                  ArtifactPath: $(buildArtifactsPath)
+                  LanguageShortName: ${{ parameters.LanguageShortName }}
 
             templateContext:
               outputs:
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)
                   artifact: publish_artifacts
-
-  # Test stage
-  # Responsible for running unit and functional tests using a matrix passed in as the parameter `TestMatrix`.
-  # Will only run if the parameter `TestMatrix` is not empty.
-  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
-  - ${{ if or(parameters.UnitTestArgs, ne(length(parameters.TestMatrix), 0)) }}:
-      - stage: ${{ parameters.StagePrefix }}_Test
-        displayName: ${{ parameters.StagePrefix }} - Test
-        condition: and(succeeded(), ${{ parameters.Condition }})
-        dependsOn:
-          - ${{ parameters.DependsOn }}
-          - ${{ parameters.StagePrefix }}_Build
-        variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-        jobs:
-          - ${{ if parameters.UnitTestArgs }}:
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  TestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 20.x
-                  Os: linux
-                  EmitArtifacts: true # Emit artifacts only for the first job
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  TestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 18.x
-                  Os: linux
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  TestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 20.x
-                  Os: windows
-              - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-                parameters:
-                  AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-                  PackagePath: ${{ parameters.PackagePath }}
-                  TestArgs: ${{ parameters.UnitTestArgs }}
-                  NodeVersion: 18.x
-                  Os: windows
-
-  # Regen Test stage
-  # Responsible for running any regen tests needed to validate no manual changes were done.
-  # The contents of the artifact `build_artifacts` are available under the path `$(buildArtifactsPath)`.
-  - ${{ if ne(length(parameters.TestMatrix), 0) }}:
-      - stage: ${{ parameters.StagePrefix }}_Regen_Test
-        displayName: ${{ parameters.StagePrefix }} - Regen - Test
-        condition: and(succeeded(), ${{ parameters.Condition }})
-        dependsOn:
-          - ${{ parameters.DependsOn }}
-          - ${{ parameters.StagePrefix }}_Build
-        variables:
-          selfRepositoryPath: $(Build.SourcesDirectory)
-          buildArtifactsPath: $(Pipeline.Workspace)/build_artifacts
-        jobs:
-          - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
-            parameters:
-              AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
-              PackagePath: ${{ parameters.PackagePath }}
-              Os: windows
-              TestMatrix: ${{ parameters.TestMatrix }}

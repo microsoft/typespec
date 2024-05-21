@@ -1,11 +1,23 @@
 import {
   BooleanLiteral,
-  compilerAssert,
   DiagnosticTarget,
-  DuplicateTracker,
-  emitFile,
   Enum,
   EnumMember,
+  IntrinsicType,
+  Model,
+  ModelProperty,
+  NumericLiteral,
+  Program,
+  Scalar,
+  StringLiteral,
+  StringTemplate,
+  Tuple,
+  Type,
+  Union,
+  UnionVariant,
+  compilerAssert,
+  emitFile,
+  explainStringTemplateNotSerializable,
   getDeprecated,
   getDirectoryPath,
   getDoc,
@@ -21,22 +33,9 @@ import {
   getPattern,
   getRelativePathFromDirectory,
   getSummary,
-  IntrinsicType,
   isArrayModelType,
   isNullType,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Program,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
-  stringTemplateToString,
-  Tuple,
-  Type,
   typespecTypeToJson,
-  Union,
-  UnionVariant,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -52,8 +51,10 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
+  JsonSchemaDeclaration,
   findBaseUri,
   getContains,
   getContentEncoding,
@@ -69,7 +70,6 @@ import {
   getPrefixItems,
   getUniqueItems,
   isJsonSchemaDeclaration,
-  JsonSchemaDeclaration,
 } from "./index.js";
 import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
@@ -172,7 +172,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const result = new ObjectBuilder(propertyType.value);
 
+    // eslint-disable-next-line deprecation/deprecation
     if (property.default) {
+      // eslint-disable-next-line deprecation/deprecation
       result.default = this.#getDefaultValue(property.type, property.default);
     }
 
@@ -237,14 +239,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   stringTemplate(string: StringTemplate): EmitterOutput<object> {
-    const [value, diagnostics] = stringTemplateToString(string);
-    if (diagnostics.length > 0) {
-      this.emitter
-        .getProgram()
-        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
-      return { type: "string" };
+    if (string.stringValue !== undefined) {
+      return { type: "string", const: string.stringValue };
     }
-    return { type: "string", const: value };
+    const diagnostics = explainStringTemplateNotSerializable(string);
+    this.emitter
+      .getProgram()
+      .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+    return { type: "string" };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {
@@ -326,7 +328,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionVariant(variant: UnionVariant): EmitterOutput<object> {
-    return this.emitter.emitTypeReference(variant.type);
+    const variantType = this.emitter.emitTypeReference(variant.type);
+    compilerAssert(variantType.kind === "code", "Unexpected non-code result from emit reference");
+
+    const result = new ObjectBuilder(variantType.value);
+
+    this.#applyConstraints(variant, result);
+
+    return result;
   }
 
   modelPropertyReference(property: ModelProperty): EmitterOutput<object> {
@@ -511,7 +520,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #applyConstraints(
-    type: Scalar | Model | ModelProperty | Union | Enum,
+    type: Scalar | Model | ModelProperty | Union | UnionVariant | Enum,
     schema: ObjectBuilder<unknown>
   ) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {

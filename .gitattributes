@@ -8,7 +8,7 @@ yarn.lock                          merge=binary linguist-generated=true
 common/config/rush/repo-state.json merge=binary linguist-generated=true
 
 # docs/spec.html is also generated and not worth resolving line by line or
-# reviewing or having its diff uncollpased on GitHub. On conflict, pick either
+# reviewing or having its diff uncollapsed on GitHub. On conflict, pick either
 # side and rebuild to regenerate.
 docs/spec.html               merge=binary linguist-generated=true
 

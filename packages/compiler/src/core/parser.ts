@@ -16,10 +16,13 @@ import {
 import {
   AliasStatementNode,
   AnyKeywordNode,
+  ArrayLiteralNode,
   AugmentDecoratorStatementNode,
   BlockComment,
   BooleanLiteralNode,
+  CallExpressionNode,
   Comment,
+  ConstStatementNode,
   DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
@@ -62,9 +65,13 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  ObjectLiteralNode,
+  ObjectLiteralPropertyNode,
+  ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
   ParseOptions,
+  PositionDetail,
   ProjectionBlockExpressionNode,
   ProjectionEnumMemberSelectorNode,
   ProjectionEnumSelectorNode,
@@ -88,6 +95,7 @@ import {
   ProjectionTupleExpressionNode,
   ProjectionUnionSelectorNode,
   ProjectionUnionVariantSelectorNode,
+  ScalarConstructorNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -103,6 +111,7 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -125,7 +134,13 @@ type ParseListItem<K, T> = K extends UnannotatedListKind
   ? () => T
   : (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
-type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
+type OpenToken =
+  | Token.OpenBrace
+  | Token.OpenParen
+  | Token.OpenBracket
+  | Token.LessThan
+  | Token.HashBrace
+  | Token.HashBracket;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
 type DelimiterToken = Token.Comma | Token.Semicolon;
 
@@ -179,11 +194,24 @@ namespace ListKind {
     invalidAnnotationTarget: "expression",
   } as const;
 
+  export const FunctionArguments = {
+    ...OperationParameters,
+    invalidAnnotationTarget: "expression",
+  } as const;
+
   export const ModelProperties = {
     ...PropertiesBase,
     open: Token.OpenBrace,
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+  } as const;
+
+  export const ObjectLiteralProperties = {
+    ...PropertiesBase,
+    open: Token.HashBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Comma,
     toleratedDelimiter: Token.Comma,
   } as const;
 
@@ -195,6 +223,16 @@ namespace ListKind {
     toleratedDelimiter: Token.Comma,
     toleratedDelimiterIsValid: false,
     allowedStatementKeyword: Token.OpKeyword,
+  } as const;
+
+  export const ScalarMembers = {
+    ...PropertiesBase,
+    open: Token.OpenBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+    toleratedDelimiterIsValid: false,
+    allowedStatementKeyword: Token.InitKeyword,
   } as const;
 
   export const UnionVariants = {
@@ -250,6 +288,13 @@ namespace ListKind {
     ...ExpresionsBase,
     allowEmpty: true,
     open: Token.OpenBracket,
+    close: Token.CloseBracket,
+  } as const;
+
+  export const ArrayLiteral = {
+    ...ExpresionsBase,
+    allowEmpty: true,
+    open: Token.HashBracket,
     close: Token.CloseBracket,
   } as const;
 
@@ -438,6 +483,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           reportInvalidDecorators(decorators, "alias statement");
           item = parseAliasStatement(pos);
           break;
+        case Token.ConstKeyword:
+          reportInvalidDecorators(decorators, "const statement");
+          item = parseConstStatement(pos);
+          break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
           item = parseUsingStatement(pos);
@@ -537,6 +586,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.AliasKeyword:
           reportInvalidDecorators(decorators, "alias statement");
           item = parseAliasStatement(pos);
+          break;
+        case Token.ConstKeyword:
+          reportInvalidDecorators(decorators, "const statement");
+          item = parseConstStatement(pos);
           break;
         case Token.UsingKeyword:
           reportInvalidDecorators(decorators, "using statement");
@@ -890,9 +943,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseTemplateParameter(): TemplateParameterDeclarationNode {
     const pos = tokenPos();
     const id = parseIdentifier();
-    let constraint: Expression | undefined;
+    let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseExpression();
+      constraint = parseMixedParameterConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -903,6 +956,40 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       constraint,
       default: def,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseValueOfExpressionOrIntersectionOrHigher() {
+    if (token() === Token.ValueOfKeyword) {
+      return parseValueOfExpression();
+    } else if (parseOptional(Token.OpenParen)) {
+      const expr = parseMixedParameterConstraint();
+      parseExpected(Token.CloseParen);
+      return expr;
+    }
+
+    return parseIntersectionExpressionOrHigher();
+  }
+
+  function parseMixedParameterConstraint(): Expression | ValueOfExpressionNode {
+    const pos = tokenPos();
+    parseOptional(Token.Bar);
+    const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
+
+    if (token() !== Token.Bar) {
+      return node;
+    }
+
+    const options = [node];
+    while (parseOptional(Token.Bar)) {
+      const expr = parseValueOfExpressionOrIntersectionOrHigher();
+      options.push(expr);
+    }
+
+    return {
+      kind: SyntaxKind.UnionExpression,
+      options,
       ...finishNode(pos),
     };
   }
@@ -957,6 +1044,46 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseObjectLiteralPropertyOrSpread(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode {
+    reportInvalidDecorators(decorators, "object literal property");
+
+    return token() === Token.Ellipsis
+      ? parseObjectLiteralSpreadProperty(pos)
+      : parseObjectLiteralProperty(pos);
+  }
+
+  function parseObjectLiteralSpreadProperty(pos: number): ObjectLiteralSpreadPropertyNode {
+    parseExpected(Token.Ellipsis);
+
+    // This could be broadened to allow any type expression
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.ObjectLiteralSpreadProperty,
+      target,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteralProperty(pos: number): ObjectLiteralPropertyNode {
+    const id = parseIdentifier({
+      message: "property",
+    });
+
+    parseExpected(Token.Colon);
+    const value = parseExpression();
+
+    return {
+      kind: SyntaxKind.ObjectLiteralProperty,
+      id,
+      value,
+      ...finishNode(pos),
+    };
+  }
+
   function parseScalarStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
@@ -966,12 +1093,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const templateParameters = parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
+    const members = parseScalarMembers();
 
     return {
       kind: SyntaxKind.ScalarStatement,
       id,
       templateParameters,
       extends: optionalExtends,
+      members,
       decorators,
       ...finishNode(pos),
     };
@@ -982,6 +1111,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       return parseReferenceExpression();
     }
     return undefined;
+  }
+
+  function parseScalarMembers(): readonly ScalarConstructorNode[] {
+    if (token() === Token.Semicolon) {
+      nextToken();
+      return [];
+    } else {
+      return parseList(ListKind.ScalarMembers, parseScalarMember);
+    }
+  }
+
+  function parseScalarMember(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ScalarConstructorNode {
+    reportInvalidDecorators(decorators, "scalar member");
+
+    parseExpected(Token.InitKeyword);
+    const id = parseIdentifier();
+    const parameters = parseFunctionParameters();
+    return {
+      kind: SyntaxKind.ScalarConstructor,
+      id,
+      parameters,
+      ...finishNode(pos),
+    };
   }
 
   function parseEnumStatement(
@@ -1070,6 +1225,29 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseConstStatement(pos: number): ConstStatementNode {
+    parseExpected(Token.ConstKeyword);
+    const id = parseIdentifier();
+    const type = parseOptionalTypeAnnotation();
+    parseExpected(Token.Equals);
+    const value = parseExpression();
+    parseExpected(Token.Semicolon);
+    return {
+      kind: SyntaxKind.ConstStatement,
+      id,
+      value,
+      type,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseOptionalTypeAnnotation(): Expression | undefined {
+    if (parseOptional(Token.Colon)) {
+      return parseExpression();
+    }
+    return undefined;
+  }
+
   function parseExpression(): Expression {
     return parseUnionExpressionOrHigher();
   }
@@ -1155,11 +1333,74 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseTypeOfExpression(): TypeOfExpressionNode {
+    const pos = tokenPos();
+    parseExpected(Token.TypeOfKeyword);
+    const target = parseTypeOfTarget();
+
+    return {
+      kind: SyntaxKind.TypeOfExpression,
+      target,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseTypeOfTarget(): Expression {
+    while (true) {
+      switch (token()) {
+        case Token.TypeOfKeyword:
+          return parseTypeOfExpression();
+        case Token.Identifier:
+          return parseCallOrReferenceExpression();
+        case Token.StringLiteral:
+          return parseStringLiteral();
+        case Token.StringTemplateHead:
+          return parseStringTemplateExpression();
+        case Token.TrueKeyword:
+        case Token.FalseKeyword:
+          return parseBooleanLiteral();
+        case Token.NumericLiteral:
+          return parseNumericLiteral();
+        case Token.OpenParen:
+          parseExpected(Token.OpenParen);
+          const target = parseTypeOfTarget();
+          parseExpected(Token.CloseParen);
+          return target;
+        default:
+          return parseReferenceExpression("typeofTarget");
+      }
+    }
+  }
+
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
+    return parseReferenceExpressionInternal(target, pos);
+  }
+
+  function parseCallOrReferenceExpression(
+    message?: keyof CompilerDiagnostics["token-expected"]
+  ): TypeReferenceNode | CallExpressionNode {
+    const pos = tokenPos();
+    const target = parseIdentifierOrMemberExpression(message);
+    if (token() === Token.OpenParen) {
+      return {
+        kind: SyntaxKind.CallExpression,
+        target,
+        arguments: parseList(ListKind.FunctionArguments, parseExpression),
+        ...finishNode(pos),
+      };
+    }
+
+    return parseReferenceExpressionInternal(target, pos);
+  }
+
+  function parseReferenceExpressionInternal(
+    target: IdentifierNode | MemberExpressionNode,
+    pos: number
+  ): TypeReferenceNode {
     const args = parseOptionalList(ListKind.TemplateArguments, parseTemplateArgument);
 
     return {
@@ -1391,10 +1632,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
-        case Token.ValueOfKeyword:
-          return parseValueOfExpression();
+        case Token.TypeOfKeyword:
+          return parseTypeOfExpression();
         case Token.Identifier:
-          return parseReferenceExpression();
+          return parseCallOrReferenceExpression();
         case Token.StringLiteral:
           return parseStringLiteral();
         case Token.StringTemplateHead:
@@ -1418,6 +1659,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
           continue;
+        case Token.HashBrace:
+          return parseObjectLiteral();
+        case Token.HashBracket:
+          return parseArrayLiteral();
         case Token.VoidKeyword:
           return parseVoidKeyword();
         case Token.NeverKeyword:
@@ -1490,6 +1735,29 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind: SyntaxKind.ModelExpression,
       properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteral(): ObjectLiteralNode {
+    const pos = tokenPos();
+    const properties = parseList(
+      ListKind.ObjectLiteralProperties,
+      parseObjectLiteralPropertyOrSpread
+    );
+    return {
+      kind: SyntaxKind.ObjectLiteral,
+      properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseArrayLiteral(): ArrayLiteralNode {
+    const pos = tokenPos();
+    const values = parseList(ListKind.ArrayLiteral, parseExpression);
+    return {
+      kind: SyntaxKind.ArrayLiteral,
+      values,
       ...finishNode(pos),
     };
   }
@@ -1795,7 +2063,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseExpression();
+      type = parseMixedParameterConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,
@@ -2547,11 +2815,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           nextToken();
           start = tokenPos();
           while (parseOptional(Token.Whitespace));
-          if (parseOptional(Token.Star)) {
+          if (!parseOptional(Token.Star)) {
+            break;
+          }
+          if (!inCodeFence) {
             parseOptional(Token.Whitespace);
             start = tokenPos();
             break;
           }
+          // If we are in a code fence we want to preserve the leading whitespace
+          // except for the first space after the star which is used as indentation.
+          const whitespaceStart = tokenPos();
+          parseOptional(Token.Whitespace);
+
+          // This `min` handles the case when there is no whitespace after the
+          // star e.g. a case like this:
+          //
+          // /**
+          //  *```
+          //  *foo-bar
+          //  *```
+          //  */
+          //
+          // Not having space after the star isn't idiomatic, but we support this.
+          // `whitespaceStart + 1` strips the first space before `foo-bar` if there
+          // is a space after the star (the idiomatic case).
+          start = Math.min(whitespaceStart + 1, tokenPos());
           break;
         case Token.EndOfFile:
           break loop;
@@ -3185,6 +3474,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.DecoratorExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
+    case SyntaxKind.CallExpression:
+      return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.DirectiveExpression:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.ImportStatement:
@@ -3231,6 +3522,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ModelSpreadProperty:
       return visitNode(cb, node.target);
+
     case SyntaxKind.ModelStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -3245,8 +3537,11 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.members) ||
         visitNode(cb, node.extends)
       );
+    case SyntaxKind.ScalarConstructor:
+      return visitNode(cb, node.id) || visitEach(cb, node.parameters);
     case SyntaxKind.UnionStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -3270,6 +3565,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitNode(cb, node.value)
       );
+    case SyntaxKind.ConstStatement:
+      return visitNode(cb, node.id) || visitNode(cb, node.value) || visitNode(cb, node.type);
     case SyntaxKind.DecoratorDeclarationStatement:
       return (
         visitEach(cb, node.modifiers) ||
@@ -3289,6 +3586,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.TypeReference:
       return visitNode(cb, node.target) || visitEach(cb, node.arguments);
     case SyntaxKind.ValueOfExpression:
+      return visitNode(cb, node.target);
+    case SyntaxKind.TypeOfExpression:
       return visitNode(cb, node.target);
     case SyntaxKind.TupleExpression:
       return visitEach(cb, node.values);
@@ -3373,7 +3672,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.head) || visitEach(cb, node.spans);
     case SyntaxKind.StringTemplateSpan:
       return visitNode(cb, node.expression) || visitNode(cb, node.literal);
-
+    case SyntaxKind.ObjectLiteral:
+      return visitEach(cb, node.properties);
+    case SyntaxKind.ObjectLiteralProperty:
+      return visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.ObjectLiteralSpreadProperty:
+      return visitNode(cb, node.target);
+    case SyntaxKind.ArrayLiteral:
+      return visitEach(cb, node.values);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -3426,6 +3732,28 @@ function visitEach<T>(cb: NodeCallback<T>, nodes: readonly Node[] | undefined): 
     }
   }
   return;
+}
+
+export function getNodeAtPositionDetail(
+  script: TypeSpecScriptNode,
+  position: number,
+  filter?: (node: Node) => boolean
+): PositionDetail | undefined {
+  const node = getNodeAtPosition(script, position, filter);
+  if (!node) return undefined;
+
+  const char = script.file.text.charCodeAt(position);
+  const preChar = position >= 0 ? script.file.text.charCodeAt(position - 1) : NaN;
+  const nextChar =
+    position < script.file.text.length ? script.file.text.charCodeAt(position + 1) : NaN;
+
+  return {
+    node,
+    position,
+    preChar,
+    nextChar,
+    char,
+  };
 }
 
 /**
@@ -3559,6 +3887,26 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
       break;
     case SyntaxKind.TemplateArgument:
       kind = IdentifierKind.TemplateArgument;
+      break;
+    case SyntaxKind.ObjectLiteralProperty:
+      kind = IdentifierKind.ObjectLiteralProperty;
+      break;
+    case SyntaxKind.ModelProperty:
+      switch (node.parent?.kind) {
+        case SyntaxKind.ModelExpression:
+          kind = IdentifierKind.ModelExpressionProperty;
+          break;
+        case SyntaxKind.ModelStatement:
+          kind = IdentifierKind.ModelStatementProperty;
+          break;
+        default:
+          compilerAssert("false", "ModelProperty with unexpected parent kind.");
+          kind =
+            (id.parent as DeclarationNode).id === id
+              ? IdentifierKind.Declaration
+              : IdentifierKind.Other;
+          break;
+      }
       break;
     default:
       kind =

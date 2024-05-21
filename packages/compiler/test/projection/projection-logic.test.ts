@@ -1,8 +1,8 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Program, projectProgram } from "../../src/core/program.js";
+import type { Program } from "../../src/core/program.js";
 import { createProjector } from "../../src/core/projector.js";
-import {
+import type {
   DecoratorArgumentValue,
   DecoratorContext,
   Enum,
@@ -17,6 +17,7 @@ import {
   Type,
   Union,
 } from "../../src/core/types.js";
+import { projectProgram } from "../../src/index.js";
 import { getDoc } from "../../src/lib/decorators.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
@@ -237,7 +238,7 @@ describe("compiler: projections: logic", () => {
           return p.stateMap(addedOnKey).get(t) || -1;
         },
         getRemovedOn(p: Program, t: Type) {
-          return p.stateMap(removedOnKey).get(t) || Infinity;
+          return p.stateMap(removedOnKey).get(t) || Number.MAX_SAFE_INTEGER;
         },
         getRenamedFromVersions(p: Program, t: Type) {
           return p.stateMap(renamedFromKey).get(t)?.v ?? -1;

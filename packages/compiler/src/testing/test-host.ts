@@ -1,5 +1,5 @@
 import assert from "assert";
-import { RmOptions } from "fs";
+import type { RmOptions } from "fs";
 import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -9,11 +9,11 @@ import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { Program, compile as compileProgram } from "../core/program.js";
-import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
+import type { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
 import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { createTestWrapper, findTestPackageRoot } from "./test-utils.js";
+import { createTestWrapper, findTestPackageRoot, resolveVirtualPath } from "./test-utils.js";
 import {
   BasicTestRunner,
   TestFileSystem,
@@ -27,14 +27,6 @@ export interface TestHostOptions {
   caseInsensitiveFileSystem?: boolean;
   excludeTestLib?: boolean;
   compilerHostOverrides?: Partial<CompilerHost>;
-}
-
-export function resolveVirtualPath(path: string, ...paths: string[]) {
-  // NB: We should always resolve an absolute path, and there is no absolute
-  // path that works across OSes. This ensures that we can still rely on API
-  // like pathToFileURL in tests.
-  const rootDir = process.platform === "win32" ? "Z:/test" : "/test";
-  return resolvePath(rootDir, path, ...paths);
 }
 
 function createTestCompilerHost(

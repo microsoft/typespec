@@ -114,19 +114,19 @@ namespace Microsoft.Generator.CSharp.Input
 
             switch (valueType.Kind)
             {
-                case InputTypeKind.String:
+                case InputPrimitiveTypeKind.String:
                     foreach (var value in allowedValues)
                     {
                         concreteValues.Add(new InputEnumTypeStringValue(value.Name, (string)value.Value, value.Description));
                     }
                     break;
-                case InputTypeKind.Int32:
+                case InputPrimitiveTypeKind.Int32:
                     foreach (var value in allowedValues)
                     {
                         concreteValues.Add(new InputEnumTypeIntegerValue(value.Name, (int)value.Value, value.Description));
                     }
                     break;
-                case InputTypeKind.Float32:
+                case InputPrimitiveTypeKind.Float32:
                     foreach (var value in allowedValues)
                     {
                         switch (value.Value)

@@ -25,23 +25,23 @@
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
-    "build": "npm run build:emitter && npm run build:generator",
+    "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
-    "test": "vitest run",
-    "test:watch": "vitest -w",
-    "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "test": "vitest run -c ./emitter/vitest.config.ts",
+    "test:watch": "vitest -w -c ./emitter/vitest.config.ts",
+    "test:ui": "vitest --ui -c ./emitter/vitest.config.ts",
+    "test:ci": "vitest run  -c ./emitter/vitest.config.ts --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "format": "pnpm -w format:dir packages/http-client-csharp"
+    "format": "pnpm -w format:dir packages/http-client-csharp",
+    "extract-api": "npx api-extractor run --local --verbose"
   },
   "files": [
     "dist/**"
   ],
   "dependencies": {
-    "json-serialize-refs": "0.1.0-0",
-    "winston": "^3.8.2"
+    "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
     "@azure-tools/typespec-azure-core": ">=0.36.0 <1.0.0",
@@ -53,16 +53,17 @@
     "@typespec/versioning": ">=0.50.0 <1.0.0"
   },
   "devDependencies": {
-    "@azure-tools/typespec-azure-core": "0.40.0",
-    "@azure-tools/typespec-client-generator-core": "0.40.0",
+    "@azure-tools/typespec-azure-core": "0.42.0",
+    "@azure-tools/typespec-client-generator-core": "0.42.2",
+    "@microsoft/api-extractor": "^7.40.3",
     "@types/node": "~18.13.0",
-    "@typespec/compiler": "0.54.0",
-    "@typespec/http": "0.54.0",
-    "@typespec/json-schema": "0.54.0",
-    "@typespec/library-linter": "0.54.0",
-    "@typespec/openapi": "0.54.0",
-    "@typespec/rest": "0.54.0",
-    "@typespec/versioning": "0.54.0",
+    "@typespec/compiler": "0.56.0",
+    "@typespec/http": "0.56.0",
+    "@typespec/json-schema": "0.56.0",
+    "@typespec/library-linter": "0.56.0",
+    "@typespec/openapi": "0.56.0",
+    "@typespec/rest": "0.56.0",
+    "@typespec/versioning": "0.56.0",
     "@vitest/coverage-v8": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "c8": "^9.1.0",

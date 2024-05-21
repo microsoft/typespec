@@ -42,6 +42,14 @@ parameters:
     type: boolean
     default: false
 
+  # Language short name
+  - name: LanguageShortName
+    type: string
+
+  - name: BuildArtifactName
+    type: string
+    default: ""
+
 jobs:
   - job: Build_${{ parameters.Os }}_${{ split(parameters.NodeVersion, '.')[0] }}
     ${{ if eq(parameters.Os, 'linux') }}:
@@ -62,6 +70,7 @@ jobs:
           Publish: ${{ parameters.Publish }}
           AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
           Packages: ${{ parameters.Packages }}
+          LanguageShortName: ${{ parameters.LanguageShortName }}
           PackagePath: ${{ parameters.PackagePath }}
           NodeVersion: ${{ parameters.NodeVersion }}
     ${{ if parameters.EmitArtifacts }}:
@@ -69,4 +78,4 @@ jobs:
         outputs:
           - output: pipelineArtifact
             path: $(Build.ArtifactStagingDirectory)
-            artifact: build_artifacts
+            artifact: ${{ parameters.BuildArtifactName }}

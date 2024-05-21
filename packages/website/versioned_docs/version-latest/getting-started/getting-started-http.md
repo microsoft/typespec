@@ -11,7 +11,7 @@ References:
 
 - [HTTP library](../libraries/http/reference)
 - [REST library](../libraries/rest/reference)
-- [OpenAPI 3 emitter](../libraries/openapi3/reference)
+- [OpenAPI 3 emitter](../emitters/openapi3/reference)
 
 ## Setup
 

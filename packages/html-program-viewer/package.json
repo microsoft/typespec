@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://typespec.io",
@@ -53,21 +53,21 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "prettier": "~3.2.5",
-    "react": "~18.2.0",
-    "react-dom": "~18.2.0",
-    "react-is": "~18.2.0"
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1",
+    "react-is": "~18.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
+    "@babel/core": "^7.24.5",
     "@types/node": "~18.11.19",
-    "@types/react": "~18.2.78",
-    "@types/react-dom": "~18.2.25",
+    "@types/react": "~18.3.2",
+    "@types/react-dom": "~18.3.0",
     "@typespec/compiler": "workspace:~",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
     "c8": "^9.1.0",
-    "rimraf": "~5.0.5",
+    "rimraf": "~5.0.7",
     "typescript": "~5.4.5",
-    "vitest": "^1.5.0"
+    "vitest": "^1.6.0"
   }
 }

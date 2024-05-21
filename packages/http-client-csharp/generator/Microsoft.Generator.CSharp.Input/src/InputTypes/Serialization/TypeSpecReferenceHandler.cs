@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 if (!_referenceIdToObjectMap.TryAdd(referenceId, value))
                 {
-                    throw new JsonException();
+                    throw new JsonException($"Failed to add reference ID '{referenceId}' with value type '{value.GetType()}'");
                 }
             }
 
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Input
                 => throw new InvalidOperationException("JSON writing isn't supported");
 
             public override object ResolveReference(string referenceId)
-                => _referenceIdToObjectMap.TryGetValue(referenceId, out object? value) ? value : throw new JsonException();
+                => _referenceIdToObjectMap.TryGetValue(referenceId, out object? value) ? value : throw new JsonException($"cannot resolve reference {referenceId}");
         }
     }
 }

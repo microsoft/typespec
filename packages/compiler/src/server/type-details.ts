@@ -1,6 +1,8 @@
 import {
   compilerAssert,
   DocContent,
+  getDocData,
+  isType,
   Node,
   Program,
   Sym,
@@ -8,7 +10,6 @@ import {
   TemplateDeclarationNode,
   Type,
 } from "../core/index.js";
-import { getDocData } from "../lib/decorators.js";
 import { getSymbolSignature } from "./type-signature.js";
 
 /**
@@ -62,11 +63,19 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   }
 
   // Add @doc(...) API docs
-  const type = symbol.type ?? program.checker.getTypeForNode(symbol.declarations[0]);
-  const apiDocs = getDocData(program, type);
-  // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
-  if (apiDocs && apiDocs.source === "decorator") {
-    docs.push(apiDocs.value);
+  let type = symbol.type;
+  if (!type) {
+    const entity = program.checker.getTypeOrValueForNode(symbol.declarations[0]);
+    if (entity && isType(entity)) {
+      type = entity;
+    }
+  }
+  if (type) {
+    const apiDocs = getDocData(program, type);
+    // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
+    if (apiDocs && apiDocs.source === "decorator") {
+      docs.push(apiDocs.value);
+    }
   }
 
   return docs.join("\n\n");

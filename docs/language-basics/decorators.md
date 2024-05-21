@@ -61,4 +61,4 @@ model Dog {
 
 ## Creating decorators
 
-_For more information on creating decorators, see the [Creating Decorators Documentation](../extending-typespec/create-decorators.md)._
+For more information on creating decorators, see [Creating Decorators](../extending-typespec/create-decorators.md).

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp
 {
     public sealed class CSharpGen
     {
-        private static readonly string[] _filesToKeep = [Constants.DefaultCodeModelFileName, Constants.DefaultConfigurationFileName];
+        private const string ConfigurationFileName = "Configuration.json";
+        private const string CodeModelFileName = "tspCodeModel.json";
+
+        private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
         /// <summary>
         /// Executes the generator task with the <see cref="CodeModelPlugin"/> instance.
@@ -22,7 +23,7 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", Constants.DefaultGeneratedCodeFolderName);
+            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", "Generated");
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
@@ -33,16 +34,21 @@ namespace Microsoft.Generator.CSharp
             foreach (var model in output.Models)
             {
                 CodeWriter writer = new CodeWriter();
-                ExpressionTypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, model);
-                modelWriter.Write();
+                CodeModelPlugin.Instance.GetWriter(writer, model).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
+
+                foreach (var serialization in model.SerializationProviders)
+                {
+                    CodeWriter serializationWriter = new CodeWriter();
+                    CodeModelPlugin.Instance.GetWriter(serializationWriter, serialization).Write();
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.Serialization.cs"), serializationWriter.ToString()));
+                }
             }
 
             foreach (var client in output.Clients)
             {
                 CodeWriter writer = new CodeWriter();
-                ExpressionTypeProviderWriter clientWriter = CodeModelPlugin.Instance.GetExpressionTypeProviderWriter(writer, client);
-                clientWriter.Write();
+                CodeModelPlugin.Instance.GetWriter(writer, client).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
             }
 

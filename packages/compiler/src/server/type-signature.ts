@@ -1,6 +1,6 @@
 import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
-import { Program } from "../core/program.js";
+import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
+import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {
   AliasStatementNode,
@@ -15,7 +15,7 @@ import {
   SyntaxKind,
   Type,
   UnionVariant,
-  ValueType,
+  Value,
 } from "../core/types.js";
 import { printId } from "../formatter/print/printer.js";
 
@@ -26,11 +26,22 @@ export function getSymbolSignature(program: Program, sym: Sym): string {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);
   }
-  const type = sym.type ?? program.checker.getTypeForNode(decl);
-  return getTypeSignature(type);
+  const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
+  return getEntitySignature(sym, entity);
 }
 
-function getTypeSignature(type: Type | ValueType): string {
+function getEntitySignature(sym: Sym, entity: Type | Value | null): string {
+  if (entity === null) {
+    return "(error)";
+  }
+  if ("valueKind" in entity) {
+    return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
+  }
+
+  return getTypeSignature(entity);
+}
+
+function getTypeSignature(type: Type): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -39,15 +50,14 @@ function getTypeSignature(type: Type | ValueType): string {
     case "Model":
     case "Namespace":
       return fence(`${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`);
+    case "ScalarConstructor":
+      return fence(`init ${getTypeSignature(type.scalar)}.${type.name}`);
     case "Decorator":
       return fence(getDecoratorSignature(type));
-
     case "Function":
       return fence(getFunctionSignature(type));
     case "Operation":
       return fence(getOperationSignature(type));
-    case "Value":
-      return `valueof ${getTypeSignature(type)}`;
     case "String":
       // BUG: https://github.com/microsoft/typespec/issues/1350 - should escape string literal values
       return `(string)\n${fence(`"${type.value}"`)}`;
@@ -106,7 +116,7 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${printId(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${printId(parameter.name)}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {

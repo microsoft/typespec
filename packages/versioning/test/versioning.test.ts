@@ -280,6 +280,34 @@ describe("versioning: logic", () => {
       );
     });
 
+    it("can be removed respecting model versioning", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedModel(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        model Test {
+          a: int32;
+          @removed(Versions.v3) b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v2, ["a", "b"]);
+      assertHasProperties(v3, ["a"]);
+      assertHasProperties(v4, ["a"]);
+
+      assertModelProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v3, "v4"],
+        ],
+        source
+      );
+    });
+
     it("can be renamed", async () => {
       const {
         source,
@@ -416,6 +444,23 @@ describe("versioning: logic", () => {
       ok(v1.properties.get("b")!.optional === false);
       ok(v2.properties.get("a")!.optional === false);
       ok(v2.properties.get("b")!.optional === true);
+    });
+
+    it("can be made required", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedModel(
+        ["v1", "v2"],
+        `model Test {
+          a: int32;
+          @madeRequired(Versions.v2) b: int32;
+        }`
+      );
+
+      ok(v1.properties.get("a")!.optional === false);
+      ok(v1.properties.get("b")!.optional === true);
+      ok(v2.properties.get("a")!.optional === false);
+      ok(v2.properties.get("b")!.optional === false);
     });
 
     it("can change type to versioned models", async () => {
@@ -1343,6 +1388,31 @@ describe("versioning: logic", () => {
         [
           [v1, "v1"],
           [v2, "v2"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting interface versioning", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedInterface(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        interface Test {
+          allVersions(): void;
+          @removed(Versions.v3) version2Only(): void;
+        }
+        `
+      );
+      assertHasOperations(v2, ["allVersions", "version2Only"]);
+      assertHasOperations(v3, ["allVersions"]);
+      assertInterfaceProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
         ],
         source
       );

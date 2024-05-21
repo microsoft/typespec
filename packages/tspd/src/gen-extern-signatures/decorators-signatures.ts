@@ -1,13 +1,13 @@
 import {
   DocTag,
-  FunctionParameter,
   IntrinsicScalarName,
+  MixedFunctionParameter,
+  MixedParameterConstraint,
   Model,
   Program,
   Scalar,
   SyntaxKind,
   Type,
-  ValueType,
   getSourceLocation,
   isArrayModelType,
   isUnknownType,
@@ -34,7 +34,7 @@ export function generateSignatureTests(
   ]);
 
   content.push([
-    "import {",
+    "import type {",
     decorators.map((x) => x.typeName).join(","),
     `} from "`,
     decoratorSignatureImport,
@@ -104,7 +104,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     ].join("");
   }
 
-  function getTSParameter(param: FunctionParameter, isTarget?: boolean): string {
+  function getTSParameter(param: MixedFunctionParameter, isTarget?: boolean): string {
     const optional = param.optional ? "?" : "";
     const rest = param.rest ? "..." : "";
     if (rest) {
@@ -114,25 +114,58 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
   }
 
-  function getRestTSParmeterType(type: Type | ValueType) {
-    if (type.kind === "Value") {
-      if (type.target.kind === "Model" && isArrayModelType(program, type.target)) {
-        return `(${getValueTSType(type.target.indexer.value)})[]`;
+  /** For a rest param of constraint T[] or valueof T[] return the T or valueof T */
+  function extractRestParamConstraint(
+    constraint: MixedParameterConstraint
+  ): MixedParameterConstraint | undefined {
+    let valueType: Type | undefined;
+    let type: Type | undefined;
+    if (constraint.valueType) {
+      if (
+        constraint.valueType.kind === "Model" &&
+        isArrayModelType(program, constraint.valueType)
+      ) {
+        valueType = constraint.valueType.indexer.value;
       } else {
-        return "unknown";
+        return undefined;
       }
     }
-    if (!(type.kind === "Model" && isArrayModelType(program, type))) {
-      return `unknown`;
+    if (constraint.type) {
+      if (constraint.type.kind === "Model" && isArrayModelType(program, constraint.type)) {
+        type = constraint.type.indexer.value;
+      } else {
+        return undefined;
+      }
     }
 
-    return `${getTSParmeterType(type.indexer.value)}[]`;
+    return {
+      entityKind: "MixedParameterConstraint",
+      type,
+      valueType,
+    };
+  }
+  function getRestTSParmeterType(constraint: MixedParameterConstraint) {
+    const restItemConstraint = extractRestParamConstraint(constraint);
+    if (restItemConstraint === undefined) {
+      return "unknown";
+    }
+    return `(${getTSParmeterType(restItemConstraint)})[]`;
   }
 
-  function getTSParmeterType(type: Type | ValueType, isTarget?: boolean): string {
-    if (type.kind === "Value") {
-      return getValueTSType(type.target);
+  function getTSParmeterType(constraint: MixedParameterConstraint, isTarget?: boolean): string {
+    if (constraint.type && constraint.valueType) {
+      return `${getTypeConstraintTSType(constraint.type, isTarget)} | ${getValueTSType(constraint.valueType)}`;
     }
+    if (constraint.valueType) {
+      return getValueTSType(constraint.valueType);
+    } else if (constraint.type) {
+      return getTypeConstraintTSType(constraint.type, isTarget);
+    }
+
+    return useCompilerType("Type");
+  }
+
+  function getTypeConstraintTSType(type: Type, isTarget?: boolean): string {
     if (isTarget && isUnknownType(type)) {
       return useCompilerType("Type");
     }
@@ -142,7 +175,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
       const variants = [...type.variants.values()];
 
       if (isTarget) {
-        const items = [...new Set(variants.map((x) => getTSParmeterType(x.type, isTarget)))];
+        const items = [...new Set(variants.map((x) => getTypeConstraintTSType(x.type, isTarget)))];
         return items.join(" | ");
       } else if (variants.every((x) => isReflectionType(x.type))) {
         return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
@@ -190,21 +223,22 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   function getStdScalarTSType(scalar: Scalar & { name: IntrinsicScalarName }): string {
     switch (scalar.name) {
       case "numeric":
+      case "decimal":
+      case "decimal128":
+      case "float":
       case "integer":
+      case "int64":
+      case "uint64":
+        return useCompilerType("Numeric");
       case "int8":
       case "int16":
       case "int32":
-      case "int64":
       case "safeint":
       case "uint8":
       case "uint16":
       case "uint32":
-      case "uint64":
-      case "float":
       case "float64":
       case "float32":
-      case "decimal":
-      case "decimal128":
         return "number";
       case "string":
       case "url":
