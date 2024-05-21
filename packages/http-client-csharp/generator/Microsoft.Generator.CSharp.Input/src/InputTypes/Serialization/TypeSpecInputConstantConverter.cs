@@ -68,20 +68,20 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputPrimitiveType primitiveType:
                     switch (primitiveType.Kind)
                     {
-                        case InputTypeKind.String:
+                        case InputPrimitiveTypeKind.String:
                             value = reader.GetString() ?? throw new JsonException();
                             break;
-                        case InputTypeKind.Uri:
+                        case InputPrimitiveTypeKind.Uri:
                             var stringvalue = reader.GetString() ?? throw new JsonException();
                             value = new Uri(stringvalue);
                             break;
-                        case InputTypeKind.Int32:
+                        case InputPrimitiveTypeKind.Int32:
                             value = reader.GetInt32();
                             break;
-                        case InputTypeKind.Int64:
+                        case InputPrimitiveTypeKind.Int64:
                             value = reader.GetInt64();
                             break;
-                        case InputTypeKind.Boolean:
+                        case InputPrimitiveTypeKind.Boolean:
                             value = reader.GetBoolean();
                             break;
                         default:
@@ -92,13 +92,13 @@ namespace Microsoft.Generator.CSharp.Input
                 case InputEnumType enumType:
                     switch (enumType.EnumValueType.Kind)
                     {
-                        case InputTypeKind.String:
+                        case InputPrimitiveTypeKind.String:
                             value = reader.GetString() ?? throw new JsonException();
                             break;
-                        case InputTypeKind.Int32:
+                        case InputPrimitiveTypeKind.Int32:
                             value = reader.GetInt32();
                             break;
-                        case InputTypeKind.Float32:
+                        case InputPrimitiveTypeKind.Float32:
                             value = reader.GetDouble();
                             break;
                         default:

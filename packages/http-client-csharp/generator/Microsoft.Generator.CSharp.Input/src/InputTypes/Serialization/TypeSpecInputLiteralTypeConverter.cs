@@ -91,11 +91,11 @@ namespace Microsoft.Generator.CSharp.Input
             };
             object value = kind switch
             {
-                InputTypeKind.String => reader.GetString() ?? throw new JsonException(),
-                InputTypeKind.Int32 => reader.GetInt32(),
-                InputTypeKind.Float32 => reader.GetSingle(),
-                InputTypeKind.Float64 => reader.GetDouble(),
-                InputTypeKind.Boolean => reader.GetBoolean(),
+                InputPrimitiveTypeKind.String => reader.GetString() ?? throw new JsonException(),
+                InputPrimitiveTypeKind.Int32 => reader.GetInt32(),
+                InputPrimitiveTypeKind.Float32 => reader.GetSingle(),
+                InputPrimitiveTypeKind.Float64 => reader.GetDouble(),
+                InputPrimitiveTypeKind.Boolean => reader.GetBoolean(),
                 _ => throw new JsonException($"Not supported literal type {kind}.")
             };
             reader.Read();
