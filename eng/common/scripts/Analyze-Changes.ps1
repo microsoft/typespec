@@ -4,7 +4,7 @@ param(
     [string] $TargetBranch
 )
 
-$runAll = @('^eng/common/')
+$runAll = @('^eng/common/', '^vitest.config.ts')
 
 # Map of rule name to paths to include/exclude as regex patterns
 # exclude paths start with '!'
