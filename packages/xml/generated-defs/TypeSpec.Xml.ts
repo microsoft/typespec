@@ -9,17 +9,17 @@ import type { DecoratorContext, Enum, ModelProperty, Type } from "@typespec/comp
  * ```tsp
  * @name("XmlBook")
  * model Book {
- * @name("XmlId") id: string;
- * @encodedName("application/xml", "XmlName") name: string;
- * content: string;
+ *   @name("XmlId") id: string;
+ *   @encodedName("application/xml", "XmlName") name: string;
+ *   content: string;
  * }
  * ```
  *
  * ```xml
  * <XmlBook>
- * <XmlId>string</XmlId>
- * <XmlName>string</XmlName>
- * <content>string</content>
+ *   <XmlId>string</XmlId>
+ *   <XmlName>string</XmlName>
+ *   <content>string</content>
  * </XmlBook>
  * ```
  */
@@ -32,20 +32,20 @@ export type NameDecorator = (context: DecoratorContext, target: Type, name: stri
  *
  * ```tsp
  * model Blob {
- * id: string;
+ *   id: string;
  * }
  * ```
  *
  * ```xml
  * <Blob>
- * <id>abcdef</id>
+ *   <id>abcdef</id>
  * </Blob>
  * ```
  * @example With `@attribute`
  *
  * ```tsp
  * model Blob {
- * @attribute id: string;
+ *   @attribute id: string;
  * }
  * ```
  *
@@ -64,60 +64,60 @@ export type AttributeDecorator = (context: DecoratorContext, target: ModelProper
  *
  * ```tsp
  * model Pet {
- * tags: Tag[];
+ *   tags: Tag[];
  * }
  * ```
  *
  * ```xml
  * <XmlPet>
- * <ItemsTags>
- * <XmlTag>
- * <name>string</name>
- * </XmlTag>
- * </ItemsTags>
+ *   <ItemsTags>
+ *     <XmlTag>
+ *       <name>string</name>
+ *     </XmlTag>
+ *   </ItemsTags>
  * </XmlPet>
  * ```
  * @example Array property with `@unwrapped`
  *
  * ```tsp
  * model Pet {
- * @unwrapped tags: Tag[];
+ *   @unwrapped tags: Tag[];
  * }
  * ```
  *
  * ```xml
  * <XmlPet>
- * <XmlTag>
- * <name>string</name>
- * </XmlTag>
+ *   <XmlTag>
+ *     <name>string</name>
+ *   </XmlTag>
  * </XmlPet>
  * ```
  * @example String property default
  *
  * ```tsp
  * model BlobName {
- * content: string;
+ *   content: string;
  * }
  * ```
  *
  * ```xml
  * <BlobName>
- * <content>
- * abcdef
- * </content>
+ *   <content>
+ *     abcdef
+ *   </content>
  * </BlobName>
  * ```
  * @example Array property with `@unwrapped`
  *
  * ```tsp
  * model BlobName {
- * @unwrapped content: string;
+ *   @unwrapped content: string;
  * }
  * ```
  *
  * ```xml
  * <BlobName>
- * abcdef
+ *   abcdef
  * </BlobName>
  * ```
  */
@@ -135,10 +135,10 @@ export type UnwrappedDecorator = (context: DecoratorContext, target: ModelProper
  * ```tsp
  * @ns( "https://example.com/ns1", "ns1")
  * model Foo {
- * @ns("https://example.com/ns1", "ns1")
- * bar: string
- * @ns("https://example.com/ns2", "ns2")
- * bar: string
+ *   @ns("https://example.com/ns1", "ns1")
+ *   bar: string
+ *   @ns("https://example.com/ns2", "ns2")
+ *   bar: string
  * }
  * ```
  * @example With enum
@@ -146,16 +146,16 @@ export type UnwrappedDecorator = (context: DecoratorContext, target: ModelProper
  * ```tsp
  * @Xml.nsDeclarations
  * enum Namespaces {
- * ns1: "https://example.com/ns1",
- * ns2: "https://example.com/ns2"
+ *   ns1: "https://example.com/ns1",
+ *   ns2: "https://example.com/ns2"
  * }
  *
  * @Xml.ns(Namespaces.ns1)
  * model Foo {
- * @Xml.ns(Namespaces.ns1)
- * bar: string
- * @Xml.ns(Namespaces.ns2)
- * bar: string
+ *   @Xml.ns(Namespaces.ns1)
+ *   bar: string
+ *   @Xml.ns(Namespaces.ns2)
+ *   bar: string
  * }
  * ```
  */

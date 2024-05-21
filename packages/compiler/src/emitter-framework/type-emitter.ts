@@ -118,7 +118,7 @@ export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
  *   literals, and any type referenced inside anywhere inside the model and any
  *   of the referenced types' references.
  *
- * In both cases, context is an object. It strongly recommended that the context
+ * In both cases, context is an object. It's strongly recommended that the context
  * object either contain only primitive types, or else only reference immutable
  * objects.
  *
