@@ -15,11 +15,12 @@
   },
   "include": [
     "rollup.config.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
+    ".storybook/",
+    "src/",
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
-    "definitions/*.d.ts"
+    "definitions/*.d.ts",
+    "stories/"
   ]
 }
