@@ -120,7 +120,7 @@ function Get-ActiveVariables($changes) {
     }
 
     # set global flag to run all if common files are changed
-    $runAll = $root.PathExists('eng/common')
+    $runAll = $root.PathExists('eng/common') -or $root.PathExists('vite.config.ts')
 
     # set global isolated package flag to run if any eng/emiters files changed
     $runIsolated = $root.PathExists('eng/emitters')
