@@ -1015,7 +1015,13 @@ describe("compiler: parser", () => {
            *
            * \`\`\`
            * This is not a @tag because we're in a code fence.
+           *   This is indented code.
            * \`\`\`
+           *
+           *\`\`\`
+           *This code fence is glued
+           *to the stars
+           *\`\`\`
            *
            * \`This is not a @tag either because we're in a code span\`.
            *
@@ -1036,7 +1042,17 @@ describe("compiler: parser", () => {
 
             strictEqual(
               docs[0].content[0].text,
-              "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
+              "This one has a `code span` and a code fence and it spreads over\n" +
+                "more than one line.\n\n" +
+                "```\n" +
+                "This is not a @tag because we're in a code fence.\n" +
+                "  This is indented code.\n" +
+                "```\n\n" +
+                "```\n" +
+                "This code fence is glued\n" +
+                "to the stars\n" +
+                "```\n\n" +
+                "`This is not a @tag either because we're in a code span`."
             );
             strictEqual(docs[0].tags.length, 6);
             const [xParam, yParam, tTemplate, uTemplate, returns, pretend] = docs[0].tags;

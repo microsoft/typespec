@@ -59,7 +59,7 @@ export interface HttpAuthBase {
  * The client sends HTTP requests with the Authorization header that contains the word Basic word followed by a space and a base64-encoded string username:password.
  * For example, to authorize as demo / p@55w0rd the client would send
  * ```
- *  Authorization: Basic ZGVtbzpwQDU1dzByZA==
+ * Authorization: Basic ZGVtbzpwQDU1dzByZA==
  * ```
  */
 export interface BasicAuth extends HttpAuthBase {

@@ -149,9 +149,9 @@ Provide an alternative name for this type when serialized to the given mime type
 
 ```typespec
 model Certificate {
-@encodedName("application/json", "exp")
-@encodedName("application/xml", "expiry")
-expireAt: int32;
+  @encodedName("application/json", "exp")
+  @encodedName("application/xml", "expiry")
+  expireAt: int32;
 }
 ```
 
@@ -160,7 +160,7 @@ expireAt: int32;
 
 ```typespec
 @encodedName("application/merge-patch+json", "exp")
-^ error cannot use subtype
+             ^ error cannot use subtype
 ```
 
 
@@ -183,8 +183,8 @@ None
 ```typespec
 @error
 model PetStoreError {
-code: string;
-message: string;
+  code: string;
+  message: string;
 }
 ```
 
@@ -262,8 +262,8 @@ Specifies how a templated type should name their instances.
 ```typespec
 @friendlyName("{name}List", T)
 model List<Item> {
-value: Item[];
-nextLink: string;
+  value: Item[];
+  nextLink: string;
 }
 ```
 
@@ -324,7 +324,7 @@ Mark a model property as the key to identify instances of that type
 
 ```typespec
 model Pet {
-@key id: string;
+  @key id: string;
 }
 ```
 
@@ -352,8 +352,8 @@ Provide a set of known values to a string type.
 scalar ErrorCode extends string;
 
 enum KnownErrorCode {
-NotFound,
-Invalid,
+  NotFound,
+  Invalid,
 }
 ```
 
@@ -670,8 +670,8 @@ Provide an alternative name for this type.
 
 ```typespec
 model Certificate {
-@projectedName("json", "exp")
-expireAt: int32;
+  @projectedName("json", "exp")
+  expireAt: int32;
 }
 ```
 
@@ -855,12 +855,12 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 
 ```typespec
 model Dog {
-// the service will generate an ID, so you don't need to send it.
-@visibility("read") id: int32;
-// the service will store this secret name, but won't ever return it
-@visibility("create", "update") secretName: string;
-// the regular name is always present
-name: string;
+  // the service will generate an ID, so you don't need to send it.
+  @visibility("read") id: int32;
+  // the service will store this secret name, but won't ever return it
+  @visibility("create", "update") secretName: string;
+  // the regular name is always present
+  name: string;
 }
 ```
 
@@ -977,9 +977,9 @@ not necessary to use this decorator.
 
 ```typespec
 model Dog {
-@visibility("read") id: int32;
-@visibility("create", "update") secretName: string;
-name: string;
+  @visibility("read") id: int32;
+  @visibility("create", "update") secretName: string;
+  name: string;
 }
 
 // The spread operator will copy all the properties of Dog into DogRead,
@@ -990,14 +990,14 @@ name: string;
 // properties are kept.
 @withVisibility("create", "update")
 model DogCreateOrUpdate {
-...Dog;
+  ...Dog;
 }
 
 // In this case the id and name properties are kept and the secretName property
 // is removed.
 @withVisibility("read")
 model DogRead {
-...Dog;
+  ...Dog;
 }
 ```
 

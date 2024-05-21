@@ -458,8 +458,8 @@ namespace PetStore;
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
-@doc("Region name")
-region?: string = "westus",
+  @doc("Region name")
+  region?: string = "westus",
 })
 ```
 

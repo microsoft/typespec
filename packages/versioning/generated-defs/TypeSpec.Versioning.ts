@@ -22,9 +22,9 @@ import type {
  * @versioned(Versions)
  * namespace MyService;
  * enum Versions {
- * v1,
- * v2,
- * v3,
+ *   v1,
+ *   v2,
+ *   v3,
  * }
  * ```
  */
@@ -50,12 +50,12 @@ export type VersionedDecorator = (
  * @versioned(Versions)
  * namespace MyService1;
  * enum Version {
- * @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
- * v1,
- * @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
- * v2,
- * @useDependency(MyLib.Versions.v2) // V3 use lib v2
- * v3,
+ *   @useDependency(MyLib.Versions.v1_1) // V1 use lib v1_1
+ *   v1,
+ *   @useDependency(MyLib.Versions.v1_1) // V2 use lib v1_1
+ *   v2,
+ *   @useDependency(MyLib.Versions.v2) // V3 use lib v2
+ *   v3,
  * }
  * ```
  */
@@ -78,10 +78,10 @@ export type UseDependencyDecorator = (
  * model AlsoAddedInV2 {}
  *
  * model Foo {
- * name: string;
+ *   name: string;
  *
- * @added(Versions.v3)
- * addedInV3: string;
+ *   @added(Versions.v3)
+ *   addedInV3: string;
  * }
  * ```
  */
@@ -113,10 +113,10 @@ export type AddedDecorator = (
  * model AlsoRemovedInV2 {}
  *
  * model Foo {
- * name: string;
+ *   name: string;
  *
- * @removed(Versions.v3)
- * removedInV3: string;
+ *   @removed(Versions.v3)
+ *   removedInV3: string;
  * }
  * ```
  */
@@ -169,9 +169,9 @@ export type RenamedFromDecorator = (
  * @example
  * ```tsp
  * model Foo {
- * name: string;
- * @madeOptional(Versions.v2)
- * nickname: string;
+ *   name: string;
+ *   @madeOptional(Versions.v2)
+ *   nickname: string;
  * }
  * ```
  */
@@ -188,9 +188,9 @@ export type MadeOptionalDecorator = (
  * @example
  * ```tsp
  * model Foo {
- * name: string;
- * @madeRequired(Versions.v2)
- * nickname: string;
+ *   name: string;
+ *   @madeRequired(Versions.v2)
+ *   nickname: string;
  * }
  * ```
  */
