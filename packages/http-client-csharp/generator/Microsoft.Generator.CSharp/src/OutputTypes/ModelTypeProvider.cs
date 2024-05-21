@@ -13,14 +13,18 @@ namespace Microsoft.Generator.CSharp
     public sealed class ModelTypeProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-
         public override string Name { get; }
+
+        /// <summary>
+        /// The serializations providers for the model provider.
+        /// </summary>
+        public TypeProvider[] SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
         public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
+            _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
-
             if (inputModel.Accessibility == "internal")
             {
                 DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Internal;
@@ -32,7 +36,10 @@ namespace Microsoft.Generator.CSharp
                 DeclarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            _inputModel = inputModel;
+            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+            }
         }
 
         protected override PropertyDeclaration[] BuildProperties()
@@ -240,7 +247,7 @@ namespace Microsoft.Generator.CSharp
                     null,
                     accessibility,
                     constructorParameters),
-                body: new MethodBodyStatement[]
+                bodyStatements: new MethodBodyStatement[]
                 {
                     new ParameterValidationBlock(constructorParameters),
                     GetPropertyInitializers(constructorParameters)
@@ -261,7 +268,7 @@ namespace Microsoft.Generator.CSharp
                     null,
                     MethodSignatureModifiers.Internal,
                     constructorParameters),
-                body: new MethodBodyStatement[]
+                bodyStatements: new MethodBodyStatement[]
                 {
                     new ParameterValidationBlock(constructorParameters),
                     GetPropertyInitializers(constructorParameters)
@@ -314,7 +321,7 @@ namespace Microsoft.Generator.CSharp
             var accessibility = IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new CSharpMethod(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
-                body: new MethodBodyStatement(),
+                bodyStatements: new MethodBodyStatement(),
                 kind: CSharpMethodKinds.Constructor);
         }
     }

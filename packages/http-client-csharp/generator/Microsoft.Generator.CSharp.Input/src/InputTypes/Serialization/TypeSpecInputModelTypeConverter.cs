@@ -85,7 +85,10 @@ namespace Microsoft.Generator.CSharp.Input
             model.Accessibility = accessibility;
             model.Deprecated = deprecated;
             model.Description = description;
-            model.Usage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None; // TODO -- refine later
+            var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
+            // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
+            parsedUsage |= InputModelTypeUsage.Json;
+            model.Usage = parsedUsage;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorPropertyName = discriminatorPropertyName;
             model.InheritedDictionaryType = inheritedDictionaryType;

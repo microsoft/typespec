@@ -8,7 +8,6 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class UnbrandedTypeSpecClient
     {
-        // Add Methods
         /// <summary> Return hi. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="headParameter"></param>
