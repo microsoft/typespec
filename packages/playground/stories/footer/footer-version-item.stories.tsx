@@ -1,5 +1,6 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 import { createBrowserHostInternal } from "../../src/browser-host.js";
 import { PlaygroundContextProvider } from "../../src/react/context/playground-context.js";
 import {
@@ -56,7 +57,7 @@ const versionSelector: VersionSelectorProps = {
   ],
   selected: "1.0.0",
   latest: "1.2.0",
-  onChange: (version) => console.log(version),
+  onChange: fn(),
 };
 
 export const WithSelector: Story = {

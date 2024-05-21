@@ -6,6 +6,7 @@ const config: StorybookConfig = {
   typescript: {
     reactDocgen: false,
   },
+  addons: ["@storybook/addon-actions"],
 };
 
 export default config;
