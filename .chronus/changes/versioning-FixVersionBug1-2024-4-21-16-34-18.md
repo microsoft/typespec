@@ -5,4 +5,4 @@ packages:
   - "@typespec/versioning"
 ---
 
-Fix issue with `@removed` decorator if model was not added from beginning.
+Using `@removed` on member types and `@added` on containing type could result in errors
