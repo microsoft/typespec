@@ -1044,7 +1044,33 @@ export function createScanner(
 
   function getDocTextValue(): string {
     if (tokenFlags & TokenFlags.Escaped) {
-      return unescapeString(tokenPosition, position);
+      let start = tokenPosition;
+      const end = position;
+
+      let result = "";
+      let pos = start;
+
+      while (pos < end) {
+        const ch = input.charCodeAt(pos);
+        if (ch !== CharCode.Backslash) {
+          pos++;
+          continue;
+        }
+
+        result += input.substring(start, pos);
+        switch (input.charCodeAt(pos + 1)) {
+          case CharCode.At:
+            result += "@";
+            break;
+          default:
+            result += input.substring(pos, pos + 2);
+        }
+        pos += 2;
+        start = pos;
+      }
+
+      result += input.substring(start, pos);
+      return result;
     } else {
       return input.substring(tokenPosition, position);
     }
