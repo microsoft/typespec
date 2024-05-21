@@ -22,18 +22,19 @@ extends:
           - job: InitJob
             displayName: Initialize
             steps:
+              - script: |
+                  corepack enable
+                  corepack prepare pnpm@latest-8 --activate
+                displayName: Install pnpm
+
+              - script: pnpm install
+                displayName: Install JavaScript Dependencies
+
               - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
 
-              - task: PowerShell@2
+              - script: pnpm tsx ./eng/common/scripts/analyze-change.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
-                name: InitStep
-                inputs:
-                  pwsh: true
-                  filePath: $(Build.SourcesDirectory)/eng/common/scripts/Analyze-Changes.ps1
-                  arguments: >
-                    -TargetBranch $(TARGET_BRANCH)
-                  workingDirectory: $(Build.SourcesDirectory)
 
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
