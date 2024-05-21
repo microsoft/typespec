@@ -1,7 +1,6 @@
 import {
   BooleanLiteral,
   DiagnosticTarget,
-  DuplicateTracker,
   Enum,
   EnumMember,
   IntrinsicType,
@@ -52,6 +51,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { DuplicateTracker } from "@typespec/compiler/utils";
 import { stringify } from "yaml";
 import {
   JsonSchemaDeclaration,
@@ -328,7 +328,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionVariant(variant: UnionVariant): EmitterOutput<object> {
-    return this.emitter.emitTypeReference(variant.type);
+    const variantType = this.emitter.emitTypeReference(variant.type);
+    compilerAssert(variantType.kind === "code", "Unexpected non-code result from emit reference");
+
+    const result = new ObjectBuilder(variantType.value);
+
+    this.#applyConstraints(variant, result);
+
+    return result;
   }
 
   modelPropertyReference(property: ModelProperty): EmitterOutput<object> {
@@ -513,7 +520,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #applyConstraints(
-    type: Scalar | Model | ModelProperty | Union | Enum,
+    type: Scalar | Model | ModelProperty | Union | UnionVariant | Enum,
     schema: ObjectBuilder<unknown>
   ) {
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
