@@ -1,6 +1,6 @@
 import { createSourceFile, getSourceFileKindFromExt, resolvePath } from "@typespec/compiler";
-import { LibraryImportOptions, importLibrary, importTypeSpecCompiler } from "./core.js";
-import { BrowserHost, PlaygroundTspLibrary } from "./types.js";
+import { importLibrary, importTypeSpecCompiler, type LibraryImportOptions } from "./core.js";
+import type { BrowserHost, PlaygroundTspLibrary } from "./types.js";
 
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath("/test", path, ...paths);

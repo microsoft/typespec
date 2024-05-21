@@ -1,6 +1,6 @@
-import { PlaygroundLinks } from "../react/playground.js";
-import { PlaygroundSampleConfig } from "../tooling/types.js";
-import { PlaygroundSample } from "../types.js";
+import type { PlaygroundLinks } from "../react/playground.js";
+import type { PlaygroundSampleConfig } from "../tooling/types.js";
+import type { PlaygroundSample } from "../types.js";
 
 export interface PlaygroundUserConfig extends Omit<PlaygroundConfig, "samples"> {
   /**

@@ -1,7 +1,7 @@
 import { mergeClasses } from "@fluentui/react-components";
 import { ChevronDown16Regular, ErrorCircle16Filled, Warning16Filled } from "@fluentui/react-icons";
-import { MouseEventHandler, ReactNode, memo } from "react";
-import { CompilationState } from "../types.js";
+import { memo, type MouseEventHandler, type ReactNode } from "react";
+import type { CompilationState } from "../types.js";
 import style from "./header.module.css";
 
 export interface ProblemPaneHeaderProps {
