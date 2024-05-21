@@ -36,10 +36,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
-        internal bool IsIntValueType { get; }
+        public bool IsIntValueType { get; }
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
-        internal bool IsNumericValueType { get; }
+        public bool IsNumericValueType { get; }
         public override string Name { get; }
         public override string Namespace { get; }
         public override FormattableString Description { get; }

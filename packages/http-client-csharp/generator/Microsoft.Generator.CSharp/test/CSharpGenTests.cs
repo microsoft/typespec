@@ -71,7 +71,6 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
             mockPlugin.SetupGet(p => p.ApiTypes).Returns(mockApiTypes.Object);
             mockPlugin.SetupGet(p => p.ExtensibleSnippets).Returns(mockExtensibleSnippets.Object);
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);

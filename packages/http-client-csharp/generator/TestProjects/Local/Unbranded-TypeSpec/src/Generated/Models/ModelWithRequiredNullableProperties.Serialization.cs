@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -33,31 +34,190 @@ namespace UnbrandedTypeSpec.Models
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options) => WriteCore(writer, options);
+
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options) => CreateCore(ref reader, options);
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options) => WriteCore(options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options) => CreateCore(data, options);
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void WriteCore(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{format}' format.");
+            }
+            writer.WriteStartObject();
+            if (RequiredNullablePrimitive != null)
+            {
+                writer.WritePropertyName("requiredNullablePrimitive"u8);
+                writer.WriteNumberValue(RequiredNullablePrimitive.Value);
+            }
+            else
+            {
+                writer.WriteNull("requiredNullablePrimitive");
+            }
+            if (RequiredExtensibleEnum != null)
+            {
+                writer.WritePropertyName("requiredExtensibleEnum"u8);
+                writer.WriteStringValue(RequiredExtensibleEnum.Value.ToString());
+            }
+            else
+            {
+                writer.WriteNull("requiredExtensibleEnum");
+            }
+            if (RequiredFixedEnum != null)
+            {
+                writer.WritePropertyName("requiredFixedEnum"u8);
+                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
+            }
+            else
+            {
+                writer.WriteNull("requiredFixedEnum");
+            }
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+                    #if NET6_0_OR_GREATER
+
+                        writer.WriteRawValue(item.Value);
+                    #else
+
+                        using (System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(item.Value))
+                        {
+                            System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                        }
+                    #endif
+                }
+            }
+            writer.WriteEndObject();
         }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual ModelWithRequiredNullableProperties CreateCore(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new ModelWithRequiredNullableProperties();
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support reading '{format}' format.");
+            }
+            using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.ParseValue(ref reader);
+            return ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
+        }
+
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options. </param>
+        internal static ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(System.Text.Json.JsonElement element, System.ClientModel.Primitives.ModelReaderWriterOptions options = null)
+        {
+            options ??= new System.ClientModel.Primitives.ModelReaderWriterOptions("W");
+
+            if (element.ValueKind == System.Text.Json.JsonValueKind.Null)
+            {
+                return null;
+            }
+            int? requiredNullablePrimitive = default;
+            StringExtensibleEnum? requiredExtensibleEnum = default;
+            StringFixedEnum? requiredFixedEnum = default;
+            IDictionary<string, System.BinaryData> serializedAdditionalRawData = default;
+            Dictionary<string, System.BinaryData> rawDataDictionary = new Dictionary<string, System.BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("requiredNullablePrimitive"u8))
+                {
+                    if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Null)
+                    {
+                        requiredNullablePrimitive = null;
+                        continue;
+                    }
+                    requiredNullablePrimitive = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("requiredExtensibleEnum"u8))
+                {
+                    if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Null)
+                    {
+                        requiredExtensibleEnum = null;
+                        continue;
+                    }
+                    requiredExtensibleEnum = new StringExtensibleEnum(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredFixedEnum"u8))
+                {
+                    if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Null)
+                    {
+                        requiredFixedEnum = null;
+                        continue;
+                    }
+                    requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    rawDataDictionary.Add(prop.Name, System.BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            serializedAdditionalRawData = rawDataDictionary;
+            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, serializedAdditionalRawData);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual System.BinaryData WriteCore(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new System.BinaryData("IPersistableModel");
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J": 
+                    return System.ClientModel.Primitives.ModelReaderWriter.Write(this, options);
+                default: 
+                    throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support writing '{options.Format}' format.");
+            }
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        protected virtual ModelWithRequiredNullableProperties CreateCore(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new ModelWithRequiredNullableProperties();
+            var format = options.Format == "W" ? ((System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J": 
+                {
+                    using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(data);
+                    return ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
+                }
+                default: 
+                    throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support reading '{options.Format}' format.");
+            }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         string System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+
+        /// <summary> Deserializes the model from a raw response. </summary>
+        /// <param name="response"> The result to deserialize the model from. </param>
+        internal static ModelWithRequiredNullableProperties FromResponse(System.ClientModel.Primitives.PipelineResponse response)
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(response.Content);
+            return ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(document.RootElement);
+        }
+
+        /// <summary> Convert into a <see cref="System.ClientModel.BinaryContent"/>. </summary>
+        internal virtual System.ClientModel.BinaryContent ToBinaryContent()
+        {
+            return System.ClientModel.BinaryContent.Create<ModelWithRequiredNullableProperties>(this, new System.ClientModel.Primitives.ModelReaderWriterOptions("W"));
+        }
     }
 }

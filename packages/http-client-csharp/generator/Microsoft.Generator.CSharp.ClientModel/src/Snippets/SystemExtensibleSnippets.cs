@@ -8,6 +8,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal partial class SystemExtensibleSnippets : ExtensibleSnippets
     {
         public override RestOperationsSnippets RestOperations { get; } = new SystemRestOperationsSnippets();
-        public override ModelSnippets Model { get; } = new SystemModelSnippets();
     }
 }

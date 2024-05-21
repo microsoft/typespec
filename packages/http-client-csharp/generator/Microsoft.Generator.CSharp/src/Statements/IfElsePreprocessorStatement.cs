@@ -18,12 +18,17 @@ namespace Microsoft.Generator.CSharp.Statements
         internal override void Write(CodeWriter writer)
         {
             writer.WriteLine($"#if {Condition}");
-            writer.AppendRaw("\t\t\t\t");
-            If.Write(writer);
+            using (writer.ScopeRaw(string.Empty, string.Empty, false))
+            {
+                If.Write(writer);
+            }
             if (Else is not null)
             {
                 writer.WriteRawLine("#else");
-                Else.Write(writer);
+                using (writer.ScopeRaw(string.Empty, string.Empty, false))
+                {
+                    Else.Write(writer);
+                }
             }
 
             writer.WriteRawLine("#endif");

@@ -7,7 +7,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public abstract partial class ExtensibleSnippets
     {
-        public abstract ModelSnippets Model { get; }
         public abstract RestOperationsSnippets RestOperations { get; }
 
         protected static InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, ValueExpression instance, string methodName)

@@ -62,7 +62,10 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else
             {
-                Statement.Write(writer);
+                using (writer.ScopeRaw(string.Empty, string.Empty, false))
+                {
+                    Statement.Write(writer);
+                }
             }
         }
     }

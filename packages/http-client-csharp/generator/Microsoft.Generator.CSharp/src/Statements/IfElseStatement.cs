@@ -41,7 +41,8 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else
             {
-                using (writer.Scope($"else"))
+                writer.WriteRawLine("else");
+                using (writer.Scope())
                 {
                     Else.Write(writer);
                 }

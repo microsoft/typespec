@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -16,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Snippets
                 var arguments = options is null
                     ? new[] { writer, value }
                     : new[] { writer, value, options };
-                return new InvokeStaticMethodExpression(typeof(JsonSerializer), nameof(JsonSerializer.Serialize), arguments);
+                return new InvokeStaticMethodExpression(typeof(System.Text.Json.JsonSerializer), nameof(System.Text.Json.JsonSerializer.Serialize), arguments);
             }
 
             public static InvokeStaticMethodExpression Deserialize(JsonElementSnippet element, CSharpType serializationType, ValueExpression? options = null)
@@ -24,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Snippets
                 ValueExpression[] arguments = options is null
                     ? [element.GetRawText()]
                     : new[] { element.GetRawText(), options };
-                return new InvokeStaticMethodExpression(typeof(JsonSerializer), nameof(JsonSerializer.Deserialize), arguments, new[] { serializationType });
+                return new InvokeStaticMethodExpression(typeof(System.Text.Json.JsonSerializer), nameof(System.Text.Json.JsonSerializer.Deserialize), arguments, new[] { serializationType });
             }
         }
     }

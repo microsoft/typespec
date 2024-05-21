@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public IReadOnlyList<FormattableString> Description { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
+        public bool IsRequired { get; }
         public string Name { get; }
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
@@ -34,6 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, !propHasSetter);
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
+            IsRequired = inputProperty.IsRequired;
             XmlDocs = GetXmlDocs();
         }
 

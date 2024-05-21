@@ -6,6 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.ClientModel;
@@ -15,6 +16,7 @@ using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
@@ -76,13 +78,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.IsNotNull(method);
 
-            var expectedJsonModelInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
             var methodSignature = method?.Signature as MethodSignature;
             Assert.IsNotNull(methodSignature);
-            Assert.AreEqual("Write", methodSignature?.Name);
-            Assert.AreEqual(expectedJsonModelInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual("WriteCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             Assert.IsNull(methodSignature?.ReturnType);
+
+            // Check method modifiers
+            var expectedModifiers = MethodSignatureModifiers.Protected;
+            if (mockModelTypeProvider.Inherits != null)
+            {
+                expectedModifiers |= MethodSignatureModifiers.Override;
+            }
+            else
+            {
+                expectedModifiers |= MethodSignatureModifiers.Virtual;
+            }
+            Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers, "Method modifiers do not match the expected value.");
+
+
+            // Validate body
+            var methodBody = method?.BodyStatements;
+            Assert.IsNotNull(methodBody);
         }
 
         // This test validates the json model deserialization create method is built correctly
@@ -96,14 +114,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.IsNotNull(method);
 
-            var expectedJsonInterface = new CSharpType(typeof(IJsonModel<>), mockModelTypeProvider.Type);
             var methodSignature = method?.Signature as MethodSignature;
             Assert.IsNotNull(methodSignature);
-            Assert.AreEqual("Create", methodSignature?.Name);
-            Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual("CreateCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
-            var expectedReturnType = expectedJsonInterface.Arguments[0];
-            Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+            Assert.AreEqual(mockModelTypeProvider.Type, methodSignature?.ReturnType);
         }
 
         // This test validates the I model serialization write method is built correctly
@@ -117,19 +133,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.IsNotNull(method);
 
-            var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
             var methodSignature = method?.Signature as MethodSignature;
             Assert.IsNotNull(methodSignature);
-            Assert.AreEqual("Write", methodSignature?.Name);
-            Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual("WriteCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(1, methodSignature?.Parameters.Count);
             var expectedReturnType = new CSharpType(typeof(BinaryData));
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
         }
 
-        // This test validates the I model deserialization create method is built correctly
+        // This test validates the I model create method is built correctly
         [Test]
-        public void TestBuildIModelDeserializationMethod()
+        public void TestBuildIModelCreateMethod()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelProvider(inputModel);
@@ -138,14 +153,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.IsNotNull(method);
 
-            var expectedJsonInterface = new CSharpType(typeof(IPersistableModel<object>), mockModelTypeProvider.Type);
             var methodSignature = method?.Signature as MethodSignature;
             Assert.IsNotNull(methodSignature);
-            Assert.AreEqual("Create", methodSignature?.Name);
-            Assert.AreEqual(expectedJsonInterface, methodSignature?.ExplicitInterface);
+            Assert.AreEqual("CreateCore", methodSignature?.Name);
+            Assert.IsNull(methodSignature?.ExplicitInterface);
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
-            var expectedReturnType = expectedJsonInterface.Arguments[0];
-            Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+            Assert.AreEqual(mockModelTypeProvider.Type, methodSignature?.ReturnType);
         }
 
         // This test validates the I model get format method is built correctly
@@ -219,8 +232,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
 
-            var ModelProvider = new ModelProvider(inputModel);
-            var serializationModelTypeProvider = new MrwSerializationTypeProvider(ModelProvider, inputModel);
+            var modelProvider = new ModelProvider(inputModel);
+            var serializationModelTypeProvider = new MrwSerializationTypeProvider(modelProvider, inputModel);
             var ctors = serializationModelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 
@@ -233,6 +246,81 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var emptyCtor = ctors[1];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void TestBuildDeserializationMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
+            var model = new ModelProvider(inputModel);
+            var provider = new MrwSerializationTypeProvider(model, inputModel);
+
+            // Assert
+            Assert.IsNotNull(provider);
+
+            var deserializationMethod = provider.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var signature = deserializationMethod?.Signature as MethodSignature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
+            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions), isNullable: true), signature?.Parameters[1].Type);
+            Assert.AreEqual(model.Type, signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+
+            var methodBody = deserializationMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestBuildFromOperationResponseMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
+            var model = new ModelProvider(inputModel);
+            var provider = new MrwSerializationTypeProvider(model, inputModel);
+
+            // Assert
+            Assert.IsNotNull(provider);
+
+            var fromOpResponseMethod = provider.BuildFromOperationResponseMethod();
+            Assert.IsNotNull(fromOpResponseMethod);
+
+            var signature = fromOpResponseMethod?.Signature as MethodSignature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"FromResponse", signature?.Name);
+            Assert.AreEqual(1, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(PipelineResponse)), signature?.Parameters[0].Type);
+            Assert.AreEqual(model.Type, signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+
+            var methodBody = fromOpResponseMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod()
+        {
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
+            var model = new ModelProvider(inputModel);
+            var provider = new MrwSerializationTypeProvider(model, inputModel);
+
+            // Assert
+            Assert.IsNotNull(provider);
+
+            var fromOpResponseMethod = provider.BuildToBinaryContentMethod();
+            Assert.IsNotNull(fromOpResponseMethod);
+
+            var signature = fromOpResponseMethod?.Signature as MethodSignature;
+            Assert.IsNotNull(signature);
+            Assert.AreEqual($"ToBinaryContent", signature?.Name);
+            Assert.AreEqual(0, signature?.Parameters.Count);
+            Assert.AreEqual(new CSharpType(typeof(BinaryContent)), signature?.ReturnType);
+            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual, signature?.Modifiers);
+
+            var methodBody = fromOpResponseMethod?.BodyStatements;
+            Assert.IsNotNull(methodBody);
         }
     }
 }

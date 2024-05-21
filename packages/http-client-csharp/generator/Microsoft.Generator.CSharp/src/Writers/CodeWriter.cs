@@ -634,6 +634,14 @@ namespace Microsoft.Generator.CSharp
             _builder.Advance(spaces);
         }
 
+        private void AddSpaces(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                AppendRawChar(_space);
+            }
+        }
+
         internal CodeWriter WriteIdentifier(string identifier)
         {
             if (StringExtensions.IsCSharpKeyword(identifier))
@@ -934,15 +942,13 @@ namespace Microsoft.Generator.CSharp
                 var iterator = arguments.GetEnumerator();
                 if (iterator.MoveNext())
                 {
-                    AppendRaw("\t");
+                    AddSpaces(4);
                     iterator.Current.Write(this);
-                    WriteRawLine(",");
                     while (iterator.MoveNext())
                     {
-                        AppendRaw(", ");
-                        AppendRaw("\t");
-                        iterator.Current.Write(this);
                         WriteRawLine(",");
+                        AddSpaces(4);
+                        iterator.Current.Write(this);
                     }
                 }
                 AppendRaw(")");

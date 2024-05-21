@@ -47,12 +47,12 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _elementType;
         private CSharpType? _inputType;
         private CSharpType? _outputType;
-        internal bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
-        internal bool IsList => _isList ??= TypeIsList();
-        internal bool IsArray => _isArray ??= TypeIsArray();
+        public bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
+        public bool IsList => _isList ??= TypeIsList();
+        public bool IsArray => _isArray ??= TypeIsArray();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
-        internal bool IsDictionary => _isDictionary ??= TypeIsDictionary();
+        public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
         internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
@@ -198,7 +198,7 @@ namespace Microsoft.Generator.CSharp
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
-        internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
+        public TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
 
         /// <summary>
