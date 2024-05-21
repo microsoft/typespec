@@ -770,9 +770,6 @@ importers:
       '@storybook/addon-actions':
         specifier: ^8.1.2
         version: 8.1.2
-      '@storybook/addon-storysource':
-        specifier: ^8.1.2
-        version: 8.1.2
       '@storybook/cli':
         specifier: ^8.1.2
         version: 8.1.2(react-dom@18.3.1)(react@18.3.1)
@@ -785,6 +782,9 @@ importers:
       '@storybook/test':
         specifier: ^8.1.2
         version: 8.1.2(vitest@1.6.0)
+      '@storybook/types':
+        specifier: ^8.1.2
+        version: 8.1.2
       '@types/debounce':
         specifier: ~1.2.4
         version: 1.2.4
@@ -7842,14 +7842,6 @@ packages:
       uuid: 9.0.1
     dev: true
 
-  /@storybook/addon-storysource@8.1.2:
-    resolution: {integrity: sha512-V9tpzf51QgobP2M6h3y7nOhvRXROxkL8vByK4WbQbgw/8QNS1O3mqvAmWY+YB8g0rTVa7/ZYwyG9GdMMqVjUMg==}
-    dependencies:
-      '@storybook/source-loader': 8.1.2
-      estraverse: 5.3.0
-      tiny-invariant: 1.3.3
-    dev: true
-
   /@storybook/builder-manager@8.1.2(prettier@3.2.5):
     resolution: {integrity: sha512-cOdfSUY6vtZvJaSK1htx4aNmCLldPS7gFTBoooj3oMv7SyP3c3T53NuB+RcYpMqAUtngjLnTcl+tQ9JR/H5meA==}
     dependencies:
@@ -8332,16 +8324,6 @@ packages:
       '@storybook/client-logger': 8.1.2
       memoizerific: 1.11.3
       qs: 6.12.0
-    dev: true
-
-  /@storybook/source-loader@8.1.2:
-    resolution: {integrity: sha512-RtLAqWoP0RebR9npkIPZLmnHE/BTYel2QBfShkdIomfmwNXgdgKNqJYYM2JpPJ00hoVq+OXBGoeFs4WPCTqRDQ==}
-    dependencies:
-      '@storybook/csf': 0.1.7
-      '@storybook/types': 8.1.2
-      estraverse: 5.3.0
-      lodash: 4.17.21
-      prettier: 3.2.5
     dev: true
 
   /@storybook/telemetry@8.1.2(prettier@3.2.5):

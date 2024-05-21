@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
 import { createBrowserHostInternal } from "../../src/browser-host.js";
 import { PlaygroundContextProvider } from "../../src/react/context/playground-context.js";
-import {
-  Footer,
-  FooterVersionItem,
-  type VersionSelectorProps,
-} from "../../src/react/footer/index.js";
+import { Footer, FooterItem, FooterVersionItem } from "../../src/react/footer/index.js";
 
 const storyHost = createBrowserHostInternal({
   compiler: await import("@typespec/compiler"),
@@ -26,9 +21,9 @@ const storyHost = createBrowserHostInternal({
   },
 });
 
-const meta: Meta<typeof FooterVersionItem> = {
-  component: FooterVersionItem,
-  title: "Components/Footer/FooterVersionItem",
+const meta: Meta<typeof Footer> = {
+  title: "Components/Footer/Footer",
+  component: Footer,
   decorators: [
     (Story) => (
       <PlaygroundContextProvider value={{ host: storyHost }}>
@@ -37,28 +32,28 @@ const meta: Meta<typeof FooterVersionItem> = {
     ),
   ],
 };
-
 export default meta;
-type Story = StoryObj<typeof FooterVersionItem>;
+type Story = StoryObj<typeof Footer>;
 
-export const Readonly: Story = {
-  name: "Read only",
-  args: {},
-};
-
-const versionSelector: VersionSelectorProps = {
-  versions: [
-    { name: "1.0.0", label: "1.0.0" },
-    { name: "1.1.0", label: "1.1.0" },
-    { name: "1.2.1", label: "1.2.0" },
-  ],
-  selected: "1.0.0",
-  latest: "1.2.0",
-  onChange: fn(),
-};
-
-export const WithSelector: Story = {
+export const Multiple: Story = {
   args: {
-    versionSelector: versionSelector,
+    children: (
+      <>
+        <FooterItem>One</FooterItem>
+        <FooterItem>Two</FooterItem>
+        <FooterItem>Three</FooterItem>
+      </>
+    ),
+  },
+};
+
+export const VersionItemAndInfo: Story = {
+  args: {
+    children: (
+      <>
+        <FooterItem>One</FooterItem>
+        <FooterVersionItem />
+      </>
+    ),
   },
 };
