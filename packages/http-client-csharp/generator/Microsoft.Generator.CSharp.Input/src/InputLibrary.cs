@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.IO;
 using System;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Microsoft.Generator.CSharp.Input
 {
@@ -11,12 +10,15 @@ namespace Microsoft.Generator.CSharp.Input
     {
         private const string CodeModelInputFileName = "tspCodeModel.json";
 
+        private readonly string _codeModelPath;
+
         public InputLibrary(string codeModelPath)
         {
-            InputNamespace = Load(codeModelPath);
+            _codeModelPath = codeModelPath;
         }
 
-        public InputNamespace InputNamespace { get; }
+        private InputNamespace? _inputNamespace;
+        public InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
 
         public InputNamespace Load(string outputDirectory)
         {
