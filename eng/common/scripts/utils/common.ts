@@ -8,7 +8,7 @@ export const repo = {
   repo: "typespec",
 };
 
-export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 export interface CheckOptions {
   readonly check?: boolean;
