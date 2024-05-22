@@ -229,8 +229,6 @@ function getParentAddedVersionInTimeline(
   if (parentMap === undefined) return undefined;
   for (const [moment, availability] of parentMap.entries()) {
     if (availability === Availability.Added) {
-      // FIXME: is this actually correct?
-      // We essentially want to return the first (earliest) time this is added.
       return moment.versions().next().value;
     }
   }
