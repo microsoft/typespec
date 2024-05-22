@@ -1,4 +1,8 @@
 export interface RepoConfig {
+  repo: {
+    owner: string;
+    name: string;
+  },
   labels: LabelsConfig;
   areaPaths: Record<string, string[]>;
   areaLabels: Record<string, { color: string; description: string }>;

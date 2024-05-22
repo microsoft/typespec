@@ -7,7 +7,7 @@ import { RepoConfig } from "./types.js";
 const options = parseArgs({
   args: process.argv.slice(2),
   options: {
-    "config-dir": {
+    "config": {
       type: "string",
       description: "The directory where the labels configuration is stored.",
     },
@@ -23,11 +23,11 @@ const options = parseArgs({
   },
 });
 
-if(!options.values["config-dir"]) {
-  throw new Error("--config-dir is required");
+if(!options.values["config"]) {
+  throw new Error("--config is required");
 }
 
-const config = await loadConfig(options.values["config-dir"]);
+const config = await loadConfig(options.values["config"]);
 
 await syncLabelsDefinitions(config, {
   check: options.values["check"],
@@ -40,9 +40,7 @@ await syncLabelAutomation(config, {
 });
 
 
-async function loadConfig(dir: string): Promise<RepoConfig> {
-  const labelConfigFile = await import(resolve(process.cwd(), dir, "labels.ts"));
-  const areaPaths = await import(resolve(process.cwd(), dir, "areas.ts"));
-
-  return {labels: labelConfigFile.default, areaLabels: labelConfigFile.AreaLabels, areaPaths: areaPaths.AreaPaths};
+async function loadConfig(configFile: string): Promise<RepoConfig> {
+  const module =  await import(resolve(process.cwd(), configFile));
+  return module.default;
 }
