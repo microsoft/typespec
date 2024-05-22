@@ -15,8 +15,8 @@
     "lib": ["DOM"]
   },
   "include": [
-    "rollup.config.ts",
-    ".storybook/",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
     "src/",
     "test/**/*.ts",
     "e2e/**/*.ts",
