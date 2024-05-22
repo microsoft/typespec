@@ -16,55 +16,53 @@ namespace Microsoft.Generator.CSharp
     [InheritedExport]
     public class CodeModelPlugin
     {
-        public static CodeModelPlugin Instance { get; } = new CodeModelPlugin();
+        public static CodeModelPlugin Instance { get; } = _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
+        private static CodeModelPlugin? _instance;
 
-        public Configuration Configuration { get; private set; }
+        public Configuration Configuration { get; }
 
-        private CodeModelPlugin()
+        internal CodeModelPlugin(Configuration configuration)
         {
+            _instance = this;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
-            Configuration = default!;
-            ApiTypes = default!;
-            CodeWriterExtensionMethods = default!;
-            TypeFactory = default!;
-            ExtensibleSnippets = default!;
-            OutputLibrary = default!;
-        }
 
-        private Lazy<InputLibrary> _inputLibrary;
-
-        // Extensibility points to be implemented by a plugin
-        public ApiTypes ApiTypes { get; private set; }
-
-        public CodeWriterExtensionMethods CodeWriterExtensionMethods { get; private set; }
-
-        public TypeFactory TypeFactory { get; private set; }
-
-        public ExtensibleSnippets ExtensibleSnippets { get; private set; }
-
-        public OutputLibrary OutputLibrary { get; private set;}
-
-        public InputLibrary InputLibrary => _inputLibrary.Value;
-
-        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
-
-        internal void LoadPlugins(Configuration configuration)
-        {
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using (CompositionContainer container = new(directoryCatalog))
             {
                 Configuration = configuration;
                 ApiTypes = container.GetExportedValueOrDefault<ApiTypes>()
-                                                    ?? throw new InvalidOperationException("ApiTypes is not loaded.");
+                           ?? throw new InvalidOperationException("ApiTypes is not loaded.");
                 TypeFactory = container.GetExportedValueOrDefault<TypeFactory>()
-                                                       ?? throw new InvalidOperationException("TypeFactory is not loaded.");
+                              ?? throw new InvalidOperationException("TypeFactory is not loaded.");
                 CodeWriterExtensionMethods = container.GetExportedValueOrDefault<CodeWriterExtensionMethods>()
-                                                                      ?? throw new InvalidOperationException("CodeWriterExtensionMethods is not loaded.");
+                                             ?? throw new InvalidOperationException("CodeWriterExtensionMethods is not loaded.");
                 ExtensibleSnippets = container.GetExportedValueOrDefault<ExtensibleSnippets>()
-                                                              ?? throw new InvalidOperationException("ExtensibleSnippets is not loaded.");
+                                     ?? throw new InvalidOperationException("ExtensibleSnippets is not loaded.");
                 OutputLibrary = container.GetExportedValueOrDefault<OutputLibrary>()
-                                                         ?? new OutputLibrary();
+                                ?? new OutputLibrary();
             }
         }
+
+        internal static void LoadPlugins(Configuration configuration)
+        {
+            _instance = new(configuration);
+        }
+
+        private Lazy<InputLibrary> _inputLibrary;
+
+        // Extensibility points to be implemented by a plugin
+        public ApiTypes ApiTypes { get; }
+
+        public CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
+
+        public TypeFactory TypeFactory { get; }
+
+        public ExtensibleSnippets ExtensibleSnippets { get; }
+
+        public OutputLibrary OutputLibrary { get;}
+
+        public InputLibrary InputLibrary => _inputLibrary.Value;
+
+        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
     }
 }

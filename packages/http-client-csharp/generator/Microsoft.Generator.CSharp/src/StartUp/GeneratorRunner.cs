@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp
         public async Task RunAsync(CommandLineOptions options)
         {
             var configuration = Configuration.Load(options.OutputDirectory);
-            CodeModelPlugin.Instance.LoadPlugins(configuration);
+            CodeModelPlugin.LoadPlugins(configuration);
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
