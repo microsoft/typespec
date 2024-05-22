@@ -1648,14 +1648,11 @@ function printStringLiteral(
   options: TypeSpecPrettierOptions
 ): Doc {
   const node = path.node;
-  const multiline =
-    options.originalText[node.pos] &&
-    options.originalText[node.pos + 1] === `"` &&
-    options.originalText[node.pos + 2] === `"`;
+  const multiline = isMultiline(node, options);
 
   const raw = getRawText(node, options);
   if (multiline) {
-    const lines = raw.slice(3, -3).split("\n");
+    const lines = splitLines(raw.slice(3, -3));
     const whitespaceIndent = lines[lines.length - 1].length;
     const newLines = [];
     for (let i = 0; i < lines.length - 1; i++) {
@@ -1665,6 +1662,17 @@ function printStringLiteral(
   } else {
     return raw;
   }
+}
+
+function isMultiline(
+  node: StringLiteralNode | StringTemplateExpressionNode,
+  options: TypeSpecPrettierOptions
+) {
+  return (
+    options.originalText[node.pos] &&
+    options.originalText[node.pos + 1] === `"` &&
+    options.originalText[node.pos + 2] === `"`
+  );
 }
 
 function printNumberLiteral(
@@ -1898,14 +1906,53 @@ export function printStringTemplateExpression(
   print: PrettierChildPrint
 ) {
   const node = path.node;
-  const content = [
-    getRawText(node.head, options),
-    path.map((span: AstPath<StringTemplateSpanNode>) => {
-      const expression = span.call(print, "expression");
-      return [expression, getRawText(span.node.literal, options)];
-    }, "spans"),
-  ];
-  return content;
+  const multiline = isMultiline(node, options);
+  const rawHead = getRawText(node.head, options);
+  if (multiline) {
+    const lastSpan = node.spans[node.spans.length - 1];
+    const lastLines = splitLines(getRawText(lastSpan.literal, options));
+    const whitespaceIndent = lastLines[lastLines.length - 1].length - 3;
+    const content = [
+      trimMultilineString(splitLines(rawHead.slice(3)), whitespaceIndent),
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        const spanRawText = getRawText(span.node.literal, options);
+        const spanLines = splitLines(spanRawText);
+        return [
+          expression,
+          spanLines[0],
+          literalline,
+          trimMultilineString(spanLines.slice(1), whitespaceIndent),
+        ];
+      }, "spans"),
+    ];
+
+    return [`"""`, indent(markAsRoot([content]))];
+  } else {
+    const content = [
+      rawHead,
+      path.map((span: AstPath<StringTemplateSpanNode>) => {
+        const expression = span.call(print, "expression");
+        return [expression, getRawText(span.node.literal, options)];
+      }, "spans"),
+    ];
+    return content;
+  }
+}
+
+function splitLines(text: string) {
+  return text.split("\n");
+}
+
+function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
+  const newLines = [];
+  for (let i = 0; i < lines.length; i++) {
+    newLines.push(lines[i].slice(whitespaceIndent));
+    if (i < lines.length - 1) {
+      newLines.push(literalline);
+    }
+  }
+  return newLines;
 }
 
 function printItemList<T extends Node>(
