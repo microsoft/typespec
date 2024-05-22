@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// The serializations providers for the model provider.
         /// </summary>
-        public TypeProvider[] SerializationProviders { get; } = Array.Empty<TypeProvider>();
+        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
         public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)

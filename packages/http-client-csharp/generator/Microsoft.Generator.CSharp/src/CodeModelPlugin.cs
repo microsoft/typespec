@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -43,6 +43,6 @@ namespace Microsoft.Generator.CSharp
         /// Returns a serialization type provider for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public abstract TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider);
+        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
     }
 }
