@@ -14,7 +14,7 @@ import {
   navigateType,
 } from "@typespec/compiler";
 import { DuplicateTracker } from "@typespec/compiler/utils";
-import { getContentTypes, isContentTypeHeader } from "./content-types.js";
+import { getContentTypes } from "./content-types.js";
 import { isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import {
   GetHttpPropertyOptions,
@@ -172,7 +172,7 @@ function resolveContentTypes(
   usedIn: "request" | "response" | "multipart"
 ): [{ contentTypes: string[]; contentTypeProperty?: ModelProperty }, readonly Diagnostic[]] {
   for (const prop of metadata) {
-    if (prop.kind === "header" && isContentTypeHeader(program, prop.property)) {
+    if (prop.kind === "contentType") {
       const [contentTypes, diagnostics] = getContentTypes(prop.property);
       return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
     }

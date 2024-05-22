@@ -1232,7 +1232,7 @@ function createOAPIEmitter(
     if (!isDefaultContentTypeForOpenAPI3(part.body.contentTypes, schema)) {
       encoding.contentType = part.body.contentTypes.join(", ");
     }
-    const headers = part.headers.filter((x) => !isContentTypeHeader(program, x.property));
+    const headers = part.headers;
     if (headers.length > 0) {
       encoding.headers = {};
       for (const header of headers) {

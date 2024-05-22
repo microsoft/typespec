@@ -14,7 +14,6 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { isContentTypeHeader } from "./content-types.js";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
@@ -195,7 +194,7 @@ function getResponseHeaders(
 ): Record<string, ModelProperty> {
   const responseHeaders: Record<string, ModelProperty> = {};
   for (const prop of metadata) {
-    if (prop.kind === "header" && !isContentTypeHeader(program, prop.property)) {
+    if (prop.kind === "header") {
       responseHeaders[prop.options.name] = prop.property;
     }
   }

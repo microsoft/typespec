@@ -25,6 +25,7 @@ import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from 
 
 export type HttpProperty =
   | HeaderProperty
+  | ContentTypeProperty
   | QueryProperty
   | PathProperty
   | StatusCodeProperty
@@ -41,6 +42,11 @@ export interface HeaderProperty extends HttpPropertyBase {
   readonly kind: "header";
   readonly options: HeaderFieldOptions;
 }
+
+export interface ContentTypeProperty extends HttpPropertyBase {
+  readonly kind: "contentType";
+}
+
 export interface QueryProperty extends HttpPropertyBase {
   readonly kind: "query";
   readonly options: QueryParameterOptions;
@@ -115,7 +121,11 @@ export function getHttpProperty(
   }
 
   if (annotations.header) {
-    return createResult({ kind: "header", options: annotations.header, property });
+    if (annotations.header.name.toLowerCase() === "content-type") {
+      return createResult({ kind: "contentType", property });
+    } else {
+      return createResult({ kind: "header", options: annotations.header, property });
+    }
   } else if (annotations.query) {
     return createResult({ kind: "query", options: annotations.query, property });
   } else if (annotations.path) {
