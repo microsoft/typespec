@@ -18,17 +18,39 @@ configuration:
           - not:
               or:
                 - hasLabel:
-                    label: area
+                    label: compiler:core
                 - hasLabel:
-                    label: issue_kinds
+                    label: compiler:emitter-framework
                 - hasLabel:
-                    label: breaking-change
+                    label: ide
                 - hasLabel:
-                    label: design-issues
+                    label: lib:http
                 - hasLabel:
-                    label: process
+                    label: lib:openapi
                 - hasLabel:
-                    label: misc
+                    label: lib:rest
+                - hasLabel:
+                    label: lib:versioning
+                - hasLabel:
+                    label: meta:blog
+                - hasLabel:
+                    label: meta:website
+                - hasLabel:
+                    label: tspd
+                - hasLabel:
+                    label: emitter:client:csharp
+                - hasLabel:
+                    label: emitter:json-schema
+                - hasLabel:
+                    label: emitter:protobuf
+                - hasLabel:
+                    label: emitter:openapi3
+                - hasLabel:
+                    label: emitter:service:csharp
+                - hasLabel:
+                    label: emitter:service:js
+                - hasLabel:
+                    label: eng
         then:
           - addLabel:
               label: needs-area
@@ -40,9 +62,39 @@ configuration:
           - isOpen
           - or:
               - labelAdded:
-                  label: description
+                  label: compiler:core
               - labelAdded:
-                  label: labels
+                  label: compiler:emitter-framework
+              - labelAdded:
+                  label: ide
+              - labelAdded:
+                  label: lib:http
+              - labelAdded:
+                  label: lib:openapi
+              - labelAdded:
+                  label: lib:rest
+              - labelAdded:
+                  label: lib:versioning
+              - labelAdded:
+                  label: meta:blog
+              - labelAdded:
+                  label: meta:website
+              - labelAdded:
+                  label: tspd
+              - labelAdded:
+                  label: emitter:client:csharp
+              - labelAdded:
+                  label: emitter:json-schema
+              - labelAdded:
+                  label: emitter:protobuf
+              - labelAdded:
+                  label: emitter:openapi3
+              - labelAdded:
+                  label: emitter:service:csharp
+              - labelAdded:
+                  label: emitter:service:js
+              - labelAdded:
+                  label: eng
         then:
           - removeLabel:
               label: needs-area
@@ -55,15 +107,75 @@ configuration:
           - isOpen
           - or:
               - labelRemoved:
-                  label: description
+                  label: compiler:core
               - labelRemoved:
-                  label: labels
+                  label: compiler:emitter-framework
+              - labelRemoved:
+                  label: ide
+              - labelRemoved:
+                  label: lib:http
+              - labelRemoved:
+                  label: lib:openapi
+              - labelRemoved:
+                  label: lib:rest
+              - labelRemoved:
+                  label: lib:versioning
+              - labelRemoved:
+                  label: meta:blog
+              - labelRemoved:
+                  label: meta:website
+              - labelRemoved:
+                  label: tspd
+              - labelRemoved:
+                  label: emitter:client:csharp
+              - labelRemoved:
+                  label: emitter:json-schema
+              - labelRemoved:
+                  label: emitter:protobuf
+              - labelRemoved:
+                  label: emitter:openapi3
+              - labelRemoved:
+                  label: emitter:service:csharp
+              - labelRemoved:
+                  label: emitter:service:js
+              - labelRemoved:
+                  label: eng
           - not:
               or:
                 - hasLabel:
-                    label: description
+                    label: compiler:core
                 - hasLabel:
-                    label: labels
+                    label: compiler:emitter-framework
+                - hasLabel:
+                    label: ide
+                - hasLabel:
+                    label: lib:http
+                - hasLabel:
+                    label: lib:openapi
+                - hasLabel:
+                    label: lib:rest
+                - hasLabel:
+                    label: lib:versioning
+                - hasLabel:
+                    label: meta:blog
+                - hasLabel:
+                    label: meta:website
+                - hasLabel:
+                    label: tspd
+                - hasLabel:
+                    label: emitter:client:csharp
+                - hasLabel:
+                    label: emitter:json-schema
+                - hasLabel:
+                    label: emitter:protobuf
+                - hasLabel:
+                    label: emitter:openapi3
+                - hasLabel:
+                    label: emitter:service:csharp
+                - hasLabel:
+                    label: emitter:service:js
+                - hasLabel:
+                    label: eng
         then:
           - addLabel:
               label: needs-area
