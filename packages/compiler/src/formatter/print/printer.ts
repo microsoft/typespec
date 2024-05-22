@@ -1,6 +1,11 @@
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
-import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
+import {
+  CharCode,
+  isIdentifierContinue,
+  isIdentifierStart,
+  utf16CodeUnits,
+} from "../../core/charcode.js";
 import { compilerAssert } from "../../core/diagnostics.js";
 import { Keywords } from "../../core/scanner.js";
 import {
@@ -1938,8 +1943,34 @@ export function printStringTemplateExpression(
   }
 }
 
-function splitLines(text: string) {
-  return text.split("\n");
+function splitLines(text: string): string[] {
+  const lines = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
+          lines.push(text.slice(start, pos));
+          start = pos;
+          pos++;
+        } else {
+          lines.push(text.slice(start, pos));
+          start = pos;
+        }
+        break;
+      case CharCode.LineFeed:
+        lines.push(text.slice(start, pos));
+        start = pos;
+        break;
+    }
+    pos++;
+  }
+
+  lines.push(text.slice(start));
+  return lines;
 }
 
 function trimMultilineString(lines: string[], whitespaceIndent: number): Doc[] {
