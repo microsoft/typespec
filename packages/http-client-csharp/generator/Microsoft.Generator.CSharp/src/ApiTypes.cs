@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
         public FormattableString GetHttpPipelineCreateMessageFormat(bool withContext)
         {
             FormattableString context = withContext ? (FormattableString)$"{KnownParameters.RequestContext.Name:I}" : $"";
-            return $"_pipeline.{CodeModelPlugin.Instance.Configuration!.ApiTypes.HttpPipelineCreateMessageName}({context}";
+            return $"_pipeline.{CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineCreateMessageName}({context}";
         }
 
         public abstract Type HttpMessageType { get; }
