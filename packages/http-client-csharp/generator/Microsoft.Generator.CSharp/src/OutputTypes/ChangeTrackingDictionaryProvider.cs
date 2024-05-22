@@ -79,9 +79,9 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod ConstructorWithReadOnlyDictionary()
         {
-            var dicationaryParam = new Parameter("dictionary", null, _IReadOnlyDictionary, null, ValidationType.None, null);
-            var dictionary = new DictionaryExpression(_tKey, _tValue, dicationaryParam);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dicationaryParam });
+            var dictionaryParam = new Parameter("dictionary", null, _IReadOnlyDictionary, null, ValidationType.None, null);
+            var dictionary = new DictionaryExpression(_tKey, _tValue, dictionaryParam);
+            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
@@ -98,9 +98,9 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod ConstructorWithDictionary()
         {
-            var dicationaryParam = new Parameter("dictionary", null, _IDictionary, null, ValidationType.None, null);
-            var dictionary = new ParameterReference(dicationaryParam);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dicationaryParam });
+            var dictionaryParam = new Parameter("dictionary", null, _IDictionary, null, ValidationType.None, null);
+            var dictionary = new ParameterReference(dictionaryParam);
+            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
