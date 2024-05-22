@@ -2889,11 +2889,11 @@ alias T = "foo \${{
         await assertFormat({
           code: `
 alias T = """
-  This \${     "one" } goes over
-  multiple
-  \${     "two" }
-  lines
-  """;`,
+    This \${     "one" } goes over
+    multiple
+    \${     "two" }
+    lines
+    """;`,
           expected: `
 alias T = """
   This \${"one"} goes over

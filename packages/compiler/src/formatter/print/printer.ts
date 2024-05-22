@@ -700,7 +700,8 @@ function printCallOrDecoratorArgs(
   const shouldHug =
     node.arguments.length === 1 &&
     (node.arguments[0].kind === SyntaxKind.ModelExpression ||
-      node.arguments[0].kind === SyntaxKind.StringLiteral);
+      node.arguments[0].kind === SyntaxKind.StringLiteral ||
+      node.arguments[0].kind === SyntaxKind.StringTemplateExpression);
 
   if (shouldHug) {
     return [
