@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
                 CodeModelPlugin.Instance.GetWriter(writer, enumType).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), writer.ToString()));
 
-                if (enumType.Serialization is { } serialization)
+                foreach (var serialization in enumType.SerializationProviders)
                 {
                     writer = new CodeWriter();
                     CodeModelPlugin.Instance.GetWriter(writer, serialization).Write();

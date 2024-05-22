@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -66,7 +67,10 @@ namespace Microsoft.Generator.CSharp
 
             _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
 
-            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+            if (!IsExtensible)
+            {
+                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+            }
         }
 
         private readonly FieldDeclaration _valueField;
@@ -104,6 +108,9 @@ namespace Microsoft.Generator.CSharp
 
             return values;
         }
+
+        public bool TryGetFieldFromValue(EnumTypeValue value, [MaybeNullWhen(false)] out FieldDeclaration field)
+            => ValueFields.TryGetValue(value, out field);
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
@@ -332,24 +339,23 @@ namespace Microsoft.Generator.CSharp
                             : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
             methods.Add(new(toStringSignature, toStringExpressionBody, CSharpMethodKinds.Method));
 
-            // TODO -- move this to serialization method
-            //// for string-based extensible enums, we are using `ToString` as its serialization
-            //// for non-string-based extensible enums, we need a method to serialize them
-            //if (!IsStringValueType)
-            //{
-            //    var toSerialSignature = new MethodSignature(
-            //        Name: $"ToSerial{Type.Name}",
-            //        Modifiers: MethodSignatureModifiers.Internal,
-            //        ReturnType: ValueType,
-            //        Parameters: Array.Empty<Parameter>(),
-            //        Summary: null, Description: null, ReturnDescription: null);
+            // for string-based extensible enums, we are using `ToString` as its serialization
+            // for non-string-based extensible enums, we need a method to serialize them
+            if (!IsStringValueType)
+            {
+                var toSerialSignature = new MethodSignature(
+                    Name: $"ToSerial{ValueType.Name}",
+                    Modifiers: MethodSignatureModifiers.Internal,
+                    ReturnType: ValueType,
+                    Parameters: Array.Empty<Parameter>(),
+                    Summary: null, Description: null, ReturnDescription: null);
 
-            //    // writes the method:
-            //    // internal float ToSerialSingle() => _value; // when ValueType is float
-            //    // internal int ToSerialInt32() => _value; // when ValueType is int
-            //    // etc
-            //    methods.Add(new(toSerialSignature, valueField, CSharpMethodKinds.Method));
-            //}
+                // writes the method:
+                // internal float ToSerialSingle() => _value; // when ValueType is float
+                // internal int ToSerialInt32() => _value; // when ValueType is int
+                // etc
+                methods.Add(new(toSerialSignature, valueField, CSharpMethodKinds.Method));
+            }
 
             return methods.ToArray();
         }

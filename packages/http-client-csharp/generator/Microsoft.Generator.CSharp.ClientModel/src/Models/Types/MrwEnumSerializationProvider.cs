@@ -31,6 +31,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <returns></returns>
         private bool NeedsSerializationMethod()
         {
+            // extensible enums do not need serialization method
+            if (_enumType.IsExtensible)
+                return false;
+
             // fixed enum with int based types, we do not write a method for serialization because it was embedded in the definition
             if (_enumType is { IsExtensible: false, IsIntValueType: true })
                 return false;
@@ -67,11 +71,14 @@ namespace Microsoft.Generator.CSharp.ClientModel
                     Summary: null, Description: null, ReturnDescription: null);
 
                 // the fields of an enum type are the values of the enum type
-                var knownCases = new SwitchCaseExpression[_enumType.Fields.Count];
+                var knownCases = new SwitchCaseExpression[_enumType.Values.Count];
                 for (int i = 0; i < knownCases.Length; i++)
                 {
-                    var enumField = _enumType.Fields[i];
                     var enumValue = _enumType.Values[i];
+                    if (!_enumType.TryGetFieldFromValue(enumValue, out var enumField))
+                    {
+                        throw new InvalidOperationException($"Cannot get field on enum {_enumType.Type} from value {enumValue.Name}");
+                    }
                     knownCases[i] = new SwitchCaseExpression(new MemberExpression(_enumType.Type, enumField.Name), Literal(enumValue.Value));
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
