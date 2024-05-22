@@ -118,11 +118,11 @@ export type BodyIgnoreDecorator = (context: DecoratorContext, target: ModelPrope
  * @example
  * ```tsp
  * op upload(
- * @header `content-type`: "multipart/form-data",
- * @multipartBody body: {
- * fullName: HttpPart<string>,
- * headShots: HttpPart<Image>[]
- * }
+ *   @header `content-type`: "multipart/form-data",
+ *   @multipartBody body: {
+ *     fullName: HttpPart<string>,
+ *     headShots: HttpPart<Image>[]
+ *   }
  * ): void;
  * ```
  */
