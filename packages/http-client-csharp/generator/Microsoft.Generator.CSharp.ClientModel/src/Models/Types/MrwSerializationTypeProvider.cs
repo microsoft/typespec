@@ -56,27 +56,40 @@ namespace Microsoft.Generator.CSharp.ClientModel
         protected override CSharpMethod[] BuildConstructors()
         {
             List<CSharpMethod> constructors = new List<CSharpMethod>();
-            CSharpMethod? baseinitializationCtor = null;
+            bool serializationCtorParamsMatch = false;
+            bool ctorWithNoParamsExist = false;
+            CSharpMethod serializationConstructor = BuildSerializationConstructor();
+
             foreach (var ctor in _model.Constructors)
             {
-                if (ctor.Kind == CSharpMethodKinds.Constructor)
+                var initializationCtorParams = ctor.Signature.Parameters;
+
+                // Check if the model constructor has no parameters
+                if (!ctorWithNoParamsExist && !initializationCtorParams.Any())
                 {
-                    baseinitializationCtor = ctor;
-                    break;
+                    ctorWithNoParamsExist = true;
+                }
+
+                // Check if the model constructor parameters match the serialization constructor parameters
+                var match = initializationCtorParams.SequenceEqual(
+                    serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
+
+                if (!serializationCtorParamsMatch && match)
+                {
+                    serializationCtorParamsMatch = true;
                 }
             }
 
-            CSharpMethod? serializationConstructor = BuildSerializationConstructor(baseinitializationCtor);
-
-            if (serializationConstructor != null)
+            // Add the serialization constructor if it doesn't match any of the existing constructors
+            if (!serializationCtorParamsMatch)
             {
                 constructors.Add(serializationConstructor);
             }
 
-            if (baseinitializationCtor?.Signature.Parameters.Count > 0)
+            // Add an empty constructor if the model doesn't have one
+            if (!ctorWithNoParamsExist)
             {
-                var emptyConstructor = BuildEmptyConstructor();
-                constructors.Add(emptyConstructor);
+                constructors.Add(BuildEmptyConstructor());
             }
 
             return constructors.ToArray();
@@ -218,24 +231,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <summary>
         /// Builds the serialization constructor for the model.
         /// </summary>
-        /// <param name="baseinitializationCtor">The base initialization constructor for the model.</param>
-        /// <returns>The constructed serialization constructor. Otherwise <c>null</c> is returned.</returns>
-        internal CSharpMethod? BuildSerializationConstructor(CSharpMethod? baseinitializationCtor)
+        /// <returns>The constructed serialization constructor.</returns>
+        internal CSharpMethod BuildSerializationConstructor()
         {
-            var baseConstructorParameters = new List<Parameter>();
-            if (baseinitializationCtor != null)
-            {
-                baseConstructorParameters.AddRange(baseinitializationCtor.Signature.Parameters);
-            }
-
             var serializationCtorParameters = BuildSerializationConstructorParameters();
-            bool serializationParametersMatchInitialization = baseConstructorParameters.SequenceEqual(
-                serializationCtorParameters, Parameter.EqualityComparerByType);
-
-            if (serializationParametersMatchInitialization)
-            {
-                return null;
-            }
 
             return new CSharpMethod(
                 signature: new ConstructorSignature(
@@ -260,39 +259,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var property in _model.Properties)
             {
-                ValueExpression? initializationValue = null;
-
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _model.IsStruct)
-                {
-                    if (parameter != null)
-                    {
-                        initializationValue = new ParameterReference(parameter);
-
-                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
-                        {
-                            initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
-                        }
-                    }
-                }
-                else if (initializationValue == null && property.Type.IsCollection)
-                {
-                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
-                }
-
-                if (initializationValue != null)
-                {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
-                }
+                Parameter? parameter = parameterMap.GetValueOrDefault(property.Name.ToVariableName());
+                methodBodyStatements.Add(property.ToInitializationStatement(parameter));
             }
 
-            if (parameterMap.TryGetValue(_rawDataField.Name.ToVariableName(), out var p))
+            if (parameterMap.TryGetValue(_rawDataField.Name.ToVariableName(), out var p) && p != null)
             {
-                if (p != null)
-                {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(p)));
-                }
+                methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(p)));
             }
 
             return methodBodyStatements;

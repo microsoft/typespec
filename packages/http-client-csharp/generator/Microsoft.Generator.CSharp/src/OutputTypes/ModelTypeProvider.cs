@@ -229,38 +229,14 @@ namespace Microsoft.Generator.CSharp
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
-
             Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
 
             foreach (var property in Properties)
             {
-                ValueExpression? initializationValue = null;
-
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || IsStruct)
-                {
-                    if (parameter != null)
-                    {
-                        initializationValue = new ParameterReference(parameter);
-
-                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
-                        {
-                            initializationValue = parameter.Type.IsNullable ?
-                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
-                                Linq.ToList(initializationValue);
-                        }
-                    }
-                }
-                else if (initializationValue == null && property.Type.IsCollection)
-                {
-                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
-                }
-
-                if (initializationValue != null)
-                {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
-                }
+                Parameter? parameter = parameterMap.GetValueOrDefault(property.Name.ToVariableName());
+                methodBodyStatements.Add(property.ToInitializationStatement(parameter));
             }
 
             return methodBodyStatements;

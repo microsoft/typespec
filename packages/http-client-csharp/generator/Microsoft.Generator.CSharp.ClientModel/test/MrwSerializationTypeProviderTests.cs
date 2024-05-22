@@ -171,29 +171,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Assert.IsNotNull(methodBody);
         }
 
-        [TestCaseSource(nameof(BuildSerializationConstructorTestCases))]
-        public void TestBuildSerializationConstructor(CSharpMethod? baseCtor)
+        [Test]
+        public void TestBuildSerializationConstructor()
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
             var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
-            var constructor = MrwSerializationTypeProvider.BuildSerializationConstructor(baseCtor);
+            var constructor = MrwSerializationTypeProvider.BuildSerializationConstructor();
 
-            if (baseCtor == null)
-            {
-                Assert.IsNotNull(constructor);
-                var constructorSignature = constructor?.Signature as ConstructorSignature;
-                Assert.IsNotNull(constructorSignature);
-                Assert.AreEqual(1, constructorSignature?.Parameters.Count);
+            Assert.IsNotNull(constructor);
+            var constructorSignature = constructor?.Signature as ConstructorSignature;
+            Assert.IsNotNull(constructorSignature);
+            Assert.AreEqual(1, constructorSignature?.Parameters.Count);
 
-                var param = constructorSignature?.Parameters[0];
-                Assert.IsNotNull(param);
-                Assert.AreEqual("serializedAdditionalRawData", param?.Name);
-            }
-            else
-            {
-                Assert.IsNull(constructor);
-            }
+            var param = constructorSignature?.Parameters[0];
+            Assert.IsNotNull(param);
+            Assert.AreEqual("serializedAdditionalRawData", param?.Name);
         }
 
         [Test]
@@ -240,20 +233,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var emptyCtor = ctors[1];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
             Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
-        }
-
-        public static IEnumerable<TestCaseData> BuildSerializationConstructorTestCases
-        {
-            get
-            {
-                yield return new TestCaseData(null);
-                yield return new TestCaseData(
-                    new CSharpMethod(
-                        new MethodSignature("mockMethod", null, null, MethodSignatureModifiers.Public, new CSharpType(typeof(void)), null,
-                            [new Parameter("serializedAdditionalRawData", null, new CSharpType(typeof(IDictionary<string, BinaryData>)), null, ValidationType.None, null)]),
-                        new EmptyLineStatement())
-                    );
-            }
         }
     }
 }
