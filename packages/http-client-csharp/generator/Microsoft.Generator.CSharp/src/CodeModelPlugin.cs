@@ -41,9 +41,15 @@ namespace Microsoft.Generator.CSharp
         public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
 
         /// <summary>
-        /// Returns a serialization type provider for the given model type provider.
+        /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
+
+        /// <summary>
+        /// Returns the serialization type providers for the given enum type provider.
+        /// </summary>
+        /// <param name="provider">The enum type provider</param>
+        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(EnumTypeProvider provider);
     }
 }

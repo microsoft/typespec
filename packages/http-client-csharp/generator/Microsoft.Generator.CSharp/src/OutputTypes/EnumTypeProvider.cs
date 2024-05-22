@@ -65,32 +65,27 @@ namespace Microsoft.Generator.CSharp
             Description = input.Description;
 
             _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
-            SerializationMethodName = IsStringValueType && IsExtensible ? nameof(object.ToString) : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
-            DeserializationMethodName = $"To{Name}";
 
-            _serialization = new(BuildSerialization);
+            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
         }
 
         private readonly FieldDeclaration _valueField;
-        private readonly Lazy<TypeProvider?> _serialization;
 
-        internal CSharpType ValueType { get; }
-        internal bool IsExtensible { get; }
-        internal bool IsIntValueType { get; }
+        public CSharpType ValueType { get; }
+        public bool IsExtensible { get; }
+        public bool IsIntValueType { get; }
         internal bool IsFloatValueType { get; }
-        internal bool IsStringValueType { get; }
+        public bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
         public string? Description { get; }
         public override string Name { get; }
         public override string Namespace { get; }
         protected override TypeKind TypeKind => IsExtensible ? TypeKind.Struct : TypeKind.Enum;
-        internal string SerializationMethodName { get; }
-        internal string DeserializationMethodName { get; }
 
-        public TypeProvider? Serialization => _serialization.Value;
-
-        protected virtual TypeProvider? BuildSerialization()
-            => IsExtensible ? null : new EnumTypeSerializationProvider(this, _sourceInputModel);
+        /// <summary>
+        /// The serializations providers for the model provider.
+        /// </summary>
+        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration>? _valueFields;
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> ValueFields => _valueFields ??= BuildValueFields();
@@ -113,7 +108,6 @@ namespace Microsoft.Generator.CSharp
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
         {
-            var enumName = Type.Name;
             var values = new Dictionary<EnumTypeValue, FieldDeclaration>();
             foreach (var value in Values)
             {
@@ -338,23 +332,24 @@ namespace Microsoft.Generator.CSharp
                             : valueField.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
             methods.Add(new(toStringSignature, toStringExpressionBody, CSharpMethodKinds.Method));
 
-            // for string-based extensible enums, we are using `ToString` as its serialization
-            // for non-string-based extensible enums, we need a method to serialize them
-            if (!IsStringValueType)
-            {
-                var toSerialSignature = new MethodSignature(
-                    Name: SerializationMethodName,
-                    Modifiers: MethodSignatureModifiers.Internal,
-                    ReturnType: ValueType,
-                    Parameters: Array.Empty<Parameter>(),
-                    Summary: null, Description: null, ReturnDescription: null);
+            // TODO -- move this to serialization method
+            //// for string-based extensible enums, we are using `ToString` as its serialization
+            //// for non-string-based extensible enums, we need a method to serialize them
+            //if (!IsStringValueType)
+            //{
+            //    var toSerialSignature = new MethodSignature(
+            //        Name: $"ToSerial{Type.Name}",
+            //        Modifiers: MethodSignatureModifiers.Internal,
+            //        ReturnType: ValueType,
+            //        Parameters: Array.Empty<Parameter>(),
+            //        Summary: null, Description: null, ReturnDescription: null);
 
-                // writes the method:
-                // internal float ToSerialSingle() => _value; // when ValueType is float
-                // internal int ToSerialInt32() => _value; // when ValueType is int
-                // etc
-                methods.Add(new(toSerialSignature, valueField, CSharpMethodKinds.Method));
-            }
+            //    // writes the method:
+            //    // internal float ToSerialSingle() => _value; // when ValueType is float
+            //    // internal int ToSerialInt32() => _value; // when ValueType is int
+            //    // etc
+            //    methods.Add(new(toSerialSignature, valueField, CSharpMethodKinds.Method));
+            //}
 
             return methods.ToArray();
         }
