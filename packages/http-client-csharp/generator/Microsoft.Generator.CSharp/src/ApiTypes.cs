@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Expressions;
 
@@ -10,6 +11,7 @@ namespace Microsoft.Generator.CSharp
     /// <summary>
     /// ApiTypes represent the API types used in the generated code.
     /// </summary>
+    [InheritedExport]
     public abstract class ApiTypes
     {
         /// <summary>
@@ -49,7 +51,7 @@ namespace Microsoft.Generator.CSharp
         public FormattableString GetHttpPipelineCreateMessageFormat(bool withContext)
         {
             FormattableString context = withContext ? (FormattableString)$"{KnownParameters.RequestContext.Name:I}" : $"";
-            return $"_pipeline.{CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineCreateMessageName}({context}";
+            return $"_pipeline.{CodeModelPlugin.Instance.Configuration!.ApiTypes.HttpPipelineCreateMessageName}({context}";
         }
 
         public abstract Type HttpMessageType { get; }

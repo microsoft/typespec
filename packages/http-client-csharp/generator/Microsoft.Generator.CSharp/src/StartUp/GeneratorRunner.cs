@@ -10,7 +10,8 @@ namespace Microsoft.Generator.CSharp
         public async Task RunAsync(CommandLineOptions options)
         {
             PluginHandler pluginHandler = new();
-            pluginHandler.LoadPlugin(options.OutputDirectory);
+            var configuration = Configuration.Load(options.OutputDirectory);
+            pluginHandler.LoadPlugins(configuration);
 
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();

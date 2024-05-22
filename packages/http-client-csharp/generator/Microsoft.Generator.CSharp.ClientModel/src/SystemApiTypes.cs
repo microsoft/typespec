@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override Type StatusCodeClassifierType => typeof(StatusResponseClassifier);
 
         public override ValueExpression GetCreateFromStreamSampleExpression(ValueExpression freeFormObjectExpression)
-            => new InvokeStaticMethodExpression(ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, new[] { BinaryDataExpression.FromObjectAsJson(freeFormObjectExpression).ToStream() });
+            => new InvokeStaticMethodExpression(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, new[] { BinaryDataExpression.FromObjectAsJson(freeFormObjectExpression).ToStream() });
 
         public override string EndPointSampleValue => "https://my-service.com";
 

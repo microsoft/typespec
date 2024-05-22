@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             //: throw new InvalidOperationException($"No {nameof(EnumType)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             // TODO -- this is temporary until we have support for enums
             InputEnumType enumType => CreateCSharpType(enumType.EnumValueType).WithNullable(enumType.IsNullable),
-            InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
+            InputModelType model => CodeModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
             ? provider.Type.WithNullable(inputType.IsNullable)
             : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch

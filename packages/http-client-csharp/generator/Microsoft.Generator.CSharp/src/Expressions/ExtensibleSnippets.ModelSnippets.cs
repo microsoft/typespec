@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ComponentModel.Composition;
+
 namespace Microsoft.Generator.CSharp.Expressions
 {
+    [InheritedExport]
     public abstract partial class ExtensibleSnippets
     {
         public abstract class ModelSnippets

@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
             {
                 return new CSharpMethod
                 (
-                    new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.ToRequestContentName, null, $"Convert into a {nameof(Utf8JsonRequestBody)}.", modifiers, typeof(RequestBody), null, Array.Empty<Parameter>()),
+                    new MethodSignature(CodeModelPlugin.Instance.Configuration.ApiTypes.ToRequestContentName, null, $"Convert into a {nameof(Utf8JsonRequestBody)}.", modifiers, typeof(RequestBody), null, Array.Empty<Parameter>()),
                     new[]
                     {
                         Snippets.Extensible.RestOperations.DeclareContentWithUtf8JsonWriter(out var requestContent, out var writer),
@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse), null, ValidationType.None, null);
                 return new CSharpMethod
                 (
-                    new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
+                    new MethodSignature(CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]
                     {
                         Snippets.UsingVar("document", JsonDocumentExpression.Parse(new PipelineResponseExpression(result).Content), out var document),

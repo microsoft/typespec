@@ -13,30 +13,62 @@ namespace Microsoft.Generator.CSharp
     /// Base class for code model plugins. This class is exported via MEF and can be implemented by an inherited plugin class.
     /// </summary>
     [InheritedExport]
-    public abstract class CodeModelPlugin
+    public class CodeModelPlugin
     {
-        private static CodeModelPlugin? _instance;
-        internal static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
+        public static CodeModelPlugin Instance { get; } = new CodeModelPlugin();
 
-        public Configuration Configuration { get; }
-
-        [ImportingConstructor]
-        public CodeModelPlugin(GeneratorContext context)
+        public Configuration Configuration
         {
-            _instance = this;
-            Configuration = context.Configuration;
-            _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+            get => _configuration ?? throw new InvalidOperationException("Configuration is not loaded.");
+            internal set => _configuration = value;
+        }
+        private Configuration? _configuration;
+
+        private CodeModelPlugin()
+        {
+            _inputLibrary = new(() => new InputLibrary(Instance.Configuration!.OutputDirectory));
         }
 
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract ApiTypes ApiTypes { get; }
-        public abstract CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
-        public abstract TypeFactory TypeFactory { get; }
-        public abstract ExtensibleSnippets ExtensibleSnippets { get; }
-        public abstract OutputLibrary OutputLibrary { get; }
+        public ApiTypes ApiTypes
+        {
+            get => _apiTypes ?? throw new InvalidOperationException("ApiTypes is not loaded.");
+            internal set => _apiTypes = value;
+        }
+        private ApiTypes? _apiTypes;
+
+        public CodeWriterExtensionMethods CodeWriterExtensionMethods
+        {
+            get => _codeWriterExtensionMethods ?? throw new InvalidOperationException("CodeWriterExtensionMethods is not loaded.");
+            internal set => _codeWriterExtensionMethods = value;
+        }
+        private CodeWriterExtensionMethods? _codeWriterExtensionMethods;
+
+        public TypeFactory TypeFactory
+        {
+            get => _typeFactory ?? throw new InvalidOperationException("TypeFactory is not loaded.");
+            internal set => _typeFactory = value;
+        }
+        private TypeFactory? _typeFactory;
+
+        public ExtensibleSnippets ExtensibleSnippets
+        {
+            get => _extensibleSnippets ?? throw new InvalidOperationException("ExtensibleSnippets is not loaded.");
+            internal set => _extensibleSnippets = value;
+        }
+        private ExtensibleSnippets? _extensibleSnippets;
+
+        public OutputLibrary OutputLibrary
+        {
+            get => _outputLibrary ?? throw new InvalidOperationException("OutputLibrary is not loaded.");
+            internal set => _outputLibrary = value;
+        }
+        private OutputLibrary? _outputLibrary;
+
         public InputLibrary InputLibrary => _inputLibrary.Value;
+
         public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
     }
 }

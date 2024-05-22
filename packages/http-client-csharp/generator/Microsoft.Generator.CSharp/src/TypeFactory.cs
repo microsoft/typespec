@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -32,6 +33,11 @@ namespace Microsoft.Generator.CSharp
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
         public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation);
+
+        [ImportingConstructor]
+        public TypeFactory()
+        {
+        }
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.

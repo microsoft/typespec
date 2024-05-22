@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel.Composition;
 
 namespace Microsoft.Generator.CSharp
 {
     /// <summary>
     /// Contains extension methods for <see cref="CodeWriter"/>.
     /// </summary>
+    [InheritedExport]
     public class CodeWriterExtensionMethods
     {
         /// <summary>

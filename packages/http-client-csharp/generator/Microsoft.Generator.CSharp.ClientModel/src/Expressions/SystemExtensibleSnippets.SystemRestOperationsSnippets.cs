@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
             public override TypedValueExpression GetTypedResponseFromModel(TypeProvider typeProvider, TypedValueExpression result)
             {
                 var response = GetRawResponse(result);
-                var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, new[] { response });
+                var model = new InvokeStaticMethodExpression(typeProvider.Type, CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, new[] { response });
                 return ResultExpression.FromValue(model, response);
             }
 

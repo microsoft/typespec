@@ -3,9 +3,11 @@
 
 using Microsoft.Generator.CSharp.Input;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 
 namespace Microsoft.Generator.CSharp
 {
+    [InheritedExport]
     public class OutputLibrary
     {
         private IReadOnlyList<ModelTypeProvider>? _models;
