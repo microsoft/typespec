@@ -36,6 +36,13 @@ namespace Microsoft.Generator.CSharp
                 CodeWriter writer = new CodeWriter();
                 CodeModelPlugin.Instance.GetWriter(writer, model).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
+
+                foreach (var serialization in model.SerializationProviders)
+                {
+                    CodeWriter serializationWriter = new CodeWriter();
+                    CodeModelPlugin.Instance.GetWriter(serializationWriter, serialization).Write();
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.Serialization.cs"), serializationWriter.ToString()));
+                }
             }
 
             foreach (var enumType in output.Enums)

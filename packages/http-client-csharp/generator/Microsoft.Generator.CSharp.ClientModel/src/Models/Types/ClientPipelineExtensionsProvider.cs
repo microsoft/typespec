@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             Name = "ClientPipelineExtensions";
             DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-            _pipelineParam = new Parameter("pipeline", null, typeof(Pipeline<PipelineMessage>), null, ValidationType.None, null);
+            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
             _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
             _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
             _pipeline = new ParameterReference(_pipelineParam);
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processMessageAsync : _processMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }
 
-        internal ResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        internal ClientResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }

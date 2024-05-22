@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputPrimitiveType CreatePrimitiveType(string? inputTypeKindString, bool isNullable)
         {
             ArgumentNullException.ThrowIfNull(inputTypeKindString, nameof(inputTypeKindString));
-            return Enum.TryParse<InputTypeKind>(inputTypeKindString, ignoreCase: true, out var kind)
+            return Enum.TryParse<InputPrimitiveTypeKind>(inputTypeKindString, ignoreCase: true, out var kind)
                 ? new InputPrimitiveType(kind, isNullable)
                 : throw new JsonException($"{inputTypeKindString} type is unknown.");
         }

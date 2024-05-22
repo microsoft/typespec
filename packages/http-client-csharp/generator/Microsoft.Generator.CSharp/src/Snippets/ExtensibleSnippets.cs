@@ -5,7 +5,6 @@ namespace Microsoft.Generator.CSharp.Expressions
 {
     public abstract partial class ExtensibleSnippets
     {
-        public abstract JsonElementSnippets JsonElement { get; }
         public abstract ModelSnippets Model { get; }
         public abstract RestOperationsSnippets RestOperations { get; }
 

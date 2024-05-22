@@ -27,11 +27,20 @@ namespace Microsoft.Generator.CSharp
 
             writer.WriteMethodDocumentation(method.Signature);
 
-            if (method.Body is { } body)
+            if (method.BodyStatements is { } body)
             {
                 using (writer.WriteMethodDeclaration(method.Signature))
                 {
                     body.Write(writer);
+                }
+            }
+            else if (method.BodyExpression is { } expression)
+            {
+                using (writer.WriteMethodDeclarationNoScope(method.Signature))
+                {
+                    writer.AppendRaw(" => ");
+                    expression.Write(writer);
+                    writer.WriteRawLine(";");
                 }
             }
 
