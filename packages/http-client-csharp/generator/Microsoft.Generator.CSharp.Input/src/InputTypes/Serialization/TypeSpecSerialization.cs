@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -14,21 +14,27 @@ namespace Microsoft.Generator.CSharp.Input
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = referenceHandler,
-                AllowTrailingCommas = true
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new TypeSpecInputNamespaceConverter(referenceHandler),
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new TypeSpecInputTypeConverter(referenceHandler),
+                    new TypeSpecInputListTypeConverter(referenceHandler),
+                    new TypeSpecInputDictionaryTypeConverter(referenceHandler),
+                    new TypeSpecInputEnumTypeConverter(referenceHandler),
+                    new TypeSpecInputEnumTypeValueConverter(referenceHandler),
+                    new TypeSpecInputModelTypeConverter(referenceHandler),
+                    new TypeSpecInputModelPropertyConverter(referenceHandler),
+                    new TypeSpecInputConstantConverter(referenceHandler),
+                    new TypeSpecInputLiteralTypeConverter(referenceHandler),
+                    new TypeSpecInputUnionTypeConverter(referenceHandler),
+                    new TypeSpecInputClientConverter(referenceHandler),
+                    new TypeSpecInputOperationConverter(referenceHandler),
+                    new TypeSpecInputParameterConverter(referenceHandler)
+                }
             };
 
-            options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-            options.Converters.Add(new TypeSpecInputTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputListTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputDictionaryTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputEnumTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputEnumTypeValueConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputModelTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputModelPropertyConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputConstantConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputLiteralTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputUnionTypeConverter(referenceHandler));
-            options.Converters.Add(new TypeSpecInputParameterConverter(referenceHandler));
             return JsonSerializer.Deserialize<InputNamespace>(json, options);
         }
     }

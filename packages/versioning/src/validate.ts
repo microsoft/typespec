@@ -788,6 +788,7 @@ function validateAvailabilityForContains(
   for (const key of keySet) {
     const sourceVal = sourceAvail.get(key)!;
     const targetVal = targetAvail.get(key)!;
+    if (sourceVal === targetVal) continue;
     if (
       [Availability.Added].includes(targetVal) &&
       [Availability.Removed, Availability.Unavailable].includes(sourceVal)

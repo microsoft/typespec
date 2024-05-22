@@ -281,6 +281,34 @@ describe("versioning: logic", () => {
       );
     });
 
+    it("can be removed respecting model versioning", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedModel(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        model Test {
+          a: int32;
+          @removed(Versions.v3) b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v2, ["a", "b"]);
+      assertHasProperties(v3, ["a"]);
+      assertHasProperties(v4, ["a"]);
+
+      assertModelProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v3, "v4"],
+        ],
+        source
+      );
+    });
+
     it("can be renamed", async () => {
       const {
         source,
@@ -1361,6 +1389,31 @@ describe("versioning: logic", () => {
         [
           [v1, "v1"],
           [v2, "v2"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting interface versioning", async () => {
+      const {
+        source,
+        projections: [v2, v3, v4],
+      } = await versionedInterface(
+        ["v2", "v3", "v4"],
+        `@added(Versions.v2)
+        interface Test {
+          allVersions(): void;
+          @removed(Versions.v3) version2Only(): void;
+        }
+        `
+      );
+      assertHasOperations(v2, ["allVersions", "version2Only"]);
+      assertHasOperations(v3, ["allVersions"]);
+      assertInterfaceProjectsTo(
+        [
+          [v2, "v2"],
+          [v3, "v3"],
+          [v4, "v4"],
         ],
         source
       );

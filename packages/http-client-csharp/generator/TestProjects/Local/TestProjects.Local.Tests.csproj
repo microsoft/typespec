@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="System.ClientModel" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="NUnit" />
@@ -18,5 +19,5 @@
     <Compile Remove="./**/*.*" />
     <Compile Include="./**/*.cs" Exclude="./**/Properties/**/*.cs" />
   </ItemGroup>
-  
+
 </Project>

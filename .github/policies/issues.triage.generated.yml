@@ -15,6 +15,42 @@ configuration:
           - not:
               and:
                 - isAssignedToSomeone
+          - not:
+              or:
+                - hasLabel:
+                    label: compiler:core
+                - hasLabel:
+                    label: compiler:emitter-framework
+                - hasLabel:
+                    label: ide
+                - hasLabel:
+                    label: lib:http
+                - hasLabel:
+                    label: lib:openapi
+                - hasLabel:
+                    label: lib:rest
+                - hasLabel:
+                    label: lib:versioning
+                - hasLabel:
+                    label: meta:blog
+                - hasLabel:
+                    label: meta:website
+                - hasLabel:
+                    label: tspd
+                - hasLabel:
+                    label: emitter:client:csharp
+                - hasLabel:
+                    label: emitter:json-schema
+                - hasLabel:
+                    label: emitter:protobuf
+                - hasLabel:
+                    label: emitter:openapi3
+                - hasLabel:
+                    label: emitter:service:csharp
+                - hasLabel:
+                    label: emitter:service:js
+                - hasLabel:
+                    label: eng
         then:
           - addLabel:
               label: needs-area

@@ -1,5 +1,5 @@
 import type { Enum, EnumMember, Namespace, Program, Type } from "@typespec/compiler";
-import { getNamespaceFullName } from "@typespec/compiler";
+import { compilerAssert, getNamespaceFullName } from "@typespec/compiler";
 import {
   getAddedOnVersions,
   getRemovedOnVersions,
@@ -214,10 +214,27 @@ export function getAvailabilityMap(
   )
     return undefined;
 
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified
   if (!added.length) {
-    added.push(allVersions[0]);
+    if (parentMap !== undefined) {
+      parentMap.forEach((key, value) => {
+        if (key === Availability.Added.valueOf()) {
+          const match = allVersions.find((x) => x.name === value);
+          compilerAssert(match !== undefined, "Version not found");
+          added.push(match);
+        }
+      });
+    } else {
+      added.push(allVersions[0]);
+    }
   }
 
   // something isn't available by default

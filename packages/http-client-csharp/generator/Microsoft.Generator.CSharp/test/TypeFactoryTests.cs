@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -48,10 +48,10 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             get
             {
-                yield return new TestCaseData(new InputList("sampleType", new InputPrimitiveType(InputTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputList), isNullable: false), false);
-                yield return new TestCaseData(new InputDictionary("sampleType", new InputPrimitiveType(InputTypeKind.String, false), new InputPrimitiveType(InputTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionary), isNullable: false), false);
-                yield return new TestCaseData(new InputPrimitiveType(InputTypeKind.String, false), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
-                yield return new TestCaseData(new InputLiteralType("literalType", new InputPrimitiveType(InputTypeKind.String, false), "literal", false), null, true);
+                yield return new TestCaseData(new InputList("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputList), isNullable: false), false);
+                yield return new TestCaseData(new InputDictionary("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionary), isNullable: false), false);
+                yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
+                yield return new TestCaseData(new InputLiteralType("literalType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), "literal", false), null, true);
             }
         }
 

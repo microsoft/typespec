@@ -11,13 +11,13 @@ namespace TypeSpec.Versioning;
  * @example
  *
  * ```tsp
- *  @versioned(Versions)
- *  namespace MyService;
- *  enum Versions {
- *    v1,
- *    v2,
- *    v3,
- *  }
+ * @versioned(Versions)
+ * namespace MyService;
+ * enum Versions {
+ *   v1,
+ *   v2,
+ *   v3,
+ * }
  * ```
  */
 extern dec versioned(target: Namespace, versions: Enum);

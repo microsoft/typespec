@@ -5,15 +5,14 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
-using System.Text;
 using System.Runtime.CompilerServices;
-using static Microsoft.Generator.CSharp.ValidationType;
-using Microsoft.Generator.CSharp.Expressions;
+using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Generator.CSharp.Expressions;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
-using Microsoft.Generator.CSharp.Models;
+using static Microsoft.Generator.CSharp.ValidationType;
 
 namespace Microsoft.Generator.CSharp
 {

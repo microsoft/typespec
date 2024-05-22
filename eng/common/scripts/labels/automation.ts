@@ -44,7 +44,12 @@ const issueTriageConfig: PolicyServiceConfig = {
       eventResponderTasks: [
         eventResponderTask({
           description: "Adds `needs-area` label for new unassigned issues",
-          if: [payloadType("Issues"), isAction("Opened"), not(and(["isAssignedToSomeone"]))],
+          if: [
+            payloadType("Issues"),
+            isAction("Opened"),
+            not(and(["isAssignedToSomeone"])),
+            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
+          ],
           then: [
             {
               addLabel: {

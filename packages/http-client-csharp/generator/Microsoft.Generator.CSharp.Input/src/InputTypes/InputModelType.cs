@@ -1,12 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.Generator.CSharp.Input
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
         public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionary? inheritedDictionaryType, bool isNullable)
@@ -27,26 +27,19 @@ namespace Microsoft.Generator.CSharp.Input
             IsPropertyBag = false;
         }
 
-        public string? Namespace { get; }
-        public string? Accessibility { get; }
-        public string? Deprecated { get; }
-        public string? Description { get; }
-        public InputModelTypeUsage Usage { get; }
-        public IReadOnlyList<InputModelProperty> Properties { get; }
-        public InputModelType? BaseModel { get; private set; }
-        public IReadOnlyList<InputModelType> DerivedModels { get; }
-        public string? DiscriminatorValue { get; }
-        public string? DiscriminatorPropertyName { get; }
-        public InputDictionary? InheritedDictionaryType { get; }
+        public string? Namespace { get; internal set; }
+        public string? Accessibility { get; internal set; }
+        public string? Deprecated { get; internal set; }
+        public string? Description { get; internal set; }
+        public InputModelTypeUsage Usage { get; internal set; }
+        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
+        public InputModelType? BaseModel { get; internal set; }
+        public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
+        public string? DiscriminatorValue { get; internal set; }
+        public string? DiscriminatorPropertyName { get; internal set; }
+        public InputDictionary? InheritedDictionaryType { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
-
-        internal void SetBaseModel(InputModelType? baseModel, [CallerFilePath] string filepath = "", [CallerMemberName] string caller = "")
-        {
-            Debug.Assert(filepath.EndsWith($"{nameof(TypeSpecInputModelTypeConverter)}.cs"), $"This method is only allowed to be called in `TypeSpecInputModelTypeConverter.cs`");
-            Debug.Assert(caller == nameof(TypeSpecInputModelTypeConverter.CreateModelType), $"This method is only allowed to be called in `TypeSpecInputModelTypeConverter.CreateModelType`");
-            BaseModel = baseModel;
-        }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);
 
@@ -72,30 +65,9 @@ namespace Microsoft.Generator.CSharp.Input
             }
         }
 
-        public bool Equals(InputType other, bool handleCollections)
+        private string GetDebuggerDisplay()
         {
-            if (!handleCollections)
-                return Equals(other);
-
-            switch (other)
-            {
-                case InputDictionary otherDictionary:
-                    return Equals(otherDictionary.ValueType);
-                case InputList otherList:
-                    return Equals(otherList.ElementType);
-                default:
-                    return Equals(other);
-            }
-        }
-
-        internal InputModelProperty? GetProperty(InputModelType key)
-        {
-            foreach (var property in Properties)
-            {
-                if (key.Equals(property.Type, true))
-                    return property;
-            }
-            return null;
+            return $"Model (Name: {Name}, {Namespace})";
         }
     }
 }
