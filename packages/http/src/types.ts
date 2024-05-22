@@ -457,7 +457,7 @@ export interface HttpBody {
   readonly containsMetadataAnnotations: boolean;
 
   /**
-   * @deprecated use {@link parameter}
+   * @deprecated use {@link property}
    */
   parameter?: ModelProperty;
 
