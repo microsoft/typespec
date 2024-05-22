@@ -86,7 +86,19 @@ import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
 import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
-const { align, breakParent, group, hardline, ifBreak, indent, join, line, softline } = builders;
+const {
+  align,
+  breakParent,
+  group,
+  hardline,
+  ifBreak,
+  indent,
+  join,
+  line,
+  softline,
+  literalline,
+  markAsRoot,
+} = builders;
 
 const { isNextLineEmpty } = util as any;
 
@@ -1636,7 +1648,23 @@ function printStringLiteral(
   options: TypeSpecPrettierOptions
 ): Doc {
   const node = path.node;
-  return getRawText(node, options);
+  const multiline =
+    options.originalText[node.pos] &&
+    options.originalText[node.pos + 1] === `"` &&
+    options.originalText[node.pos + 2] === `"`;
+
+  const raw = getRawText(node, options);
+  if (multiline) {
+    const lines = raw.slice(3, -3).split("\n");
+    const whitespaceIndent = lines[lines.length - 1].length;
+    const newLines = [];
+    for (let i = 0; i < lines.length - 1; i++) {
+      newLines.push(lines[i].slice(whitespaceIndent), literalline);
+    }
+    return [`"""`, indent(markAsRoot([newLines, `"""`]))];
+  } else {
+    return raw;
+  }
 }
 
 function printNumberLiteral(
