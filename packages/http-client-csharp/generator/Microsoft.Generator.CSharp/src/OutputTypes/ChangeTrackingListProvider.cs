@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Models;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
