@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class ProjectedModel : System.ClientModel.Primitives.IJsonModel<ProjectedModel>
     {
@@ -30,7 +30,5 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
-
-        // Add Nested Type
     }
 }

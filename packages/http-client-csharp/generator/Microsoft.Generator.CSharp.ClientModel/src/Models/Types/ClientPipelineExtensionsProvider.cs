@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.ClientModel.Primitives.Pipeline;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;

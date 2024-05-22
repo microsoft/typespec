@@ -44,17 +44,6 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            if (method.Expression is { } expression)
-            {
-                using (writer.WriteMethodDeclarationNoScope(method.Signature))
-                {
-                    writer.AppendRaw(" => ");
-                    expression.Write(writer);
-                    writer.AppendRaw(";")
-                        .WriteLine();
-                }
-            }
-
             writer.WriteLine();
         }
     }

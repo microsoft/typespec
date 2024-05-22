@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class Friend : System.ClientModel.Primitives.IJsonModel<Friend>
     {
@@ -30,7 +30,5 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string System.ClientModel.Primitives.IPersistableModel<Friend>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
-
-        // Add Nested Type
     }
 }

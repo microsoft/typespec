@@ -2,7 +2,9 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec.Models
+using UnbrandedTypeSpec.Models;
+
+namespace UnbrandedTypeSpec
 {
     public partial class ModelWithRequiredNullableProperties
     {
