@@ -17,17 +17,19 @@ namespace Microsoft.Generator.CSharp
         public MethodSignatureBase Signature { get; }
         public MethodBodyStatement? Body { get; }
 
+        private const string Undefined = "Undefined";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body statement and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="body">The method body.</param>
         /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
-        public CSharpMethod(MethodSignatureBase signature, MethodBodyStatement body, CSharpMethodKinds kind)
+        public CSharpMethod(MethodSignatureBase signature, MethodBodyStatement body, CSharpMethodKinds? kind = default)
         {
             Signature = signature;
             Body = body;
-            Kind = kind;
+            Kind = kind ?? new CSharpMethodKinds(Undefined);
         }
     }
 }

@@ -71,11 +71,11 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// The type for change tracking lists.
         /// </summary>
-        public abstract CSharpType ChangeTrackingListType { get; }
+        public virtual CSharpType ChangeTrackingListType => ChangeTrackingListProvider.Instance.Type;
 
         /// <summary>
         /// The type for change tracking dictionaries.
         /// </summary>
-        public abstract CSharpType ChangeTrackingDictionaryType { get; }
+        public virtual CSharpType ChangeTrackingDictionaryType => ChangeTrackingDictionaryProvider.Instance.Type;
     }
 }

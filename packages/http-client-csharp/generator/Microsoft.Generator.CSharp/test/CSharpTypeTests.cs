@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -27,9 +27,6 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-
-            mockApiTypes.SetupGet(p => p.ChangeTrackingListType).Returns(typeof(IList<>));
-            mockApiTypes.SetupGet(p => p.ChangeTrackingDictionaryType).Returns(typeof(IDictionary<,>));
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
             // initialize the singleton instance of the plugin
