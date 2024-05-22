@@ -6,14 +6,14 @@ import { resolve } from "path";
 import pc from "picocolors";
 import { format, resolveConfig } from "prettier";
 import { inspect } from "util";
-import rawLabels from "../../config/labels.js";
-import { repo, repoRoot } from "../common.js";
+import { repo } from "../common.js";
+import { RepoConfig } from "./types.js";
 
 const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
 type Octokit = InstanceType<typeof Octokit>;
 
 const labelFileRelative = "eng/common/config/labels.ts";
-const contributingFile = resolve(repoRoot, "CONTRIBUTING.md");
+const contributingFile = resolve(process.cwd(), "CONTRIBUTING.md");
 const magicComment = {
   start: "<!-- LABEL GENERATED REF START -->",
   end: "<!-- LABEL GENERATED REF END -->",
@@ -25,8 +25,8 @@ export interface SyncLabelsOptions {
   readonly dryRun?: boolean;
 }
 
-export async function syncLabelsDefinitions(options: SyncLabelsOptions = {}) {
-  const labels = loadLabels();
+export async function syncLabelsDefinitions(config: RepoConfig, options: SyncLabelsOptions = {}) {
+  const labels = loadLabels(config);
   logLabelConfig(labels);
 
   if (options.github) {
@@ -42,7 +42,7 @@ export async function syncLabelsDefinitions(options: SyncLabelsOptions = {}) {
   });
 }
 
-interface LabelsConfig {
+interface LabelsResolvedConfig {
   readonly categories: LabelCategory[];
   readonly labels: Label[];
 }
@@ -64,8 +64,8 @@ interface ActionOptions {
   readonly check?: boolean;
 }
 
-function loadLabels(): LabelsConfig {
-  const data = rawLabels;
+function loadLabels(config: RepoConfig): LabelsResolvedConfig {
+  const data = config.labels;
   const labels = [];
   const categories: LabelCategory[] = [];
   for (const [categoryName, { description, labels: labelMap }] of Object.entries(data)) {
@@ -80,7 +80,7 @@ function loadLabels(): LabelsConfig {
   return { labels, categories };
 }
 
-function logLabelConfig(config: LabelsConfig) {
+function logLabelConfig(config: LabelsResolvedConfig) {
   console.log("Label config:");
   const max = config.labels.reduce((max, label) => Math.max(max, label.name.length), 0);
   for (const category of config.categories) {
@@ -260,7 +260,7 @@ function validateLabel(label: Label) {
   }
 }
 
-async function updateContributingFile(labels: LabelsConfig, options: ActionOptions) {
+async function updateContributingFile(labels: LabelsResolvedConfig, options: ActionOptions) {
   console.log("Updating contributing file", contributingFile);
   const content = await readFile(contributingFile, "utf8");
   const startIndex = content.indexOf(magicComment.start);
@@ -298,7 +298,7 @@ async function updateContributingFile(labels: LabelsConfig, options: ActionOptio
   }
 }
 
-function generateLabelsDoc(labels: LabelsConfig) {
+function generateLabelsDoc(labels: LabelsResolvedConfig) {
   return [
     "### Labels reference",
     ...labels.categories.map((category) => {

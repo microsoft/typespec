@@ -1,7 +1,5 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { AreaPaths } from "../../config/areas.js";
-import { AreaLabels } from "../../config/labels.js";
 import { CheckOptions, repoRoot, syncFile } from "../common.js";
 import {
   PolicyServiceConfig,
@@ -16,14 +14,15 @@ import {
   or,
   payloadType,
 } from "./policy.js";
+import { RepoConfig } from "./types.js";
 
-const policyFolder = resolve(repoRoot, ".github", "policies");
+const policyFolder = resolve(process.cwd(), ".github", "policies");
 
 export interface SyncLabelAutomationOptions extends CheckOptions {}
 
-export async function syncLabelAutomation(options: SyncLabelAutomationOptions) {
-  await syncPolicyFile(issueTriageConfig, options);
-  await syncPolicyFile(prTriageConfig, options);
+export async function syncLabelAutomation(config: RepoConfig, options: SyncLabelAutomationOptions) {
+  await syncPolicyFile(createIssueTriageConfig(config), options);
+  await syncPolicyFile(createPrTriageConfig(config), options);
 }
 
 async function syncPolicyFile(policy: PolicyServiceConfig, options: CheckOptions) {
@@ -33,70 +32,73 @@ async function syncPolicyFile(policy: PolicyServiceConfig, options: CheckOptions
   await syncFile(filename, content, options);
 }
 
-const issueTriageConfig: PolicyServiceConfig = {
-  id: "issues.triage",
-  name: "New Issue Assign labels",
-  description: "Assign labels to new issues",
-  resource: "repository",
-  disabled: false,
-  configuration: {
-    resourceManagementConfiguration: {
-      eventResponderTasks: [
-        eventResponderTask({
-          description: "Adds `needs-area` label for new unassigned issues",
-          if: [
-            payloadType("Issues"),
-            isAction("Opened"),
-            not(and(["isAssignedToSomeone"])),
-            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
-          ],
-          then: [
-            {
-              addLabel: {
-                label: "needs-area",
+function createIssueTriageConfig(config: RepoConfig): PolicyServiceConfig {
+  return {
+    id: "issues.triage",
+    name: "New Issue Assign labels",
+    description: "Assign labels to new issues",
+    resource: "repository",
+    disabled: false,
+    configuration: {
+      resourceManagementConfiguration: {
+        eventResponderTasks: [
+          eventResponderTask({
+            description: "Adds `needs-area` label for new unassigned issues",
+            if: [
+              payloadType("Issues"),
+              isAction("Opened"),
+              not(and(["isAssignedToSomeone"])),
+              not(or(Object.keys(config.areaLabels).map((area) => hasLabel(area)))),
+            ],
+            then: [
+              {
+                addLabel: {
+                  label: "needs-area",
+                },
               },
-            },
-          ],
-        }),
-        eventResponderTask({
-          description: "Remove `needs-area` label when an area label is added",
-          if: [
-            payloadType("Issues"),
-            hasLabel("needs-area"),
-            "isOpen",
-            or(Object.keys(AreaLabels).map((area) => labelAdded(area))),
-          ],
-          then: [
-            {
-              removeLabel: {
-                label: "needs-area",
+            ],
+          }),
+          eventResponderTask({
+            description: "Remove `needs-area` label when an area label is added",
+            if: [
+              payloadType("Issues"),
+              hasLabel("needs-area"),
+              "isOpen",
+              or(Object.keys(config.areaLabels).map((area) => labelAdded(area))),
+            ],
+            then: [
+              {
+                removeLabel: {
+                  label: "needs-area",
+                },
               },
-            },
-          ],
-        }),
-        eventResponderTask({
-          description: "Add `needs-area` back when all area labels are removed",
-          if: [
-            payloadType("Issues"),
-            not(hasLabel("needs-area")),
-            "isOpen",
-            or(Object.keys(AreaLabels).map((area) => labelRemoved(area))),
-            not(or(Object.keys(AreaLabels).map((area) => hasLabel(area)))),
-          ],
-          then: [
-            {
-              addLabel: {
-                label: "needs-area",
+            ],
+          }),
+          eventResponderTask({
+            description: "Add `needs-area` back when all area labels are removed",
+            if: [
+              payloadType("Issues"),
+              not(hasLabel("needs-area")),
+              "isOpen",
+              or(Object.keys(config.areaLabels).map((area) => labelRemoved(area))),
+              not(or(Object.keys(config.areaLabels).map((area) => hasLabel(area)))),
+            ],
+            then: [
+              {
+                addLabel: {
+                  label: "needs-area",
+                },
               },
-            },
-          ],
-        }),
-      ],
+            ],
+          }),
+        ],
+      },
     },
-  },
+  };
 };
+function createPrTriageConfig(config: RepoConfig): PolicyServiceConfig {
 
-const prTriageConfig: PolicyServiceConfig = {
+return  {
   id: "prs.triage",
   name: "Assign area labels to PRs",
   description: "Assign area labels to PR depending on path modified.",
@@ -107,7 +109,7 @@ const prTriageConfig: PolicyServiceConfig = {
       eventResponderTasks: [
         eventResponderTask({
           if: [payloadType("Pull_Request")],
-          then: Object.entries(AreaPaths).flatMap(([label, files]) => {
+          then: Object.entries(config.areaPaths).flatMap(([label, files]) => {
             return files.map((file) => {
               return {
                 if: [filesMatchPattern(`${file}.*`)],
@@ -125,4 +127,5 @@ const prTriageConfig: PolicyServiceConfig = {
       ],
     },
   },
+};
 };

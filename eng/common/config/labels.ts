@@ -147,12 +147,13 @@ export const CommonLabels = {
     },
   },
 };
+
 export default {
-  ...CommonLabels,
   area: {
     description: "Area of the codebase",
     labels: AreaLabels,
   },
+  ...CommonLabels,
   misc: {
     description: "Misc labels",
     labels: {
