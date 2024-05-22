@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Microsoft.Generator.CSharp.Expressions;
-using System.IO;
-using Microsoft.Generator.CSharp.Models;
+using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.Tests
