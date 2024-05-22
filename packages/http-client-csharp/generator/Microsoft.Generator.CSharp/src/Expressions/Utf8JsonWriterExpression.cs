@@ -23,9 +23,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public MethodBodyStatement WriteNull(ValueExpression propertyName) => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNull), propertyName);
         public MethodBodyStatement WriteNullValue() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNullValue));
 
-        public MethodBodyStatement WriteObjectValue(ValueExpression value)
-            => new InvokeStaticMethodStatement(CodeModelPlugin.Instance.Configuration.ApiTypes.Utf8JsonWriterExtensionsType, CodeModelPlugin.Instance.Configuration.ApiTypes.Utf8JsonWriterExtensionsWriteObjectValueName, new[] { Untyped, value }, null, true);
-
         public MethodBodyStatement WriteNumberValue(ValueExpression value)
             => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNumberValue), value);
 

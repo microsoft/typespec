@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         {
             // Sync and async methods have different set of parameters
             return async
-                ? new JsonDocumentExpression(InvokeStatic(nameof(JsonDocument.ParseAsync), new[] { stream, Snippets.Default, KnownParameters.CancellationTokenParameter }, true))
+                ? new JsonDocumentExpression(InvokeStatic(nameof(JsonDocument.ParseAsync), new[] { stream, Snippets.Default, Snippets.Default }, true))
                 : new JsonDocumentExpression(InvokeStatic(nameof(JsonDocument.Parse), stream));
         }
 

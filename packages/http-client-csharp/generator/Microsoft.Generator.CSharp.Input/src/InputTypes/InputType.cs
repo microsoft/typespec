@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -6,18 +6,21 @@ namespace Microsoft.Generator.CSharp.Input
     /// <summary>
     /// Represents an input type to the generator.
     /// </summary>
-    /// <param name="Name">The name of the input type.</param>
-    /// <param name="IsNullable">Flag to determine if the type is nullable.</param>
     public abstract class InputType
     {
+        /// <summary>
+        /// Construct a new <see cref="InputType"/> instance
+        /// </summary>
+        /// <param name="name">The name of the input type.</param>
+        /// <param name="isNullable">Flag to determine if the type is nullable.</param>
         protected InputType(string name, bool isNullable)
         {
             Name = name;
             IsNullable = isNullable;
         }
 
-        public string Name { get; }
-        public bool IsNullable { get; }
+        public string Name { get; internal set; }
+        public bool IsNullable { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {

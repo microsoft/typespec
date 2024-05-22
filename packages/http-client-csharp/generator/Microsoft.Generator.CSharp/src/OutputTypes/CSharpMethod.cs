@@ -15,19 +15,33 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public CSharpMethodKinds Kind { get; }
         public MethodSignatureBase Signature { get; }
-        public MethodBodyStatement? Body { get; }
+        public MethodBodyStatement? BodyStatements { get; }
+        public ValueExpression? BodyExpression { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body statement and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
-        /// <param name="body">The method body.</param>
+        /// <param name="bodyStatements">The method body.</param>
         /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
-        public CSharpMethod(MethodSignatureBase signature, MethodBodyStatement body, CSharpMethodKinds kind)
+        public CSharpMethod(MethodSignatureBase signature, MethodBodyStatement bodyStatements, CSharpMethodKinds? kind = null)
         {
             Signature = signature;
-            Body = body;
-            Kind = kind;
+            BodyStatements = bodyStatements;
+            Kind = kind ?? new CSharpMethodKinds("Undefined");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body expression and method signature.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="bodyExpression">The method body expression.</param>
+        /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
+        public CSharpMethod(MethodSignatureBase signature, ValueExpression bodyExpression, CSharpMethodKinds? kind = null)
+        {
+            Signature = signature;
+            BodyExpression = bodyExpression;
+            Kind = kind ?? new CSharpMethodKinds("Undefined");
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -23,5 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests
         public override TypeFactory TypeFactory => throw new NotImplementedException();
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
+        public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();
     }
 }

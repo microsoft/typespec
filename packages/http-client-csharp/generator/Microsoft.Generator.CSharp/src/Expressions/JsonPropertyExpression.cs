@@ -13,8 +13,6 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public BoolExpression NameEquals(string value) => new(Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
 
-        public MethodBodyStatement ThrowNonNullablePropertyIsNull() => Extensible.JsonElement.ThrowNonNullablePropertyIsNull(this);
-
         static JsonPropertyExpression ITypedValueExpressionFactory<JsonPropertyExpression>.Create(ValueExpression untyped)
             => new(untyped);
     }

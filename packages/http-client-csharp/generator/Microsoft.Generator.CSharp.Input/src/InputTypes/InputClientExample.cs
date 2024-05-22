@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
             ClientParameters = clientParameters;
         }
 
-        public InputClient Client { get; }
-        public IReadOnlyList<InputParameterExample> ClientParameters { get; }
+        public InputClient Client { get; init; }
+        public IReadOnlyList<InputParameterExample> ClientParameters { get; init; }
     }
 }

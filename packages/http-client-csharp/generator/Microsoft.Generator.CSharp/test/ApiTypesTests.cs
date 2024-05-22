@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using Moq;
@@ -17,22 +17,6 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mock = new Mock<ApiTypes>();
         }
-        [Test]
-        public void TestChangeTrackingListType()
-        {
-            Assert.IsNotNull(_mock?.Object);
-
-            _mock.Setup(x => x.ChangeTrackingListType).Returns(typeof(int));
-            Assert.AreEqual(typeof(int), _mock.Object.ChangeTrackingListType);
-        }
-
-        [Test]
-        public void TestChangeTrackingDictionaryType()
-        {
-            _mock.Setup(x => x.ChangeTrackingDictionaryType).Returns(typeof(int));
-            Assert.AreEqual(typeof(int), _mock.Object.ChangeTrackingDictionaryType);
-        }
-
 
         [Test]
         public void TestEndPointSampleValue()
