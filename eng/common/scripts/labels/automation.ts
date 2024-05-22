@@ -48,7 +48,7 @@ function createIssueTriageConfig(config: RepoConfig): PolicyServiceConfig {
               payloadType("Issues"),
               isAction("Opened"),
               not(and(["isAssignedToSomeone"])),
-              not(or(Object.keys(config.areaLabels).map((area) => hasLabel(area)))),
+              not(or(Object.keys(config.labels).map((area) => hasLabel(area)))),
             ],
             then: [
               {
@@ -64,7 +64,7 @@ function createIssueTriageConfig(config: RepoConfig): PolicyServiceConfig {
               payloadType("Issues"),
               hasLabel("needs-area"),
               "isOpen",
-              or(Object.keys(config.areaLabels).map((area) => labelAdded(area))),
+              or(Object.keys(config.labels.area).map((area) => labelAdded(area))),
             ],
             then: [
               {
@@ -80,8 +80,8 @@ function createIssueTriageConfig(config: RepoConfig): PolicyServiceConfig {
               payloadType("Issues"),
               not(hasLabel("needs-area")),
               "isOpen",
-              or(Object.keys(config.areaLabels).map((area) => labelRemoved(area))),
-              not(or(Object.keys(config.areaLabels).map((area) => hasLabel(area)))),
+              or(Object.keys(config.labels.area).map((area) => labelRemoved(area))),
+              not(or(Object.keys(config.labels.area).map((area) => hasLabel(area)))),
             ],
             then: [
               {

@@ -175,7 +175,6 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 
 export default defineConfig({
   repo,
-  areaLabels: AreaLabels,
   labels: {
     area: {
       description: "Area of the codebase",
