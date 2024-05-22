@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
@@ -28,10 +29,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider)
         {
             // Add JSON serialization type provider
-            return new TypeProvider[] { new MrwSerializationTypeProvider(provider) };
+            return [new MrwSerializationTypeProvider(provider)];
         }
 
         [ImportingConstructor]
