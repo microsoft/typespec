@@ -34,11 +34,6 @@ namespace Microsoft.Generator.CSharp
         /// </returns>
         public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation);
 
-        [ImportingConstructor]
-        public TypeFactory()
-        {
-        }
-
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
         /// </summary>
