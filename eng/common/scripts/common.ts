@@ -4,7 +4,7 @@ import pc from "picocolors";
 import { fileURLToPath } from "url";
 export const repo = {
   owner: "microsoft",
-  name: "typespec",
+  repo: "typespec",
 };
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");

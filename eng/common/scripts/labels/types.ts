@@ -1,7 +1,7 @@
 export interface RepoConfig {
   repo: {
     owner: string;
-    name: string;
+    repo: string;
   },
   labels: LabelsConfig;
   areaPaths: Record<string, string[]>;
