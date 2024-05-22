@@ -23,11 +23,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Update="Mocks\tspCodeModel.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>

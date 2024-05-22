@@ -29,8 +29,6 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
 
-        // Add Methods
-
         // Add Nested Type
     }
 }
