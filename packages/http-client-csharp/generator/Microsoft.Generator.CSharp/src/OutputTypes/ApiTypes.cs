@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -12,15 +12,6 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public abstract class ApiTypes
     {
-        /// <summary>
-        /// The type for change tracking lists.
-        /// </summary>
-        public abstract Type ChangeTrackingListType { get; }
-        /// <summary>
-        /// The type for change tracking dictionaries.
-        /// </summary>
-        public abstract Type ChangeTrackingDictionaryType { get; }
-
         /// <summary>
         ///  The sample value for the endpoint.
         /// </summary>
@@ -44,7 +35,6 @@ namespace Microsoft.Generator.CSharp
             valueType is null ? typeof(ValueTask<>).MakeGenericType(ResponseType) : typeof(ValueTask<>).MakeGenericType(ResponseOfTType.MakeGenericType(valueType));
 
         public abstract Type HttpPipelineType { get; }
-        public abstract Type PipelineExtensionsType { get; }
         public abstract string HttpPipelineCreateMessageName { get; }
         public FormattableString GetHttpPipelineCreateMessageFormat(bool withContext)
         {
@@ -58,9 +48,6 @@ namespace Microsoft.Generator.CSharp
 
         public Type GetNextPageFuncType() => typeof(Func<,,>).MakeGenericType(typeof(int?), typeof(string), HttpMessageType);
 
-        public abstract Type ClientDiagnosticsType { get; }
-        public abstract string ClientDiagnosticsCreateScopeName { get; }
-
         public abstract Type ClientOptionsType { get; }
 
         public abstract Type RequestContextType { get; }
@@ -73,7 +60,7 @@ namespace Microsoft.Generator.CSharp
         public abstract FormattableString GetHttpPipelineBearerString(string pipelineField, string optionsVariable, string credentialVariable, string scopesParamName);
         public FormattableString GetHttpPipelineKeyCredentialString(string pipelineField, string optionsVariable, string credentialVariable, string keyName)
             => $"{pipelineField} = {HttpPipelineBuilderType}.Build({optionsVariable}, new {KeyCredentialPolicyType}({credentialVariable}, \"{keyName}\"));";
-        public abstract FormattableString GetHttpPipelineClassifierString(string pipelineField, string optionsVariable, FormattableString perCallPolicies, FormattableString perRetryPolicies);
+        public abstract FormattableString GetHttpPipelineClassifierString(string pipelineField, string optionsVariable, FormattableString perCallPolicies, FormattableString perRetryPolicies, FormattableString beforeTransportPolicies);
 
         public abstract Type HttpPipelinePolicyType { get; }
         public abstract string HttpMessageRequestName { get; }
@@ -85,29 +72,11 @@ namespace Microsoft.Generator.CSharp
         // public abstract Action<CodeWriter, CodeWriterDeclaration, RequestHeader, ClientFields?> WriteHeaderMethod { get; }
 
         public abstract FormattableString GetSetContentString(string requestName, string contentName);
-        public abstract Type RequestUriType { get; }
         public abstract Type RequestContentType { get; }
         public abstract string ToRequestContentName { get; }
         public abstract string RequestContentCreateName { get; }
 
-        public abstract Type IUtf8JsonSerializableType { get; }
         public abstract Type IXmlSerializableType { get; }
-        public abstract string IUtf8JsonSerializableWriteName { get; }
-
-        public abstract Type Utf8JsonWriterExtensionsType { get; }
-        public abstract string Utf8JsonWriterExtensionsWriteObjectValueName { get; }
-        public abstract string Utf8JsonWriterExtensionsWriteNumberValueName { get; }
-        public abstract string Utf8JsonWriterExtensionsWriteStringValueName { get; }
-        public abstract string Utf8JsonWriterExtensionsWriteBase64StringValueName { get; }
-
-        public abstract Type OptionalType { get; }
-        public abstract Type OptionalPropertyType { get; }
-
-        public abstract string OptionalIsCollectionDefinedName { get; }
-        public abstract string OptionalIsDefinedName { get; }
-        public abstract string OptionalToDictionaryName { get; }
-        public abstract string OptionalToListName { get; }
-        public abstract string OptionalToNullableName { get; }
 
         public abstract Type RequestFailedExceptionType { get; }
 

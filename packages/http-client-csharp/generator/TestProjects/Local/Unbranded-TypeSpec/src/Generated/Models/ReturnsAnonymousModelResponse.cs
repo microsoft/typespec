@@ -11,8 +11,6 @@ namespace UnbrandedTypeSpec.Models
         {
         }
 
-        // Add Methods
-
         // Add Nested Type
     }
 }

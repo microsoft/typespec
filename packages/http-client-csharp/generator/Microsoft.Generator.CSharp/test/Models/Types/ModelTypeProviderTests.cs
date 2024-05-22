@@ -71,42 +71,42 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputTypeKind.String, false), false, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
                     new CSharpType(typeof(IList<string>)),
                     false);
                 // read only list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputTypeKind.String, false), false, false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<string>)),
                     false);
                 // nullable list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputTypeKind.String, false), false, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
                     true);
                 // dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputTypeKind.String, false), new InputPrimitiveType(InputTypeKind.String, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>)),
                     false);
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputTypeKind.String, false), new InputPrimitiveType(InputTypeKind.String, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
                     true);
                 // primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputTypeKind.String, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false, false),
                     new CSharpType(typeof(string)),
                     true);
                 // read only primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputTypeKind.String, false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, true, false),
                     new CSharpType(typeof(string)),
                     false);
                 // readonlymemory property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputTypeKind.String, false), true, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), true, false), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
                     true);
             }
@@ -120,10 +120,10 @@ namespace Microsoft.Generator.CSharp.Tests
                     {
                         var primitiveType = (InputPrimitiveType)type;
 
-                        if (primitiveType.Kind is InputTypeKind.String)
+                        if (primitiveType.Kind is InputPrimitiveTypeKind.String)
                             return new CSharpType(typeof(string));
 
-                        if (primitiveType.Kind is InputTypeKind.Int32)
+                        if (primitiveType.Kind is InputPrimitiveTypeKind.Int32)
                             return new CSharpType(typeof(int));
 
                         throw new ArgumentException("Unsupported input type.");
@@ -148,8 +148,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputTypeKind.String, false), false, false), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputTypeKind.String, false), new InputPrimitiveType(InputTypeKind.String, false), false), true, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
                     new InputModelProperty("optionalUnknown", "optional unknown", "", new InputIntrinsicType(InputIntrinsicTypeKind.Unknown), false, false, false),
              };
 
