@@ -3,7 +3,7 @@
 
 using System.Linq;
 
-namespace Microsoft.Generator.CSharp.Writers
+namespace Microsoft.Generator.CSharp
 {
     public class TypeProviderWriter
     {

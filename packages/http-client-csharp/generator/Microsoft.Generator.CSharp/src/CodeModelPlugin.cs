@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp
 {
