@@ -121,7 +121,7 @@ async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
   );
 
   const existingLabels = await fetchAllLabels(octokit);
-  logLabels("Existing github labels", existingLabels as any);
+  logLabels("Existing github labels", existingLabels);
   const labelToUpdate: Label[] = [];
   const labelsToCreate: Label[] = [];
   const exitingLabelMap = new Map(existingLabels.map((label) => [label.name, label]));
@@ -160,7 +160,7 @@ async function checkLabelsToDelete(labels: GithubLabel[]) {
   let hasError = false;
   for (const label of labels) {
     if (label.issues.totalCount > 0) {
-      console.error(
+      console.log(
         pc.red(
           `Label ${label.name} has ${label.issues.totalCount} issues assigned to it, make sure to rename the label manually first to not lose assignment.`
         )
@@ -171,7 +171,7 @@ async function checkLabelsToDelete(labels: GithubLabel[]) {
   if (hasError) {
     process.exit(1);
   } else {
-    console.error(pc.green(`Labels looks good to delete.`));
+    console.log(pc.green(`Labels looks good to delete.`));
   }
 }
 
@@ -282,7 +282,7 @@ async function updateContributingFile(labels: LabelsResolvedConfig, options: Act
     if (formatted === content) {
       console.log(pc.green("CONTRIBUTING.md is up to date."));
     } else {
-      console.error(
+      console.log(
         pc.red(
           "CONTRIBUTING.md file label section is not up to date, run pnpm sync-labels to update it"
         )
