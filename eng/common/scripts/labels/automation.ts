@@ -14,7 +14,7 @@ import {
   or,
   payloadType,
 } from "./policy.js";
-import { RepoConfig } from "./types.js";
+import type { RepoConfig } from "./types.js";
 
 const policyFolder = resolve(process.cwd(), ".github", "policies");
 

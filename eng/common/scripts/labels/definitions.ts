@@ -6,7 +6,6 @@ import { resolve } from "path";
 import pc from "picocolors";
 import { format, resolveConfig } from "prettier";
 import { inspect } from "util";
-import { repo } from "../common.js";
 import { RepoConfig } from "./types.js";
 
 const Octokit = OctokitCore.plugin(paginateGraphQL).plugin(restEndpointMethods);
@@ -30,7 +29,7 @@ export async function syncLabelsDefinitions(config: RepoConfig, options: SyncLab
   logLabelConfig(labels);
 
   if (options.github) {
-    await syncGithubLabels(labels.labels, {
+    await syncGithubLabels(config, labels.labels, {
       dryRun: options.dryRun,
       check: options.check,
     });
@@ -110,7 +109,7 @@ function prettyLabel(label: Label, padEnd: number = 0) {
   return `${pc.cyan(label.name.padEnd(padEnd))} ${pc.blue(`#${label.color}`)} ${pc.gray(label.description)}`;
 }
 
-async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
+async function syncGithubLabels(config: RepoConfig, labels: Label[], options: ActionOptions = {}) {
   if (!options.dryRun && !process.env.GITHUB_TOKEN && !options.check) {
     throw new Error(
       "GITHUB_TOKEN environment variable is required when not running in dry-run mode or check mode."
@@ -120,7 +119,7 @@ async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
     process.env.GITHUB_TOKEN ? { auth: `token ${process.env.GITHUB_TOKEN}` } : {}
   );
 
-  const existingLabels = await fetchAllLabels(octokit);
+  const existingLabels = await fetchAllLabels(octokit, config.repo);
   logLabels("Existing github labels", existingLabels);
   const labelToUpdate: Label[] = [];
   const labelsToCreate: Label[] = [];
@@ -148,9 +147,9 @@ async function syncGithubLabels(labels: Label[], options: ActionOptions = {}) {
     }
   } else {
     logAction("Applying changes", options);
-    await updateLabels(octokit, labelToUpdate, options);
-    await createLabels(octokit, labelsToCreate, options);
-    await deleteLabels(octokit, labelsToDelete, options);
+    await updateLabels(config, octokit, labelToUpdate, options);
+    await createLabels(config, octokit, labelsToCreate, options);
+    await deleteLabels(config, octokit, labelsToDelete, options);
     logAction("Done applying changes", options);
   }
 }
@@ -181,10 +180,10 @@ interface GithubLabel {
   readonly description: string;
   readonly issues: { readonly totalCount: number };
 }
-async function fetchAllLabels(octokit: Octokit): Promise<GithubLabel[]> {
+async function fetchAllLabels(octokit: Octokit, repo: RepoConfig["repo"]): Promise<GithubLabel[]> {
   const { repository } = await octokit.graphql.paginate(
-    `query paginate($cursor: String) {
-      repository(owner: "Microsoft", name: "typespec") {
+    `query paginate($cursor: String, $owner: String!, $repo: String!) {
+      repository(owner: $owner, name: $repo) {
         labels(first: 100, after: $cursor) {
           nodes {
             color
@@ -200,7 +199,11 @@ async function fetchAllLabels(octokit: Octokit): Promise<GithubLabel[]> {
           }
         }
       }
-    }`
+    }`,
+    {
+      owner: repo.owner,
+      repo: repo.repo,
+    }
   );
 
   return repository.labels.nodes;
@@ -217,30 +220,45 @@ async function doAction(action: () => Promise<unknown>, label: string, options: 
   }
   logAction(label, options);
 }
-async function createLabels(octokit: Octokit, labels: Label[], options: ActionOptions) {
+async function createLabels(
+  config: RepoConfig,
+  octokit: Octokit,
+  labels: Label[],
+  options: ActionOptions
+) {
   for (const label of labels) {
     await doAction(
-      () => octokit.rest.issues.createLabel({ ...repo, ...label }),
+      () => octokit.rest.issues.createLabel({ ...config.repo, ...label }),
       `Created label ${label.name}, color: ${label.color}, description: ${label.description}`,
       options
     );
   }
 }
-async function updateLabels(octokit: Octokit, labels: Label[], options: ActionOptions) {
+async function updateLabels(
+  config: RepoConfig,
+  octokit: Octokit,
+  labels: Label[],
+  options: ActionOptions
+) {
   for (const label of labels) {
     await doAction(
-      () => octokit.rest.issues.updateLabel({ ...repo, ...label }),
+      () => octokit.rest.issues.updateLabel({ ...config.repo, ...label }),
       `Updated label ${label.name}, color: ${label.color}, description: ${label.description}`,
       options
     );
   }
 }
-async function deleteLabels(octokit: Octokit, labels: GithubLabel[], options: ActionOptions) {
+async function deleteLabels(
+  config: RepoConfig,
+  octokit: Octokit,
+  labels: GithubLabel[],
+  options: ActionOptions
+) {
   checkLabelsToDelete(labels);
 
   for (const label of labels) {
     await doAction(
-      () => octokit.rest.issues.deleteLabel({ ...repo, name: label.name }),
+      () => octokit.rest.issues.deleteLabel({ ...config.repo, name: label.name }),
       `Deleted label ${label.name}`,
       options
     );
