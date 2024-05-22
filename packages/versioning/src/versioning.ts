@@ -215,6 +215,28 @@ function getParentAddedVersion(
   return undefined;
 }
 
+function getParentAddedVersionInTimeline(
+  program: Program,
+  type: Type,
+  timeline: VersioningTimeline
+): Version | undefined {
+  let parentMap: Map<TimelineMoment, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMapInTimeline(program, type.model, timeline);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMapInTimeline(program, type.interface, timeline);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [moment, availability] of parentMap.entries()) {
+    if (availability === Availability.Added) {
+      // FIXME: is this actually correct?
+      // We essentially want to return the first (earliest) time this is added.
+      return moment.versions().next().value;
+    }
+  }
+  return undefined;
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type
@@ -241,6 +263,8 @@ export function getAvailabilityMap(
   )
     return undefined;
 
+  // implicitly, all versioned things are assumed to have been added at
+  // v1 if not specified, or inherited from their parent.
   if (!added.length && !parentAdded) {
     // no version information on the item or its parent implicitly means it has always been available
     added.push(allVersions[0]);
@@ -279,7 +303,8 @@ export function getAvailabilityMapInTimeline(
 ): Map<TimelineMoment, Availability> | undefined {
   const avail = new Map<TimelineMoment, Availability>();
 
-  const added = getAddedOnVersions(program, type) ?? [];
+  const parentAdded = getParentAddedVersionInTimeline(program, type, timeline);
+  let added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
@@ -295,9 +320,16 @@ export function getAvailabilityMapInTimeline(
     return undefined;
 
   // implicitly, all versioned things are assumed to have been added at
-  // v1 if not specified
-  if (!added.length) {
+  // v1 if not specified, or inherited from their parent.
+  if (!added.length && !parentAdded) {
+    // no version information on the item or its parent implicitly means it has always been available
     added.push(timeline.first().versions().next().value);
+  } else if (!added.length && parentAdded) {
+    // if no version info on type but is on parent, inherit that parent's "added" version
+    added.push(parentAdded);
+  } else if (added.length && parentAdded) {
+    // if "added" info on both the type and parent, combine them
+    added = [parentAdded, ...added];
   }
 
   // something isn't available by default
