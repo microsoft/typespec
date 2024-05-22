@@ -74,10 +74,10 @@ export const AreaLabels = defineLabels({
   },
 });
 
-export default {
+export const CommonLabels = {
   issue_kinds: {
     description: "Issue kinds",
-    labels: {
+    labels: defineLabels({
       bug: {
         color: "d93f0b",
         description: "Something isn't working",
@@ -94,11 +94,7 @@ export default {
         color: "cccccc",
         description: "",
       },
-    },
-  },
-  area: {
-    description: "Area of the codebase",
-    labels: AreaLabels,
+    }),
   },
   "breaking-change": {
     description:
@@ -150,6 +146,13 @@ export default {
       },
     },
   },
+};
+export default {
+  ...CommonLabels,
+  area: {
+    description: "Area of the codebase",
+    labels: AreaLabels,
+  },
   misc: {
     description: "Misc labels",
     labels: {
@@ -165,7 +168,7 @@ export default {
   },
 } as const;
 
-function defineLabels<const T extends string>(
+export function defineLabels<const T extends string>(
   labels: Record<T, { color: string; description: string }>
 ) {
   return labels;
