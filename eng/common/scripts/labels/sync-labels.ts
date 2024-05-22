@@ -1,13 +1,13 @@
+import { resolve } from "path";
 import { parseArgs } from "util";
 import { syncLabelAutomation } from "./automation.js";
 import { syncLabelsDefinitions } from "./definitions.js";
-import { resolve } from "path";
 import { RepoConfig } from "./types.js";
 
 const options = parseArgs({
   args: process.argv.slice(2),
   options: {
-    "config": {
+    config: {
       type: "string",
       description: "The directory where the labels configuration is stored.",
     },
@@ -23,7 +23,7 @@ const options = parseArgs({
   },
 });
 
-if(!options.values["config"]) {
+if (!options.values["config"]) {
   throw new Error("--config is required");
 }
 
@@ -39,8 +39,7 @@ await syncLabelAutomation(config, {
   check: options.values["check"],
 });
 
-
 async function loadConfig(configFile: string): Promise<RepoConfig> {
-  const module =  await import(resolve(process.cwd(), configFile));
+  const module = await import(resolve(process.cwd(), configFile));
   return module.default;
 }

@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { CheckOptions, repoRoot, syncFile } from "../common.js";
+import { CheckOptions, syncFile } from "../common.js";
 import {
   PolicyServiceConfig,
   and,
@@ -95,37 +95,36 @@ function createIssueTriageConfig(config: RepoConfig): PolicyServiceConfig {
       },
     },
   };
-};
+}
 function createPrTriageConfig(config: RepoConfig): PolicyServiceConfig {
-
-return  {
-  id: "prs.triage",
-  name: "Assign area labels to PRs",
-  description: "Assign area labels to PR depending on path modified.",
-  resource: "repository",
-  disabled: false,
-  configuration: {
-    resourceManagementConfiguration: {
-      eventResponderTasks: [
-        eventResponderTask({
-          if: [payloadType("Pull_Request")],
-          then: Object.entries(config.areaPaths).flatMap(([label, files]) => {
-            return files.map((file) => {
-              return {
-                if: [filesMatchPattern(`${file}.*`)],
-                then: [
-                  {
-                    addLabel: {
-                      label,
+  return {
+    id: "prs.triage",
+    name: "Assign area labels to PRs",
+    description: "Assign area labels to PR depending on path modified.",
+    resource: "repository",
+    disabled: false,
+    configuration: {
+      resourceManagementConfiguration: {
+        eventResponderTasks: [
+          eventResponderTask({
+            if: [payloadType("Pull_Request")],
+            then: Object.entries(config.areaPaths).flatMap(([label, files]) => {
+              return files.map((file) => {
+                return {
+                  if: [filesMatchPattern(`${file}.*`)],
+                  then: [
+                    {
+                      addLabel: {
+                        label,
+                      },
                     },
-                  },
-                ],
-              };
-            });
+                  ],
+                };
+              });
+            }),
           }),
-        }),
-      ],
+        ],
+      },
     },
-  },
-};
-};
+  };
+}
