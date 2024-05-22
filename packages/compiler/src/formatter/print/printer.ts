@@ -1653,13 +1653,10 @@ function printStringLiteral(
 
   const raw = getRawText(node, options);
   if (multiline) {
-    const lines = splitLines(raw.slice(3, -3));
-    const whitespaceIndent = lines[lines.length - 1].length;
-    const newLines = [];
-    for (let i = 0; i < lines.length - 1; i++) {
-      newLines.push(lines[i].slice(whitespaceIndent), literalline);
-    }
-    return [`"""`, indent(markAsRoot([newLines, `"""`]))];
+    const lines = splitLines(raw.slice(3));
+    const whitespaceIndent = lines[lines.length - 1].length - 3;
+    const newLines = trimMultilineString(lines, whitespaceIndent);
+    return [`"""`, indent(markAsRoot(newLines))];
   } else {
     return raw;
   }
