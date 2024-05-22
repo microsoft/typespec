@@ -36,7 +36,7 @@ model Blob {
 
 ```xml
 <Blob>
-<id>abcdef</id>
+  <id>abcdef</id>
 </Blob>
 ```
 
@@ -85,9 +85,9 @@ model Book {
 
 ```xml
 <XmlBook>
-<XmlId>string</XmlId>
-<XmlName>string</XmlName>
-<content>string</content>
+  <XmlId>string</XmlId>
+  <XmlName>string</XmlName>
+  <content>string</content>
 </XmlBook>
 ```
 
@@ -192,11 +192,11 @@ model Pet {
 
 ```xml
 <XmlPet>
-<ItemsTags>
-<XmlTag>
-<name>string</name>
-</XmlTag>
-</ItemsTags>
+  <ItemsTags>
+    <XmlTag>
+      <name>string</name>
+    </XmlTag>
+  </ItemsTags>
 </XmlPet>
 ```
 
@@ -210,9 +210,9 @@ model Pet {
 
 ```xml
 <XmlPet>
-<XmlTag>
-<name>string</name>
-</XmlTag>
+  <XmlTag>
+    <name>string</name>
+  </XmlTag>
 </XmlPet>
 ```
 
@@ -226,9 +226,9 @@ model BlobName {
 
 ```xml
 <BlobName>
-<content>
-abcdef
-</content>
+  <content>
+    abcdef
+  </content>
 </BlobName>
 ```
 
@@ -242,6 +242,6 @@ model BlobName {
 
 ```xml
 <BlobName>
-abcdef
+  abcdef
 </BlobName>
 ```
