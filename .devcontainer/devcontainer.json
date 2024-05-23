@@ -1,0 +1,9 @@
+{
+  "name": "Node.js",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "20"
+    }
+  }
+}
