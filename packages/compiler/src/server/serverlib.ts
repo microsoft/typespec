@@ -45,7 +45,7 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
+import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
@@ -1077,21 +1077,6 @@ export function getCompletionNodeAtPosition(
   script: TypeSpecScriptNode,
   position: number,
   filter: (node: Node) => boolean = (node: Node) => true
-): PositionDetail | undefined {
-  const detail = getNodeAtPositionDetail(script, position, filter);
-  if (detail?.node.kind === SyntaxKind.StringLiteral) {
-    return detail;
-  }
-  // If we're not immediately after an identifier character, then advance
-  // the position past any trivia. This is done because a zero-width
-  // inserted missing identifier that the user is now trying to complete
-  // starts after the trivia following the cursor.
-  const cp = codePointBefore(script.file.text, position);
-  if (!cp || !isIdentifierContinue(cp)) {
-    const newPosition = skipTrivia(script.file.text, position);
-    if (newPosition !== position) {
-      return getNodeAtPositionDetail(script, newPosition, filter);
-    }
-  }
-  return detail;
+): PositionDetail {
+  return getNodeAtPositionDetail(script, position, filter);
 }

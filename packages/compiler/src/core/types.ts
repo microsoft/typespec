@@ -1043,6 +1043,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
+  readonly templateParametersRange: TextRange;
   readonly locals?: SymbolTable;
 }
 
@@ -1050,11 +1051,35 @@ export interface TemplateDeclarationNode {
  * owner node and other related information according to the position
  */
 export interface PositionDetail {
-  readonly node: Node;
+  readonly node: Node | undefined;
   readonly position: number;
   readonly char: number;
   readonly preChar: number;
   readonly nextChar: number;
+  readonly inTrivia: boolean;
+
+  /**
+   * if the position is in a trivia, return the start position of the trivia containing the position
+   * if the position is not a trivia, return the start position of the trivia before the text(identifier code) containing the position
+   *
+   * Please be aware that this may not be the pre node in the tree because some non-trivia char is ignored in the tree but will counted here
+   *
+   * also comments are considered as trivia
+   */
+  readonly triviaStartPosition: number;
+  /**
+   * if the position is in a trivia, return the end position (exclude as other 'end' means) of the trivia containing the position
+   * if the position is not a trivia, return the end position (exclude as other 'end' means) of the trivia after the node containing the position
+   *
+   * Please be aware that this may not be the next node in the tree because some non-trivia char is ignored in the tree but will considered here
+   *
+   * also comments are considered as trivia
+   */
+  readonly triviaEndPosition: number;
+  /** get the PositionDetail of positionBeforeTrivia */
+  readonly getPositionDetailBeforeTrivia: () => PositionDetail;
+  /** get the PositionDetail of positionAfterTrivia */
+  readonly getPositionDetailAfterTrivia: () => PositionDetail;
 }
 
 export type Node =
@@ -1243,6 +1268,7 @@ export interface DecoratorExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.DecoratorExpression;
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly arguments: readonly Expression[];
+  readonly argumentsRange: TextRange;
 }
 
 export interface AugmentDecoratorStatementNode extends BaseNode {
@@ -1250,6 +1276,10 @@ export interface AugmentDecoratorStatementNode extends BaseNode {
   readonly target: IdentifierNode | MemberExpressionNode;
   readonly targetType: TypeReferenceNode;
   readonly arguments: readonly Expression[];
+  /**
+   * range including targetType and arguments
+   */
+  readonly allArgumentsRange: TextRange;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1358,6 +1388,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly propertiesRange: TextRange;
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1369,6 +1400,7 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly members: readonly ScalarConstructorNode[];
+  readonly membersRange: TextRange;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1376,12 +1408,14 @@ export interface ScalarConstructorNode extends BaseNode {
   readonly kind: SyntaxKind.ScalarConstructor;
   readonly id: IdentifierNode;
   readonly parameters: FunctionParameterNode[];
+  readonly parametersRange: TextRange;
   readonly parent?: ScalarStatementNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.InterfaceStatement;
   readonly operations: readonly OperationStatementNode[];
+  readonly operationsRange: TextRange;
   readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
@@ -1405,6 +1439,7 @@ export interface UnionVariantNode extends BaseNode {
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
+  readonly membersRange: TextRange;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
@@ -1438,6 +1473,7 @@ export interface CallExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.CallExpression;
   readonly target: MemberExpressionNode | IdentifierNode;
   readonly arguments: Expression[];
+  readonly argumentsRange: TextRange;
 }
 
 export interface InvalidStatementNode extends BaseNode {
@@ -1452,6 +1488,7 @@ export interface EmptyStatementNode extends BaseNode {
 export interface ModelExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ModelExpression;
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly propertiesRange: TextRange;
 }
 
 export interface ArrayExpressionNode extends BaseNode {
@@ -1461,6 +1498,7 @@ export interface ArrayExpressionNode extends BaseNode {
 export interface TupleExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.TupleExpression;
   readonly values: readonly Expression[];
+  readonly valuesRange: TextRange;
 }
 
 export interface ModelPropertyNode extends BaseNode {
@@ -1482,6 +1520,7 @@ export interface ModelSpreadPropertyNode extends BaseNode {
 export interface ObjectLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.ObjectLiteral;
   readonly properties: (ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode)[];
+  readonly propertiesRange: TextRange;
 }
 
 export interface ObjectLiteralPropertyNode extends BaseNode {
@@ -1500,6 +1539,7 @@ export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
 export interface ArrayLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.ArrayLiteral;
   readonly values: readonly Expression[];
+  readonly valuesRange: TextRange;
 }
 
 export type LiteralNode =
@@ -1604,6 +1644,7 @@ export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
   readonly target: MemberExpressionNode | IdentifierNode;
   readonly arguments: readonly TemplateArgumentNode[];
+  readonly argumentsRange: TextRange;
 }
 
 export interface TemplateArgumentNode extends BaseNode {
@@ -1652,6 +1693,10 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
    * Additional parameters
    */
   readonly parameters: FunctionParameterNode[];
+  /**
+   * range including target and parameters
+   */
+  readonly allParametersRange: TextRange;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1683,6 +1728,7 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
   readonly modifiers: readonly Modifier[];
   readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
+  readonly parametersRange: TextRange;
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
