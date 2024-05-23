@@ -3,7 +3,6 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "corepack enable && corepack prepare",
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
