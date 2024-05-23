@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Models;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
@@ -226,7 +224,7 @@ namespace Microsoft.Generator.CSharp
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("TryGetValue", new ParameterReference(keyParameter), new KeywordExpression("out", value)))
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         private CSharpMethod BuildRemoveKey()
@@ -240,7 +238,7 @@ namespace Microsoft.Generator.CSharp
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Remove", new ParameterReference(keyParameter)))
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         private CSharpMethod BuildContainsKey()
@@ -254,7 +252,7 @@ namespace Microsoft.Generator.CSharp
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("ContainsKey", new ParameterReference(keyParameter)))
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         private CSharpMethod BuildAdd()
@@ -265,7 +263,7 @@ namespace Microsoft.Generator.CSharp
             return new(signature, new MethodBodyStatement[]
             {
                 EnsureDictionary.Invoke("Add", new ParameterReference(keyParameter), new ParameterReference(valueParameter)).ToStatement()
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         private CSharpMethod BuildRemovePair()
@@ -280,7 +278,7 @@ namespace Microsoft.Generator.CSharp
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Remove", item))
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         private CSharpMethod BuildCopyTo()
@@ -298,7 +296,7 @@ namespace Microsoft.Generator.CSharp
                     Return()
                 },
                 EnsureDictionary.Invoke("CopyTo", array, index).ToStatement()
-            }, CSharpMethodKinds.Method);
+            });
         }
 
         //private Method BuildContains()
