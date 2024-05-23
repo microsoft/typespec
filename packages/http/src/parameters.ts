@@ -65,6 +65,13 @@ function getOperationParametersForVerb(
 
   for (const item of metadata) {
     switch (item.kind) {
+      case "contentType":
+        parameters.push({
+          name: "content-type",
+          type: "header",
+          param: item.property,
+        });
+        break;
       case "path":
         if (item.property.optional) {
           diagnostics.add(
