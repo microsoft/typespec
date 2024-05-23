@@ -9,6 +9,7 @@ using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Shared;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -70,13 +71,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
                     ctorWithNoParamsExist = true;
                 }
 
-                // Check if the model constructor parameters match the serialization constructor parameters
-                var match = initializationCtorParams.SequenceEqual(
-                    serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
 
-                if (!serializationCtorParamsMatch && match)
+                if (!serializationCtorParamsMatch)
                 {
-                    serializationCtorParamsMatch = true;
+                    // Check if the model constructor parameters match the serialization constructor parameters
+                    if (initializationCtorParams.SequenceEqual(
+                        serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType))
+                    {
+                        serializationCtorParamsMatch = true;
+                    }
                 }
             }
 
@@ -101,13 +104,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <returns>The constructed <see cref="FieldDeclaration"/> if the model should generate the field.</returns>
         private FieldDeclaration BuildRawDataField()
         {
-            FieldModifiers accessibility = _model.DerivedModels.Any() ? (FieldModifiers.Private | FieldModifiers.Protected) : FieldModifiers.Private;
             var fieldDeclaration = new FieldDeclaration(
-                description: PropertyDescriptionBuilder.BuildDescriptionForBinaryData(
-                    FormattableStringHelpers.FromString(_privateAdditionalPropertiesPropertyDescription),
-                    _privateAdditionalPropertiesPropertyType,
-                    SerializationFormat.Default),
-                modifiers: accessibility,
+                modifiers: FieldModifiers.Private,
                 type: _privateAdditionalPropertiesPropertyType,
                 name: _privateAdditionalPropertiesPropertyName);
 
@@ -253,19 +251,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
-            Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
-                parameter => parameter.Name,
-                parameter => parameter);
-
-            foreach (var property in _model.Properties)
+            foreach (var param in parameters)
             {
-                Parameter? parameter = parameterMap.GetValueOrDefault(property.Name.ToVariableName());
-                methodBodyStatements.Add(property.ToInitializationStatement(parameter));
-            }
+                if (param.Name == _rawDataField.Name.ToVariableName())
+                {
+                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(param)));
+                    continue;
+                }
 
-            if (parameterMap.TryGetValue(_rawDataField.Name.ToVariableName(), out var p) && p != null)
-            {
-                methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(p)));
+                ValueExpression initializationValue = new ParameterReference(param);
+                var initializationStatement = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
+                if (initializationStatement != null)
+                {
+                    methodBodyStatements.Add(initializationStatement);
+                }
             }
 
             return methodBodyStatements;

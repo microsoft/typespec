@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Shared;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
@@ -14,8 +15,6 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
-
-        public IReadOnlyList<InputModelType> DerivedModels { get; }
 
         /// <summary>
         /// The serializations providers for the model provider.
@@ -38,7 +37,6 @@ namespace Microsoft.Generator.CSharp
                 DeclarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            DerivedModels = inputModel.DerivedModels;
             if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
             {
                 SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
@@ -68,12 +66,14 @@ namespace Microsoft.Generator.CSharp
 
             var propertyDeclaration = new PropertyDeclaration(
                 Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
-                OriginalDescription: property.Description,
                 Modifiers: MethodSignatureModifiers.Public,
                 Type: propertyType,
                 Name: property.Name.FirstCharToUpperCase(),
                 Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                );
+                )
+            {
+                OriginalDescription = property.Description
+            };
 
             return propertyDeclaration;
         }
@@ -229,14 +229,38 @@ namespace Microsoft.Generator.CSharp
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
+
             Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
 
             foreach (var property in Properties)
             {
-                Parameter? parameter = parameterMap.GetValueOrDefault(property.Name.ToVariableName());
-                methodBodyStatements.Add(property.ToInitializationStatement(parameter));
+                ValueExpression? initializationValue = null;
+
+                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || IsStruct)
+                {
+                    if (parameter != null)
+                    {
+                        initializationValue = new ParameterReference(parameter);
+
+                        if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                        {
+                            initializationValue = parameter.Type.IsNullable ?
+                                Linq.ToList(new NullConditionalExpression(initializationValue)) :
+                                Linq.ToList(initializationValue);
+                        }
+                    }
+                }
+                else if (initializationValue == null && property.Type.IsCollection)
+                {
+                    initializationValue = New.Instance(property.Type.PropertyInitializationType);
+                }
+
+                if (initializationValue != null)
+                {
+                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
+                }
             }
 
             return methodBodyStatements;

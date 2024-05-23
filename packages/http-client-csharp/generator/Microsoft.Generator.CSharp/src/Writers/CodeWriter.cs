@@ -14,6 +14,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.CodeAnalysis;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 using Microsoft.Generator.CSharp.Models;
+using Microsoft.Generator.CSharp.Shared;
 
 namespace Microsoft.Generator.CSharp
 {
