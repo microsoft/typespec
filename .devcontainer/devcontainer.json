@@ -1,6 +1,8 @@
 {
   "name": "Standard",
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "postCreateCommand": "corepack enable && corepack prepare",
   "customizations": {
     // Configure properties specific to VS Code.
