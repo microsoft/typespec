@@ -6,6 +6,7 @@
       "VARIANT": "20"
     }
   },
+  "postCreateCommand": "sudo corepack enable pnpm",
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
