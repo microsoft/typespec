@@ -1,4 +1,6 @@
 // cspell:ignore bfff
+import { repo } from "../scripts/common.js";
+import { defineConfig, defineLabels } from "../scripts/labels/config.js";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -74,10 +76,10 @@ export const AreaLabels = defineLabels({
   },
 });
 
-export default {
+export const CommonLabels = {
   issue_kinds: {
     description: "Issue kinds",
-    labels: {
+    labels: defineLabels({
       bug: {
         color: "d93f0b",
         description: "Something isn't working",
@@ -94,11 +96,7 @@ export default {
         color: "cccccc",
         description: "",
       },
-    },
-  },
-  area: {
-    description: "Area of the codebase",
-    labels: AreaLabels,
+    }),
   },
   "breaking-change": {
     description:
@@ -150,23 +148,52 @@ export default {
       },
     },
   },
-  misc: {
-    description: "Misc labels",
-    labels: {
-      "Client Emitter Migration": {
-        color: "FD92F0",
-        description: "",
-      },
-      "good first issue": {
-        color: "7057ff",
-        description: "Good for newcomers",
+};
+
+/**
+ * Set the paths that each area applies to.
+ */
+export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
+  "compiler:core": ["packages/compiler/"],
+  "compiler:emitter-framework": [],
+  ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
+  "lib:http": ["packages/http/"],
+  "lib:openapi": ["packages/openapi/"],
+  "lib:rest": ["packages/rest/"],
+  "lib:versioning": ["packages/versioning/"],
+  "meta:blog": ["blog/"],
+  "meta:website": ["website/"],
+  tspd: ["packages/tspd/"],
+  "emitter:client:csharp": ["packages/http-client-csharp/"],
+  "emitter:json-schema": ["packages/json-schema/"],
+  "emitter:protobuf": ["packages/protobuf/"],
+  "emitter:openapi3": ["packages/openapi3/"],
+  "emitter:service:csharp": [],
+  "emitter:service:js": [],
+  eng: ["eng/", ".github/"],
+};
+
+export default defineConfig({
+  repo,
+  labels: {
+    area: {
+      description: "Area of the codebase",
+      labels: AreaLabels,
+    },
+    ...CommonLabels,
+    misc: {
+      description: "Misc labels",
+      labels: {
+        "Client Emitter Migration": {
+          color: "FD92F0",
+          description: "",
+        },
+        "good first issue": {
+          color: "7057ff",
+          description: "Good for newcomers",
+        },
       },
     },
   },
-} as const;
-
-function defineLabels<const T extends string>(
-  labels: Record<T, { color: string; description: string }>
-) {
-  return labels;
-}
+  areaPaths: AreaPaths,
+});
