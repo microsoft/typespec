@@ -8,7 +8,7 @@ COPY . /app
 
 WORKDIR /app
 ENV TYPESPEC_SKIP_VS_BUILD=1
-RUN corepack enable pnpm && corepack prepare pnpm --activate
+RUN corepack enable && corepack prepare
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "@typespec/compiler..." run build
 
