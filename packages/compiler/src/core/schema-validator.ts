@@ -1,4 +1,4 @@
-import Ajv, { ErrorObject, Options } from "ajv";
+import { Ajv, type ErrorObject, type Options } from "ajv";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
@@ -22,7 +22,7 @@ export function createJSONSchemaValidator<T>(
   schema: JSONSchemaType<T>,
   options: JSONSchemaValidatorOptions = { strict: true }
 ): JSONSchemaValidator {
-  const ajv: import("ajv").default = new (Ajv as any)({
+  const ajv = new Ajv({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
     allErrors: true,

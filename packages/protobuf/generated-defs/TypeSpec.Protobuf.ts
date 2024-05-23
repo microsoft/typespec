@@ -43,8 +43,8 @@ export type MessageDecorator = (context: DecoratorContext, target: Type) => void
  * @example
  * ```typespec
  * model ExampleMessage {
- * @field(1)
- * test: string;
+ *   @field(1)
+ *   test: string;
  * }
  * ```
  */
@@ -82,7 +82,7 @@ export type FieldDecorator = (
  * // Reserve the fields 8-15 inclusive, 100, and the field name "test" within a model.
  * @reserve([8, 15], 100, "test")
  * model Example {
- * // ...
+ *   // ...
  * }
  * ```
  */

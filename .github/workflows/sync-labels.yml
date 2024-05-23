@@ -1,0 +1,33 @@
+name: Sync labels
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - "main"
+    paths:
+      - "package.json"
+      - "eng/common/config/"
+      - "eng/common/labels/"
+      - ".github/workflows/sync-labels.yml"
+
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm sync-labels --github
+        name: Sync labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -5,9 +5,9 @@ dictionaries:
   - node
   - typescript
 words:
+  - AQID
   - atrule
   - autorest
-  - AQID
   - azsdk
   - azsdkengsys
   - azurecr
@@ -45,9 +45,9 @@ words:
   - jsyaml
   - keyer
   - lifecyle
+  - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
-  - LINUXNEXTVMIMAGE
   - lzutf
   - MACVMIMAGE
   - mocharc
@@ -62,6 +62,7 @@ words:
   - noreferrer
   - nostdlib
   - npmjs
+  - nupkg
   - oapi
   - OIDC
   - oneds
@@ -76,8 +77,8 @@ words:
   - proto
   - protobuf
   - protoc
-  - pwsh
   - psscriptanalyzer
+  - pwsh
   - regen
   - respecify
   - rpaas
@@ -89,7 +90,10 @@ words:
   - ssvs
   - strs
   - syncpack
+  - TCGC
+  - triaging
   - TRYIT
+  - tsdoc
   - TSES
   - tspd
   - tspwebsitepr
@@ -100,25 +104,23 @@ words:
   - uitestresults
   - unassignable
   - Uncapitalize
+  - uncollapsed
   - uninstantiated
   - unioned
   - unprefixed
   - unprojected
   - unsourced
   - unversioned
+  - VITE
+  - vitest
   - vsix
   - VSSDK
+  - Vsts
   - vswhere
   - westus
   - WINDOWSVMIMAGE
   - xlarge
   - xplat
-  - TCGC
-  - VITE
-  - uncollapsed
-  - nupkg
-  - Vsts
-  - tsdoc
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -133,10 +135,10 @@ ignorePaths:
   - packages/compiler/test/formatter/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
-  - ".git/**"
-  - ".gitignore"
-  - ".vscode/**"
-  - ".editorconfig"
+  - .git/**
+  - .gitignore
+  - .vscode/**
+  - .editorconfig
   - .github/CODEOWNERS
   - packages/samples/test/output/**
 useGitignore: true

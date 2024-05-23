@@ -1,0 +1,26 @@
+name: Verify labels
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "package.json"
+      - "eng/common/config/"
+      - "eng/common/labels/"
+      - ".github/workflows/sync-labels.yml"
+      - "CONTRIBUTING.md"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: pnpm sync-labels --github --check
+        name: Verify labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

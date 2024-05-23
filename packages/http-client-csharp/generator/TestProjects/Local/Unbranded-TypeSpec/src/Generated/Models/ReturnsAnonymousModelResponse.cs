@@ -6,9 +6,10 @@ namespace UnbrandedTypeSpec.Models
 {
     public partial class ReturnsAnonymousModelResponse
     {
-        // Add Constructors
-
-        // Add Methods
+        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResponse"/>. </summary>
+        internal ReturnsAnonymousModelResponse()
+        {
+        }
 
         // Add Nested Type
     }

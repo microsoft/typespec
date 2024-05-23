@@ -50,7 +50,7 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
   });
 
   afterAll(async function (context: Readonly<Suite | File>) {
-    if (context.tasks.length !== samples.length) {
+    if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
 
