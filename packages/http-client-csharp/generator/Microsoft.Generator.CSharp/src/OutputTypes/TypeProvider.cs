@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using Microsoft.CodeAnalysis;
@@ -23,6 +23,8 @@ namespace Microsoft.Generator.CSharp
         }
 
         public abstract string Name { get; }
+        public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
+        public virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
         protected virtual TypeKind TypeKind { get; } = TypeKind.Class;
         protected INamedTypeSymbol? ExistingType => _existingType.Value;
 
@@ -33,12 +35,8 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            isValueType: TypeKind is TypeKind.Struct or TypeKind.Enum,
-            isEnum: this is EnumType,
-            isNullable: false,
             arguments: TypeArguments,
-            ns: GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace),
-            name: Name);
+            isNullable: false);
 
         public TypeSignatureModifiers DeclarationModifiers { get; protected init; }
 
@@ -49,6 +47,8 @@ namespace Microsoft.Generator.CSharp
         public bool IsEnum => TypeKind is TypeKind.Enum;
 
         public bool IsStruct => TypeKind is TypeKind.Struct;
+
+        public bool IsValueType => TypeKind is TypeKind.Enum or TypeKind.Struct;
 
         private CSharpType[]? _typeArguments;
         public virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();

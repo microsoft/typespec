@@ -14,6 +14,8 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
+        public override string Namespace { get; }
+        public override FormattableString Description { get; }
 
         /// <summary>
         /// The serializations providers for the model provider.
@@ -25,6 +27,8 @@ namespace Microsoft.Generator.CSharp
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
             if (inputModel.Accessibility == "internal")
             {
                 DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Internal;

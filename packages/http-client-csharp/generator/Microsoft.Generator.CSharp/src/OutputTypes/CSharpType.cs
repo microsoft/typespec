@@ -125,13 +125,29 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        internal CSharpType(TypeProvider implementation, bool isValueType = false, bool isEnum = false, bool isNullable = false, IReadOnlyList<CSharpType>? arguments = null, CSharpType? declaringType = null, string? ns = null, string? name = null)
+        [Conditional("DEBUG")]
+        private static void ValidateArguments(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments)
         {
+            if (arguments == null)
+                return;
+
+            Debug.Assert(implementation.TypeArguments.Count == arguments.Count, $"the count of arguments given ({string.Join(", ", arguments.Select(a => a.ToString()))}) does not match the arguments in the definition {implementation.Name}");
+        }
+
+        internal CSharpType(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
+        {
+            ValidateArguments(implementation, arguments);
+
             _implementation = implementation;
-            _arguments = arguments ?? Array.Empty<CSharpType>();
+            _arguments = arguments ?? implementation.TypeArguments;
 
             var isPublic = (implementation.DeclarationModifiers & TypeSignatureModifiers.Public) != 0
                 && Arguments.All(t => t.IsPublic);
+            var name = implementation.Name;
+            var ns = implementation.Namespace;
+            var isValueType = implementation.IsValueType;
+            var isEnum = implementation.IsEnum;
+            var declaringType = implementation.DeclaringTypeProvider?.Type;
 
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
 
@@ -489,7 +505,7 @@ namespace Microsoft.Generator.CSharp
         {
             var type = isNullable == IsNullable ? this : IsFrameworkType
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
-                : new CSharpType(Implementation, isValueType: IsValueType, isEnum: IsEnum, isNullable: isNullable, arguments: Arguments, declaringType: DeclaringType, ns: Namespace, name: Name);
+                : new CSharpType(Implementation, Arguments, isNullable);
 
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
@@ -562,9 +578,19 @@ namespace Microsoft.Generator.CSharp
         {
             if (type.IsFrameworkType)
             {
-                var literalType = new CSharpType(type.FrameworkType, type.IsNullable);
-                literalType._literal = literalValue;
+                var literalType = new CSharpType(type.FrameworkType, type.Arguments, type.IsNullable)
+                {
+                    _literal = literalValue
+                };
 
+                return literalType;
+            }
+            else if (type is { IsFrameworkType: false, Implementation: EnumType enumType })
+            {
+                var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
+                {
+                    _literal = literalValue
+                };
                 return literalType;
             }
 
@@ -593,7 +619,7 @@ namespace Microsoft.Generator.CSharp
             }
             else
             {
-                return new CSharpType(Implementation, isValueType: IsValueType, isEnum: IsEnum, isNullable: IsNullable, arguments: Arguments, declaringType: DeclaringType, ns: Namespace, name: Name);
+                return new CSharpType(Implementation, arguments, IsNullable);
             }
         }
     }
