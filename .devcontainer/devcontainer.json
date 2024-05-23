@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "mcr.microsoft.com/vscode/devcontainers/javascript-node:20"
   },
-  "postCreateCommand": "corepack enable pnpm && corepack use pnpm",
+  "postCreateCommand": "corepack enable pnpm && corepack prepare pnpm --activate",
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
