@@ -1,10 +1,7 @@
 {
   "name": "Standard",
   "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "VARIANT": "20"
-    }
+    "dockerfile": "mcr.microsoft.com/vscode/devcontainers/javascript-node:20"
   },
   "postCreateCommand": "sudo corepack enable pnpm",
   "customizations": {
