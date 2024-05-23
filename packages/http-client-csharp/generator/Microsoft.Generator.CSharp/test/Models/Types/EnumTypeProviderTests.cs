@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Moq;
@@ -13,6 +14,8 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class EnumTypeProviderTests
     {
+        internal const string NewLine = "\n";
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private GeneratorContext _generatorContext;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -58,9 +61,24 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(2, value2?.Literal);
 
             // int based fixed enum does not have serialization method therefore we only have one method
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(1, serializations.Count);
-            Assert.AreEqual(1, serializations[0].Methods.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNotNull(serialization);
+            Assert.AreEqual(1, serialization?.Methods.Count);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal(1)).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"((int)e)").Append(NewLine)
+                .Append($"1.ToMockInputEnum()");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
 
         // Validates the float based fixed enum
@@ -85,9 +103,24 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(1, serializations.Count);
-            Assert.AreEqual(2, serializations[0].Methods.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNotNull(serialization);
+            Assert.AreEqual(2, serialization?.Methods.Count);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal(1f)).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"e.ToSerialSingle()").Append(NewLine)
+                .Append($"1F.ToMockInputEnum()");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
 
         // Validates the string based fixed enum
@@ -112,9 +145,24 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(1, serializations.Count);
-            Assert.AreEqual(2, serializations[0].Methods.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNotNull(serialization);
+            Assert.AreEqual(2, serialization?.Methods.Count);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal("1")).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"e.ToSerialString()").Append(NewLine)
+                .Append($"\"1\".ToMockInputEnum()");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
 
         // Validates the int based extensible enum
@@ -159,8 +207,23 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(0, serializations.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNull(serialization);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal(1)).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"e.ToSerialInt32()").Append(NewLine)
+                .Append($"new global::sample.namespace.Models.MockInputEnum(1)");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
 
         // Validates the float based extensible enum
@@ -205,8 +268,23 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(0, serializations.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNull(serialization);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal(1f)).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"e.ToSerialSingle()").Append(NewLine)
+                .Append($"new global::sample.namespace.Models.MockInputEnum(1F)");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
 
         // Validates the string based extensible enum
@@ -251,8 +329,23 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serializations = enumType.SerializationProviders;
-            Assert.AreEqual(0, serializations.Count);
+            var serialization = enumType.Serialization;
+            Assert.IsNull(serialization);
+
+            // validate the expression is working fine
+            var writer = new CodeWriter();
+            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
+            enumVar.ToSerial().Write(writer);
+            writer.WriteLine();
+            EnumExpression.ToEnum(enumType, Snippets.Literal("1")).Write(writer);
+
+            var result = writer.ToString(false);
+            var builder = new StringBuilder();
+            builder.Append($"e.ToString()").Append(NewLine)
+                .Append($"new global::sample.namespace.Models.MockInputEnum(\"1\")");
+            var expected = builder.ToString();
+
+            Assert.AreEqual(expected, result);
         }
     }
 }

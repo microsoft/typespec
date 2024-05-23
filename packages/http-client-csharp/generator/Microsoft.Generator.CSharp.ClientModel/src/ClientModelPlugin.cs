@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Writers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -34,12 +33,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             // Add MRW serialization type provider
             return [new MrwSerializationTypeProvider(provider)];
-        }
-
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(EnumTypeProvider provider)
-        {
-            // Add MRW serialization type provider
-            return [new MrwEnumSerializationProvider(provider)];
         }
 
         [ImportingConstructor]

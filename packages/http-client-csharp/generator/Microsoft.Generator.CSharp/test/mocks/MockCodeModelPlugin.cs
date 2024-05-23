@@ -24,6 +24,5 @@ namespace Microsoft.Generator.CSharp.Tests
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
         public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(EnumTypeProvider provider) => throw new NotImplementedException();
     }
 }

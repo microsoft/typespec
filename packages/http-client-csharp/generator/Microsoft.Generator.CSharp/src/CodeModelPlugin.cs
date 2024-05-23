@@ -44,11 +44,5 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
-
-        /// <summary>
-        /// Returns the serialization type providers for the given enum type provider.
-        /// </summary>
-        /// <param name="provider">The enum type provider</param>
-        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(EnumTypeProvider provider);
     }
 }
