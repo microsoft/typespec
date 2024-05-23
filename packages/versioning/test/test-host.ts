@@ -1,8 +1,8 @@
 import {
-  BasicTestRunner,
   createTestHost,
   createTestWrapper,
-  TestHost,
+  type BasicTestRunner,
+  type TestHost,
 } from "@typespec/compiler/testing";
 import { VersioningTestLibrary } from "../src/testing/index.js";
 
