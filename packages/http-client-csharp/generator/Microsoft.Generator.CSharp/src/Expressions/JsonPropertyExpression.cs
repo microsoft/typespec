@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text.Json;
@@ -12,7 +12,5 @@ namespace Microsoft.Generator.CSharp.Expressions
         public JsonElementExpression Value => new(Property(nameof(JsonProperty.Value)));
 
         public BoolExpression NameEquals(string value) => new(Invoke(nameof(JsonProperty.NameEquals), LiteralU8(value)));
-
-        public MethodBodyStatement ThrowNonNullablePropertyIsNull() => Extensible.JsonElement.ThrowNonNullablePropertyIsNull(this);
     }
 }

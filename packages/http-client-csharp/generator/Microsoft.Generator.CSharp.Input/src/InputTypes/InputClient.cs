@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -23,12 +23,12 @@ namespace Microsoft.Generator.CSharp.Input
 
         public InputClient() : this(string.Empty, string.Empty, Array.Empty<InputOperation>(), true, Array.Empty<InputParameter>(), null) { }
 
-        public string Name { get; init; }
-        public string Description { get; init; }
-        public IReadOnlyList<InputOperation> Operations { get; init; }
-        public bool Creatable { get; init; }
-        public IReadOnlyList<InputParameter> Parameters { get; init; }
-        public string? Parent { get; init; }
+        public string Name { get; internal set; }
+        public string Description { get; internal set; }
+        public IReadOnlyList<InputOperation> Operations { get; internal set; }
+        public bool Creatable { get; internal set; }
+        public IReadOnlyList<InputParameter> Parameters { get; internal set; }
+        public string? Parent { get; internal set; }
 
         public string Key
         {

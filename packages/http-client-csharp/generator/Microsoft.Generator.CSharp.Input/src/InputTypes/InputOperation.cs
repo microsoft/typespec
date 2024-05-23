@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -75,25 +75,25 @@ namespace Microsoft.Generator.CSharp.Input
             generateConvenienceMethod: false)
         { }
 
-        public string Name { get; init; }
-        public string? ResourceName { get; init; }
-        public string? Summary { get; init; }
-        public string? Deprecated { get; init; }
-        public string Description { get; init; }
-        public string? Accessibility { get; init; }
-        public IReadOnlyList<InputParameter> Parameters { get; init; }
-        public IReadOnlyList<OperationResponse> Responses { get; init; }
-        public string HttpMethod { get; init; }
-        public BodyMediaType RequestBodyMediaType { get; init; }
-        public string Uri { get; init; }
-        public string Path { get; init; }
-        public string? ExternalDocsUrl { get; init; }
-        public IReadOnlyList<string>? RequestMediaTypes { get; init; }
-        public bool BufferResponse { get; init; }
-        public OperationLongRunning? LongRunning { get; init; }
-        public OperationPaging? Paging { get; init; }
-        public bool GenerateProtocolMethod { get; init; }
-        public bool GenerateConvenienceMethod { get; init; }
+        public string Name { get; internal set; }
+        public string? ResourceName { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Deprecated { get; internal set; }
+        public string Description { get; internal set; }
+        public string? Accessibility { get; internal set; }
+        public IReadOnlyList<InputParameter> Parameters { get; internal set; }
+        public IReadOnlyList<OperationResponse> Responses { get; internal set; }
+        public string HttpMethod { get; internal set; }
+        public BodyMediaType RequestBodyMediaType { get; internal set; }
+        public string Uri { get; internal set; }
+        public string Path { get; internal set; }
+        public string? ExternalDocsUrl { get; internal set; }
+        public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }
+        public bool BufferResponse { get; internal set; }
+        public OperationLongRunning? LongRunning { get; internal set; }
+        public OperationPaging? Paging { get; internal set; }
+        public bool GenerateProtocolMethod { get; internal set; }
+        public bool GenerateConvenienceMethod { get; internal set; }
 
         private IReadOnlyDictionary<string, InputOperationExample>? _examples;
         internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();
