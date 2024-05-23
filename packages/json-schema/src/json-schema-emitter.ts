@@ -357,7 +357,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const currentSfScope = pathUp[pathUp.length - 1] as SourceFileScope<object> | undefined;
     const targetSfScope = pathDown[0] as SourceFileScope<object> | undefined;
 
-    //
     if (targetSfScope && currentSfScope && !targetSfScope.sourceFile.meta.shouldEmit) {
       currentSfScope.sourceFile.meta.bundledRefs.push(targetDeclaration);
     }

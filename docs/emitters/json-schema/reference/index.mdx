@@ -66,14 +66,17 @@ When a TypeSpec data type has the `@jsonSchema` decorator or is declared inside 
 :::note
 The base URI of a schema is the reference point for resolving relative URIs within the schema, such as those inside `$ref`s. When the `$id` metadata keyword of a schema is an absolute URI, the `$id` is the base URI. When the `$id` is a relative reference, then the base URI is determined by resolving the relative reference against the URI used to retrieve the schema.
 
-The default behavior of this emitter for a model named `Widget` is to produce a schema with a `$id` of `Widget.yaml`, which allows the actual base URI of the document to differ depending on where it is retrieved from, and therefore should allow resolving relative references to other schemas whether loaded from disk or retrieved over http.
+The default behavior of this emitter for a model named `Widget` is to produce a schema with a `$id` of `Widget.yaml`, which allows the actual base URI of the document to differ depending on where it is retrieved from, and therefore should allow resolving relative references to other schemas whether loaded from disk or retrieved over HTTP.
 :::
 
 When JSON Schema types reference other JSON Schema types, those references are created using a `$ref` with a relative reference (see the note above for how this works in JSON Schema).
 
 How this emitter handles data types which aren't JSON Schema types can be controlled using the `emitAllModels` and `emitAllRefs` options.
 
-By default, this emitter does not define schemas for such data types. Instead, the schemas for them are placed in the `$defs` of any JSON Schema types that reference them. The schemas do not define either `$id` or `$schema` metadata keywords. The `$defs` are referenced using a `$ref` with URI fragment containing a JSON Pointer.
+By default, this emitter does not define schemas for such data types. Instead, the schemas for them are placed in the `$defs` of any JSON Schema types that reference them. The schemas do not define either `$id` or `$schema` metadata keywords. The `$defs` are referenced using a `$ref` with URI fragment containing a JSON Pointer, which uses the syntax of the following form:
+```json
+{ "$ref": "#/$defs/{TypeNameHere}" }
+```
 
 If you want to treat all TypeSpec types as JSON Schema types (even if they don't have the `@jsonSchema` decorator), you can set the `emitAllModels` option to true. With this set, every data type in your TypeSpec program will get its own schema file, and all references will be relative URIs.
 
