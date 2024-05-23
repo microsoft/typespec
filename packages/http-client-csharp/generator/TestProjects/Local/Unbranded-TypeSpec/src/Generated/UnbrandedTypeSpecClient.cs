@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec.Models;
 
 namespace UnbrandedTypeSpec
 {
@@ -27,7 +28,7 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <param name="accept"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="contentType"/>, <paramref name="p2"/>, <paramref name="action"/> or <paramref name="accept"/> is null. </exception>
-        internal void CreateHelloAgainRequest(System.Uri unbrandedTypeSpecUrl, string p1, string contentType, string p2, RoundTripModel action, string accept)
+        internal void CreateHelloAgainRequest(System.Uri unbrandedTypeSpecUrl, string p1, string contentType, string p2, Models.RoundTripModel action, string accept)
         {
         }
 
@@ -39,7 +40,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="p2"/>, <paramref name="action"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateNoContentTypeRequest(System.Uri unbrandedTypeSpecUrl, string p1, string p2, RoundTripModel action, string accept, string contentType)
+        internal void CreateNoContentTypeRequest(System.Uri unbrandedTypeSpecUrl, string p1, string p2, Models.RoundTripModel action, string accept, string contentType)
         {
         }
 
@@ -57,7 +58,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateCreateLiteralRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
+        internal void CreateCreateLiteralRequest(System.Uri unbrandedTypeSpecUrl, Models.Thing body, string accept, string contentType)
         {
         }
 
@@ -95,7 +96,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreatePatchActionRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
+        internal void CreatePatchActionRequest(System.Uri unbrandedTypeSpecUrl, Models.Thing body, string accept, string contentType)
         {
         }
 
@@ -105,7 +106,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="Thing"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateAnonymousBodyRequest(System.Uri unbrandedTypeSpecUrl, Thing Thing, string accept, string contentType)
+        internal void CreateAnonymousBodyRequest(System.Uri unbrandedTypeSpecUrl, Models.Thing Thing, string accept, string contentType)
         {
         }
 
@@ -115,7 +116,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="Friend"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateFriendlyModelRequest(System.Uri unbrandedTypeSpecUrl, Friend Friend, string accept, string contentType)
+        internal void CreateFriendlyModelRequest(System.Uri unbrandedTypeSpecUrl, Models.Friend Friend, string accept, string contentType)
         {
         }
 
@@ -135,7 +136,7 @@ namespace UnbrandedTypeSpec
         /// <param name="contentType"></param>
         /// <param name="accept"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="subscriptionId"/>, <paramref name="body"/>, <paramref name="contentType"/> or <paramref name="accept"/> is null. </exception>
-        internal void CreateStringFormatRequest(System.Uri unbrandedTypeSpecUrl, Guid subscriptionId, ModelWithFormat body, string contentType, string accept)
+        internal void CreateStringFormatRequest(System.Uri unbrandedTypeSpecUrl, Guid subscriptionId, Models.ModelWithFormat body, string contentType, string accept)
         {
         }
 
@@ -145,7 +146,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="ProjectedModel"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateProjectedNameModelRequest(System.Uri unbrandedTypeSpecUrl, ProjectedModel ProjectedModel, string accept, string contentType)
+        internal void CreateProjectedNameModelRequest(System.Uri unbrandedTypeSpecUrl, Models.ProjectedModel ProjectedModel, string accept, string contentType)
         {
         }
 
@@ -171,7 +172,7 @@ namespace UnbrandedTypeSpec
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
-        internal void CreateInternalProtocolRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
+        internal void CreateInternalProtocolRequest(System.Uri unbrandedTypeSpecUrl, Models.Thing body, string accept, string contentType)
         {
         }
 

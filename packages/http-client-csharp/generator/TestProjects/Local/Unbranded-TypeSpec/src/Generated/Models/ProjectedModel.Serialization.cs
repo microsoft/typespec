@@ -5,30 +5,31 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using UnbrandedTypeSpec.Models;
 
 namespace UnbrandedTypeSpec
 {
-    public partial class ProjectedModel : System.ClientModel.Primitives.IJsonModel<ProjectedModel>
+    public partial class ProjectedModel : System.ClientModel.Primitives.IJsonModel<Models.ProjectedModel>
     {
-        void System.ClientModel.Primitives.IJsonModel<ProjectedModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void System.ClientModel.Primitives.IJsonModel<Models.ProjectedModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
-        ProjectedModel System.ClientModel.Primitives.IJsonModel<ProjectedModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        Models.ProjectedModel System.ClientModel.Primitives.IJsonModel<Models.ProjectedModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new ProjectedModel();
+            return new Models.ProjectedModel();
         }
 
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<Models.ProjectedModel>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
-        ProjectedModel System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        Models.ProjectedModel System.ClientModel.Primitives.IPersistableModel<Models.ProjectedModel>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new ProjectedModel();
+            return new Models.ProjectedModel();
         }
 
-        string System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string System.ClientModel.Primitives.IPersistableModel<Models.ProjectedModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

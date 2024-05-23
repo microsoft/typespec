@@ -5,9 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     public partial class RoundTripModel
     {

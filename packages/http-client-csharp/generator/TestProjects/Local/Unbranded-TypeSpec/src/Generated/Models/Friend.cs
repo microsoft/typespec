@@ -4,7 +4,7 @@
 
 using System;
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     public partial class Friend
     {

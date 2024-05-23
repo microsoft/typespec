@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
     public partial class ReturnsAnonymousModelResponse
     {

@@ -13,7 +13,10 @@ namespace Microsoft.Generator.CSharp
     public sealed class ModelTypeProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+
         public override string Name { get; }
+
+        public override string Namespace { get; }
 
         /// <summary>
         /// The serializations providers for the model provider.
@@ -25,6 +28,7 @@ namespace Microsoft.Generator.CSharp
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             if (inputModel.Accessibility == "internal")
             {
                 DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Internal;
