@@ -16,9 +16,6 @@ namespace Microsoft.Generator.CSharp
         private const string ProtocolValue = "Protocol";
         private const string CreateMessageValue = "CreateMessage";
         private const string ConstructorValue = "Constructor";
-        private const string OperatorValue = "Operator";
-        private const string MethodValue = "Method";
-        private const string SerializationValue = "Serialization";
 
         private readonly string _value;
 
@@ -49,21 +46,6 @@ namespace Microsoft.Generator.CSharp
         /// Constructor method kind.
         /// </summary>
         public static CSharpMethodKinds Constructor { get; } = new CSharpMethodKinds(ConstructorValue);
-
-        /// <summary>
-        /// Method method kind.
-        /// </summary>
-        public static CSharpMethodKinds Method { get; } = new CSharpMethodKinds(MethodValue);
-
-        /// <summary>
-        /// Operator method kind.
-        /// </summary>
-        public static CSharpMethodKinds Operator { get; } = new CSharpMethodKinds(OperatorValue);
-
-        /// <summary>
-        /// Serialization method kind.
-        /// </summary>
-        public static CSharpMethodKinds Serialization { get; } = new CSharpMethodKinds(SerializationValue);
 
         /// <summary> Determines if two <see cref="CSharpMethodKinds"/> values are the same. </summary>
         public static bool operator ==(CSharpMethodKinds left, CSharpMethodKinds right) => left.Equals(right);
