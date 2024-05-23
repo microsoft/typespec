@@ -1,13 +1,14 @@
-import { Model, Namespace, Operation, Program, projectProgram } from "@typespec/compiler";
+import type { Model, Namespace, Operation, Program } from "@typespec/compiler";
+import { projectProgram } from "@typespec/compiler";
 import {
-  BasicTestRunner,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  type BasicTestRunner,
 } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { buildVersionProjections } from "../src/versioning.js";
+import { buildVersionProjections } from "../src/projection.js";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 import { assertHasProperties } from "./utils.js";
 
