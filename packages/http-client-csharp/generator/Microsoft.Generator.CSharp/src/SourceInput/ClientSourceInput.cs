@@ -3,7 +3,7 @@
 
 using Microsoft.CodeAnalysis;
 
-namespace Microsoft.Generator.CSharp.Input
+namespace Microsoft.Generator.CSharp
 {
     internal record ClientSourceInput(INamedTypeSymbol? ParentClientType);
 }

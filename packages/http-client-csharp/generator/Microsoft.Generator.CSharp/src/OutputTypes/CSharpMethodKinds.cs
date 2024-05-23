@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp
 
         private readonly string _value;
 
-        /// <summary> Initializes a new instance of the <see cref="MethodKinds"/> structure.</summary>
+        /// <summary> Initializes a new instance of the <see cref="CSharpMethodKinds"/> structure.</summary>
         /// <param name="value">The string value of the instance.</param>
         /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public CSharpMethodKinds(string value)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -33,8 +33,6 @@ namespace Microsoft.Generator.CSharp.Tests
                 CallBase = true
             };
 
-            mockApiTypes.SetupGet(p => p.ChangeTrackingListType).Returns(typeof(IList<>));
-            mockApiTypes.SetupGet(p => p.ChangeTrackingDictionaryType).Returns(typeof(IDictionary<string, string>));
             mockApiTypes.SetupGet(p => p.EndPointSampleValue).Returns("Sample");
 
             var modelSnippets = new Mock<ModelSnippets>().Object;
