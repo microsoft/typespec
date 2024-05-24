@@ -448,7 +448,7 @@ namespace Microsoft.Generator.CSharp
                     WriteLine($"{variableName:I} = {parameter.Name:I} ?? {parameter.Initializer};");
                 }
             }
-            else if (parameter.Validation != ValidationType.None)
+            else if (parameter.Validation != ParameterValidationType.None)
             {
                 if (assignToSelf)
                 {
@@ -481,7 +481,7 @@ namespace Microsoft.Generator.CSharp
 
         private CodeWriter WriteParameterValidation(Parameter parameter)
         {
-            if (parameter.Validation == ValidationType.None && parameter.Initializer != null)
+            if (parameter.Validation == ParameterValidationType.None && parameter.Initializer != null)
             {
                 return WriteLine($"{parameter.Name:I} ??= {parameter.Initializer};");
             }

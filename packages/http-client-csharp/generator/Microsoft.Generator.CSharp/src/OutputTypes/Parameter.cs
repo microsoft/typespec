@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, ValueExpression? DefaultValue, ValidationType Validation, ValueExpression? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
+    public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, ValueExpression? DefaultValue, ParameterValidationType Validation, ValueExpression? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
     {
         internal bool IsRawData { get; init; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp
             // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
             var csharpType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             FormattableString? description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
-            var validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
+            var validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
 
             return new Parameter(
                 inputParameter.Name,
@@ -48,19 +48,19 @@ namespace Microsoft.Generator.CSharp
             return this with { DefaultValue = null };
         }
 
-        internal static ValidationType GetValidation(CSharpType type, RequestLocation requestLocation, bool skipUrlEncoding)
+        internal static ParameterValidationType GetValidation(CSharpType type, RequestLocation requestLocation, bool skipUrlEncoding)
         {
             if (requestLocation is RequestLocation.Uri or RequestLocation.Path or RequestLocation.Body && type.Equals(typeof(string), ignoreNullable: true) && !skipUrlEncoding)
             {
-                return ValidationType.AssertNotNullOrEmpty;
+                return ParameterValidationType.AssertNotNullOrEmpty;
             }
 
             if (!type.IsValueType)
             {
-                return ValidationType.AssertNotNull;
+                return ParameterValidationType.AssertNotNull;
             }
 
-            return ValidationType.None;
+            return ParameterValidationType.None;
         }
 
         internal static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();

@@ -34,9 +34,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             Name = "ClientPipelineExtensions";
             DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
-            _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
-            _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
+            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ParameterValidationType.None, null);
+            _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ParameterValidationType.None, null);
+            _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ParameterValidationType.None, null);
             _pipeline = new ParameterReference(_pipelineParam);
             _message = new ParameterReference(_messageParam);
             _requestContext = new ParameterReference(_requestContextParam);

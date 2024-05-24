@@ -523,13 +523,13 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_AutoBody()
         {
-            var p1 = new Parameter("p1", $"p1", typeof(int), null, ValidationType.None, null);
+            var p1 = new Parameter("p1", $"p1", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(float), p1, new AutoPropertyBody(false));
-            var p2 = new Parameter("p2", $"p2", typeof(string), null, ValidationType.None, null);
+            var p2 = new Parameter("p2", $"p2", typeof(string), null, ParameterValidationType.None, null);
             var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), p2, new AutoPropertyBody(true, MethodSignatureModifiers.None));
-            var p3 = new Parameter("p3", $"p3", typeof(float), null, ValidationType.None, null);
+            var p3 = new Parameter("p3", $"p3", typeof(float), null, ParameterValidationType.None, null);
             var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), p3, new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
-            var p4 = new Parameter("p4", $"p4", typeof(double), null, ValidationType.None, null);
+            var p4 = new Parameter("p4", $"p4", typeof(double), null, ParameterValidationType.None, null);
             var indexer4 = new IndexerDeclaration($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
@@ -560,7 +560,7 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_AutoBody_WithExplicitInterface()
         {
-            var index = new Parameter("index", $"index", typeof(int), null, ValidationType.None, null);
+            var index = new Parameter("index", $"index", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new AutoPropertyBody(false), ExplicitInterface: typeof(IReadOnlyList<string>));
             var indexer2 = new IndexerDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), index, new AutoPropertyBody(true, MethodSignatureModifiers.None), ExplicitInterface: typeof(IList<bool>));
             var indexer3 = new IndexerDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), index, new AutoPropertyBody(true, MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyList<double>));
@@ -591,9 +591,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_ExpressionBody()
         {
-            var p1 = new Parameter("p1", $"p1", typeof(int), null, ValidationType.None, null);
+            var p1 = new Parameter("p1", $"p1", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test an expression property with string type", MethodSignatureModifiers.Public, typeof(string), p1, new ExpressionPropertyBody(Literal("abc")));
-            var p2 = new Parameter("p2", $"p2", typeof(string), null, ValidationType.None, null);
+            var p2 = new Parameter("p2", $"p2", typeof(string), null, ParameterValidationType.None, null);
             var indexer2 = new IndexerDeclaration($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)));
 
             var codeWriter = new CodeWriter();
@@ -618,9 +618,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_ExpressionBody_WithExplicitInterface()
         {
-            var p1 = new Parameter("index", $"index", typeof(int), null, ValidationType.None, null);
+            var p1 = new Parameter("index", $"index", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test an expression property with string type", MethodSignatureModifiers.Public, typeof(string), p1, new ExpressionPropertyBody(Literal("abc")), ExplicitInterface: typeof(IReadOnlyList<string>));
-            var p2 = new Parameter("key", $"key", typeof(string), null, ValidationType.None, null);
+            var p2 = new Parameter("key", $"key", typeof(string), null, ParameterValidationType.None, null);
             var indexer2 = new IndexerDeclaration($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)), ExplicitInterface: typeof(IReadOnlyDictionary<string, int>));
 
             var codeWriter = new CodeWriter();
@@ -646,11 +646,11 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_MethodPropertyBody()
         {
-            var p1 = new Parameter("p1", $"p1", typeof(int), null, ValidationType.None, null);
+            var p1 = new Parameter("p1", $"p1", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test a method property without a setter", MethodSignatureModifiers.Public, typeof(string), p1, new MethodPropertyBody(Return(Literal("abc"))));
-            var p2 = new Parameter("p2", $"p2", typeof(int), null, ValidationType.None, null);
+            var p2 = new Parameter("p2", $"p2", typeof(int), null, ParameterValidationType.None, null);
             var indexer2 = new IndexerDeclaration($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), p2, new MethodPropertyBody(Return(Literal("abc")), Assign(new FormattableStringToExpression($"Property2"), new KeywordExpression("value", null))));
-            var p3 = new Parameter("p3", $"p3", typeof(int), null, ValidationType.None, null);
+            var p3 = new Parameter("p3", $"p3", typeof(int), null, ParameterValidationType.None, null);
             var indexer3 = new IndexerDeclaration($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), p3, new MethodPropertyBody(Return(Literal("abc")), Assign(new FormattableStringToExpression($"Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal));
 
             var codeWriter = new CodeWriter();
@@ -704,7 +704,7 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_IndexerProperty_MethodPropertyBody_WithExplicitInterface()
         {
-            var index = new Parameter("index", $"index", typeof(int), null, ValidationType.None, null);
+            var index = new Parameter("index", $"index", typeof(int), null, ParameterValidationType.None, null);
             var indexer1 = new IndexerDeclaration($"To test a method property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc"))), ExplicitInterface: typeof(IReadOnlyList<string>));
             var indexer2 = new IndexerDeclaration($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), Assign(new FormattableStringToExpression($"Property2"), new KeywordExpression("value", null))), ExplicitInterface: typeof(IList<string>));
             var indexer3 = new IndexerDeclaration($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), Assign(new FormattableStringToExpression($"Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal), ExplicitInterface: typeof(IReadOnlyDictionary<int, string>));

@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
         private readonly Parameter SerializationOptionsParameter =
-            new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
+            new("options", null, typeof(ModelReaderWriterOptions), null, ParameterValidationType.None, null);
         private readonly CSharpType _iJsonModelTInterface;
         private readonly CSharpType? _iJsonModelObjectInterface;
         private readonly CSharpType _iPersistableModelTInterface;
@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelWriteMethod()
         {
-            Parameter utf8JsonWriterParameter = new("writer", null, typeof(Utf8JsonWriter), null, ValidationType.None, null);
+            Parameter utf8JsonWriterParameter = new("writer", null, typeof(Utf8JsonWriter), null, ParameterValidationType.None, null);
             // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new CSharpMethod
             (
@@ -94,7 +94,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelCreateMethod()
         {
-            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ValidationType.None, null, IsRef: true);
+            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ParameterValidationType.None, null, IsRef: true);
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new CSharpMethod
@@ -125,7 +125,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildIModelCreateMethod()
         {
-            Parameter dataParameter = new("data", null, typeof(BinaryData), null, ValidationType.None, null);
+            Parameter dataParameter = new("data", null, typeof(BinaryData), null, ParameterValidationType.None, null);
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new CSharpMethod

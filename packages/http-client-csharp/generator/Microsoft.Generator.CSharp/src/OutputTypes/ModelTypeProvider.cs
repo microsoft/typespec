@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp
                 // All properties should be included in the serialization ctor
                 if (isSerializationConstructor)
                 {
-                    constructorParameters.Add(parameter with { Validation = ValidationType.None });
+                    constructorParameters.Add(parameter with { Validation = ParameterValidationType.None });
                 }
                 else
                 {
@@ -198,33 +198,33 @@ namespace Microsoft.Generator.CSharp
             return constructorParameters;
         }
 
-        private static ValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        private static ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
         {
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (propertyType.IsValueType)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is readonly
             if (property.IsReadOnly)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is optional
             if (!property.IsRequired)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is nullable
             if (propertyType.IsNullable)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
-            return ValidationType.AssertNotNull;
+            return ParameterValidationType.AssertNotNull;
         }
 
         private CSharpMethod? BuildInitializationConstructor()

@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         public override ApiTypes ApiTypes => throw new NotImplementedException();
-        public override TypeFactory TypeFactory => throw new NotImplementedException();
+        public override TypeFactory TypeFactory => new MockTypeFactory();
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
         public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();

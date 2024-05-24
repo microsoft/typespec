@@ -33,8 +33,8 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 return parameter.Validation switch
                 {
-                    ValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
-                    ValidationType.AssertNotNull => AssertNotNull(parameter),
+                    ParameterValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
+                    ParameterValidationType.AssertNotNull => AssertNotNull(parameter),
                     _ => EmptyStatement
                 };
             }
