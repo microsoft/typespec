@@ -1,17 +1,17 @@
 import {
   Input,
-  InputOnChangeData,
   Label,
   Radio,
   RadioGroup,
-  RadioGroupOnChangeData,
   Switch,
-  SwitchOnChangeData,
   useId,
+  type InputOnChangeData,
+  type RadioGroupOnChangeData,
+  type SwitchOnChangeData,
 } from "@fluentui/react-components";
-import { FunctionComponent, useCallback, useMemo } from "react";
-import { PlaygroundTspLibrary } from "../../types.js";
-import { EmitterOptions } from "../types.js";
+import { useCallback, useMemo, type FunctionComponent } from "react";
+import type { PlaygroundTspLibrary } from "../../types.js";
+import type { EmitterOptions } from "../types.js";
 import style from "./emitter-options-form.module.css";
 
 export interface EmitterOptionsFormProps {

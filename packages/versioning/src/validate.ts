@@ -1,22 +1,18 @@
 import {
+  NoTarget,
   getNamespaceFullName,
   getService,
   getTypeName,
   isTemplateInstance,
   isType,
-  Namespace,
   navigateProgram,
-  NoTarget,
-  Program,
-  Type,
-  TypeNameOptions,
+  type Namespace,
+  type Program,
+  type Type,
+  type TypeNameOptions,
 } from "@typespec/compiler";
-import { reportDiagnostic } from "./lib.js";
-import { Version } from "./types.js";
 import {
-  Availability,
   findVersionedNamespace,
-  getAvailabilityMap,
   getMadeOptionalOn,
   getMadeRequiredOn,
   getRenamedFrom,
@@ -24,6 +20,12 @@ import {
   getTypeChangedFrom,
   getUseDependencies,
   getVersion,
+} from "./decorators.js";
+import { reportDiagnostic } from "./lib.js";
+import type { Version } from "./types.js";
+import {
+  Availability,
+  getAvailabilityMap,
   getVersionDependencies,
   getVersions,
 } from "./versioning.js";

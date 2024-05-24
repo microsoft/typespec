@@ -1,11 +1,15 @@
 import { tokens } from "@fluentui/react-components";
 import type { Program } from "@typespec/compiler";
-import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ColorProvider,
+  TypeSpecProgramViewer,
+  type ColorPalette,
+} from "@typespec/html-program-viewer";
+import { useCallback, useEffect, useMemo, useState, type FunctionComponent } from "react";
 import { FileOutput } from "../file-output/file-output.js";
-import { OutputTab, OutputTabs } from "../output-tabs/output-tabs.js";
-import { PlaygroundEditorsOptions } from "../playground.js";
-import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "../types.js";
+import { OutputTabs, type OutputTab } from "../output-tabs/output-tabs.js";
+import type { PlaygroundEditorsOptions } from "../playground.js";
+import type { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "../types.js";
 import { OutputEditor } from "../typespec-editor.js";
 import style from "./output-view.module.css";
 

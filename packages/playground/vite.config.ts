@@ -21,7 +21,7 @@ const externals = [
   "fs/promises",
 ];
 
-const config = defineConfig({
+export default defineConfig({
   build: {
     target: "esnext",
     minify: false,
@@ -53,5 +53,3 @@ const config = defineConfig({
     },
   },
 });
-
-export default config;
