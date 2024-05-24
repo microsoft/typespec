@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using Moq;
-using Microsoft.Generator.CSharp.Expressions;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
+using Moq;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
     public record MethodBodyStatements(IReadOnlyList<MethodBodyStatement> Statements) : MethodBodyStatement
     {

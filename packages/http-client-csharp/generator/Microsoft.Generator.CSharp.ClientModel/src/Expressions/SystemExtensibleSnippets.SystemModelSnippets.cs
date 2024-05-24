@@ -3,6 +3,7 @@
 
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
 {

@@ -4,8 +4,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed record SwitchStatement(ValueExpression MatchExpression) : MethodBodyStatement, IEnumerable<SwitchCase>
     {

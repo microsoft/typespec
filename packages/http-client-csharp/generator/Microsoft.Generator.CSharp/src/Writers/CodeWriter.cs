@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp

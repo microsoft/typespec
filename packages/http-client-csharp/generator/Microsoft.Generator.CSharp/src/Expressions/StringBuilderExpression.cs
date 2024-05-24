@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {

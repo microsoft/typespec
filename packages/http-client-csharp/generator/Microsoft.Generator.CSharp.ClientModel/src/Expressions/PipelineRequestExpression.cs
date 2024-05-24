@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
