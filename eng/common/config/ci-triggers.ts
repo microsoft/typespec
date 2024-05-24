@@ -1,4 +1,4 @@
-import { AreaPaths } from "./areas.js";
+import { AreaPaths } from "./labels.js";
 
 /**
  * Path that should trigger every CI build.
@@ -8,7 +8,6 @@ const all = ["eng/common/", "vitest.config.ts"];
 export const CIRules = {
   CSharp: [...AreaPaths["emitter:client:csharp"], ".editorconfig", ...all],
   Core: [
-    "*",
     "**/*",
     "!.prettierignore",
     "!.prettierrc.json",
