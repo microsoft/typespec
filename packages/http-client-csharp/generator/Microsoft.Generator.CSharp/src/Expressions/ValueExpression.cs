@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     public record ValueExpression
     {
-        public virtual void Write(CodeWriter writer) { }
+        internal virtual void Write(CodeWriter writer) { }
 
         public static implicit operator ValueExpression(Type type) => new TypeReference(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReference(type);

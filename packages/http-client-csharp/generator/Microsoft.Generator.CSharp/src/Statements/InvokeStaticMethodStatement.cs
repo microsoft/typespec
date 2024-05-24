@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static InvokeStaticMethodStatement Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference) => new(methodType, methodName, new[] { instanceReference }, CallAsExtension: true);
         public static InvokeStaticMethodStatement Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, ValueExpression arg) => new(methodType, methodName, new[] { instanceReference, arg }, CallAsExtension: true);
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             new InvokeStaticMethodExpression(MethodType, MethodName, Arguments, TypeArguments, CallAsExtension, CallAsAsync).Write(writer);
             writer.WriteRawLine(";");

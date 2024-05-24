@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections;
@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public IEnumerator<SwitchCase> GetEnumerator() => _cases.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_cases).GetEnumerator();
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {

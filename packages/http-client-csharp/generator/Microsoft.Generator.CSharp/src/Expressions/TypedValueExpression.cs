@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Untyped"></param>
     public abstract record TypedValueExpression(CSharpType Type, ValueExpression Untyped) : ValueExpression
     {
-        public override void Write(CodeWriter writer) => Untyped.Write(writer);
+        internal override void Write(CodeWriter writer) => Untyped.Write(writer);
         public static implicit operator TypedValueExpression(FieldDeclaration field) => new TypedMemberExpression(null, field.Name, field.Type);
         public static implicit operator TypedValueExpression(PropertyDeclaration property) => new TypedMemberExpression(null, property.Name, property.Type);
         public static implicit operator TypedValueExpression(Parameter parameter) => new ParameterReference(parameter);

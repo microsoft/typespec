@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             SourceInputModel? sourceInputModel = null;
             var mockTypeProvider = new Mock<TypeProvider>(sourceInputModel!) { CallBase = true };
-            _expressionTypeProviderWriter = new MockExpressionTypeProviderWriter(new CodeWriter(), mockTypeProvider.Object);
+            _expressionTypeProviderWriter = new MockExpressionTypeProviderWriter(mockTypeProvider.Object);
         }
 
         // Tests that the Write method is successfully overridden.
@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         internal class MockExpressionTypeProviderWriter : TypeProviderWriter
         {
-            public MockExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) : base(writer, provider) { }
+            public MockExpressionTypeProviderWriter(TypeProvider provider) : base(provider) { }
 
             public override void Write()
             {

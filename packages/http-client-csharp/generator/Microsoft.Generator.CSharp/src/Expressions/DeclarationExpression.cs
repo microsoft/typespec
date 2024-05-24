@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             variable = Variable;
         }
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRawIf("out ", IsOut);
             writer.Append($"{Variable.Type} {Variable.Declaration:D}");

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         internal MethodBodyStatement ToStatement()
             => new InvokeInstanceMethodStatement(InstanceReference, MethodName, Arguments, CallAsAsync);
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRawIf("await ", CallAsAsync);
             if (InstanceReference != null)

@@ -14,7 +14,7 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed partial class CodeWriter
+    internal sealed partial class CodeWriter
     {
         private const int DefaultLength = 1024;
         private static readonly string _newLine = "\n";
@@ -206,15 +206,30 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        /// <summary>
-        /// A wrapper around <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> to allow for writing method body statements.
-        /// This method will call the extension method <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> of the plugin <see cref="CodeModelPlugin"/> with the current instance of <see cref="CodeWriter"/>
-        /// and attempt to write <paramref name="method"/>.
-        /// </summary>
-        /// <param name="method">The <see cref="CSharpMethod"/> to write.</param>
         public void WriteMethod(CSharpMethod method)
         {
-            CodeModelPlugin.Instance.CodeWriterExtensionMethods.WriteMethod(this, method);
+            ArgumentNullException.ThrowIfNull(method, nameof(method));
+
+            WriteMethodDocumentation(method.Signature);
+
+            if (method.BodyStatements is { } body)
+            {
+                using (WriteMethodDeclaration(method.Signature))
+                {
+                    body.Write(this);
+                }
+            }
+            else if (method.BodyExpression is { } expression)
+            {
+                using (WriteMethodDeclarationNoScope(method.Signature))
+                {
+                    AppendRaw(" => ");
+                    expression.Write(this);
+                    WriteRawLine(";");
+                }
+            }
+
+            WriteLine();
         }
 
         public void WriteProperty(PropertyDeclaration property)
@@ -943,7 +958,7 @@ namespace Microsoft.Generator.CSharp
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelPlugin.Instance.CodeWriterExtensionMethods.LicenseString;
+                string licenseString = CodeModelPlugin.Instance.LiscenseString;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);

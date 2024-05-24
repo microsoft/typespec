@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Literal">The literal value.</param>
     public sealed record LiteralExpression(object? Literal) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.WriteLiteral(Literal);
         }

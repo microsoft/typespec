@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="U8">Flag used to determine if the string expression should represent a UTF-8 string.</param>
     public sealed record StringLiteralExpression(string Literal, bool U8) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.WriteLiteral(Literal);
             if (U8)

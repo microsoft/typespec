@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     {
         private record UntypedParameterReference(Parameter Parameter) : ValueExpression
         {
-            public override void Write(CodeWriter writer)
+            internal override void Write(CodeWriter writer)
             {
                 writer.AppendRawIf("ref ", Parameter.IsRef);
                 writer.Append($"{Parameter.Name:I}");

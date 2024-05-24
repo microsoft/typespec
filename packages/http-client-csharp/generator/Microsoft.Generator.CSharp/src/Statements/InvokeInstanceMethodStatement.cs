@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName, ValueExpression arg1, ValueExpression arg2) : this(instance, methodName, new[] { arg1, arg2 }, false) { }
         public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName, IReadOnlyList<ValueExpression> arguments) : this(instance, methodName, arguments, false) { }
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             new InvokeInstanceMethodExpression(InstanceReference, MethodName, Arguments, null, CallAsAsync).Write(writer);
             writer.WriteRawLine(";");

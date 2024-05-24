@@ -33,23 +33,23 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var model in output.Models)
             {
-                CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetWriter(writer, model).Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), writer.ToString()));
+                TypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetWriter(model);
+                modelWriter.Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), modelWriter.ToString()));
 
                 foreach (var serialization in model.SerializationProviders)
                 {
-                    CodeWriter serializationWriter = new CodeWriter();
-                    CodeModelPlugin.Instance.GetWriter(serializationWriter, serialization).Write();
+                    var serializationWriter = CodeModelPlugin.Instance.GetWriter(serialization);
+                    serializationWriter.Write();
                     generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.Serialization.cs"), serializationWriter.ToString()));
                 }
             }
 
             foreach (var client in output.Clients)
             {
-                CodeWriter writer = new CodeWriter();
-                CodeModelPlugin.Instance.GetWriter(writer, client).Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
+                var clientWriter = CodeModelPlugin.Instance.GetWriter(client);
+                clientWriter.Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), clientWriter.ToString()));
             }
 
             // Add all the generated files to the workspace

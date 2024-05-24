@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         public override ApiTypes ApiTypes => throw new NotImplementedException();
-        public override CodeWriterExtensionMethods CodeWriterExtensionMethods => new CustomCodeWriterExtensionMethods();
         public override TypeFactory TypeFactory => throw new NotImplementedException();
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();

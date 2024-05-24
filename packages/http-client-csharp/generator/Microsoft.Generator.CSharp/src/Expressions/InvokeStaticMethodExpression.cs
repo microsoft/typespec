@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public MethodBodyStatement ToStatement()
             => new InvokeStaticMethodStatement(MethodType, MethodName, Arguments, TypeArguments, CallAsExtension, CallAsAsync);
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             if (CallAsExtension)
             {

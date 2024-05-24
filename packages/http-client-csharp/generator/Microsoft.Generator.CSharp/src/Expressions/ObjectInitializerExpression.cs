@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="UseSingleLine">Flag to determine if the object should be initialized inline.</param>
     public sealed record ObjectInitializerExpression(IReadOnlyDictionary<string, ValueExpression>? Parameters = null, bool UseSingleLine = true) : InitializerExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             if (Parameters is not { Count: > 0 })
             {

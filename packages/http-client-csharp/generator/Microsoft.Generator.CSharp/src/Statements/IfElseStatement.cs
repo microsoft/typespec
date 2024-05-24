@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public IfElseStatement(BoolExpression condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement, bool inline = false, bool addBraces = true)
             : this(new IfStatement(condition, inline, addBraces) { ifStatement }, elseStatement) {}
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             If.Write(writer);
             if (Else is null)

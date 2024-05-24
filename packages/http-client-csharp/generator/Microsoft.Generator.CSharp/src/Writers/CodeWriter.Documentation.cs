@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed partial class CodeWriter
+    internal sealed partial class CodeWriter
     {
         public CodeWriter WriteXmlDocumentationSummary(FormattableString? text)
         {

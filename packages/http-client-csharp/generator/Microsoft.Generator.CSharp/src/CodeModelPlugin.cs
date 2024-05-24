@@ -32,12 +32,12 @@ namespace Microsoft.Generator.CSharp
 
         // Extensibility points to be implemented by a plugin
         public abstract ApiTypes ApiTypes { get; }
-        public abstract CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
         public abstract TypeFactory TypeFactory { get; }
+        public virtual string LiscenseString => string.Empty;
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary => _inputLibrary.Value;
-        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
         /// <summary>
         /// Returns a serialization type provider for the given model type provider.
