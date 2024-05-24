@@ -1,60 +1,52 @@
 import { createSourceFile, getSourceFileKindFromExt, resolvePath } from "@typespec/compiler";
-import { LibraryImportOptions, importLibrary, importTypeSpecCompiler } from "./core.js";
-import { BrowserHost, PlaygroundTspLibrary } from "./types.js";
+import { importLibrary, importTypeSpecCompiler, type LibraryImportOptions } from "./core.js";
+import type { BrowserHost, PlaygroundTspLibrary } from "./types.js";
 
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath("/test", path, ...paths);
 }
 
 /**
- * Create the browser host from the list of libraries.
- * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
- * @param importOptions Import configuration.
- * @returns
+ * @internal
  */
-export async function createBrowserHost(
-  libsToLoad: readonly string[],
-  importOptions: LibraryImportOptions = {}
-): Promise<BrowserHost> {
+export interface BrowserHostCreateOptions {
+  readonly compiler: typeof import("@typespec/compiler");
+  readonly libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }>;
+}
+
+/**
+ * @internal
+ */
+export function createBrowserHostInternal(options: BrowserHostCreateOptions): BrowserHost {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
 
-  const libraries: Record<string, PlaygroundTspLibrary> = {};
-  for (const libName of libsToLoad) {
-    const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
-      libName,
-      importOptions
-    )) as any;
-    libraries[libName] = {
-      name: libName,
-      isEmitter: $lib?.emitter,
-      definition: $lib,
-      packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
-      linter: $linter,
-    };
+  const libraries = options.libraries;
+  for (const [libName, { _TypeSpecLibrary_ }] of Object.entries(libraries)) {
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(`/test/node_modules/${libName}/${key}`, value);
     }
-    virtualFs.set(
-      `/test/package.json`,
-      JSON.stringify({
-        name: "playground-pkg",
-        dependencies: Object.fromEntries(
-          Object.values(libraries).map((x) => [x.name, x.packageJson.version])
-        ),
-      })
-    );
   }
+
+  virtualFs.set(
+    `/test/package.json`,
+    JSON.stringify({
+      name: "playground-pkg",
+      dependencies: Object.fromEntries(
+        Object.values(libraries).map((x) => [x.name, x.packageJson.version])
+      ),
+    })
+  );
 
   function addJsImport(path: string, value: any) {
     virtualFs.set(path, "");
     jsImports.set(path, value);
   }
   return {
-    compiler: await importTypeSpecCompiler(importOptions),
+    compiler: options.compiler,
     libraries,
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
@@ -176,4 +168,35 @@ export async function createBrowserHost(
       return "inmemory:/" + resolveVirtualPath(path);
     },
   };
+}
+
+/**
+ * Create the browser host from the list of libraries.
+ * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
+ * @param importOptions Import configuration.
+ * @returns
+ */
+export async function createBrowserHost(
+  libsToLoad: readonly string[],
+  importOptions: LibraryImportOptions = {}
+): Promise<BrowserHost> {
+  const libraries: Record<string, PlaygroundTspLibrary & { _TypeSpecLibrary_: any }> = {};
+  for (const libName of libsToLoad) {
+    const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
+      libName,
+      importOptions
+    )) as any;
+    libraries[libName] = {
+      name: libName,
+      isEmitter: $lib?.emitter,
+      definition: $lib,
+      packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+      linter: $linter,
+      _TypeSpecLibrary_,
+    };
+  }
+  return createBrowserHostInternal({
+    compiler: await importTypeSpecCompiler(importOptions),
+    libraries,
+  });
 }

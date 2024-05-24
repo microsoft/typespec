@@ -1,7 +1,7 @@
-import { Diagnostic } from "@typespec/compiler";
-import { FunctionComponent, MouseEventHandler } from "react";
+import type { Diagnostic } from "@typespec/compiler";
+import type { FunctionComponent, MouseEventHandler } from "react";
 import { DiagnosticList } from "../diagnostic-list/diagnostic-list.js";
-import { CompilationState } from "../types.js";
+import type { CompilationState } from "../types.js";
 import { ProblemPaneHeader } from "./header.js";
 import style from "./problem-pane.module.css";
 

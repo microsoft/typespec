@@ -1,7 +1,39 @@
-import "./decorators.tsp";
-import "../dist/src/validate.js";
+import "../dist/src/internal-projection-functions.js";
 
 using TypeSpec.Versioning;
+using TypeSpec.Reflection;
+
+namespace TypeSpec.Versioning;
+
+/**
+ * Returns whether the target exists for the given version.
+ * @param version The version to check.
+ */
+extern fn existsAtVersion(target: unknown, version: EnumMember): boolean;
+
+/**
+ * Returns whether the target has a different name for the given version.
+ * @param version The version to check.
+ */
+extern fn hasDifferentNameAtVersion(target: unknown, version: EnumMember): boolean;
+
+/**
+ * Returns whether the target has a different return type for the given version.
+ * @param version The version to check.
+ */
+extern fn hasDifferentReturnTypeAtVersion(target: unknown, version: EnumMember): boolean;
+
+/**
+ * Returns whether the target was made optional after the given version.
+ * @param version The version to check.
+ */
+extern fn madeOptionalAfter(target: unknown, version: EnumMember): boolean;
+
+/**
+ * Returns whether the target was made required after the given version.
+ * @param version The version to check.
+ */
+extern fn madeRequiredAfter(target: unknown, version: EnumMember): boolean;
 
 #suppress "projections-are-experimental"
 projection op#v {

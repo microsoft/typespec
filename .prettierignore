@@ -6,8 +6,6 @@
 **/obj/
 **/.vs/
 **/.docusaurus/
-common/temp/
-common/scripts/
 .chronus/changes/
 
 # Pnpm lock file

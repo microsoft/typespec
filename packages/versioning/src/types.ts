@@ -1,4 +1,4 @@
-import { EnumMember, Namespace } from "@typespec/compiler";
+import type { EnumMember, Namespace } from "@typespec/compiler";
 
 export interface Version {
   name: string;

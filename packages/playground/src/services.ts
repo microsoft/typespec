@@ -1,15 +1,15 @@
 import {
-  DiagnosticTarget,
   NoTarget,
-  ServerHost,
   TypeSpecLanguageConfiguration,
+  type DiagnosticTarget,
+  type ServerHost,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
-import { BrowserHost } from "./types.js";
+import type { BrowserHost } from "./types.js";
 
 function getIndentAction(
   value: "none" | "indent" | "indentOutdent" | "outdent"
