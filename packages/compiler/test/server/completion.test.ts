@@ -98,7 +98,7 @@ describe("completes for keywords", () => {
     [`model M<T>┆ \n`, ["extends", "is"]],
     [`model M<T extends string> ┆ {}`, ["extends", "is"]],
     [`model M ex┆`, ["extends", "is"]],
-    [`model M ex┆tends`, ["extends", "is"]],
+    [`model M i┆s`, ["extends", "is"]],
     [`model M {┆}`, []],
     [`model M<T, ┆> {}`, []],
 
@@ -109,6 +109,8 @@ describe("completes for keywords", () => {
     [`op o ┆ ;`, ["is"]],
     [`op o ┆{}`, ["is"]],
     [`op o ┆ {}`, ["is"]],
+    [`op o ┆ ()`, ["is"]],
+    [`op o ┆()`, ["is"]],
     [`op o ┆ \nscalar S2`, ["is"]],
     [`op o1{}; op o2 \n//comment\n ┆ M1`, ["is"]],
     [`op o1{}; op o2 i┆s M1`, ["is"]],
@@ -152,6 +154,8 @@ describe("completes for keywords", () => {
     [`op o<T, P ┆ , Q>`, ["extends"]],
     [`op o<T, P ex┆ , Q>`, ["extends"]],
     [`interface I┆<T, Q>`, []],
+    [`interface I<┆, T, Q>`, []],
+    [`interface I<T ┆=string>`, ["extends"]],
     [`model M<T>{};alias a = M<T ┆>`, []],
     [`model M<T>{};model M2 extends M<T ┆ >`, []],
   ] as const)("%s", (code, keywords) => {

@@ -108,6 +108,10 @@ function addCompletionByLookingBackwardNode(
   posDetail: PositionDetail,
   context: CompletionContext
 ): boolean {
+  const getIdentifierEndPos = (n: IdentifierNode) => {
+    // n.pos === n.end, it means it's a missing identifier, just return -1;
+    return n.pos === n.end ? -1 : n.end;
+  };
   const map: { [key in SyntaxKind]?: keyof KeywordArea } = {
     [SyntaxKind.ModelStatement]: "modelHeader",
     [SyntaxKind.ScalarStatement]: "scalarHeader",
@@ -120,9 +124,9 @@ function addCompletionByLookingBackwardNode(
     case SyntaxKind.OperationStatement:
     case SyntaxKind.InterfaceStatement:
       const idEndPos =
-        preNode.templateParameters.length > 0
+        preNode.templateParametersRange.end >= 0
           ? preNode.templateParametersRange.end
-          : preNode.id.end;
+          : getIdentifierEndPos(preNode.id);
       if (posDetail.triviaStartPosition === idEndPos) {
         const key = map[preNode.kind];
         if (!key) {
@@ -133,7 +137,7 @@ function addCompletionByLookingBackwardNode(
       }
       break;
     case SyntaxKind.TemplateParameterDeclaration:
-      if (posDetail.triviaStartPosition === preNode.id.end) {
+      if (posDetail.triviaStartPosition === getIdentifierEndPos(preNode.id)) {
         addKeywordCompletion("templateParameter", context.completions);
         return true;
       } else if (preNode.parent?.templateParametersRange.end === posDetail.triviaStartPosition) {
