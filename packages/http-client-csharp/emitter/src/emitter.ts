@@ -143,7 +143,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} ${newProjectOption} ${existingProjectOption}${debugFlag}`;
         Logger.getInstance().info(command);
 
-        await execAsync(
+        const result = await execAsync(
           "dotnet",
           [
             "--roll-forward",
@@ -155,20 +155,17 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             debugFlag,
           ],
           { stdio: "inherit" }
-        )
-          .then(() => {
-            if (!options["save-inputs"]) {
-              // delete
-              deleteFile(resolvePath(outputFolder, tspOutputFileName));
-              deleteFile(resolvePath(outputFolder, configurationFileName));
-            }
-          })
-          .catch((error: any) => {
-            if (error.message) Logger.getInstance().info(error.message);
-            if (error.stderr) Logger.getInstance().error(error.stderr);
-            if (error.stdout) Logger.getInstance().verbose(error.stdout);
-            throw error;
-          });
+        );
+        if (result.exitCode !== 0) {
+          if (result.stderr) Logger.getInstance().error(result.stderr);
+          if (result.stdout) Logger.getInstance().verbose(result.stdout);
+          throw new Error(`Failed to generate SDK. Exit code: ${result.exitCode}`);
+        }
+        if (!options["save-inputs"]) {
+          // delete
+          deleteFile(resolvePath(outputFolder, tspOutputFileName));
+          deleteFile(resolvePath(outputFolder, configurationFileName));
+        }
       }
     }
   }

@@ -33,7 +33,7 @@
     "test": "pnpm -r --aggregate-output --reporter=append-only run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch",
-    "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts"
+    "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts"
   },
   "devDependencies": {
     "@chronus/chronus": "^0.10.2",

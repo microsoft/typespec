@@ -16,8 +16,6 @@ configuration:
           - isIssue
           - isOpen
           - hasLabel:
-              label: No-Recent-Activity
-          - hasLabel:
               label: needs-info
           - noActivitySince:
               days: 14
