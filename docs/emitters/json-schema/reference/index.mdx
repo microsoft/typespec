@@ -61,7 +61,9 @@ npm install --save-peer @typespec/json-schema
 
 # JSON Schema files and references
 
-When a TypeSpec data type has the `@jsonSchema` decorator or is declared inside a namespace with that decorator, it is considered a _JSON Schema type_. By default, this emitter will produce one JSON Schema file per JSON Schema type. The file defines an `$id` metadata keyword based on the TypeSpec type name and the file format of the schema (for example, `Widget.yaml`). The `$id` can be overridden by using the `@id` decorator.
+When a TypeSpec data type has the `@jsonSchema` decorator or is declared inside a namespace with that decorator, it is considered a _JSON Schema type_.
+
+By default, this emitter will produce one JSON Schema file per JSON Schema type. The file defines an `$id` metadata keyword based on the TypeSpec type name and the file format of the schema (for example, `Widget.yaml`). The `$id` can be overridden by using the `@id` decorator.
 
 :::note
 The base URI of a schema is the reference point for resolving relative URIs within the schema, such as those inside `$ref`s. When the `$id` metadata keyword of a schema is an absolute URI, the `$id` is the base URI. When the `$id` is a relative reference, then the base URI is determined by resolving the relative reference against the URI used to retrieve the schema.

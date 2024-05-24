@@ -165,4 +165,35 @@ describe("referencing non-JSON Schema types", () => {
     assert.deepStrictEqual(schemas["C.json"].$defs, depSchemas);
     assert.deepStrictEqual(schemas["D.json"].$defs, depSchemas);
   });
+
+  it("doesn't include types which are not referenced, but does when getAllModels is set", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema
+      model A {}
+      
+      model B {}
+    `,
+      {},
+      { emitNamespace: false, emitTypes: ["A"] }
+    );
+
+    assert(schemas["A.json"] !== undefined);
+    assert(Object.keys(schemas).length === 1);
+
+    const amSchemas = await emitSchema(
+      `
+      @jsonSchema
+      model A {}
+      
+      model B {}
+    `,
+      { emitAllModels: true },
+      { emitNamespace: false, emitTypes: ["A"] }
+    );
+
+    assert(amSchemas["A.json"] !== undefined);
+    assert(amSchemas["B.json"] !== undefined);
+    assert(Object.keys(amSchemas).length === 2);
+  });
 });

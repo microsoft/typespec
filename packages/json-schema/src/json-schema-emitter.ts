@@ -707,9 +707,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   sourceFile(sourceFile: SourceFile<object>): EmittedSourceFile {
-    let serializedContent: string;
-
-    let content = this.#finalizeSourceFileContent(sourceFile);
+    const content = this.#finalizeSourceFileContent(sourceFile);
 
     return {
       contents: this.#serializeSourceFileContent(content),

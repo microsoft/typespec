@@ -49,7 +49,7 @@ describe("bundling", () => {
     const defs = Object.keys(schemas["test.json"].$defs);
     strictEqual(defs.length, 5);
     ["testModel", "testArray", "testUnion", "testEnum", "testScalar"].forEach((name) => {
-      assert(defs.indexOf(name) != -1, "defs should contain " + name);
+      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
     });
   });
   it("with emitAllRefs, creates bundled schemas for referenced non-JSON Schema types", async () => {
@@ -96,7 +96,7 @@ describe("bundling", () => {
       "nonEnum",
       "nonUnion",
     ].forEach((name) => {
-      assert(defs.indexOf(name) != -1, "defs should contain " + name);
+      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
     });
   });
 
@@ -143,7 +143,7 @@ describe("bundling", () => {
       "nonEnum",
       "nonUnion",
     ].forEach((name) => {
-      assert(defs.indexOf(name) != -1, "defs should contain " + name);
+      assert(defs.indexOf(name) !== -1, "defs should contain " + name);
     });
   });
 });
