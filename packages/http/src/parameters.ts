@@ -67,7 +67,7 @@ function getOperationParametersForVerb(
     switch (item.kind) {
       case "contentType":
         parameters.push({
-          name: "content-type",
+          name: "Content-Type",
           type: "header",
           param: item.property,
         });
