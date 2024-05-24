@@ -1,8 +1,8 @@
 import { Divider } from "@fluentui/react-components";
-import { CompilerOptions, LinterRuleSet } from "@typespec/compiler";
-import { FunctionComponent, useCallback } from "react";
-import { BrowserHost } from "../../types.js";
-import { EmitterOptions } from "../types.js";
+import type { CompilerOptions, LinterRuleSet } from "@typespec/compiler";
+import { useCallback, type FunctionComponent } from "react";
+import type { BrowserHost } from "../../types.js";
+import type { EmitterOptions } from "../types.js";
 import { EmitterOptionsForm } from "./emitter-options-form.js";
 import { LinterForm } from "./linter-form.js";
 
