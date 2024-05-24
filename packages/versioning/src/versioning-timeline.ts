@@ -1,5 +1,5 @@
-import { compilerAssert, getTypeName, Namespace, Program } from "@typespec/compiler";
-import { Version } from "./types.js";
+import { compilerAssert, getTypeName, type Namespace, type Program } from "@typespec/compiler";
+import type { Version } from "./types.js";
 import { getVersions } from "./versioning.js";
 
 /**

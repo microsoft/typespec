@@ -1,29 +1,29 @@
-import { CompilerOptions, Diagnostic } from "@typespec/compiler";
+import type { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import {
-  FunctionComponent,
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type FunctionComponent,
+  type ReactNode,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange } from "../services.js";
-import { BrowserHost, PlaygroundSample } from "../types.js";
+import type { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { DefaultFooter } from "./default-footer.js";
-import { OnMountData, useMonacoModel } from "./editor.js";
+import { useMonacoModel, type OnMountData } from "./editor.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
-import { CompilationState, FileOutputViewer } from "./types.js";
+import type { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {

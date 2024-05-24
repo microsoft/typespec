@@ -10,16 +10,18 @@
     "outDir": "dist",
     "rootDir": ".",
     "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },
   "include": [
-    "rollup.config.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "src/",
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
-    "definitions/*.d.ts"
+    "definitions/*.d.ts",
+    "stories/"
   ]
 }

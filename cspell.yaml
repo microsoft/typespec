@@ -26,11 +26,13 @@ words:
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
+  - dbaeumer
   - debouncer
   - devdiv
   - dogfood
   - eastus
   - ecmarkup
+  - esbenp
   - esbuild
   - espt
   - ESRP
@@ -38,6 +40,7 @@ words:
   - genproto
   - globby
   - Infima
+  - inlines
   - inmemory
   - instanceid
   - interner

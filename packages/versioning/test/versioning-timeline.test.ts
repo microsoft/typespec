@@ -1,4 +1,4 @@
-import { Namespace } from "@typespec/compiler";
+import type { Namespace } from "@typespec/compiler";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
