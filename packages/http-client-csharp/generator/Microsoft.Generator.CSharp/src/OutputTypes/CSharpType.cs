@@ -145,8 +145,8 @@ namespace Microsoft.Generator.CSharp
                 && Arguments.All(t => t.IsPublic);
             var name = implementation.Name;
             var ns = implementation.Namespace;
-            var isValueType = implementation.IsValueType;
-            var isEnum = implementation.IsEnum;
+            var isEnum = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
+            var isValueType = isEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             var declaringType = implementation.DeclaringTypeProvider?.Type;
 
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);
@@ -585,7 +585,7 @@ namespace Microsoft.Generator.CSharp
 
                 return literalType;
             }
-            else if (type is { IsFrameworkType: false, Implementation: EnumType enumType })
+            else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
             {
                 var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
                 {
