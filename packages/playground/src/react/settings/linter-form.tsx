@@ -1,7 +1,7 @@
-import { Checkbox, CheckboxOnChangeData } from "@fluentui/react-components";
-import { LinterRuleSet, RuleRef } from "@typespec/compiler";
-import { FunctionComponent, useCallback } from "react";
-import { PlaygroundTspLibrary } from "../../types.js";
+import { Checkbox, type CheckboxOnChangeData } from "@fluentui/react-components";
+import type { LinterRuleSet, RuleRef } from "@typespec/compiler";
+import { useCallback, type FunctionComponent } from "react";
+import type { PlaygroundTspLibrary } from "../../types.js";
 
 export interface LinterFormProps {
   libraries: Record<string, PlaygroundTspLibrary>;

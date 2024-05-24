@@ -1,7 +1,7 @@
 import { getDirectoryPath } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { PlaygroundSample } from "../types.js";
-import { PlaygroundSampleConfig } from "./types.js";
+import type { PlaygroundSample } from "../types.js";
+import type { PlaygroundSampleConfig } from "./types.js";
 
 /**
  * @experimental This API is experimental
