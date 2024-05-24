@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed class CSharpGen
+    internal sealed class CSharpGen
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";

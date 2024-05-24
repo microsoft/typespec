@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.SourceInput
 {
-    public sealed class SourcePropertySerializationMapping
+    internal sealed class SourcePropertySerializationMapping
     {
         public SourcePropertySerializationMapping(string propertyName, IReadOnlyList<string>? serializationPath, string? jsonSerializationValueHook, string? jsonDeserializationValueHook, string? bicepSerializationValueHook)
         {
