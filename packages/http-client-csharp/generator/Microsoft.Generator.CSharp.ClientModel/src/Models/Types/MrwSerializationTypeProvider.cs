@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
         private ModelTypeProvider _model;
-        private readonly FieldDeclaration _rawDataField;
+        private readonly FieldDeclaration? _rawDataField;
 
         public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <returns>The list of <see cref="FieldDeclaration"/> for the model.</returns>
         protected override FieldDeclaration[] BuildFields()
         {
-            return new FieldDeclaration[] { _rawDataField };
+            return _rawDataField != null ? [_rawDataField] : Array.Empty<FieldDeclaration>();
         }
 
         protected override CSharpMethod[] BuildConstructors()
@@ -100,8 +100,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// Builds the raw data field for the model to be used for serialization.
         /// </summary>
         /// <returns>The constructed <see cref="FieldDeclaration"/> if the model should generate the field.</returns>
-        private FieldDeclaration BuildRawDataField()
+        private FieldDeclaration? BuildRawDataField()
         {
+            if (_model.IsStruct)
+            {
+                return null;
+            }
+
             var fieldDeclaration = new FieldDeclaration(
                 modifiers: FieldModifiers.Private,
                 type: _privateAdditionalPropertiesPropertyType,
@@ -251,7 +256,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var param in parameters)
             {
-                if (param.Name == _rawDataField.Name.ToVariableName())
+                if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
                     methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(param)));
                     continue;
@@ -276,7 +281,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private IReadOnlyList<Parameter> BuildSerializationConstructorParameters()
         {
             List<Parameter> constructorParameters = new List<Parameter>();
-            bool shouldAddRawDataField = true;
+            bool shouldAddRawDataField = _rawDataField != null;
 
             foreach (var property in _model.Properties)
             {
@@ -291,14 +296,14 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
                 constructorParameters.Add(parameter);
 
-                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField.Name, StringComparison.OrdinalIgnoreCase))
+                if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     shouldAddRawDataField = false;
                 }
             }
 
             // Append the raw data field if it doesn't already exist in the constructor parameters
-            if (shouldAddRawDataField)
+            if (shouldAddRawDataField && _rawDataField != null)
             {
                 var rawDataParameter = new Parameter(
                     Name: _rawDataField.Name.ToVariableName(),
