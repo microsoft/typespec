@@ -1,7 +1,7 @@
 import { editor } from "monaco-editor";
-import { FunctionComponent } from "react";
-import { Editor, EditorProps, useMonacoModel } from "./editor.js";
-import { PlaygroundEditorsOptions } from "./playground.js";
+import type { FunctionComponent } from "react";
+import { Editor, useMonacoModel, type EditorProps } from "./editor.js";
+import type { PlaygroundEditorsOptions } from "./playground.js";
 
 export interface TypeSpecEditorProps extends Omit<EditorProps, "options"> {
   options?: editor.IStandaloneEditorConstructionOptions;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Text;
@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record StringBuilderExpression(ValueExpression Untyped) : TypedValueExpression<StringBuilder>(Untyped)
     {
-        public StringExpression Length => new(Property(nameof(StringBuilder.Length)));
+        public IntExpression Length => new(Property(nameof(StringBuilder.Length)));
 
         public MethodBodyStatement Append(StringExpression value) => new InvokeInstanceMethodStatement(Untyped, nameof(StringBuilder.Append), value);
 
@@ -24,5 +24,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public MethodBodyStatement Append(FormattableStringExpression value) => new InvokeInstanceMethodStatement(Untyped, nameof(StringBuilder.Append), value);
 
         public MethodBodyStatement AppendLine(FormattableStringExpression value) => new InvokeInstanceMethodStatement(Untyped, nameof(StringBuilder.AppendLine), value);
+
+        public MethodBodyStatement Remove(ValueExpression startIndex, ValueExpression length) => new InvokeInstanceMethodStatement(Untyped, nameof(StringBuilder.Remove), startIndex, length);
     }
 }
