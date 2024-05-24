@@ -24,7 +24,7 @@ extends:
             steps:
               - script: |
                   corepack enable
-                  corepack prepare pnpm@latest-8 --activate
+                  corepack prepare pnpm --activate
                 displayName: Install pnpm
 
               - script: pnpm install
