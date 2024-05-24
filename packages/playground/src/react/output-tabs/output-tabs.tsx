@@ -1,13 +1,13 @@
 import {
-  SelectTabData,
-  SelectTabEvent,
-  SelectTabEventHandler,
   Tab,
   TabList,
-  TabProps,
   mergeClasses,
+  type SelectTabData,
+  type SelectTabEvent,
+  type SelectTabEventHandler,
+  type TabProps,
 } from "@fluentui/react-components";
-import { FunctionComponent, ReactElement, useCallback } from "react";
+import { useCallback, type FunctionComponent, type ReactElement } from "react";
 import style from "./output-tabs.module.css";
 
 export interface OutputTab {
