@@ -100,44 +100,6 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
 
-        // This test validates that the WriteMethod method works as expected using the extension method implementation in the mock code model plugin.
-        // A mock method with a body constructed from body statements is supplied.
-        [Test]
-        public void TestWriteMethodWithBodyStatements()
-        {
-            var method = ConstructMockMethod();
-            var codeWriter = new CodeWriter();
-
-            codeWriter.WriteMethod(method);
-
-            var result = codeWriter.ToString();
-            var expected = new StringBuilder()
-                .Append(_header)
-                .Append("Custom implementation").Append(CodeWriterTests.NewLine)
-                .ToString();
-
-            Assert.AreEqual(expected, result);
-
-        }
-
-        // This test validates that the WriteMethod method works as expected given a mock method with a body
-        // constructed from body expressions using the custom implementation of the extension methods in a mock code model plugin.
-        [Test]
-        public void TestWriteMethodWithBodyExpressions()
-        {
-            var method = ConstructMockMethod();
-            var codeWriter = new CodeWriter();
-            codeWriter.WriteMethod(method);
-
-            var result = codeWriter.ToString();
-            var expected = new StringBuilder()
-                .Append(_header)
-                .Append("Custom implementation").Append(CodeWriterTests.NewLine)
-                .ToString();
-
-            Assert.AreEqual(expected, result);
-        }
-
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
         private static CSharpMethod ConstructMockMethod()

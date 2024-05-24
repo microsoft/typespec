@@ -22,5 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
         public override TypeProvider[] GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();
+        public override string LiscenseString => "// License string";
     }
 }
