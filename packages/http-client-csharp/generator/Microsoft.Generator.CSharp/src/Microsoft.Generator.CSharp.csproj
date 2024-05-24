@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>Microsoft.Generator.CSharp</PackageId>
@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Customization\src\Microsoft.Generator.CSharp.Customization.csproj" />
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Input\src\Microsoft.Generator.CSharp.Input.csproj" />
-    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.Shared\src\Microsoft.Generator.CSharp.Shared.csproj" />
   </ItemGroup>
 
 </Project>

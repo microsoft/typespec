@@ -3,7 +3,7 @@
 
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Shared.Tests
+namespace Microsoft.Generator.CSharp.Tests
 {
     public class StringExtensionsTests
     {

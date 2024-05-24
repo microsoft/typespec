@@ -8,8 +8,6 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Shared;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
