@@ -3,15 +3,16 @@
 
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
 {
-    internal sealed record PipelineMessageExpression(ValueExpression Untyped) : TypedValueExpression<PipelineMessage>(Untyped)
+    internal sealed record PipelineMessageExpression(ValueExpression Untyped) : TypedSnippet<PipelineMessage>(Untyped)
     {
         public PipelineRequestExpression Request => new(Property(nameof(PipelineMessage.Request)));
 
         public PipelineResponseExpression Response => new(Property(nameof(PipelineMessage.Response)));
 
-        public BoolExpression BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
+        public BoolSnippet BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
     }
 }

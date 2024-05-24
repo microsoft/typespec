@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -21,10 +22,10 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(PropertyDeclaration property) => new MemberExpression(null, property.Name);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
-        public StringExpression InvokeToString() => new(Invoke(nameof(ToString)));
+        public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
 
-        public BoolExpression InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
+        public BoolSnippet InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
 
         public virtual ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);

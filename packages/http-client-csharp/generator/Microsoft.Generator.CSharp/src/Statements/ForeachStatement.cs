@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
@@ -18,23 +19,23 @@ namespace Microsoft.Generator.CSharp.Statements
             item = new VariableReference(itemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableExpression enumerable, out TypedValueExpression item)
+        public ForeachStatement(string itemName, EnumerableSnippet enumerable, out TypedSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
             item = new VariableReference(enumerable.ItemType, Item);
         }
 
-        public ForeachStatement(string itemName, EnumerableExpression enumerable, bool isAsync, out TypedValueExpression item)
+        public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out TypedSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
             item = new VariableReference(enumerable.ItemType, Item);
         }
 
-        public ForeachStatement(string itemName, DictionaryExpression dictionary, out KeyValuePairExpression item)
+        public ForeachStatement(string itemName, DictionarySnippet dictionary, out KeyValuePairSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableReference(KeyValuePairExpression.GetType(dictionary.KeyType, dictionary.ValueType), Item);
-            item = new KeyValuePairExpression(dictionary.KeyType, dictionary.ValueType, variable);
+            var variable = new VariableReference(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
+            item = new KeyValuePairSnippet(dictionary.KeyType, dictionary.ValueType, variable);
         }
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);

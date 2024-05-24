@@ -4,14 +4,15 @@
 using System;
 using System.ClientModel;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
 {
-    internal sealed record ClientResultExpression(ValueExpression Untyped) : TypedValueExpression<ClientResult>(Untyped)
+    internal sealed record ClientResultExpression(ValueExpression Untyped) : TypedSnippet<ClientResult>(Untyped)
     {
         public ValueExpression Value => Property(nameof(ClientResult<object>.Value));
-        public BinaryDataExpression Content => throw new InvalidOperationException("Result does not have a Content property");
-        public StreamExpression ContentStream => throw new InvalidOperationException("Result does not have a ContentStream property");
+        public BinaryDataSnippet Content => throw new InvalidOperationException("Result does not have a Content property");
+        public StreamSnippet ContentStream => throw new InvalidOperationException("Result does not have a ContentStream property");
 
         public static ClientResultExpression FromResponse(PipelineResponseExpression response)
             => new(InvokeStatic(nameof(ClientResult.FromResponse), response));
@@ -28,6 +29,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
         public ClientResultExpression FromValue(CSharpType explicitValueType, ValueExpression value)
             => new(new InvokeStaticMethodExpression(typeof(ClientResult), nameof(ClientResult.FromValue), new[] { value, this }, new[] { explicitValueType }));
 
-        public PipelineResponseExpression GetRawResponse() => new(Invoke(nameof(ClientResult<object>.GetRawResponse)));
+        public PipelineResponseExpression GetRawResponse() => new(Untyped.Invoke(nameof(ClientResult<object>.GetRawResponse)));
     }
 }

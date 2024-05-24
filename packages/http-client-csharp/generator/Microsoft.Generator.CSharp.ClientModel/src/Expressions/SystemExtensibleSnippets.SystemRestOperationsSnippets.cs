@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
@@ -15,55 +16,55 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
     {
         private class SystemRestOperationsSnippets : RestOperationsSnippets
         {
-            public override StreamExpression GetContentStream(TypedValueExpression result)
+            public override StreamSnippet GetContentStream(TypedSnippet result)
                 => new ClientResultExpression(result).GetRawResponse().ContentStream;
 
-            public override TypedValueExpression GetTypedResponseFromValue(TypedValueExpression value, TypedValueExpression result)
+            public override TypedSnippet GetTypedResponseFromValue(TypedSnippet value, TypedSnippet result)
             {
                 return ClientResultExpression.FromValue(value, GetRawResponse(result));
             }
 
-            public override TypedValueExpression GetTypedResponseFromModel(TypeProvider typeProvider, TypedValueExpression result)
+            public override TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
-                var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, new[] { response });
+                var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, [response]);
                 return ClientResultExpression.FromValue(model, response);
             }
 
-            public override TypedValueExpression GetTypedResponseFromEnum(EnumType enumType, TypedValueExpression result)
+            public override TypedSnippet GetTypedResponseFromEnum(EnumType enumType, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
-                return ClientResultExpression.FromValue(EnumExpression.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);
+                return ClientResultExpression.FromValue(EnumSnippet.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);
             }
 
-            public override TypedValueExpression GetTypedResponseFromBinaryData(Type responseType, TypedValueExpression result, string? contentType = null)
+            public override TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet result, string? contentType = null)
             {
                 var rawResponse = GetRawResponse(result);
                 if (responseType == typeof(string) && contentType != null && FormattableStringHelpers.ToMediaType(contentType) == BodyMediaType.Text)
                 {
-                    return ClientResultExpression.FromValue(rawResponse.Content.InvokeToString(), rawResponse);
+                    return ClientResultExpression.FromValue(rawResponse.Content.Untyped.InvokeToString(), rawResponse);
                 }
                 return responseType == typeof(BinaryData)
                     ? ClientResultExpression.FromValue(rawResponse.Content, rawResponse)
                     : ClientResultExpression.FromValue(rawResponse.Content.ToObjectFromJson(responseType), rawResponse);
             }
 
-            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedValueExpression message)
+            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message)
             {
                 var messageVar = new VariableReference(typeof(PipelineMessage), "message");
                 message = messageVar;
-                return Snippets.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
+                return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
             }
 
-            public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedValueExpression content, out Utf8JsonWriterExpression writer)
+            public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedSnippet content, out Utf8JsonWriterSnippet writer)
             {
                 var contentVar = new VariableReference(typeof(BinaryContent), "content");
                 content = contentVar;
-                writer = new Utf8JsonWriterExpression(content.Property("JsonWriter"));
-                return Snippets.Var(contentVar, Snippets.New.Instance(typeof(BinaryContent)));
+                writer = new Utf8JsonWriterSnippet(content.Property("JsonWriter"));
+                return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));
             }
 
-            private static PipelineResponseExpression GetRawResponse(TypedValueExpression result)
+            private static PipelineResponseExpression GetRawResponse(TypedSnippet result)
                 => result.Type.Equals(typeof(PipelineResponse))
                     ? new PipelineResponseExpression(result)
                     : new ClientResultExpression(result).GetRawResponse();

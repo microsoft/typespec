@@ -3,11 +3,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record IfStatement(BoolExpression Condition, bool Inline = false, bool AddBraces = true) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed record IfStatement(BoolSnippet Condition, bool Inline = false, bool AddBraces = true) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
         private readonly List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Statements
         internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("if (");
-            Condition.Write(writer);
+            Condition.Untyped.Write(writer);
 
             if (Inline)
             {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -85,7 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Add body for json properties' serialization https://github.com/microsoft/typespec/issues/3330
-              Snippets.EmptyStatement
+              Snippet.EmptyStatement
             );
         }
 
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Snippets.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
         }
 
@@ -116,7 +117,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-                Snippets.Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
+                Snippet.Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
             );
         }
 
@@ -132,7 +133,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Snippets.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
         }
 

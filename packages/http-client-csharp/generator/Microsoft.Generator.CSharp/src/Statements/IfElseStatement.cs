@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed record IfElseStatement(IfStatement If, MethodBodyStatement? Else) : MethodBodyStatement
     {
-        public IfElseStatement(BoolExpression condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement, bool inline = false, bool addBraces = true)
+        public IfElseStatement(BoolSnippet condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement, bool inline = false, bool addBraces = true)
             : this(new IfStatement(condition, inline, addBraces) { ifStatement }, elseStatement) {}
 
         internal override void Write(CodeWriter writer)

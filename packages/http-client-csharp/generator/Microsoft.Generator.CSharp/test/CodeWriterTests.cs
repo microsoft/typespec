@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests
 {

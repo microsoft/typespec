@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -10,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Expression">The expression.</param>
     public sealed record SwitchCaseExpression(ValueExpression Case, ValueExpression Expression)
     {
-        public static SwitchCaseExpression When(ValueExpression caseExpression, BoolExpression condition, ValueExpression expression)
+        public static SwitchCaseExpression When(ValueExpression caseExpression, BoolSnippet condition, ValueExpression expression)
         {
             return new(new SwitchCaseWhenExpression(caseExpression, condition), expression);
         }
-        public static SwitchCaseExpression Default(ValueExpression expression) => new SwitchCaseExpression(Snippets.Dash, expression);
+        public static SwitchCaseExpression Default(ValueExpression expression) => new SwitchCaseExpression(Snippet.Dash, expression);
     }
 }

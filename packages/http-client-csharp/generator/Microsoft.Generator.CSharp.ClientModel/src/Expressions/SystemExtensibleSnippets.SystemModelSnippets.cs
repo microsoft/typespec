@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
-using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Expressions
@@ -19,8 +19,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]
                     {
-                        Snippets.UsingVar("document", JsonDocumentExpression.Parse(new PipelineResponseExpression(result).Content), out var document),
-                        Snippets.Return(ObjectTypeExpression.Deserialize(typeProvider, document.RootElement))
+                        Snippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseExpression(result).Content), out var document),
+                        Snippet.Return(ObjectTypeSnippet.Deserialize(typeProvider, document.RootElement))
                     },
                     "default"
                 );

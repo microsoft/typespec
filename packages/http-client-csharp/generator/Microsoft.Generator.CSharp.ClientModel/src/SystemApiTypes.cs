@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -75,7 +76,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override Type StatusCodeClassifierType => typeof(PipelineMessageClassifier);
 
         public override ValueExpression GetCreateFromStreamSampleExpression(ValueExpression freeFormObjectExpression)
-            => new InvokeStaticMethodExpression(ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, new[] { BinaryDataExpression.FromObjectAsJson(freeFormObjectExpression).ToStream() });
+            => new InvokeStaticMethodExpression(ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, ClientModelPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, [BinaryDataSnippet.FromObjectAsJson(freeFormObjectExpression).ToStream()]);
 
         public override string EndPointSampleValue => "https://my-service.com";
 

@@ -9,6 +9,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record InvokeStaticMethodExpression(CSharpType? MethodType, string MethodName, IReadOnlyList<ValueExpression> Arguments, IReadOnlyList<CSharpType>? TypeArguments = null, bool CallAsExtension = false, bool CallAsAsync = false) : ValueExpression
     {
+        public InvokeStaticMethodExpression(CSharpType? methodType, string methodName, ValueExpression arg, IReadOnlyList<CSharpType>? typeArguments = null, bool callAsExtension = false, bool callAsAsync = false)
+            : this(methodType, methodName, [arg], typeArguments, callAsExtension, callAsAsync) { }
+
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference) => new(methodType, methodName, new[] { instanceReference }, CallAsExtension: true);
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, ValueExpression arg) => new(methodType, methodName, new[] { instanceReference, arg }, CallAsExtension: true);
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, IReadOnlyList<ValueExpression> arguments)

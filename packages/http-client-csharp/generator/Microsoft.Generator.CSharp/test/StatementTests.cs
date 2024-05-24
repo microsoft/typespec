@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
@@ -42,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CreateForStatement()
         {
             var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
 
@@ -54,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void ForStatementWithAddMethod()
         {
             var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
             var statementToAdd = new MethodBodyStatement();
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementWithBoolExpression()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition);
 
             Assert.NotNull(ifStatement);
@@ -112,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementWithAddMethod()
         {
-            var ifStatement = new IfStatement(BoolExpression.True);
+            var ifStatement = new IfStatement(BoolSnippet.True);
             var statementToAdd = new MethodBodyStatement();
 
             ifStatement.Add(statementToAdd);
@@ -125,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementWithDefaultOptions()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition);
 
             Assert.IsFalse(ifStatement.Inline);
@@ -135,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementInlineOptionTrue()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition, Inline: true);
 
             Assert.IsTrue(ifStatement.Inline);
@@ -144,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementAddBracesOptionFalse()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition, AddBraces: false);
 
             Assert.IsFalse(ifStatement.AddBraces);
@@ -153,7 +154,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfElseStatementWithIfAndElse()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
@@ -167,7 +168,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfElseStatementWithConditionAndStatements()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new MethodBodyStatement();
             var elseStatement = new MethodBodyStatement();
 

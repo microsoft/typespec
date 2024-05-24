@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     /// <param name="Parameters">The parameters to initialize the object to.</param>
     /// <param name="UseSingleLine">Flag to determine if the object should be initialized inline.</param>
-    public sealed record ObjectInitializerExpression(IReadOnlyDictionary<string, ValueExpression>? Parameters = null, bool UseSingleLine = true) : InitializerExpression
+    public sealed record ObjectInitializerExpression(IReadOnlyDictionary<string, ValueExpression>? Parameters = null, bool UseSingleLine = true) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {

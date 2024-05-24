@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Moq;
 using NUnit.Framework;
@@ -58,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase(typeof(string), 22, "((string)22)")]
         public void TestWriteValueExpression_DefaultCastExpression(Type type, object inner, string expectedWritten)
         {
-            var castExpression = new CastExpression(Snippets.Literal(inner), type);
+            var castExpression = new CastExpression(Snippet.Literal(inner), type);
             var codeWriter = new CodeWriter();
             castExpression.Write(codeWriter);
 
@@ -118,7 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             var responseVar = new VariableReference(returnType, "responseParamName");
-            var responseRef = Snippets.Var(responseVar, BinaryDataExpression.FromBytes(new StringLiteralExpression("sample response", false)));
+            var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(new StringLiteralExpression("sample response", false)));
             var resultStatements = new List<MethodBodyStatement>()
             {
                 responseRef,

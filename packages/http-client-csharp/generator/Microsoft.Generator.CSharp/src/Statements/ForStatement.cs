@@ -4,10 +4,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, BoolExpression? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, BoolSnippet? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
@@ -23,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.AppendRaw("for (");
                 IndexerAssignment?.Write(writer);
                 writer.AppendRaw("; ");
-                Condition?.Write(writer);
+                Condition?.Untyped.Write(writer);
                 writer.AppendRaw("; ");
                 IncrementExpression?.Write(writer);
                 writer.WriteRawLine(")");

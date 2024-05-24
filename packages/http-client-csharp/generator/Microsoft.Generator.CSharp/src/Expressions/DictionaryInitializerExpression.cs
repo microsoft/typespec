@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DictionaryInitializerExpression(IReadOnlyList<(ValueExpression Key, ValueExpression Value)>? Values = null) : InitializerExpression
+    public sealed record DictionaryInitializerExpression(IReadOnlyList<(ValueExpression Key, ValueExpression Value)>? Values = null) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {

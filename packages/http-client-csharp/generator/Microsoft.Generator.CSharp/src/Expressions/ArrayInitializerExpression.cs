@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     /// <param name="Elements">The elements to initialize the array to.</param>
     /// <param name="IsInline">Flag to determine if the array should be initialized inline.</param>
-    public sealed record ArrayInitializerExpression(IReadOnlyList<ValueExpression>? Elements = null, bool IsInline = true) : InitializerExpression
+    public sealed record ArrayInitializerExpression(IReadOnlyList<ValueExpression>? Elements = null, bool IsInline = true) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {

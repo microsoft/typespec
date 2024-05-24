@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var left = new ValueExpression();
             var right = new ValueExpression();
-            var boolExpression = new BoolExpression(left);
+            var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.Or(right);
 
@@ -29,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var left = new ValueExpression();
             var right = new ValueExpression();
-            var boolExpression = new BoolExpression(left);
+            var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.And(right);
 
@@ -54,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var itemType = new CSharpType(T);
             var untypedValue = new ValueExpression();
 
-            var listExpression = new ListExpression(itemType, untypedValue);
+            var listExpression = new ListSnippet(itemType, untypedValue);
 
             Assert.AreEqual(itemType, listExpression.ItemType);
             Assert.AreEqual(untypedValue, listExpression.Untyped);
@@ -64,7 +65,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void ListExpressionAddItem()
         {
             var item = new ValueExpression();
-            var listExpression = new ListExpression(new CSharpType(typeof(int)), new ValueExpression());
+            var listExpression = new ListSnippet(new CSharpType(typeof(int)), new ValueExpression());
 
             var result = listExpression.Add(item);
 
@@ -94,7 +95,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var valueType = new CSharpType(t2);
             var untypedValue = new ValueExpression();
 
-            var dictionaryExpression = new DictionaryExpression(t1, t2, untypedValue);
+            var dictionaryExpression = new DictionarySnippet(t1, t2, untypedValue);
 
             Assert.AreEqual(keyType, dictionaryExpression.KeyType);
             Assert.AreEqual(valueType, dictionaryExpression.ValueType);
@@ -106,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var keyType = new CSharpType(typeof(int));
             var valueType = new CSharpType(typeof(string));
-            var dictionaryExpression = new DictionaryExpression(keyType, valueType, new ValueExpression());
+            var dictionaryExpression = new DictionarySnippet(keyType, valueType, new ValueExpression());
 
             var key = new ValueExpression();
             var value = new ValueExpression();
@@ -138,9 +139,9 @@ namespace Microsoft.Generator.CSharp.Tests
             var valueType = new CSharpType(t2);
             var untypedValue = new ValueExpression();
 
-            var keyValuePairExpression = new KeyValuePairExpression(keyType, valueType, untypedValue);
-            var expectedKey = new TypedMemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Key), keyType);
-            var expectedValue = new TypedMemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Value), valueType);
+            var keyValuePairExpression = new KeyValuePairSnippet(keyType, valueType, untypedValue);
+            var expectedKey = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Key));
+            var expectedValue = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Value));
 
             Assert.AreEqual(expectedKey, keyValuePairExpression.Key);
             Assert.AreEqual(expectedValue, keyValuePairExpression.Value);
@@ -153,11 +154,11 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var itemType = new CSharpType(typeof(int));
             var untypedValue = new ValueExpression();
-            var enumerableExpression = new EnumerableExpression(itemType, untypedValue);
+            var enumerableExpression = new EnumerableSnippet(itemType, untypedValue);
 
             var result = enumerableExpression.Any();
 
-            var expectedExpression = new BoolExpression(
+            var expectedExpression = new BoolSnippet(
                 new InvokeStaticMethodExpression(
                     typeof(Enumerable),
                     nameof(Enumerable.Any),
