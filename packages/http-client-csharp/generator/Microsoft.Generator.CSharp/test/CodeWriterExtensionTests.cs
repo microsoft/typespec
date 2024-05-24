@@ -151,7 +151,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var returnType = new CSharpType(typeof(BinaryData));
             var parameters = new List<Parameter>()
             {
-                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string)), null, Validation: ValidationType.AssertNotNullOrEmpty, Initializer: null)
+                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string)), null, validation: ValidationType.AssertNotNullOrEmpty, initializer: null)
             };
 
             var responseVar = new VariableReference(returnType, "responseParamName");

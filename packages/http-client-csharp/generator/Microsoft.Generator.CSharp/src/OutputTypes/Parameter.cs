@@ -9,61 +9,120 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record Parameter(string Name, FormattableString? Description, CSharpType Type, ValueExpression? DefaultValue, ValidationType Validation, ValueExpression? Initializer, bool IsApiVersionParameter = false, bool IsEndpoint = false, bool IsResourceIdentifier = false, bool SkipUrlEncoding = false, RequestLocation RequestLocation = RequestLocation.None, SerializationFormat SerializationFormat = SerializationFormat.Default, bool IsPropertyBag = false, bool IsRef = false, bool IsOut = false)
+    public sealed class Parameter
     {
-        internal bool IsRawData { get; init; }
+        public string Name { get; }
+        public FormattableString? Description { get; }
+        public CSharpType Type { get; init; }
+        public ValueExpression? DefaultValue { get; init; }
+        public ValidationType Validation { get; init; }
+        public ValueExpression? Initializer { get; init; }
+        public bool IsApiVersionParameter { get; }
+        public bool IsEndpoint { get; }
+        public bool IsResourceIdentifier { get; }
+        public bool SkipUrlEncoding { get; }
+        public RequestLocation RequestLocation { get; init; } = RequestLocation.None;
+        public SerializationFormat SerializationFormat { get; init; } = SerializationFormat.Default;
+        public bool IsPropertyBag { get; }
+        public bool IsRef { get; }
+        public bool IsOut { get; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
-        internal bool IsOptionalInSignature => DefaultValue != null;
+
+        public Parameter(InputModelProperty inputProperty)
+        {
+            CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            var parameterValidation = GetParameterValidation(inputProperty, propertyType);
+
+            Name = inputProperty.Name.ToVariableName();
+            Description = FormattableStringHelpers.FromString(inputProperty.Description);
+            Type = propertyType;
+            Validation = parameterValidation;
+        }
 
         /// <summary>
         /// Creates a <see cref="Parameter"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
-        public static Parameter FromInputParameter(InputParameter inputParameter)
+        public Parameter(InputParameter inputParameter)
         {
             // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
-            var csharpType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
-            FormattableString? description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
-            var validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
-
-            return new Parameter(
-                inputParameter.Name,
-                description,
-                csharpType,
-                null,
-                validation,
-                null,
-                IsApiVersionParameter: inputParameter.IsApiVersion,
-                IsEndpoint: inputParameter.IsEndpoint,
-                IsResourceIdentifier: inputParameter.IsResourceParameter,
-                SkipUrlEncoding: inputParameter.SkipUrlEncoding,
-                RequestLocation: inputParameter.Location,
-                SerializationFormat: SerializationFormat.Default);
+            Name = inputParameter.Name;
+            Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
+            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
+            Validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
+            IsApiVersionParameter = inputParameter.IsApiVersion;
+            IsEndpoint = inputParameter.IsEndpoint;
+            IsResourceIdentifier = inputParameter.IsResourceParameter;
+            SkipUrlEncoding = inputParameter.SkipUrlEncoding;
+            RequestLocation = inputParameter.Location;
+            SerializationFormat = SerializationFormat.Default;
         }
 
-        internal Parameter WithRef(bool isRef = true) => IsRef == isRef ? this : this with { IsRef = isRef };
-        internal Parameter ToRequired()
+        public Parameter(
+            string name,
+            FormattableString? description,
+            CSharpType type,
+            ValueExpression? defaultValue,
+            ValidationType validation,
+            ValueExpression? initializer,
+            bool isApiVersionParameter = false,
+            bool isEndpoint = false,
+            bool isResourceIdentifier = false,
+            bool skipUrlEncoding = false,
+            RequestLocation requestLocation = RequestLocation.None,
+            SerializationFormat serializationFormat = SerializationFormat.Default,
+            bool isPropertyBag = false,
+            bool isRef = false,
+            bool isOut = false)
         {
-            return this with { DefaultValue = null };
-        }
-
-        internal static ValidationType GetValidation(CSharpType type, RequestLocation requestLocation, bool skipUrlEncoding)
-        {
-            if (requestLocation is RequestLocation.Uri or RequestLocation.Path or RequestLocation.Body && type.Equals(typeof(string), ignoreNullable: true) && !skipUrlEncoding)
-            {
-                return ValidationType.AssertNotNullOrEmpty;
-            }
-
-            if (!type.IsValueType)
-            {
-                return ValidationType.AssertNotNull;
-            }
-
-            return ValidationType.None;
+            Name = name;
+            Type = type;
+            Description = description;
+            Validation = validation;
+            IsApiVersionParameter = isApiVersionParameter;
+            IsEndpoint = isEndpoint;
+            IsResourceIdentifier = isResourceIdentifier;
+            SkipUrlEncoding = skipUrlEncoding;
+            RequestLocation = requestLocation;
+            SerializationFormat = serializationFormat;
+            IsPropertyBag = isPropertyBag;
+            IsRef = isRef;
+            IsOut = isOut;
+            DefaultValue = defaultValue;
+            Initializer = initializer;
         }
 
         internal static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();
+
+        private ValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        {
+            // We do not validate a parameter when it is a value type (struct or int, etc)
+            if (propertyType.IsValueType)
+            {
+                return ValidationType.None;
+            }
+
+            // or it is readonly
+            if (property.IsReadOnly)
+            {
+                return ValidationType.None;
+            }
+
+            // or it is optional
+            if (!property.IsRequired)
+            {
+                return ValidationType.None;
+            }
+
+            // or it is nullable
+            if (propertyType.IsNullable)
+            {
+                return ValidationType.None;
+            }
+
+            return ValidationType.AssertNotNull;
+        }
 
         private struct ParameterByTypeEqualityComparer : IEqualityComparer<Parameter>
         {

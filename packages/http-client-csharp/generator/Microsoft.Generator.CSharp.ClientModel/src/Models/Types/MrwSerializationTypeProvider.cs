@@ -94,7 +94,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelCreateMethod()
         {
-            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ValidationType.None, null, IsRef: true);
+            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ValidationType.None, null, isRef: true);
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new CSharpMethod
