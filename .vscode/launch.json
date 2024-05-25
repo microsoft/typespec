@@ -61,7 +61,6 @@
         "compile",
         "../samples/scratch",
         "--output-dir=temp/scratch-output",
-        "--emit=@typespec/openapi3"
       ],
       "smartStep": true,
       "sourceMaps": true,
