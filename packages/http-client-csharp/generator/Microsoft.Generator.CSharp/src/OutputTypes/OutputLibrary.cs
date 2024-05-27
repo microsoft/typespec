@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < enums.Length; i++)
             {
                 var inputEnum = input.Enums[i];
-                var enumType = new EnumTypeProvider(inputEnum, null);
+                var enumType = EnumTypeProvider.Create(inputEnum, null);
                 enums[i] = enumType;
                 EnumMappings.Add(inputEnum, enumType);
             }

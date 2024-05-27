@@ -12,67 +12,48 @@ using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
-    public abstract class EnumTypeProvider : TypeProvider
+    public class FixedEnumTypeProvider : EnumTypeProvider
     {
-        public static EnumTypeProvider Create(InputEnumType input, SourceInputModel? sourceInputModel)
-            => input.IsExtensible
-            ? new ExtensibleEnumTypeProvider(input, sourceInputModel)
-            : new FixedEnumTypeProvider(input, sourceInputModel);
+        private readonly TypeSignatureModifiers _modifiers;
 
-        private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
-
-        protected EnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(sourceInputModel)
+        protected internal FixedEnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(input, sourceInputModel)
         {
-            _allowedValues = input.AllowedValues;
-            _deprecated = input.Deprecated;
-
-            IsExtensible = input.IsExtensible;
-            Name = input.Name.ToCleanName();
-            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.EnumValueType);
-            IsStringValueType = ValueType.Equals(typeof(string));
-            IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
-            IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
-            IsNumericValueType = IsIntValueType || IsFloatValueType;
-
-            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
-        }
-
-        public CSharpType ValueType { get; }
-        public bool IsExtensible { get; }
-        internal bool IsIntValueType { get; }
-        internal bool IsFloatValueType { get; }
-        internal bool IsStringValueType { get; }
-        internal bool IsNumericValueType { get; }
-        public override string Name { get; }
-        public override string Namespace { get; }
-        public override FormattableString Description { get; }
-
-        /// <summary>
-        /// The serialization provider for this enum.
-        /// </summary>
-        public TypeProvider? Serialization { get; protected init; }
-
-        private IReadOnlyDictionary<EnumTypeValue, FieldDeclaration>? _valueFields;
-        protected internal IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> ValueFields => _valueFields ??= BuildValueFields();
-
-        private IReadOnlyList<EnumTypeValue>? _values;
-        public IReadOnlyList<EnumTypeValue> Values => _values ??= BuildValues();
-
-        private IReadOnlyList<EnumTypeValue> BuildValues()
-        {
-            var values = new EnumTypeValue[_allowedValues.Count];
-
-            for (int i = 0; i < values.Length; i++)
+            // fixed enums are implemented by enum in C#
+            _modifiers = TypeSignatureModifiers.Enum;
+            if (input.Accessibility == "internal")
             {
-                values[i] = new EnumTypeValue(_allowedValues[i]);
+                _modifiers |= TypeSignatureModifiers.Internal;
             }
 
+            Serialization = new FixedEnumSerializationProvider(this);
+        }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
+
+        // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
+        private protected override IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
+        {
+            var values = new Dictionary<EnumTypeValue, FieldDeclaration>();
+            foreach (var value in Values)
+            {
+                var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
+                var name = value.Name;
+                // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
+                var initializationValue = IsIntValueType ? Literal(value.Value) : null;
+                var field = new FieldDeclaration(
+                    Description: FormattableStringHelpers.FromString(value.Description),
+                    Modifiers: modifiers,
+                    Type: ValueType,
+                    Name: name,
+                    InitializationValue: initializationValue);
+                values.Add(value, field);
+            }
             return values;
         }
 
-        // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
-        private protected abstract IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields();
+        protected override FieldDeclaration[] BuildFields()
+            => ValueFields.Values.ToArray();
 
         /// <summary>
         /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum

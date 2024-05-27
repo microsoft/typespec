@@ -13,7 +13,6 @@ namespace Microsoft.Generator.CSharp
     public sealed class ModelTypeProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-
         public override string Name { get; }
         public override string Namespace { get; }
         public override FormattableString Description { get; }
