@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import { BrowserHost } from "../../types.js";
+import type { BrowserHost } from "../../types.js";
 
 export interface PlaygroundContext {
-  host: BrowserHost;
+  readonly host: BrowserHost;
 }
 
 const PlaygroundContext = createContext<PlaygroundContext | undefined>(undefined);

@@ -15,8 +15,11 @@ namespace Microsoft.Generator.CSharp
         private readonly InputModelType _inputModel;
 
         public override string Name { get; }
-
         public override string Namespace { get; }
+        public override FormattableString Description { get; }
+
+        private readonly bool _isStruct;
+        private readonly TypeSignatureModifiers _declarationModifiers;
 
         /// <summary>
         /// The serializations providers for the model provider.
@@ -29,22 +32,29 @@ namespace Microsoft.Generator.CSharp
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
+            // TODO -- support generating models as structs. Tracking issue: https://github.com/microsoft/typespec/issues/3453
+            _declarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
             if (inputModel.Accessibility == "internal")
             {
-                DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Internal;
+                _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
             bool isAbstract = inputModel.DiscriminatorPropertyName is not null && inputModel.DiscriminatorValue is null;
             if (isAbstract)
             {
-                DeclarationModifiers |= TypeSignatureModifiers.Abstract;
+                _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
             if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
             {
                 SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
             }
+
+            _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
         protected override PropertyDeclaration[] BuildProperties()
         {
@@ -95,7 +105,7 @@ namespace Microsoft.Generator.CSharp
                 return false;
             }
 
-            if (IsStruct)
+            if (_isStruct)
             {
                 return false;
             }
@@ -188,7 +198,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     // For classes, only required + not readonly + not initialization value + not discriminator could get into the public ctor
                     // For structs, all properties must be set in the public ctor
-                    if (IsStruct || (property is { IsRequired: true, IsDiscriminator: false } && initializationValue == null))
+                    if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && initializationValue == null))
                     {
                         if (!property.IsReadOnly)
                         {
@@ -292,7 +302,7 @@ namespace Microsoft.Generator.CSharp
             {
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || IsStruct)
+                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _isStruct)
                 {
                     if (parameter != null)
                     {
@@ -322,7 +332,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildEmptyConstructor()
         {
-            var accessibility = IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
+            var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new CSharpMethod(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
                 bodyStatements: new MethodBodyStatement(),

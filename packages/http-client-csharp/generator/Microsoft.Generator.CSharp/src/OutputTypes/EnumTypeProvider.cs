@@ -19,19 +19,17 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly ModelTypeMapping? _typeMapping;
+        private readonly TypeSignatureModifiers _modifiers;
 
         public EnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(sourceInputModel)
         {
             _allowedValues = input.AllowedValues;
             _deprecated = input.Deprecated;
 
+            _modifiers = TypeSignatureModifiers.None;
             if (input.Accessibility == "internal")
             {
-                DeclarationModifiers = TypeSignatureModifiers.Internal;
-            }
-            else
-            {
-                DeclarationModifiers = TypeSignatureModifiers.Public;
+                _modifiers |= TypeSignatureModifiers.Internal;
             }
 
             var isExtensible = input.IsExtensible;
@@ -52,7 +50,12 @@ namespace Microsoft.Generator.CSharp
             if (isExtensible)
             {
                 // extensible enums are implemented by readonly structs
-                DeclarationModifiers |= TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly;
+                _modifiers |= TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
+            }
+            else
+            {
+                // fixed enums are implemented by enum in C#
+                _modifiers |= TypeSignatureModifiers.Enum;
             }
 
             Name = input.Name.ToCleanName();
@@ -64,7 +67,7 @@ namespace Microsoft.Generator.CSharp
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
 
-            Description = input.Description;
+            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
 
             _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
 
@@ -82,10 +85,11 @@ namespace Microsoft.Generator.CSharp
         internal bool IsFloatValueType { get; }
         internal bool IsStringValueType { get; }
         internal bool IsNumericValueType { get; }
-        public string? Description { get; }
         public override string Name { get; }
         public override string Namespace { get; }
-        protected override TypeKind TypeKind => IsExtensible ? TypeKind.Struct : TypeKind.Enum;
+        public override FormattableString Description { get; }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         /// <summary>
         /// The serialization provider for this enum.
@@ -375,8 +379,9 @@ namespace Microsoft.Generator.CSharp
                 _enumType = enumType;
                 Namespace = _enumType.Namespace;
                 Name = $"{_enumType.Name}Extensions";
-                DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
             }
+
+            protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
             public override string Namespace { get; }
 

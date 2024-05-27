@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
 
         public virtual void Write()
         {
-            using (_writer.SetNamespace(_provider.Type.Namespace))
+            using (_writer.SetNamespace(_provider.Namespace))
             {
                 WriteType();
             }
@@ -26,27 +26,7 @@ namespace Microsoft.Generator.CSharp
 
         private void WriteType()
         {
-            if (_provider.IsEnum)
-            {
-                WriteEnum();
-            }
-            else
-            {
-                WriteClassOrStruct();
-            }
-        }
-
-        private void WriteClassOrStruct()
-        {
-            _writer.WriteTypeModifiers(_provider.DeclarationModifiers);
-            if (_provider.IsStruct)
-            {
-                _writer.AppendRaw("struct ");
-            }
-            else
-            {
-                _writer.AppendRaw("class ");
-            }
+            _writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             _writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
                 .AppendIf($"{_provider.Inherits},", _provider.Inherits != null);
@@ -63,6 +43,23 @@ namespace Microsoft.Generator.CSharp
             }
 
             _writer.WriteLine();
+
+            if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum))
+            {
+                WriteEnumContent();
+            }
+            else if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Interface))
+            {
+                WriteInterfaceContent();
+            }
+            else
+            {
+                WriteClassOrStructContent();
+            }
+        }
+
+        private void WriteClassOrStructContent()
+        {
             using (_writer.Scope())
             {
                 WriteFields();
@@ -77,13 +74,8 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        private void WriteEnum()
+        private void WriteEnumContent()
         {
-            _writer.WriteTypeModifiers(_provider.DeclarationModifiers);
-            _writer.Append($" enum {_provider.Type:D}")
-                .AppendRawIf(" : ", _provider.Inherits != null)
-                .AppendIf($"{_provider.Inherits}", _provider.Inherits != null);
-
             using (_writer.Scope())
             {
                 foreach (var field in _provider.Fields)
@@ -97,6 +89,14 @@ namespace Microsoft.Generator.CSharp
                     _writer.WriteRawLine(",");
                 }
                 _writer.RemoveTrailingComma();
+            }
+        }
+
+        private void WriteInterfaceContent()
+        {
+            using (_writer.Scope())
+            {
+                // temporarily do nothing until we have a requirement for writing interfaces: https://github.com/microsoft/typespec/issues/3442
             }
         }
 

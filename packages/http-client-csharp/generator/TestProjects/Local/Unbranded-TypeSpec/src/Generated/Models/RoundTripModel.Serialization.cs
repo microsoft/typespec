@@ -5,31 +5,30 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
-using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
-    public partial class RoundTripModel : System.ClientModel.Primitives.IJsonModel<Models.RoundTripModel>
+    public partial class RoundTripModel : System.ClientModel.Primitives.IJsonModel<RoundTripModel>
     {
-        void System.ClientModel.Primitives.IJsonModel<Models.RoundTripModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
-        Models.RoundTripModel System.ClientModel.Primitives.IJsonModel<Models.RoundTripModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        RoundTripModel System.ClientModel.Primitives.IJsonModel<RoundTripModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.RoundTripModel();
+            return new RoundTripModel();
         }
 
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<Models.RoundTripModel>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<RoundTripModel>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
-        Models.RoundTripModel System.ClientModel.Primitives.IPersistableModel<Models.RoundTripModel>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        RoundTripModel System.ClientModel.Primitives.IPersistableModel<RoundTripModel>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.RoundTripModel();
+            return new RoundTripModel();
         }
 
-        string System.ClientModel.Primitives.IPersistableModel<Models.RoundTripModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string System.ClientModel.Primitives.IPersistableModel<RoundTripModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

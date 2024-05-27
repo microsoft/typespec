@@ -125,17 +125,28 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
+        [Conditional("DEBUG")]
+        private static void ValidateArguments(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments)
+        {
+            if (arguments == null)
+                return;
+
+            Debug.Assert(implementation.TypeArguments.Count == arguments.Count, $"the count of arguments given ({string.Join(", ", arguments.Select(a => a.ToString()))}) does not match the arguments in the definition {implementation.Name}");
+        }
+
         internal CSharpType(TypeProvider implementation, IReadOnlyList<CSharpType>? arguments = null, bool isNullable = false)
         {
+            ValidateArguments(implementation, arguments);
+
             _implementation = implementation;
-            _arguments = arguments ?? Array.Empty<CSharpType>();
+            _arguments = arguments ?? implementation.TypeArguments;
 
             var isPublic = (implementation.DeclarationModifiers & TypeSignatureModifiers.Public) != 0
                 && Arguments.All(t => t.IsPublic);
             var name = implementation.Name;
             var ns = implementation.Namespace;
-            var isValueType = implementation.IsValueType;
-            var isEnum = implementation.IsEnum;
+            var isEnum = implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum);
+            var isValueType = isEnum || implementation.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             var declaringType = implementation.DeclaringTypeProvider?.Type;
 
             Initialize(name, isValueType, isEnum, isNullable, ns, declaringType, arguments, isPublic);

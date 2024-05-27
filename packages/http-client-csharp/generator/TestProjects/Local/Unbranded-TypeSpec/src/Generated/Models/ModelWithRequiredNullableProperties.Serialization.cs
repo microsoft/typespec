@@ -5,31 +5,30 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
-using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
-    public partial class ModelWithRequiredNullableProperties : System.ClientModel.Primitives.IJsonModel<Models.ModelWithRequiredNullableProperties>
+    public partial class ModelWithRequiredNullableProperties : System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>
     {
-        void System.ClientModel.Primitives.IJsonModel<Models.ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
-        Models.ModelWithRequiredNullableProperties System.ClientModel.Primitives.IJsonModel<Models.ModelWithRequiredNullableProperties>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.ModelWithRequiredNullableProperties();
+            return new ModelWithRequiredNullableProperties();
         }
 
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<Models.ModelWithRequiredNullableProperties>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
-        Models.ModelWithRequiredNullableProperties System.ClientModel.Primitives.IPersistableModel<Models.ModelWithRequiredNullableProperties>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ModelWithRequiredNullableProperties System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.ModelWithRequiredNullableProperties();
+            return new ModelWithRequiredNullableProperties();
         }
 
-        string System.ClientModel.Primitives.IPersistableModel<Models.ModelWithRequiredNullableProperties>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

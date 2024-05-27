@@ -9,13 +9,21 @@ namespace Microsoft.Generator.CSharp
     public enum TypeSignatureModifiers
     {
         None = 0,
-        Public = 1,
-        Internal = 2,
-        Private = 8,
-        Static = 16,
-        Partial = 32,
-        Sealed = 64,
-        Abstract = 128,
-        ReadOnly = 256 // only used when the type is struct
+        // accessability modifiers
+        Public = 1 << 0,
+        Internal = 1 << 1,
+        Private = 1 << 2,
+        Protected = 1 << 3,
+        // type modifiers
+        Class = 1 << 4,
+        Struct = 1 << 5,
+        Enum = 1 << 6,
+        Interface = 1 << 7,
+        // other modifiers
+        Static = 1 << 8,
+        Partial = 1 << 9,
+        Sealed = 1 << 10,
+        Abstract = 1 << 11,
+        ReadOnly = 1 << 12,
     }
 }

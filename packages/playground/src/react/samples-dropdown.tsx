@@ -1,6 +1,6 @@
 import { Select } from "@fluentui/react-components";
-import { FunctionComponent, useCallback } from "react";
-import { PlaygroundSample } from "../types.js";
+import { useCallback, type FunctionComponent } from "react";
+import type { PlaygroundSample } from "../types.js";
 
 export interface SamplesDropdownProps {
   samples: Record<string, PlaygroundSample>;

@@ -5,31 +5,30 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
-using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec
+namespace UnbrandedTypeSpec.Models
 {
-    public partial class ReturnsAnonymousModelResponse : System.ClientModel.Primitives.IJsonModel<Models.ReturnsAnonymousModelResponse>
+    public partial class ReturnsAnonymousModelResponse : System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>
     {
-        void System.ClientModel.Primitives.IJsonModel<Models.ReturnsAnonymousModelResponse>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
-        Models.ReturnsAnonymousModelResponse System.ClientModel.Primitives.IJsonModel<Models.ReturnsAnonymousModelResponse>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ReturnsAnonymousModelResponse System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.ReturnsAnonymousModelResponse();
+            return new ReturnsAnonymousModelResponse();
         }
 
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<Models.ReturnsAnonymousModelResponse>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
-        Models.ReturnsAnonymousModelResponse System.ClientModel.Primitives.IPersistableModel<Models.ReturnsAnonymousModelResponse>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ReturnsAnonymousModelResponse System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
-            return new Models.ReturnsAnonymousModelResponse();
+            return new ReturnsAnonymousModelResponse();
         }
 
-        string System.ClientModel.Primitives.IPersistableModel<Models.ReturnsAnonymousModelResponse>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }
