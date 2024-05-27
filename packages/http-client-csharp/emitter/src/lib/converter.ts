@@ -65,7 +65,7 @@ export function fromSdkType(
     return fromSdkEnumValueTypeToConstantType(sdkType, context, enums, literalTypeContext);
   if (sdkType.kind === "dict") return fromSdkDictionaryType(sdkType, context, models, enums);
   if (sdkType.kind === "array") return fromSdkArrayType(sdkType, context, models, enums);
-  if (sdkType.kind === "constant") return fromSdkConstantType(sdkType, enums, literalTypeContext);
+  if (sdkType.kind === "constant") return fromSdkConstantType(sdkType, context, models, enums, literalTypeContext);
   if (sdkType.kind === "union") return fromUnionType(sdkType, context, models, enums);
   if (sdkType.kind === "utcDateTime") return fromSdkDatetimeType(sdkType);
   if (sdkType.kind === "duration") return fromSdkDurationType(sdkType as SdkDurationType);
@@ -582,6 +582,8 @@ function fromUnionType(
 
 function fromSdkConstantType(
   constantType: SdkConstantType,
+  context: SdkContext,
+  models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
   literalTypeContext?: LiteralTypeContext
 ): InputLiteralType {
@@ -606,10 +608,8 @@ function fromSdkConstantType(
     // otherwise we need to wrap this into an extensible enum
     // we use the model name followed by the property name as the enum name to ensure it is unique
     const enumName = `${literalTypeContext.ModelName}_${literalTypeContext.PropertyName}`;
-    const enumValueType =
-      constantType.valueType.kind === "string"
-        ? InputPrimitiveTypeKind.String
-        : InputPrimitiveTypeKind.Float32;
+    const valueType = fromSdkType(constantType.valueType, context, models, enums, literalTypeContext) as InputPrimitiveType;
+    const enumValueType = valueType.Name;
     const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
     const allowValues: InputEnumTypeValue[] = [
       {
@@ -621,7 +621,7 @@ function fromSdkConstantType(
     const enumType: InputEnumType = {
       Kind: InputTypeKind.Enum,
       Name: enumName,
-      EnumValueType: enumValueType, //EnumValueType and  AllowedValues should be the first field after id and name, so that it can be corrected serialized.
+      EnumValueType: enumValueType, //EnumValueType and AllowedValues should be the first field after id and name, so that it can be corrected serialized.
       AllowedValues: allowValues,
       Namespace: literalTypeContext.Namespace,
       Accessibility: undefined,
