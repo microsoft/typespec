@@ -1,6 +1,6 @@
-import { Select, SelectOnChangeData } from "@fluentui/react-components";
-import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { FileOutputViewer } from "../types.js";
+import { Select, type SelectOnChangeData } from "@fluentui/react-components";
+import { useCallback, useMemo, useState, type FunctionComponent } from "react";
+import type { FileOutputViewer } from "../types.js";
 import style from "./file-output.module.css";
 
 export interface FileOutputProps {

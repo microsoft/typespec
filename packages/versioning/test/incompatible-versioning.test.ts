@@ -1,9 +1,9 @@
 import {
-  BasicTestRunner,
-  TestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  type BasicTestRunner,
+  type TestHost,
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
 import { beforeEach, describe, it } from "vitest";

@@ -1,5 +1,5 @@
 export {
-  PlaygroundContext,
   PlaygroundContextProvider,
   usePlaygroundContext,
+  type PlaygroundContext,
 } from "./playground-context.js";
