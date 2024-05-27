@@ -382,7 +382,5 @@ namespace UnbrandedTypeSpec.Models
         /// </para>
         /// </summary>
         public System.BinaryData RequiredBytes { get; set; }
-
-        // Add Nested Type
     }
 }
