@@ -32,6 +32,7 @@ namespace Microsoft.Generator.CSharp
             Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
+            // TODO -- support generating models as structs. Tracking issue: https://github.com/microsoft/typespec/issues/3453
             _declarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
             if (inputModel.Accessibility == "internal")
             {
