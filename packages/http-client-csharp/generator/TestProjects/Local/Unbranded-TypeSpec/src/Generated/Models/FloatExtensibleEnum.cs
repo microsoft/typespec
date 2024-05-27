@@ -11,9 +11,9 @@ namespace UnbrandedTypeSpec.Models
     public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>
     {
         private readonly float _value;
-        private const float OneValue = 1F;
-        private const float TwoValue = 2F;
-        private const float FourValue = 4F;
+        private const float OneValue = 1.1F;
+        private const float TwoValue = 2.2F;
+        private const float FourValue = 4.4F;
 
         /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnum"/>. </summary>
         /// <param name="value"></param>
