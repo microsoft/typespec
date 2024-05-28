@@ -580,14 +580,13 @@ export async function compile(
 
     const libDefinition: TypeSpecLibrary<any> | undefined = entrypoint?.esmExports.$lib;
     const metadata = computeLibraryMetadata(module, libDefinition);
-
+    // eslint-disable-next-line deprecation/deprecation
+    const linterDef = entrypoint?.esmExports.$linter ?? libDefinition?.linter;
     return {
       ...resolution,
       metadata,
       definition: libDefinition,
-      linter:
-        entrypoint?.esmExports.$linter &&
-        resolveLinterDefinition(libraryNameOrPath, entrypoint.esmExports.$linter),
+      linter: linterDef && resolveLinterDefinition(libraryNameOrPath, linterDef),
     };
   }
 
