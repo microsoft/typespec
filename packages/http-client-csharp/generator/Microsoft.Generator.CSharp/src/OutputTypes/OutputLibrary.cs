@@ -13,14 +13,14 @@ namespace Microsoft.Generator.CSharp
 
         public OutputLibrary()
         {
-            EnumMappings = new Dictionary<InputEnumType, EnumType>();
+            EnumMappings = new Dictionary<InputEnumType, EnumTypeProvider>();
             ModelMappings = new Dictionary<InputModelType, ModelTypeProvider>();
         }
 
         public IReadOnlyList<ModelTypeProvider> Models => _models ??= BuildModels();
         public IReadOnlyList<ClientTypeProvider> Clients => _clients ??= BuildClients();
 
-        public IDictionary<InputEnumType, EnumType> EnumMappings { get; }
+        public IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
         public IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
 
         public virtual ModelTypeProvider[] BuildModels()
