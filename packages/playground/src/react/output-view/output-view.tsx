@@ -75,6 +75,7 @@ const OutputViewInternal: FunctionComponent<{
 
   const [viewSelection, setViewSelection] = useState<ViewSelection>({
     type: "file",
+    id: `file:`,
     filename: "",
     content: "",
   });
@@ -85,14 +86,24 @@ const OutputViewInternal: FunctionComponent<{
         const fileStillThere = outputFiles.find((x) => x === viewSelection.filename);
         void loadOutputFile(fileStillThere ?? outputFiles[0]);
       } else {
-        setViewSelection({ type: "file", filename: viewSelection.filename, content: "" });
+        setViewSelection({
+          type: "file",
+          id: viewSelection.id,
+          filename: viewSelection.filename,
+          content: "",
+        });
       }
     }
   }, [program, outputFiles]);
 
   async function loadOutputFile(path: string) {
     const contents = await program.host.readFile("./tsp-output/" + path);
-    setViewSelection({ type: "file", filename: path, content: contents.text });
+    setViewSelection({
+      type: "file",
+      id: `file:${path}`,
+      filename: path,
+      content: contents.text,
+    });
   }
 
   const diagnostics = program.diagnostics;
@@ -113,7 +124,7 @@ const OutputViewInternal: FunctionComponent<{
   const handleTabSelection = useCallback((tabId: string) => {
     const [type, key] = tabId.split(":", 2);
     if (type === "viewer") {
-      setViewSelection({ type: "viewer", key });
+      setViewSelection({ id: tabId, type: "viewer", key });
     } else {
       void loadOutputFile(key);
     }
@@ -121,11 +132,7 @@ const OutputViewInternal: FunctionComponent<{
 
   return (
     <div className={style["output-view"]}>
-      <OutputTabs
-        tabs={tabs}
-        selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
-        onSelect={handleTabSelection}
-      />
+      <OutputTabs tabs={tabs} selected={viewSelection.id} onSelect={handleTabSelection} />
       <div className={style["output-content"]}>
         <OutputContent viewSelection={viewSelection} program={program} viewers={viewers} />
       </div>
@@ -164,5 +171,5 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
 };
 
 type ViewSelection =
-  | { type: "file"; filename: string; content: string }
-  | { type: "viewer"; key: string };
+  | { type: "file"; id: string; filename: string; content: string }
+  | { type: "viewer"; id: string; key: string };
