@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, null, false);
-            var modelTypeProvider = new ModelTypeProvider(inputModel, null);
+            var modelTypeProvider = new ModelTypeProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
             Assert.IsNotNull(properties);
@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
 
-            var modelTypeProvider = new ModelTypeProvider(inputModel, null);
+            var modelTypeProvider = new ModelTypeProvider(inputModel);
             var ctors = modelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 

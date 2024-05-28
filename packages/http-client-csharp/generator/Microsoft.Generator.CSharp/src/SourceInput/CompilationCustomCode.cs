@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    public abstract class CompilationCustomCode
+    internal abstract class CompilationCustomCode
     {
         protected Compilation _compilation;
 

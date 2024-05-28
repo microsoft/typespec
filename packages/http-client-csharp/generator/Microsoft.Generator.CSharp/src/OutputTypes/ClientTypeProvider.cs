@@ -13,8 +13,7 @@ namespace Microsoft.Generator.CSharp
 
         public override string Name { get; }
 
-        public ClientTypeProvider(InputClient inputClient, SourceInputModel? sourceInputModel)
-            : base(sourceInputModel)
+        public ClientTypeProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();

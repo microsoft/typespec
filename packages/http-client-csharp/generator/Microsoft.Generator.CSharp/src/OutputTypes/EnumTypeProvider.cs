@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -13,11 +12,10 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly InputEnumType _inputEnum;
         private readonly IEnumerable<InputEnumTypeValue> _allowedValues;
-        private readonly ModelTypeMapping? _typeMapping;
+        //private readonly ModelTypeMapping? _typeMapping;
         private readonly TypeFactory _typeFactory;
 
-        public EnumTypeProvider(InputEnumType input, string defaultNamespace, TypeFactory typeFactory, SourceInputModel? sourceInputModel)
-            : base(sourceInputModel)
+        public EnumTypeProvider(InputEnumType input, string defaultNamespace, TypeFactory typeFactory)
         {
             _inputEnum = input;
             _allowedValues = input.AllowedValues;
@@ -38,7 +36,8 @@ namespace Microsoft.Generator.CSharp
                         $" expected enum or struct got {ExistingType.TypeKind}")
                 };
 
-                _typeMapping = sourceInputModel?.CreateForModel(ExistingType);
+                // TODO uncomment when we do custom code work
+                //_typeMapping = SourceInputModel.Instance.CreateForModel(ExistingType);
             }
 
             Name = input.Name.ToCleanName();

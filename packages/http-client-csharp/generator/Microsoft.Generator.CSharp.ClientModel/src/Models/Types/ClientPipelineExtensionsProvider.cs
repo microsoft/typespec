@@ -30,7 +30,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private MemberExpression _messageResponse;
 
         private ClientPipelineExtensionsProvider()
-            : base(null)
         {
             Name = "ClientPipelineExtensions";
             _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ParameterValidationType.None, null);

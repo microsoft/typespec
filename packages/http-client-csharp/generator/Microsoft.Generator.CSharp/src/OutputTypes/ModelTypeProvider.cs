@@ -28,8 +28,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
-            : base(sourceInputModel)
+        public ModelTypeProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();

@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly ModelTypeProvider _model;
         private readonly bool _isStruct;
 
-        public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
+        public MrwSerializationTypeProvider(ModelTypeProvider model)
         {
             _model = model;
             _isStruct = model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);

@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < modelsCount; i++)
             {
                 var model = input.Models[i];
-                var typeProvider = new ModelTypeProvider(model, null);
+                var typeProvider = new ModelTypeProvider(model);
 
                 modelProviders[i] = typeProvider;
                 ModelMappings.Add(model, typeProvider);
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientTypeProvider(input.Clients[i], null);
+                clientProviders[i] = new ClientTypeProvider(input.Clients[i]);
             }
 
             return clientProviders;
