@@ -28,8 +28,6 @@ export interface ProgramViewer {
 
 export interface FileOutputViewer {
   readonly kind: "file";
-  /** Emitter output this should be allowed to use */
-  readonly emitter?: string[];
   key: string;
   label: string;
   render: (props: FileOutputViewerProps) => ReactNode | null;
