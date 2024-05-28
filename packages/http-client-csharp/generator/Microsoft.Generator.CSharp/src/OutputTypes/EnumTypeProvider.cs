@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -8,26 +8,21 @@ using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class EnumType : TypeProvider
+    public class EnumTypeProvider : TypeProvider
     {
+        private readonly InputEnumType _inputEnum;
         private readonly IEnumerable<InputEnumTypeValue> _allowedValues;
         private readonly ModelTypeMapping? _typeMapping;
         private readonly TypeFactory _typeFactory;
 
-        public EnumType(InputEnumType input, string defaultNamespace, TypeFactory typeFactory, SourceInputModel? sourceInputModel)
+        public EnumTypeProvider(InputEnumType input, string defaultNamespace, TypeFactory typeFactory, SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
+            _inputEnum = input;
             _allowedValues = input.AllowedValues;
             _typeFactory = typeFactory;
             _deprecated = input.Deprecated;
 
-            if (input.Accessibility == "internal")
-            {
-                DeclarationModifiers = TypeSignatureModifiers.Internal;
-            } else
-            {
-                DeclarationModifiers = TypeSignatureModifiers.Public;
-            }
             IsAccessibilityOverridden = input.Accessibility != null;
 
             var isExtensible = input.IsExtensible;
@@ -53,8 +48,26 @@ namespace Microsoft.Generator.CSharp
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
             SerializationMethodName = IsStringValueType && IsExtensible ? "ToString" : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
+        }
 
-            Description = input.Description;
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            var modifiers = TypeSignatureModifiers.Partial;
+            if (_inputEnum.Accessibility == "internal")
+            {
+                modifiers |= TypeSignatureModifiers.Internal;
+            }
+
+            if (IsExtensible)
+            {
+                modifiers |= TypeSignatureModifiers.Struct;
+            }
+            else
+            {
+                modifiers |= TypeSignatureModifiers.Enum;
+            }
+
+            return modifiers;
         }
 
         public CSharpType ValueType { get; }
@@ -64,9 +77,7 @@ namespace Microsoft.Generator.CSharp
         public bool IsStringValueType { get; }
         public bool IsNumericValueType { get; }
         public string SerializationMethodName { get; }
-        public string? Description { get; }
         public override string Name { get; }
-        protected override TypeKind TypeKind => IsExtensible ? TypeKind.Struct : TypeKind.Enum;
         public bool IsAccessibilityOverridden { get; }
     }
 }

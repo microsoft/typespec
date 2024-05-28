@@ -1106,6 +1106,11 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(TypeSignatureModifiers.Static))
                 .AppendRawIf("sealed ", modifiers.HasFlag(TypeSignatureModifiers.Sealed))
                 .AppendRawIf("partial ", modifiers.HasFlag(TypeSignatureModifiers.Partial)); // partial must be the last to write otherwise compiler will complain
+
+            AppendRawIf("class ", modifiers.HasFlag(TypeSignatureModifiers.Class))
+                .AppendRawIf("struct ", modifiers.HasFlag(TypeSignatureModifiers.Struct))
+                .AppendRawIf("enum ", modifiers.HasFlag(TypeSignatureModifiers.Enum))
+                .AppendRawIf("interface ", modifiers.HasFlag(TypeSignatureModifiers.Interface));
         }
 
         public void WriteTypeArguments(IEnumerable<CSharpType>? typeArguments)
