@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyDeclaration
     {
         public FormattableString? Description { get; }
@@ -89,6 +91,11 @@ namespace Microsoft.Generator.CSharp
             }
 
             return null;
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"Name: {Name}, Type: {Type}";
         }
     }
 }

@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public sealed class Parameter
     {
         public string Name { get; }
@@ -157,6 +159,11 @@ namespace Microsoft.Generator.CSharp
                 // remove type as part of the hash code generation as the type might have changes between versions
                 return HashCode.Combine(obj.Name);
             }
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return $"Name: {Name}, Type: {Type}";
         }
 
         // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
