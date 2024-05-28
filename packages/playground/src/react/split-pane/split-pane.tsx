@@ -1,16 +1,16 @@
 import { mergeClasses } from "@fluentui/react-components";
 import {
-  FunctionComponent,
-  JSX,
-  MouseEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type FunctionComponent,
+  type JSX,
+  type MouseEvent,
 } from "react";
 import { useControllableValue } from "../hooks.js";
-import Pane, { PaneProps } from "./pane.js";
+import Pane, { type PaneProps } from "./pane.js";
 import { SashContent } from "./sash-content.js";
 import { Sash } from "./sash.js";
 import style from "./split-pane.module.css";

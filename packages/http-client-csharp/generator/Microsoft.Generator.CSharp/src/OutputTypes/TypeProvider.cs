@@ -20,11 +20,11 @@ namespace Microsoft.Generator.CSharp
         {
             _sourceInputModel = sourceInputModel;
             _existingType = new Lazy<INamedTypeSymbol?>(() => sourceInputModel?.FindForType(Name));
-            DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Public;
         }
 
         public abstract string Name { get; }
-        protected virtual TypeKind TypeKind { get; } = TypeKind.Class;
+        public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
+        public virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
         protected INamedTypeSymbol? ExistingType => _existingType.Value;
 
         internal virtual Type? SerializeAs => null;
@@ -34,25 +34,51 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            isValueType: TypeKind is TypeKind.Struct or TypeKind.Enum,
-            isEnum: this is EnumType,
-            isNullable: false,
             arguments: TypeArguments,
-            ns: GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace),
-            name: Name);
+            isNullable: false);
 
-        public TypeSignatureModifiers DeclarationModifiers { get; protected init; }
+        private TypeSignatureModifiers? _declarationModifiers;
+        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
+
+        protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+        private TypeSignatureModifiers GetDeclarationModifiersInternal()
+        {
+            var modifiers = GetDeclarationModifiers();
+            // we default to public when no accessibility modifier is provided
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Internal) && !modifiers.HasFlag(TypeSignatureModifiers.Public) && !modifiers.HasFlag(TypeSignatureModifiers.Private))
+            {
+                modifiers |= TypeSignatureModifiers.Public;
+            }
+
+            // we should have exactly have one class, struct, enum or interface
+            var mask = modifiers & (TypeSignatureModifiers.Class | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Enum | TypeSignatureModifiers.Interface);
+            // check if we have none
+            if (mask == 0)
+            {
+                modifiers |= TypeSignatureModifiers.Class;
+            }
+            // check if we have multiple
+            // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
+            if ((mask & (mask - 1)) != 0)
+            {
+                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Namespace}.{Name}");
+            }
+
+            // we always add partial when possible
+            if (!modifiers.HasFlag(TypeSignatureModifiers.Enum))
+            {
+                modifiers |= TypeSignatureModifiers.Partial;
+            }
+
+            return modifiers;
+        }
 
         public CSharpType? Inherits { get; protected init; }
 
         public virtual WhereExpression? WhereClause { get; protected init; }
 
-        public bool IsEnum => TypeKind is TypeKind.Enum;
-
-        public bool IsStruct => TypeKind is TypeKind.Struct;
-
         private CSharpType[]? _typeArguments;
-        public virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
+        protected internal virtual IReadOnlyList<CSharpType> TypeArguments => _typeArguments ??= BuildTypeArguments();
 
         public virtual TypeProvider? DeclaringTypeProvider { get; protected init; }
 

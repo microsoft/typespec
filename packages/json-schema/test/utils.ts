@@ -43,7 +43,9 @@ export async function emitSchemaWithDiagnostics(
       options,
     } as any
   );
-  if (testOptions.emitTypes === undefined) {
+  if (options.emitAllModels) {
+    emitter.emitProgram({ emitTypeSpecNamespace: false });
+  } else if (testOptions.emitTypes === undefined) {
     emitter.emitType(host.program.resolveTypeReference("test")[0]!);
   } else {
     for (const name of testOptions.emitTypes) {

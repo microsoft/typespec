@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 return ClientResultSnippet.FromValue(model, response);
             }
 
-            public override TypedSnippet GetTypedResponseFromEnum(EnumType enumType, TypedSnippet result)
+            public override TypedSnippet GetTypedResponseFromEnum(EnumTypeProvider enumType, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
                 return ClientResultSnippet.FromValue(EnumSnippet.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);

@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record EnumSnippet(EnumType EnumType, ValueExpression Untyped) : TypedSnippet(EnumType.Type, Untyped)
+    public sealed record EnumSnippet(EnumTypeProvider EnumType, ValueExpression Untyped) : TypedSnippet(EnumType.Type, Untyped)
     {
         public TypedSnippet ToSerial()
             => EnumType.SerializationMethodName is {} name
@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Snippets
                     ? Untyped.InvokeToString()
                     : throw new InvalidOperationException($"No conversion available fom {EnumType.Type.Name}");
 
-        public static TypedSnippet ToEnum(EnumType enumType, ValueExpression value)
+        public static TypedSnippet ToEnum(EnumTypeProvider enumType, ValueExpression value)
             => enumType.IsExtensible
                 ? new EnumSnippet(enumType, Snippet.New.Instance(enumType.Type, value))
                 : new EnumSnippet(enumType, new InvokeStaticMethodExpression(enumType.Type, $"To{enumType.Name}", new[] { value }, null, true));

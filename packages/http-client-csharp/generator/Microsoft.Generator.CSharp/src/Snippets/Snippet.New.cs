@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public static class New
         {
-            public static ValueExpression ArgumentOutOfRangeException(EnumType enumType, Parameter valueParameter)
+            public static ValueExpression ArgumentOutOfRangeException(EnumTypeProvider enumType, Parameter valueParameter)
                 => Instance(typeof(ArgumentOutOfRangeException), Nameof(valueParameter), valueParameter, Literal($"Unknown {enumType.Name} value."));
             public static ValueExpression ArgumentOutOfRangeException(ValueExpression valueParameter, string message, bool wrapInNameOf = true)
                 => Instance(typeof(ArgumentOutOfRangeException), wrapInNameOf ? Nameof(valueParameter) : valueParameter, Literal(message));
