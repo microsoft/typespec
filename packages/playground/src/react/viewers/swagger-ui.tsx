@@ -1,4 +1,4 @@
-import { FunctionComponent, Suspense, lazy } from "react";
+import { Suspense, lazy, type FunctionComponent } from "react";
 import "swagger-ui-dist/swagger-ui.css";
 import style from "./swagger-ui.module.css";
 
