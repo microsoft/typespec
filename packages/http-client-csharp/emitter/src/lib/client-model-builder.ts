@@ -232,7 +232,7 @@ export function createModelForService(
       Protocol: {},
       Creatable: client.kind === ClientKind.SdkClient,
       Parent: parent === undefined ? undefined : getClientName(parent),
-      Parameters: urlParameters
+      Parameters: urlParameters,
     } as InputClient;
     for (const op of operations) {
       const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));
