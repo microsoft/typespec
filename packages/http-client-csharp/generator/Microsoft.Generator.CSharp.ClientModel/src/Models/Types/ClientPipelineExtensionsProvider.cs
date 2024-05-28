@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using System.ClientModel.Primitives;
-using System.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
+using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -43,12 +42,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _messageResponse = new MemberExpression(_message, "Response");
         }
 
-        internal PipelineResponseExpression ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        internal PipelineResponseSnippet ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processMessageAsync : _processMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }
 
-        internal ClientResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        internal ClientResultSnippet ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }

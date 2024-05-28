@@ -5,9 +5,9 @@ using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Expressions
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record PipelineResponseExpression(ValueExpression Untyped) : TypedSnippet<PipelineResponse>(Untyped)
+    internal sealed record PipelineResponseSnippet(ValueExpression Untyped) : TypedSnippet<PipelineResponse>(Untyped)
     {
         public BinaryDataSnippet Content => new(Property(nameof(PipelineResponse.Content)));
 

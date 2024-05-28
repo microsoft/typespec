@@ -8,9 +8,9 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Expressions
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record PipelineRequestExpression(ValueExpression Untyped) : TypedSnippet<PipelineRequest>(Untyped)
+    internal sealed record PipelineRequestSnippet(ValueExpression Untyped) : TypedSnippet<PipelineRequest>(Untyped)
     {
         public TypedSnippet Uri => new FrameworkTypeExpression(typeof(Uri), Property(nameof(PipelineRequest.Uri)));
         public MethodBodyStatement SetMethod(string method) => Assign(Untyped.Property("Method"), Literal(method));

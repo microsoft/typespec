@@ -10,31 +10,31 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Expressions
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal partial class SystemExtensibleSnippets
     {
         private class SystemRestOperationsSnippets : RestOperationsSnippets
         {
             public override StreamSnippet GetContentStream(TypedSnippet result)
-                => new ClientResultExpression(result).GetRawResponse().ContentStream;
+                => new ClientResultSnippet(result).GetRawResponse().ContentStream;
 
             public override TypedSnippet GetTypedResponseFromValue(TypedSnippet value, TypedSnippet result)
             {
-                return ClientResultExpression.FromValue(value, GetRawResponse(result));
+                return ClientResultSnippet.FromValue(value, GetRawResponse(result));
             }
 
             public override TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
                 var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, [response]);
-                return ClientResultExpression.FromValue(model, response);
+                return ClientResultSnippet.FromValue(model, response);
             }
 
             public override TypedSnippet GetTypedResponseFromEnum(EnumType enumType, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
-                return ClientResultExpression.FromValue(EnumSnippet.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);
+                return ClientResultSnippet.FromValue(EnumSnippet.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);
             }
 
             public override TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet result, string? contentType = null)
@@ -42,11 +42,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 var rawResponse = GetRawResponse(result);
                 if (responseType == typeof(string) && contentType != null && FormattableStringHelpers.ToMediaType(contentType) == BodyMediaType.Text)
                 {
-                    return ClientResultExpression.FromValue(rawResponse.Content.Untyped.InvokeToString(), rawResponse);
+                    return ClientResultSnippet.FromValue(rawResponse.Content.Untyped.InvokeToString(), rawResponse);
                 }
                 return responseType == typeof(BinaryData)
-                    ? ClientResultExpression.FromValue(rawResponse.Content, rawResponse)
-                    : ClientResultExpression.FromValue(rawResponse.Content.ToObjectFromJson(responseType), rawResponse);
+                    ? ClientResultSnippet.FromValue(rawResponse.Content, rawResponse)
+                    : ClientResultSnippet.FromValue(rawResponse.Content.ToObjectFromJson(responseType), rawResponse);
             }
 
             public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message)
@@ -64,10 +64,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
                 return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));
             }
 
-            private static PipelineResponseExpression GetRawResponse(TypedSnippet result)
+            private static PipelineResponseSnippet GetRawResponse(TypedSnippet result)
                 => result.Type.Equals(typeof(PipelineResponse))
-                    ? new PipelineResponseExpression(result)
-                    : new ClientResultExpression(result).GetRawResponse();
+                    ? new PipelineResponseSnippet(result)
+                    : new ClientResultSnippet(result).GetRawResponse();
         }
     }
 }

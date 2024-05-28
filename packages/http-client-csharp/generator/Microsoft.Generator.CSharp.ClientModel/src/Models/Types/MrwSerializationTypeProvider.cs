@@ -5,7 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 

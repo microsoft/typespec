@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel

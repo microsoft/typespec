@@ -5,11 +5,11 @@ using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Expressions
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record RequestOptionsExpression(ValueExpression Untyped) : TypedSnippet<RequestOptions>(Untyped)
+    internal sealed record RequestOptionsSnippet(ValueExpression Untyped) : TypedSnippet<RequestOptions>(Untyped)
     {
-        public static RequestOptionsExpression FromCancellationToken()
+        public static RequestOptionsSnippet FromCancellationToken()
             => new(new InvokeStaticMethodExpression(null, "FromCancellationToken", new ValueExpression[] { KnownParameters.CancellationTokenParameter }));
 
         public ValueExpression ErrorOptions => Property(nameof(RequestOptions.ErrorOptions));

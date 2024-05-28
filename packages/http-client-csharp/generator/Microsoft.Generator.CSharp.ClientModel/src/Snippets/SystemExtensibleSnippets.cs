@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Expressions
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal partial class SystemExtensibleSnippets : ExtensibleSnippets
     {
