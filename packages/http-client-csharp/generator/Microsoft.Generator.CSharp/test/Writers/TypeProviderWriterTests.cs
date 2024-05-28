@@ -17,8 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            SourceInputModel? sourceInputModel = null;
-            var mockTypeProvider = new Mock<TypeProvider>(sourceInputModel!) { CallBase = true };
+            var mockTypeProvider = new Mock<TypeProvider>() { CallBase = true };
             _expressionTypeProviderWriter = new MockExpressionTypeProviderWriter(mockTypeProvider.Object);
         }
 
