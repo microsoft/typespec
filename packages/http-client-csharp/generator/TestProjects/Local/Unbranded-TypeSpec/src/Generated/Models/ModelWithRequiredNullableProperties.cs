@@ -30,7 +30,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable fixed enum type. </summary>
         public string RequiredFixedEnum { get; set; }
-
-        // Add Nested Type
     }
 }
