@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record TypeProviderSnippet(TypeProvider TypeProvider, ValueExpression Untyped) : TypedSnippet(TypeProvider.Type, Untyped)
+    public record TypeProviderSnippet(TypeProvider TypeProvider, ValueExpression Untyped) : TypedSnippet(TypeProvider.Type, Untyped)
     {
         public static MemberExpression FromResponseDelegate(TypeProvider typeProvider)
             => new(new TypeReferenceExpression(typeProvider.Type), CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName);

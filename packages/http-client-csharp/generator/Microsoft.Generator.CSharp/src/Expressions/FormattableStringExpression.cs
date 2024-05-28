@@ -23,11 +23,6 @@ namespace Microsoft.Generator.CSharp.Expressions
             Args = args;
         }
 
-        public FormattableStringExpression(string format, params ValueExpression[] args)
-            : this(format, args as IReadOnlyList<ValueExpression>)
-        {
-        }
-
         public FormattableStringExpression(FormattableString value)
         {
             Value = value;
