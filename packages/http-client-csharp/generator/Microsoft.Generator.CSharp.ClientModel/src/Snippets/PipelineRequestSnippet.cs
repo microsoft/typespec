@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal sealed record PipelineRequestSnippet(ValueExpression Untyped) : TypedSnippet<PipelineRequest>(Untyped)
     {
-        public TypedSnippet Uri => new FrameworkTypeExpression(typeof(Uri), Property(nameof(PipelineRequest.Uri)));
+        public TypedSnippet Uri => new FrameworkTypeSnippet(typeof(Uri), Property(nameof(PipelineRequest.Uri)));
         public MethodBodyStatement SetMethod(string method) => Assign(Untyped.Property("Method"), Literal(method));
         public MethodBodyStatement SetHeaderValue(string name, StringSnippet value)
             => new InvokeInstanceMethodStatement(Untyped.Property(nameof(PipelineRequest.Headers)), nameof(PipelineRequestHeaders.Set), Literal(name), value);

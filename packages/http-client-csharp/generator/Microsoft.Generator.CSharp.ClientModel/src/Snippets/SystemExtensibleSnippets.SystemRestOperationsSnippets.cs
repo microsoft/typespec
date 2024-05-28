@@ -51,14 +51,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
             public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message)
             {
-                var messageVar = new VariableReference(typeof(PipelineMessage), "message");
+                var messageVar = new VariableReferenceSnippet(typeof(PipelineMessage), "message");
                 message = messageVar;
                 return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
             }
 
             public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedSnippet content, out Utf8JsonWriterSnippet writer)
             {
-                var contentVar = new VariableReference(typeof(BinaryContent), "content");
+                var contentVar = new VariableReferenceSnippet(typeof(BinaryContent), "content");
                 content = contentVar;
                 writer = new Utf8JsonWriterSnippet(content.Property("JsonWriter"));
                 return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));

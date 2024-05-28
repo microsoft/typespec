@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -23,9 +24,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private Parameter _pipelineParam;
         private Parameter _messageParam;
         private Parameter _requestContextParam;
-        private ParameterReference _pipeline;
-        private ParameterReference _message;
-        private ParameterReference _requestContext;
+        private ParameterReferenceSnippet _pipeline;
+        private ParameterReferenceSnippet _message;
+        private ParameterReferenceSnippet _requestContext;
         private MemberExpression _messageResponse;
 
         private ClientPipelineExtensionsProvider()
@@ -35,9 +36,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ParameterValidationType.None, null);
             _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ParameterValidationType.None, null);
             _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ParameterValidationType.None, null);
-            _pipeline = new ParameterReference(_pipelineParam);
-            _message = new ParameterReference(_messageParam);
-            _requestContext = new ParameterReference(_requestContextParam);
+            _pipeline = new ParameterReferenceSnippet(_pipelineParam);
+            _message = new ParameterReferenceSnippet(_messageParam);
+            _requestContext = new ParameterReferenceSnippet(_requestContextParam);
             _messageResponse = new MemberExpression(_message, "Response");
         }
 

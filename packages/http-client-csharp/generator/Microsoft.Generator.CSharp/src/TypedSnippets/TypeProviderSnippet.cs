@@ -8,10 +8,10 @@ namespace Microsoft.Generator.CSharp.Snippets
     public sealed record TypeProviderSnippet(TypeProvider TypeProvider, ValueExpression Untyped) : TypedSnippet(TypeProvider.Type, Untyped)
     {
         public static MemberExpression FromResponseDelegate(TypeProvider typeProvider)
-            => new(new TypeReference(typeProvider.Type), CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName);
+            => new(new TypeReferenceExpression(typeProvider.Type), CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName);
 
         public static MemberExpression DeserializeDelegate(TypeProvider typeProvider)
-            => new(new TypeReference(typeProvider.Type), $"Deserialize{typeProvider.Name}");
+            => new(new TypeReferenceExpression(typeProvider.Type), $"Deserialize{typeProvider.Name}");
 
         public static TypeProviderSnippet Deserialize(TypeProvider typeProvider, ValueExpression element, ValueExpression? options = null)
         {

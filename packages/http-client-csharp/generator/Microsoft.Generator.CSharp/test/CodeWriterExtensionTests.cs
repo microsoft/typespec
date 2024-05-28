@@ -118,7 +118,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string)), null, Validation: ParameterValidationType.AssertNotNullOrEmpty, Initializer: null)
             };
 
-            var responseVar = new VariableReference(returnType, "responseParamName");
+            var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
             var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(new StringLiteralExpression("sample response", false)));
             var resultStatements = new List<MethodBodyStatement>()
             {

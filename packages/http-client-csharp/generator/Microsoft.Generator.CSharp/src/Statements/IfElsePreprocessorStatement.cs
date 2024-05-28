@@ -3,7 +3,7 @@
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record IfElsePreprocessorDirective(string Condition, MethodBodyStatement If, MethodBodyStatement? Else) : MethodBodyStatement
+    public sealed record IfElsePreprocessorStatement(string Condition, MethodBodyStatement If, MethodBodyStatement? Else) : MethodBodyStatement
     {
         internal override void Write(CodeWriter writer)
         {

@@ -11,8 +11,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public TypedSnippet ToSerial()
             => EnumType.SerializationMethodName is {} name
                 ? EnumType.IsExtensible
-                    ? new FrameworkTypeExpression(EnumType.ValueType.FrameworkType, Untyped.Invoke(name))
-                    : new FrameworkTypeExpression(EnumType.ValueType.FrameworkType, new InvokeStaticMethodExpression(EnumType.Type, name, new[] { Untyped }, null, true))
+                    ? new FrameworkTypeSnippet(EnumType.ValueType.FrameworkType, Untyped.Invoke(name))
+                    : new FrameworkTypeSnippet(EnumType.ValueType.FrameworkType, new InvokeStaticMethodExpression(EnumType.Type, name, new[] { Untyped }, null, true))
                 : EnumType is { IsExtensible: true, IsStringValueType: true }
                     ? Untyped.InvokeToString()
                     : throw new InvalidOperationException($"No conversion available fom {EnumType.Type.Name}");

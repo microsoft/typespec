@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
@@ -12,9 +13,9 @@ namespace Microsoft.Generator.CSharp.Statements
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public UsingScopeStatement(CSharpType type, string variableName, ValueExpression value, out VariableReference variable) : this(type, new CodeWriterDeclaration(variableName), value)
+        public UsingScopeStatement(CSharpType type, string variableName, ValueExpression value, out VariableReferenceSnippet variable) : this(type, new CodeWriterDeclaration(variableName), value)
         {
-            variable = new VariableReference(type, Variable);
+            variable = new VariableReferenceSnippet(type, Variable);
         }
 
         public void Add(MethodBodyStatement statement) => _body.Add(statement);

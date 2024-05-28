@@ -9,10 +9,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static MethodBodyStatement UsingDeclare(string name, CSharpType type, ValueExpression value, out VariableReference variable)
+        public static MethodBodyStatement UsingDeclare(string name, CSharpType type, ValueExpression value, out VariableReferenceSnippet variable)
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = new VariableReference(type, declaration);
+            variable = new VariableReferenceSnippet(type, declaration);
             return new UsingDeclareVariableStatement(type, declaration, value);
         }
 
@@ -22,12 +22,12 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement UsingDeclare(string name, StreamSnippet value, out StreamSnippet variable)
             => UsingDeclare(name, value, d => new StreamSnippet(d), out variable);
 
-        public static MethodBodyStatement UsingDeclare(VariableReference variable, ValueExpression value)
+        public static MethodBodyStatement UsingDeclare(VariableReferenceSnippet variable, ValueExpression value)
             => new UsingDeclareVariableStatement(variable.Type, variable.Declaration, value);
 
         public static MethodBodyStatement Declare(CSharpType variableType, string name, ValueExpression value, out TypedSnippet variable)
         {
-            var variableRef = new VariableReference(variableType, name);
+            var variableRef = new VariableReferenceSnippet(variableType, name);
             variable = variableRef;
             return Declare(variableRef, value);
         }
@@ -52,12 +52,12 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement Declare(string name, TypedSnippet value, out TypedSnippet variable)
         {
-            var declaration = new VariableReference(value.Type, name);
+            var declaration = new VariableReferenceSnippet(value.Type, name);
             variable = declaration;
             return Declare(declaration, value);
         }
 
-        public static MethodBodyStatement Declare(VariableReference variable, ValueExpression value)
+        public static MethodBodyStatement Declare(VariableReferenceSnippet variable, ValueExpression value)
             => new DeclareVariableStatement(variable.Type, variable.Declaration, value);
 
         public static MethodBodyStatement UsingVar(string name, JsonDocumentSnippet value, out JsonDocumentSnippet variable)
@@ -77,39 +77,39 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement Var(string name, TypedSnippet value, out TypedSnippet variable)
         {
-            var reference = new VariableReference(value.Type, name);
+            var reference = new VariableReferenceSnippet(value.Type, name);
             variable = reference;
             return Var(reference, value);
         }
 
-        public static MethodBodyStatement Var(VariableReference variable, ValueExpression value)
+        public static MethodBodyStatement Var(VariableReferenceSnippet variable, ValueExpression value)
             => new DeclareVariableStatement(null, variable.Declaration, value);
 
         private static MethodBodyStatement UsingDeclare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReference(value.Type, declaration));
+            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
             return new UsingDeclareVariableStatement(value.Type, declaration, value);
         }
 
         private static MethodBodyStatement UsingVar<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReference(value.Type, declaration));
+            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
             return new UsingDeclareVariableStatement(null, declaration, value);
         }
 
         private static MethodBodyStatement Declare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReference(value.Type, declaration));
+            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
             return new DeclareVariableStatement(value.Type, declaration, value);
         }
 
         private static MethodBodyStatement Var<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReference(value.Type, declaration));
+            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
             return new DeclareVariableStatement(null, declaration, value);
         }
     }

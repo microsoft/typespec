@@ -13,28 +13,28 @@ namespace Microsoft.Generator.CSharp.Statements
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
-        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableReference item)
+        public ForeachStatement(CSharpType itemType, string itemName, ValueExpression enumerable, bool isAsync, out VariableReferenceSnippet item)
             : this(itemType, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReference(itemType, Item);
+            item = new VariableReferenceSnippet(itemType, Item);
         }
 
         public ForeachStatement(string itemName, EnumerableSnippet enumerable, out TypedSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableReference(enumerable.ItemType, Item);
+            item = new VariableReferenceSnippet(enumerable.ItemType, Item);
         }
 
         public ForeachStatement(string itemName, EnumerableSnippet enumerable, bool isAsync, out TypedSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableReference(enumerable.ItemType, Item);
+            item = new VariableReferenceSnippet(enumerable.ItemType, Item);
         }
 
         public ForeachStatement(string itemName, DictionarySnippet dictionary, out KeyValuePairSnippet item)
             : this(null, new CodeWriterDeclaration(itemName), dictionary, false)
         {
-            var variable = new VariableReference(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
+            var variable = new VariableReferenceSnippet(KeyValuePairSnippet.GetType(dictionary.KeyType, dictionary.ValueType), Item);
             item = new KeyValuePairSnippet(dictionary.KeyType, dictionary.ValueType, variable);
         }
 

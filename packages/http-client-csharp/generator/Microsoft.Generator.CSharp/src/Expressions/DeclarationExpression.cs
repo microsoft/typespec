@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Snippets;
+
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DeclarationExpression(VariableReference Variable, bool IsOut) : ValueExpression
+    public sealed record DeclarationExpression(VariableReferenceSnippet Variable, bool IsOut) : ValueExpression
     {
-        public DeclarationExpression(CSharpType type, string name, out VariableReference variable, bool isOut = false) : this(new VariableReference(type, name), isOut)
+        public DeclarationExpression(CSharpType type, string name, out VariableReferenceSnippet variable, bool isOut = false) : this(new VariableReferenceSnippet(type, name), isOut)
         {
             variable = Variable;
         }

@@ -8,6 +8,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record EnvironmentSnippet(ValueExpression Untyped) : TypedSnippet(typeof(Environment), Untyped)
     {
-        public static StringSnippet NewLine() => new(new TypeReference(typeof(Environment)).Property(nameof(Environment.NewLine)));
+        public static StringSnippet NewLine() => new(new TypeReferenceExpression(typeof(Environment)).Property(nameof(Environment.NewLine)));
     }
 }

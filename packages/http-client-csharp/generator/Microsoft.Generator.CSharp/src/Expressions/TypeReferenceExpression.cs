@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record FormattableStringToExpression(FormattableString Value) : ValueExpression
+    public sealed record TypeReferenceExpression(CSharpType Type) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {
-            writer.Append(Value);
+            writer.Append($"{Type}");
         }
     }
 }

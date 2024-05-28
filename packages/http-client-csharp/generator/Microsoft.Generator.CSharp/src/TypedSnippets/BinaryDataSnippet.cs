@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         private static readonly CSharpType _binaryDataType = typeof(BinaryData);
 
-        public FrameworkTypeExpression ToObjectFromJson(Type responseType)
+        public FrameworkTypeSnippet ToObjectFromJson(Type responseType)
             => new(responseType, new InvokeInstanceMethodExpression(Untyped, nameof(BinaryData.ToObjectFromJson), Array.Empty<ValueExpression>(), new[] { new CSharpType(responseType) }, false));
 
         public static BinaryDataSnippet FromStream(StreamSnippet stream, bool async)

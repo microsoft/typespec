@@ -41,13 +41,13 @@ namespace Microsoft.Generator.CSharp.Snippets
             => Untyped.Invoke(nameof(Utf8JsonWriter.WriteBase64StringValue), value).ToStatement();
 
         public MethodBodyStatement WriteBinaryData(ValueExpression value)
-            => new IfElsePreprocessorDirective
+            => new IfElsePreprocessorStatement
                 (
                     "NET6_0_OR_GREATER",
                     WriteRawValue(value),
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(value), out var jsonDocumentVar)
                     {
-                        JsonSerializerSnippet.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).ToStatement()
+                        Snippet.JsonSerializer.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).ToStatement()
                     }
                 );
 

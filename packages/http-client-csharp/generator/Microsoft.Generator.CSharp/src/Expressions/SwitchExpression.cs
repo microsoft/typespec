@@ -19,10 +19,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                 writer.WriteRawLine("{");
                 foreach (var switchCase in Cases)
                 {
-                    switchCase.Case.Write(writer);
-                    writer.AppendRaw(" => ");
-                    switchCase.Expression.Write(writer);
-                    writer.WriteRawLine(",");
+                    switchCase.Write(writer);
                 }
                 writer.RemoveTrailingComma();
                 writer.WriteLine();

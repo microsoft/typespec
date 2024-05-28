@@ -23,21 +23,28 @@ namespace Microsoft.Generator.CSharp.Expressions
             Args = args;
         }
 
-        public FormattableStringExpression(string format, params ValueExpression[] args) : this(format, args as IReadOnlyList<ValueExpression>)
+        public FormattableStringExpression(string format, params ValueExpression[] args)
+            : this(format, args as IReadOnlyList<ValueExpression>)
         {
         }
 
-        public string Format { get; init; }
-        public IReadOnlyList<ValueExpression> Args { get; init; }
-
-        public void Deconstruct(out string format, out IReadOnlyList<ValueExpression> args)
+        public FormattableStringExpression(FormattableString value)
         {
-            format = Format;
-            args = Args;
+            Value = value;
         }
+
+        private FormattableString? Value { get; init; }
+        private string? Format { get; init; }
+        private IReadOnlyList<ValueExpression>? Args { get; init; }
 
         internal override void Write(CodeWriter writer)
         {
+            if (Value is not null)
+            {
+                writer.Append(Value);
+                return;
+            }
+
             writer.AppendRaw("$\"");
             var argumentCount = 0;
             foreach ((var span, bool isLiteral) in StringExtensions.GetPathParts(Format))
@@ -48,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                     continue;
                 }
 
-                var arg = Args[argumentCount];
+                var arg = Args![argumentCount];
                 argumentCount++;
                 // append the argument
                 writer.AppendRaw("{");

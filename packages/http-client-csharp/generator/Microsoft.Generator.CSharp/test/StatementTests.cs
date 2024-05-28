@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new VariableReferenceSnippet(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new VariableReferenceSnippet(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -187,7 +187,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatement = new MethodBodyStatement();
-            var switchCase = new SwitchCase(new ValueExpression(), caseStatement);
+            var switchCase = new SwitchCaseStatement(new ValueExpression(), caseStatement);
 
             switchStatement.Add(switchCase);
 
@@ -201,10 +201,10 @@ namespace Microsoft.Generator.CSharp.Tests
             var matchExpression = new ValueExpression();
             var switchStatement = new SwitchStatement(matchExpression);
 
-            var caseStatements = new List<SwitchCase>
+            var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -221,10 +221,10 @@ namespace Microsoft.Generator.CSharp.Tests
             var matchExpression = new ValueExpression();
             var switchStatement = new SwitchStatement(matchExpression);
 
-            var caseStatements = new List<SwitchCase>
+            var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -232,7 +232,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 switchStatement.Add(switchCase);
             }
 
-            var enumeratedCases = new List<SwitchCase>();
+            var enumeratedCases = new List<SwitchCaseStatement>();
             foreach (var caseItem in switchStatement)
             {
                 enumeratedCases.Add(caseItem);
@@ -256,7 +256,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
+            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -269,7 +269,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
+            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
@@ -285,8 +285,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var tryStatement = new MethodBodyStatement();
             var catchStatements = new[]
             {
-                new CatchStatement(null, new MethodBodyStatement()),
-                new CatchStatement(null, new MethodBodyStatement())
+                new CatchExpression(null, new MethodBodyStatement()),
+                new CatchExpression(null, new MethodBodyStatement())
             };
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);

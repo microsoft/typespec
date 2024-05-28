@@ -424,17 +424,6 @@ namespace Microsoft.Generator.CSharp
             return WriteLine($";");
         }
 
-        public CodeWriter WriteParameterNullChecks(IReadOnlyCollection<Parameter> parameters)
-        {
-            foreach (Parameter parameter in parameters)
-            {
-                WriteVariableAssignmentWithNullCheck(parameter.Name, parameter);
-            }
-
-            WriteLine();
-            return this;
-        }
-
         public void WriteVariableAssignmentWithNullCheck(string variableName, Parameter parameter)
         {
             var assignToSelf = parameter.Name == variableName;

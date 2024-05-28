@@ -3,9 +3,9 @@
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record PositionalParameterReference(string ParameterName, ValueExpression ParameterValue) : ValueExpression
+    public sealed record PositionalParameterReferenceExpression(string ParameterName, ValueExpression ParameterValue) : ValueExpression
     {
-        internal PositionalParameterReference(Parameter parameter) : this(parameter.Name, parameter) { }
+        internal PositionalParameterReferenceExpression(Parameter parameter) : this(parameter.Name, parameter) { }
 
         internal override void Write(CodeWriter writer)
         {

@@ -28,8 +28,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static BoolSnippet Bool(bool value) => value ? True : False;
         public static IntSnippet Int(int value) => new(Literal(value));
         public static LongSnippet Long(long value) => new(Literal(value));
-        public static ValueExpression Float(float value) => new FormattableStringToExpression($"{value}f");
-        public static ValueExpression Double(double value) => new FormattableStringToExpression($"{value}d");
+        public static ValueExpression Float(float value) => new FormattableStringExpression($"{value}f");
+        public static ValueExpression Double(double value) => new FormattableStringExpression($"{value}d");
 
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeInstanceMethodExpression(null, "nameof", new[] { expression }, null, false);
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression NullCoalescing(ValueExpression left, ValueExpression right) => new BinaryOperatorExpression("??", left, right);
         // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
-        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(new TypeReference(typeof(TEnum)), Enum.GetName(value)!);
+        public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(new TypeReferenceExpression(typeof(TEnum)), Enum.GetName(value)!);
 
         public static ValueExpression RemoveAllNullConditional(ValueExpression expression)
             => expression switch
@@ -89,7 +89,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new InvokeInstanceMethodStatement(null, methodName, stringBuilder);
 
         public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, CodeWriterDeclaration variable)
-            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new FormattableStringToExpression($"ref {variable}") });
+            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new FormattableStringExpression($"ref {variable}") });
 
         public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
         public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
@@ -103,8 +103,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReference(value.Type, declaration));
-            return new(new BinaryOperatorExpression("is", value, new FormattableStringToExpression($"{value.Type} {declaration:D}")));
+            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
+            return new(new BinaryOperatorExpression("is", value, new FormattableStringExpression($"{value.Type} {declaration:D}")));
         }
     }
 }

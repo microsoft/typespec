@@ -6,7 +6,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <summary>
     /// Represents a ternary conditional operator.
     /// </summary>
-    public sealed record TernaryConditionalOperator(ValueExpression Condition, ValueExpression Consequent, ValueExpression Alternative) : ValueExpression
+    public sealed record TernaryConditionalExpression(ValueExpression Condition, ValueExpression Consequent, ValueExpression Alternative) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {
