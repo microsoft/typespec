@@ -3,11 +3,4 @@ import { opReferenceContainerRouteRule } from "./rules/op-reference-container-ro
 
 export const $linter = defineLinter({
   rules: [opReferenceContainerRouteRule],
-  ruleSets: {
-    all: {
-      enable: {
-        [`@typespec/http/${opReferenceContainerRouteRule.name}`]: true,
-      },
-    },
-  },
 });

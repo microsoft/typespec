@@ -7,7 +7,7 @@ import {
   Diagnostic,
   DiagnosticMessages,
   LibraryInstance,
-  LinterDefinition,
+  LinterResolvedDefinition,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
@@ -37,9 +37,30 @@ export function createLinter(
     lint,
   };
 
-  function getLinterDefinition(library: LibraryInstance): LinterDefinition | undefined {
+  function getLinterDefinition(library: LibraryInstance): LinterResolvedDefinition | undefined {
     // eslint-disable-next-line deprecation/deprecation
-    return library?.linter ?? library?.definition?.linter;
+    const linter = library?.linter ?? library?.definition?.linter;
+
+    const name = library.metadata.name;
+    const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
+      return { ...rule, id: `${name}/${rule.name}` };
+    });
+    if (linter.ruleSets && "all" in linter.ruleSets) {
+      return {
+        rules,
+        ruleSets: linter.ruleSets as any,
+      };
+    } else {
+      return {
+        rules,
+        ruleSets: {
+          all: {
+            enable: Object.fromEntries(rules.map((x) => [x.id, true])) as any,
+          },
+          ...linter.ruleSets,
+        },
+      };
+    }
   }
 
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
@@ -148,17 +169,15 @@ export function createLinter(
     const library = await loadLibrary(name);
     const linter = library && getLinterDefinition(library);
     if (linter?.rules) {
-      for (const ruleDef of linter.rules) {
-        const ruleId = `${name}/${ruleDef.name}`;
+      for (const rule of linter.rules) {
         tracer.trace(
           "register-library.rule",
-          `Registering rule "${ruleId}" for library "${name}".`
+          `Registering rule "${rule.id}" for library "${name}".`
         );
-        const rule: LinterRule<string, any> = { ...ruleDef, id: ruleId };
-        if (ruleMap.has(ruleId)) {
-          compilerAssert(false, `Unexpected duplicate linter rule: "${ruleId}"`);
+        if (ruleMap.has(rule.id)) {
+          compilerAssert(false, `Unexpected duplicate linter rule: "${rule.id}"`);
         } else {
-          ruleMap.set(ruleId, rule);
+          ruleMap.set(rule.id, rule);
         }
       }
     }
