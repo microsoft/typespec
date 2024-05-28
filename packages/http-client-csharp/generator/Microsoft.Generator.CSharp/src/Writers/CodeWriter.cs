@@ -396,7 +396,14 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            Append($"{field.Type} {field.Name:I}");
+            if (field.Declaration.HasBeenDeclared)
+            {
+                Append($"{field.Type} {field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Type} {field.Declaration:D}");
+            }
 
             if (field.InitializationValue != null &&
                 (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))

@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp
             _IEnumerator = new CSharpType(typeof(IEnumerator<>), new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue));
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
             _innerDictionaryField = new FieldDeclaration(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
-            _innerDictionary = new DictionaryExpression(_tKey, _tValue, new VariableReference(_IDictionary, _innerDictionaryField.Name));
+            _innerDictionary = new DictionaryExpression(_tKey, _tValue, new VariableReference(_IDictionary, _innerDictionaryField.Declaration));
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<Parameter>());
             EnsureDictionary = This.Invoke(_ensureDictionarySignature);
         }

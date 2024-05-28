@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp
             _ensureListSignature = new MethodSignature("EnsureList", null, null, MethodSignatureModifiers.Public, _iListOfT, null, Array.Empty<Parameter>());
             _getEnumeratorSignature = new MethodSignature("GetEnumerator", null, null, MethodSignatureModifiers.Public, new CSharpType(typeof(IEnumerator<>), _t), null, Array.Empty<Parameter>());
             _innerListField = new FieldDeclaration(FieldModifiers.Private, _iListOfT, "_innerList");
-            _innerList = new VariableReference(_iListOfT, _innerListField.Name);
+            _innerList = new VariableReference(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new Parameter("item", null, _t, null, ValidationType.None, null);
             DeclarationModifiers = TypeSignatureModifiers.Internal;
