@@ -28,20 +28,26 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType? _iPersistableModelObjectInterface;
         private ModelTypeProvider _model;
         private readonly FieldDeclaration? _rawDataField;
+        private readonly bool _isStruct;
 
         public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
             _model = model;
+            _isStruct = model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             Name = model.Name;
+            Namespace = model.Namespace;
             // Initialize the serialization interfaces
             _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
-            _iJsonModelObjectInterface = model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+            _iJsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), model.Type);
-            _iPersistableModelObjectInterface = model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _iPersistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
+
         public override string Name { get; }
+        public override string Namespace { get; }
 
         /// <summary>
         /// Builds the fields for the model by adding the raw data field for serialization.
@@ -102,7 +108,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <returns>The constructed <see cref="FieldDeclaration"/> if the model should generate the field.</returns>
         private FieldDeclaration? BuildRawDataField()
         {
-            if (_model.IsStruct)
+            if (_isStruct)
             {
                 return null;
             }
@@ -321,7 +327,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         private CSharpMethod BuildEmptyConstructor()
         {
-            var accessibility = _model.IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
+            var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new CSharpMethod(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
                 bodyStatements: new MethodBodyStatement());

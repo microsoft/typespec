@@ -62,7 +62,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
             IntExtensibleEnumCollection = new List<int>();
-            FloatExtensibleEnumCollection = new List<int>();
+            FloatExtensibleEnumCollection = new List<float>();
             FloatFixedEnumCollection = new List<float>();
             IntFixedEnumCollection = new List<int>();
             RequiredUnknown = requiredUnknown;
@@ -96,10 +96,10 @@ namespace UnbrandedTypeSpec.Models
         public IList<int> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public int FloatExtensibleEnum { get; set; }
+        public float FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<int> FloatExtensibleEnumCollection { get; }
+        public IList<float> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public float FloatFixedEnum { get; set; }
@@ -328,7 +328,5 @@ namespace UnbrandedTypeSpec.Models
         /// </para>
         /// </summary>
         public System.BinaryData RequiredBytes { get; set; }
-
-        // Add Nested Type
     }
 }

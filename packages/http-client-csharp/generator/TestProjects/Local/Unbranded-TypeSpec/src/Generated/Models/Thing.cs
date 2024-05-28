@@ -119,7 +119,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable collection. </summary>
         public IList<int> RequiredNullableList { get; set; }
-
-        // Add Nested Type
     }
 }
