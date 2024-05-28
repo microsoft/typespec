@@ -2047,7 +2047,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
-  linter: LinterDefinition;
+  linter: LinterResolvedDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;

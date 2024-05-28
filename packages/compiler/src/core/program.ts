@@ -21,7 +21,7 @@ import {
 } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
-import { createLinter } from "./linter.js";
+import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -585,7 +585,9 @@ export async function compile(
       ...resolution,
       metadata,
       definition: libDefinition,
-      linter: entrypoint?.esmExports.$linter,
+      linter:
+        entrypoint?.esmExports.$linter &&
+        resolveLinterDefinition(libraryNameOrPath, entrypoint.esmExports.$linter),
     };
   }
 

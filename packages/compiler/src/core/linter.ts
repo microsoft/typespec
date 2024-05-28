@@ -7,6 +7,7 @@ import {
   Diagnostic,
   DiagnosticMessages,
   LibraryInstance,
+  LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
   LinterRuleContext,
@@ -20,6 +21,32 @@ import {
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   lint(): readonly Diagnostic[];
+}
+
+/** Resolve the linter definition */
+export function resolveLinterDefinition(
+  libName: string,
+  linter: LinterDefinition
+): LinterResolvedDefinition {
+  const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
+    return { ...rule, id: `${libName}/${rule.name}` };
+  });
+  if (linter.ruleSets && "all" in linter.ruleSets) {
+    return {
+      rules,
+      ruleSets: linter.ruleSets as any,
+    };
+  } else {
+    return {
+      rules,
+      ruleSets: {
+        all: {
+          enable: Object.fromEntries(rules.map((x) => [x.id, true])) as any,
+        },
+        ...linter.ruleSets,
+      },
+    };
+  }
 }
 
 export function createLinter(
@@ -39,28 +66,7 @@ export function createLinter(
 
   function getLinterDefinition(library: LibraryInstance): LinterResolvedDefinition | undefined {
     // eslint-disable-next-line deprecation/deprecation
-    const linter = library?.linter ?? library?.definition?.linter;
-
-    const name = library.metadata.name;
-    const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
-      return { ...rule, id: `${name}/${rule.name}` };
-    });
-    if (linter.ruleSets && "all" in linter.ruleSets) {
-      return {
-        rules,
-        ruleSets: linter.ruleSets as any,
-      };
-    } else {
-      return {
-        rules,
-        ruleSets: {
-          all: {
-            enable: Object.fromEntries(rules.map((x) => [x.id, true])) as any,
-          },
-          ...linter.ruleSets,
-        },
-      };
-    }
+    return library?.linter ?? library?.definition?.linter;
   }
 
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
