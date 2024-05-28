@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     new MethodBodyStatement[]
                     {
                         Snippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),
-                        Snippet.Return(ObjectTypeSnippet.Deserialize(typeProvider, document.RootElement))
+                        Snippet.Return(TypeProviderSnippet.Deserialize(typeProvider, document.RootElement))
                     },
                     "default"
                 );

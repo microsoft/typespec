@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ObjectTypeSnippet(TypeProvider TypeProvider, ValueExpression Untyped) : TypedSnippet(TypeProvider.Type, Untyped)
+    public sealed record TypeProviderSnippet(TypeProvider TypeProvider, ValueExpression Untyped) : TypedSnippet(TypeProvider.Type, Untyped)
     {
         public static MemberExpression FromResponseDelegate(TypeProvider typeProvider)
             => new(new TypeReference(typeProvider.Type), CodeModelPlugin.Instance.Configuration.ApiTypes.FromResponseName);
@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MemberExpression DeserializeDelegate(TypeProvider typeProvider)
             => new(new TypeReference(typeProvider.Type), $"Deserialize{typeProvider.Name}");
 
-        public static ObjectTypeSnippet Deserialize(TypeProvider typeProvider, ValueExpression element, ValueExpression? options = null)
+        public static TypeProviderSnippet Deserialize(TypeProvider typeProvider, ValueExpression element, ValueExpression? options = null)
         {
             var arguments = options == null ? new[] { element } : new[] { element, options };
             return new(typeProvider, new InvokeStaticMethodExpression(typeProvider.Type, $"Deserialize{typeProvider.Name}", arguments));
