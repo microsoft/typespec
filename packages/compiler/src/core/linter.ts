@@ -25,7 +25,6 @@ export interface Linter {
 
 /**
  * Resolve the linter definition
- * @internal
  */
 export function resolveLinterDefinition(
   libName: string,
