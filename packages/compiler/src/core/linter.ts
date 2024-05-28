@@ -23,7 +23,10 @@ export interface Linter {
   lint(): readonly Diagnostic[];
 }
 
-/** Resolve the linter definition */
+/**
+ * Resolve the linter definition
+ * @internal
+ */
 export function resolveLinterDefinition(
   libName: string,
   linter: LinterDefinition
