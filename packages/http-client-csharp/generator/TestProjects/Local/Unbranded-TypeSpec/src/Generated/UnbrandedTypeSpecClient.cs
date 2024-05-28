@@ -3,12 +3,12 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class UnbrandedTypeSpecClient
     {
-        // Add Methods
         /// <summary> Return hi. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="headParameter"></param>
@@ -120,6 +120,7 @@ namespace UnbrandedTypeSpec.Models
         {
         }
 
+        /// <summary> addTimeHeader. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="accept"></param>
@@ -191,7 +192,5 @@ namespace UnbrandedTypeSpec.Models
         internal void CreateHeadAsBooleanRequest(System.Uri unbrandedTypeSpecUrl, string id, string accept)
         {
         }
-
-        // Add Nested Type
     }
 }

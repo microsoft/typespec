@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record EnumExpression(EnumType EnumType, ValueExpression Untyped) : TypedValueExpression(EnumType.Type, Untyped)
+    public sealed record EnumExpression(EnumTypeProvider EnumType, ValueExpression Untyped) : TypedValueExpression(EnumType.Type, Untyped)
     {
         public TypedValueExpression ToSerial()
             => EnumType.SerializationMethodName is {} name
@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                     ? Untyped.InvokeToString()
                     : throw new InvalidOperationException($"No conversion available fom {EnumType.Type.Name}");
 
-        public static TypedValueExpression ToEnum(EnumType enumType, ValueExpression value)
+        public static TypedValueExpression ToEnum(EnumTypeProvider enumType, ValueExpression value)
             => enumType.IsExtensible
                 ? new EnumExpression(enumType, Snippets.New.Instance(enumType.Type, value))
                 : new EnumExpression(enumType, new InvokeStaticMethodExpression(enumType.Type, $"To{enumType.Name}", new[] { value }, null, true));

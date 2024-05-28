@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Input
@@ -17,6 +17,6 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Description { get; }
 
         public virtual string GetJsonValueString() => GetValueString();
-        public string GetValueString() => (Value.ToString() ?? string.Empty);
+        public string GetValueString() => Value.ToString() ?? string.Empty;
     }
 }

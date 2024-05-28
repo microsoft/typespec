@@ -62,7 +62,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
             IntExtensibleEnumCollection = new List<int>();
-            FloatExtensibleEnumCollection = new List<int>();
+            FloatExtensibleEnumCollection = new List<float>();
             FloatFixedEnumCollection = new List<float>();
             IntFixedEnumCollection = new List<int>();
             RequiredUnknown = requiredUnknown;
@@ -97,7 +97,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="readOnlyOptionalRecordUnknown"> optional readonly record of unknown. </param>
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
-        internal RoundTripModel(string requiredString, int requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, int intExtensibleEnum, IList<int> intExtensibleEnumCollection, int floatExtensibleEnum, IList<int> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, int intFixedEnum, IList<int> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
+        internal RoundTripModel(string requiredString, int requiredInt, IList<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, int intExtensibleEnum, IList<int> intExtensibleEnumCollection, float floatExtensibleEnum, IList<float> floatExtensibleEnumCollection, float floatFixedEnum, IList<float> floatFixedEnumCollection, int intFixedEnum, IList<int> intFixedEnumCollection, string stringFixedEnum, System.BinaryData requiredUnknown, System.BinaryData optionalUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, IDictionary<string, System.BinaryData> optionalRecordUnknown, IDictionary<string, System.BinaryData> readOnlyRequiredRecordUnknown, IDictionary<string, System.BinaryData> readOnlyOptionalRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
             RequiredString = requiredString;
             RequiredInt = requiredInt;
@@ -150,10 +150,10 @@ namespace UnbrandedTypeSpec.Models
         public IList<int> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public int FloatExtensibleEnum { get; set; }
+        public float FloatExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<int> FloatExtensibleEnumCollection { get; }
+        public IList<float> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
         public float FloatFixedEnum { get; set; }
@@ -382,9 +382,5 @@ namespace UnbrandedTypeSpec.Models
         /// </para>
         /// </summary>
         public System.BinaryData RequiredBytes { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
     }
 }

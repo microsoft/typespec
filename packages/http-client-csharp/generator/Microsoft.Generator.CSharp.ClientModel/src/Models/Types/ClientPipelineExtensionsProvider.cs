@@ -1,9 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
-using System.ClientModel.Primitives.Pipeline;
 using System.ClientModel.Primitives;
 using System.ClientModel;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
@@ -34,8 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(null)
         {
             Name = "ClientPipelineExtensions";
-            DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-            _pipelineParam = new Parameter("pipeline", null, typeof(Pipeline<PipelineMessage>), null, ValidationType.None, null);
+            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
             _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
             _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
             _pipeline = new ParameterReference(_pipelineParam);
@@ -44,12 +42,17 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _messageResponse = new MemberExpression(_message, "Response");
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
+        }
+
         internal PipelineResponseExpression ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processMessageAsync : _processMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }
 
-        internal ResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        internal ClientResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }

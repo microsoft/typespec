@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Writers;
 using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
-    internal class ExpressionTypeProviderWriterTests
+    internal class TypeProviderWriterTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private TypeProviderWriter _expressionTypeProviderWriter;
