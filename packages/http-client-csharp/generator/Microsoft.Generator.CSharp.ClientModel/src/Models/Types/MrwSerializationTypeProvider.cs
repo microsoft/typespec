@@ -21,20 +21,26 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType? _iJsonModelObjectInterface;
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
-        private ModelTypeProvider _model;
+        private readonly ModelTypeProvider _model;
+        private readonly bool _isStruct;
 
         public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
             _model = model;
+            _isStruct = model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             Name = model.Name;
+            Namespace = model.Namespace;
             // Initialize the serialization interfaces
             _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
-            _iJsonModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+            _iJsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
-            _iPersistableModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _iPersistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
+
         public override string Name { get; }
+        public override string Namespace { get; }
 
         /// <summary>
         /// Builds the serialization methods for the model. If the serialization supports JSON, it will build the JSON serialization methods.

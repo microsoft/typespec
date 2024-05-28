@@ -33,7 +33,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> uuid format. </summary>
         public Guid Guid { get; set; }
-
-        // Add Nested Type
     }
 }

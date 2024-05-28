@@ -30,7 +30,5 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string System.ClientModel.Primitives.IPersistableModel<ModelWithFormat>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
-
-        // Add Nested Type
     }
 }

@@ -3,8 +3,9 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class UnbrandedTypeSpecClient
     {
@@ -191,7 +192,5 @@ namespace UnbrandedTypeSpec.Models
         internal void CreateHeadAsBooleanRequest(System.Uri unbrandedTypeSpecUrl, string id, string accept)
         {
         }
-
-        // Add Nested Type
     }
 }
