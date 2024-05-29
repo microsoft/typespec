@@ -71,8 +71,8 @@ union FloatExtensibleEnum {
 }
 
 @doc("float fixed enum")
-@fixed
-enum FloatExtensibleEnumWithIntValue {
+union FloatExtensibleEnumWithIntValue {
+  float32,
   One: 1.0,
   Two: 2.0,
   Four: 4.0,

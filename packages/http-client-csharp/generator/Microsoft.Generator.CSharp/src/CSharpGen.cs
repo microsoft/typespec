@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     writer = new CodeWriter();
                     CodeModelPlugin.Instance.GetWriter(writer, serialization).Write();
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{enumType.Name}.Serialization.cs"), writer.ToString()));
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.cs"), writer.ToString()));
                 }
             }
 

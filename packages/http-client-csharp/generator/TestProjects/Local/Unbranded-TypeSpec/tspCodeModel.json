@@ -234,7 +234,7 @@
    "$id": "30",
    "Kind": "Enum",
    "Name": "FloatExtensibleEnumWithIntValue",
-   "EnumValueType": "Int32",
+   "EnumValueType": "Float32",
    "AllowedValues": [
     {
      "$id": "31",
@@ -254,7 +254,7 @@
    ],
    "Namespace": "UnbrandedTypeSpec",
    "Description": "float fixed enum",
-   "IsExtensible": false,
+   "IsExtensible": true,
    "IsNullable": false,
    "Usage": "RoundTrip"
   },

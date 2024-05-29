@@ -2,12 +2,57 @@
 
 #nullable disable
 
+using System;
+using System.ComponentModel;
+using System.Globalization;
+
 namespace UnbrandedTypeSpec.Models
 {
-    public enum FloatExtensibleEnumWithIntValue
+    public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<FloatExtensibleEnumWithIntValue>
     {
-        One = 1,
-        Two = 2,
-        Four = 4
+        private readonly float _value;
+        private const float OneValue = 1F;
+        private const float TwoValue = 2F;
+        private const float FourValue = 4F;
+
+        /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnumWithIntValue"/>. </summary>
+        /// <param name="value"></param>
+        public FloatExtensibleEnumWithIntValue(float value)
+        {
+            _value = value;
+        }
+
+        public static FloatExtensibleEnumWithIntValue One { get; } = new FloatExtensibleEnumWithIntValue(OneValue);
+
+        public static FloatExtensibleEnumWithIntValue Two { get; } = new FloatExtensibleEnumWithIntValue(TwoValue);
+
+        public static FloatExtensibleEnumWithIntValue Four { get; } = new FloatExtensibleEnumWithIntValue(FourValue);
+
+        /// <summary> Determines if two <see cref="FloatExtensibleEnumWithIntValue"/> values are the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        public static bool operator ==(FloatExtensibleEnumWithIntValue left, FloatExtensibleEnumWithIntValue right) => left.Equals(right);
+
+        /// <summary> Determines if two <see cref="FloatExtensibleEnumWithIntValue"/> values are not the same. </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        public static bool operator !=(FloatExtensibleEnumWithIntValue left, FloatExtensibleEnumWithIntValue right) => !left.Equals(right);
+
+        /// <summary> Converts a string to a <see cref="FloatExtensibleEnumWithIntValue"/>. </summary>
+        /// <param name="value"></param>
+        public static implicit operator FloatExtensibleEnumWithIntValue(float value) => new FloatExtensibleEnumWithIntValue(value);
+
+        /// <param name="obj"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => obj is FloatExtensibleEnumWithIntValue other && Equals(other);
+
+        /// <param name="other"></param>
+        public bool Equals(FloatExtensibleEnumWithIntValue other) => Equals(_value, other._value);
+
+        public override int GetHashCode() => _value.GetHashCode();
+
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+
+        internal float ToSerialSingle() => _value;
     }
 }
