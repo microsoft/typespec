@@ -34,7 +34,6 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryProvider(SourceInputModel? sourceInputModel)
             : base(sourceInputModel)
         {
-            DeclarationModifiers = TypeSignatureModifiers.Internal;
             WhereClause = Where.NotNull(_tKey);
             _indexParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
             _IDictionary = new CSharpType(typeof(IDictionary<,>), _tKey, _tValue);
@@ -46,6 +45,11 @@ namespace Microsoft.Generator.CSharp
             _innerDictionary = new DictionaryExpression(_tKey, _tValue, new VariableReference(_IDictionary, _innerDictionaryField.Declaration));
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<Parameter>());
             EnsureDictionary = This.Invoke(_ensureDictionarySignature);
+        }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal;
         }
 
         public override string Name => "ChangeTrackingDictionary";

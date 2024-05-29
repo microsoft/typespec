@@ -43,8 +43,12 @@ namespace Microsoft.Generator.CSharp
             _innerList = new VariableReference(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new Parameter("item", null, _t, null, ValidationType.None, null);
-            DeclarationModifiers = TypeSignatureModifiers.Internal;
             EnsureList = This.Invoke(_ensureListSignature);
+        }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal;
         }
 
         public override string Name => "ChangeTrackingList";

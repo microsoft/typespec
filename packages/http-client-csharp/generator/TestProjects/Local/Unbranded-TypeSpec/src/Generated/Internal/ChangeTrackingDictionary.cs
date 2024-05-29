@@ -6,9 +6,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
-    internal class ChangeTrackingDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
+    internal partial class ChangeTrackingDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue> where TKey : notnull
     {
         private IDictionary<TKey, TValue> _innerDictionary;
 
@@ -111,7 +111,7 @@ namespace UnbrandedTypeSpec.Models
 
         /// <param name="array"></param>
         /// <param name="index"></param>
-        public void CopyTo(KeyValuePair`2[] array, int index)
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
             if (IsUndefined)
             {
@@ -173,7 +173,5 @@ namespace UnbrandedTypeSpec.Models
         {
             return _innerDictionary ??= new Dictionary<TKey, TValue>();
         }
-
-        // Add Nested Type
     }
 }

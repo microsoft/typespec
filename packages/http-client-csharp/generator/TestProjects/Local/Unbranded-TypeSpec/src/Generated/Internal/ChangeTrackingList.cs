@@ -7,9 +7,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
-    internal class ChangeTrackingList<T> : IList<T>, IReadOnlyList<T>
+    internal partial class ChangeTrackingList<T> : IList<T>, IReadOnlyList<T>
     {
         private IList<T> _innerList;
 
@@ -157,7 +157,5 @@ namespace UnbrandedTypeSpec.Models
         {
             return _innerList ??= new List<T>();
         }
-
-        // Add Nested Type
     }
 }
