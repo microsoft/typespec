@@ -14,10 +14,13 @@ namespace Microsoft.Generator.CSharp
 {
     public class FixedEnumTypeProvider : EnumTypeProvider
     {
+        private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
         protected internal FixedEnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(input, sourceInputModel)
         {
+            _allowedValues = input.AllowedValues;
+
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
             if (input.Accessibility == "internal")
@@ -31,29 +34,31 @@ namespace Microsoft.Generator.CSharp
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
-        private protected override IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
+        protected override IReadOnlyList<EnumTypeValue> BuildValues()
         {
-            var values = new Dictionary<EnumTypeValue, FieldDeclaration>();
-            foreach (var value in Values)
+            var values = new EnumTypeValue[_allowedValues.Count];
+            for (int i = 0; i < _allowedValues.Count; i++)
             {
+                var inputValue = _allowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = value.Name;
+                var name = inputValue.Name.ToCleanName();
                 // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
-                var initializationValue = IsIntValueType ? Literal(value.Value) : null;
+                var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
                 var field = new FieldDeclaration(
-                    Description: FormattableStringHelpers.FromString(value.Description),
+                    Description: FormattableStringHelpers.FromString(inputValue.Description),
                     Modifiers: modifiers,
                     Type: ValueType,
                     Name: name,
                     InitializationValue: initializationValue);
-                values.Add(value, field);
+
+                values[i] = new EnumTypeValue(name, field, inputValue.Value);
             }
             return values;
         }
 
         protected override FieldDeclaration[] BuildFields()
-            => ValueFields.Values.ToArray();
+            => Values.Select(v => v.Field).ToArray();
 
         /// <summary>
         /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum
@@ -110,11 +115,7 @@ namespace Microsoft.Generator.CSharp
                     for (int i = 0; i < knownCases.Length; i++)
                     {
                         var enumValue = _enumType.Values[i];
-                        if (!_enumType.ValueFields.TryGetValue(enumValue, out var enumField))
-                        {
-                            throw new InvalidOperationException($"Cannot get field on enum {_enumType.Type} from value {enumValue.Name}");
-                        }
-                        knownCases[i] = new SwitchCaseExpression(new MemberExpression(_enumType.Type, enumField.Name), Literal(enumValue.Value));
+                        knownCases[i] = new SwitchCaseExpression(new MemberExpression(_enumType.Type, enumValue.Field.Name), Literal(enumValue.Value));
                     }
                     var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
                     var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
@@ -13,10 +14,13 @@ namespace Microsoft.Generator.CSharp
 {
     public class ExtensibleEnumTypeProvider : EnumTypeProvider
     {
+        private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
         protected internal ExtensibleEnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(input, sourceInputModel)
         {
+            _allowedValues = input.AllowedValues;
+
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;
             if (input.Accessibility == "internal")
@@ -31,25 +35,30 @@ namespace Microsoft.Generator.CSharp
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
-        // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
-        private protected override IReadOnlyDictionary<EnumTypeValue, FieldDeclaration> BuildValueFields()
+        protected override IReadOnlyList<EnumTypeValue> BuildValues()
         {
-            var values = new Dictionary<EnumTypeValue, FieldDeclaration>();
-            foreach (var value in Values)
+            var values = new EnumTypeValue[_allowedValues.Count];
+
+            for (int i = 0; i < _allowedValues.Count; i++)
             {
+                var inputValue = _allowedValues[i];
+                // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var name = $"{value.Name}Value";
+                var valueName = inputValue.Name.ToCleanName();
+                var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
-                var initializationValue = Literal(value.Value);
+                var initializationValue = Literal(inputValue.Value);
                 var field = new FieldDeclaration(
-                    Description: FormattableStringHelpers.FromString(value.Description),
+                    Description: FormattableStringHelpers.FromString(inputValue.Description),
                     Modifiers: modifiers,
                     Type: ValueType,
                     Name: name,
                     InitializationValue: initializationValue);
-                values.Add(value, field);
+
+                values[i] = new EnumTypeValue(valueName, field, inputValue.Value);
             }
+
             return values;
         }
 
@@ -57,35 +66,23 @@ namespace Microsoft.Generator.CSharp
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
         protected override FieldDeclaration[] BuildFields()
-        {
-            var fields = new FieldDeclaration[Values.Count + 1];
-
-            // private value field
-            fields[0] = _valueField;
-
-            // the private fields for known values
-            // we do not use the input values because this has the possibility to be changed by customization code
-            var index = 1;
-            foreach (var field in ValueFields.Values)
-            {
-                fields[index++] = field;
-            }
-
-            return fields;
-        }
+            => [_valueField, .. Values.Select(v => v.Field)];
 
         protected override PropertyDeclaration[] BuildProperties()
         {
             var properties = new PropertyDeclaration[Values.Count];
 
             var index = 0;
-            foreach (var (value, field) in ValueFields)
+            foreach (var enumValue in Values)
             {
+                var name = enumValue.Name;
+                var value = enumValue.Value;
+                var field = enumValue.Field;
                 properties[index++] = new PropertyDeclaration(
-                    Description: FormattableStringHelpers.FromString(value.Description),
+                    Description: field.Description,
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                     Type: Type,
-                    Name: value.Name,
+                    Name: name,
                     Body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)));
             }
 

@@ -1,23 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
-
 namespace Microsoft.Generator.CSharp
 {
     public class EnumTypeValue
     {
-        public EnumTypeValue(InputEnumTypeValue value)
+        public EnumTypeValue(string name, FieldDeclaration field, object value)
         {
-            Name = value.Name.ToCleanName();
-            Value = value.Value;
-            Description = value.Description;
+            Name = name;
+            Field = field;
+            Value = value;
         }
 
         public string Name { get; }
 
-        public object Value { get; }
+        public FieldDeclaration Field { get; }
 
-        public string? Description { get; }
+        public object Value { get; }
     }
 }
