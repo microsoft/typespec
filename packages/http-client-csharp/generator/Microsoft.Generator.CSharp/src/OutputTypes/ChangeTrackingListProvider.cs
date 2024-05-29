@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>
+            return new CSharpMethod[]
             {
                 BuildReset(),
                 BuildGetEnumeratorOfT(),
@@ -168,8 +168,6 @@ namespace Microsoft.Generator.CSharp
                 BuildRemoveAt(),
                 BuildEnsureList()
             };
-
-            return methods.ToArray();
         }
 
         private CSharpMethod BuildRemoveAt()

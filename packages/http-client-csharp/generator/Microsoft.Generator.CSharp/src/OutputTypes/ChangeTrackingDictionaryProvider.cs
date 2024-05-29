@@ -71,14 +71,12 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildConstructors()
         {
-            var constructors = new List<CSharpMethod>
+            return new CSharpMethod[]
             {
                 DefaultConstructor(),
                 ConstructorWithDictionary(),
                 ConstructorWithReadOnlyDictionary()
             };
-
-            return constructors.ToArray();
         }
 
         private CSharpMethod ConstructorWithReadOnlyDictionary()
@@ -123,7 +121,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override PropertyDeclaration[] BuildProperties()
         {
-            var properties = new List<PropertyDeclaration>
+            return new PropertyDeclaration[]
             {
                 BuildIsUndefined(),
                 BuildCount(),
@@ -134,8 +132,6 @@ namespace Microsoft.Generator.CSharp
                 BuildEnumerableKeys(),
                 BuildEnumerableValues()
             };
-
-            return properties.ToArray();
         }
 
         private PropertyDeclaration BuildEnumerableValues()
@@ -227,7 +223,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>
+            return new CSharpMethod[]
             {
                 BuildGetEnumeratorGeneric(),
                 BuildGetEnumerator(),
@@ -242,8 +238,6 @@ namespace Microsoft.Generator.CSharp
                 BuildTryGetValue(),
                 BuildEnsureDictionary()
             };
-
-            return methods.ToArray();
         }
 
         private CSharpMethod BuildTryGetValue()

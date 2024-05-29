@@ -590,7 +590,7 @@ namespace Microsoft.Generator.CSharp
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
         {
-            if (type.IsFrameworkType && type.FrameworkType.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
             {
                 AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
                 AppendRaw("[]");
