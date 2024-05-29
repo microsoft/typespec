@@ -18,12 +18,12 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public override InputEnumType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputEnumType>(_referenceHandler.CurrentResolver) ?? CreateEnumType(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputEnumType>(_referenceHandler.CurrentResolver) ?? CreateEnumType(ref reader, null, null, options, _referenceHandler);
 
         public override void Write(Utf8JsonWriter writer, InputEnumType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputEnumType CreateEnumType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputEnumType CreateEnumType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, TypeSpecReferenceHandler resolver)
         {
             var isFirstProperty = id == null && name == null;
             bool isNullable = false;
@@ -36,6 +36,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool isExtendable = false;
             InputPrimitiveType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? allowedValues = null;
+            JsonSerializerOptions? allowedValueOptions = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -48,7 +49,26 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputEnumType.Usage), ref usageString)
                     || reader.TryReadBoolean(nameof(InputEnumType.IsExtensible), ref isExtendable)
                     || reader.TryReadPrimitiveType(nameof(InputEnumType.EnumValueType), ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.AllowedValues), options, ref allowedValues);
+                    || reader.TryReadWithConverter(nameof(InputEnumType.AllowedValues), allowedValueOptions!, ref allowedValues);
+
+                if (allowedValueOptions is null && valueType is not null)
+                {
+                    allowedValueOptions = new JsonSerializerOptions(options);
+                    switch (valueType.Kind)
+                    {
+                        case InputPrimitiveTypeKind.String:
+                            allowedValueOptions.Converters.Add(new TypeSpecInputEnumTypeStringValueConverter(resolver));
+                            break;
+                        case InputPrimitiveTypeKind.Int32:
+                            allowedValueOptions.Converters.Add(new TypeSpecInputEnumTypeIntValueConverter(resolver));
+                            break;
+                        case InputPrimitiveTypeKind.Float32:
+                            allowedValueOptions.Converters.Add(new TypeSpecInputEnumTypeFloatValueConverter(resolver));
+                            break;
+                        default:
+                            throw new JsonException($"Unsupported enum value type: {valueType.Kind}");
+                    }
+                }
 
                 if (!isKnownProperty)
                 {
@@ -75,61 +95,12 @@ namespace Microsoft.Generator.CSharp.Input
 
             valueType = valueType ?? throw new JsonException("Enum value type must be set.");
 
-            var enumType = new InputEnumType(name, ns, accessibility, deprecated, description, usage, valueType, NormalizeValues(allowedValues, valueType), isExtendable, isNullable);
+            var enumType = new InputEnumType(name, ns, accessibility, deprecated, description, usage, valueType, allowedValues, isExtendable, isNullable);
             if (id != null)
             {
-                resolver.AddReference(id, enumType);
+                resolver.CurrentResolver.AddReference(id, enumType);
             }
             return enumType;
-        }
-
-        private static IReadOnlyList<InputEnumTypeValue> NormalizeValues(IReadOnlyList<InputEnumTypeValue> allowedValues, InputPrimitiveType valueType)
-        {
-            var concreteValues = new List<InputEnumTypeValue>(allowedValues.Count);
-
-            switch (valueType.Kind)
-            {
-                case InputPrimitiveTypeKind.String:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not string s)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeStringValue(value.Name, s, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Int32:
-                    foreach (var value in allowedValues)
-                    {
-                        if (value.Value is not int i)
-                        {
-                            throw new JsonException($"Enum value types are not consistent");
-                        }
-                        concreteValues.Add(new InputEnumTypeIntegerValue(value.Name, i, value.Description));
-                    }
-                    break;
-                case InputPrimitiveTypeKind.Float32:
-                    foreach (var value in allowedValues)
-                    {
-                        switch (value.Value)
-                        {
-                            case int i:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, (float)i, value.Description));
-                                break;
-                            case float f:
-                                concreteValues.Add(new InputEnumTypeFloatValue(value.Name, f, value.Description));
-                                break;
-                            default:
-                                throw new JsonException($"Enum value types are not consistent");
-                        }
-                    }
-                    break;
-                default:
-                    throw new JsonException($"Unsupported enum value type: {valueType.Kind}");
-            }
-
-            return concreteValues;
         }
     }
 }

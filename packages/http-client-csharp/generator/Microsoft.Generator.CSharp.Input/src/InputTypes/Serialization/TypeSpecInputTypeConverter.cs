@@ -69,7 +69,7 @@ namespace Microsoft.Generator.CSharp.Input
             LiteralKind => TypeSpecInputLiteralTypeConverter.CreateInputLiteralType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             UnionKind => TypeSpecInputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ModelKind => TypeSpecInputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            EnumKind => TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
+            EnumKind => TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler),
             ArrayKind => TypeSpecInputListTypeConverter.CreateListType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             DictionaryKind => TypeSpecInputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             IntrinsicKind => ReadIntrinsicType(ref reader, id, name, _referenceHandler.CurrentResolver),

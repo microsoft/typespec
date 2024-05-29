@@ -89,7 +89,7 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
-        public static bool TryReadEnumValue(this ref Utf8JsonReader reader, string propertyName, ref object? value)
+        public static bool TryReadEnumStringValue(this ref Utf8JsonReader reader, string propertyName, ref string? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
             {
@@ -107,12 +107,64 @@ namespace Microsoft.Generator.CSharp.Input
                 case JsonTokenType.String:
                     value = reader.GetString() ?? throw new JsonException("Enum value cannot be empty");
                     break;
+                default:
+                    throw new JsonException($"Unsupported enum value type: {reader.TokenType}");
+            }
+
+            reader.Read();
+            return true;
+        }
+
+        public static bool TryReadEnumIntValue(this ref Utf8JsonReader reader, string propertyName, ref int? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            switch (reader.TokenType)
+            {
                 case JsonTokenType.Number:
                     if (reader.TryGetInt32(out int intValue))
                     {
                         value = intValue;
                     }
-                    else if (reader.TryGetSingle(out float floatValue))
+                    else
+                    {
+                        throw new JsonException($"Unsupported enum value type: {reader.TokenType}");
+                    }
+                    break;
+                default:
+                    throw new JsonException($"Unsupported enum value type: {reader.TokenType}");
+            }
+
+            reader.Read();
+            return true;
+        }
+
+        public static bool TryReadEnumFloatValue(this ref Utf8JsonReader reader, string propertyName, ref float? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.Number:
+                    if (reader.TryGetSingle(out float floatValue))
                     {
                         value = floatValue;
                     }

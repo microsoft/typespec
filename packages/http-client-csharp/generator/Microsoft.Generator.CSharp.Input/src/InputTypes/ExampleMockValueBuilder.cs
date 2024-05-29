@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,7 +126,17 @@ namespace Microsoft.Generator.CSharp.Input
         private static InputExampleValue BuildEnumExampleValue(InputEnumType enumType)
         {
             var enumValue = enumType.AllowedValues.First();
-            return InputExampleValue.Value(enumType, enumValue.Value);
+            switch (enumValue)
+            {
+                case InputEnumTypeFloatValue floatValue:
+                    return InputExampleValue.Value(enumType, floatValue.Value);
+                case InputEnumTypeIntegerValue intValue:
+                    return InputExampleValue.Value(enumType, intValue.Value);
+                case InputEnumTypeStringValue stringValue:
+                    return InputExampleValue.Value(enumType, stringValue.Value);
+                default:
+                    throw new NotSupportedException($"Unsupported enum value type: {enumValue.GetType().Name}");
+            }
         }
 
         private static InputExampleValue BuildPrimitiveExampleValue(InputPrimitiveType primitiveType, string? hint) => primitiveType.Kind switch

@@ -23,7 +23,6 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputListTypeConverter(referenceHandler),
                     new TypeSpecInputDictionaryTypeConverter(referenceHandler),
                     new TypeSpecInputEnumTypeConverter(referenceHandler),
-                    new TypeSpecInputEnumTypeValueConverter(referenceHandler),
                     new TypeSpecInputModelTypeConverter(referenceHandler),
                     new TypeSpecInputModelPropertyConverter(referenceHandler),
                     new TypeSpecInputConstantConverter(referenceHandler),
