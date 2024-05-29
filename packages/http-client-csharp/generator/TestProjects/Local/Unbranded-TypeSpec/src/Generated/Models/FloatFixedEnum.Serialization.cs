@@ -11,9 +11,9 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="value"></param>
         public static float ToSerialSingle(this FloatFixedEnum value) => value switch
         {
-            FloatFixedEnum.One => 1.1F,
-            FloatFixedEnum.Two => 2.2F,
-            FloatFixedEnum.Four => 4.4F,
+            FloatFixedEnum.OneDotOne => 1.1F,
+            FloatFixedEnum.TwoDotTwo => 2.2F,
+            FloatFixedEnum.FourDotFour => 4.4F,
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.")
         };
 
@@ -22,15 +22,15 @@ namespace UnbrandedTypeSpec.Models
         {
             if (value == 1.1F)
             {
-                return FloatFixedEnum.One;
+                return FloatFixedEnum.OneDotOne;
             }
             if (value == 2.2F)
             {
-                return FloatFixedEnum.Two;
+                return FloatFixedEnum.TwoDotTwo;
             }
             if (value == 4.4F)
             {
-                return FloatFixedEnum.Four;
+                return FloatFixedEnum.FourDotFour;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown FloatFixedEnum value.");
         }

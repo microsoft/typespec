@@ -33,9 +33,9 @@ enum FloatFixedEnumWithIntValue {
 @doc("float fixed enum")
 @fixed
 enum FloatFixedEnum {
-  One: 1.1,
-  Two: 2.2,
-  Four: 4.4,
+  OneDotOne: 1.1,
+  TwoDotTwo: 2.2,
+  FourDotFour: 4.4,
 }
 
 @doc("int fixed enum")
@@ -65,9 +65,9 @@ union IntExtensibleEnum {
 @doc("Float based extensible enum")
 union FloatExtensibleEnum {
   float32,
-  One: 1.1,
-  Two: 2.2,
-  Four: 4.4,
+  OneDotOne: 1.1,
+  TwoDotTwo: 2.2,
+  FourDotFour: 4.4,
 }
 
 @doc("float fixed enum")

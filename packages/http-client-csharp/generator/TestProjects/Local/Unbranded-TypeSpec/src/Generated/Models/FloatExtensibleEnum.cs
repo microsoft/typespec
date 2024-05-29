@@ -11,9 +11,9 @@ namespace UnbrandedTypeSpec.Models
     public readonly partial struct FloatExtensibleEnum : IEquatable<FloatExtensibleEnum>
     {
         private readonly float _value;
-        private const float OneValue = 1.1F;
-        private const float TwoValue = 2.2F;
-        private const float FourValue = 4.4F;
+        private const float OneDotOneValue = 1.1F;
+        private const float TwoDotTwoValue = 2.2F;
+        private const float FourDotFourValue = 4.4F;
 
         /// <summary> Initializes a new instance of <see cref="FloatExtensibleEnum"/>. </summary>
         /// <param name="value"></param>
@@ -22,11 +22,11 @@ namespace UnbrandedTypeSpec.Models
             _value = value;
         }
 
-        public static FloatExtensibleEnum One { get; } = new FloatExtensibleEnum(OneValue);
+        public static FloatExtensibleEnum OneDotOne { get; } = new FloatExtensibleEnum(OneDotOneValue);
 
-        public static FloatExtensibleEnum Two { get; } = new FloatExtensibleEnum(TwoValue);
+        public static FloatExtensibleEnum TwoDotTwo { get; } = new FloatExtensibleEnum(TwoDotTwoValue);
 
-        public static FloatExtensibleEnum Four { get; } = new FloatExtensibleEnum(FourValue);
+        public static FloatExtensibleEnum FourDotFour { get; } = new FloatExtensibleEnum(FourDotFourValue);
 
         /// <summary> Determines if two <see cref="FloatExtensibleEnum"/> values are the same. </summary>
         /// <param name="left"></param>

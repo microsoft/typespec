@@ -210,17 +210,17 @@
    "AllowedValues": [
     {
      "$id": "27",
-     "Name": "One",
+     "Name": "OneDotOne",
      "Value": 1.1
     },
     {
      "$id": "28",
-     "Name": "Two",
+     "Name": "TwoDotTwo",
      "Value": 2.2
     },
     {
      "$id": "29",
-     "Name": "Four",
+     "Name": "FourDotFour",
      "Value": 4.4
     }
    ],
@@ -266,17 +266,17 @@
    "AllowedValues": [
     {
      "$id": "35",
-     "Name": "One",
+     "Name": "OneDotOne",
      "Value": 1.1
     },
     {
      "$id": "36",
-     "Name": "Two",
+     "Name": "TwoDotTwo",
      "Value": 2.2
     },
     {
      "$id": "37",
-     "Name": "Four",
+     "Name": "FourDotFour",
      "Value": 4.4
     }
    ],

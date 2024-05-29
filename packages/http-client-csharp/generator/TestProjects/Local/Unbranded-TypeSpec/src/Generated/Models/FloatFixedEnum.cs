@@ -6,8 +6,8 @@ namespace UnbrandedTypeSpec.Models
 {
     public enum FloatFixedEnum
     {
-        One,
-        Two,
-        Four
+        OneDotOne,
+        TwoDotTwo,
+        FourDotFour
     }
 }
