@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase("bar", "{ \"bar\" }")]
         public void TestWriteValueExpression_DefaultCollectionInitializerExpression(string literal, string expectedWritten)
         {
-            var stringLiteralExpression = new StringLiteralExpression(literal, false);
+            var stringLiteralExpression = Snippet.Literal(literal);
             CollectionInitializerExpression expression = new CollectionInitializerExpression(stringLiteralExpression);
             var codeWriter = new CodeWriter();
             expression.Write(codeWriter);
@@ -119,7 +119,7 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
-            var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(new StringLiteralExpression("sample response", false)));
+            var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(Snippet.Literal("sample response")));
             var resultStatements = new List<MethodBodyStatement>()
             {
                 responseRef,

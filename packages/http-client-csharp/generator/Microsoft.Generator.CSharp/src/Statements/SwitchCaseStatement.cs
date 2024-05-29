@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record SwitchCaseStatement(IReadOnlyList<ValueExpression> Match, MethodBodyStatement Statement, bool Inline = false, bool AddScope = false) : MethodBodyStatement
+    public sealed record SwitchCaseStatement(IReadOnlyList<ValueExpression> Matches, MethodBodyStatement Statement, bool Inline = false, bool AddScope = false) : MethodBodyStatement
     {
         public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool inline = false, bool addScope = false) : this(new[] { match }, statement, inline, addScope) { }
 
@@ -16,14 +16,14 @@ namespace Microsoft.Generator.CSharp.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            if (Match.Any())
+            if (Matches.Any())
             {
-                for (var i = 0; i < Match.Count; i++)
+                for (var i = 0; i < Matches.Count; i++)
                 {
-                    ValueExpression? match = Match[i];
+                    ValueExpression? match = Matches[i];
                     writer.AppendRaw("case ");
                     match.Write(writer);
-                    if (i < Match.Count - 1)
+                    if (i < Matches.Count - 1)
                     {
                         writer.WriteRawLine(":");
                     }

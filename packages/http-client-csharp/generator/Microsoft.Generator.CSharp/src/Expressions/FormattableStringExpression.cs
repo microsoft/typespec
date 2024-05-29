@@ -23,23 +23,12 @@ namespace Microsoft.Generator.CSharp.Expressions
             Args = args;
         }
 
-        public FormattableStringExpression(FormattableString value)
-        {
-            Value = value;
-        }
 
-        private FormattableString? Value { get; init; }
-        private string? Format { get; init; }
-        private IReadOnlyList<ValueExpression>? Args { get; init; }
+        private string Format { get; init; }
+        private IReadOnlyList<ValueExpression> Args { get; init; }
 
         internal override void Write(CodeWriter writer)
         {
-            if (Value is not null)
-            {
-                writer.Append(Value);
-                return;
-            }
-
             writer.AppendRaw("$\"");
             var argumentCount = 0;
             foreach ((var span, bool isLiteral) in StringExtensions.GetPathParts(Format))

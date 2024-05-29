@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp
                         expression.Write(this);
                         break;
                     case var _ when isLiteralFormat:
-                        WriteLiteral(argument);
+                        Literal(argument).Write(this);
                         break;
                     default:
                         string? s = argument?.ToString();
@@ -626,24 +626,6 @@ namespace Microsoft.Generator.CSharp
             {
                 AppendRaw("?");
             }
-        }
-
-        public CodeWriter WriteLiteral(object? o)
-        {
-            return AppendRaw(o switch
-            {
-                null => "null",
-                string s => SyntaxFactory.Literal(s).ToString(),
-                int i => SyntaxFactory.Literal(i).ToString(),
-                long l => SyntaxFactory.Literal(l).ToString(),
-                decimal d => SyntaxFactory.Literal(d).ToString(),
-                double d => SyntaxFactory.Literal(d).ToString(),
-                float f => SyntaxFactory.Literal(f).ToString(),
-                char c => SyntaxFactory.Literal(c).ToString(),
-                bool b => b ? "true" : "false",
-                BinaryData bd => bd.ToArray().Length == 0 ? "new byte[] { }" : SyntaxFactory.Literal(bd.ToString()).ToString(),
-                _ => throw new NotImplementedException()
-            });
         }
 
         public CodeWriter WriteLine(FormattableString formattableString)

@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-                Snippet.Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
+                Snippet.Return(new NewInstanceExpression(returnType, [Snippet.Literal(_iPersistableModelTInterface.Name)]))
             );
         }
 

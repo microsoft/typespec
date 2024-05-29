@@ -83,6 +83,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override string JsonElementVariableName => "element";
 
         public override ValueExpression GetKeySampleExpression(string clientName)
-            => new InvokeStaticMethodExpression(typeof(Environment), nameof(Environment.GetEnvironmentVariable), new[] { new StringLiteralExpression($"{clientName}_KEY", false) });
+            => new InvokeStaticMethodExpression(typeof(Environment), nameof(Environment.GetEnvironmentVariable), [Snippet.Literal($"{clientName}_KEY")]);
     }
 }

@@ -28,8 +28,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static BoolSnippet Bool(bool value) => value ? True : False;
         public static IntSnippet Int(int value) => new(Literal(value));
         public static LongSnippet Long(long value) => new(Literal(value));
-        public static ValueExpression Float(float value) => new FormattableStringExpression($"{value}f");
-        public static ValueExpression Double(double value) => new FormattableStringExpression($"{value}d");
+        public static ValueExpression Float(float value) => Literal(value);
+        public static ValueExpression Double(double value) => Literal(value);
 
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeInstanceMethodExpression(null, "nameof", new[] { expression }, null, false);
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
@@ -52,8 +52,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Literal(object? value) => new LiteralExpression(value);
 
-        public static StringSnippet Literal(string? value) => new(value is null ? Null : new StringLiteralExpression(value, false));
-        public static StringSnippet LiteralU8(string value) => new(new StringLiteralExpression(value, true));
+        public static StringSnippet Literal(string? value) => new(value is null ? Null : new LiteralExpression(value));
+        public static StringSnippet LiteralU8(string value) => new(new UnaryOperatorExpression("u8", new LiteralExpression(value), true));
 
         public static BoolSnippet GreaterThan(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression(">", left, right));
         public static BoolSnippet LessThan(ValueExpression left, ValueExpression right) => new(new BinaryOperatorExpression("<", left, right));
@@ -88,8 +88,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
             => new InvokeInstanceMethodStatement(null, methodName, stringBuilder);
 
-        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, CodeWriterDeclaration variable)
-            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new FormattableStringExpression($"ref {variable}") });
+        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableReferenceSnippet variable)
+            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new KeywordExpression("ref", variable) });
 
         public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
         public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
@@ -103,8 +103,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableReferenceSnippet(value.Type, declaration));
-            return new(new BinaryOperatorExpression("is", value, new FormattableStringExpression($"{value.Type} {declaration:D}")));
+            var variableRef = new VariableReferenceSnippet(value.Type, declaration);
+            variable = factory(variableRef);
+            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef, false)));
         }
     }
 }
