@@ -628,7 +628,7 @@ function fromSdkConstantType(
     const enumType: InputEnumType = {
       Kind: InputTypeKind.Enum,
       Name: enumName,
-      EnumValueType: enumValueType, //EnumValueType and  AllowedValues should be the first field after id and name, so that it can be corrected serialized.
+      EnumValueType: enumValueType, //EnumValueType and AllowedValues should be the first field after id and name, so that it can be corrected serialized.
       AllowedValues: allowValues,
       Namespace: literalTypeContext.Namespace,
       Accessibility: undefined,
