@@ -396,7 +396,14 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            Append($"{field.Type} {field.Name:I}");
+            if (field.Declaration.HasBeenDeclared)
+            {
+                Append($"{field.Type} {field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Type} {field.Declaration:D}");
+            }
 
             if (field.InitializationValue != null &&
                 (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
@@ -583,6 +590,13 @@ namespace Microsoft.Generator.CSharp
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
         {
+            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            {
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendRaw("[]");
+                return;
+            }
+
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
