@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Tests
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private GeneratorContext _generatorContext;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "mocks");
+        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
         private FieldInfo? _mockPlugin;
 
         [SetUp]
