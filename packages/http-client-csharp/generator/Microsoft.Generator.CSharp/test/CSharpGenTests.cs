@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     public class CSharpGenTests
     {
-        private readonly string _mocksFolder = "./mocks";
+        private readonly string _mocksFolder = "./Mocks";
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()

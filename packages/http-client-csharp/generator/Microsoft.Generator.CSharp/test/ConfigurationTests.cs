@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Tests
     public class ConfigurationTests
     {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        private readonly string _mocksFolder = "./mocks";
+        private readonly string _mocksFolder = "./Mocks";
 
         // Validates that the configuration is initialized correctly given input
         [Test]
