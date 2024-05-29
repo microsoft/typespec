@@ -196,4 +196,28 @@ describe("referencing non-JSON Schema types", () => {
     assert(amSchemas["B.json"] !== undefined);
     assert(Object.keys(amSchemas).length === 2);
   });
+
+  it("handles circular refs among non-json schema types", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema
+      model R {
+        test: A;
+      }
+      
+      model A {
+        a: B;
+      }
+      
+      model B {
+        a: A;
+      }
+    `,
+      {},
+      { emitNamespace: false, emitTypes: ["R"] }
+    );
+    assert(schemas["R.json"] !== undefined);
+    assert(Object.keys(schemas).length === 1);
+    assert(Object.keys(schemas["R.json"].$defs).length === 2);
+  });
 });
