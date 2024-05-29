@@ -65,7 +65,7 @@ export function fromSdkType(
   if (sdkType.kind === "constant")
     return fromSdkConstantType(sdkType, context, models, enums, literalTypeContext);
   if (sdkType.kind === "union") return fromUnionType(sdkType, context, models, enums);
-  if (sdkType.kind === "utcDateTime" || sdkType.kind == "offsetDateTime")
+  if (sdkType.kind === "utcDateTime" || sdkType.kind === "offsetDateTime")
     return fromSdkDatetimeType(sdkType);
   if (sdkType.kind === "duration") return fromSdkDurationType(sdkType);
   if (sdkType.kind === "bytes") return fromBytesType(sdkType);
