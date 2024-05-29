@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     internal class KnownParametersTests
     {
-        private readonly string _mocksFolder = "mocks";
+        private readonly string _mocksFolder = "Mocks";
 
         [OneTimeSetUp]
         public void OneTimeSetup()
