@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        public void ReadOperationsDontChange()
+        public void ReadOperationsDoNotChange()
         {
             var list = new ChangeTrackingList<string>();
             _ = list.Count;

@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        public void ReadOperationsDontChange()
+        public void ReadOperationsDoNotChange()
         {
             var dictionary = new ChangeTrackingDictionary<string, string>();
             _ = dictionary.Count;
