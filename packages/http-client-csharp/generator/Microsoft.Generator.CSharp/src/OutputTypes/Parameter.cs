@@ -14,18 +14,11 @@ namespace Microsoft.Generator.CSharp
     public sealed class Parameter
     {
         public string Name { get; }
-        public FormattableString? Description { get; }
+        public FormattableString Description { get; }
         public CSharpType Type { get; init; }
         public ValueExpression? DefaultValue { get; init; }
-        public ValidationType Validation { get; init; }
+        public ValidationType? Validation { get; init; } = ValidationType.None;
         public ValueExpression? Initializer { get; init; }
-        public bool IsApiVersionParameter { get; }
-        public bool IsEndpoint { get; }
-        public bool IsResourceIdentifier { get; }
-        public bool SkipUrlEncoding { get; }
-        public RequestLocation RequestLocation { get; init; } = RequestLocation.None;
-        public SerializationFormat SerializationFormat { get; init; } = SerializationFormat.Default;
-        public bool IsPropertyBag { get; }
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
@@ -33,13 +26,10 @@ namespace Microsoft.Generator.CSharp
 
         public Parameter(InputModelProperty inputProperty)
         {
-            CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
-            var parameterValidation = GetParameterValidation(inputProperty, propertyType);
-
             Name = inputProperty.Name.ToVariableName();
             Description = FormattableStringHelpers.FromString(inputProperty.Description);
-            Type = propertyType;
-            Validation = parameterValidation;
+            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            Validation = GetParameterValidation(inputProperty, Type);
         }
 
         /// <summary>
@@ -53,46 +43,22 @@ namespace Microsoft.Generator.CSharp
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             Validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
-            IsApiVersionParameter = inputParameter.IsApiVersion;
-            IsEndpoint = inputParameter.IsEndpoint;
-            IsResourceIdentifier = inputParameter.IsResourceParameter;
-            SkipUrlEncoding = inputParameter.SkipUrlEncoding;
-            RequestLocation = inputParameter.Location;
-            SerializationFormat = SerializationFormat.Default;
         }
 
         public Parameter(
             string name,
-            FormattableString? description,
+            FormattableString description,
             CSharpType type,
-            ValueExpression? defaultValue,
-            ValidationType validation,
-            ValueExpression? initializer,
-            bool isApiVersionParameter = false,
-            bool isEndpoint = false,
-            bool isResourceIdentifier = false,
-            bool skipUrlEncoding = false,
-            RequestLocation requestLocation = RequestLocation.None,
-            SerializationFormat serializationFormat = SerializationFormat.Default,
-            bool isPropertyBag = false,
+            ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false)
         {
             Name = name;
             Type = type;
             Description = description;
-            Validation = validation;
-            IsApiVersionParameter = isApiVersionParameter;
-            IsEndpoint = isEndpoint;
-            IsResourceIdentifier = isResourceIdentifier;
-            SkipUrlEncoding = skipUrlEncoding;
-            RequestLocation = requestLocation;
-            SerializationFormat = serializationFormat;
-            IsPropertyBag = isPropertyBag;
             IsRef = isRef;
             IsOut = isOut;
             DefaultValue = defaultValue;
-            Initializer = initializer;
         }
 
         internal static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();

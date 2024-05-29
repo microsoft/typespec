@@ -23,25 +23,25 @@ namespace Microsoft.Generator.CSharp
         private static readonly CSharpType RequestContextNullableType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType, true);
         private static readonly CSharpType ResponseType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.ResponseType);
 
-        public Parameter TokenAuth => new("tokenCredential", $"The token credential to copy", TypeFactory.TokenCredentialType(), null, ValidationType.None, null);
-        public Parameter MatchConditionsParameter => new("matchConditions", $"The content to send as the request conditions of the request.", TypeFactory.MatchConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, requestLocation: RequestLocation.Header);
-        public Parameter RequestConditionsParameter => new("requestConditions", $"The content to send as the request conditions of the request.", TypeFactory.RequestConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, requestLocation: RequestLocation.Header);
+        public Parameter TokenAuth => new("tokenCredential", $"The token credential to copy", TypeFactory.TokenCredentialType());
+        public Parameter MatchConditionsParameter => new("matchConditions", $"The content to send as the request conditions of the request.", TypeFactory.MatchConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()));
+        public Parameter RequestConditionsParameter => new("requestConditions", $"The content to send as the request conditions of the request.", TypeFactory.RequestConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()));
 
-        public static readonly Parameter Pipeline = new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType), null, ValidationType.AssertNotNull, null);
-        public static readonly Parameter KeyAuth = new("keyCredential", $"The key credential to copy", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.KeyCredentialType), null, ValidationType.None, null);
-        public static readonly Parameter Endpoint = new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri)), null, ValidationType.None, null, requestLocation: RequestLocation.Uri, isEndpoint: true);
+        public static readonly Parameter Pipeline = new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType));
+        public static readonly Parameter KeyAuth = new("keyCredential", $"The key credential to copy", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.KeyCredentialType));
+        public static readonly Parameter Endpoint = new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri)));
 
-        public static readonly Parameter NextLink = new("nextLink", $"Continuation token", typeof(string), null, ValidationType.None, null);
+        public static readonly Parameter NextLink = new("nextLink", $"Continuation token", typeof(string));
 
-        public static readonly Parameter RequestContent = new("content", $"The content to send as the body of the request.", RequestContentType, null, ValidationType.AssertNotNull, null, requestLocation: RequestLocation.Body);
-        public static readonly Parameter RequestContentNullable = new("content", $"The content to send as the body of the request.", RequestContentNullableType, null, ValidationType.None, null, requestLocation: RequestLocation.Body);
+        public static readonly Parameter RequestContent = new("content", $"The content to send as the body of the request.", RequestContentType);
+        public static readonly Parameter RequestContentNullable = new("content", $"The content to send as the body of the request.", RequestContentNullableType);
 
-        public static readonly Parameter RequestContext = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextNullableType, Snippets.DefaultOf(RequestContextNullableType), ValidationType.None, null);
-        public static readonly Parameter RequestContextRequired = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextType, null, ValidationType.None, null);
+        public static readonly Parameter RequestContext = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextNullableType, Snippets.DefaultOf(RequestContextNullableType));
+        public static readonly Parameter RequestContextRequired = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextType);
 
-        public static readonly Parameter CancellationTokenParameter = new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null);
-        public static readonly Parameter EnumeratorCancellationTokenParameter = new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
+        public static readonly Parameter CancellationTokenParameter = new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippets.DefaultOf(typeof(CancellationToken)));
+        public static readonly Parameter EnumeratorCancellationTokenParameter = new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippets.DefaultOf(typeof(CancellationToken))) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
 
-        public static readonly Parameter Response = new("response", $"Response returned from backend service", ResponseType, null, ValidationType.None, null);
+        public static readonly Parameter Response = new("response", $"Response returned from backend service", ResponseType);
     }
 }

@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyDeclaration
     {
-        public FormattableString? Description { get; }
+        public FormattableString Description { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
@@ -33,9 +33,9 @@ namespace Microsoft.Generator.CSharp
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
         }
 
-        internal PropertyDeclaration(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
+        public PropertyDeclaration(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
         {
-            Description = description;
+            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             Modifiers = modifiers;
             Type = type;
             Name = name;
