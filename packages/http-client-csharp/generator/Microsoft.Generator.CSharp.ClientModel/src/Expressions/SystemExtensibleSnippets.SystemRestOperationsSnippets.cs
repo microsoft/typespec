@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Expressions
             public override TypedValueExpression GetTypedResponseFromEnum(EnumTypeProvider enumType, TypedValueExpression result)
             {
                 var response = GetRawResponse(result);
-                return ClientResultExpression.FromValue(EnumExpression.ToEnum(enumType, response.Content.ToObjectFromJson(typeof(string))), response);
+                return ClientResultExpression.FromValue(enumType.ToEnum(response.Content.ToObjectFromJson(typeof(string))), response);
             }
 
             public override TypedValueExpression GetTypedResponseFromBinaryData(Type responseType, TypedValueExpression result, string? contentType = null)

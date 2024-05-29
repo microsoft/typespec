@@ -67,10 +67,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar = new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal(1)).Write(writer);
+            enumType.ToEnum(Snippets.Literal(1)).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -109,10 +109,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar = new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal(1f)).Write(writer);
+            enumType.ToEnum(Snippets.Literal(1f)).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -151,10 +151,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar = new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal("1")).Write(writer);
+            enumType.ToEnum(Snippets.Literal("1")).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -212,10 +212,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar = new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal(1)).Write(writer);
+            enumType.ToEnum(Snippets.Literal(1)).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -273,10 +273,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar =new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal(1f)).Write(writer);
+            enumType.ToEnum(Snippets.Literal(1f)).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -334,10 +334,10 @@ namespace Microsoft.Generator.CSharp.Tests
 
             // validate the expression is working fine
             var writer = new CodeWriter();
-            var enumVar = new EnumExpression(enumType, new FormattableStringToExpression($"e"));
-            enumVar.ToSerial().Write(writer);
+            var enumVar = new FormattableStringToExpression($"e");
+            enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
-            EnumExpression.ToEnum(enumType, Snippets.Literal("1")).Write(writer);
+            enumType.ToEnum(Snippets.Literal("1")).Write(writer);
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();

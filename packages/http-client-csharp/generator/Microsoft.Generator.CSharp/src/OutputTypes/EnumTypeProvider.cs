@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
@@ -49,15 +50,9 @@ namespace Microsoft.Generator.CSharp
         public IReadOnlyList<EnumTypeValue> Values => _values ??= BuildValues();
 
         protected abstract IReadOnlyList<EnumTypeValue> BuildValues();
-        //{
-        //    var values = new EnumTypeValue[_allowedValues.Count];
 
-        //    for (int i = 0; i < values.Length; i++)
-        //    {
-        //        values[i] = new EnumTypeValue(_allowedValues[i]);
-        //    }
+        public abstract ValueExpression ToSerial(ValueExpression enumExpression);
 
-        //    return values;
-        //}
+        public abstract ValueExpression ToEnum(ValueExpression valueExpression);
     }
 }

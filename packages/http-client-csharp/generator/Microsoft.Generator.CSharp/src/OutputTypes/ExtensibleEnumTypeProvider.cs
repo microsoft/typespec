@@ -241,5 +241,14 @@ namespace Microsoft.Generator.CSharp
 
             return methods.ToArray();
         }
+
+        public override ValueExpression ToSerial(ValueExpression enumExpression)
+        {
+            var serialMethodName = IsStringValueType ? nameof(object.ToString) : $"ToSerial{ValueType.Name}";
+            return enumExpression.Invoke(serialMethodName);
+        }
+
+        public override ValueExpression ToEnum(ValueExpression valueExpression)
+            => New.Instance(Type, valueExpression);
     }
 }
