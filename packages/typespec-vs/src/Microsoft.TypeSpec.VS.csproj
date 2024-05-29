@@ -42,15 +42,11 @@
   <ItemGroup>
     <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.10.40171" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK.Analyzers" Version="17.7.22">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.3.43"
       ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.3.43"
       ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.10.2179">
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3184">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
