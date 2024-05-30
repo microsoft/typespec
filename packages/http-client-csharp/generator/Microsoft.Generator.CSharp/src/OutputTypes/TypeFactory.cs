@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
@@ -65,5 +67,15 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType RequestConditionsType();
         public abstract CSharpType TokenCredentialType();
         public abstract CSharpType PageResponseType();
+
+        /// <summary>
+        /// The type for change tracking lists.
+        /// </summary>
+        public virtual CSharpType ChangeTrackingListType => ChangeTrackingListProvider.Instance.Type;
+
+        /// <summary>
+        /// The type for change tracking dictionaries.
+        /// </summary>
+        public virtual CSharpType ChangeTrackingDictionaryType => ChangeTrackingDictionaryProvider.Instance.Type;
     }
 }
