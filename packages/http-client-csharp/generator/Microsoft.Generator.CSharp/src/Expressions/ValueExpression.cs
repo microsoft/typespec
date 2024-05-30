@@ -23,6 +23,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringExpression InvokeToString() => new(Invoke(nameof(ToString)));
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
+        public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
         public BoolExpression InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
 

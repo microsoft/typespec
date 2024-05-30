@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using System.ClientModel.Primitives;
-using System.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {

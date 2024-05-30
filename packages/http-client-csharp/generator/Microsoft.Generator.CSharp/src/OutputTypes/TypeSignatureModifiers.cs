@@ -24,5 +24,6 @@ namespace Microsoft.Generator.CSharp
         Partial = 1 << 9,
         Sealed = 1 << 10,
         Abstract = 1 << 11,
+        ReadOnly = 1 << 12,
     }
 }
