@@ -1,7 +1,6 @@
 import {
   CompletionItem,
   CompletionItemKind,
-  CompletionItemTag,
   CompletionList,
   CompletionParams,
   MarkupKind,
@@ -439,7 +438,10 @@ function addIdentifierCompletion(
       insertText: printId(key) + (suffix ?? ""),
     };
     if (deprecated) {
-      item.tags = [CompletionItemTag.Deprecated];
+      // hide these deprecated items to discourage the usage
+      // not using CompletionItemTag.Deprecated because the strike-through is a little confusing
+      // and also it's not supported in vs extension
+      continue;
     }
     completions.items.push(item);
   }

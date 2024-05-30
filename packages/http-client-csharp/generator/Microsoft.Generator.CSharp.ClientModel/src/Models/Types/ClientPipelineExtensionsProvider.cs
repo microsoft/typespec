@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using System.ClientModel.Primitives;
-using System.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -33,7 +32,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(null)
         {
             Name = "ClientPipelineExtensions";
-            DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
             _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
             _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
             _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
@@ -41,6 +39,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _message = new ParameterReference(_messageParam);
             _requestContext = new ParameterReference(_requestContextParam);
             _messageResponse = new MemberExpression(_message, "Response");
+        }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         internal PipelineResponseExpression ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)

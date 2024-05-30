@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <param name="provider">The model type provider.</param>
         public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider)
         {
-            // Add JSON serialization type provider
+            // Add MRW serialization type provider
             return [new MrwSerializationTypeProvider(provider)];
         }
 

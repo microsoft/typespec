@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class MrwSerializationTypeProviderTests
     {
-        private readonly string _mocksFolder = "mocks";
+        private readonly string _mocksFolder = "Mocks";
         private FieldInfo? _mockPlugin;
 
         [SetUp]

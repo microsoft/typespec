@@ -52,7 +52,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList)
+        internal Thing(string name, System.BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -124,25 +124,25 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; } = "accept";
+        public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
-        public int RequiredLiteralInt { get; } = 123;
+        public ThingRequiredLiteralInt RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public float RequiredLiteralFloat { get; } = 1.23F;
+        public ThingRequiredLiteralFloat RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public string OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public int OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public float OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool OptionalLiteralBool { get; set; }
@@ -155,7 +155,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> required nullable collection. </summary>
         public IList<int> RequiredNullableList { get; set; }
-
-        // Add Nested Type
     }
 }
