@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp
             // serialization method (in some cases we do not need serialization)
             if (NeedsSerializationMethod())
             {
-                var serializationValueParameter = new Parameter("value", $"The value to serialize.", _enumType.Type, null);
+                var serializationValueParameter = new Parameter("value", $"The value to serialize.", _enumType.Type);
                 var serializationSignature = new MethodSignature(
                     Name: $"ToSerial{_enumType.ValueType.Name}",
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             // deserialization method (we always need a deserialization)
-            var deserializationValueParameter = new Parameter("value", $"The value to deserialize.", _enumType.ValueType, null);
+            var deserializationValueParameter = new Parameter("value", $"The value to deserialize.", _enumType.ValueType);
             var deserializationSignature = new MethodSignature(
                 Name: $"To{_enumType.Type.Name}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,

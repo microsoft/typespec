@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp
         private readonly FieldDeclaration _innerListField;
         private readonly CSharpType _tArray;
         private readonly Parameter _tParam;
-        private readonly Parameter _indexParam = new Parameter("index", $"The index.", typeof(int), null);
+        private readonly Parameter _indexParam = new Parameter("index", $"The index.", typeof(int));
         private VariableReference _innerList;
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp
             _innerListField = new FieldDeclaration(FieldModifiers.Private, _iListOfT, "_innerList");
             _innerList = new VariableReference(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
-            _tParam = new Parameter("item", $"The item.", _t, null);
+            _tParam = new Parameter("item", $"The item.", _t);
             EnsureList = This.Invoke(_ensureListSignature);
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildConstructors()
         {
-            var iListParam = new Parameter("innerList", $"The inner list.", _iListOfT, null);
+            var iListParam = new Parameter("innerList", $"The inner list.", _iListOfT);
             var iListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new Parameter[] { iListParam });
             var iListVariable = new ParameterReference(iListParam);
             var iListBody = new MethodBodyStatement[]
@@ -66,7 +66,7 @@ namespace Microsoft.Generator.CSharp
                 }
             };
 
-            var iReadOnlyListParam = new Parameter("innerList", $"The inner list.", _iReadOnlyListOfT, null);
+            var iReadOnlyListParam = new Parameter("innerList", $"The inner list.", _iReadOnlyListOfT);
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new Parameter[] { iReadOnlyListParam });
             var iReadOnlyListVariable = new ParameterReference(iReadOnlyListParam);
             var iReadOnlyListBody = new MethodBodyStatement[]
@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildIndexer()
         {
-            var indexParam = new Parameter("index", $"The inner list.", typeof(int), null);
+            var indexParam = new Parameter("index", $"The inner list.", typeof(int));
             return new IndexerDeclaration(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
@@ -219,8 +219,8 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildCopyTo()
         {
-            var arrayParam = new Parameter("array", $"The array to copy to.", _tArray, null);
-            var arrayIndexParam = new Parameter("arrayIndex", $"The array index.", typeof(int), null);
+            var arrayParam = new Parameter("array", $"The array to copy to.", _tArray);
+            var arrayIndexParam = new Parameter("arrayIndex", $"The array index.", typeof(int));
             return new CSharpMethod(new MethodSignature("CopyTo", null, null, MethodSignatureModifiers.Public, null, null, new Parameter[] { arrayParam, arrayIndexParam }), new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -254,7 +254,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildAdd()
         {
-            var genericParameter = new Parameter("item", $"The item to add.", _t, null);
+            var genericParameter = new Parameter("item", $"The item to add.", _t);
             return new CSharpMethod(new MethodSignature("Add", null, null, MethodSignatureModifiers.Public, null, null, new Parameter[] { genericParameter }), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Add", new ParameterReference(genericParameter))
