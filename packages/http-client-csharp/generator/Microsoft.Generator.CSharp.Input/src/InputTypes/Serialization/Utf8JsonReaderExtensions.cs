@@ -232,6 +232,37 @@ namespace Microsoft.Generator.CSharp.Input
             return result;
         }
 
+        public static bool TryReadStringArray(this ref Utf8JsonReader reader, string propertyName, ref IReadOnlyList<string>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                throw new JsonException();
+            }
+            reader.Read();
+
+            var result = new List<string>();
+            while (reader.TokenType != JsonTokenType.EndArray)
+            {
+                result.Add(reader.GetString() ?? throw new JsonException());
+                reader.Read();
+            }
+            reader.Read();
+            value = result;
+            return true;
+        }
+
         public static void SkipProperty(this ref Utf8JsonReader reader)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)

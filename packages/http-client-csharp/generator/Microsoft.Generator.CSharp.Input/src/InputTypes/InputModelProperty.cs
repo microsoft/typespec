@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     public class InputModelProperty
     {
-        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator)
+        public InputModelProperty(string name, string serializedName, string description, InputType type, bool isRequired, bool isReadOnly, bool isDiscriminator, IReadOnlyList<string>? flattenedNames = null)
         {
             Name = name;
             SerializedName = serializedName;
@@ -14,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Input
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             IsDiscriminator = isDiscriminator;
+            FlattenedNames = flattenedNames;
         }
 
         public string Name { get; }
@@ -23,5 +26,6 @@ namespace Microsoft.Generator.CSharp.Input
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
         public bool IsDiscriminator { get; }
+        public IReadOnlyList<string>? FlattenedNames { get; }
     }
 }

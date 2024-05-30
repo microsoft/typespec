@@ -128,40 +128,70 @@ export function fromSdkModelType(
       .filter((p) => !(p as SdkBodyModelPropertyType).discriminator || !baseModelHasDiscriminator)
       .filter((p) => p.kind !== "header" && p.kind !== "query" && p.kind !== "path")
       .map((p) =>
-        fromSdkModelProperty(p, {
-          ModelName: inputModelType?.Name,
-          Namespace: inputModelType?.Namespace,
-        } as LiteralTypeContext)
-      );
+        fromSdkModelProperty(
+          p,
+          {
+            ModelName: inputModelType?.Name,
+            Namespace: inputModelType?.Namespace,
+          } as LiteralTypeContext,
+          []
+        )
+      )
+      .flat();
   }
 
   return inputModelType;
 
   function fromSdkModelProperty(
     propertyType: SdkModelPropertyType,
-    literalTypeContext: LiteralTypeContext
-  ): InputModelProperty {
-    const serializedName =
-      propertyType.kind === "property"
-        ? (propertyType as SdkBodyModelPropertyType).serializedName
-        : "";
-    literalTypeContext.PropertyName = serializedName;
+    literalTypeContext: LiteralTypeContext,
+    flattenedNamePrefixes: string[]
+  ): InputModelProperty[] {
+    if (propertyType.kind !== "property" || !propertyType.flatten) {
+      const serializedName =
+        propertyType.kind === "property"
+          ? (propertyType as SdkBodyModelPropertyType).serializedName
+          : "";
+      literalTypeContext.PropertyName = serializedName;
 
-    const isRequired =
-      propertyType.kind === "path" || propertyType.kind === "body" ? true : !propertyType.optional; // TO-DO: SdkBodyParameter lacks of optional
-    const isDiscriminator =
-      propertyType.kind === "property" && propertyType.discriminator ? true : false;
-    const modelProperty: InputModelProperty = {
-      Name: propertyType.name,
-      SerializedName: serializedName,
-      Description: propertyType.description ?? (isDiscriminator ? "Discriminator" : ""),
-      Type: fromSdkType(propertyType.type, context, models, enums, literalTypeContext),
-      IsRequired: isRequired,
-      IsReadOnly: propertyType.kind === "property" && isReadOnly(propertyType),
-      IsDiscriminator: isDiscriminator === true ? true : undefined, // TODO: keep backward compatible to ease comparison. remove this after TCGC is merged
-    };
+      const isRequired =
+        propertyType.kind === "path" || propertyType.kind === "body"
+          ? true
+          : !propertyType.optional; // TO-DO: SdkBodyParameter lacks of optional
+      const isDiscriminator =
+        propertyType.kind === "property" && propertyType.discriminator ? true : false;
+      const modelProperty: InputModelProperty = {
+        Name: propertyType.name,
+        SerializedName: serializedName,
+        Description: propertyType.description ?? (isDiscriminator ? "Discriminator" : ""),
+        Type: fromSdkType(propertyType.type, context, models, enums, literalTypeContext),
+        IsRequired: isRequired,
+        IsReadOnly: propertyType.kind === "property" && isReadOnly(propertyType),
+        IsDiscriminator: isDiscriminator === true ? true : undefined,
+        FlattenedNames:
+          flattenedNamePrefixes.length > 0
+            ? flattenedNamePrefixes.concat(propertyType.name)
+            : undefined,
+      };
 
-    return modelProperty;
+      return [modelProperty];
+    }
+
+    let flattenedProperties: InputModelProperty[] = [];
+    const modelPropertyType = propertyType as SdkBodyModelPropertyType;
+    const childPropertiesToFlatten = (modelPropertyType.type as SdkModelType).properties;
+    const newFlattenedNamePrefixes = flattenedNamePrefixes.concat(modelPropertyType.serializedName);
+    for (let index = 0; index < childPropertiesToFlatten.length; index++) {
+      flattenedProperties = flattenedProperties.concat(
+        fromSdkModelProperty(
+          childPropertiesToFlatten[index],
+          literalTypeContext,
+          newFlattenedNamePrefixes
+        )
+      );
+    }
+
+    return flattenedProperties;
   }
 }
 
