@@ -726,7 +726,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       nextToken();
     }
 
-    const { items: operations, range: operationsRange } = parseList(
+    const { items: operations, range: bodyRange } = parseList(
       ListKind.InterfaceMembers,
       (pos, decorators) => parseOperationStatement(pos, decorators, true)
     );
@@ -737,7 +737,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParameters,
       templateParametersRange,
       operations,
-      operationsRange,
+      bodyRange,
       extends: extendList.items,
       decorators,
       ...finishNode(pos),
@@ -902,14 +902,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseOperationParameters(): ModelExpressionNode {
     const pos = tokenPos();
-    const { items: properties, range: propertiesRange } = parseList(
+    const { items: properties, range: bodyRange } = parseList(
       ListKind.OperationParameters,
       parseModelPropertyOrSpread
     );
     const parameters: ModelExpressionNode = {
       kind: SyntaxKind.ModelExpression,
       properties,
-      propertiesRange,
+      bodyRange,
       ...finishNode(pos),
     };
     return parameters;
@@ -952,7 +952,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParametersRange,
       decorators,
       properties: propDetail.items,
-      propertiesRange: propDetail.range,
+      bodyRange: propDetail.range,
       ...finishNode(pos),
     };
   }
@@ -1125,7 +1125,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
-    const { items: members, range: membersRange } = parseScalarMembers();
+    const { items: members, range: bodyRange } = parseScalarMembers();
 
     return {
       kind: SyntaxKind.ScalarStatement,
@@ -1134,7 +1134,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParametersRange,
       extends: optionalExtends,
       members,
-      membersRange,
+      bodyRange,
       decorators,
       ...finishNode(pos),
     };
@@ -1164,12 +1164,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     parseExpected(Token.InitKeyword);
     const id = parseIdentifier();
-    const { items: parameters, range: parametersRange } = parseFunctionParameters();
+    const { items: parameters } = parseFunctionParameters();
     return {
       kind: SyntaxKind.ScalarConstructor,
       id,
       parameters,
-      parametersRange,
       ...finishNode(pos),
     };
   }
@@ -1180,7 +1179,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const { items: members, range: membersRange } = parseList(
+    const { items: members, range: bodyRange } = parseList(
       ListKind.EnumMembers,
       parseEnumMemberOrSpread
     );
@@ -1189,7 +1188,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       decorators,
       members,
-      membersRange,
+      bodyRange,
       ...finishNode(pos),
     };
   }
@@ -1427,15 +1426,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
     if (token() === Token.OpenParen) {
-      const { items: args, range: argumentsRange } = parseList(
-        ListKind.FunctionArguments,
-        parseExpression
-      );
+      const { items: args } = parseList(ListKind.FunctionArguments, parseExpression);
       return {
         kind: SyntaxKind.CallExpression,
         target,
         arguments: args,
-        argumentsRange,
         ...finishNode(pos),
       };
     }
@@ -1447,16 +1442,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     target: IdentifierNode | MemberExpressionNode,
     pos: number
   ): TypeReferenceNode {
-    const { items: args, range: argumentsRange } = parseOptionalList(
-      ListKind.TemplateArguments,
-      parseTemplateArgument
-    );
+    const { items: args } = parseOptionalList(ListKind.TemplateArguments, parseTemplateArgument);
 
     return {
       kind: SyntaxKind.TypeReference,
       target,
       arguments: args,
-      argumentsRange,
       ...finishNode(pos),
     };
   }
@@ -1525,11 +1516,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           kind: SyntaxKind.TypeReference,
           target: createMissingIdentifier(),
           arguments: emptyList.items,
-          argumentsRange: emptyList.range,
           ...finishNode(pos),
         },
         arguments: args,
-        allArgumentsRange: argRange,
         ...finishNode(pos),
       };
     }
@@ -1541,7 +1530,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         kind: SyntaxKind.TypeReference,
         target: createMissingIdentifier(),
         arguments: emptyList.items,
-        argumentsRange: emptyList.range,
         ...finishNode(pos),
       };
     }
@@ -1553,7 +1541,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target,
       targetType: targetEntity,
       arguments: decoratorArgs,
-      allArgumentsRange: argRange,
       ...finishNode(pos),
     };
   }
@@ -1580,14 +1567,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // `@<missing identifier>` applied to `model Foo`, and not as `@model`
     // applied to invalid statement `Foo`.
     const target = parseIdentifierOrMemberExpression(undefined, false);
-    const { items: args, range: argsRange } = parseOptionalList(
-      ListKind.DecoratorArguments,
-      parseExpression
-    );
+    const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     return {
       kind: SyntaxKind.DecoratorExpression,
       arguments: args,
-      argumentsRange: argsRange,
       target,
       ...finishNode(pos),
     };
@@ -1784,50 +1767,48 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseTupleExpression(): TupleExpressionNode {
     const pos = tokenPos();
-    const { items: values, range: valuesRange } = parseList(ListKind.Tuple, parseExpression);
+    const { items: values } = parseList(ListKind.Tuple, parseExpression);
     return {
       kind: SyntaxKind.TupleExpression,
       values,
-      valuesRange,
       ...finishNode(pos),
     };
   }
 
   function parseModelExpression(): ModelExpressionNode {
     const pos = tokenPos();
-    const { items: properties, range: propertiesRange } = parseList(
+    const { items: properties, range: bodyRange } = parseList(
       ListKind.ModelProperties,
       parseModelPropertyOrSpread
     );
     return {
       kind: SyntaxKind.ModelExpression,
       properties,
-      propertiesRange,
+      bodyRange,
       ...finishNode(pos),
     };
   }
 
   function parseObjectLiteral(): ObjectLiteralNode {
     const pos = tokenPos();
-    const { items: properties, range: propertiesRange } = parseList(
+    const { items: properties, range: bodyRange } = parseList(
       ListKind.ObjectLiteralProperties,
       parseObjectLiteralPropertyOrSpread
     );
     return {
       kind: SyntaxKind.ObjectLiteral,
       properties,
-      propertiesRange,
+      bodyRange,
       ...finishNode(pos),
     };
   }
 
   function parseArrayLiteral(): ArrayLiteralNode {
     const pos = tokenPos();
-    const { items: values, range: valuesRange } = parseList(ListKind.ArrayLiteral, parseExpression);
+    const { items: values } = parseList(ListKind.ArrayLiteral, parseExpression);
     return {
       kind: SyntaxKind.ArrayLiteral,
       values,
-      valuesRange,
       ...finishNode(pos),
     };
   }
@@ -2071,7 +2052,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       target,
       parameters,
-      allParametersRange: allParamListDetail.range,
       ...finishNode(pos),
     };
   }
@@ -2083,7 +2063,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const modifierFlags = modifiersToFlags(modifiers);
     parseExpected(Token.FnKeyword);
     const id = parseIdentifier();
-    const { items: parameters, range: parametersRange } = parseFunctionParameters();
+    const { items: parameters } = parseFunctionParameters();
     let returnType;
     if (parseOptional(Token.Colon)) {
       returnType = parseExpression();
@@ -2095,7 +2075,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       modifierFlags,
       id,
       parameters,
-      parametersRange,
       returnType,
       ...finishNode(pos),
     };
@@ -3138,13 +3117,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function createMissingTypeReference(): TypeReferenceNode {
     const pos = tokenPos();
-    const { items: args, range: argsRange } = createEmptyList<TemplateArgumentNode>();
+    const { items: args } = createEmptyList<TemplateArgumentNode>();
 
     return {
       kind: SyntaxKind.TypeReference,
       target: createMissingIdentifier(),
       arguments: args,
-      argumentsRange: argsRange,
       ...finishNode(pos),
     };
   }

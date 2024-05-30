@@ -168,7 +168,7 @@ async function AddCompletionNonTrivia(
         addKeywordCompletion("namespace", context.completions);
         break;
       case SyntaxKind.ScalarStatement:
-        if (positionInRange(posDetail.position, node.membersRange)) {
+        if (positionInRange(posDetail.position, node.bodyRange)) {
           addKeywordCompletion("scalarBody", context.completions);
         }
         break;
@@ -372,7 +372,7 @@ function addModelCompletion(context: CompletionContext, posDetail: PositionDetai
     return;
   }
 
-  if (posDetail.position === node.propertiesRange.end) {
+  if (posDetail.position === node.bodyRange.end) {
     // skip the scenario like `{ ... }|`
     return;
   } else {
