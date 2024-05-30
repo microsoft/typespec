@@ -10,6 +10,10 @@ namespace Microsoft.Generator.CSharp
     {
         public string Accessibility => (Modifiers & FieldModifiers.Public) > 0 ? "public" : "internal";
 
+        private CodeWriterDeclaration? _declaration;
+
+        public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
+
         public FieldDeclaration(FieldModifiers modifiers, CSharpType type, string name)
             : this(description: null,
                   modifiers: modifiers,
