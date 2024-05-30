@@ -1,4 +1,5 @@
 import { tokens } from "@fluentui/react-components";
+import { DataLineRegular } from "@fluentui/react-icons";
 import {
   ColorProvider,
   TypeSpecProgramViewer,
@@ -29,8 +30,8 @@ const TypeGraphColors: ColorPalette = {
 };
 
 export const TypeGraphViewer: ProgramViewer = {
-  kind: "program",
   key: "type-graph",
-  label: "Type Graph",
+  label: "Type graph",
+  icon: <DataLineRegular />,
   render: TypeGraphViewerComponent,
 };

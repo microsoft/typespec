@@ -59,7 +59,6 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
 };
 
 const RawFileViewer: FileOutputViewer = {
-  kind: "file",
   key: "raw",
   label: "File",
   render: ({ filename, content }) => <OutputEditor filename={filename} value={content} />,

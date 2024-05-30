@@ -15,25 +15,24 @@ export type EmitterOptions = Record<string, Record<string, unknown>>;
 
 export interface OutputViewerProps {
   readonly program: Program;
+  /** Files emitted */
+  readonly outputFiles: string[];
 }
 
-export type OutputViewer = ProgramViewer | FileOutputViewer;
-
 export interface ProgramViewer {
-  readonly kind: "program";
   readonly key: string;
   readonly label: string;
+  readonly icon: ReactNode;
   readonly render: (props: OutputViewerProps) => ReactNode | null;
 }
 
 export interface FileOutputViewer {
-  readonly kind: "file";
-  key: string;
-  label: string;
-  render: (props: FileOutputViewerProps) => ReactNode | null;
+  readonly key: string;
+  readonly label: string;
+  readonly render: (props: FileOutputViewerProps) => ReactNode | null;
 }
 
 export interface FileOutputViewerProps {
-  filename: string;
-  content: string;
+  readonly filename: string;
+  readonly content: string;
 }
