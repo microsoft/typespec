@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp
         private readonly FieldDeclaration _innerListField;
         private readonly CSharpType _tArray;
         private readonly Parameter _tParam;
-        private readonly Parameter _indexParam = new Parameter("index", null, typeof(int), null, ValidationType.None, null);
+        private readonly Parameter _indexParam = new Parameter("index", $"The index.", typeof(int), null);
         private VariableReference _innerList;
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp
             _innerListField = new FieldDeclaration(FieldModifiers.Private, _iListOfT, "_innerList");
             _innerList = new VariableReference(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
-            _tParam = new Parameter("item", null, _t, null, ValidationType.None, null);
+            _tParam = new Parameter("item", $"The item.", _t, null);
             EnsureList = This.Invoke(_ensureListSignature);
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
 
         protected override CSharpMethod[] BuildConstructors()
         {
-            var iListParam = new Parameter("innerList", null, _iListOfT, null, ValidationType.None, null);
+            var iListParam = new Parameter("innerList", $"The inner list.", _iListOfT, null);
             var iListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new Parameter[] { iListParam });
             var iListVariable = new ParameterReference(iListParam);
             var iListBody = new MethodBodyStatement[]
@@ -66,7 +66,7 @@ namespace Microsoft.Generator.CSharp
                 }
             };
 
-            var iReadOnlyListParam = new Parameter("innerList", null, _iReadOnlyListOfT, null, ValidationType.None, null);
+            var iReadOnlyListParam = new Parameter("innerList", $"The inner list.", _iReadOnlyListOfT, null);
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new Parameter[] { iReadOnlyListParam });
             var iReadOnlyListVariable = new ParameterReference(iReadOnlyListParam);
             var iReadOnlyListBody = new MethodBodyStatement[]
@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildIsReadOnly()
         {
-            return new PropertyDeclaration(null, MethodSignatureModifiers.Public, typeof(bool), "IsReadOnly",
+            return new PropertyDeclaration($"Gets the IsReadOnly", MethodSignatureModifiers.Public, typeof(bool), "IsReadOnly",
                         new ExpressionPropertyBody(new TernaryConditionalOperator(
                             IsUndefined,
                             False,
@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildIndexer()
         {
-            var indexParam = new Parameter("index", null, typeof(int), null, ValidationType.None, null);
+            var indexParam = new Parameter("index", $"The inner list.", typeof(int), null);
             return new IndexerDeclaration(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
@@ -219,8 +219,8 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildCopyTo()
         {
-            var arrayParam = new Parameter("array", null, _tArray, null, ValidationType.None, null);
-            var arrayIndexParam = new Parameter("arrayIndex", null, typeof(int), null, ValidationType.None, null);
+            var arrayParam = new Parameter("array", $"The array to copy to.", _tArray, null);
+            var arrayIndexParam = new Parameter("arrayIndex", $"The array index.", typeof(int), null);
             return new CSharpMethod(new MethodSignature("CopyTo", null, null, MethodSignatureModifiers.Public, null, null, new Parameter[] { arrayParam, arrayIndexParam }), new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -254,7 +254,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildAdd()
         {
-            var genericParameter = new Parameter("item", null, _t, null, ValidationType.None, null);
+            var genericParameter = new Parameter("item", $"The item to add.", _t, null);
             return new CSharpMethod(new MethodSignature("Add", null, null, MethodSignatureModifiers.Public, null, null, new Parameter[] { genericParameter }), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Add", new ParameterReference(genericParameter))

@@ -17,7 +17,7 @@ namespace UnbrandedTypeSpec
         {
         }
 
-        /// <param name="innerList"></param>
+        /// <param name="innerList"> The inner list. </param>
         public ChangeTrackingList(IList<T> innerList)
         {
             if (innerList != null)
@@ -26,7 +26,7 @@ namespace UnbrandedTypeSpec
             }
         }
 
-        /// <param name="innerList"></param>
+        /// <param name="innerList"> The inner list. </param>
         public ChangeTrackingList(IReadOnlyList<T> innerList)
         {
             if (innerList != null)
@@ -35,12 +35,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
+        /// <summary> Gets the isundefined. </summary>
         public bool IsUndefined => _innerList == null;
 
+        /// <summary> Gets the count. </summary>
         public int Count => IsUndefined ? 0 : EnsureList().Count;
 
+        /// <summary> Gets the IsReadOnly. </summary>
         public bool IsReadOnly => IsUndefined ? false : EnsureList().IsReadOnly;
 
+        /// <summary> Gets or sets the this. </summary>
         public T this[int index]
         {
             get
@@ -84,7 +88,7 @@ namespace UnbrandedTypeSpec
             return GetEnumerator();
         }
 
-        /// <param name="item"></param>
+        /// <param name="item"> The item to add. </param>
         public void Add(T item)
         {
             EnsureList().Add(item);
@@ -95,7 +99,7 @@ namespace UnbrandedTypeSpec
             EnsureList().Clear();
         }
 
-        /// <param name="item"></param>
+        /// <param name="item"> The item. </param>
         public bool Contains(T item)
         {
             if (IsUndefined)
@@ -105,8 +109,8 @@ namespace UnbrandedTypeSpec
             return EnsureList().Contains(item);
         }
 
-        /// <param name="array"></param>
-        /// <param name="arrayIndex"></param>
+        /// <param name="array"> The array to copy to. </param>
+        /// <param name="arrayIndex"> The array index. </param>
         public void CopyTo(T[] array, int arrayIndex)
         {
             if (IsUndefined)
@@ -116,7 +120,7 @@ namespace UnbrandedTypeSpec
             EnsureList().CopyTo(array, arrayIndex);
         }
 
-        /// <param name="item"></param>
+        /// <param name="item"> The item. </param>
         public bool Remove(T item)
         {
             if (IsUndefined)
@@ -126,7 +130,7 @@ namespace UnbrandedTypeSpec
             return EnsureList().Remove(item);
         }
 
-        /// <param name="item"></param>
+        /// <param name="item"> The item. </param>
         public int IndexOf(T item)
         {
             if (IsUndefined)
@@ -136,14 +140,14 @@ namespace UnbrandedTypeSpec
             return EnsureList().IndexOf(item);
         }
 
-        /// <param name="index"></param>
-        /// <param name="item"></param>
+        /// <param name="index"> The index. </param>
+        /// <param name="item"> The item. </param>
         public void Insert(int index, T item)
         {
             EnsureList().Insert(index, item);
         }
 
-        /// <param name="index"></param>
+        /// <param name="index"> The index. </param>
         public void RemoveAt(int index)
         {
             if (IsUndefined)

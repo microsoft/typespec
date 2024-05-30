@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp
         public CSharpType Type { get; init; }
         public ValueExpression? DefaultValue { get; init; }
         public ValidationType? Validation { get; init; } = ValidationType.None;
-        public ValueExpression? Initializer { get; init; }
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();

@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp
             : base(sourceInputModel)
         {
             WhereClause = Where.NotNull(_tKey);
-            _indexParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
+            _indexParam = new Parameter("key", $"The key.", _tKey, null);
             _IDictionary = new CSharpType(typeof(IDictionary<,>), _tKey, _tValue);
             _dictionary = new CSharpType(typeof(Dictionary<,>), _tKey, _tValue);
             _IReadOnlyDictionary = new CSharpType(typeof(IReadOnlyDictionary<,>), _tKey, _tValue);
@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod ConstructorWithReadOnlyDictionary()
         {
-            var dictionaryParam = new Parameter("dictionary", null, _IReadOnlyDictionary, null, ValidationType.None, null);
+            var dictionaryParam = new Parameter("dictionary", $"The inner dictionary.", _IReadOnlyDictionary, null);
             var dictionary = new DictionaryExpression(_tKey, _tValue, dictionaryParam);
             var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod ConstructorWithDictionary()
         {
-            var dictionaryParam = new Parameter("dictionary", null, _IDictionary, null, ValidationType.None, null);
+            var dictionaryParam = new Parameter("dictionary", $"The inner dictionary.", _IDictionary, null);
             var dictionary = new ParameterReference(dictionaryParam);
             var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -152,7 +152,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildIndexer()
         {
-            var indexParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
+            var indexParam = new Parameter("key", $"The key.", _tKey, null);
             return new IndexerDeclaration(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
@@ -190,7 +190,7 @@ namespace Microsoft.Generator.CSharp
 
         private PropertyDeclaration BuildIsReadOnly()
         {
-            return new PropertyDeclaration(null, MethodSignatureModifiers.Public, typeof(bool), "IsReadOnly",
+            return new PropertyDeclaration($"Gets the IsReadOnly", MethodSignatureModifiers.Public, typeof(bool), "IsReadOnly",
                 new ExpressionPropertyBody(new TernaryConditionalOperator(
                     IsUndefined,
                     False,
@@ -242,8 +242,8 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildTryGetValue()
         {
-            var keyParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
-            var valueParam = new Parameter("value", null, _tValue, null, ValidationType.None, null, IsOut: true);
+            var keyParam = new Parameter("key", $"The key to search for.", _tKey, null);
+            var valueParam = new Parameter("value", $"The value.", _tValue, null, isOut: true);
             var value = new ParameterReference(valueParam);
             var signature = GetSignature("TryGetValue", typeof(bool), parameters: new[] { keyParam, valueParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -259,7 +259,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildRemoveKey()
         {
-            var keyParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
+            var keyParam = new Parameter("key", $"The key.", _tKey, null);
             var signature = GetSignature("Remove", typeof(bool), parameters: new[] { keyParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
             {
@@ -273,7 +273,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildContainsKey()
         {
-            var keyParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
+            var keyParam = new Parameter("key", $"The key to search for.", _tKey, null);
             var signature = GetSignature("ContainsKey", typeof(bool), parameters: new[] { keyParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
             {
@@ -287,8 +287,8 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildAdd()
         {
-            var keyParam = new Parameter("key", null, _tKey, null, ValidationType.None, null);
-            var valueParam = new Parameter("value", null, _tValue, null, ValidationType.None, null);
+            var keyParam = new Parameter("key", $"The key.", _tKey, null);
+            var valueParam = new Parameter("value", $"The value to add.", _tValue, null);
             var signature = GetSignature("Add", null, parameters: new[] { keyParam, valueParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
             {
@@ -298,7 +298,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildRemovePair()
         {
-            var itemParam = new Parameter("item", null, _keyValuePair, null, ValidationType.None, null);
+            var itemParam = new Parameter("item", $"The item to remove.", _keyValuePair, null);
             var item = new ParameterReference(itemParam);
             var signature = GetSignature("Remove", typeof(bool), parameters: new[] { itemParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -314,9 +314,9 @@ namespace Microsoft.Generator.CSharp
         private CSharpMethod BuildCopyTo()
         {
             //TODO: This line will not honor the generic type of the array
-            var arrayParam = new Parameter("array", null, typeof(KeyValuePair<,>).MakeArrayType(), null, ValidationType.None, null);
+            var arrayParam = new Parameter("array", $"The array to copy.", typeof(KeyValuePair<,>).MakeArrayType(), null);
             var array = new ParameterReference(arrayParam);
-            var indexParam = new Parameter("index", null, typeof(int), null, ValidationType.None, null);
+            var indexParam = new Parameter("index", $"The index.", typeof(int), null);
             var index = new ParameterReference(indexParam);
             var signature = GetSignature("CopyTo", null, parameters: new[] { arrayParam, indexParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -331,7 +331,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildContains()
         {
-            var itemParam = new Parameter("item", null, _keyValuePair, null, ValidationType.None, null);
+            var itemParam = new Parameter("item", $"The item to search for.", _keyValuePair, null);
             var item = new ParameterReference(itemParam);
             var signature = GetSignature("Contains", typeof(bool), parameters: new[] { itemParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]
@@ -355,7 +355,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildAddPair()
         {
-            var itemParam = new Parameter("item", null, _keyValuePair, null, ValidationType.None, null);
+            var itemParam = new Parameter("item", $"The item to add.", _keyValuePair, null);
             var item = new ParameterReference(itemParam);
             var signature = GetSignature("Add", null, parameters: new[] { itemParam });
             return new CSharpMethod(signature, new MethodBodyStatement[]

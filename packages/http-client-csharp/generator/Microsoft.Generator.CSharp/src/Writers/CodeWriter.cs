@@ -415,51 +415,6 @@ namespace Microsoft.Generator.CSharp
             return WriteLine($";");
         }
 
-        public CodeWriter WriteParameterNullChecks(IReadOnlyCollection<Parameter> parameters)
-        {
-            foreach (Parameter parameter in parameters)
-            {
-                WriteVariableAssignmentWithNullCheck(parameter.Name, parameter);
-            }
-
-            WriteLine();
-            return this;
-        }
-
-        public void WriteVariableAssignmentWithNullCheck(string variableName, Parameter parameter)
-        {
-            var assignToSelf = parameter.Name == variableName;
-            if (parameter.Initializer != null)
-            {
-                if (assignToSelf)
-                {
-                    WriteLine($"{variableName:I} ??= {parameter.Initializer};");
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? {parameter.Initializer};");
-                }
-            }
-            else if (parameter.Validation != ValidationType.None)
-            {
-                if (assignToSelf)
-                {
-                    using (Scope($"if ({parameter.Name:I} == null)"))
-                    {
-                        WriteLine($"throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                    }
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                }
-            }
-            else if (!assignToSelf)
-            {
-                WriteLine($"{variableName:I} = {parameter.Name:I};");
-            }
-        }
-
         public CodeWriter WriteParametersValidation(IEnumerable<Parameter> parameters)
         {
             foreach (Parameter parameter in parameters)
@@ -473,11 +428,6 @@ namespace Microsoft.Generator.CSharp
 
         private CodeWriter WriteParameterValidation(Parameter parameter)
         {
-            if (parameter.Validation == ValidationType.None && parameter.Initializer != null)
-            {
-                return WriteLine($"{parameter.Name:I} ??= {parameter.Initializer};");
-            }
-
             var validationStatement = Argument.ValidateParameter(parameter);
 
             validationStatement.Write(this);
