@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     /// <param name="Type">Type expected to be returned by value expression.</param>
     /// <param name="Untyped"></param>
-    public abstract record TypedValueExpression(CSharpType Type, ValueExpression Untyped) : ValueExpression
+    public record TypedValueExpression(CSharpType Type, ValueExpression Untyped) : ValueExpression
     {
         public override void Write(CodeWriter writer) => Untyped.Write(writer);
         public static implicit operator TypedValueExpression(FieldDeclaration field) => new TypedMemberExpression(null, field.Name, field.Type);

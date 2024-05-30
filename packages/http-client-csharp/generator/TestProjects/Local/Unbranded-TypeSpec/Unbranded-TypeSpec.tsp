@@ -24,10 +24,18 @@ using Azure.Core;
 
 @doc("float fixed enum")
 @fixed
+enum FloatFixedEnumWithIntValue {
+  One: 1.0,
+  Two: 2.0,
+  Four: 4.0,
+}
+
+@doc("float fixed enum")
+@fixed
 enum FloatFixedEnum {
-  One: 1.1,
-  Two: 2.2,
-  Four: 4.4,
+  OneDotOne: 1.1,
+  TwoDotTwo: 2.2,
+  FourDotFour: 4.4,
 }
 
 @doc("int fixed enum")
@@ -56,6 +64,14 @@ union IntExtensibleEnum {
 
 @doc("Float based extensible enum")
 union FloatExtensibleEnum {
+  float32,
+  OneDotOne: 1.1,
+  TwoDotTwo: 2.2,
+  FourDotFour: 4.4,
+}
+
+@doc("float fixed enum")
+union FloatExtensibleEnumWithIntValue {
   float32,
   One: 1.0,
   Two: 2.0,
@@ -164,11 +180,17 @@ model RoundTripModel {
   @doc("this is a float based extensible enum")
   floatExtensibleEnum?: FloatExtensibleEnum;
 
+  @doc("this is a float based extensible enum")
+  floatExtensibleEnumWithIntValue?: FloatExtensibleEnumWithIntValue;
+
   @doc("this is a collection of float based extensible enum")
   floatExtensibleEnumCollection?: FloatExtensibleEnum[];
 
   @doc("this is a float based fixed enum")
   floatFixedEnum?: FloatFixedEnum;
+
+  @doc("this is a float based fixed enum")
+  floatFixedEnumWithIntValue?: FloatFixedEnumWithIntValue;
 
   @doc("this is a collection of float based fixed enum")
   floatFixedEnumCollection?: FloatFixedEnum[];
