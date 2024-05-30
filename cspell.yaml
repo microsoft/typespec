@@ -29,6 +29,7 @@ words:
   - dbaeumer
   - debouncer
   - devdiv
+  - Diagnoser
   - dogfood
   - eastus
   - ecmarkup
@@ -75,6 +76,7 @@ words:
   - onwarn
   - openapi
   - openapiv
+  - Perfolizer
   - picocolors
   - prismjs
   - proto

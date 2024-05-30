@@ -8,6 +8,11 @@
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.8.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Perf'))">
+    <PackageReference Update="BenchmarkDotNet" Version="0.13.4" />
+    <PackageReference Update="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.4" />
+  </ItemGroup>
+
   <!-- All csproj dependencies. -->
   <ItemGroup>
     <PackageReference Update="CommandLineParser" Version="2.9.1" />

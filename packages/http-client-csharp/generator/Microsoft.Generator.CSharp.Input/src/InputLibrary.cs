@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Input
         private InputNamespace? _inputNamespace;
         public InputNamespace InputNamespace => _inputNamespace ??= Load(_codeModelPath);
 
-        public InputNamespace Load(string outputDirectory)
+        internal InputNamespace Load(string outputDirectory)
         {
             var codeModelFile = Path.Combine(outputDirectory, CodeModelInputFileName);
             if (!File.Exists(codeModelFile))
