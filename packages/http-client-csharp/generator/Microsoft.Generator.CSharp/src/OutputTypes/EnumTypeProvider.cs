@@ -46,10 +46,10 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public TypeProvider? Serialization { get; protected init; }
 
-        private IReadOnlyList<EnumTypeValue>? _values;
-        public IReadOnlyList<EnumTypeValue> Values => _values ??= BuildValues();
+        private IReadOnlyList<EnumTypeMember>? _members;
+        public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
 
-        protected abstract IReadOnlyList<EnumTypeValue> BuildValues();
+        protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
 
         public abstract ValueExpression ToSerial(ValueExpression enumExpression);
 

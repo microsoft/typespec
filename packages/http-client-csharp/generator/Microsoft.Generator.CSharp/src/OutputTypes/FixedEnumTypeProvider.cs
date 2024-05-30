@@ -32,9 +32,9 @@ namespace Microsoft.Generator.CSharp
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
-        protected override IReadOnlyList<EnumTypeValue> BuildValues()
+        protected override IReadOnlyList<EnumTypeMember> BuildMembers()
         {
-            var values = new EnumTypeValue[_allowedValues.Count];
+            var values = new EnumTypeMember[_allowedValues.Count];
             for (int i = 0; i < _allowedValues.Count; i++)
             {
                 var inputValue = _allowedValues[i];
@@ -50,13 +50,13 @@ namespace Microsoft.Generator.CSharp
                     Name: name,
                     InitializationValue: initializationValue);
 
-                values[i] = new EnumTypeValue(name, field, inputValue.Value);
+                values[i] = new EnumTypeMember(name, field, inputValue.Value);
             }
             return values;
         }
 
         protected override FieldDeclaration[] BuildFields()
-            => Values.Select(v => v.Field).ToArray();
+            => Members.Select(v => v.Field).ToArray();
 
         public override ValueExpression ToSerial(ValueExpression enumExpression)
         {

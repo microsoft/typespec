@@ -3,9 +3,9 @@
 
 namespace Microsoft.Generator.CSharp
 {
-    public class EnumTypeValue
+    public class EnumTypeMember
     {
-        public EnumTypeValue(string name, FieldDeclaration field, object value)
+        public EnumTypeMember(string name, FieldDeclaration field, object value)
         {
             Name = name;
             Field = field;

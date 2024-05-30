@@ -35,9 +35,9 @@ namespace Microsoft.Generator.CSharp
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
-        protected override IReadOnlyList<EnumTypeValue> BuildValues()
+        protected override IReadOnlyList<EnumTypeMember> BuildMembers()
         {
-            var values = new EnumTypeValue[_allowedValues.Count];
+            var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
             {
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp
                     Name: name,
                     InitializationValue: initializationValue);
 
-                values[i] = new EnumTypeValue(valueName, field, inputValue.Value);
+                values[i] = new EnumTypeMember(valueName, field, inputValue.Value);
             }
 
             return values;
@@ -66,14 +66,14 @@ namespace Microsoft.Generator.CSharp
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
         protected override FieldDeclaration[] BuildFields()
-            => [_valueField, .. Values.Select(v => v.Field)];
+            => [_valueField, .. Members.Select(v => v.Field)];
 
         protected override PropertyDeclaration[] BuildProperties()
         {
-            var properties = new PropertyDeclaration[Values.Count];
+            var properties = new PropertyDeclaration[Members.Count];
 
             var index = 0;
-            foreach (var enumValue in Values)
+            foreach (var enumValue in Members)
             {
                 var name = enumValue.Name;
                 var value = enumValue.Value;

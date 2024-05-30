@@ -61,10 +61,10 @@ namespace Microsoft.Generator.CSharp
                     Summary: null, Description: null, ReturnDescription: null);
 
                 // the fields of an enum type are the values of the enum type
-                var knownCases = new SwitchCaseExpression[_enumType.Values.Count];
+                var knownCases = new SwitchCaseExpression[_enumType.Members.Count];
                 for (int i = 0; i < knownCases.Length; i++)
                 {
-                    var enumValue = _enumType.Values[i];
+                    var enumValue = _enumType.Members[i];
                     knownCases[i] = new SwitchCaseExpression(new MemberExpression(_enumType.Type, enumValue.Field.Name), Literal(enumValue.Value));
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < _enumType.Fields.Count; i++)
             {
                 var enumField = _enumType.Fields[i];
-                var enumValue = _enumType.Values[i];
+                var enumValue = _enumType.Members[i];
                 BoolExpression condition;
                 if (_enumType.IsStringValueType)
                 {
