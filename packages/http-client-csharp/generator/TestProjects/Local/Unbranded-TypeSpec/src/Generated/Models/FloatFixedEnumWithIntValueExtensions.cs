@@ -8,7 +8,7 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class FloatFixedEnumWithIntValueExtensions
     {
-        /// <param name="value"></param>
+        /// <param name="value"> The value to deserialize. </param>
         public static FloatFixedEnumWithIntValue ToFloatFixedEnumWithIntValue(this int value)
         {
             if (value == 1)

@@ -79,11 +79,11 @@ namespace Microsoft.Generator.CSharp
                 var value = enumValue.Value;
                 var field = enumValue.Field;
                 properties[index++] = new PropertyDeclaration(
-                    Description: field.Description,
-                    Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                    Type: Type,
-                    Name: name,
-                    Body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)));
+                    description: field.Description,
+                    modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                    type: Type,
+                    name: name,
+                    body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)));
             }
 
             return properties;
@@ -92,7 +92,10 @@ namespace Microsoft.Generator.CSharp
         protected override CSharpMethod[] BuildConstructors()
         {
             var validation = ValueType.IsValueType ? ValidationType.None : ValidationType.AssertNotNull;
-            var valueParameter = new Parameter("value", null, ValueType, null, validation, null);
+            var valueParameter = new Parameter("value", $"The value.", ValueType)
+            {
+                Validation = validation
+            };
             var signature = new ConstructorSignature(
                 Type: Type,
                 Summary: null,
@@ -114,8 +117,8 @@ namespace Microsoft.Generator.CSharp
         {
             var methods = new List<CSharpMethod>();
 
-            var leftParameter = new Parameter("left", null, Type, null, ValidationType.None, null);
-            var rightParameter = new Parameter("right", null, Type, null, ValidationType.None, null);
+            var leftParameter = new Parameter("left", $"The left value to compare.", Type);
+            var rightParameter = new Parameter("right", $"The right value to compare.", Type);
             var left = (ValueExpression)leftParameter;
             var right = (ValueExpression)rightParameter;
             var equalitySignature = new MethodSignature(
@@ -137,7 +140,7 @@ namespace Microsoft.Generator.CSharp
 
             methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right))));
 
-            var valueParameter = new Parameter("value", null, ValueType, null, ValidationType.None, null);
+            var valueParameter = new Parameter("value", $"The value.", ValueType);
             var castSignature = new MethodSignature(
                 Name: string.Empty,
                 Summary: null,
@@ -149,7 +152,7 @@ namespace Microsoft.Generator.CSharp
 
             methods.Add(new(castSignature, New.Instance(Type, valueParameter)));
 
-            var objParameter = new Parameter("obj", null, typeof(object), null, ValidationType.None, null);
+            var objParameter = new Parameter("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
                 Summary: null,
@@ -164,7 +167,7 @@ namespace Microsoft.Generator.CSharp
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
             methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolExpression(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other])))));
 
-            var otherParameter = new Parameter("other", null, Type, null, ValidationType.None, null);
+            var otherParameter = new Parameter("other", $"The instance to compare.", Type);
             equalsSignature = equalsSignature with
             {
                 Modifiers = MethodSignatureModifiers.Public,
