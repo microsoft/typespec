@@ -10,7 +10,7 @@ test.describe("playground UI tests", () => {
     await page.goto(host);
     const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
     await samplesDropDown.selectOption({ label: "HTTP service" });
-    const outputContainer = page.locator("_react=OutputContent");
+    const outputContainer = page.locator("_react=FileOutput");
     await expect(outputContainer).toContainText(`title: Widget Service`);
   });
 
@@ -18,7 +18,7 @@ test.describe("playground UI tests", () => {
     // Pass code "op sharedCode(): string;"
     // cspell:disable-next-line
     await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
-    const outputContainer = page.locator("_react=OutputContent");
+    const outputContainer = page.locator("_react=FileOutput");
     await expect(outputContainer).toContainText(`operationId: sharedCode`);
   });
 
