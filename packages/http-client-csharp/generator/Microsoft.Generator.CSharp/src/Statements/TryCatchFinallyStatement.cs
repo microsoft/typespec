@@ -1,22 +1,23 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record TryCatchFinallyStatement(MethodBodyStatement Try, IReadOnlyList<CatchStatement> Catches, MethodBodyStatement? Finally) : MethodBodyStatement
+    public sealed record TryCatchFinallyStatement(MethodBodyStatement Try, IReadOnlyList<CatchExpression> Catches, MethodBodyStatement? Finally) : MethodBodyStatement
     {
-        public TryCatchFinallyStatement(MethodBodyStatement Try) : this(Try, Array.Empty<CatchStatement>(), null)
+        public TryCatchFinallyStatement(MethodBodyStatement Try) : this(Try, Array.Empty<CatchExpression>(), null)
         {
         }
 
-        public TryCatchFinallyStatement(MethodBodyStatement Try, CatchStatement Catch, MethodBodyStatement? Finally = null) : this(Try, [Catch], Finally)
+        public TryCatchFinallyStatement(MethodBodyStatement Try, CatchExpression Catch, MethodBodyStatement? Finally = null) : this(Try, [Catch], Finally)
         {
         }
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.WriteRawLine("try");
             writer.WriteRawLine("{");

@@ -8,10 +8,9 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputNamespace
     {
-        public InputNamespace(string name, string description, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth auth)
+        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth auth)
         {
             Name = name;
-            Description = description;
             ApiVersions = apiVersions;
             Enums = enums;
             Models = models;
@@ -19,10 +18,9 @@ namespace Microsoft.Generator.CSharp.Input
             Auth = auth;
         }
 
-        public InputNamespace() : this(name: string.Empty, description: string.Empty, apiVersions: Array.Empty<string>(), enums: Array.Empty<InputEnumType>(), models: Array.Empty<InputModelType>(), clients: Array.Empty<InputClient>(), auth: new InputAuth()) { }
+        public InputNamespace() : this(name: string.Empty, apiVersions: Array.Empty<string>(), enums: Array.Empty<InputEnumType>(), models: Array.Empty<InputModelType>(), clients: Array.Empty<InputClient>(), auth: new InputAuth()) { }
 
         public string Name { get; init; }
-        public string Description { get; init; }
         public IReadOnlyList<string> ApiVersions { get; init; }
         public IReadOnlyList<InputEnumType> Enums { get; init; }
         public IReadOnlyList<InputModelType> Models { get; init; }

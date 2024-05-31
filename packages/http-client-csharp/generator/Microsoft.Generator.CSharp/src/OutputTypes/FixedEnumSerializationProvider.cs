@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -17,7 +19,7 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly EnumTypeProvider _enumType;
 
-        public FixedEnumSerializationProvider(EnumTypeProvider enumType) : base(null)
+        public FixedEnumSerializationProvider(EnumTypeProvider enumType)
         {
             Debug.Assert(!enumType.IsExtensible);
 
@@ -52,7 +54,7 @@ namespace Microsoft.Generator.CSharp
             // serialization method (in some cases we do not need serialization)
             if (NeedsSerializationMethod())
             {
-                var serializationValueParameter = new Parameter("value", null, _enumType.Type, null, ValidationType.None, null);
+                var serializationValueParameter = new Parameter("value", $"The value to serialize.", _enumType.Type);
                 var serializationSignature = new MethodSignature(
                     Name: $"ToSerial{_enumType.ValueType.Name}",
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
@@ -73,7 +75,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             // deserialization method (we always need a deserialization)
-            var deserializationValueParameter = new Parameter("value", null, _enumType.ValueType, null, ValidationType.None, null);
+            var deserializationValueParameter = new Parameter("value", $"The value to deserialize.", _enumType.ValueType);
             var deserializationSignature = new MethodSignature(
                 Name: $"To{_enumType.Type.Name}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
@@ -92,7 +94,7 @@ namespace Microsoft.Generator.CSharp
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolExpression condition;
+                BoolSnippet condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively

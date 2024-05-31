@@ -5,5 +5,5 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp
 {
-    internal record ExpressionPropertyBody(ValueExpression Getter) : PropertyBody;
+    internal record ExpressionPropertyBody(ValueExpression Getter) : PropertyBody(false);
 }

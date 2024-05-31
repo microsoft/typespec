@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override Parameter CreateCSharpParam(InputParameter inputParameter)
         {
-            return Parameter.FromInputParameter(inputParameter);
+            return new Parameter(inputParameter);
         }
 
         /// <summary>
