@@ -1179,16 +1179,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
     const id = parseIdentifier();
-    const { items: members, range: bodyRange } = parseList(
-      ListKind.EnumMembers,
-      parseEnumMemberOrSpread
-    );
+    const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
       id,
       decorators,
       members,
-      bodyRange,
       ...finishNode(pos),
     };
   }
@@ -1502,10 +1498,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     // `@<missing identifier>` applied to `model Foo`, and not as `@model`
     // applied to invalid statement `Foo`.
     const target = parseIdentifierOrMemberExpression(undefined, false);
-    const { items: args, range: argRange } = parseOptionalList(
-      ListKind.DecoratorArguments,
-      parseExpression
-    );
+    const { items: args } = parseOptionalList(ListKind.DecoratorArguments, parseExpression);
     if (args.length === 0) {
       error({ code: "augment-decorator-target" });
       const emptyList = createEmptyList<TemplateArgumentNode>();
