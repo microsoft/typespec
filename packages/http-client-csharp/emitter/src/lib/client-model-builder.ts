@@ -97,8 +97,6 @@ export function createModelForService(
       }
     : undefined;
 
-  const description = getDoc(program, serviceNamespaceType);
-
   const servers = getServers(program, serviceNamespaceType);
   const namespace = getNamespaceFullName(serviceNamespaceType) || "client";
   const authentication = getAuthentication(program, serviceNamespaceType);
@@ -140,8 +138,33 @@ export function createModelForService(
     addChildClients(sdkContext.emitContext, client, clients);
   }
 
+  navigateModels(sdkContext, modelMap, enumMap);
+
+  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
+  setUsage(usages, modelMap);
+  setUsage(usages, enumMap);
+
   for (const client of clients) {
     for (const op of client.Operations) {
+      /* TODO: remove this when adopt tcgc.
+       *set Multipart usage for models.
+       */
+      const bodyParameter = op.Parameters.find((value) => value.Location === RequestLocation.Body);
+      if (bodyParameter && bodyParameter.Type && (bodyParameter.Type as InputModelType)) {
+        const inputModelType = bodyParameter.Type as InputModelType;
+        op.RequestMediaTypes?.forEach((item) => {
+          if (item === "multipart/form-data" && !inputModelType.Usage.includes(Usage.Multipart)) {
+            if (inputModelType.Usage.trim().length === 0) {
+              inputModelType.Usage = inputModelType.Usage.concat(Usage.Multipart);
+            } else {
+              inputModelType.Usage = inputModelType.Usage.trim()
+                .concat(",")
+                .concat(Usage.Multipart);
+            }
+          }
+        });
+      }
+
       const apiVersionIndex = op.Parameters.findIndex(
         (value: InputParameter) => value.IsApiVersion
       );
@@ -159,15 +182,8 @@ export function createModelForService(
     }
   }
 
-  navigateModels(sdkContext, modelMap, enumMap);
-
-  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
-  setUsage(usages, modelMap);
-  setUsage(usages, enumMap);
-
   const clientModel = {
     Name: namespace,
-    Description: description,
     ApiVersions: Array.from(apiVersions.values()),
     Enums: Array.from(enumMap.values()),
     Models: Array.from(modelMap.values()),
@@ -232,6 +248,7 @@ export function createModelForService(
       Protocol: {},
       Creatable: client.kind === ClientKind.SdkClient,
       Parent: parent === undefined ? undefined : getClientName(parent),
+      Parameters: urlParameters,
     } as InputClient;
     for (const op of operations) {
       const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));

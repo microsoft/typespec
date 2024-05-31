@@ -591,6 +591,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     _literal = literalValue
                 };
+
                 return literalType;
             }
 

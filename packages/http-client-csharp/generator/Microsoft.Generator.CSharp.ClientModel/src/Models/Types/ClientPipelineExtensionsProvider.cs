@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using System.ClientModel.Primitives;
-using System.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -33,9 +32,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(null)
         {
             Name = "ClientPipelineExtensions";
-            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
-            _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
-            _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
+            _pipelineParam = new Parameter("pipeline", $"The pipeline.", typeof(ClientPipeline));
+            _messageParam = new Parameter("message", $"The message.", typeof(PipelineMessage));
+            _requestContextParam = new Parameter("requestContext", $"The request context.", typeof(RequestOptions));
             _pipeline = new ParameterReference(_pipelineParam);
             _message = new ParameterReference(_messageParam);
             _requestContext = new ParameterReference(_requestContextParam);

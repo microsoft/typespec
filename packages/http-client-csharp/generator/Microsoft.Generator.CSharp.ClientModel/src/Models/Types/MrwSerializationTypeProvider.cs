@@ -17,8 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// </summary>
     internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
-        private readonly Parameter SerializationOptionsParameter =
-            new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
+        private readonly Parameter _serializationOptionsParameter =
+            new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private const string _privateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string _privateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private static readonly CSharpType _privateAdditionalPropertiesPropertyType = typeof(IDictionary<string, BinaryData>);
@@ -164,11 +164,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelWriteMethod()
         {
-            Parameter utf8JsonWriterParameter = new("writer", null, typeof(Utf8JsonWriter), null, ValidationType.None, null);
+            Parameter utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Add body for json properties' serialization https://github.com/microsoft/typespec/issues/3330
               EmptyStatement
             );
@@ -179,12 +179,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelCreateMethod()
         {
-            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ValidationType.None, null, IsRef: true);
+            Parameter utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, SerializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
               Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
@@ -199,7 +199,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var returnType = typeof(BinaryData);
             return new CSharpMethod
             (
-                new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
                 Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
             );
@@ -210,12 +210,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildIModelCreateMethod()
         {
-            Parameter dataParameter = new("data", null, typeof(BinaryData), null, ValidationType.None, null);
+            Parameter dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
               Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
@@ -230,7 +230,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new CSharpMethod
             (
-              new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { SerializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               jsonWireFormat
             );
         }
@@ -293,12 +293,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 CSharpType propertyType = property.Type;
                 var parameter = new Parameter(
-                   Name: property.Name.ToVariableName(),
-                   Description: FormattableStringHelpers.FromString(property.OriginalDescription) ?? property.Description,
-                   Type: propertyType,
-                   DefaultValue: null,
-                   Validation: ValidationType.None,
-                   Initializer: null);
+                   name: property.Name.ToVariableName(),
+                   description: property.Description,
+                   type: propertyType);
 
                 constructorParameters.Add(parameter);
 
@@ -312,12 +309,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             if (shouldAddRawDataField && _rawDataField != null)
             {
                 var rawDataParameter = new Parameter(
-                    Name: _rawDataField.Name.ToVariableName(),
-                    Description: FormattableStringHelpers.FromString(_privateAdditionalPropertiesPropertyDescription),
-                    Type: _rawDataField.Type,
-                    DefaultValue: null,
-                    Validation: ValidationType.None,
-                    Initializer: null);
+                    _rawDataField.Name.ToVariableName(),
+                    FormattableStringHelpers.FromString(_privateAdditionalPropertiesPropertyDescription),
+                    _rawDataField.Type);
 
                 constructorParameters.Add(rawDataParameter);
             }

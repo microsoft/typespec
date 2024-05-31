@@ -21,7 +21,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
-        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<string> requiredCollection, IDictionary<string, string> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
+        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum?> requiredCollection, IDictionary<string, StringExtensibleEnum?> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
             if (requiredString == null)
             {
@@ -61,10 +61,10 @@ namespace UnbrandedTypeSpec.Models
             RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnumCollection = new List<int>();
-            FloatExtensibleEnumCollection = new List<float>();
-            FloatFixedEnumCollection = new List<float>();
-            IntFixedEnumCollection = new List<int>();
+            IntExtensibleEnumCollection = new List<IntExtensibleEnum>();
+            FloatExtensibleEnumCollection = new List<FloatExtensibleEnum>();
+            FloatFixedEnumCollection = new List<FloatFixedEnum>();
+            IntFixedEnumCollection = new List<IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
             OptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
@@ -81,40 +81,46 @@ namespace UnbrandedTypeSpec.Models
         public int RequiredInt { get; set; }
 
         /// <summary> Required collection of enums. </summary>
-        public IList<string> RequiredCollection { get; }
+        public IList<StringFixedEnum?> RequiredCollection { get; }
 
         /// <summary> Required dictionary of enums. </summary>
-        public IDictionary<string, string> RequiredDictionary { get; }
+        public IDictionary<string, StringExtensibleEnum?> RequiredDictionary { get; }
 
         /// <summary> Required model. </summary>
         public Thing RequiredModel { get; set; }
 
         /// <summary> this is an int based extensible enum. </summary>
-        public int IntExtensibleEnum { get; set; }
+        public IntExtensibleEnum IntExtensibleEnum { get; set; }
 
         /// <summary> this is a collection of int based extensible enum. </summary>
-        public IList<int> IntExtensibleEnumCollection { get; }
+        public IList<IntExtensibleEnum> IntExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based extensible enum. </summary>
-        public float FloatExtensibleEnum { get; set; }
+        public FloatExtensibleEnum FloatExtensibleEnum { get; set; }
+
+        /// <summary> this is a float based extensible enum. </summary>
+        public FloatExtensibleEnumWithIntValue FloatExtensibleEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based extensible enum. </summary>
-        public IList<float> FloatExtensibleEnumCollection { get; }
+        public IList<FloatExtensibleEnum> FloatExtensibleEnumCollection { get; }
 
         /// <summary> this is a float based fixed enum. </summary>
-        public float FloatFixedEnum { get; set; }
+        public FloatFixedEnum FloatFixedEnum { get; set; }
+
+        /// <summary> this is a float based fixed enum. </summary>
+        public FloatFixedEnumWithIntValue FloatFixedEnumWithIntValue { get; set; }
 
         /// <summary> this is a collection of float based fixed enum. </summary>
-        public IList<float> FloatFixedEnumCollection { get; }
+        public IList<FloatFixedEnum> FloatFixedEnumCollection { get; }
 
         /// <summary> this is a int based fixed enum. </summary>
-        public int IntFixedEnum { get; set; }
+        public IntFixedEnum IntFixedEnum { get; set; }
 
         /// <summary> this is a collection of int based fixed enum. </summary>
-        public IList<int> IntFixedEnumCollection { get; }
+        public IList<IntFixedEnum> IntFixedEnumCollection { get; }
 
         /// <summary> this is a string based fixed enum. </summary>
-        public string StringFixedEnum { get; set; }
+        public StringFixedEnum? StringFixedEnum { get; set; }
 
         /// <summary>
         /// required unknown

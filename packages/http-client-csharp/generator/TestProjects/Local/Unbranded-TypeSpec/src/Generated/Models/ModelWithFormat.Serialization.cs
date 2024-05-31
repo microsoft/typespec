@@ -33,21 +33,27 @@ namespace UnbrandedTypeSpec.Models
         {
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options. </param>
         ModelWithFormat System.ClientModel.Primitives.IJsonModel<ModelWithFormat>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new ModelWithFormat();
         }
 
+        /// <param name="options"> The client options. </param>
         System.BinaryData System.ClientModel.Primitives.IPersistableModel<ModelWithFormat>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options. </param>
         ModelWithFormat System.ClientModel.Primitives.IPersistableModel<ModelWithFormat>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new ModelWithFormat();
         }
 
+        /// <param name="options"> The client options. </param>
         string System.ClientModel.Primitives.IPersistableModel<ModelWithFormat>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }
