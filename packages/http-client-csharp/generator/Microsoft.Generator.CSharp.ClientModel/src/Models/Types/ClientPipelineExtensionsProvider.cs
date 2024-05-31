@@ -32,9 +32,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private ClientPipelineExtensionsProvider()
         {
             Name = "ClientPipelineExtensions";
-            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ParameterValidationType.None, null);
-            _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ParameterValidationType.None, null);
-            _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ParameterValidationType.None, null);
+            _pipelineParam = new Parameter("pipeline", $"The pipeline.", typeof(ClientPipeline));
+            _messageParam = new Parameter("message", $"The message.", typeof(PipelineMessage));
+            _requestContextParam = new Parameter("requestContext", $"The request context.", typeof(RequestOptions));
             _pipeline = new ParameterReferenceSnippet(_pipelineParam);
             _message = new ParameterReferenceSnippet(_messageParam);
             _requestContext = new ParameterReferenceSnippet(_requestContextParam);

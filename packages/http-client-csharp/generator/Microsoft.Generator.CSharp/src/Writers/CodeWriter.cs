@@ -412,7 +412,14 @@ namespace Microsoft.Generator.CSharp
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));
 
-            Append($"{field.Type} {field.Name:I}");
+            if (field.Declaration.HasBeenDeclared)
+            {
+                Append($"{field.Type} {field.Declaration:I}");
+            }
+            else
+            {
+                Append($"{field.Type} {field.Declaration:D}");
+            }
 
             if (field.InitializationValue != null &&
                 (modifiers.HasFlag(FieldModifiers.Const) || modifiers.HasFlag(FieldModifiers.Static)))
@@ -422,40 +429,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return WriteLine($";");
-        }
-
-        public void WriteVariableAssignmentWithNullCheck(string variableName, Parameter parameter)
-        {
-            var assignToSelf = parameter.Name == variableName;
-            if (parameter.Initializer != null)
-            {
-                if (assignToSelf)
-                {
-                    WriteLine($"{variableName:I} ??= {parameter.Initializer};");
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? {parameter.Initializer};");
-                }
-            }
-            else if (parameter.Validation != ParameterValidationType.None)
-            {
-                if (assignToSelf)
-                {
-                    using (Scope($"if ({parameter.Name:I} == null)"))
-                    {
-                        WriteLine($"throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                    }
-                }
-                else
-                {
-                    WriteLine($"{variableName:I} = {parameter.Name:I} ?? throw new {typeof(ArgumentNullException)}(nameof({parameter.Name:I}));");
-                }
-            }
-            else if (!assignToSelf)
-            {
-                WriteLine($"{variableName:I} = {parameter.Name:I};");
-            }
         }
 
         public CodeWriter WriteParametersValidation(IEnumerable<Parameter> parameters)
@@ -471,11 +444,6 @@ namespace Microsoft.Generator.CSharp
 
         private CodeWriter WriteParameterValidation(Parameter parameter)
         {
-            if (parameter.Validation == ParameterValidationType.None && parameter.Initializer != null)
-            {
-                return WriteLine($"{parameter.Name:I} ??= {parameter.Initializer};");
-            }
-
             var validationStatement = Argument.ValidateParameter(parameter);
 
             validationStatement.Write(this);
@@ -588,6 +556,13 @@ namespace Microsoft.Generator.CSharp
 
         private void AppendType(CSharpType type, bool isDeclaration, bool writeTypeNameOnly)
         {
+            if (type.IsArray && type.FrameworkType.GetGenericArguments().Any())
+            {
+                AppendType(type.FrameworkType.GetElementType()!, isDeclaration, writeTypeNameOnly);
+                AppendRaw("[]");
+                return;
+            }
+
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
@@ -832,13 +807,26 @@ namespace Microsoft.Generator.CSharp
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
-                if (method.ReturnType != null)
+                var isImplicitOrExplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit) || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                if (!isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType} ");
+                    if (method.ReturnType != null)
+                    {
+                        Append($"{method.ReturnType} ");
+                    }
+                    else
+                    {
+                        AppendRaw("void ");
+                    }
                 }
-                else
+
+                AppendRawIf("implicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit))
+                    .AppendRawIf("explicit ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit))
+                    .AppendRawIf("operator ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+                if (isImplicitOrExplicit)
                 {
-                    AppendRaw("void ");
+                    Append($"{method.ReturnType}");
                 }
 
                 if (method.ExplicitInterface is not null)
@@ -1083,6 +1071,7 @@ namespace Microsoft.Generator.CSharp
             AppendRawIf("public ", modifiers.HasFlag(TypeSignatureModifiers.Public))
                 .AppendRawIf("internal ", modifiers.HasFlag(TypeSignatureModifiers.Internal))
                 .AppendRawIf("private ", modifiers.HasFlag(TypeSignatureModifiers.Private))
+                .AppendRawIf("readonly ", modifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
                 .AppendRawIf("static ", modifiers.HasFlag(TypeSignatureModifiers.Static))
                 .AppendRawIf("sealed ", modifiers.HasFlag(TypeSignatureModifiers.Sealed))
                 .AppendRawIf("partial ", modifiers.HasFlag(TypeSignatureModifiers.Partial)); // partial must be the last to write otherwise compiler will complain

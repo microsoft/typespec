@@ -45,12 +45,35 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
+            foreach (var enumType in output.Enums)
+            {
+                TypeProviderWriter enumWriter = CodeModelPlugin.Instance.GetWriter(enumType);
+                enumWriter.Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), enumWriter.ToString()));
+
+                if (enumType.Serialization is { } serialization)
+                {
+                    TypeProviderWriter enumSerializationWriter = CodeModelPlugin.Instance.GetWriter(serialization);
+                    enumSerializationWriter.Write();
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.cs"), enumSerializationWriter.ToString()));
+                }
+            }
+
             foreach (var client in output.Clients)
             {
-                var clientWriter = CodeModelPlugin.Instance.GetWriter(client);
+                TypeProviderWriter clientWriter = CodeModelPlugin.Instance.GetWriter(client);
                 clientWriter.Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), clientWriter.ToString()));
             }
+
+            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
+            TypeProviderWriter helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingListProvider.Instance);
+            helperWriter.Write();
+            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingListProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
+
+            helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingDictionaryProvider.Instance);
+            helperWriter.Write();
+            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingDictionaryProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
 
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);

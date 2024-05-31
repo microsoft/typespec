@@ -72,6 +72,7 @@ namespace Microsoft.Generator.CSharp
                 WriteConstructors();
 
                 WriteProperties();
+
                 WriteMethods();
 
                 WriteNestedTypes();

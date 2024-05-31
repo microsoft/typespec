@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             public override CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
             {
-                var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse), null, ParameterValidationType.None, null);
+                var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse));
                 return new CSharpMethod
                 (
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),

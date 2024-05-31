@@ -3,81 +3,56 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class EnumTypeProvider : TypeProvider
+    public abstract class EnumTypeProvider : TypeProvider
     {
-        private readonly InputEnumType _inputEnum;
-        private readonly IEnumerable<InputEnumTypeValue> _allowedValues;
-        //private readonly ModelTypeMapping? _typeMapping;
-        private readonly TypeFactory _typeFactory;
+        public static EnumTypeProvider Create(InputEnumType input)
+            => input.IsExtensible
+            ? new ExtensibleEnumTypeProvider(input)
+            : new FixedEnumTypeProvider(input);
 
-        public EnumTypeProvider(InputEnumType input, string defaultNamespace, TypeFactory typeFactory)
+        protected EnumTypeProvider(InputEnumType input)
         {
-            _inputEnum = input;
-            _allowedValues = input.AllowedValues;
-            _typeFactory = typeFactory;
             _deprecated = input.Deprecated;
 
-            IsAccessibilityOverridden = input.Accessibility != null;
-
-            var isExtensible = input.IsExtensible;
-            if (ExistingType != null)
-            {
-                isExtensible = ExistingType.TypeKind switch
-                {
-                    TypeKind.Enum => false,
-                    TypeKind.Struct => true,
-                    _ => throw new InvalidOperationException(
-                        $"{ExistingType.ToDisplayString()} cannot be mapped to enum," +
-                        $" expected enum or struct got {ExistingType.TypeKind}")
-                };
-
-                // TODO uncomment when we do custom code work
-                //_typeMapping = SourceInputModel.Instance.CreateForModel(ExistingType);
-            }
-
+            IsExtensible = input.IsExtensible;
             Name = input.Name.ToCleanName();
-            IsExtensible = isExtensible;
-            ValueType = typeFactory.CreateCSharpType(input.EnumValueType);
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.EnumValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
-            SerializationMethodName = IsStringValueType && IsExtensible ? "ToString" : $"ToSerial{ValueType.Name.FirstCharToUpperCase()}";
-        }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
-        {
-            var modifiers = TypeSignatureModifiers.Partial;
-            if (_inputEnum.Accessibility == "internal")
-            {
-                modifiers |= TypeSignatureModifiers.Internal;
-            }
-
-            if (IsExtensible)
-            {
-                modifiers |= TypeSignatureModifiers.Struct;
-            }
-            else
-            {
-                modifiers |= TypeSignatureModifiers.Enum;
-            }
-
-            return modifiers;
+            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
         }
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
-        public bool IsIntValueType { get; }
-        public bool IsFloatValueType { get; }
-        public bool IsStringValueType { get; }
-        public bool IsNumericValueType { get; }
-        public string SerializationMethodName { get; }
+        internal bool IsIntValueType { get; }
+        internal bool IsFloatValueType { get; }
+        internal bool IsStringValueType { get; }
+        internal bool IsNumericValueType { get; }
         public override string Name { get; }
-        public bool IsAccessibilityOverridden { get; }
+        public override string Namespace { get; }
+        public override FormattableString Description { get; }
+
+        /// <summary>
+        /// The serialization provider for this enum.
+        /// </summary>
+        public TypeProvider? Serialization { get; protected init; }
+
+        private IReadOnlyList<EnumTypeMember>? _members;
+        public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
+
+        protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
+
+        public abstract ValueExpression ToSerial(ValueExpression enumExpression);
+
+        public abstract ValueExpression ToEnum(ValueExpression valueExpression);
     }
 }

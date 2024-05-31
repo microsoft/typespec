@@ -113,6 +113,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "generate-test-project":
           options["generate-test-project"] === false ? undefined : options["generate-test-project"],
         "use-model-reader-writer": options["use-model-reader-writer"] ?? true,
+        "disable-xml-docs":
+          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
       await program.host.writeFile(
