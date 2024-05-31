@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -9,6 +9,8 @@ namespace Microsoft.Generator.CSharp
     {
         private string? _actualName;
         private string? _debuggerName;
+
+        public bool HasBeenDeclared => _actualName != null;
 
         public CodeWriterDeclaration(string name)
         {

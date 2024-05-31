@@ -16,25 +16,31 @@ namespace Microsoft.Generator.CSharp.ClientModel
     internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
         private readonly Parameter SerializationOptionsParameter =
-            new("options", null, typeof(ModelReaderWriterOptions), null, ValidationType.None, null);
+            new("options", $"The client options.", typeof(ModelReaderWriterOptions));
         private readonly CSharpType _iJsonModelTInterface;
         private readonly CSharpType? _iJsonModelObjectInterface;
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
-        private ModelTypeProvider _model;
+        private readonly ModelTypeProvider _model;
+        private readonly bool _isStruct;
 
         public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
         {
             _model = model;
+            _isStruct = model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             Name = model.Name;
+            Namespace = model.Namespace;
             // Initialize the serialization interfaces
             _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), _model.Type);
-            _iJsonModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+            _iJsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
-            _iPersistableModelObjectInterface = _model.IsStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+            _iPersistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
         }
 
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
+
         public override string Name { get; }
+        public override string Namespace { get; }
 
         /// <summary>
         /// Builds the serialization methods for the model. If the serialization supports JSON, it will build the JSON serialization methods.
@@ -79,7 +85,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelWriteMethod()
         {
-            Parameter utf8JsonWriterParameter = new("writer", null, typeof(Utf8JsonWriter), null, ValidationType.None, null);
+            Parameter utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new CSharpMethod
             (
@@ -94,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildJsonModelCreateMethod()
         {
-            Parameter utf8JsonReaderParameter = new("reader", null, typeof(Utf8JsonReader), null, ValidationType.None, null, IsRef: true);
+            Parameter utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new CSharpMethod
@@ -125,7 +131,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal CSharpMethod BuildIModelCreateMethod()
         {
-            Parameter dataParameter = new("data", null, typeof(BinaryData), null, ValidationType.None, null);
+            Parameter dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new CSharpMethod

@@ -45,12 +45,35 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
+            foreach (var enumType in output.Enums)
+            {
+                CodeWriter writer = new CodeWriter();
+                CodeModelPlugin.Instance.GetWriter(writer, enumType).Write();
+                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), writer.ToString()));
+
+                if (enumType.Serialization is { } serialization)
+                {
+                    writer = new CodeWriter();
+                    CodeModelPlugin.Instance.GetWriter(writer, serialization).Write();
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.cs"), writer.ToString()));
+                }
+            }
+
             foreach (var client in output.Clients)
             {
                 CodeWriter writer = new CodeWriter();
                 CodeModelPlugin.Instance.GetWriter(writer, client).Write();
                 generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), writer.ToString()));
             }
+
+            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
+            var helperWriter = new CodeWriter();
+            new TypeProviderWriter(helperWriter, ChangeTrackingListProvider.Instance).Write();
+            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingListProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
+
+            helperWriter = new CodeWriter();
+            new TypeProviderWriter(helperWriter, ChangeTrackingDictionaryProvider.Instance).Write();
+            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingDictionaryProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
 
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);

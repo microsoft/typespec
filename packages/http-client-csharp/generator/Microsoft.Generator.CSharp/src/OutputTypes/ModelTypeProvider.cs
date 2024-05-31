@@ -14,6 +14,11 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
+        public override string Namespace { get; }
+        public override FormattableString Description { get; }
+
+        private readonly bool _isStruct;
+        private readonly TypeSignatureModifiers _declarationModifiers;
 
         /// <summary>
         /// The serializations providers for the model provider.
@@ -25,22 +30,30 @@ namespace Microsoft.Generator.CSharp
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
+            Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
+            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
+            // TODO -- support generating models as structs. Tracking issue: https://github.com/microsoft/typespec/issues/3453
+            _declarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
             if (inputModel.Accessibility == "internal")
             {
-                DeclarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Internal;
+                _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
             bool isAbstract = inputModel.DiscriminatorPropertyName is not null && inputModel.DiscriminatorValue is null;
             if (isAbstract)
             {
-                DeclarationModifiers |= TypeSignatureModifiers.Abstract;
+                _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
             if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
             {
                 SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
             }
+
+            _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
         protected override PropertyDeclaration[] BuildProperties()
         {
@@ -50,83 +63,10 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = BuildPropertyDeclaration(property);
+                propertyDeclarations[i] = new PropertyDeclaration(property);
             }
 
             return propertyDeclarations;
-        }
-
-        private PropertyDeclaration BuildPropertyDeclaration(InputModelProperty property)
-        {
-            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-            var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(property.Type);
-            var propHasSetter = PropertyHasSetter(propertyType, property);
-            MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
-
-            var propertyDeclaration = new PropertyDeclaration(
-                Description: PropertyDescriptionBuilder.BuildPropertyDescription(property, propertyType, serializationFormat, !propHasSetter),
-                Modifiers: MethodSignatureModifiers.Public,
-                Type: propertyType,
-                Name: property.Name.FirstCharToUpperCase(),
-                Body: new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(property, propertyType))
-                );
-
-            return propertyDeclaration;
-        }
-
-        /// <summary>
-        /// Returns true if the property has a setter.
-        /// </summary>
-        /// <param name="type">The <see cref="CSharpType"/> of the property.</param>
-        /// <param name="prop">The <see cref="InputModelProperty"/>.</param>
-        private bool PropertyHasSetter(CSharpType type, InputModelProperty prop)
-        {
-            if (prop.IsDiscriminator)
-            {
-                return true;
-            }
-
-            if (prop.IsReadOnly)
-            {
-                return false;
-            }
-
-            if (IsStruct)
-            {
-                return false;
-            }
-
-            if (type.IsLiteral && prop.IsRequired)
-            {
-                return false;
-            }
-
-            if (type.IsCollection && !type.IsReadOnlyMemory)
-            {
-                return type.IsNullable;
-            }
-
-            return true;
-        }
-
-        private ValueExpression? GetPropertyInitializationValue(InputModelProperty property, CSharpType propertyType)
-        {
-            if (!property.IsRequired)
-                return null;
-
-            if (propertyType.IsLiteral)
-            {
-                if (!propertyType.IsNullable)
-                {
-                    return Literal(propertyType.Literal);
-                }
-                else
-                {
-                    return DefaultOf(propertyType);
-                }
-            }
-
-            return null;
         }
 
         protected override CSharpMethod[] BuildConstructors()
@@ -164,66 +104,32 @@ namespace Microsoft.Generator.CSharp
             foreach (var property in _inputModel.Properties)
             {
                 CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                var initializationValue = GetPropertyInitializationValue(property, propertyType);
-                var parameterValidation = GetParameterValidation(property, propertyType);
-
-                var parameter = new Parameter(
-                   Name: property.Name.ToVariableName(),
-                   Description: FormattableStringHelpers.FromString(property.Description),
-                   Type: propertyType,
-                   DefaultValue: null,
-                   Validation: parameterValidation,
-                   Initializer: null);
-
                 // All properties should be included in the serialization ctor
                 if (isSerializationConstructor)
                 {
-                    constructorParameters.Add(parameter with { Validation = ValidationType.None });
+                    constructorParameters.Add(new Parameter(property)
+                    {
+                        Validation = ValidationType.None,
+                    });
                 }
                 else
                 {
                     // For classes, only required + not readonly + not initialization value + not discriminator could get into the public ctor
                     // For structs, all properties must be set in the public ctor
-                    if (IsStruct || (property is { IsRequired: true, IsDiscriminator: false } && initializationValue == null))
+                    if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
                     {
                         if (!property.IsReadOnly)
                         {
-                            constructorParameters.Add(parameter with { Type = parameter.Type.InputType });
+                            constructorParameters.Add(new Parameter(property)
+                            {
+                                Type = propertyType.InputType,
+                            });
                         }
                     }
                 }
             }
 
             return constructorParameters;
-        }
-
-        private static ValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
-        {
-            // We do not validate a parameter when it is a value type (struct or int, etc)
-            if (propertyType.IsValueType)
-            {
-                return ValidationType.None;
-            }
-
-            // or it is readonly
-            if (property.IsReadOnly)
-            {
-                return ValidationType.None;
-            }
-
-            // or it is optional
-            if (!property.IsRequired)
-            {
-                return ValidationType.None;
-            }
-
-            // or it is nullable
-            if (propertyType.IsNullable)
-            {
-                return ValidationType.None;
-            }
-
-            return ValidationType.AssertNotNull;
         }
 
         private CSharpMethod? BuildInitializationConstructor()
@@ -288,7 +194,7 @@ namespace Microsoft.Generator.CSharp
             {
                 ValueExpression? initializationValue = null;
 
-                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || IsStruct)
+                if (parameterMap.TryGetValue(property.Name.ToVariableName(), out var parameter) || _isStruct)
                 {
                     if (parameter != null)
                     {
@@ -318,7 +224,7 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod BuildEmptyConstructor()
         {
-            var accessibility = IsStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
+            var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new CSharpMethod(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
                 bodyStatements: new MethodBodyStatement(),

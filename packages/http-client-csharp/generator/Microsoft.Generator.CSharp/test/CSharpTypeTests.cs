@@ -14,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests
 {
     internal class CSharpTypeTests
     {
-        private readonly string _mocksFolder = "mocks";
+        private readonly string _mocksFolder = "Mocks";
 
         [OneTimeSetUp]
         public void Setup()
