@@ -13,7 +13,6 @@ namespace Microsoft.Generator.CSharp
         public CSharpType Type { get; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
-        public string Accessibility => (Modifiers & FieldModifiers.Public) > 0 ? "public" : "internal";
 
         private CodeWriterDeclaration? _declaration;
 
