@@ -79,12 +79,24 @@ export function createModelForService(
 
   const apiVersions: Set<string> | undefined = new Set<string>();
   let defaultApiVersion: string | undefined = undefined;
-  const versions = getVersions(program, service.type)[1]?.getVersions();
+  let versions = getVersions(program, service.type)[1]
+    ?.getVersions()
+    .map((v) => v.value);
+  const targetApiVersion = sdkContext.emitContext.options["api-version"];
+  if (
+    versions !== undefined &&
+    targetApiVersion !== undefined &&
+    targetApiVersion !== "all" &&
+    targetApiVersion !== "latest"
+  ) {
+    const targetApiVersionIndex = versions.findIndex((v) => v === targetApiVersion);
+    versions = versions.slice(0, targetApiVersionIndex + 1);
+  }
   if (versions && versions.length > 0) {
     for (const ver of versions) {
-      apiVersions.add(ver.value);
+      apiVersions.add(ver);
     }
-    defaultApiVersion = versions[versions.length - 1].value;
+    defaultApiVersion = versions[versions.length - 1];
   }
   const defaultApiVersionConstant: InputConstant | undefined = defaultApiVersion
     ? {
