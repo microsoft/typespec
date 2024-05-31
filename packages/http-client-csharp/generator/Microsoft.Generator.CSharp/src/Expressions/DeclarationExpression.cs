@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
-    public sealed record DeclarationExpression(CSharpType Type, CodeWriterDeclaration Declaration, bool IsOut) : ValueExpression
+    public sealed record DeclarationExpression(CSharpType Type, CodeWriterDeclaration Declaration, bool IsOut = false) : ValueExpression
     {
         public DeclarationExpression(CSharpType type, string name, out VariableReferenceSnippet variable, bool isOut = false) : this(type, new CodeWriterDeclaration(name), isOut)
         {

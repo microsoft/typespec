@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);

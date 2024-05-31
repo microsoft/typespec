@@ -8,11 +8,13 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     /// <param name="Variable">The variable that is being assigned.</param>
     /// <param name="Value">The value that <paramref name="Variable"/> is being assigned.</param>
-    public sealed record AssignmentExpression(CSharpType Type, CodeWriterDeclaration Variable, ValueExpression Value) : ValueExpression
+    public sealed record AssignmentExpression(ValueExpression Variable, ValueExpression Value) : ValueExpression
     {
         internal override void Write(CodeWriter writer)
         {
-            writer.Append($"{Type} {Variable:D} = {Value}");
+            Variable.Write(writer);
+            writer.Append($" = ");
+            Value.Write(writer);
         }
     }
 }
