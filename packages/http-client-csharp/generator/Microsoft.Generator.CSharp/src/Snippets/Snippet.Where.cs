@@ -12,7 +12,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static class Where
         {
             public static WhereExpression NotNull(CSharpType type) => new WhereExpression(type, new KeywordExpression("notnull", null));
-
+            public static WhereExpression Struct(CSharpType type) => new WhereExpression(type, new KeywordExpression("struct", null));
+            public static WhereExpression Class(CSharpType type) => new WhereExpression(type, new KeywordExpression("class", null));
             public static WhereExpression Implements(CSharpType type, params CSharpType[] typesToImplement)
             {
                 if (typesToImplement.Length == 0)

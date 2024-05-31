@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -23,38 +24,14 @@ namespace UnbrandedTypeSpec.Models
         /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
         public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum?> requiredCollection, IDictionary<string, StringExtensibleEnum?> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
-            if (requiredString == null)
-            {
-                throw new ArgumentNullException(nameof(requiredString));
-            }
-            if (requiredCollection == null)
-            {
-                throw new ArgumentNullException(nameof(requiredCollection));
-            }
-            if (requiredDictionary == null)
-            {
-                throw new ArgumentNullException(nameof(requiredDictionary));
-            }
-            if (requiredModel == null)
-            {
-                throw new ArgumentNullException(nameof(requiredModel));
-            }
-            if (requiredUnknown == null)
-            {
-                throw new ArgumentNullException(nameof(requiredUnknown));
-            }
-            if (requiredRecordUnknown == null)
-            {
-                throw new ArgumentNullException(nameof(requiredRecordUnknown));
-            }
-            if (modelWithRequiredNullable == null)
-            {
-                throw new ArgumentNullException(nameof(modelWithRequiredNullable));
-            }
-            if (requiredBytes == null)
-            {
-                throw new ArgumentNullException(nameof(requiredBytes));
-            }
+            Argument.AssertNotNull(requiredString, nameof(requiredString));
+            Argument.AssertNotNull(requiredCollection, nameof(requiredCollection));
+            Argument.AssertNotNull(requiredDictionary, nameof(requiredDictionary));
+            Argument.AssertNotNull(requiredModel, nameof(requiredModel));
+            Argument.AssertNotNull(requiredUnknown, nameof(requiredUnknown));
+            Argument.AssertNotNull(requiredRecordUnknown, nameof(requiredRecordUnknown));
+            Argument.AssertNotNull(modelWithRequiredNullable, nameof(modelWithRequiredNullable));
+            Argument.AssertNotNull(requiredBytes, nameof(requiredBytes));
 
             RequiredString = requiredString;
             RequiredInt = requiredInt;
