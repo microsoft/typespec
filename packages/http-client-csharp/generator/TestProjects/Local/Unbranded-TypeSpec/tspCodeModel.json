@@ -1,7 +1,6 @@
 {
  "$id": "1",
  "Name": "UnbrandedTypeSpec",
- "Description": "This is a sample typespec project.",
  "ApiVersions": [],
  "Enums": [
   {
