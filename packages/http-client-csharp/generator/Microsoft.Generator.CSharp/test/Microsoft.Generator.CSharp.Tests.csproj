@@ -25,4 +25,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Mocks\Writers\" />
+  </ItemGroup>
+
 </Project>

@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -17,7 +19,7 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly EnumTypeProvider _enumType;
 
-        public FixedEnumSerializationProvider(EnumTypeProvider enumType) : base(null)
+        public FixedEnumSerializationProvider(EnumTypeProvider enumType)
         {
             Debug.Assert(!enumType.IsExtensible);
 
@@ -92,7 +94,7 @@ namespace Microsoft.Generator.CSharp
             {
                 var enumField = _enumType.Fields[i];
                 var enumValue = _enumType.Members[i];
-                BoolExpression condition;
+                BoolSnippet condition;
                 if (_enumType.IsStringValueType)
                 {
                     // when the values are strings, we compare them case-insensitively

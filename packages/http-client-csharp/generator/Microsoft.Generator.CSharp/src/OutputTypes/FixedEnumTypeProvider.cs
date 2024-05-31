@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
-        protected internal FixedEnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(input, sourceInputModel)
+        protected internal FixedEnumTypeProvider(InputEnumType input) : base(input)
         {
             _allowedValues = input.AllowedValues;
 

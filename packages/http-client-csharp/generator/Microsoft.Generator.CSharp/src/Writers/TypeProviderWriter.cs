@@ -8,9 +8,14 @@ namespace Microsoft.Generator.CSharp
     public class TypeProviderWriter
     {
         protected readonly TypeProvider _provider;
-        protected readonly CodeWriter _writer;
+        private readonly CodeWriter _writer;
 
-        public TypeProviderWriter(CodeWriter writer, TypeProvider provider)
+        public TypeProviderWriter(TypeProvider provider)
+            : this(new CodeWriter(), provider)
+        {
+        }
+
+        private TypeProviderWriter(CodeWriter writer, TypeProvider provider)
         {
             _provider = provider;
             _writer = writer;
@@ -145,6 +150,11 @@ namespace Microsoft.Generator.CSharp
                 nestedWriter.Write();
                 _writer.WriteLine();
             }
+        }
+
+        override public string ToString()
+        {
+            return _writer.ToString();
         }
     }
 }

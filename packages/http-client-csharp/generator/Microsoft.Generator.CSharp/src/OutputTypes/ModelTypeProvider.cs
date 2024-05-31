@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.SourceInput;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -25,8 +28,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        public ModelTypeProvider(InputModelType inputModel, SourceInputModel? sourceInputModel)
-            : base(sourceInputModel)
+        public ModelTypeProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
@@ -109,7 +111,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     constructorParameters.Add(new Parameter(property)
                     {
-                        Validation = ValidationType.None,
+                        Validation = ParameterValidationType.None,
                     });
                 }
                 else
@@ -155,7 +157,7 @@ namespace Microsoft.Generator.CSharp
                     constructorParameters),
                 bodyStatements: new MethodBodyStatement[]
                 {
-                    new ParameterValidationBlock(constructorParameters),
+                    new ParameterValidationStatement(constructorParameters),
                     GetPropertyInitializers(constructorParameters)
                 },
                 kind: CSharpMethodKinds.Constructor);
@@ -176,7 +178,7 @@ namespace Microsoft.Generator.CSharp
                     constructorParameters),
                 bodyStatements: new MethodBodyStatement[]
                 {
-                    new ParameterValidationBlock(constructorParameters),
+                    new ParameterValidationStatement(constructorParameters),
                     GetPropertyInitializers(constructorParameters)
                 },
                 kind: CSharpMethodKinds.Constructor);
@@ -198,7 +200,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     if (parameter != null)
                     {
-                        initializationValue = new ParameterReference(parameter);
+                        initializationValue = new ParameterReferenceSnippet(parameter);
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
