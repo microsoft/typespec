@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             // mock the model type provider
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var interfaces = MrwSerializationTypeProvider.Implements;
 
             Assert.IsNotNull(interfaces);
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = MrwSerializationTypeProvider.BuildJsonModelWriteMethod();
 
             Assert.IsNotNull(method);
@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = MrwSerializationTypeProvider.BuildJsonModelCreateMethod();
 
             Assert.IsNotNull(method);
@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = MrwSerializationTypeProvider.BuildIModelWriteMethod();
 
             Assert.IsNotNull(method);
@@ -132,7 +132,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = MrwSerializationTypeProvider.BuildIModelCreateMethod();
 
             Assert.IsNotNull(method);
@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = MrwSerializationTypeProvider.BuildIModelGetFormatFromOptionsMethod();
 
             Assert.IsNotNull(method);
@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var mockModelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider);
+            var MrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var constructor = MrwSerializationTypeProvider.BuildSerializationConstructor();
 
             Assert.IsNotNull(constructor);
@@ -194,7 +194,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, false);
             var model = new ModelTypeProvider(inputModel, null);
-            var typeProvider = new MrwSerializationTypeProvider(model);
+            var typeProvider = new MrwSerializationTypeProvider(model, inputModel);
             var fields = typeProvider.Fields;
 
             // Assert
@@ -220,7 +220,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
 
             var modelTypeProvider = new ModelTypeProvider(inputModel, null);
-            var serializationModelTypeProvider = new MrwSerializationTypeProvider(modelTypeProvider);
+            var serializationModelTypeProvider = new MrwSerializationTypeProvider(modelTypeProvider, inputModel);
             var ctors = serializationModelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 

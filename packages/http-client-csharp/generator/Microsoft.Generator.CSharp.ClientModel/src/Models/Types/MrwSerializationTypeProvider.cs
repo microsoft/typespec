@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Expressions.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -27,21 +28,24 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
         private ModelTypeProvider _model;
+        private InputModelType _inputModel;
         private readonly FieldDeclaration? _rawDataField;
         private readonly bool _isStruct;
 
-        public MrwSerializationTypeProvider(ModelTypeProvider model) : base(null)
+        public MrwSerializationTypeProvider(ModelTypeProvider model, InputModelType inputModel) : base(null)
         {
             _model = model;
+            _inputModel = inputModel;
             _isStruct = model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
-            Name = model.Name;
-            Namespace = model.Namespace;
             // Initialize the serialization interfaces
             _iJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
             _iJsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
             _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), model.Type);
             _iPersistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = BuildRawDataField();
+
+            Name = model.Name;
+            Namespace = model.Namespace;
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
@@ -280,23 +284,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         /// <summary>
-        /// Builds the parameters for the serialization constructor by iterating through the model properties.
+        /// Builds the parameters for the serialization constructor by iterating through the input model properties.
         /// It then adds raw data field to the constructor if it doesn't already exist in the list of constructed parameters.
         /// </summary>
         /// <returns>The list of parameters for the serialization parameter.</returns>
-        private IReadOnlyList<Parameter> BuildSerializationConstructorParameters()
+        private List<Parameter> BuildSerializationConstructorParameters()
         {
             List<Parameter> constructorParameters = new List<Parameter>();
             bool shouldAddRawDataField = _rawDataField != null;
 
-            foreach (var property in _model.Properties)
+            foreach (var property in _inputModel.Properties)
             {
-                CSharpType propertyType = property.Type;
-                var parameter = new Parameter(
-                   name: property.Name.ToVariableName(),
-                   description: property.Description,
-                   type: propertyType);
-
+                var parameter = new Parameter(property)
+                {
+                    Validation = ValidationType.None,
+                };
                 constructorParameters.Add(parameter);
 
                 if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
@@ -308,12 +310,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // Append the raw data field if it doesn't already exist in the constructor parameters
             if (shouldAddRawDataField && _rawDataField != null)
             {
-                var rawDataParameter = new Parameter(
+                constructorParameters.Add(new Parameter(
                     _rawDataField.Name.ToVariableName(),
                     FormattableStringHelpers.FromString(_privateAdditionalPropertiesPropertyDescription),
-                    _rawDataField.Type);
-
-                constructorParameters.Add(rawDataParameter);
+                    _rawDataField.Type));
             }
 
             return constructorParameters;
