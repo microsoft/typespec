@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -17,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         internal MethodBodyStatement ToStatement()
             => new InvokeInstanceMethodStatement(InstanceReference, MethodName, Arguments, CallAsAsync);
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRawIf("await ", CallAsAsync);
             if (InstanceReference != null)

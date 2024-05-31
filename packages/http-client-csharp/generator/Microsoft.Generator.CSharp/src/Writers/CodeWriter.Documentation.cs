@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed partial class CodeWriter
+    internal sealed partial class CodeWriter
     {
         public CodeWriter WriteXmlDocumentationSummary(FormattableString? text)
         {
@@ -101,12 +101,12 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriter WriteXmlDocumentationRequiredParametersException(IEnumerable<Parameter> parameters)
         {
-            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentNullException), parameters.Where(p => p.Validation is ValidationType.AssertNotNull or ValidationType.AssertNotNullOrEmpty).ToArray(), " is null.");
+            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentNullException), parameters.Where(p => p.Validation is ParameterValidationType.AssertNotNull or ParameterValidationType.AssertNotNullOrEmpty).ToArray(), " is null.");
         }
 
         public CodeWriter WriteXmlDocumentationNonEmptyParametersException(IEnumerable<Parameter> parameters)
         {
-            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentException), parameters.Where(p => p.Validation == ValidationType.AssertNotNullOrEmpty).ToArray(), " is an empty string, and was expected to be non-empty.");
+            return WriteXmlDocumentationParametersExceptions(typeof(ArgumentException), parameters.Where(p => p.Validation == ParameterValidationType.AssertNotNullOrEmpty).ToArray(), " is an empty string, and was expected to be non-empty.");
         }
 
         private CodeWriter WriteXmlDocumentationParametersExceptions(Type exceptionType, IReadOnlyCollection<Parameter> parameters, string reason)

@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp
         public FormattableString Description { get; }
         public CSharpType Type { get; init; }
         public ValueExpression? DefaultValue { get; init; }
-        public ValidationType? Validation { get; init; } = ValidationType.None;
+        public ParameterValidationType? Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
         internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
@@ -41,7 +41,7 @@ namespace Microsoft.Generator.CSharp
             Name = inputParameter.Name;
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
-            Validation = inputParameter.IsRequired ? ValidationType.AssertNotNull : ValidationType.None;
+            Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
         }
 
         public Parameter(
@@ -62,33 +62,33 @@ namespace Microsoft.Generator.CSharp
 
         internal static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();
 
-        private ValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
+        private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
         {
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (propertyType.IsValueType)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is readonly
             if (property.IsReadOnly)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is optional
             if (!property.IsRequired)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
             // or it is nullable
             if (propertyType.IsNullable)
             {
-                return ValidationType.None;
+                return ParameterValidationType.None;
             }
 
-            return ValidationType.AssertNotNull;
+            return ParameterValidationType.AssertNotNull;
         }
 
         private struct ParameterByTypeEqualityComparer : IEqualityComparer<Parameter>

@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < enums.Length; i++)
             {
                 var inputEnum = input.Enums[i];
-                var enumType = EnumTypeProvider.Create(inputEnum, null);
+                var enumType = EnumTypeProvider.Create(inputEnum);
                 enums[i] = enumType;
                 EnumMappings.Add(inputEnum, enumType);
             }
@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp
             for (int i = 0; i < models.Length; i++)
             {
                 var inputModel = input.Models[i];
-                var model = new ModelTypeProvider(inputModel, null);
+                var model = new ModelTypeProvider(inputModel);
                 models[i] = model;
                 ModelMappings.Add(inputModel, model);
             }
@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientTypeProvider(input.Clients[i], null);
+                clientProviders[i] = new ClientTypeProvider(input.Clients[i]);
             }
 
             return clientProviders;
