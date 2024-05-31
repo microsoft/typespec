@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Expression">The expression.</param>
     public sealed record SwitchCaseExpression(ValueExpression Case, ValueExpression Expression) : ValueExpression
     {
-        public static SwitchCaseExpression When(ValueExpression caseExpression, BoolSnippet condition, ValueExpression expression)
+        public static SwitchCaseExpression When(ValueExpression caseExpression, ValueExpression condition, ValueExpression expression)
         {
             return new(new SwitchCaseWhenExpression(caseExpression, condition), expression);
         }

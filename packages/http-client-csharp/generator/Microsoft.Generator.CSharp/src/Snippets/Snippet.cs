@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             var declaration = new CodeWriterDeclaration(name);
             var variableRef = new VariableReferenceSnippet(value.Type, declaration);
             variable = factory(variableRef);
-            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef, false)));
+            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
         }
     }
 }

@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             var discriminatorDeclaration = new VariableReferenceSnippet(typeof(JsonElement), "discriminator");
             discriminator = new JsonElementSnippet(discriminatorDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), new ValueExpression[] { Literal(propertyName), new DeclarationExpression(discriminatorDeclaration, true) }, null, false);
+            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration.Type, discriminatorDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
 
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             var intValueDeclaration = new VariableReferenceSnippet(typeof(int), "intValue");
             intValue = new IntSnippet(intValueDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), new ValueExpression[] { new DeclarationExpression(intValueDeclaration, true) }, null, false);
+            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration.Type, intValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             var longValueDeclaration = new VariableReferenceSnippet(typeof(long), "longValue");
             longValue = new LongSnippet(longValueDeclaration);
-            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), new ValueExpression[] { new DeclarationExpression(longValueDeclaration, true) }, null, false);
+            var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration.Type, longValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
         }
     }

@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new VariableReferenceSnippet(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new VariableReferenceSnippet(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var ifStatement = new IfStatement(condition);
 
             Assert.NotNull(ifStatement);
-            Assert.AreEqual(condition, ifStatement.Condition);
+            Assert.AreEqual(condition.Untyped, ifStatement.Condition);
             Assert.NotNull(ifStatement.Body);
         }
 
@@ -161,7 +161,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.NotNull(ifElseStatement);
             Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition, ifElseStatement.If.Condition);
+            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
             Assert.AreEqual(elseStatement, ifElseStatement.Else);
         }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.NotNull(ifElseStatement);
             Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition, ifElseStatement.If.Condition);
+            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
             Assert.AreEqual(elseStatement, ifElseStatement.Else);
         }
 
