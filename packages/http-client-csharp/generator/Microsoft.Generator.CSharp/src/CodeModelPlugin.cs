@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Writers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -34,8 +34,6 @@ namespace Microsoft.Generator.CSharp
                            ?? throw new InvalidOperationException("ApiTypes is not loaded.");
                 TypeFactory = container.GetExportedValueOrDefault<TypeFactory>()
                               ?? throw new InvalidOperationException("TypeFactory is not loaded.");
-                CodeWriterExtensionMethods = container.GetExportedValueOrDefault<CodeWriterExtensionMethods>()
-                                             ?? throw new InvalidOperationException("CodeWriterExtensionMethods is not loaded.");
                 ExtensibleSnippets = container.GetExportedValueOrDefault<ExtensibleSnippets>()
                                      ?? throw new InvalidOperationException("ExtensibleSnippets is not loaded.");
                 OutputLibrary = container.GetExportedValueOrDefault<OutputLibrary>()
@@ -53,8 +51,6 @@ namespace Microsoft.Generator.CSharp
         // Extensibility points to be implemented by a plugin
         public ApiTypes ApiTypes { get; }
 
-        public CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
-
         public TypeFactory TypeFactory { get; }
 
         public ExtensibleSnippets ExtensibleSnippets { get; }
@@ -63,6 +59,13 @@ namespace Microsoft.Generator.CSharp
 
         public InputLibrary InputLibrary => _inputLibrary.Value;
 
-        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
+
+        /// <summary>
+        /// Returns the serialization type providers for the given model type provider.
+        /// </summary>
+        /// <param name="provider">The model type provider.</param>
+        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider) => Array.Empty<TypeProvider>();
+        public virtual string LiscenseString => string.Empty;
     }
 }

@@ -16,13 +16,13 @@ namespace Microsoft.Generator.CSharp.Tests
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private TypeFactory _typeFactory;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _mocksFolder = "mocks";
+        private readonly string _mocksFolder = "Mocks";
         private FieldInfo? _mockPlugin;
 
         [SetUp]
         public void Setup()
         {
-            var mockParameter = new Parameter("mockParam", null, typeof(bool), null, ValidationType.None, null);
+            var mockParameter = new Parameter("mockParam", $"mock description", typeof(bool), null);
             var mockTypeFactory = new Mock<TypeFactory>() { };
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(bool)));
             mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
@@ -69,20 +69,29 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             get
             {
-                yield return new TestCaseData(new InputOperation
-                {
-                    HttpMethod = "GET",
-                    Name = "CreateMessage",
-                    Path = "/api/messages",
-                    RequestBodyMediaType = BodyMediaType.Json,
-                    RequestMediaTypes = new[] { "application/json" },
-                    GenerateProtocolMethod = true,
-                    GenerateConvenienceMethod = true,
-                    Parameters = new[]
-                    {
-                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputTypeKind.Boolean), RequestLocation.Body, null, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
-                    }
-                }, CSharpMethodKinds.CreateMessage);
+                yield return new TestCaseData(new InputOperation(
+                    name: "CreateMessage",
+                    resourceName: null,
+                    summary: null,
+                    deprecated: null,
+                    description: string.Empty,
+                    accessibility: null,
+                    parameters: [
+                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
+                        ],
+                    responses: Array.Empty<OperationResponse>(),
+                    httpMethod: "GET",
+                    requestBodyMediaType: BodyMediaType.Json,
+                    uri: "localhost",
+                    path: "/api/messages",
+                    externalDocsUrl: null,
+                    requestMediaTypes: null,
+                    bufferResponse: false,
+                    longRunning: null,
+                    paging: null,
+                    generateProtocolMethod: true,
+                    generateConvenienceMethod: true
+                ), CSharpMethodKinds.CreateMessage);
             }
         }
     }

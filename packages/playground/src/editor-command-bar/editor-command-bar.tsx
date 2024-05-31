@@ -1,11 +1,11 @@
 import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
 import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icons";
-import { CompilerOptions } from "@typespec/compiler";
-import { FunctionComponent, useMemo } from "react";
+import type { CompilerOptions } from "@typespec/compiler";
+import { useMemo, type FunctionComponent } from "react";
 import { EmitterDropdown } from "../react/emitter-dropdown.js";
 import { SamplesDropdown } from "../react/samples-dropdown.js";
 import { CompilerSettingsDialogButton } from "../react/settings/compiler-settings-dialog-button.js";
-import { BrowserHost, PlaygroundSample } from "../types.js";
+import type { BrowserHost, PlaygroundSample } from "../types.js";
 import style from "./editor-command-bar.module.css";
 
 export interface EditorCommandBarProps {

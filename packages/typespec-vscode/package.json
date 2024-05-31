@@ -25,7 +25,7 @@
   "type": "module",
   "main": "./dist/src/extension.cjs",
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.89.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
@@ -133,17 +133,17 @@
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-typescript": "~11.1.6",
     "@types/node": "~18.11.19",
-    "@types/vscode": "~1.88.0",
+    "@types/vscode": "~1.89.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^1.5.0",
-    "@vitest/ui": "^1.5.0",
-    "@vscode/vsce": "~2.25.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
+    "@vscode/vsce": "~2.26.1",
     "c8": "^9.1.0",
-    "rimraf": "~5.0.5",
-    "rollup": "~4.14.3",
+    "rimraf": "~5.0.7",
+    "rollup": "~4.17.2",
     "typescript": "~5.4.5",
-    "vitest": "^1.5.0",
+    "vitest": "^1.6.0",
     "vscode-languageclient": "~9.0.1"
   }
 }

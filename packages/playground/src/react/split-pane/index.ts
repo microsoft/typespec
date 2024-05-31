@@ -1,1 +1,1 @@
-export { SplitPane, SplitPaneProps } from "./split-pane.js";
+export { SplitPane, type SplitPaneProps } from "./split-pane.js";

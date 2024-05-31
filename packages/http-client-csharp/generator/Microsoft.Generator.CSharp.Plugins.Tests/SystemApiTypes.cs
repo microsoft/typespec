@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Plugin.Tests;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -14,8 +15,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// </summary>
     internal class SystemApiTypes : ApiTypes
     {
-        public override Type ChangeTrackingListType => typeof(List<>);
-        public override Type ChangeTrackingDictionaryType => typeof(Dictionary<,>);
         public override Type ResponseType => typeof(object);
         public override Type ResponseOfTType => typeof(List<>);
         public override string ResponseParameterName => "result";
@@ -24,15 +23,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override string GetRawResponseName => "GetRawResponse";
 
         public override Type HttpPipelineType => typeof(object);
-        public override Type PipelineExtensionsType => typeof(object);
         public override string HttpPipelineCreateMessageName => "CreateMessage";
 
         public override Type HttpMessageType => typeof(object);
         public override string HttpMessageResponseName => "Response";
         public override string HttpMessageResponseStatusName => "PipelineResponseStatus";
-
-        public override Type ClientDiagnosticsType => typeof(object);
-        public override string ClientDiagnosticsCreateScopeName => "TelemetrySource";
 
         public override Type ClientOptionsType => typeof(object);
 
@@ -44,8 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override Type KeyCredentialPolicyType => typeof(object);
         public override FormattableString GetHttpPipelineBearerString(string pipelineField, string optionsVariable, string credentialVariable, string scopesParamName)
             => $"{pipelineField} = {HttpPipelineBuilderType}.Build({optionsVariable}, new {BearerAuthenticationPolicyType}({credentialVariable}, {new CodeWriterDeclaration(scopesParamName)}));";
-        public override FormattableString GetHttpPipelineClassifierString(string pipelineField, string optionsVariable, FormattableString perCallPolicies, FormattableString perRetryPolicies)
-            => $"{pipelineField:I} = {typeof(object)}.name({optionsVariable:I}, {perRetryPolicies}, {perCallPolicies});";
+        public override FormattableString GetHttpPipelineClassifierString(string pipelineField, string optionsVariable, FormattableString perCallPolicies, FormattableString perRetryPolicies, FormattableString beforeTransportPolicies)
+            => $"{pipelineField:I} = {typeof(object)}.name({optionsVariable:I}, {perRetryPolicies}, {perCallPolicies}, {beforeTransportPolicies});";
 
         public override Type HttpPipelinePolicyType => typeof(object);
 
@@ -67,31 +62,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override FormattableString GetSetContentString(string requestName, string contentName)
             => $"{requestName}.Content = {contentName};";
 
-        public override Type RequestUriType => typeof(Uri);
         public override Type RequestContentType => typeof(object);
         public override string CancellationTokenName => nameof(CancellationToken);
         public override string ToRequestContentName => "ToRequestBody";
         public override string RequestContentCreateName => "Create";
 
-        public override Type IUtf8JsonSerializableType => typeof(object);
 
         public override Type IXmlSerializableType => throw new NotSupportedException("Xml serialization is not supported in non-branded libraries yet");
-        public override string IUtf8JsonSerializableWriteName => "IUtf8JsonWriteable.Write";
-
-        public override Type Utf8JsonWriterExtensionsType => typeof(object);
-        public override string Utf8JsonWriterExtensionsWriteObjectValueName => "ModelSerializationExtensions.WriteObjectValue";
-        public override string Utf8JsonWriterExtensionsWriteNumberValueName => "ModelSerializationExtensions.WriteNumberValue";
-        public override string Utf8JsonWriterExtensionsWriteStringValueName => "ModelSerializationExtensions.WriteStringValue";
-        public override string Utf8JsonWriterExtensionsWriteBase64StringValueName => "ModelSerializationExtensions.WriteBase64StringValue";
-
-        public override Type OptionalType => typeof(object);
-        public override Type OptionalPropertyType => typeof(object);
-
-        public override string OptionalIsCollectionDefinedName => "OptionalProperty.IsCollectionDefined";
-        public override string OptionalIsDefinedName => "OptionalProperty.IsDefined";
-        public override string OptionalToDictionaryName => "OptionalProperty.ToDictionary";
-        public override string OptionalToListName => "OptionalProperty.ToList";
-        public override string OptionalToNullableName => "OptionalProperty.ToNullable";
 
         public override Type RequestFailedExceptionType => typeof(object);
 
@@ -101,13 +78,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override Type StatusCodeClassifierType => typeof(object);
 
         public override ValueExpression GetCreateFromStreamSampleExpression(ValueExpression freeFormObjectExpression)
-            => new InvokeStaticMethodExpression(TestPlugin.Instance.Configuration.ApiTypes.RequestContentType, TestPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, new[] { BinaryDataExpression.FromObjectAsJson(freeFormObjectExpression).ToStream() });
+            => new InvokeStaticMethodExpression(TestPlugin.Instance.Configuration.ApiTypes.RequestContentType, TestPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, [BinaryDataSnippet.FromObjectAsJson(freeFormObjectExpression).ToStream()]);
 
         public override string EndPointSampleValue => "https://my-service.com";
 
         public override string JsonElementVariableName => "element";
 
         public override ValueExpression GetKeySampleExpression(string clientName)
-            => new InvokeStaticMethodExpression(typeof(Environment), nameof(Environment.GetEnvironmentVariable), new[] { new StringLiteralExpression($"{clientName}_KEY", false) });
+            => new InvokeStaticMethodExpression(typeof(Environment), nameof(Environment.GetEnvironmentVariable), [Snippet.Literal($"{clientName}_KEY")]);
     }
 }
