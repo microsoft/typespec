@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { EmitContext, NoTarget, listServices } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
 import { JsContext, Module, createModule, createPathCursor } from "./ctx.js";

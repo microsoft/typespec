@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { JSONSchemaType } from "@typespec/compiler";
 import { JsContext } from "./ctx.js";
 
@@ -28,10 +31,7 @@ export const JsEmitterFeatureOptionsSchema = {
 /**
  * A handler function that is called to emit a feature.
  */
-export type JsEmitterFeatureHandler<Options> = (
-  ctx: JsContext,
-  options: Options
-) => Promise<void>;
+export type JsEmitterFeatureHandler<Options> = (ctx: JsContext, options: Options) => Promise<void>;
 
 const __FEATURE_HANDLERS: Map<string, JsEmitterFeatureHandler<any>> = new Map();
 
@@ -74,8 +74,7 @@ export function getFeatureHandler<Name extends keyof JsEmitterFeature>(
 ): JsEmitterFeatureHandler<JsEmitterFeature[Name]> {
   const h = __FEATURE_HANDLERS.get(name);
 
-  if (!h)
-    throw new Error(`getFeatureHandler: feature '${name}' not registered`);
+  if (!h) throw new Error(`getFeatureHandler: feature '${name}' not registered`);
 
   return h;
 }

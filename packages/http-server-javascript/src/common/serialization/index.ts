@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Model, NoTarget, Scalar, Union } from "@typespec/compiler";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
 import { indent } from "../../util/indent.js";

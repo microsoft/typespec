@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Interface, Operation, Type, UnionVariant, isErrorModel } from "@typespec/compiler";
 import { JsContext, Module, PathCursor } from "../ctx.js";
 import { bifilter } from "../util/bifilter.js";

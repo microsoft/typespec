@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { JSONSchemaType, NoTarget } from "@typespec/compiler";
 import { HttpServer, HttpService, getHttpService, getServers } from "@typespec/http";
 import { JsContext, Module, createModule } from "../ctx.js";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { resolvePath } from "@typespec/compiler";
 import { JsContext, Module, isModule } from "./ctx.js";
 

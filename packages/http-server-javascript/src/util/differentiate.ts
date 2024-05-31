@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { LiteralType, Model, ModelProperty, Scalar, Type } from "@typespec/compiler";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext } from "../ctx.js";

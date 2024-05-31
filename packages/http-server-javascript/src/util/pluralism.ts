@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 /**
  * Provides an alternative name for anonymous TypeSpec.Array elements.
  * @param typeName

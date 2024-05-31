@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { JSONSchemaType, createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { JsEmitterFeature, JsEmitterFeatureOptionsSchema } from "./feature.js";
 

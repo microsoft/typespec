@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 /**
  * Filter and collect an iterable into two categorizations based on a predicate function.
  *

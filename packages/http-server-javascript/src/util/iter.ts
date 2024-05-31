@@ -1,9 +1,10 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 /**
  * Returns true if a value implements the ECMAScript Iterable interface.
  */
-export function isIterable(
-  value: unknown
-): value is object & Iterable<unknown> {
+export function isIterable(value: unknown): value is object & Iterable<unknown> {
   return (
     typeof value === "object" &&
     value !== null &&

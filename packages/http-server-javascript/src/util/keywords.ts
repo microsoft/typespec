@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 const KEYWORDS_CONTEXTUAL = [
   "any",
   "boolean",
@@ -76,11 +79,7 @@ const KEYWORDS_RESERVED = [
 /**
  * A set of reserved keywords that should not be used as identifiers.
  */
-export const KEYWORDS = new Set([
-  ...KEYWORDS_STRICT,
-  ...KEYWORDS_RESERVED,
-  ...KEYWORDS_CONTEXTUAL,
-]);
+export const KEYWORDS = new Set([...KEYWORDS_STRICT, ...KEYWORDS_RESERVED, ...KEYWORDS_CONTEXTUAL]);
 
 /**
  * Makes a name safe to use as an identifier by prefixing it with an underscore

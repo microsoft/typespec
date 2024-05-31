@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { ModelProperty, Type } from "@typespec/compiler";
 import {
   HttpOperation,

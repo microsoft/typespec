@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 import { Namespace, getNamespaceFullName } from "@typespec/compiler";
 import {
   DeclarationType,

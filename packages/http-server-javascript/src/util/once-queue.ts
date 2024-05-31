@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation
+// Licensed under the MIT license.
+
 /**
  * A deduplicating queue that only allows elements to be enqueued once.
  *

@@ -1,6 +1,6 @@
 # @typespec/http-server-javascript
 
-TypeSpec HTTP server code generator for JavaScript
+TypeSpec HTTP server code generator for JavaScript.
 
 ## Install
 
