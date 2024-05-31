@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed class ModelTypeProvider : TypeProvider
+    public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        public ModelTypeProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
@@ -57,23 +57,23 @@ namespace Microsoft.Generator.CSharp
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyDeclaration[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyDeclaration[propertiesCount];
+            var propertyDeclarations = new PropertyProvider[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyDeclaration(property);
+                propertyDeclarations[i] = new PropertyProvider(property);
             }
 
             return propertyDeclarations;
         }
 
-        protected override CSharpMethod[] BuildConstructors()
+        protected override MethodProvider[] BuildConstructors()
         {
-            List<CSharpMethod> constructors = new List<CSharpMethod>();
+            List<MethodProvider> constructors = new List<MethodProvider>();
 
             var initializationConstructor = BuildInitializationConstructor();
             if (initializationConstructor != null)
@@ -134,7 +134,7 @@ namespace Microsoft.Generator.CSharp
             return constructorParameters;
         }
 
-        private CSharpMethod? BuildInitializationConstructor()
+        private MethodProvider? BuildInitializationConstructor()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
@@ -148,7 +148,7 @@ namespace Microsoft.Generator.CSharp
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters(false);
 
-            var constructor = new CSharpMethod(
+            var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -165,11 +165,11 @@ namespace Microsoft.Generator.CSharp
             return constructor;
         }
 
-        private CSharpMethod BuildSerializationConstructor()
+        private MethodProvider BuildSerializationConstructor()
         {
             var constructorParameters = BuildConstructorParameters(true);
 
-            return new CSharpMethod(
+            return new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -224,10 +224,10 @@ namespace Microsoft.Generator.CSharp
             return methodBodyStatements;
         }
 
-        private CSharpMethod BuildEmptyConstructor()
+        private MethodProvider BuildEmptyConstructor()
         {
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
-            return new CSharpMethod(
+            return new MethodProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
                 bodyStatements: new MethodBodyStatement(),
                 kind: CSharpMethodKinds.Constructor);

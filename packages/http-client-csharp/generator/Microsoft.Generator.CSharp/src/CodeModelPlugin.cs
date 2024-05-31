@@ -43,6 +43,6 @@ namespace Microsoft.Generator.CSharp
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
+        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider);
     }
 }

@@ -585,7 +585,7 @@ namespace Microsoft.Generator.CSharp
 
                 return literalType;
             }
-            else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
+            else if (type is { IsFrameworkType: false, Implementation: EnumProvider enumType })
             {
                 var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
                 {

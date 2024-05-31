@@ -11,10 +11,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     {
         internal class SystemModelSnippets : ModelSnippets
         {
-            public override CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
+            public override MethodProvider BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
             {
                 var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse));
-                return new CSharpMethod
+                return new MethodProvider
                 (
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]

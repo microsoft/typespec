@@ -207,7 +207,7 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteMethod(CSharpMethod method)
+        public void WriteMethod(MethodProvider method)
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
@@ -233,7 +233,7 @@ namespace Microsoft.Generator.CSharp
             WriteLine();
         }
 
-        public void WriteProperty(PropertyDeclaration property)
+        public void WriteProperty(PropertyProvider property)
         {
             if (!CurrentLine.IsEmpty)
             {
@@ -393,7 +393,7 @@ namespace Microsoft.Generator.CSharp
             AppendRaw(",");
         }
 
-        public CodeWriter WriteField(FieldDeclaration field)
+        public CodeWriter WriteField(FieldProvider field)
         {
             if (!CurrentLine.IsEmpty)
             {

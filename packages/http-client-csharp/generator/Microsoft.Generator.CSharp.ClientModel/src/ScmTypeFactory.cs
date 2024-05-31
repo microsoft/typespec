@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
+                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
                 : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),

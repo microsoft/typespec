@@ -17,9 +17,9 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     internal class FixedEnumSerializationProvider : TypeProvider
     {
-        private readonly EnumTypeProvider _enumType;
+        private readonly EnumProvider _enumType;
 
-        public FixedEnumSerializationProvider(EnumTypeProvider enumType)
+        public FixedEnumSerializationProvider(EnumProvider enumType)
         {
             Debug.Assert(!enumType.IsExtensible);
 
@@ -48,9 +48,9 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>();
+            var methods = new List<MethodProvider>();
             // serialization method (in some cases we do not need serialization)
             if (NeedsSerializationMethod())
             {

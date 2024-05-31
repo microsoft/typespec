@@ -270,9 +270,9 @@ L16";
         [Test]
         public void CodeWriter_WriteField()
         {
-            var field1 = new FieldDeclaration($"To test int", FieldModifiers.Private, typeof(int), "_intConst");
-            var field2 = new FieldDeclaration($"To test string", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "_stringValue");
-            var field3 = new FieldDeclaration($"To test a field with initialization value", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "withValue")
+            var field1 = new FieldProvider($"To test int", FieldModifiers.Private, typeof(int), "_intConst");
+            var field2 = new FieldProvider($"To test string", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "_stringValue");
+            var field3 = new FieldProvider($"To test a field with initialization value", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "withValue")
             {
                 InitializationValue = Literal("abc")
             };
@@ -302,10 +302,10 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_AutoBody()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new AutoPropertyBody(false));
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new AutoPropertyBody(true, MethodSignatureModifiers.None));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
-            var property4 = new PropertyDeclaration($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
+            var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new AutoPropertyBody(false));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new AutoPropertyBody(true, MethodSignatureModifiers.None));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
+            var property4 = new PropertyProvider($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -335,9 +335,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_AutoBody_WithExplicitInterface()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new AutoPropertyBody(false), explicitInterface: typeof(IList<string>));
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new AutoPropertyBody(true, MethodSignatureModifiers.None), explicitInterface: typeof(IList<string>));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
+            var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new AutoPropertyBody(false), explicitInterface: typeof(IList<string>));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new AutoPropertyBody(true, MethodSignatureModifiers.None), explicitInterface: typeof(IList<string>));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -365,8 +365,8 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_ExpressionBody()
         {
-            var property1 = new PropertyDeclaration($"To test an expression property with string type", MethodSignatureModifiers.Public, typeof(string), "Property1", new ExpressionPropertyBody(Literal("abc")));
-            var property2 = new PropertyDeclaration($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), "Property2", new ExpressionPropertyBody(Literal(299792458)));
+            var property1 = new PropertyProvider($"To test an expression property with string type", MethodSignatureModifiers.Public, typeof(string), "Property1", new ExpressionPropertyBody(Literal("abc")));
+            var property2 = new PropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), "Property2", new ExpressionPropertyBody(Literal(299792458)));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -390,7 +390,7 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_ExpressionBody_WithExplicitInterface()
         {
-            var property1 = new PropertyDeclaration($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new ExpressionPropertyBody(Literal(299792458)), explicitInterface: typeof(IList<string>));
+            var property1 = new PropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new ExpressionPropertyBody(Literal(299792458)), explicitInterface: typeof(IList<string>));
 
             var codeWriter = new CodeWriter();
             codeWriter.Append($"// test comment");
@@ -412,9 +412,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_MethodPropertyBody()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new MethodPropertyBody(Return(Literal("abc"))));
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property2"), new KeywordExpression("value", null))));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal));
+            var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new MethodPropertyBody(Return(Literal("abc"))));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property2"), new KeywordExpression("value", null))));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -467,9 +467,9 @@ L16";
         [Test]
         public void CodeWriter_WriteProperty_MethodPropertyBody_WithExplicitInterface()
         {
-            var property1 = new PropertyDeclaration($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new MethodPropertyBody(Return(Literal(299792458))), explicitInterface: typeof(IList<string>));
-            var property2 = new PropertyDeclaration($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new MethodPropertyBody(Return(True), Assign(This.Property($"{nameof(IList<string>.IsReadOnly)}"), new KeywordExpression("value", null))), explicitInterface: typeof(IList<string>));
-            var property3 = new PropertyDeclaration($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), Assign(This.Property($"{nameof(IReadOnlyList<string>.Count)}"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
+            var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new MethodPropertyBody(Return(Literal(299792458))), explicitInterface: typeof(IList<string>));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new MethodPropertyBody(Return(True), Assign(This.Property($"{nameof(IList<string>.IsReadOnly)}"), new KeywordExpression("value", null))), explicitInterface: typeof(IList<string>));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), Assign(This.Property($"{nameof(IReadOnlyList<string>.Count)}"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);

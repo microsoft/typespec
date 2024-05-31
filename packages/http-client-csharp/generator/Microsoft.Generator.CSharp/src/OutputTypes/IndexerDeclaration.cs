@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp
 {
-    internal class IndexerDeclaration : PropertyDeclaration
+    internal class IndexerDeclaration : PropertyProvider
     {
         public Parameter IndexerParameter { get; }
         public IndexerDeclaration(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, Parameter indexerParameter, PropertyBody propertyBody, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)

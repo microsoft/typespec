@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Snippets;
 namespace Microsoft.Generator.CSharp
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public class PropertyDeclaration
+    public class PropertyProvider
     {
         public FormattableString Description { get; }
         public MethodSignatureModifiers Modifiers { get; }
@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp
         public PropertyBody Body { get; }
         public IReadOnlyDictionary<CSharpType, FormattableString>? Exceptions { get; }
         public CSharpType? ExplicitInterface { get; }
-        public PropertyDeclaration(InputModelProperty inputProperty)
+        public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
         }
 
-        public PropertyDeclaration(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
+        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             Modifiers = modifiers;

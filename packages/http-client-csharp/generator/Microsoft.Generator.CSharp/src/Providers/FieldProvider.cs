@@ -6,7 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record FieldDeclaration(FormattableString? Description, FieldModifiers Modifiers, CSharpType Type, string Name, ValueExpression? InitializationValue)
+    public sealed record FieldProvider(FormattableString? Description, FieldModifiers Modifiers, CSharpType Type, string Name, ValueExpression? InitializationValue)
     {
         public string Accessibility => (Modifiers & FieldModifiers.Public) > 0 ? "public" : "internal";
 
@@ -14,14 +14,14 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
-        public FieldDeclaration(FieldModifiers modifiers, CSharpType type, string name)
+        public FieldProvider(FieldModifiers modifiers, CSharpType type, string name)
             : this(description: null,
                   modifiers: modifiers,
                   type: type,
                   name: name)
         { }
 
-        public FieldDeclaration(FormattableString? description, FieldModifiers modifiers, CSharpType type, string name)
+        public FieldProvider(FormattableString? description, FieldModifiers modifiers, CSharpType type, string name)
             : this(Description: description,
                   Modifiers: modifiers,
                   Type: type,

@@ -18,8 +18,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(Parameter parameter) => new ParameterReferenceSnippet(parameter);
-        public static implicit operator ValueExpression(FieldDeclaration field) => new MemberExpression(null, field.Name);
-        public static implicit operator ValueExpression(PropertyDeclaration property) => new MemberExpression(null, property.Name);
+        public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
+        public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));

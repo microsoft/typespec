@@ -14,12 +14,12 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class ExtensibleEnumTypeProvider : EnumTypeProvider
+    public class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
-        protected internal ExtensibleEnumTypeProvider(InputEnumType input): base(input)
+        protected internal ExtensibleEnumProvider(InputEnumType input): base(input)
         {
             _allowedValues = input.AllowedValues;
 
@@ -30,10 +30,10 @@ namespace Microsoft.Generator.CSharp
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
+            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
         }
 
-        private readonly FieldDeclaration _valueField;
+        private readonly FieldProvider _valueField;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
-                var field = new FieldDeclaration(
+                var field = new FieldProvider(
                     Description: FormattableStringHelpers.FromString(inputValue.Description),
                     Modifiers: modifiers,
                     Type: ValueType,
@@ -67,12 +67,12 @@ namespace Microsoft.Generator.CSharp
         protected override CSharpType[] BuildImplements()
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
-        protected override FieldDeclaration[] BuildFields()
+        protected override FieldProvider[] BuildFields()
             => [_valueField, .. Members.Select(v => v.Field)];
 
-        protected override PropertyDeclaration[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
-            var properties = new PropertyDeclaration[Members.Count];
+            var properties = new PropertyProvider[Members.Count];
 
             var index = 0;
             foreach (var enumValue in Members)
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp
                 var name = enumValue.Name;
                 var value = enumValue.Value;
                 var field = enumValue.Field;
-                properties[index++] = new PropertyDeclaration(
+                properties[index++] = new PropertyProvider(
                     description: field.Description,
                     modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                     type: Type,
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp
             return properties;
         }
 
-        protected override CSharpMethod[] BuildConstructors()
+        protected override MethodProvider[] BuildConstructors()
         {
             var validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull;
             var valueParameter = new Parameter("value", $"The value.", ValueType)
@@ -112,12 +112,12 @@ namespace Microsoft.Generator.CSharp
                 Assign(valueField, valueParameter)
             };
 
-            return [new CSharpMethod(signature, body, CSharpMethodKinds.Constructor)];
+            return [new MethodProvider(signature, body, CSharpMethodKinds.Constructor)];
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>();
+            var methods = new List<MethodProvider>();
 
             var leftParameter = new Parameter("left", $"The left value to compare.", Type);
             var rightParameter = new Parameter("right", $"The right value to compare.", Type);

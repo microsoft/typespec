@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
-        private static CSharpMethod ConstructMockMethod()
+        private static MethodProvider ConstructMockMethod()
         {
             // create method signature
             var methodName = "TestMethod";
@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new KeywordStatement("return", responseVar)
             };
 
-            var method = new CSharpMethod
+            var method = new MethodProvider
             (
                 new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
                 resultStatements,

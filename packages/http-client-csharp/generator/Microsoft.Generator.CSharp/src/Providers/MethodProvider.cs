@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class CSharpMethod
+    public sealed class MethodProvider
     {
         /// <summary>
         /// The kind of method of type <see cref="CSharpMethodKinds"/>.
@@ -20,12 +20,12 @@ namespace Microsoft.Generator.CSharp
         public ValueExpression? BodyExpression { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body statement and method signature.
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body statement and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
-        public CSharpMethod(MethodSignatureBase signature, MethodBodyStatement bodyStatements, CSharpMethodKinds? kind = null)
+        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements, CSharpMethodKinds? kind = null)
         {
             Signature = signature;
             BodyStatements = bodyStatements;
@@ -33,12 +33,12 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CSharpMethod"/> class with a body expression and method signature.
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with a body expression and method signature.
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="kind">The method kind <see cref="CSharpMethodKinds"/>.</param>
-        public CSharpMethod(MethodSignatureBase signature, ValueExpression bodyExpression, CSharpMethodKinds? kind = null)
+        public MethodProvider(MethodSignatureBase signature, ValueExpression bodyExpression, CSharpMethodKinds? kind = null)
         {
             Signature = signature;
             BodyExpression = bodyExpression;

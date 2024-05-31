@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public abstract class ModelSnippets
         {
-            public abstract CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers);
+            public abstract MethodProvider BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers);
         }
     }
 }
