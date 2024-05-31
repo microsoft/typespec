@@ -6,10 +6,11 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -32,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly FieldDeclaration? _rawDataField;
         private readonly bool _isStruct;
 
-        public MrwSerializationTypeProvider(ModelTypeProvider model, InputModelType inputModel) : base(null)
+        public MrwSerializationTypeProvider(ModelTypeProvider model, InputModelType inputModel)
         {
             _model = model;
             _inputModel = inputModel;
@@ -174,7 +175,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Add body for json properties' serialization https://github.com/microsoft/typespec/issues/3330
-              EmptyStatement
+              Snippet.EmptyStatement
             );
         }
 
@@ -190,7 +191,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
         }
 
@@ -205,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-                Return(new NewInstanceExpression(returnType, new ValueExpression[] { new StringLiteralExpression(_iPersistableModelTInterface.Name, false) }))
+                Snippet.Return(new NewInstanceExpression(returnType, [Snippet.Literal(_iPersistableModelTInterface.Name)]))
             );
         }
 
@@ -221,7 +222,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
             );
         }
 
@@ -268,12 +269,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReference(param)));
+                    methodBodyStatements.Add(Snippet.Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReferenceSnippet(param)));
                     continue;
                 }
 
-                ValueExpression initializationValue = new ParameterReference(param);
-                var initializationStatement = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
+                ValueExpression initializationValue = new ParameterReferenceSnippet(param);
+                var initializationStatement = Snippet.Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
                 if (initializationStatement != null)
                 {
                     methodBodyStatements.Add(initializationStatement);
@@ -297,7 +298,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 var parameter = new Parameter(property)
                 {
-                    Validation = ValidationType.None,
+                    Validation = ParameterValidationType.None,
                 };
                 constructorParameters.Add(parameter);
 

@@ -22,20 +22,11 @@ namespace Microsoft.Generator.CSharp.Expressions
             Args = args;
         }
 
-        public FormattableStringExpression(string format, params ValueExpression[] args) : this(format, args as IReadOnlyList<ValueExpression>)
-        {
-        }
 
-        public string Format { get; init; }
-        public IReadOnlyList<ValueExpression> Args { get; init; }
+        private string Format { get; init; }
+        private IReadOnlyList<ValueExpression> Args { get; init; }
 
-        public void Deconstruct(out string format, out IReadOnlyList<ValueExpression> args)
-        {
-            format = Format;
-            args = Args;
-        }
-
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("$\"");
             var argumentCount = 0;
@@ -47,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Expressions
                     continue;
                 }
 
-                var arg = Args[argumentCount];
+                var arg = Args![argumentCount];
                 argumentCount++;
                 // append the argument
                 writer.AppendRaw("{");

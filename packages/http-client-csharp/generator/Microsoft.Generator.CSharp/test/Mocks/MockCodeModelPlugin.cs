@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -20,10 +20,10 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         public override ApiTypes ApiTypes => throw new NotImplementedException();
-        public override CodeWriterExtensionMethods CodeWriterExtensionMethods => new CustomCodeWriterExtensionMethods();
-        public override TypeFactory TypeFactory => throw new NotImplementedException();
+        public override TypeFactory TypeFactory => new MockTypeFactory();
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
         public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider, InputModelType inputModel) => throw new NotImplementedException();
+        public override string LiscenseString => "// License string";
     }
 }

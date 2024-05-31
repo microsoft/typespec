@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Index">The index of the element in the array.</param>
     public sealed record ArrayElementExpression(ValueExpression Array, ValueExpression Index) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             Array.Write(writer);
             writer.AppendRaw("[");

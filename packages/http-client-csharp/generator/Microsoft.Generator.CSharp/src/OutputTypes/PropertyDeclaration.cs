@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -82,11 +83,11 @@ namespace Microsoft.Generator.CSharp
             {
                 if (!propertyType.IsNullable)
                 {
-                    return Snippets.Literal(propertyType.Literal);
+                    return Snippet.Literal(propertyType.Literal);
                 }
                 else
                 {
-                    return Snippets.DefaultOf(propertyType);
+                    return Snippet.DefaultOf(propertyType);
                 }
             }
 

@@ -10,12 +10,12 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class EnumTypeProvider : TypeProvider
     {
-        public static EnumTypeProvider Create(InputEnumType input, SourceInputModel? sourceInputModel)
+        public static EnumTypeProvider Create(InputEnumType input)
             => input.IsExtensible
-            ? new ExtensibleEnumTypeProvider(input, sourceInputModel)
-            : new FixedEnumTypeProvider(input, sourceInputModel);
+            ? new ExtensibleEnumTypeProvider(input)
+            : new FixedEnumTypeProvider(input);
 
-        protected EnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(sourceInputModel)
+        protected EnumTypeProvider(InputEnumType input)
         {
             _deprecated = input.Deprecated;
 
