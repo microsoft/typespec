@@ -229,7 +229,7 @@ export function getUsages(
         if (!isInputLiteralType(type)) continue;
         // now type should be a literal type
         // find its corresponding enum type
-        const literalValueType = type.LiteralValueType;
+        const literalValueType = type.ValueType;
         if (!isInputEnumType(literalValueType)) continue;
         // now literalValueType should be an enum type
         // apply the usage on this model to the usagesMap

@@ -5,13 +5,13 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(string name, InputType literalValueType, object value, bool isNullable) : base(name, isNullable)
+        public InputLiteralType(InputType valueType, object value, bool isNullable) : base("Literal", isNullable)
         {
-            LiteralValueType = literalValueType;
+            ValueType = valueType;
             Value = value;
         }
 
-        public InputType LiteralValueType { get; }
+        public InputType ValueType { get; }
         public object Value { get; }
     }
 }
