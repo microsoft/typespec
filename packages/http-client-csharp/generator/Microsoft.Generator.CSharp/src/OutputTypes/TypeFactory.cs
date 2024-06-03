@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType PageResponseType();
 
         /// <summary>
-        /// The type of the implementation type of list properties. The type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>
+        /// The type that represents the implementation of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.
         /// </summary>
         public virtual CSharpType ListImplementationType => ChangeTrackingListProvider.Instance.Type;
 
