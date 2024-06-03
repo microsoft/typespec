@@ -1,6 +1,6 @@
 // cspell:ignore bfff
-import { repo } from "../scripts/common.js";
 import { defineConfig, defineLabels } from "../scripts/labels/config.js";
+import { repo } from "../scripts/utils/common.js";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.

@@ -32,6 +32,9 @@ importers:
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
+      '@types/micromatch':
+        specifier: ^4.0.7
+        version: 4.0.7
       '@types/node':
         specifier: ~18.11.19
         version: 18.11.19
@@ -62,6 +65,9 @@ importers:
       eslint-plugin-vitest:
         specifier: ^0.5.4
         version: 0.5.4(eslint@8.57.0)(typescript@5.4.5)(vitest@1.6.0)
+      micromatch:
+        specifier: ^4.0.5
+        version: 4.0.5
       picocolors:
         specifier: ~1.0.1
         version: 1.0.1
