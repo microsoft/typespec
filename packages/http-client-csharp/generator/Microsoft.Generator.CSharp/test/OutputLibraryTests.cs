@@ -4,6 +4,7 @@
 using System;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {

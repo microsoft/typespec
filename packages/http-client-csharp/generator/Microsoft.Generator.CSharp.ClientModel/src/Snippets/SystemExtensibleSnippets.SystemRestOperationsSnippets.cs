@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 

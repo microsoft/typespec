@@ -7,11 +7,10 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public sealed class ModelProvider : TypeProvider
     {
@@ -83,7 +82,7 @@ namespace Microsoft.Generator.CSharp
 
             var serializationConstructor = BuildSerializationConstructor();
             bool serializationParametersMatchInitialization = initializationConstructor != null &&
-                initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
+                initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, ParameterProvider.EqualityComparerByType);
 
             if (!serializationParametersMatchInitialization)
             {
@@ -99,9 +98,9 @@ namespace Microsoft.Generator.CSharp
             return constructors.ToArray();
         }
 
-        private IReadOnlyList<Parameter> BuildConstructorParameters(bool isSerializationConstructor)
+        private IReadOnlyList<ParameterProvider> BuildConstructorParameters(bool isSerializationConstructor)
         {
-            List<Parameter> constructorParameters = new List<Parameter>();
+            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
             foreach (var property in _inputModel.Properties)
             {
@@ -109,7 +108,7 @@ namespace Microsoft.Generator.CSharp
                 // All properties should be included in the serialization ctor
                 if (isSerializationConstructor)
                 {
-                    constructorParameters.Add(new Parameter(property)
+                    constructorParameters.Add(new ParameterProvider(property)
                     {
                         Validation = ParameterValidationType.None,
                     });
@@ -122,7 +121,7 @@ namespace Microsoft.Generator.CSharp
                     {
                         if (!property.IsReadOnly)
                         {
-                            constructorParameters.Add(new Parameter(property)
+                            constructorParameters.Add(new ParameterProvider(property)
                             {
                                 Type = propertyType.InputType,
                             });
@@ -184,11 +183,11 @@ namespace Microsoft.Generator.CSharp
                 kind: CSharpMethodKinds.Constructor);
         }
 
-        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
+        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
-            Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
+            Dictionary<string, ParameterProvider> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
 
@@ -228,7 +227,7 @@ namespace Microsoft.Generator.CSharp
         {
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new MethodProvider(
-                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
+                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<ParameterProvider>()),
                 bodyStatements: new MethodBodyStatement(),
                 kind: CSharpMethodKinds.Constructor);
         }

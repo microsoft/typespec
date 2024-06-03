@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp
@@ -47,7 +48,7 @@ namespace Microsoft.Generator.CSharp
         private static MethodProvider BuildCreateMessageMethod(InputOperation operation)
         {
             // TO-DO: properly build method https://github.com/Azure/autorest.csharp/issues/4583
-            List<Parameter> methodParameters = new();
+            List<ParameterProvider> methodParameters = new();
             foreach (var inputParam in operation.Parameters)
             {
               methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));

@@ -4,7 +4,7 @@
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.

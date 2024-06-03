@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -16,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     /// </summary>
     internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
-        private readonly Parameter SerializationOptionsParameter =
+        private readonly ParameterProvider SerializationOptionsParameter =
             new("options", $"The client options.", typeof(ModelReaderWriterOptions));
         private readonly CSharpType _iJsonModelTInterface;
         private readonly CSharpType? _iJsonModelObjectInterface;
@@ -86,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal MethodProvider BuildJsonModelWriteMethod()
         {
-            Parameter utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
+            ParameterProvider utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new MethodProvider
             (
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal MethodProvider BuildJsonModelCreateMethod()
         {
-            Parameter utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
+            ParameterProvider utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iJsonModelTInterface);
             return new MethodProvider
@@ -132,7 +133,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         internal MethodProvider BuildIModelCreateMethod()
         {
-            Parameter dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
+            ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options)
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new MethodProvider

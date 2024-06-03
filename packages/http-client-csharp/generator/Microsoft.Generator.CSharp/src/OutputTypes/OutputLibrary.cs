@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {

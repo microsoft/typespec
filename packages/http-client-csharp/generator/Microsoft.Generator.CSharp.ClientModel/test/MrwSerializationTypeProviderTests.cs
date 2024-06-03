@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using NUnit.Framework;
 using System;

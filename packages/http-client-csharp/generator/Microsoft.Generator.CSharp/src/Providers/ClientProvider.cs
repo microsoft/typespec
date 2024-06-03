@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.SourceInput;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public sealed class ClientProvider : TypeProvider
     {

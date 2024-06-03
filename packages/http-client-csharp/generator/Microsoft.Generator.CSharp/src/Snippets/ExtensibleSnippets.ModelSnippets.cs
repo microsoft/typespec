@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Providers;
+
 namespace Microsoft.Generator.CSharp.Snippets
 {
     public abstract partial class ExtensibleSnippets

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {

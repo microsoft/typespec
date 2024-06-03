@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class FixedEnumProvider : EnumProvider
     {

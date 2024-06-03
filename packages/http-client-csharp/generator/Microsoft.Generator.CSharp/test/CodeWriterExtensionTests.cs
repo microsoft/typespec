@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Moq;
@@ -113,9 +114,9 @@ namespace Microsoft.Generator.CSharp.Tests
             FormattableString returnDescription = $"Sample return description for {methodName}";
             var methodSignatureModifiers = MethodSignatureModifiers.Public;
             var returnType = new CSharpType(typeof(BinaryData));
-            var parameters = new List<Parameter>()
+            var parameters = new List<ParameterProvider>()
             {
-                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
+                new ParameterProvider("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
             };
 
             var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");

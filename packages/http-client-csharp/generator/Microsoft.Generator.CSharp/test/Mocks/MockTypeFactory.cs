@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -13,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override Parameter CreateCSharpParam(InputParameter parameter)
+        public override ParameterProvider CreateCSharpParam(InputParameter parameter)
         {
             throw new NotImplementedException();
         }

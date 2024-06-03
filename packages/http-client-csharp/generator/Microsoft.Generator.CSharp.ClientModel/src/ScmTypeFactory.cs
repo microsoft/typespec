@@ -7,10 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.Generator.CSharp.Input;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Security.AccessControl;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -68,9 +65,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _ => throw new Exception("Unknown type")
         };
 
-        public override Parameter CreateCSharpParam(InputParameter inputParameter)
+        public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {
-            return new Parameter(inputParameter);
+            return new ParameterProvider(inputParameter);
         }
 
         /// <summary>

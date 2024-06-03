@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class EnumProvider : TypeProvider
     {

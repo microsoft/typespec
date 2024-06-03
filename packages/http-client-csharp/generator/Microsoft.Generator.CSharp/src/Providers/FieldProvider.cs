@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public sealed class FieldProvider
     {

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {

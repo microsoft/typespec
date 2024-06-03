@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
