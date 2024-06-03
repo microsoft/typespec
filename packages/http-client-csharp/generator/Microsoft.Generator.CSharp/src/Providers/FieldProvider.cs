@@ -6,27 +6,30 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed record FieldProvider(FormattableString? Description, FieldModifiers Modifiers, CSharpType Type, string Name, ValueExpression? InitializationValue)
+    public sealed class FieldProvider
     {
-        public string Accessibility => (Modifiers & FieldModifiers.Public) > 0 ? "public" : "internal";
+        public FormattableString? Description { get; }
+        public FieldModifiers Modifiers { get; }
+        public CSharpType Type { get; }
+        public string Name { get; }
+        public ValueExpression? InitializationValue { get; }
 
         private CodeWriterDeclaration? _declaration;
 
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
-        public FieldProvider(FieldModifiers modifiers, CSharpType type, string name)
-            : this(description: null,
-                  modifiers: modifiers,
-                  type: type,
-                  name: name)
-        { }
-
-        public FieldProvider(FormattableString? description, FieldModifiers modifiers, CSharpType type, string name)
-            : this(Description: description,
-                  Modifiers: modifiers,
-                  Type: type,
-                  Name: name,
-                  InitializationValue: null)
-        { }
+        public FieldProvider(
+            FieldModifiers modifiers,
+            CSharpType type,
+            string name,
+            FormattableString? description = null,
+            ValueExpression? initializationValue = null)
+        {
+            Modifiers = modifiers;
+            Type = type;
+            Name = name;
+            Description = description;
+            InitializationValue = initializationValue;
+        }
     }
 }

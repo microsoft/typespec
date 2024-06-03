@@ -270,12 +270,9 @@ L16";
         [Test]
         public void CodeWriter_WriteField()
         {
-            var field1 = new FieldProvider($"To test int", FieldModifiers.Private, typeof(int), "_intConst");
-            var field2 = new FieldProvider($"To test string", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "_stringValue");
-            var field3 = new FieldProvider($"To test a field with initialization value", FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "withValue")
-            {
-                InitializationValue = Literal("abc")
-            };
+            var field1 = new FieldProvider(FieldModifiers.Private, typeof(int), "_intConst", $"To test int");
+            var field2 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "_stringValue", $"To test string");
+            var field3 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "withValue", $"To test a field with initialization value", Literal("abc"));
 
             var codeWriter = new CodeWriter();
             codeWriter.WriteField(field1);
