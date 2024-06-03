@@ -1,10 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed record DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<Parameter> Parameters, CSharpType ReturnType, ValueExpression? BodyExpression, MethodBodyStatement? BodyStatement) : MethodBodyStatement
     {
@@ -14,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<Parameter> Parameters, CSharpType ReturnType, ValueExpression BodyExpression)
             : this(Name, Parameters, ReturnType, BodyExpression, null) { }
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.Append($"{ReturnType} {Name:D}(");
             foreach (var parameter in Parameters)

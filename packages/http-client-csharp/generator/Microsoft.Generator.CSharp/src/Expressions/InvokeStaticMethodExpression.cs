@@ -1,13 +1,17 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record InvokeStaticMethodExpression(CSharpType? MethodType, string MethodName, IReadOnlyList<ValueExpression> Arguments, IReadOnlyList<CSharpType>? TypeArguments = null, bool CallAsExtension = false, bool CallAsAsync = false) : ValueExpression
     {
+        public InvokeStaticMethodExpression(CSharpType? methodType, string methodName, ValueExpression arg, IReadOnlyList<CSharpType>? typeArguments = null, bool callAsExtension = false, bool callAsAsync = false)
+            : this(methodType, methodName, [arg], typeArguments, callAsExtension, callAsAsync) { }
+
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference) => new(methodType, methodName, new[] { instanceReference }, CallAsExtension: true);
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, ValueExpression arg) => new(methodType, methodName, new[] { instanceReference, arg }, CallAsExtension: true);
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, IReadOnlyList<ValueExpression> arguments)
@@ -16,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public MethodBodyStatement ToStatement()
             => new InvokeStaticMethodStatement(MethodType, MethodName, Arguments, TypeArguments, CallAsExtension, CallAsAsync);
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             if (CallAsExtension)
             {

@@ -10,19 +10,19 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class EnumTypeProvider : TypeProvider
     {
-        public static EnumTypeProvider Create(InputEnumType input, SourceInputModel? sourceInputModel)
+        public static EnumTypeProvider Create(InputEnumType input)
             => input.IsExtensible
-            ? new ExtensibleEnumTypeProvider(input, sourceInputModel)
-            : new FixedEnumTypeProvider(input, sourceInputModel);
+            ? new ExtensibleEnumTypeProvider(input)
+            : new FixedEnumTypeProvider(input);
 
-        protected EnumTypeProvider(InputEnumType input, SourceInputModel? sourceInputModel) : base(sourceInputModel)
+        protected EnumTypeProvider(InputEnumType input)
         {
             _deprecated = input.Deprecated;
 
             IsExtensible = input.IsExtensible;
             Name = input.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.EnumValueType);
+            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));

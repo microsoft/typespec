@@ -1,12 +1,13 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp.Expressions
+namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, BoolExpression? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, ValueExpression? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
@@ -15,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public IEnumerator<MethodBodyStatement> GetEnumerator() => _body.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_body).GetEnumerator();
 
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             using (writer.AmbientScope())
             {
