@@ -143,7 +143,7 @@ describe("resolving part payload", () => {
     `);
 
     strictEqual(op.parameters.parameters.length, 2);
-    strictEqual(op.parameters.parameters[0].name, "content-type");
+    strictEqual(op.parameters.parameters[0].name, "Content-Type");
     strictEqual(op.parameters.parameters[1].name, "operation-header");
 
     const body = op.parameters.body;
