@@ -34,6 +34,8 @@ namespace Microsoft.Generator.CSharp
         /// </returns>
         public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation);
 
+        public virtual TypeProvider CreateModel(InputModelType inputModelType) => new ModelTypeProvider(inputModelType, null);
+
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
         /// </summary>
