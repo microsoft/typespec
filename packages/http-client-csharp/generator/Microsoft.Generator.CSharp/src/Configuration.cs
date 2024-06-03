@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp
                 : JsonDocument.Parse(json).RootElement;
 
             return new Configuration(
-                outputPath.Equals(string.Empty) ? outputPath :Path.GetFullPath(outputPath),
+                outputPath.Equals(string.Empty) ? outputPath : Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
                 ReadOption(root, Options.GenerateModelFactory),

@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.Plugins.Tests", "TestProjects\Plugins\TestProjects.Plugins.Tests.csproj", "{EBF88882-6367-469D-B768-28643831B410}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.ClientModel.Tests", "Microsoft.Generator.CSharp.ClientModel\test\Microsoft.Generator.CSharp.ClientModel.Tests.csproj", "{D30EC838-B0A0-44CD-A361-239FF256A176}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input.Tests.Perf", "Microsoft.Generator.CSharp.Input\perf\Microsoft.Generator.CSharp.Input.Tests.Perf.csproj", "{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{EBF88882-6367-469D-B768-28643831B410}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBF88882-6367-469D-B768-28643831B410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBF88882-6367-469D-B768-28643831B410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D30EC838-B0A0-44CD-A361-239FF256A176}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D30EC838-B0A0-44CD-A361-239FF256A176}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D30EC838-B0A0-44CD-A361-239FF256A176}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D30EC838-B0A0-44CD-A361-239FF256A176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

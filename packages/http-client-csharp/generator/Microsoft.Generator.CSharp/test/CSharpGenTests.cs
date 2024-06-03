@@ -4,17 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Expressions.ExtensibleSnippets;
+using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     public class CSharpGenTests
     {
-        private readonly string _mocksFolder = "./mocks";
+        private readonly string _mocksFolder = "./Mocks";
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()
@@ -71,8 +71,6 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
-            mockApiTypes.SetupGet(p => p.ChangeTrackingListType).Returns(typeof(IList<>));
-            mockApiTypes.SetupGet(p => p.ChangeTrackingDictionaryType).Returns(typeof(IDictionary<string, string>));
             mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
             mockPlugin.SetupGet(p => p.ApiTypes).Returns(mockApiTypes.Object);
             mockPlugin.SetupGet(p => p.ExtensibleSnippets).Returns(mockExtensibleSnippets.Object);

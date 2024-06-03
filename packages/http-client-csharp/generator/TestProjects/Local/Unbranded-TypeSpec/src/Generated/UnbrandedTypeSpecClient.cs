@@ -3,12 +3,12 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     public partial class UnbrandedTypeSpecClient
     {
-        // Add Methods
         /// <summary> Return hi. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="headParameter"></param>
@@ -120,22 +120,12 @@ namespace UnbrandedTypeSpec.Models
         {
         }
 
+        /// <summary> addTimeHeader. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="accept"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateAddTimeHeaderRequest(System.Uri unbrandedTypeSpecUrl, DateTimeOffset repeatabilityFirstSent, string accept)
-        {
-        }
-
-        /// <summary> parameter has string format. </summary>
-        /// <param name="unbrandedTypeSpecUrl"></param>
-        /// <param name="subscriptionId"></param>
-        /// <param name="body"></param>
-        /// <param name="contentType"></param>
-        /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="subscriptionId"/>, <paramref name="body"/>, <paramref name="contentType"/> or <paramref name="accept"/> is null. </exception>
-        internal void CreateStringFormatRequest(System.Uri unbrandedTypeSpecUrl, Guid subscriptionId, ModelWithFormat body, string contentType, string accept)
         {
         }
 
@@ -191,7 +181,5 @@ namespace UnbrandedTypeSpec.Models
         internal void CreateHeadAsBooleanRequest(System.Uri unbrandedTypeSpecUrl, string id, string accept)
         {
         }
-
-        // Add Nested Type
     }
 }

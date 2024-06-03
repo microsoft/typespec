@@ -2815,11 +2815,32 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           nextToken();
           start = tokenPos();
           while (parseOptional(Token.Whitespace));
-          if (parseOptional(Token.Star)) {
+          if (!parseOptional(Token.Star)) {
+            break;
+          }
+          if (!inCodeFence) {
             parseOptional(Token.Whitespace);
             start = tokenPos();
             break;
           }
+          // If we are in a code fence we want to preserve the leading whitespace
+          // except for the first space after the star which is used as indentation.
+          const whitespaceStart = tokenPos();
+          parseOptional(Token.Whitespace);
+
+          // This `min` handles the case when there is no whitespace after the
+          // star e.g. a case like this:
+          //
+          // /**
+          //  *```
+          //  *foo-bar
+          //  *```
+          //  */
+          //
+          // Not having space after the star isn't idiomatic, but we support this.
+          // `whitespaceStart + 1` strips the first space before `foo-bar` if there
+          // is a space after the star (the idiomatic case).
+          start = Math.min(whitespaceStart + 1, tokenPos());
           break;
         case Token.EndOfFile:
           break loop;
