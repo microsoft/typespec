@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record IndexerExpression(ValueExpression? Inner, ValueExpression Index) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             if (Inner is not null)
             {

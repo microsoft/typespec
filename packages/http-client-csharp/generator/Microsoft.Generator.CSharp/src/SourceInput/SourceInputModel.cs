@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -10,13 +10,21 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
-using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.SourceInput
 {
-    public sealed class SourceInputModel
+    internal sealed class SourceInputModel
     {
+        private static SourceInputModel? _instance;
+        public static SourceInputModel Instance => _instance ?? throw new InvalidOperationException("SourceInputModel has not been initialized");
+
+        public static void Initialize(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        {
+            _instance = new SourceInputModel(customization, existingCompilation);
+        }
+
         private readonly CompilationCustomCode? _existingCompilation;
         private readonly CodeGenAttributes _codeGenAttributes;
         private readonly Dictionary<string, INamedTypeSymbol> _nameMap = new Dictionary<string, INamedTypeSymbol>(StringComparer.OrdinalIgnoreCase);
@@ -24,7 +32,7 @@ namespace Microsoft.Generator.CSharp
         public Compilation Customization { get; }
         public Compilation? PreviousContract { get; }
 
-        public SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
+        private SourceInputModel(Compilation customization, CompilationCustomCode? existingCompilation = null)
         {
             Customization = customization;
             PreviousContract = LoadBaselineContract().GetAwaiter().GetResult();

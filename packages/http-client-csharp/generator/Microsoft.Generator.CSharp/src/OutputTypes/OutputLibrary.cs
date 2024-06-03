@@ -1,57 +1,81 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
+using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
-        private IReadOnlyList<ModelTypeProvider>? _models;
-        private IReadOnlyList<ClientTypeProvider>? _clients;
+        private IReadOnlyList<EnumProvider>? _enums;
+        private IReadOnlyList<ModelProvider>? _models;
+        private IReadOnlyList<ClientProvider>? _clients;
 
         public OutputLibrary()
         {
-            EnumMappings = new Dictionary<InputEnumType, EnumType>();
-            ModelMappings = new Dictionary<InputModelType, ModelTypeProvider>();
+            EnumMappings = new Dictionary<InputEnumType, EnumProvider>();
+            ModelMappings = new Dictionary<InputModelType, ModelProvider>();
+
+            _allModels = new(InitializeAllModels);
         }
 
-        public IReadOnlyList<ModelTypeProvider> Models => _models ??= BuildModels();
-        public IReadOnlyList<ClientTypeProvider> Clients => _clients ??= BuildClients();
+        private readonly Lazy<(EnumProvider[] Enums, ModelProvider[] Models)> _allModels;
 
-        public IDictionary<InputEnumType, EnumType> EnumMappings { get; }
-        public IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
-
-        public virtual ModelTypeProvider[] BuildModels()
+        private (EnumProvider[] Enums, ModelProvider[] Models) InitializeAllModels()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
 
-            var modelsCount = input.Models.Count;
-            ModelTypeProvider[] modelProviders = new ModelTypeProvider[modelsCount];
-
-            for (int i = 0; i < modelsCount; i++)
+            var enums = new EnumProvider[input.Enums.Count];
+            for (int i = 0; i < enums.Length; i++)
             {
-                var model = input.Models[i];
-                var typeProvider = new ModelTypeProvider(model, null);
-
-                modelProviders[i] = typeProvider;
-                ModelMappings.Add(model, typeProvider);
+                var inputEnum = input.Enums[i];
+                var enumType = EnumProvider.Create(inputEnum);
+                enums[i] = enumType;
+                EnumMappings.Add(inputEnum, enumType);
             }
 
-            return modelProviders;
+            var models = new ModelProvider[input.Models.Count];
+            for (int i = 0; i < models.Length; i++)
+            {
+                var inputModel = input.Models[i];
+                var model = new ModelProvider(inputModel);
+                models[i] = model;
+                ModelMappings.Add(inputModel, model);
+            }
+
+            return (enums, models);
         }
 
-        public virtual ClientTypeProvider[] BuildClients()
+        public IReadOnlyList<EnumProvider> Enums => _enums ??= BuildEnums();
+        public IReadOnlyList<ModelProvider> Models => _models ??= BuildModels();
+        public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
+
+        public IDictionary<InputEnumType, EnumProvider> EnumMappings { get; }
+        public IDictionary<InputModelType, ModelProvider> ModelMappings { get; }
+
+        public virtual EnumProvider[] BuildEnums()
+        {
+            return _allModels.Value.Enums;
+        }
+
+        public virtual ModelProvider[] BuildModels()
+        {
+            return _allModels.Value.Models;
+        }
+
+        public virtual ClientProvider[] BuildClients()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
 
             var clientsCount = input.Clients.Count;
-            ClientTypeProvider[] clientProviders = new ClientTypeProvider[clientsCount];
+            ClientProvider[] clientProviders = new ClientProvider[clientsCount];
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientTypeProvider(input.Clients[i], null);
+                clientProviders[i] = new ClientProvider(input.Clients[i]);
             }
 
             return clientProviders;

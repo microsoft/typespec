@@ -3,7 +3,6 @@ import { describe, it } from "vitest";
 import {
   CompletionItem,
   CompletionItemKind,
-  CompletionItemTag,
   CompletionList,
   MarkupKind,
 } from "vscode-languageserver/node.js";
@@ -1076,15 +1075,10 @@ describe("identifiers", () => {
       `
     );
 
-    check(completions, [
-      {
-        label: "Foo",
-        insertText: "Foo",
-        kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Foo\n```" },
-        tags: [CompletionItemTag.Deprecated],
-      },
-    ]);
+    ok(
+      !completions.items.find((t) => t.label === "Foo"),
+      "deprecated items should be hidden from completion"
+    );
   });
 
   it("completes deprecated alias", async () => {
@@ -1101,15 +1095,10 @@ describe("identifiers", () => {
       `
     );
 
-    check(completions, [
-      {
-        label: "AliasedFoo",
-        insertText: "AliasedFoo",
-        kind: CompletionItemKind.Variable,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nalias AliasedFoo\n```" },
-        tags: [CompletionItemTag.Deprecated],
-      },
-    ]);
+    ok(
+      !completions.items.find((t) => t.label === "AliasedFoo"),
+      "deprecated items should be hidden from completion"
+    );
   });
 
   describe("completion for objectliteral/arrayliteral as template parameter default value", () => {

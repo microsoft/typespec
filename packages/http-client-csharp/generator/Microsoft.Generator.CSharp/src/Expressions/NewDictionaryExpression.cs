@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
     public sealed record NewDictionaryExpression(CSharpType Type, DictionaryInitializerExpression? Values = null) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             writer.Append($"new {Type}");
             if (Values is { Values.Count: > 0 })

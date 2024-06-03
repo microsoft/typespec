@@ -504,4 +504,50 @@ describe("emitter-framework: emitter context", () => {
       });
     });
   });
+
+  describe("instantiation context", () => {
+    it("restores  context when after referencing a type with a circular reference", async () => {
+      class Emitter extends CodeTypeEmitter {
+        programContext(program: Program): Context {
+          return {
+            scope: this.emitter.createSourceFile("foo.txt").globalScope,
+          };
+        }
+        modelDeclarationContext(model: Model, name: string): Context {
+          return {
+            inModel: name,
+          };
+        }
+        modelDeclaration(model: Model, name: string): EmitterOutput<string> {
+          super.modelDeclaration(model, name);
+          return this.emitter.result.declaration(name, "Declaration for model " + name);
+        }
+        modelPropertyLiteralContext(property: ModelProperty): Context {
+          return { inProp: property.name };
+        }
+        modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+          const beforeContext = this.emitter.getContext();
+          const res = super.modelPropertyLiteral(property);
+          assert.deepStrictEqual(beforeContext, this.emitter.getContext());
+          return res;
+        }
+      }
+
+      await emitTypeSpec(
+        Emitter,
+        `
+        model A {
+          a: B;
+        }
+  
+        model B {
+          b: B;
+        }
+        
+        `,
+        {},
+        false
+      );
+    });
+  });
 });

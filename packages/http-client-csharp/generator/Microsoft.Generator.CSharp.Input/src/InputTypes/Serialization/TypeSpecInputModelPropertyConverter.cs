@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,6 +32,7 @@ namespace Microsoft.Generator.CSharp.Input
             bool isReadOnly = false;
             bool isRequired = false;
             bool isDiscriminator = false;
+            IReadOnlyList<string>? flattenedNames = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -41,7 +43,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter(nameof(InputModelProperty.Type), options, ref propertyType)
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsReadOnly), ref isReadOnly)
                     || reader.TryReadBoolean(nameof(InputModelProperty.IsRequired), ref isRequired)
-                    || reader.TryReadBoolean(nameof(InputModelProperty.IsDiscriminator), ref isDiscriminator);
+                    || reader.TryReadBoolean(nameof(InputModelProperty.IsDiscriminator), ref isDiscriminator)
+                    || reader.TryReadWithConverter(nameof(InputModelProperty.FlattenedNames), options, ref flattenedNames);
 
                 if (!isKnownProperty)
                 {
@@ -55,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Input
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator);
+            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, isRequired, isReadOnly, isDiscriminator, flattenedNames);
             if (id != null)
             {
                 resolver.AddReference(id, property);

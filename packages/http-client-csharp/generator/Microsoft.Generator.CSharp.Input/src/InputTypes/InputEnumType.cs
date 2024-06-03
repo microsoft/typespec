@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string? enumNamespace, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType enumValueType, IReadOnlyList<InputEnumTypeValue> allowedValues, bool isExtensible, bool isNullable)
+        public InputEnumType(string name, string? enumNamespace, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, bool isNullable)
             : base(name, isNullable)
         {
             Namespace = enumNamespace;
@@ -17,8 +17,8 @@ namespace Microsoft.Generator.CSharp.Input
             Deprecated = deprecated;
             Description = description;
             Usage = usage;
-            EnumValueType = enumValueType;
-            AllowedValues = allowedValues;
+            ValueType = valueType;
+            Values = values;
             IsExtensible = isExtensible;
         }
 
@@ -27,8 +27,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Deprecated { get; }
         public string Description { get; }
         public InputModelTypeUsage Usage { get; }
-        public InputPrimitiveType EnumValueType { get; }
-        public IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
+        public InputPrimitiveType ValueType { get; }
+        public IReadOnlyList<InputEnumTypeValue> Values { get; }
         public bool IsExtensible { get; }
 
         public static IEqualityComparer<InputEnumType> IgnoreNullabilityComparer { get; } = new IgnoreNullabilityComparerImplementation();
@@ -51,8 +51,8 @@ namespace Microsoft.Generator.CSharp.Input
                        && x.Namespace == y.Namespace
                        && x.Accessibility == y.Accessibility
                        && x.Description == y.Description
-                       && x.EnumValueType.Equals(y.EnumValueType)
-                       && x.AllowedValues.SequenceEqual(y.AllowedValues)
+                       && x.ValueType.Equals(y.ValueType)
+                       && x.Values.SequenceEqual(y.Values)
                        && x.IsExtensible == y.IsExtensible;
             }
 
@@ -63,9 +63,9 @@ namespace Microsoft.Generator.CSharp.Input
                 hashCode.Add(obj.Namespace);
                 hashCode.Add(obj.Accessibility);
                 hashCode.Add(obj.Description);
-                hashCode.Add(obj.EnumValueType);
+                hashCode.Add(obj.ValueType);
                 hashCode.Add(obj.IsExtensible);
-                foreach (var item in obj.AllowedValues)
+                foreach (var item in obj.Values)
                 {
                     hashCode.Add(item);
                 }
