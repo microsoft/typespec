@@ -13,22 +13,17 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             public static MethodBodyStatement AssertNotNull(ValueExpression variable)
             {
-                return new IfStatement(Equal(variable, Null))
-                {
-                    new ThrowStatement(ThrowExpression(New.ArgumentNullException(variable)))
-                };
+                return ArgumentProvider.Instance.AssertNotNull(variable);
             }
 
             public static MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable)
             {
-                return new List<MethodBodyStatement>()
-                {
-                    AssertNotNull(variable),
-                    new IfStatement(Equal(new MemberExpression(variable, "Length"), Literal(0)))
-                    {
-                        new ThrowStatement(ThrowExpression(New.ArgumentException(variable, string.Empty)))
-                    }
-                };
+                return ArgumentProvider.Instance.AssertNotNullOrEmpty(variable);
+            }
+
+            public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable)
+            {
+                return ArgumentProvider.Instance.AssertNotNullOrWhiteSpace(variable);
             }
 
             public static MethodBodyStatement ValidateParameter(Parameter parameter)

@@ -34,8 +34,8 @@ namespace Microsoft.Generator.CSharp.Input
             InputModelTypeUsage usage = InputModelTypeUsage.None;
             string? usageString = null;
             bool isExtendable = false;
-            InputPrimitiveType? valueType = null;
-            IReadOnlyList<InputEnumTypeValue>? allowedValues = null;
+            InputType? valueType = null;
+            IReadOnlyList<InputEnumTypeValue>? values = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
@@ -47,8 +47,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputEnumType.Description), ref description)
                     || reader.TryReadString(nameof(InputEnumType.Usage), ref usageString)
                     || reader.TryReadBoolean(nameof(InputEnumType.IsExtensible), ref isExtendable)
-                    || reader.TryReadPrimitiveType(nameof(InputEnumType.EnumValueType), ref valueType)
-                    || reader.TryReadWithConverter(nameof(InputEnumType.AllowedValues), options, ref allowedValues);
+                    || reader.TryReadWithConverter(nameof(InputEnumType.ValueType), options, ref valueType)
+                    || reader.TryReadWithConverter(nameof(InputEnumType.Values), options, ref values);
 
                 if (!isKnownProperty)
                 {
@@ -68,14 +68,17 @@ namespace Microsoft.Generator.CSharp.Input
                 Enum.TryParse(usageString, ignoreCase: true, out usage);
             }
 
-            if (allowedValues == null || allowedValues.Count == 0)
+            if (values == null || values.Count == 0)
             {
                 throw new JsonException("Enum must have at least one value");
             }
 
-            valueType = valueType ?? throw new JsonException("Enum value type must be set.");
+            if (valueType is not InputPrimitiveType inputValueType)
+            {
+                throw new JsonException("The ValueType of an EnumType must be a primitive type.");
+            }
 
-            var enumType = new InputEnumType(name, ns, accessibility, deprecated, description, usage, valueType, NormalizeValues(allowedValues, valueType), isExtendable, isNullable);
+            var enumType = new InputEnumType(name, ns, accessibility, deprecated, description!, usage, inputValueType, NormalizeValues(values, inputValueType), isExtendable, isNullable);
             if (id != null)
             {
                 resolver.AddReference(id, enumType);

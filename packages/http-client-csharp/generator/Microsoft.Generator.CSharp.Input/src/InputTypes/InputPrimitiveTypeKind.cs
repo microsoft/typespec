@@ -6,41 +6,35 @@ namespace Microsoft.Generator.CSharp.Input
     public enum InputPrimitiveTypeKind
     {
         Boolean,
-        BinaryData,
         Bytes,
-        BytesBase64Url,
         ContentType,
-        Date,
-        DateTime,
-        DateTimeISO8601,
-        DateTimeRFC1123,
-        DateTimeRFC3339,
-        DateTimeRFC7231,
-        DateTimeUnix,
+        PlainDate,
         Decimal,
         Decimal128,
-        DurationISO8601,
-        DurationConstant,
-        DurationSeconds,
-        DurationSecondsFloat,
-        ETag,
+        Numeric,// in typespec, numeric is the base type of all number types, see type relation: https://typespec.io/docs/language-basics/type-relations
+        Float, // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
         Float32,
         Float64,
         Float128,
         Guid,
+        Uuid,
+        Integer, // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
+        Int8, // aka SByte
+        Int16,
         Int32,
         Int64,
         SafeInt,
+        UInt8, // aka Byte
+        UInt16,
+        UInt32,
+        UInt64,
         IPAddress,
-        Object,
-        RequestMethod,
-        ResourceIdentifier,
-        ResourceType,
         Stream,
         String,
-        Time,
+        PlainTime,
+        Url,
         Uri,
-        SByte,
-        Byte
+        Char,
+        Any // aka unknown
     }
 }

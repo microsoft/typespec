@@ -15,8 +15,6 @@ import {
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../type/input-type-kind.js";
 import { InputPrimitiveType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 
@@ -70,8 +68,7 @@ export function createContentTypeOrAcceptParameter(
 ): InputParameter {
   const isContentType: boolean = nameInRequest.toLowerCase() === "content-type";
   const inputType: InputType = {
-    Kind: InputTypeKind.Primitive,
-    Name: InputPrimitiveTypeKind.String,
+    Kind: "string",
     IsNullable: false,
   } as InputPrimitiveType;
   return {
