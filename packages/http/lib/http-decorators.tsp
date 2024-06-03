@@ -128,8 +128,13 @@ extern dec bodyIgnore(target: ModelProperty);
  * @example
  *
  * ```typespec
- * op read(): {@statusCode: 200, @body pet: Pet}
- * op create(): {@statusCode: 201 | 202}
+ * op read(): {
+ *   @statusCode _: 200;
+ *   @body pet: Pet;
+ * };
+ * op create(): {
+ *   @statusCode _: 201 | 202;
+ * };
  * ```
  */
 extern dec statusCode(target: ModelProperty);
