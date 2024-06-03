@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
@@ -39,25 +38,39 @@ namespace Microsoft.Generator.CSharp
         /// <returns>The <see cref="SerializationFormat"/> for the input type.</returns>
         public SerializationFormat GetSerializationFormat(InputType input) => input switch
         {
-            InputLiteralType literalType => GetSerializationFormat(literalType.LiteralValueType),
-            InputList listType => GetSerializationFormat(listType.ElementType),
-            InputDictionary dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
+            InputLiteralType literalType => GetSerializationFormat(literalType.ValueType),
+            InputListType listType => GetSerializationFormat(listType.ElementType),
+            InputDictionaryType dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
+            InputDateTimeType dateTimeType => dateTimeType.Encode switch
+            {
+                DateTimeKnownEncoding.Rfc3339 => SerializationFormat.DateTime_RFC3339,
+                DateTimeKnownEncoding.Rfc7231 => SerializationFormat.DateTime_RFC7231,
+                DateTimeKnownEncoding.UnixTimestamp => SerializationFormat.DateTime_Unix,
+                _ => throw new IndexOutOfRangeException($"unknown encode {dateTimeType.Encode}"),
+            },
+            InputDurationType durationType => durationType.Encode switch
+            {
+                // there is no such thing as `DurationConstant`
+                DurationKnownEncoding.Iso8601 => SerializationFormat.Duration_ISO8601,
+                DurationKnownEncoding.Seconds => durationType.WireType.Kind switch
+                {
+                    InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Seconds,
+                    InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Seconds_Float,
+                    _ => SerializationFormat.Duration_Seconds_Double
+                },
+                DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
+                _ => throw new IndexOutOfRangeException($"unknown encode {durationType.Encode}")
+            },
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                InputPrimitiveTypeKind.BytesBase64Url => SerializationFormat.Bytes_Base64Url,
-                InputPrimitiveTypeKind.Bytes => SerializationFormat.Bytes_Base64,
-                InputPrimitiveTypeKind.Date => SerializationFormat.Date_ISO8601,
-                InputPrimitiveTypeKind.DateTime => SerializationFormat.DateTime_ISO8601,
-                InputPrimitiveTypeKind.DateTimeISO8601 => SerializationFormat.DateTime_ISO8601,
-                InputPrimitiveTypeKind.DateTimeRFC1123 => SerializationFormat.DateTime_RFC1123,
-                InputPrimitiveTypeKind.DateTimeRFC3339 => SerializationFormat.DateTime_RFC3339,
-                InputPrimitiveTypeKind.DateTimeRFC7231 => SerializationFormat.DateTime_RFC7231,
-                InputPrimitiveTypeKind.DateTimeUnix => SerializationFormat.DateTime_Unix,
-                InputPrimitiveTypeKind.DurationISO8601 => SerializationFormat.Duration_ISO8601,
-                InputPrimitiveTypeKind.DurationConstant => SerializationFormat.Duration_Constant,
-                InputPrimitiveTypeKind.DurationSeconds => SerializationFormat.Duration_Seconds,
-                InputPrimitiveTypeKind.DurationSecondsFloat => SerializationFormat.Duration_Seconds_Float,
-                InputPrimitiveTypeKind.Time => SerializationFormat.Time_ISO8601,
+                InputPrimitiveTypeKind.PlainDate => SerializationFormat.Date_ISO8601,
+                InputPrimitiveTypeKind.PlainTime => SerializationFormat.Time_ISO8601,
+                InputPrimitiveTypeKind.Bytes => primitiveType.Encode switch
+                {
+                    BytesKnownEncoding.Base64 => SerializationFormat.Bytes_Base64,
+                    BytesKnownEncoding.Base64Url => SerializationFormat.Bytes_Base64Url,
+                    _ => throw new IndexOutOfRangeException($"unknown encode {primitiveType.Encode}")
+                },
                 _ => SerializationFormat.Default
             },
             _ => SerializationFormat.Default

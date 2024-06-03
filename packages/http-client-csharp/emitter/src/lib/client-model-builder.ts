@@ -36,8 +36,6 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../type/input-type-kind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
@@ -89,8 +87,7 @@ export function createModelForService(
   const defaultApiVersionConstant: InputConstant | undefined = defaultApiVersion
     ? {
         Type: {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.String,
+          Kind: "string",
           IsNullable: false,
         } as InputPrimitiveType,
         Value: defaultApiVersion,
