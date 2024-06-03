@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp
         public virtual CSharpType ListImplementationType => ChangeTrackingListProvider.Instance.Type;
 
         /// <summary>
-        /// The type of the implementation type of dictionary properties. The type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>
+        /// The type that represents the implementation of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
         public virtual CSharpType DictionaryImplementationType => ChangeTrackingDictionaryProvider.Instance.Type;
     }
