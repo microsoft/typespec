@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Input;
 namespace Microsoft.Generator.CSharp
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public sealed class Parameter
+    public sealed class Parameter : IEquatable<Parameter>
     {
         public string Name { get; }
         public FormattableString Description { get; }
@@ -60,8 +60,6 @@ namespace Microsoft.Generator.CSharp
             DefaultValue = defaultValue;
         }
 
-        public static readonly IEqualityComparer<Parameter> EqualityComparerByType = new ParameterByTypeEqualityComparer();
-
         private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
         {
             // We do not validate a parameter when it is a value type (struct or int, etc)
@@ -91,15 +89,22 @@ namespace Microsoft.Generator.CSharp
             return ParameterValidationType.AssertNotNull;
         }
 
-        private struct ParameterByTypeEqualityComparer : IEqualityComparer<Parameter>
+        public override bool Equals(object? obj)
         {
-            public bool Equals(Parameter? x, Parameter? y)
-            {
-                return Equals(x?.Type, y?.Type);
-            }
-
-            public int GetHashCode([DisallowNull] Parameter obj) => obj.Type.GetHashCode();
+            return obj is Parameter parameter && Equals(parameter);
         }
+
+        public bool Equals(Parameter? y)
+        {
+            return Equals(this?.Type, y?.Type);
+        }
+
+        public override int GetHashCode()
+        {
+            return GetHashCode(this);
+        }
+
+        private int GetHashCode([DisallowNull] Parameter obj) => obj.Type.GetHashCode();
 
         private class ParameterTypeAndNameEqualityComparer : IEqualityComparer<Parameter>
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -30,5 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public override CSharpType RequestConditionsType() => typeof(int);
 
         public override CSharpType TokenCredentialType() => typeof(int);
+        public override CSharpType ChangeTrackingListType => new CSharpType(typeof(IList<>), arguments: typeof(int));
+        public override CSharpType ChangeTrackingDictionaryType => new CSharpType(typeof(IDictionary<,>), arguments: [typeof(string), typeof(int)]);
     }
 }

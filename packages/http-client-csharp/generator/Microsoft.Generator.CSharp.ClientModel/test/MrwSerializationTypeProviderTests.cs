@@ -212,9 +212,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
-                    new InputModelProperty("optionalUnknown", "optional unknown", "", new InputIntrinsicType(InputIntrinsicTypeKind.Unknown), false, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputListType("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
              };
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
@@ -228,7 +227,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             var serializationCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(6, serializationCtor.Signature.Parameters.Count);
+            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
 
             var emptyCtor = ctors[1];
             Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);

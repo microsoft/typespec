@@ -250,12 +250,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return new CSharpType(typeof(List<>), Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingListType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingDictionaryType.MakeGenericType(Arguments);
                 }
             }
 

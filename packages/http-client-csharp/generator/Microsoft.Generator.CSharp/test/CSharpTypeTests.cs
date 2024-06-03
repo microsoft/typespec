@@ -321,7 +321,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var arguments = typeof(int);
             var listType = new CSharpType(typeof(IList<>), arguments: arguments);
             var actual = listType.InitializationType;
-            var expected = new CSharpType(typeof(List<>), arguments: arguments);
+            var expected = new CSharpType(typeof(IList<>), arguments: arguments);
 
             var areEqual = actual.Equals(expected);
 
@@ -334,7 +334,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var arguments = new CSharpType[] { typeof(string), typeof(int) };
             var cSharpType = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
             var actual = cSharpType.InitializationType;
-            var expected = new CSharpType(typeof(Dictionary<,>), arguments: arguments);
+            var expected = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
 
             var areEqual = actual.Equals(expected);
 

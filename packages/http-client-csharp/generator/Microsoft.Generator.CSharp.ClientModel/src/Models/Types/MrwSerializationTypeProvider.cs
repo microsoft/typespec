@@ -11,6 +11,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -84,8 +85,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 if (!serializationCtorParamsMatch)
                 {
                     // Check if the model constructor parameters match the serialization constructor parameters
-                    if (initializationCtorParams.SequenceEqual(
-                        serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType))
+                    if (initializationCtorParams.SequenceEqual(serializationConstructor.Signature.Parameters))
                     {
                         serializationCtorParamsMatch = true;
                     }
@@ -269,15 +269,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
-                    methodBodyStatements.Add(Snippet.Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReferenceSnippet(param)));
+                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReferenceSnippet(param)));
                     continue;
                 }
 
-                ValueExpression initializationValue = new ParameterReferenceSnippet(param);
-                var initializationStatement = Snippet.Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
-                if (initializationStatement != null)
+                var assignToParamRef = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), new ParameterReferenceSnippet(param));
+
+                if (param.Type.IsCollection && param.Type.IsNullable)
                 {
-                    methodBodyStatements.Add(initializationStatement);
+                    // TO-DO: Generate Optional type - https://github.com/microsoft/typespec/issues/3508
+                    var assignToInitializedCollection = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), New.Instance(param.Type.InitializationType));
+                    methodBodyStatements.Add(new IfElseStatement(Equal(new ParameterReferenceSnippet(param), Null), assignToInitializedCollection, assignToParamRef));
+                }
+                else
+                {
+                    methodBodyStatements.Add(assignToParamRef);
                 }
             }
 

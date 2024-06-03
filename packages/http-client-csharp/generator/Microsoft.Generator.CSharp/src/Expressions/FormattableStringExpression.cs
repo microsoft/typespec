@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+
 namespace Microsoft.Generator.CSharp.Expressions
 {
     /// <summary>

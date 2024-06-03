@@ -6,6 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -41,8 +42,22 @@ namespace UnbrandedTypeSpec.Models
             OptionalLiteralFloat = optionalLiteralFloat;
             OptionalLiteralBool = optionalLiteralBool;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = optionalNullableList;
-            RequiredNullableList = requiredNullableList;
+            if (optionalNullableList == null)
+            {
+                OptionalNullableList = new ChangeTrackingList<int>();
+            }
+            else
+            {
+                OptionalNullableList = optionalNullableList;
+            }
+            if (requiredNullableList == null)
+            {
+                RequiredNullableList = new ChangeTrackingList<int>();
+            }
+            else
+            {
+                RequiredNullableList = requiredNullableList;
+            }
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
