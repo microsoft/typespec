@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class DiagnosticScope : IDisposable
+    internal class DiagnosticScope : IDisposable
     {
         private readonly CodeWriter.CodeWriterScope _scope;
         private readonly CodeWriterDeclaration _scopeVariable;

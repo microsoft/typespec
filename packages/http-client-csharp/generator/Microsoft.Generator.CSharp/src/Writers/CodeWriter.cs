@@ -10,11 +10,12 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
-using static Microsoft.Generator.CSharp.Expressions.Snippets;
+using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed partial class CodeWriter
+    internal sealed partial class CodeWriter
     {
         private const int DefaultLength = 1024;
         private static readonly string _newLine = "\n";
@@ -178,7 +179,7 @@ namespace Microsoft.Generator.CSharp
                         expression.Write(this);
                         break;
                     case var _ when isLiteralFormat:
-                        WriteLiteral(argument);
+                        Literal(argument).Write(this);
                         break;
                     default:
                         string? s = argument?.ToString();
@@ -206,15 +207,30 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        /// <summary>
-        /// A wrapper around <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> to allow for writing method body statements.
-        /// This method will call the extension method <see cref="CodeWriterExtensionMethods.WriteMethod(CodeWriter, CSharpMethod)"/> of the plugin <see cref="CodeModelPlugin"/> with the current instance of <see cref="CodeWriter"/>
-        /// and attempt to write <paramref name="method"/>.
-        /// </summary>
-        /// <param name="method">The <see cref="CSharpMethod"/> to write.</param>
         public void WriteMethod(CSharpMethod method)
         {
-            CodeModelPlugin.Instance.CodeWriterExtensionMethods.WriteMethod(this, method);
+            ArgumentNullException.ThrowIfNull(method, nameof(method));
+
+            WriteMethodDocumentation(method.Signature);
+
+            if (method.BodyStatements is { } body)
+            {
+                using (WriteMethodDeclaration(method.Signature))
+                {
+                    body.Write(this);
+                }
+            }
+            else if (method.BodyExpression is { } expression)
+            {
+                using (WriteMethodDeclarationNoScope(method.Signature))
+                {
+                    AppendRaw(" => ");
+                    expression.Write(this);
+                    WriteRawLine(";");
+                }
+            }
+
+            WriteLine();
         }
 
         public void WriteProperty(PropertyDeclaration property)
@@ -550,6 +566,10 @@ namespace Microsoft.Generator.CSharp
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
+                if (type.FrameworkType.IsGenericParameter && type.IsNullable)
+                {
+                    AppendRaw("?");
+                }
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
@@ -585,24 +605,6 @@ namespace Microsoft.Generator.CSharp
             {
                 AppendRaw("?");
             }
-        }
-
-        public CodeWriter WriteLiteral(object? o)
-        {
-            return AppendRaw(o switch
-            {
-                null => "null",
-                string s => SyntaxFactory.Literal(s).ToString(),
-                int i => SyntaxFactory.Literal(i).ToString(),
-                long l => SyntaxFactory.Literal(l).ToString(),
-                decimal d => SyntaxFactory.Literal(d).ToString(),
-                double d => SyntaxFactory.Literal(d).ToString(),
-                float f => SyntaxFactory.Literal(f).ToString(),
-                char c => SyntaxFactory.Literal(c).ToString(),
-                bool b => b ? "true" : "false",
-                BinaryData bd => bd.ToArray().Length == 0 ? "new byte[] { }" : SyntaxFactory.Literal(bd.ToString()).ToString(),
-                _ => throw new NotImplementedException()
-            });
         }
 
         public CodeWriter WriteLine(FormattableString formattableString)
@@ -920,7 +922,7 @@ namespace Microsoft.Generator.CSharp
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelPlugin.Instance.CodeWriterExtensionMethods.LicenseString;
+                string licenseString = CodeModelPlugin.Instance.LiscenseString;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);

@@ -3,6 +3,7 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.SourceInput;
 using System;
 using System.Collections.Generic;
 
@@ -12,13 +13,11 @@ namespace Microsoft.Generator.CSharp
     {
         private readonly Lazy<INamedTypeSymbol?> _existingType;
 
-        protected readonly SourceInputModel? _sourceInputModel;
         protected string? _deprecated;
 
-        protected TypeProvider(SourceInputModel? sourceInputModel)
+        protected TypeProvider()
         {
-            _sourceInputModel = sourceInputModel;
-            _existingType = new Lazy<INamedTypeSymbol?>(() => sourceInputModel?.FindForType(Name));
+            _existingType = new Lazy<INamedTypeSymbol?>(() => SourceInputModel.Instance.FindForType(Name));
         }
 
         public abstract string Name { get; }
