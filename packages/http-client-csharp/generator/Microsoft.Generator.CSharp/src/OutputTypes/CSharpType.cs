@@ -277,16 +277,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return new CSharpType(typeof(List<>), Arguments);
-                    // Generate ChangeTrackingList type - https://github.com/microsoft/typespec/issues/3324
-                    // return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingListType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ListImplementationType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
-                    // Generate ChangeTrackingDictionary type - https://github.com/microsoft/typespec/issues/3324
-                    //return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingDictionaryType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.DictionaryImplemenationType.MakeGenericType(Arguments);
                 }
             }
 

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using Microsoft.Generator.CSharp.Expressions;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
@@ -69,13 +68,13 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType PageResponseType();
 
         /// <summary>
-        /// The type for change tracking lists.
+        /// The type of the implementation type of list properties. The type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>
         /// </summary>
-        public virtual CSharpType ChangeTrackingListType => ChangeTrackingListProvider.Instance.Type;
+        public virtual CSharpType ListImplementationType => ChangeTrackingListProvider.Instance.Type;
 
         /// <summary>
-        /// The type for change tracking dictionaries.
+        /// The type of the implementation type of dictionary properties. The type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>
         /// </summary>
-        public virtual CSharpType ChangeTrackingDictionaryType => ChangeTrackingDictionaryProvider.Instance.Type;
+        public virtual CSharpType DictionaryImplemenationType => ChangeTrackingDictionaryProvider.Instance.Type;
     }
 }
