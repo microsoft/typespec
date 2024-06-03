@@ -132,7 +132,7 @@ namespace Microsoft.Generator.CSharp
         private PropertyProvider BuildIndexer()
         {
             var indexParam = new Parameter("index", $"The inner list.", typeof(int));
-            return new IndexerDeclaration(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
+            return new IndexerProvider(null, MethodSignatureModifiers.Public, _t, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

@@ -270,7 +270,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerDeclaration indexer)
+            if (property is IndexerProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }

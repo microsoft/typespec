@@ -154,7 +154,7 @@ namespace Microsoft.Generator.CSharp
         private PropertyProvider BuildIndexer()
         {
             var indexParam = new Parameter("key", $"The key.", _tKey);
-            return new IndexerDeclaration(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
+            return new IndexerProvider(null, MethodSignatureModifiers.Public, _tValue, indexParam, new MethodPropertyBody(
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)

@@ -10,12 +10,12 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public class FixedEnumProvider : EnumProvider
+    internal sealed class FixedEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
-        protected internal FixedEnumProvider(InputEnumType input) : base(input)
+        internal FixedEnumProvider(InputEnumType input) : base(input)
         {
             _allowedValues = input.AllowedValues;
 
