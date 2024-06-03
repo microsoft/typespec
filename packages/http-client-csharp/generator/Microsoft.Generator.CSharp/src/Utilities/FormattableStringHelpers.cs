@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -86,10 +87,10 @@ namespace Microsoft.Generator.CSharp
         public static FormattableString Join(this ICollection<FormattableString> fss, string separator, string? lastSeparator = null)
             => fss.Count == 1 ? fss.First() : Join(fss, fss.Count, static fs => fs, separator, lastSeparator, null);
 
-        public static FormattableString GetTypesFormattable(this IReadOnlyCollection<Parameter> parameters)
+        public static FormattableString GetTypesFormattable(this IReadOnlyCollection<ParameterProvider> parameters)
             => GetTypesFormattable(parameters, parameters.Count);
 
-        public static FormattableString GetTypesFormattable(this IEnumerable<Parameter> parameters, int count)
+        public static FormattableString GetTypesFormattable(this IEnumerable<ParameterProvider> parameters, int count)
             => Join(parameters, count, static p => p.Type, ",", null, null);
 
         public static string ReplaceLast(this string text, string oldValue, string newValue)

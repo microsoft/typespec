@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ParameterReferenceSnippet(Parameter Parameter) : TypedSnippet(Parameter.Type, new UntypedParameterReference(Parameter))
+    public sealed record ParameterReferenceSnippet(ParameterProvider Parameter) : TypedSnippet(Parameter.Type, new UntypedParameterReference(Parameter))
     {
-        private record UntypedParameterReference(Parameter Parameter) : ValueExpression
+        private record UntypedParameterReference(ParameterProvider Parameter) : ValueExpression
         {
             internal override void Write(CodeWriter writer)
             {
