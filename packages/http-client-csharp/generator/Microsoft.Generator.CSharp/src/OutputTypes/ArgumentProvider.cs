@@ -65,7 +65,7 @@ namespace Microsoft.Generator.CSharp
             return
             [
                 BuildAssertNotNull(),
-                BuildAssertNotNullStruct(), // Currently, `_nullableT` returns `T` instead of `T?`. Tracking issue here: https://github.com/microsoft/typespec/issues/3490
+                BuildAssertNotNullStruct(),
                 BuildAssertNotNullOrEmptyCollection(),
                 BuildAssertNotNullOrEmptyString(),
                 BuildAssertNotNullOrWhiteSpace(),
@@ -243,7 +243,6 @@ namespace Microsoft.Generator.CSharp
 
         private MethodBodyStatement ThrowArgumentException(string message) => ThrowArgumentException(Literal(message));
 
-        // Currently, `_nullableT` returns `T` instead of `T?`. Tracking issue here: https://github.com/microsoft/typespec/issues/3490
         private CSharpMethod BuildAssertNotNullStruct()
         {
             var valueParam = new Parameter("value", $"The value.", _nullableT);

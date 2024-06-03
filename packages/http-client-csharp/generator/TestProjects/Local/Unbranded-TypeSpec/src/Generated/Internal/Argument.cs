@@ -22,7 +22,7 @@ namespace UnbrandedTypeSpec
 
         /// <param name="value"> The value. </param>
         /// <param name="name"> The name. </param>
-        public static void AssertNotNull<T>(T value, string name)
+        public static void AssertNotNull<T>(T? value, string name)
         where T : struct
         {
             if (!value.HasValue)
