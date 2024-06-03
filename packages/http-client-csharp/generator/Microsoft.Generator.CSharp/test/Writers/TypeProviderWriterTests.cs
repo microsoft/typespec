@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.SourceInput;
 using Moq;
 using NUnit.Framework;
 
@@ -16,9 +18,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [SetUp]
         public void Setup()
         {
-            SourceInputModel? sourceInputModel = null;
-            var mockTypeProvider = new Mock<TypeProvider>(sourceInputModel!) { CallBase = true };
-            _expressionTypeProviderWriter = new MockExpressionTypeProviderWriter(new CodeWriter(), mockTypeProvider.Object);
+            var mockTypeProvider = new Mock<TypeProvider>() { CallBase = true };
+            _expressionTypeProviderWriter = new MockExpressionTypeProviderWriter(mockTypeProvider.Object);
         }
 
         // Tests that the Write method is successfully overridden.
@@ -30,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         internal class MockExpressionTypeProviderWriter : TypeProviderWriter
         {
-            public MockExpressionTypeProviderWriter(CodeWriter writer, TypeProvider provider) : base(writer, provider) { }
+            public MockExpressionTypeProviderWriter(TypeProvider provider) : base(provider) { }
 
             public override void Write()
             {

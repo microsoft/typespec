@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text;
-using Moq;
-using Microsoft.Generator.CSharp.Expressions;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
+using Moq;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -57,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase(typeof(string), 22, "((string)22)")]
         public void TestWriteValueExpression_DefaultCastExpression(Type type, object inner, string expectedWritten)
         {
-            var castExpression = new CastExpression(Snippets.Literal(inner), type);
+            var castExpression = new CastExpression(Snippet.Literal(inner), type);
             var codeWriter = new CodeWriter();
             castExpression.Write(codeWriter);
 
@@ -88,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase("bar", "{ \"bar\" }")]
         public void TestWriteValueExpression_DefaultCollectionInitializerExpression(string literal, string expectedWritten)
         {
-            var stringLiteralExpression = new StringLiteralExpression(literal, false);
+            var stringLiteralExpression = Snippet.Literal(literal);
             CollectionInitializerExpression expression = new CollectionInitializerExpression(stringLiteralExpression);
             var codeWriter = new CodeWriter();
             expression.Write(codeWriter);
@@ -100,47 +103,9 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
 
-        // This test validates that the WriteMethod method works as expected using the extension method implementation in the mock code model plugin.
-        // A mock method with a body constructed from body statements is supplied.
-        [Test]
-        public void TestWriteMethodWithBodyStatements()
-        {
-            var method = ConstructMockMethod();
-            var codeWriter = new CodeWriter();
-
-            codeWriter.WriteMethod(method);
-
-            var result = codeWriter.ToString();
-            var expected = new StringBuilder()
-                .Append(_header)
-                .Append("Custom implementation").Append(CodeWriterTests.NewLine)
-                .ToString();
-
-            Assert.AreEqual(expected, result);
-
-        }
-
-        // This test validates that the WriteMethod method works as expected given a mock method with a body
-        // constructed from body expressions using the custom implementation of the extension methods in a mock code model plugin.
-        [Test]
-        public void TestWriteMethodWithBodyExpressions()
-        {
-            var method = ConstructMockMethod();
-            var codeWriter = new CodeWriter();
-            codeWriter.WriteMethod(method);
-
-            var result = codeWriter.ToString();
-            var expected = new StringBuilder()
-                .Append(_header)
-                .Append("Custom implementation").Append(CodeWriterTests.NewLine)
-                .ToString();
-
-            Assert.AreEqual(expected, result);
-        }
-
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
-        private static CSharpMethod ConstructMockMethod()
+        private static MethodProvider ConstructMockMethod()
         {
             // create method signature
             var methodName = "TestMethod";
@@ -149,20 +114,20 @@ namespace Microsoft.Generator.CSharp.Tests
             FormattableString returnDescription = $"Sample return description for {methodName}";
             var methodSignatureModifiers = MethodSignatureModifiers.Public;
             var returnType = new CSharpType(typeof(BinaryData));
-            var parameters = new List<Parameter>()
+            var parameters = new List<ParameterProvider>()
             {
-                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ValidationType.AssertNotNull }
+                new ParameterProvider("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
             };
 
-            var responseVar = new VariableReference(returnType, "responseParamName");
-            var responseRef = Snippets.Var(responseVar, BinaryDataExpression.FromBytes(new StringLiteralExpression("sample response", false)));
+            var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
+            var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(Snippet.Literal("sample response")));
             var resultStatements = new List<MethodBodyStatement>()
             {
                 responseRef,
                 new KeywordStatement("return", responseVar)
             };
 
-            var method = new CSharpMethod
+            var method = new MethodProvider
             (
                 new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
                 resultStatements,

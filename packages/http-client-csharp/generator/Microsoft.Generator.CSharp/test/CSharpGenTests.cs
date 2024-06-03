@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Expressions.ExtensibleSnippets;
+using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {

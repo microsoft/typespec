@@ -1,83 +1,50 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
-using Moq;
+using System.IO;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
-#pragma warning disable CS8618
     internal class KnownParametersTests
     {
-        private Mock<TypeFactory> _factory;
-        private KnownParameters _knownParameters;
-#pragma warning restore CS8618
+        private readonly string _mocksFolder = "Mocks";
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetup()
         {
-            _factory = new Mock<TypeFactory>();
-            _knownParameters = new KnownParameters(_factory.Object);
+            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
+            // initialize the singleton instance of the plugin
+            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void TestTokenAuth(bool notImplemented)
+
+        [Test]
+        public void TestTokenAuth()
         {
-            if (notImplemented)
-            {
-                _factory.Setup(x => x.TokenCredentialType()).Throws<NotImplementedException>();
-                Assert.That(() => _knownParameters.TokenAuth, Throws.Exception.TypeOf<NotImplementedException>());
-            }
-            else
-            {
-                _factory.Setup(x => x.TokenCredentialType()).Returns(new CSharpType(typeof(int)));
-                var result = _knownParameters.TokenAuth;
-                Assert.IsNotNull(result);
-                Assert.IsNotNull(result.Type);
-                Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-            }
+            var result = KnownParameters.TokenAuth;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Type);
+            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void TestMatchConditionsParameter(bool notImplemented)
+        [TestCase]
+        public void TestMatchConditionsParameter()
         {
-            if (notImplemented)
-            {
-                _factory.Setup(x => x.MatchConditionsType()).Throws<NotImplementedException>();
-                Assert.That(() => _knownParameters.MatchConditionsParameter, Throws.Exception.TypeOf<NotImplementedException>());
-            }
-            else
-            {
-                _factory.Setup(x => x.RequestConditionsType()).Returns(new CSharpType(typeof(int)));
-                _factory.Setup(x => x.MatchConditionsType()).Returns(new CSharpType(typeof(int)));
-                var result = _knownParameters.MatchConditionsParameter;
-                Assert.IsNotNull(result);
-                Assert.IsNotNull(result.Type);
-                Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-            }
+            var result = KnownParameters.MatchConditionsParameter;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Type);
+            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void TestRequestConditionsParameter(bool notImplemented)
+        [TestCase]
+        public void TestRequestConditionsParameter()
         {
-            if (notImplemented)
-            {
-                _factory.Setup(x => x.RequestConditionsType()).Throws<NotImplementedException>();
-                Assert.That(() => _knownParameters.RequestConditionsParameter, Throws.Exception.TypeOf<NotImplementedException>());
-            }
-            else
-            {
-                _factory.Setup(x => x.RequestConditionsType()).Returns(new CSharpType(typeof(int)));
-                _factory.Setup(x => x.MatchConditionsType()).Returns(new CSharpType(typeof(int)));
-                var result = _knownParameters.RequestConditionsParameter;
-                Assert.IsNotNull(result);
-                Assert.IsNotNull(result.Type);
-                Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-            }
+            var result = KnownParameters.RequestConditionsParameter;
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result.Type);
+            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
         }
     }
 }

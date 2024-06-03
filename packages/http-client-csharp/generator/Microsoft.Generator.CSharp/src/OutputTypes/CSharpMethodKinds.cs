@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace Microsoft.Generator.CSharp
 {
     /// <summary>
-    /// Represents the kind of <see cref="CSharpMethod"/>.
+    /// Represents the kind of <see cref="MethodProvider"/>.
     /// </summary>
     public readonly partial struct CSharpMethodKinds : IEquatable<CSharpMethodKinds>
     {

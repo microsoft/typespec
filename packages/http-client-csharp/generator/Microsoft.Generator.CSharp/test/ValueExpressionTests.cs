@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void SystemTypeOperatorTestEqual(Type t)
         {
             ValueExpression result = t;
-            var expected = new TypeReference(t);
+            var expected = new TypeReferenceExpression(t);
 
             Assert.AreEqual(expected, result);
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void SystemTypeOperatorTestNotEqual(Type t1, Type t2)
         {
             ValueExpression result = t1;
-            var expected = new TypeReference(t2);
+            var expected = new TypeReferenceExpression(t2);
 
             Assert.AreNotEqual(expected, result);
         }
@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CSharpTypeOperatorTestEqual(CSharpType t)
         {
             ValueExpression result = t;
-            var expected = new TypeReference(t);
+            var expected = new TypeReferenceExpression(t);
 
             Assert.AreEqual(expected, result);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CSharpTypeOperatorTestNotEqual(CSharpType t1, CSharpType t2)
         {
             ValueExpression result = t1;
-            var expected = new TypeReference(t2);
+            var expected = new TypeReferenceExpression(t2);
 
             Assert.AreNotEqual(expected, result);
         }
