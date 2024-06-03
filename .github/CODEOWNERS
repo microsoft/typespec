@@ -1,3 +1,6 @@
+# Catch all
+*                                            @bterlson @markcowl @allenjzhang @timotheeguerin
+
 ######################
 # CSharp
 ######################
@@ -9,5 +12,3 @@
 ######################
 /eng/emitters/                               @m-nash
 
-# Catch all
-*                                            @bterlson @markcowl @allenjzhang @timotheeguerin
