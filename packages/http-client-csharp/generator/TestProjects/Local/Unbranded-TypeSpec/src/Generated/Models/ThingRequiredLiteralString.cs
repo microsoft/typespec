@@ -4,6 +4,7 @@
 
 using System;
 using System.ComponentModel;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -18,10 +19,7 @@ namespace UnbrandedTypeSpec.Models
         /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
         public ThingRequiredLiteralString(string value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            Argument.AssertNotNull(value, nameof(value));
 
             _value = value;
         }

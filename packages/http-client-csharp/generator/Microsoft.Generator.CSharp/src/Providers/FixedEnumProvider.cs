@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp
 
         internal FixedEnumProvider(InputEnumType input) : base(input)
         {
-            _allowedValues = input.AllowedValues;
+            _allowedValues = input.Values;
 
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;

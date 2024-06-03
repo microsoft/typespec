@@ -2,8 +2,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -30,16 +28,12 @@ describe("Test GetInputType for scalar", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, InputTypeKind.Primitive);
-    deepStrictEqual(
-      root.Clients[0].Operations[0].Parameters[0].Type.Name,
-      InputPrimitiveTypeKind.AzureLocation
-    );
+    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "azureLocation");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.AzureLocation,
+        Kind: "azureLocation",
         IsNullable: false,
+        Encode: "string",
       },
       root.Clients[0].Operations[0].Parameters[0].Type
     );

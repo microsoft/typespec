@@ -80,7 +80,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Store'
+            type: string
       responses:
         '200':
           description: The request has succeeded.

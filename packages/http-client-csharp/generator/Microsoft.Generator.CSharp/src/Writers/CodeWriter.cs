@@ -566,6 +566,10 @@ namespace Microsoft.Generator.CSharp
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
+                if (type.FrameworkType.IsGenericParameter && type.IsNullable)
+                {
+                    AppendRaw("?");
+                }
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {
