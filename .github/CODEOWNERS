@@ -5,7 +5,6 @@
 # CSharp
 ######################
 /packages/http-client-csharp/                @m-nash
-/packages/http-client-csharp-generator/      @m-nash
 
 ######################
 # Emiter Shared
