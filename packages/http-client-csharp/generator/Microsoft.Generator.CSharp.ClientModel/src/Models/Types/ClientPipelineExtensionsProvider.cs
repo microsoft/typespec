@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -21,9 +22,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
         private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
 
-        private Parameter _pipelineParam;
-        private Parameter _messageParam;
-        private Parameter _requestContextParam;
+        private ParameterProvider _pipelineParam;
+        private ParameterProvider _messageParam;
+        private ParameterProvider _requestContextParam;
         private ParameterReferenceSnippet _pipeline;
         private ParameterReferenceSnippet _message;
         private ParameterReferenceSnippet _requestContext;
@@ -32,9 +33,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private ClientPipelineExtensionsProvider()
         {
             Name = "ClientPipelineExtensions";
-            _pipelineParam = new Parameter("pipeline", $"The pipeline.", typeof(ClientPipeline));
-            _messageParam = new Parameter("message", $"The message.", typeof(PipelineMessage));
-            _requestContextParam = new Parameter("requestContext", $"The request context.", typeof(RequestOptions));
+            _pipelineParam = new ParameterProvider("pipeline", $"The pipeline.", typeof(ClientPipeline));
+            _messageParam = new ParameterProvider("message", $"The message.", typeof(PipelineMessage));
+            _requestContextParam = new ParameterProvider("requestContext", $"The request context.", typeof(RequestOptions));
             _pipeline = new ParameterReferenceSnippet(_pipelineParam);
             _message = new ParameterReferenceSnippet(_messageParam);
             _requestContext = new ParameterReferenceSnippet(_requestContextParam);

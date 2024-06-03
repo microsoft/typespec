@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -25,7 +26,7 @@ namespace Microsoft.Generator.CSharp
     /// <param name="ExplicitInterface">The explicit interface of the method.</param>
     /// <param name="NonDocumentComment">The non-document comment of the method.</param>
     /// <param name="IsRawSummaryText">Indicates if the summary text is raw.</param>
-    public sealed record MethodSignature(string Name, FormattableString? Summary, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<Parameter> Parameters, IReadOnlyList<CSharpAttribute>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null, bool IsRawSummaryText = false)
+    public sealed record MethodSignature(string Name, FormattableString? Summary, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<CSharpAttribute>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null, bool IsRawSummaryText = false)
         : MethodSignatureBase(Name, Summary, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<CSharpAttribute>(), IsRawSummaryText: IsRawSummaryText)
     {
         public static IEqualityComparer<MethodSignature> ParameterAndReturnTypeEqualityComparer = new MethodSignatureParameterAndReturnTypeEqualityComparer();

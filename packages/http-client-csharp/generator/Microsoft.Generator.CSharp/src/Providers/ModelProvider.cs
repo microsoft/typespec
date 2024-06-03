@@ -7,13 +7,12 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelTypeProvider : TypeProvider
+    public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
@@ -28,7 +27,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        public ModelTypeProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
@@ -57,25 +56,25 @@ namespace Microsoft.Generator.CSharp
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyDeclaration[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyDeclaration[propertiesCount];
+            var propertyDeclarations = new PropertyProvider[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyDeclaration(property);
+                propertyDeclarations[i] = new PropertyProvider(property);
             }
 
             return propertyDeclarations;
         }
 
-        protected override CSharpMethod[] BuildConstructors()
+        protected override MethodProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                return Array.Empty<CSharpMethod>();
+                return Array.Empty<MethodProvider>();
             }
 
             // Build the initialization constructor
@@ -86,7 +85,7 @@ namespace Microsoft.Generator.CSharp
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters();
 
-            var constructor = new CSharpMethod(
+            var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -100,12 +99,12 @@ namespace Microsoft.Generator.CSharp
                 },
                 kind: CSharpMethodKinds.Constructor);
 
-            return new CSharpMethod[] { constructor };
+            return new MethodProvider[] { constructor };
         }
 
-        private IReadOnlyList<Parameter> BuildConstructorParameters()
+        private IReadOnlyList<ParameterProvider> BuildConstructorParameters()
         {
-            List<Parameter> constructorParameters = new List<Parameter>();
+            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
             foreach (var property in _inputModel.Properties)
             {
@@ -114,7 +113,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     if (!property.IsReadOnly)
                     {
-                        constructorParameters.Add(new Parameter(property)
+                        constructorParameters.Add(new ParameterProvider(property)
                         {
                             Type = propertyType.InputType
                         });
@@ -125,11 +124,11 @@ namespace Microsoft.Generator.CSharp
             return constructorParameters;
         }
 
-        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
+        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
-            Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
+            Dictionary<string, ParameterProvider> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
 
@@ -153,7 +152,7 @@ namespace Microsoft.Generator.CSharp
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
                 {
-                    // TO-DO: Properly initilize collection properties - https://github.com/microsoft/typespec/issues/3509
+                    // TO-DO: Properly initialize collection properties - https://github.com/microsoft/typespec/issues/3509
                     initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -11,10 +12,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     {
         internal class SystemModelSnippets : ModelSnippets
         {
-            public override CSharpMethod BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
+            public override MethodProvider BuildFromOperationResponseMethod(TypeProvider typeProvider, MethodSignatureModifiers modifiers)
             {
-                var result = new Parameter("response", $"The result to deserialize the model from.", typeof(PipelineResponse));
-                return new CSharpMethod
+                var result = new ParameterProvider("response", $"The result to deserialize the model from.", typeof(PipelineResponse));
+                return new MethodProvider
                 (
                     new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]

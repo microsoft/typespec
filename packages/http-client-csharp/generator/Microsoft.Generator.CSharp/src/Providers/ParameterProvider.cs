@@ -8,10 +8,10 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public sealed class Parameter : IEquatable<Parameter>
+    public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
         public string Name { get; }
         public FormattableString Description { get; }
@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp
         public bool IsOut { get; }
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
 
-        public Parameter(InputModelProperty inputProperty)
+        public ParameterProvider(InputModelProperty inputProperty)
         {
             Name = inputProperty.Name.ToVariableName();
             Description = FormattableStringHelpers.FromString(inputProperty.Description);
@@ -31,10 +31,10 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Creates a <see cref="Parameter"/> from an <see cref="InputParameter"/>.
+        /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
-        public Parameter(InputParameter inputParameter)
+        public ParameterProvider(InputParameter inputParameter)
         {
             // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
             Name = inputParameter.Name;
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp
             Validation = inputParameter.IsRequired ? ParameterValidationType.AssertNotNull : ParameterValidationType.None;
         }
 
-        public Parameter(
+        public ParameterProvider(
             string name,
             FormattableString description,
             CSharpType type,
@@ -90,10 +90,10 @@ namespace Microsoft.Generator.CSharp
 
         public override bool Equals(object? obj)
         {
-            return obj is Parameter parameter && Equals(parameter);
+            return obj is ParameterProvider parameter && Equals(parameter);
         }
 
-        public bool Equals(Parameter? y)
+        public bool Equals(ParameterProvider? y)
         {
             if (ReferenceEquals(this, y))
             {
@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp
             return GetHashCode(this);
         }
 
-        private int GetHashCode([DisallowNull] Parameter obj)
+        private int GetHashCode([DisallowNull] ParameterProvider obj)
         {
             // remove type as part of the hash code generation as the type might have changes between versions
             return HashCode.Combine(obj.Name);

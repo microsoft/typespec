@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp
@@ -12,13 +13,13 @@ namespace Microsoft.Generator.CSharp
     /// <summary>
     /// Represents an immutable collection of methods that are associated with an operation <see cref="InputOperation"/>.
     /// </summary>
-    public sealed class CSharpMethodCollection : IReadOnlyList<CSharpMethod>
+    public sealed class CSharpMethodCollection : IReadOnlyList<MethodProvider>
     {
-        private readonly IReadOnlyList<CSharpMethod> _cSharpMethods;
+        private readonly IReadOnlyList<MethodProvider> _cSharpMethods;
 
-        private CSharpMethodCollection(IReadOnlyList<CSharpMethod> methods)
+        private CSharpMethodCollection(IReadOnlyList<MethodProvider> methods)
         {
-            _cSharpMethods = methods ?? Array.Empty<CSharpMethod>();
+            _cSharpMethods = methods ?? Array.Empty<MethodProvider>();
         }
 
         /// <summary>
@@ -29,12 +30,12 @@ namespace Microsoft.Generator.CSharp
         public static CSharpMethodCollection DefaultCSharpMethodCollection(InputOperation operation)
         {
             var createMessageMethod = BuildCreateMessageMethod(operation);
-            var cSharpMethods = new List<CSharpMethod>() { createMessageMethod };
+            var cSharpMethods = new List<MethodProvider>() { createMessageMethod };
             // TO-DO: Add Protocol and Convenience methods https://github.com/Azure/autorest.csharp/issues/4585, https://github.com/Azure/autorest.csharp/issues/4586
             return new CSharpMethodCollection(cSharpMethods);
         }
 
-        public CSharpMethod this[int index]
+        public MethodProvider this[int index]
         {
             get { return _cSharpMethods[index]; }
         }
@@ -44,10 +45,10 @@ namespace Microsoft.Generator.CSharp
             get { return _cSharpMethods.Count; }
         }
 
-        private static CSharpMethod BuildCreateMessageMethod(InputOperation operation)
+        private static MethodProvider BuildCreateMessageMethod(InputOperation operation)
         {
             // TO-DO: properly build method https://github.com/Azure/autorest.csharp/issues/4583
-            List<Parameter> methodParameters = new();
+            List<ParameterProvider> methodParameters = new();
             foreach (var inputParam in operation.Parameters)
             {
               methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
@@ -58,15 +59,15 @@ namespace Microsoft.Generator.CSharp
             var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
             var methodBody = new EmptyLineStatement();
 
-            return new CSharpMethod(methodSignature, methodBody, CSharpMethodKinds.CreateMessage);
+            return new MethodProvider(methodSignature, methodBody, CSharpMethodKinds.CreateMessage);
         }
 
         /// <summary>
         /// Returns all methods in the collection of a specific kind.
         /// </summary>
-        internal List<CSharpMethod> GetMethods(CSharpMethodKinds kind)
+        internal List<MethodProvider> GetMethods(CSharpMethodKinds kind)
         {
-            var methods = new List<CSharpMethod>();
+            var methods = new List<MethodProvider>();
             foreach (var method in _cSharpMethods)
             {
                 if (method.Kind == kind)
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp
             return methods;
         }
 
-        public IEnumerator<CSharpMethod> GetEnumerator()
+        public IEnumerator<MethodProvider> GetEnumerator()
         {
             return _cSharpMethods.GetEnumerator();
         }

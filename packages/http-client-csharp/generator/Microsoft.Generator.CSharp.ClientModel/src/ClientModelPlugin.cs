@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -30,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider, InputModelType inputModel)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel)
         {
             // Add MRW serialization type provider
             return [new MrwSerializationTypeProvider(provider, inputModel)];
