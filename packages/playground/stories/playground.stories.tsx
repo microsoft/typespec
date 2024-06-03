@@ -3,8 +3,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { createBrowserHost } from "../src/browser-host.js";
 import { Playground } from "../src/react/playground.js";
 import type { ProgramViewer } from "../src/react/types.js";
+import { registerMonacoLanguage } from "../src/services.js";
 
 const storyHost = await createBrowserHost(["@typespec/compiler"], { useShim: true });
+
+await registerMonacoLanguage(storyHost);
 
 const meta: Meta<typeof Playground> = {
   title: "Components/Playground",
