@@ -4,9 +4,9 @@
 using System;
 using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class FieldDeclaration
+    public sealed class FieldProvider
     {
         public FormattableString? Description { get; }
         public FieldModifiers Modifiers { get; }
@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriterDeclaration Declaration => _declaration ??= new CodeWriterDeclaration(Name);
 
-        public FieldDeclaration(
+        public FieldProvider(
             FieldModifiers modifiers,
             CSharpType type,
             string name,

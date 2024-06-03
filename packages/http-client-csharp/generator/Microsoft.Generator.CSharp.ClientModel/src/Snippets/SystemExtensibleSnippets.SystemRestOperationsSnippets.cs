@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -31,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 return ClientResultSnippet.FromValue(model, response);
             }
 
-            public override TypedSnippet GetTypedResponseFromEnum(EnumTypeProvider enumType, TypedSnippet result)
+            public override TypedSnippet GetTypedResponseFromEnum(EnumProvider enumType, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
                 return ClientResultSnippet.FromValue(enumType.ToEnum(response.Content.ToObjectFromJson(typeof(string))), response);

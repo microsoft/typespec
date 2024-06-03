@@ -8,14 +8,14 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public class FixedEnumTypeProvider : EnumTypeProvider
+    internal sealed class FixedEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
-        protected internal FixedEnumTypeProvider(InputEnumType input) : base(input)
+        internal FixedEnumProvider(InputEnumType input) : base(input)
         {
             _allowedValues = input.Values;
 
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp
                 var name = inputValue.Name.ToCleanName();
                 // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
                 var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
-                var field = new FieldDeclaration(
+                var field = new FieldProvider(
                     modifiers,
                     ValueType,
                     name,
@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
             return values;
         }
 
-        protected override FieldDeclaration[] BuildFields()
+        protected override FieldProvider[] BuildFields()
             => Members.Select(v => v.Field).ToArray();
 
         public override ValueExpression ToSerial(ValueExpression enumExpression)
