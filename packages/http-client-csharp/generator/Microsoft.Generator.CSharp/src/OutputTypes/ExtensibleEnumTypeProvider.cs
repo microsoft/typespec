@@ -52,11 +52,11 @@ namespace Microsoft.Generator.CSharp
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
                 var field = new FieldDeclaration(
-                    Description: FormattableStringHelpers.FromString(inputValue.Description),
-                    Modifiers: modifiers,
-                    Type: ValueType,
-                    Name: name,
-                    InitializationValue: initializationValue);
+                    modifiers,
+                    ValueType,
+                    name,
+                    FormattableStringHelpers.FromString(inputValue.Description),
+                    initializationValue);
 
                 values[i] = new EnumTypeMember(valueName, field, inputValue.Value);
             }
