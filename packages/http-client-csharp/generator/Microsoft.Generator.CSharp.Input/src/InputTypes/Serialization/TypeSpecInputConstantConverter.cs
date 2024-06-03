@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Input
                     }
                     break;
                 case InputEnumType enumType:
-                    switch (enumType.EnumValueType.Kind)
+                    switch (enumType.ValueType.Kind)
                     {
                         case InputPrimitiveTypeKind.String:
                             value = reader.GetString() ?? throw new JsonException();
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Input
                             value = reader.GetDouble();
                             break;
                         default:
-                            throw new JsonException($"Unsupported enum value type: {enumType.EnumValueType.Kind}");
+                            throw new JsonException($"Unsupported enum value type: {enumType.ValueType.Kind}");
                     }
                     break;
                 case InputLiteralType literalType:

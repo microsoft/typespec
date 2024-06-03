@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp
             IsExtensible = input.IsExtensible;
             Name = input.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.EnumValueType);
+            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
