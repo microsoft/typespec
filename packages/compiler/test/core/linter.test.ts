@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
-import { Linter, createLinter } from "../../src/core/linter.js";
+import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import type { LibraryInstance, LinterDefinition } from "../../src/index.js";
 import {
   createTestHost,
@@ -45,13 +45,13 @@ describe("compiler: linter", () => {
 
     const library: LibraryInstance = {
       entrypoint: undefined,
-      metadata: { type: "module", name: "@typespec/test" },
+      metadata: { type: "module", name: "@typespec/test-linter" },
       module: { type: "module", path: "", mainFile: "", manifest: { name: "", version: "" } },
       definition: createTypeSpecLibrary({
-        name: "@typespec/test",
+        name: "@typespec/test-linter",
         diagnostics: {},
       }),
-      linter: linterDef,
+      linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
     };
 
     await host.compile("main.tsp");
@@ -209,6 +209,44 @@ describe("compiler: linter", () => {
         })
       );
       expectDiagnosticEmpty(linter.lint());
+    });
+  });
+
+  describe("when enabling a ruleset", () => {
+    it("/all ruleset is automatically provided and include all rules", async () => {
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [noModelFoo],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          extends: ["@typespec/test-linter/all"],
+        })
+      );
+      expectDiagnostics(linter.lint(), {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-foo",
+        message: `Cannot call model 'Foo'`,
+      });
+    });
+    it("extending specific ruleset enable the rules inside", async () => {
+      const linter = await createTestLinter(`model Foo {}`, {
+        rules: [noModelFoo],
+        ruleSets: {
+          custom: {
+            enable: { "@typespec/test-linter/no-model-foo": true },
+          },
+        },
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          extends: ["@typespec/test-linter/custom"],
+        })
+      );
+      expectDiagnostics(linter.lint(), {
+        severity: "warning",
+        code: "@typespec/test-linter/no-model-foo",
+        message: `Cannot call model 'Foo'`,
+      });
     });
   });
 

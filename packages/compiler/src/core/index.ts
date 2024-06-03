@@ -40,6 +40,7 @@ export {
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";
+export { resolveLinterDefinition } from "./linter.js";
 export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
 export { Numeric, isNumeric } from "./numeric.js";
