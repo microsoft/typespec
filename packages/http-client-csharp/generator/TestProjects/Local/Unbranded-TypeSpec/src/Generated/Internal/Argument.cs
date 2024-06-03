@@ -22,6 +22,17 @@ namespace UnbrandedTypeSpec
 
         /// <param name="value"> The value. </param>
         /// <param name="name"> The name. </param>
+        public static void AssertNotNull<T>(T value, string name)
+        where T : struct
+        {
+            if (!value.HasValue)
+            {
+                throw new ArgumentNullException(name);
+            }
+        }
+
+        /// <param name="value"> The value. </param>
+        /// <param name="name"> The name. </param>
         public static void AssertNotNullOrEmpty<T>(IEnumerable<T> value, string name)
         {
             if (value is null)
