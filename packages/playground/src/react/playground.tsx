@@ -334,7 +334,7 @@ async function compile(
         },
       },
       outputDir: "tsp-output",
-      emit: [selectedEmitter],
+      emit: selectedEmitter ? [selectedEmitter] : [],
     });
     const outputFiles = await findOutputFiles(host);
     return { program, outputFiles };
