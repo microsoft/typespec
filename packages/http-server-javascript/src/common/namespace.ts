@@ -12,7 +12,7 @@ import {
 } from "../ctx.js";
 import { parseCase } from "../util/case.js";
 import { UnimplementedError } from "../util/error.js";
-import { isIterable, join } from "../util/iter.js";
+import { cat, indent, isIterable } from "../util/iter.js";
 import { OnceQueue } from "../util/once-queue.js";
 import { emitOperationGroup } from "./interface.js";
 
@@ -25,7 +25,7 @@ import { emitOperationGroup } from "./interface.js";
 export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
   const { enums, interfaces, models, unions, namespaces, scalars, operations } = namespace;
 
-  for (const type of join<DeclarationType>(
+  for (const type of cat<DeclarationType>(
     enums.values(),
     interfaces.values(),
     models.values(),
@@ -53,7 +53,7 @@ export function visitAllTypes(ctx: JsContext, namespace: Namespace) {
       // prettier-ignore
       `/** An interface representing the operations defined in the '${getNamespaceFullName(namespace)}' namespace. */`,
       `export interface ${parseCase(namespace.name).pascalCase}<Context = unknown> {`,
-      ...emitOperationGroup(ctx, operations.values(), parentModule),
+      ...indent(emitOperationGroup(ctx, operations.values(), parentModule)),
       "}",
     ]);
   }

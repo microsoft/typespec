@@ -15,8 +15,15 @@ import {
   resolveEncodedName,
 } from "@typespec/compiler";
 import { JsContext, Module } from "../../ctx.js";
+import { parseCase } from "../../util/case.js";
+import {
+  PreciseType,
+  differentiateTypes,
+  isPreciseType,
+  writeCodeTree,
+} from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
-import { indent } from "../../util/indent.js";
+import { indent } from "../../util/iter.js";
 import { emitTypeReference } from "../reference.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
@@ -130,7 +137,29 @@ function* emitToJson(
       return;
     }
     case "Union": {
-      yield `throw new Error("Unimplemented: union JSON serialization");`;
+      for (const variant of type.variants.values()) {
+        if (!isPreciseType(variant.type)) {
+          throw new UnimplementedError(
+            `imprecise type '${variant.type.kind}' as union variant in JSON serialization`
+          );
+        }
+      }
+
+      const codeTree = differentiateTypes(
+        ctx,
+        new Set([...type.variants.values()].map((variant) => variant.type as PreciseType))
+      );
+
+      yield* writeCodeTree(ctx, codeTree, {
+        subject: "input",
+        referenceModelProperty(p) {
+          return "input." + parseCase(p.name).camelCase;
+        },
+        renderResult(type) {
+          return [`return ${transposeExpressionToJson(ctx, type, "input", module)};`];
+        },
+      });
+
       return;
     }
   }
@@ -262,7 +291,33 @@ function* emitFromJson(
       return;
     }
     case "Union": {
-      yield `throw new Error("Unimplemented: union JSON serialization");`;
+      for (const variant of type.variants.values()) {
+        if (!isPreciseType(variant.type)) {
+          throw new UnimplementedError(
+            `imprecise type '${variant.type.kind}' as union variant in JSON deserialization`
+          );
+        }
+      }
+
+      const codeTree = differentiateTypes(
+        ctx,
+        new Set([...type.variants.values()].map((variant) => variant.type as PreciseType))
+      );
+
+      yield* writeCodeTree(ctx, codeTree, {
+        subject: "input",
+        referenceModelProperty(p) {
+          const jsonName =
+            getProjectedName(ctx.program, p, "json") ??
+            resolveEncodedName(ctx.program, p, "application/json") ??
+            p.name;
+          return "input[" + JSON.stringify(jsonName) + "]";
+        },
+        renderResult(type) {
+          return [`return ${transposeExpressionFromJson(ctx, type, "input", module)};`];
+        },
+      });
+
       return;
     }
   }

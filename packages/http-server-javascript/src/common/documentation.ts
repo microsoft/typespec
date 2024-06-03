@@ -3,7 +3,7 @@
 
 import { Type, getDoc } from "@typespec/compiler";
 import { JsContext } from "../ctx.js";
-import { indent } from "../util/indent.js";
+import { indent } from "../util/iter.js";
 
 /**
  * Emit the documentation for a type in JSDoc format.

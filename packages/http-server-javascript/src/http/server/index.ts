@@ -15,11 +15,10 @@ import { emitTypeReference, isValueLiteralType } from "../../common/reference.js
 import { parseTemplateForScalar } from "../../common/scalar.js";
 import { SerializableType, requireSerialization } from "../../common/serialization/index.js";
 import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
-import { bifilter } from "../../util/bifilter.js";
 import { parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
-import { indent } from "../../util/indent.js";
+import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../feature.js";
 
@@ -316,12 +315,7 @@ function* emitResultProcessing(ctx: HttpContext, t: Type): Iterable<string> {
 
     const codeTree = differentiateTypes(
       ctx,
-      new Map(
-        [...t.variants].map(([, variant]) => [
-          variant.type as PreciseType,
-          emitResultProcessingForType(ctx, variant.type),
-        ])
-      )
+      new Set([...t.variants.values()].map((variant) => variant.type as PreciseType))
     );
 
     yield* writeCodeTree(ctx, codeTree, {
@@ -329,6 +323,8 @@ function* emitResultProcessing(ctx: HttpContext, t: Type): Iterable<string> {
       referenceModelProperty(p) {
         return "result." + parseCase(p.name).camelCase;
       },
+      // We mapped the output directly in the code tree input, so we can just return it.
+      renderResult: (t) => emitResultProcessingForType(ctx, t),
     });
   }
 }

@@ -3,7 +3,7 @@
 
 import { Model, NoTarget, Scalar, Union } from "@typespec/compiler";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
-import { indent } from "../../util/indent.js";
+import { indent } from "../../util/iter.js";
 import { createOrGetModuleForNamespace } from "../namespace.js";
 import { emitTypeReference } from "../reference.js";
 import { emitJsonSerialization, requiresJsonSerialization } from "./json.js";

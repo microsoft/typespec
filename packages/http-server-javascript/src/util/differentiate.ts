@@ -5,15 +5,14 @@ import { LiteralType, Model, ModelProperty, Scalar, Type } from "@typespec/compi
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
-import { categorize } from "./bifilter.js";
 import { parseCase } from "./case.js";
 import { UnimplementedError } from "./error.js";
-import { indent } from "./indent.js";
+import { categorize, indent } from "./iter.js";
 
 /**
  * A tree structure representing a body of TypeScript code.
  */
-export type CodeTree = Verbatim | IfChain;
+export type CodeTree = Result | IfChain;
 
 /**
  * A TypeSpec type that is precise, i.e. the type of a single value.
@@ -60,11 +59,11 @@ export interface IfBranch {
 }
 
 /**
- * A verbatim code block, written as-is with no modification.
+ * A node in the code tree indicating that a precise type has been determined.
  */
-export interface Verbatim {
-  kind: "verbatim";
-  text: Iterable<string>;
+export interface Result {
+  kind: "result";
+  type: PreciseType;
 }
 
 /**
@@ -192,10 +191,7 @@ export type LiteralValue = string | number | boolean | bigint;
  * @param cases - A map of cases to differentiate to their respective code blocks.
  * @returns a CodeTree to use with `writeCodeTree`
  */
-export function differentiateTypes(
-  ctx: JsContext,
-  cases: Map<PreciseType, Iterable<string>>
-): CodeTree {
+export function differentiateTypes(ctx: JsContext, cases: Set<PreciseType>): CodeTree {
   const categories = categorize(cases.keys(), (type) => type.kind);
 
   const literals = [
@@ -219,8 +215,8 @@ export function differentiateTypes(
           right: { kind: "literal", value: getJsValue(ctx, literal) },
         },
         body: {
-          kind: "verbatim",
-          text: cases.get(literal) ?? [],
+          kind: "result",
+          type: literal,
         },
       });
     }
@@ -299,8 +295,8 @@ export function differentiateTypes(
       branches.push({
         condition: test,
         body: {
-          kind: "verbatim",
-          text: cases.get(scalar)!,
+          kind: "result",
+          type: scalar,
         },
       });
     }
@@ -319,10 +315,10 @@ export function differentiateTypes(
    * @param map - The map to select from.
    * @returns a map containing only those keys of the original map that were also in the `keys` iterable.
    */
-  function select<K, V>(keys: Iterable<K>, map: Map<unknown, V>): Map<K, V> {
-    const result = new Map<K, V>();
+  function select<V1, V2 extends V1>(keys: Iterable<V2>, set: Set<V1>): Set<V2> {
+    const result = new Set<V2>();
     for (const key of keys) {
-      if (map.has(key)) result.set(key, map.get(key)!);
+      if (set.has(key)) result.add(key);
     }
     return result;
   }
@@ -363,17 +359,14 @@ function getJsValue(ctx: JsContext, literal: LiteralType): LiteralValue {
  * @param models - A map of models to differentiate to their respective code blocks.
  * @returns a CodeTree to use with `writeCodeTree`
  */
-export function differentiateModelTypes(
-  ctx: JsContext,
-  models: Map<Model, Iterable<string>>
-): CodeTree {
+export function differentiateModelTypes(ctx: JsContext, models: Set<Model>): CodeTree {
   // Horrible n^2 operation to get the unique properties of all models in the map, but hopefully n is small, so it should
   // be okay until you have a lot of models to differentiate.
 
   const allProps = new Set<string>();
   const uniqueProps = new Map<Model, Set<string>>();
 
-  for (const [model] of models) {
+  for (const model of models) {
     const props = new Set<string>();
 
     for (const [, prop] of model.properties) {
@@ -411,10 +404,8 @@ export function differentiateModelTypes(
           target: model,
         });
         return {
-          kind: "verbatim",
-          text: [
-            `throw new Error('Model '${model.name ?? "<anonymous>"}' does not have enough unique properties to be differentiated from other models in some contexts.');`,
-          ],
+          kind: "result",
+          type: defaultCase,
         };
       } else {
         // Allow a single default case. This covers more APIs that have a single model that is not differentiated by a
@@ -433,7 +424,7 @@ export function differentiateModelTypes(
         operator: "in",
         right: { kind: "subject" },
       },
-      body: { kind: "verbatim", text: models.get(model)! },
+      body: { kind: "result", type: model },
     });
   }
 
@@ -442,8 +433,8 @@ export function differentiateModelTypes(
     branches,
     else: defaultCase
       ? {
-          kind: "verbatim",
-          text: models.get(defaultCase)!,
+          kind: "result",
+          type: defaultCase,
         }
       : undefined,
   };
@@ -468,6 +459,11 @@ export interface CodeTreeOptions {
    * specify how model properties are stored and referenced.
    */
   referenceModelProperty: (p: ModelProperty) => string;
+
+  /**
+   * Renders a result when encountered in the code tree.
+   */
+  renderResult: (type: Type) => Iterable<string>;
 }
 
 /**
@@ -483,8 +479,8 @@ export function* writeCodeTree(
   options: CodeTreeOptions
 ): Iterable<string> {
   switch (tree.kind) {
-    case "verbatim":
-      yield* tree.text;
+    case "result":
+      yield* options.renderResult(tree.type);
       break;
     case "if-chain": {
       let first = true;
