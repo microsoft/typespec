@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Snippets;
 namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public class PropertyProvider
+    public sealed class PropertyProvider
     {
         public FormattableString Description { get; }
         public MethodSignatureModifiers Modifiers { get; }
