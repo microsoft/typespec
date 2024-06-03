@@ -1,10 +1,12 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -40,8 +42,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolExpression(BoolExpression.True);
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
+            var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
 
@@ -52,8 +54,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new VariableReference(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolExpression(BoolExpression.True);
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
+            var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
             var statementToAdd = new MethodBodyStatement();
@@ -100,18 +102,18 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementWithBoolExpression()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition);
 
             Assert.NotNull(ifStatement);
-            Assert.AreEqual(condition, ifStatement.Condition);
+            Assert.AreEqual(condition.Untyped, ifStatement.Condition);
             Assert.NotNull(ifStatement.Body);
         }
 
         [Test]
         public void IfStatementWithAddMethod()
         {
-            var ifStatement = new IfStatement(BoolExpression.True);
+            var ifStatement = new IfStatement(BoolSnippet.True);
             var statementToAdd = new MethodBodyStatement();
 
             ifStatement.Add(statementToAdd);
@@ -124,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementWithDefaultOptions()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition);
 
             Assert.IsFalse(ifStatement.Inline);
@@ -134,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementInlineOptionTrue()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition, Inline: true);
 
             Assert.IsTrue(ifStatement.Inline);
@@ -143,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfStatementAddBracesOptionFalse()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new IfStatement(condition, AddBraces: false);
 
             Assert.IsFalse(ifStatement.AddBraces);
@@ -152,21 +154,21 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void IfElseStatementWithIfAndElse()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
             Assert.NotNull(ifElseStatement);
             Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition, ifElseStatement.If.Condition);
+            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
             Assert.AreEqual(elseStatement, ifElseStatement.Else);
         }
 
         [Test]
         public void IfElseStatementWithConditionAndStatements()
         {
-            var condition = new BoolExpression(BoolExpression.True);
+            var condition = new BoolSnippet(BoolSnippet.True);
             var ifStatement = new MethodBodyStatement();
             var elseStatement = new MethodBodyStatement();
 
@@ -174,7 +176,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.NotNull(ifElseStatement);
             Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition, ifElseStatement.If.Condition);
+            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
             Assert.AreEqual(elseStatement, ifElseStatement.Else);
         }
 
@@ -185,7 +187,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatement = new MethodBodyStatement();
-            var switchCase = new SwitchCase(new ValueExpression(), caseStatement);
+            var switchCase = new SwitchCaseStatement(new ValueExpression(), caseStatement);
 
             switchStatement.Add(switchCase);
 
@@ -199,10 +201,10 @@ namespace Microsoft.Generator.CSharp.Tests
             var matchExpression = new ValueExpression();
             var switchStatement = new SwitchStatement(matchExpression);
 
-            var caseStatements = new List<SwitchCase>
+            var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -219,10 +221,10 @@ namespace Microsoft.Generator.CSharp.Tests
             var matchExpression = new ValueExpression();
             var switchStatement = new SwitchStatement(matchExpression);
 
-            var caseStatements = new List<SwitchCase>
+            var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCase(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
+                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -230,7 +232,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 switchStatement.Add(switchCase);
             }
 
-            var enumeratedCases = new List<SwitchCase>();
+            var enumeratedCases = new List<SwitchCaseStatement>();
             foreach (var caseItem in switchStatement)
             {
                 enumeratedCases.Add(caseItem);
@@ -254,7 +256,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryAndCatch()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
+            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, null);
 
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
@@ -267,7 +269,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TryCatchFinallyStatementWithTryCatchAndFinally()
         {
             var tryStatement = new MethodBodyStatement();
-            var catchStatement = new CatchStatement(null, new MethodBodyStatement());
+            var catchStatement = new CatchExpression(null, new MethodBodyStatement());
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatement, finallyStatement);
 
@@ -283,8 +285,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var tryStatement = new MethodBodyStatement();
             var catchStatements = new[]
             {
-                new CatchStatement(null, new MethodBodyStatement()),
-                new CatchStatement(null, new MethodBodyStatement())
+                new CatchExpression(null, new MethodBodyStatement()),
+                new CatchExpression(null, new MethodBodyStatement())
             };
             var finallyStatement = new MethodBodyStatement();
             var tryCatchFinally = new TryCatchFinallyStatement(tryStatement, catchStatements, finallyStatement);

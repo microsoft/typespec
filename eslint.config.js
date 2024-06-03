@@ -65,6 +65,7 @@ const allFilesConfig = tsEslint.config({
 export function getTypeScriptProjectRules(root) {
   return tsEslint.config({
     files: ["**/*.ts", "**/*.tsx"],
+    ignores: ["packages/http-client-csharp/**/*"], // Ignore isolated modules
     plugins: {
       deprecation,
     },

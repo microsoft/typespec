@@ -23,7 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.Local.Tests", "TestProjects\Local\TestProjects.Local.Tests.csproj", "{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.ClientModel.Tests", "Microsoft.Generator.CSharp.ClientModel\test\Microsoft.Generator.CSharp.ClientModel.Tests.csproj", "{D30EC838-B0A0-44CD-A361-239FF256A176}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.ClientModel.Tests", "Microsoft.Generator.CSharp.ClientModel\test\Microsoft.Generator.CSharp.ClientModel.Tests.csproj", "{D30EC838-B0A0-44CD-A361-239FF256A176}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input.Tests.Perf", "Microsoft.Generator.CSharp.Input\perf\Microsoft.Generator.CSharp.Input.Tests.Perf.csproj", "{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,6 +19,7 @@ namespace Microsoft.Generator.CSharp.Input
         Duration_Constant,
         Duration_Seconds,
         Duration_Seconds_Float,
+        Duration_Seconds_Double,
         Time_ISO8601,
         Bytes_Base64Url,
         Bytes_Base64
