@@ -809,6 +809,9 @@ importers:
       cross-env:
         specifier: ~7.0.3
         version: 7.0.3
+      es-module-shims:
+        specifier: ~1.10.0
+        version: 1.10.0
       rimraf:
         specifier: ~5.0.7
         version: 5.0.7
@@ -12483,7 +12486,6 @@ packages:
 
   /es-module-shims@1.10.0:
     resolution: {integrity: sha512-3PmuShQBd9d8pulTFx6L7HKgncnZ1oeSSbrEfnUasb3Tv974BAvyFtW1HLPJSkh5fCaU9JNZbBzPdbxSwg2zqA==}
-    dev: false
 
   /es-object-atoms@1.0.0:
     resolution: {integrity: sha512-MZ4iQ6JwHOBQjahnjwaC1ZtIBH+2ohjamzAO3oaHcXYup7qxjF2fixyH+Q71voWHeOkI2q/TnJao/KfXYIZWbw==}

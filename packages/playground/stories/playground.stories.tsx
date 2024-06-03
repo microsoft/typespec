@@ -1,24 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { createBrowserHostInternal } from "../src/browser-host.js";
+import { createBrowserHost } from "../src/browser-host.js";
 import { Playground } from "../src/react/playground.js";
 
-const storyHost = createBrowserHostInternal({
-  compiler: await import("@typespec/compiler"),
-  libraries: {
-    lib1: {
-      name: "lib1",
-      isEmitter: false,
-      packageJson: { name: "lib1", version: "1.0.0" },
-      _TypeSpecLibrary_: { typespecSourceFiles: {}, jsSourceFiles: {} },
-    },
-    lib2: {
-      name: "lib2",
-      isEmitter: false,
-      packageJson: { name: "lib2", version: "1.0.1" },
-      _TypeSpecLibrary_: { typespecSourceFiles: {}, jsSourceFiles: {} },
-    },
-  },
-});
+const storyHost = await createBrowserHost(["@typespec/compiler"], { useShim: true });
 
 const meta: Meta<typeof Playground> = {
   title: "Components/Playground",
