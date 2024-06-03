@@ -273,17 +273,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
                     continue;
                 }
 
-                var assignToParamRef = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), new ParameterReferenceSnippet(param));
-
-                if (param.Type.IsCollection && param.Type.IsNullable)
+                ValueExpression initializationValue = new ParameterReferenceSnippet(param);
+                var initializationStatement = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
+                if (initializationStatement != null)
                 {
-                    // TO-DO: Generate Optional type - https://github.com/microsoft/typespec/issues/3508
-                    var assignToInitializedCollection = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), New.Instance(param.Type.InitializationType));
-                    methodBodyStatements.Add(new IfElseStatement(Equal(new ParameterReferenceSnippet(param), Null), assignToInitializedCollection, assignToParamRef));
-                }
-                else
-                {
-                    methodBodyStatements.Add(assignToParamRef);
+                    methodBodyStatements.Add(initializationStatement);
                 }
             }
 

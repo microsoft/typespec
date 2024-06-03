@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
@@ -20,7 +20,6 @@ namespace Microsoft.Generator.CSharp
         public ParameterValidationType? Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal static IEqualityComparer<Parameter> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
 
         public Parameter(InputModelProperty inputProperty)
@@ -96,7 +95,17 @@ namespace Microsoft.Generator.CSharp
 
         public bool Equals(Parameter? y)
         {
-            return Equals(this?.Type, y?.Type);
+            if (ReferenceEquals(this, y))
+            {
+                return true;
+            }
+
+            if (this is null || y is null)
+            {
+                return false;
+            }
+
+            return Type.AreNamesEqual(y.Type) && Name == y.Name && Attributes.SequenceEqual(y.Attributes);
         }
 
         public override int GetHashCode()
@@ -104,31 +113,10 @@ namespace Microsoft.Generator.CSharp
             return GetHashCode(this);
         }
 
-        private int GetHashCode([DisallowNull] Parameter obj) => obj.Type.GetHashCode();
-
-        private class ParameterTypeAndNameEqualityComparer : IEqualityComparer<Parameter>
+        private int GetHashCode([DisallowNull] Parameter obj)
         {
-            public bool Equals(Parameter? x, Parameter? y)
-            {
-                if (ReferenceEquals(x, y))
-                {
-                    return true;
-                }
-
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-
-                var result = x.Type.AreNamesEqual(y.Type) && x.Name == y.Name;
-                return result;
-            }
-
-            public int GetHashCode([DisallowNull] Parameter obj)
-            {
-                // remove type as part of the hash code generation as the type might have changes between versions
-                return HashCode.Combine(obj.Name);
-            }
+            // remove type as part of the hash code generation as the type might have changes between versions
+            return HashCode.Combine(obj.Name);
         }
 
         private string GetDebuggerDisplay()

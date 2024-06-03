@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public override CSharpType RequestConditionsType() => typeof(int);
 
         public override CSharpType TokenCredentialType() => typeof(int);
-        public override CSharpType ChangeTrackingListType => new CSharpType(typeof(IList<>), arguments: typeof(int));
-        public override CSharpType ChangeTrackingDictionaryType => new CSharpType(typeof(IDictionary<,>), arguments: [typeof(string), typeof(int)]);
+        public override CSharpType ChangeTrackingListType => new CSharpType(typeof(List<>), arguments: typeof(int));
+        public override CSharpType ChangeTrackingDictionaryType => new CSharpType(typeof(Dictionary<,>), arguments: [typeof(string), typeof(int)]);
     }
 }

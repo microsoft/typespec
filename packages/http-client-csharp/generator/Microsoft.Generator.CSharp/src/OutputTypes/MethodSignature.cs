@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
 
                 var result = x.Name == x.Name
                     && x.ReturnType == y.ReturnType
-                    && x.Parameters.SequenceEqual(y.Parameters, Parameter.TypeAndNameEqualityComparer);
+                    && x.Parameters.SequenceEqual(y.Parameters);
                 return result;
             }
 

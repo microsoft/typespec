@@ -48,16 +48,16 @@ namespace Microsoft.Generator.CSharp
         private CSharpType? _inputType;
         private CSharpType? _outputType;
         internal bool IsReadOnlyMemory => _isReadOnlyMemory ??= TypeIsReadOnlyMemory();
-        public bool IsList => _isList ??= TypeIsList();
+        internal bool IsList => _isList ??= TypeIsList();
         internal bool IsArray => _isArray ??= TypeIsArray();
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
-        public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
+        internal bool IsDictionary => _isDictionary ??= TypeIsDictionary();
         internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
-        public bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
+        internal bool ContainsBinaryData => _containsBinaryData ??= TypeContainsBinaryData();
 
         /// <summary>
         /// Constructs a <see cref="CSharpType"/> from a <see cref="Type"/>.

@@ -153,6 +153,7 @@ namespace Microsoft.Generator.CSharp
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
                 {
+                    // TO-DO: Properly initilize collection properties - https://github.com/microsoft/typespec/issues/3509
                     initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 
