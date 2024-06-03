@@ -282,7 +282,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsDictionary)
                 {
-                    return CodeModelPlugin.Instance.TypeFactory.DictionaryImplemenationType.MakeGenericType(Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.DictionaryImplementationType.MakeGenericType(Arguments);
                 }
             }
 
