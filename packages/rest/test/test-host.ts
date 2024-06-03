@@ -71,7 +71,7 @@ export async function compileOperations(
       params: {
         params: r.parameters.parameters.map(({ type, name }) => ({ type, name })),
         body:
-          r.parameters.body?.parameter?.name ??
+          r.parameters.body?.property?.name ??
           (r.parameters.body?.type.kind === "Model"
             ? Array.from(r.parameters.body?.type.properties.keys())
             : undefined),
