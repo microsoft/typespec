@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp
 
         protected internal ExtensibleEnumTypeProvider(InputEnumType input): base(input)
         {
-            _allowedValues = input.AllowedValues;
+            _allowedValues = input.Values;
 
             // extensible enums are implemented as readonly structs
             _modifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct;

@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
-        public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionary? inheritedDictionaryType, bool isNullable)
+        public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionaryType? inheritedDictionaryType, bool isNullable)
             : base(name, isNullable)
         {
             Namespace = modelNamespace;
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Input
         public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
         public string? DiscriminatorValue { get; internal set; }
         public string? DiscriminatorPropertyName { get; internal set; }
-        public InputDictionary? InheritedDictionaryType { get; internal set; }
+        public InputDictionaryType? InheritedDictionaryType { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
 
