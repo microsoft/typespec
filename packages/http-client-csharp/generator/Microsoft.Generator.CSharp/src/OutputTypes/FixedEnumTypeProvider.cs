@@ -44,11 +44,11 @@ namespace Microsoft.Generator.CSharp
                 // for fixed enum, we only need it for int values, for other value typed fixed enum, we use the serialization extension method to give the values (because assigning them to enum members cannot compile)
                 var initializationValue = IsIntValueType ? Literal(inputValue.Value) : null;
                 var field = new FieldDeclaration(
-                    Description: FormattableStringHelpers.FromString(inputValue.Description),
-                    Modifiers: modifiers,
-                    Type: ValueType,
-                    Name: name,
-                    InitializationValue: initializationValue);
+                    modifiers,
+                    ValueType,
+                    name,
+                    FormattableStringHelpers.FromString(inputValue.Description),
+                    initializationValue);
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);
             }
