@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -12,8 +13,7 @@ namespace Microsoft.Generator.CSharp
 
         public override string Name { get; }
 
-        public ClientTypeProvider(InputClient inputClient, SourceInputModel? sourceInputModel)
-            : base(sourceInputModel)
+        public ClientTypeProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();

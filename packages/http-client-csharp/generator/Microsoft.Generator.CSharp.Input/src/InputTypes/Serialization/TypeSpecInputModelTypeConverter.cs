@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Input
             string? usageString = null;
             string? discriminatorPropertyName = null;
             string? discriminatorValue = null;
-            InputDictionary? inheritedDictionaryType = null;
+            InputDictionaryType? inheritedDictionaryType = null;
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
 

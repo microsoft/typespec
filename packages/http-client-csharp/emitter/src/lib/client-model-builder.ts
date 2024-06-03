@@ -36,8 +36,6 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveTypeKind } from "../type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../type/input-type-kind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { Usage } from "../type/usage.js";
@@ -79,25 +77,34 @@ export function createModelForService(
 
   const apiVersions: Set<string> | undefined = new Set<string>();
   let defaultApiVersion: string | undefined = undefined;
-  const versions = getVersions(program, service.type)[1]?.getVersions();
+  let versions = getVersions(program, service.type)[1]
+    ?.getVersions()
+    .map((v) => v.value);
+  const targetApiVersion = sdkContext.emitContext.options["api-version"];
+  if (
+    versions !== undefined &&
+    targetApiVersion !== undefined &&
+    targetApiVersion !== "all" &&
+    targetApiVersion !== "latest"
+  ) {
+    const targetApiVersionIndex = versions.findIndex((v) => v === targetApiVersion);
+    versions = versions.slice(0, targetApiVersionIndex + 1);
+  }
   if (versions && versions.length > 0) {
     for (const ver of versions) {
-      apiVersions.add(ver.value);
+      apiVersions.add(ver);
     }
-    defaultApiVersion = versions[versions.length - 1].value;
+    defaultApiVersion = versions[versions.length - 1];
   }
   const defaultApiVersionConstant: InputConstant | undefined = defaultApiVersion
     ? {
         Type: {
-          Kind: InputTypeKind.Primitive,
-          Name: InputPrimitiveTypeKind.String,
+          Kind: "string",
           IsNullable: false,
         } as InputPrimitiveType,
         Value: defaultApiVersion,
       }
     : undefined;
-
-  const description = getDoc(program, serviceNamespaceType);
 
   const servers = getServers(program, serviceNamespaceType);
   const namespace = getNamespaceFullName(serviceNamespaceType) || "client";
@@ -140,8 +147,33 @@ export function createModelForService(
     addChildClients(sdkContext.emitContext, client, clients);
   }
 
+  navigateModels(sdkContext, modelMap, enumMap);
+
+  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
+  setUsage(usages, modelMap);
+  setUsage(usages, enumMap);
+
   for (const client of clients) {
     for (const op of client.Operations) {
+      /* TODO: remove this when adopt tcgc.
+       *set Multipart usage for models.
+       */
+      const bodyParameter = op.Parameters.find((value) => value.Location === RequestLocation.Body);
+      if (bodyParameter && bodyParameter.Type && (bodyParameter.Type as InputModelType)) {
+        const inputModelType = bodyParameter.Type as InputModelType;
+        op.RequestMediaTypes?.forEach((item) => {
+          if (item === "multipart/form-data" && !inputModelType.Usage.includes(Usage.Multipart)) {
+            if (inputModelType.Usage.trim().length === 0) {
+              inputModelType.Usage = inputModelType.Usage.concat(Usage.Multipart);
+            } else {
+              inputModelType.Usage = inputModelType.Usage.trim()
+                .concat(",")
+                .concat(Usage.Multipart);
+            }
+          }
+        });
+      }
+
       const apiVersionIndex = op.Parameters.findIndex(
         (value: InputParameter) => value.IsApiVersion
       );
@@ -159,15 +191,8 @@ export function createModelForService(
     }
   }
 
-  navigateModels(sdkContext, modelMap, enumMap);
-
-  const usages = getUsages(sdkContext, convenienceOperations, modelMap);
-  setUsage(usages, modelMap);
-  setUsage(usages, enumMap);
-
   const clientModel = {
     Name: namespace,
-    Description: description,
     ApiVersions: Array.from(apiVersions.values()),
     Enums: Array.from(enumMap.values()),
     Models: Array.from(modelMap.values()),
@@ -232,6 +257,7 @@ export function createModelForService(
       Protocol: {},
       Creatable: client.kind === ClientKind.SdkClient,
       Parent: parent === undefined ? undefined : getClientName(parent),
+      Parameters: urlParameters,
     } as InputClient;
     for (const op of operations) {
       const httpOperation = ignoreDiagnostics(getHttpOperation(program, op));

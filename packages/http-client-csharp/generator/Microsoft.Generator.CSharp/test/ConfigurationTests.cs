@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using static Microsoft.Generator.CSharp.Expressions.ExtensibleSnippets;
+using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Tests
     public class ConfigurationTests
     {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        private readonly string _mocksFolder = "./mocks";
+        private readonly string _mocksFolder = "./Mocks";
 
         // Validates that the configuration is initialized correctly given input
         [Test]

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -13,10 +14,7 @@ namespace UnbrandedTypeSpec.Models
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         public ProjectedModel(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            Argument.AssertNotNull(name, nameof(name));
 
             Name = name;
         }
@@ -28,7 +26,5 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> name of the ModelWithProjectedName. </summary>
         public string Name { get; set; }
-
-        // Add Nested Type
     }
 }

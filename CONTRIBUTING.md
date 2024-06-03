@@ -1,4 +1,4 @@
-# Developper guide
+# Developer guide
 
 This section goes over the setup of the repo for development.
 
@@ -297,17 +297,6 @@ TypeSpec repo use labels to help categorize and manage issues and PRs. The follo
 
 ### Labels reference
 
-#### issue_kinds
-
-Issue kinds
-
-| Name      | Color   | Description                                |
-| --------- | ------- | ------------------------------------------ |
-| `bug`     | #d93f0b | Something isn't working                    |
-| `feature` | #cccccc | New feature or request                     |
-| `docs`    | #cccccc | Improvements or additions to documentation |
-| `epic`    | #cccccc |                                            |
-
 #### area
 
 Area of the codebase
@@ -331,6 +320,17 @@ Area of the codebase
 | `emitter:service:csharp`     | #967200 |                                       |
 | `emitter:service:js`         | #967200 |                                       |
 | `eng`                        | #65bfff |                                       |
+
+#### issue_kinds
+
+Issue kinds
+
+| Name      | Color   | Description                                |
+| --------- | ------- | ------------------------------------------ |
+| `bug`     | #d93f0b | Something isn't working                    |
+| `feature` | #cccccc | New feature or request                     |
+| `docs`    | #cccccc | Improvements or additions to documentation |
+| `epic`    | #cccccc |                                            |
 
 #### breaking-change
 

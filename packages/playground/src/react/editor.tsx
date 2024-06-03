@@ -1,5 +1,5 @@
-import { editor, IDisposable, Uri } from "monaco-editor";
-import { FunctionComponent, useEffect, useMemo, useRef } from "react";
+import { Uri, editor, type IDisposable } from "monaco-editor";
+import { useEffect, useMemo, useRef, type FunctionComponent } from "react";
 
 export interface EditorProps {
   model: editor.IModel;

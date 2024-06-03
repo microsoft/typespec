@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.SourceInput
 {
     internal class ModelTypeMapping
     {
@@ -67,7 +67,7 @@ namespace Microsoft.Generator.CSharp
                 renamedSymbol :
                 _propertyMappings.TryGetValue(name, out var memberSymbol) ? memberSymbol : null;
 
-        public SourcePropertySerializationMapping? GetForMemberSerialization(string name)
+        internal SourcePropertySerializationMapping? GetForMemberSerialization(string name)
             => _typeSerializationMappings.TryGetValue(name, out var serialization) ? serialization : null;
 
         public IEnumerable<ISymbol> GetPropertiesWithSerialization()

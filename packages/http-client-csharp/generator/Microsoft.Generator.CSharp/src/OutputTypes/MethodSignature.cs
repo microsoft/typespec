@@ -31,18 +31,6 @@ namespace Microsoft.Generator.CSharp
         public static IEqualityComparer<MethodSignature> ParameterAndReturnTypeEqualityComparer = new MethodSignatureParameterAndReturnTypeEqualityComparer();
 
         /// <summary>
-        /// Returns a new instance of MethodSignature with all required parameters.
-        /// </summary>
-        public MethodSignature WithParametersRequired()
-        {
-            if (Parameters.All(p => p.DefaultValue is null))
-            {
-                return this;
-            }
-            return this with { Parameters = Parameters.Select(p => p.ToRequired()).ToList() };
-        }
-
-        /// <summary>
         /// Gets the C# reference string for the method.
         /// </summary>
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
