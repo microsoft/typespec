@@ -123,13 +123,33 @@ extern dec bodyRoot(target: ModelProperty);
 extern dec bodyIgnore(target: ModelProperty);
 
 /**
+ * @example
+ *
+ * ```tsp
+ * op upload(
+ *   @header `content-type`: "multipart/form-data",
+ *   @multipartBody body: {
+ *     fullName: HttpPart<string>,
+ *     headShots: HttpPart<Image>[]
+ *   }
+ * ): void;
+ * ```
+ */
+extern dec multipartBody(target: ModelProperty);
+
+/**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
  *
  * @example
  *
  * ```typespec
- * op read(): {@statusCode: 200, @body pet: Pet}
- * op create(): {@statusCode: 201 | 202}
+ * op read(): {
+ *   @statusCode _: 200;
+ *   @body pet: Pet;
+ * };
+ * op create(): {
+ *   @statusCode _: 201 | 202;
+ * };
  * ```
  */
 extern dec statusCode(target: ModelProperty);
@@ -291,10 +311,3 @@ extern dec route(
  * ```
  */
 extern dec sharedRoute(target: Operation);
-
-/**
- * Private decorators. Those are meant for internal use inside Http types only.
- */
-namespace Private {
-  extern dec plainData(target: TypeSpec.Reflection.Model);
-}

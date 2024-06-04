@@ -27,5 +27,5 @@ interface Pets {
 @route("/stores")
 interface Stores {
   list(@query filter: string): Store[];
-  read(@path id: Store): Store;
+  read(@path id: string): Store;
 }

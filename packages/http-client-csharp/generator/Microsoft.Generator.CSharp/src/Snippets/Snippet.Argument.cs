@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Snippets
                 return ArgumentProvider.Instance.AssertNotNullOrWhiteSpace(variable);
             }
 
-            public static MethodBodyStatement ValidateParameter(Parameter parameter)
+            public static MethodBodyStatement ValidateParameter(ParameterProvider parameter)
             {
                 return parameter.Validation switch
                 {

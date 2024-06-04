@@ -1,29 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.SourceInput;
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private readonly Lazy<INamedTypeSymbol?> _existingType;
-
         protected string? _deprecated;
-
-        protected TypeProvider()
-        {
-            _existingType = new Lazy<INamedTypeSymbol?>(() => SourceInputModel.Instance.FindForType(Name));
-        }
 
         public abstract string Name { get; }
         public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         public virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
-        protected INamedTypeSymbol? ExistingType => _existingType.Value;
 
         internal virtual Type? SerializeAs => null;
 
@@ -83,32 +73,32 @@ namespace Microsoft.Generator.CSharp
         private IReadOnlyList<CSharpType>? _implements;
         public IReadOnlyList<CSharpType> Implements => _implements ??= BuildImplements();
 
-        private IReadOnlyList<PropertyDeclaration>? _properties;
-        public IReadOnlyList<PropertyDeclaration> Properties => _properties ??= BuildProperties();
+        private IReadOnlyList<PropertyProvider>? _properties;
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= BuildProperties();
 
-        private IReadOnlyList<CSharpMethod>? _methods;
-        public IReadOnlyList<CSharpMethod> Methods => _methods ??= BuildMethods();
+        private IReadOnlyList<MethodProvider>? _methods;
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethods();
 
-        private IReadOnlyList<CSharpMethod>? _constructors;
-        public IReadOnlyList<CSharpMethod> Constructors => _constructors ??= BuildConstructors();
+        private IReadOnlyList<MethodProvider>? _constructors;
+        public IReadOnlyList<MethodProvider> Constructors => _constructors ??= BuildConstructors();
 
-        private IReadOnlyList<FieldDeclaration>? _fields;
-        public IReadOnlyList<FieldDeclaration> Fields => _fields ??= BuildFields();
+        private IReadOnlyList<FieldProvider>? _fields;
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
 
-        protected virtual PropertyDeclaration[] BuildProperties() => Array.Empty<PropertyDeclaration>();
+        protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
 
-        protected virtual FieldDeclaration[] BuildFields() => Array.Empty<FieldDeclaration>();
+        protected virtual FieldProvider[] BuildFields() => Array.Empty<FieldProvider>();
 
         protected virtual CSharpType[] BuildImplements() => Array.Empty<CSharpType>();
 
-        protected virtual CSharpMethod[] BuildMethods() => Array.Empty<CSharpMethod>();
+        protected virtual MethodProvider[] BuildMethods() => Array.Empty<MethodProvider>();
 
-        protected virtual CSharpMethod[] BuildConstructors() => Array.Empty<CSharpMethod>();
+        protected virtual MethodProvider[] BuildConstructors() => Array.Empty<MethodProvider>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
 

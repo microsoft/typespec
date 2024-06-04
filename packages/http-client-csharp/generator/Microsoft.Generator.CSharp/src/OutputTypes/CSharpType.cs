@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -581,7 +582,7 @@ namespace Microsoft.Generator.CSharp
 
                 return literalType;
             }
-            else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
+            else if (type is { IsFrameworkType: false, Implementation: EnumProvider enumType })
             {
                 var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
                 {

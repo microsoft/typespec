@@ -23,8 +23,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestTokenAuth()
         {
-            var knownParameters = new KnownParameters();
-            var result = knownParameters.TokenAuth;
+            var result = KnownParameters.TokenAuth;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
@@ -33,8 +32,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void TestMatchConditionsParameter()
         {
-            var knownParameters = new KnownParameters();
-            var result = knownParameters.MatchConditionsParameter;
+            var result = KnownParameters.MatchConditionsParameter;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
@@ -43,8 +41,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void TestRequestConditionsParameter()
         {
-            var knownParameters = new KnownParameters();
-            var result = knownParameters.RequestConditionsParameter;
+            var result = KnownParameters.RequestConditionsParameter;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));

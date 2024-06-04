@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Moq;
@@ -104,7 +105,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
-        private static CSharpMethod ConstructMockMethod()
+        private static MethodProvider ConstructMockMethod()
         {
             // create method signature
             var methodName = "TestMethod";
@@ -113,9 +114,9 @@ namespace Microsoft.Generator.CSharp.Tests
             FormattableString returnDescription = $"Sample return description for {methodName}";
             var methodSignatureModifiers = MethodSignatureModifiers.Public;
             var returnType = new CSharpType(typeof(BinaryData));
-            var parameters = new List<Parameter>()
+            var parameters = new List<ParameterProvider>()
             {
-                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
+                new ParameterProvider("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
             };
 
             var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
@@ -126,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new KeywordStatement("return", responseVar)
             };
 
-            var method = new CSharpMethod
+            var method = new MethodProvider
             (
                 new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
                 resultStatements,

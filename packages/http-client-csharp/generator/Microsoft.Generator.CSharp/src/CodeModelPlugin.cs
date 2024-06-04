@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
@@ -43,6 +44,6 @@ namespace Microsoft.Generator.CSharp
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
+        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider);
     }
 }

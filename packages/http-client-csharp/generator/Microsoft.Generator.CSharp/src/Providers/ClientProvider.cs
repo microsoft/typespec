@@ -3,25 +3,24 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.SourceInput;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ClientTypeProvider : TypeProvider
+    public sealed class ClientProvider : TypeProvider
     {
         private readonly InputClient _inputClient;
 
         public override string Name { get; }
 
-        public ClientTypeProvider(InputClient inputClient)
+        public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
-            List<CSharpMethod> methods = new List<CSharpMethod>();
+            List<MethodProvider> methods = new List<MethodProvider>();
 
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)

@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -207,7 +208,7 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteMethod(CSharpMethod method)
+        public void WriteMethod(MethodProvider method)
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
@@ -233,7 +234,7 @@ namespace Microsoft.Generator.CSharp
             WriteLine();
         }
 
-        public void WriteProperty(PropertyDeclaration property)
+        public void WriteProperty(PropertyProvider property)
         {
             if (!CurrentLine.IsEmpty)
             {
@@ -270,7 +271,7 @@ namespace Microsoft.Generator.CSharp
             {
                 Append($"{property.ExplicitInterface}.");
             }
-            if (property is IndexerDeclaration indexer)
+            if (property is IndexerProvider indexer)
             {
                 Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.Name}]");
             }
@@ -367,7 +368,7 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteParameter(Parameter clientParameter)
+        public void WriteParameter(ParameterProvider clientParameter)
         {
             if (clientParameter.Attributes.Any())
             {
@@ -393,7 +394,7 @@ namespace Microsoft.Generator.CSharp
             AppendRaw(",");
         }
 
-        public CodeWriter WriteField(FieldDeclaration field)
+        public CodeWriter WriteField(FieldProvider field)
         {
             if (!CurrentLine.IsEmpty)
             {
@@ -431,9 +432,9 @@ namespace Microsoft.Generator.CSharp
             return WriteLine($";");
         }
 
-        public CodeWriter WriteParametersValidation(IEnumerable<Parameter> parameters)
+        public CodeWriter WriteParametersValidation(IEnumerable<ParameterProvider> parameters)
         {
-            foreach (Parameter parameter in parameters)
+            foreach (ParameterProvider parameter in parameters)
             {
                 WriteParameterValidation(parameter);
             }
@@ -442,7 +443,7 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private CodeWriter WriteParameterValidation(Parameter parameter)
+        private CodeWriter WriteParameterValidation(ParameterProvider parameter)
         {
             var validationStatement = Argument.ValidateParameter(parameter);
 
@@ -566,6 +567,10 @@ namespace Microsoft.Generator.CSharp
             if (type.TryGetCSharpFriendlyName(out var keywordName))
             {
                 AppendRaw(keywordName);
+                if (type.FrameworkType.IsGenericParameter && type.IsNullable)
+                {
+                    AppendRaw("?");
+                }
             }
             else if (isDeclaration && !type.IsFrameworkType)
             {

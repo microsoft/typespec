@@ -6,23 +6,23 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public abstract class EnumTypeProvider : TypeProvider
+    public abstract class EnumProvider : TypeProvider
     {
-        public static EnumTypeProvider Create(InputEnumType input)
+        public static EnumProvider Create(InputEnumType input)
             => input.IsExtensible
-            ? new ExtensibleEnumTypeProvider(input)
-            : new FixedEnumTypeProvider(input);
+            ? new ExtensibleEnumProvider(input)
+            : new FixedEnumProvider(input);
 
-        protected EnumTypeProvider(InputEnumType input)
+        protected EnumProvider(InputEnumType input)
         {
             _deprecated = input.Deprecated;
 
             IsExtensible = input.IsExtensible;
             Name = input.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.EnumValueType);
+            ValueType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(input.ValueType);
             IsStringValueType = ValueType.Equals(typeof(string));
             IsIntValueType = ValueType.Equals(typeof(int)) || ValueType.Equals(typeof(long));
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));

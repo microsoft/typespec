@@ -1,9 +1,11 @@
+import { defineConfig } from "vitest/config";
+
 export default ["packages/*/vitest.config.ts", "packages/*/vitest.config.mts"];
 
 /**
  * Default Config For all TypeSpec projects using vitest.
  */
-export const defaultTypeSpecVitestConfig = {
+export const defaultTypeSpecVitestConfig = defineConfig({
   test: {
     environment: "node",
     isolate: false,
@@ -14,8 +16,6 @@ export const defaultTypeSpecVitestConfig = {
       junit: "./test-results.xml",
     },
     watchExclude: [],
+    exclude: ["node_modules", "dist/test"],
   },
-  build: {
-    outDir: "dummy", // Workaround for bug https://github.com/vitest-dev/vitest/issues/5429
-  },
-};
+});

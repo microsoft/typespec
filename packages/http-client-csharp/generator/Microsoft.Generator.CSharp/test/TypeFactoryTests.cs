@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -48,10 +49,10 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             get
             {
-                yield return new TestCaseData(new InputList("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputList), isNullable: false), false);
-                yield return new TestCaseData(new InputDictionary("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionary), isNullable: false), false);
+                yield return new TestCaseData(new InputListType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputListType), isNullable: false), false);
+                yield return new TestCaseData(new InputDictionaryType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionaryType), isNullable: false), false);
                 yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
-                yield return new TestCaseData(new InputLiteralType("literalType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), "literal", false), null, true);
+                yield return new TestCaseData(new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), "literal", false), null, true);
             }
         }
 
@@ -78,7 +79,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 throw new NotImplementedException();
             }
 
-            public override Parameter CreateCSharpParam(InputParameter parameter)
+            public override ParameterProvider CreateCSharpParam(InputParameter parameter)
             {
                 throw new NotImplementedException();
             }
@@ -92,10 +93,10 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 switch (input)
                 {
-                    case InputList:
-                        return new CSharpType(typeof(InputList), isNullable: false);
-                    case InputDictionary:
-                        return new CSharpType(typeof(InputDictionary), isNullable: false);
+                    case InputListType:
+                        return new CSharpType(typeof(InputListType), isNullable: false);
+                    case InputDictionaryType:
+                        return new CSharpType(typeof(InputDictionaryType), isNullable: false);
                     case InputPrimitiveType:
                         return new CSharpType(typeof(InputPrimitiveType), isNullable: false);
                     default:
