@@ -235,6 +235,15 @@ function getParentAddedVersionInTimeline(
   return undefined;
 }
 
+/**
+ * Returns true if the first version modifier was @added, false if @removed.
+ */
+function resolveAddedFirst(added: Version[], removed: Version[]): boolean {
+  if (added.length === 0) return false;
+  if (removed.length === 0) return true;
+  return added[0].index < removed[0].index;
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type
@@ -261,9 +270,15 @@ export function getAvailabilityMap(
   )
     return undefined;
 
+  const wasAddedFirst = resolveAddedFirst(added, removed);
+
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified, or inherited from their parent.
-  if (!added.length && !parentAdded) {
+  if (!wasAddedFirst && !parentAdded) {
+    // if the first version modifier was @removed, and the parent is implicitly available,
+    // then assume the type was available.
+    added = [allVersions[0], ...added];
+  } else if (!added.length && !parentAdded) {
     // no version information on the item or its parent implicitly means it has always been available
     added.push(allVersions[0]);
   } else if (!added.length && parentAdded) {
@@ -317,11 +332,18 @@ export function getAvailabilityMapInTimeline(
   )
     return undefined;
 
+  const wasAddedFirst = resolveAddedFirst(added, removed);
+
   // implicitly, all versioned things are assumed to have been added at
   // v1 if not specified, or inherited from their parent.
-  if (!added.length && !parentAdded) {
+  const firstVersion = timeline.first().versions().next().value;
+  if (!wasAddedFirst && !parentAdded) {
+    // if the first version modifier was @removed, and the parent is implicitly available,
+    // then assume the type was available.
+    added = [firstVersion, ...added];
+  } else if (!added.length && !parentAdded) {
     // no version information on the item or its parent implicitly means it has always been available
-    added.push(timeline.first().versions().next().value);
+    added.push(firstVersion);
   } else if (!added.length && parentAdded) {
     // if no version info on type but is on parent, inherit that parent's "added" version
     added.push(parentAdded);

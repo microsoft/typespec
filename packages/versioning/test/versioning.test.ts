@@ -281,7 +281,7 @@ describe("versioning: logic", () => {
       );
     });
 
-    it("can be removed respecting model versioning", async () => {
+    it("can be removed respecting model versioning with explicit versions", async () => {
       const {
         source,
         projections: [v2, v3, v4],
@@ -306,6 +306,35 @@ describe("versioning: logic", () => {
           [v2, "v2"],
           [v3, "v3"],
           [v4, "v4"],
+        ],
+        source
+      );
+    });
+
+    it("can be removed respecting model versioning with implicit versions", async () => {
+      const {
+        source,
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `model Test {
+          a: int32;
+          @removed(Versions.v2)
+          @added(Versions.v3)
+          b: int32;
+        }
+        `
+      );
+
+      assertHasProperties(v1, ["a", "b"]);
+      assertHasProperties(v2, ["a"]);
+      assertHasProperties(v3, ["a", "b"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+          [v3, "v3"],
         ],
         source
       );
