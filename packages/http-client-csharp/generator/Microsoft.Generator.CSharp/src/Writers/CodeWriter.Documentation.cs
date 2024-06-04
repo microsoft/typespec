@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -25,7 +26,7 @@ namespace Microsoft.Generator.CSharp
             return WriteDocumentationLines($"<{tag}>", $"</{tag}>", text);
         }
 
-        public CodeWriter WriteXmlDocumentationParameters(IEnumerable<Parameter> parameters)
+        public CodeWriter WriteXmlDocumentationParameters(IEnumerable<ParameterProvider> parameters)
         {
             foreach (var parameter in parameters)
             {
@@ -46,7 +47,7 @@ namespace Microsoft.Generator.CSharp
         /// <param name="writer">Writer to which code is written to.</param>
         /// <param name="parameter">The definition of the parameter, including name and description.</param>
         /// <returns></returns>
-        public CodeWriter WriteXmlDocumentationParameter(Parameter parameter)
+        public CodeWriter WriteXmlDocumentationParameter(ParameterProvider parameter)
         {
             return WriteXmlDocumentationParameter(parameter.Name, [parameter.Description]);
         }
@@ -103,17 +104,17 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public CodeWriter WriteXmlDocumentationRequiredParametersException(IEnumerable<Parameter> parameters)
+        public CodeWriter WriteXmlDocumentationRequiredParametersException(IEnumerable<ParameterProvider> parameters)
         {
             return WriteXmlDocumentationParametersExceptions(typeof(ArgumentNullException), parameters.Where(p => p.Validation is ParameterValidationType.AssertNotNull or ParameterValidationType.AssertNotNullOrEmpty).ToArray(), " is null.");
         }
 
-        public CodeWriter WriteXmlDocumentationNonEmptyParametersException(IEnumerable<Parameter> parameters)
+        public CodeWriter WriteXmlDocumentationNonEmptyParametersException(IEnumerable<ParameterProvider> parameters)
         {
             return WriteXmlDocumentationParametersExceptions(typeof(ArgumentException), parameters.Where(p => p.Validation == ParameterValidationType.AssertNotNullOrEmpty).ToArray(), " is an empty string, and was expected to be non-empty.");
         }
 
-        private CodeWriter WriteXmlDocumentationParametersExceptions(Type exceptionType, IReadOnlyCollection<Parameter> parameters, string reason)
+        private CodeWriter WriteXmlDocumentationParametersExceptions(Type exceptionType, IReadOnlyCollection<ParameterProvider> parameters, string reason)
         {
             if (parameters.Count == 0)
             {

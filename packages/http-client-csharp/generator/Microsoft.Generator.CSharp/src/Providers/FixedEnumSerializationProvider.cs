@@ -11,16 +11,16 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     /// <summary>
     /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum
     /// </summary>
     internal class FixedEnumSerializationProvider : TypeProvider
     {
-        private readonly EnumTypeProvider _enumType;
+        private readonly EnumProvider _enumType;
 
-        public FixedEnumSerializationProvider(EnumTypeProvider enumType)
+        public FixedEnumSerializationProvider(EnumProvider enumType)
         {
             Debug.Assert(!enumType.IsExtensible);
 
@@ -51,13 +51,13 @@ namespace Microsoft.Generator.CSharp
             return true;
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>();
+            var methods = new List<MethodProvider>();
             // serialization method (in some cases we do not need serialization)
             if (NeedsSerializationMethod())
             {
-                var serializationValueParameter = new Parameter("value", $"The value to serialize.", _enumType.Type);
+                var serializationValueParameter = new ParameterProvider("value", $"The value to serialize.", _enumType.Type);
                 var serializationSignature = new MethodSignature(
                     Name: $"ToSerial{_enumType.ValueType.Name}",
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp
             }
 
             // deserialization method (we always need a deserialization)
-            var deserializationValueParameter = new Parameter("value", $"The value to deserialize.", _enumType.ValueType);
+            var deserializationValueParameter = new ParameterProvider("value", $"The value to deserialize.", _enumType.ValueType);
             var deserializationSignature = new MethodSignature(
                 Name: $"To{_enumType.Type.Name}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,

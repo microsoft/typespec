@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ParameterValidationStatement(IReadOnlyList<Parameter> Parameters) : MethodBodyStatement
+    public sealed record ParameterValidationStatement(IReadOnlyList<ParameterProvider> Parameters) : MethodBodyStatement
     {
         internal sealed override void Write(CodeWriter writer)
         {

@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -22,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public override TypeFactory TypeFactory => new MockTypeFactory();
         public override ExtensibleSnippets ExtensibleSnippets => throw new NotImplementedException();
         public override OutputLibrary OutputLibrary => throw new NotImplementedException();
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel) => throw new NotImplementedException();
         public override string LiscenseString => "// License string";
     }
 }

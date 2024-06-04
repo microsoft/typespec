@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using NUnit.Framework;
 
@@ -50,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, null, false);
-            var modelTypeProvider = new ModelTypeProvider(inputModel);
+            var modelTypeProvider = new ModelProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
             Assert.IsNotNull(properties);
@@ -159,23 +160,15 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
 
-            var modelTypeProvider = new ModelTypeProvider(inputModel);
+            var modelTypeProvider = new ModelProvider(inputModel);
             var ctors = modelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(3, ctors.Count);
+            Assert.AreEqual(1, ctors.Count);
 
             var initializationCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor.Signature.Modifiers);
             Assert.AreEqual(3, initializationCtor.Signature.Parameters.Count);
-
-            var serializationCtor = ctors[1];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
-
-            var emptyCtor = ctors[2];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
-            Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }
     }
 }

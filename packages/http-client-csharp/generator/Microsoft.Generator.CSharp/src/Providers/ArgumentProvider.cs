@@ -10,7 +10,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
     internal class ArgumentProvider : TypeProvider
     {
@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp
         private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
 
         private readonly CSharpType _t = typeof(Template<>).GetGenericArguments()[0];
-        private readonly Parameter _nameParam = new Parameter("name", $"The name.", typeof(string));
+        private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
         private readonly CSharpType _nullableT;
         private readonly ParameterReferenceSnippet _nameParamRef;
 
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp
 
         private MethodSignature GetSignature(
             string name,
-            IReadOnlyList<Parameter> parameters,
+            IReadOnlyList<ParameterProvider> parameters,
             IReadOnlyList<CSharpType>? genericArguments = null,
             IReadOnlyList<WhereExpression>? whereExpressions = null,
             CSharpType? returnType = null)
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp
                 GenericParameterConstraints: whereExpressions);
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             return
             [
@@ -82,14 +82,14 @@ namespace Microsoft.Generator.CSharp
         }
 
 
-        private CSharpMethod BuildAssertNull()
+        private MethodProvider BuildAssertNull()
         {
-            var valueParam = new Parameter("value", $"The value.", _t);
-            var messageParam = new Parameter("message", $"The message.", typeof(string), DefaultOf(new CSharpType(typeof(string), true)));
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
+            var messageParam = new ParameterProvider("message", $"The message.", typeof(string), DefaultOf(new CSharpType(typeof(string), true)));
             var signature = GetSignature("AssertNull", [valueParam, _nameParam, messageParam], [_t]);
             var value = new ParameterReferenceSnippet(valueParam);
             var message = new ParameterReferenceSnippet(messageParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(NotEqual(value, Null))
                 {
@@ -98,38 +98,38 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildCheckNotNullOrEmptyString()
+        private MethodProvider BuildCheckNotNullOrEmptyString()
         {
-            var valueParam = new Parameter("value", $"The value.", typeof(string));
+            var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature("CheckNotNullOrEmpty", [valueParam, _nameParam], returnType: typeof(string));
             var value = new ParameterReferenceSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullOrEmpty(value, _nameParamRef),
                 Return(value)
             });
         }
 
-        private CSharpMethod BuildCheckNotNull()
+        private MethodProvider BuildCheckNotNull()
         {
-            var valueParam = new Parameter("value", $"The value.", _t);
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
             var signature = GetSignature("CheckNotNull", [valueParam, _nameParam], new[] { _t }, new[] { Where.Class(_t) }, _t);
             var value = new ParameterReferenceSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNull(value, _nameParamRef),
                 Return(value)
             });
         }
 
-        private CSharpMethod BuildAssertEnumDefined()
+        private MethodProvider BuildAssertEnumDefined()
         {
-            var valueParam = new Parameter("value", $"The value.", typeof(object), null);
-            var enumTypeParam = new Parameter("enumType", $"The enum value.", typeof(Type));
+            var valueParam = new ParameterProvider("value", $"The value.", typeof(object), null);
+            var enumTypeParam = new ParameterProvider("enumType", $"The enum value.", typeof(Type));
             var signature = GetSignature("AssertEnumDefined", [enumTypeParam, valueParam, _nameParam]);
             var enumType = new ParameterReferenceSnippet(enumTypeParam).Untyped;
             var value = new ParameterReferenceSnippet(valueParam).Untyped;
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Not(new BoolSnippet(new InvokeStaticMethodExpression(typeof(Enum), "IsDefined", [enumType, value]))))
                 {
@@ -138,15 +138,15 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildAssertInRange()
+        private MethodProvider BuildAssertInRange()
         {
-            var valueParam = new Parameter("value", $"The value.", _t);
-            var minParam = new Parameter("minimum", $"The minimum value.", _t);
-            var maxParam = new Parameter("maximum", $"The maximum value.", _t);
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
+            var minParam = new ParameterProvider("minimum", $"The minimum value.", _t);
+            var maxParam = new ParameterProvider("maximum", $"The maximum value.", _t);
             var whereExpressions = new WhereExpression[] { Where.NotNull(_t).And(new CSharpType(typeof(IComparable<>), _t)) };
             var signature = GetSignature("AssertInRange", new[] { valueParam, minParam, maxParam, _nameParam }, new[] { _t }, whereExpressions);
             var value = new ParameterReferenceSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(GreaterThan(GetCompareToExpression(new ParameterReferenceSnippet(minParam), value), Literal(0)))
                 {
@@ -164,14 +164,14 @@ namespace Microsoft.Generator.CSharp
             return left.Invoke("CompareTo", right);
         }
 
-        private CSharpMethod BuildAssertNotDefault()
+        private MethodProvider BuildAssertNotDefault()
         {
-            var valueParam = new Parameter("value", $"The value.", _t);
-            var valueParamWithRef = new Parameter("value", $"The value.", _t, null, true);
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
+            var valueParamWithRef = new ParameterProvider("value", $"The value.", _t, null, true);
             var whereExpressions = new WhereExpression[] { Where.Struct(_t).And(new CSharpType(typeof(IEquatable<>), _t)) };
             var signature = GetSignature("AssertNotDefault", [valueParamWithRef, _nameParam], [_t], whereExpressions);
             var value = new ParameterReferenceSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(new BoolSnippet(value.Untyped.Invoke("Equals", Default)))
                 {
@@ -180,12 +180,12 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildAssertNotNullOrWhiteSpace()
+        private MethodProvider BuildAssertNotNullOrWhiteSpace()
         {
-            var valueParam = new Parameter("value", $"The value.", typeof(string));
+            var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrWhiteSpaceMethodName, [valueParam, _nameParam]);
             var value = new StringSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
                 new IfStatement(StringSnippet.IsNullOrWhiteSpace(value))
@@ -195,12 +195,12 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildAssertNotNullOrEmptyString()
+        private MethodProvider BuildAssertNotNullOrEmptyString()
         {
-            var valueParam = new Parameter("value", $"The value.", typeof(string));
+            var valueParam = new ParameterProvider("value", $"The value.", typeof(string));
             var signature = GetSignature(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam]);
             var value = new StringSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
                 new IfStatement(Equal(value.Length, Literal(0)))
@@ -210,12 +210,12 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildAssertNotNullOrEmptyCollection()
+        private MethodProvider BuildAssertNotNullOrEmptyCollection()
         {
             const string throwMessage = "Value cannot be an empty collection.";
-            var valueParam = new Parameter("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
+            var valueParam = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var signature = GetSignature(AssertNotNullOrEmptyMethodName, [valueParam, _nameParam], [_t]);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
                 new IfStatement(IsCollectionEmpty(valueParam, new VariableReferenceSnippet(new CSharpType(typeof(ICollection<>), _t), new CodeWriterDeclaration("collectionOfT"))))
@@ -234,7 +234,7 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private static BoolSnippet IsCollectionEmpty(Parameter valueParam, VariableReferenceSnippet collection)
+        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableReferenceSnippet collection)
         {
             return BoolSnippet.Is(valueParam, new DeclarationExpression(collection.Type, collection.Declaration, false)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
         }
@@ -246,12 +246,12 @@ namespace Microsoft.Generator.CSharp
 
         private MethodBodyStatement ThrowArgumentException(string message) => ThrowArgumentException(Literal(message));
 
-        private CSharpMethod BuildAssertNotNullStruct()
+        private MethodProvider BuildAssertNotNullStruct()
         {
-            var valueParam = new Parameter("value", $"The value.", _nullableT);
+            var valueParam = new ParameterProvider("value", $"The value.", _nullableT);
             var signature = GetSignature(AssertNotNullMethodName, [valueParam, _nameParam], [_t], [Where.Struct(_t)]);
             var value = new ParameterReferenceSnippet(valueParam);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Not(new BoolSnippet(new MemberExpression(value, "HasValue"))))
                 {
@@ -260,17 +260,17 @@ namespace Microsoft.Generator.CSharp
             });
         }
 
-        private CSharpMethod BuildAssertNotNull()
+        private MethodProvider BuildAssertNotNull()
         {
-            var valueParam = new Parameter("value", $"The value.", _t);
+            var valueParam = new ParameterProvider("value", $"The value.", _t);
             var signature = GetSignature(AssertNotNullMethodName, [valueParam, _nameParam], [_t]);
-            return new CSharpMethod(signature, new MethodBodyStatement[]
+            return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam)
             });
         }
 
-        private IfStatement AssertNotNullSnippet(Parameter valueParam)
+        private IfStatement AssertNotNullSnippet(ParameterProvider valueParam)
         {
             return new IfStatement(Is(new ParameterReferenceSnippet(valueParam), Null))
             {
