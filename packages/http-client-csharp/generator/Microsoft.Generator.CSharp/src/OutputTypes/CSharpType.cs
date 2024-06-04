@@ -251,12 +251,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return new CSharpType(typeof(List<>), Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingListType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingDictionaryType.MakeGenericType(Arguments);
                 }
             }
 
@@ -440,7 +440,7 @@ namespace Microsoft.Generator.CSharp
         /// Method checks if object of "<c>from</c>" type can be converted to "<c>to</c>" type by calling `ToList` extension method.
         /// It returns true if "<c>from</c>" is <see cref="IEnumerable{T}"/> and "<c>to</c>" is <see cref="IReadOnlyList{T}"/> or <see cref="IList{T}"/>.
         /// </summary>
-        internal static bool RequiresToList(CSharpType from, CSharpType to)
+        public static bool RequiresToList(CSharpType from, CSharpType to)
         {
             if (!to.IsFrameworkType || !from.IsFrameworkType || from.FrameworkType != typeof(IEnumerable<>))
             {
