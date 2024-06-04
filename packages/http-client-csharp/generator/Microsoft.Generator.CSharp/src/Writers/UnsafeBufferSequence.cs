@@ -25,7 +25,7 @@ internal sealed partial class UnsafeBufferSequence : IBufferWriter<char>, IDispo
     public UnsafeBufferSequence(int segmentSize = 16384)
     {
         // we perf tested a very large and a small model and found that the performance
-        // for 4k, 8k, 16k, 32k, was neglible for the small model but had a 30% alloc improvment
+        // for 4k, 8k, 16k, 32k, was negligible for the small model but had a 30% alloc improvement
         // from 4k to 16k on the very large model.
         _segmentSize = segmentSize;
         _buffers = Array.Empty<UnsafeBufferSegment>();
