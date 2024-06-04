@@ -2499,18 +2499,20 @@ export function createChecker(program: Program): Checker {
 
     const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
       "parameters"
-    )!;
+    );
 
-    const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members!);
-    for (const [name, memberSym] of members) {
-      const doc = extractParamDoc(node, name);
-      if (doc) {
-        let list = augmentDecoratorsForSym.get(memberSym);
-        if (list === undefined) {
-          list = [];
-          augmentDecoratorsForSym.set(memberSym, list);
+    if (parameterModelSym?.members) {
+      const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
+      for (const [name, memberSym] of members) {
+        const doc = extractParamDoc(node, name);
+        if (doc) {
+          let list = augmentDecoratorsForSym.get(memberSym);
+          if (list === undefined) {
+            list = [];
+            augmentDecoratorsForSym.set(memberSym, list);
+          }
+          list.push(createDocFromCommentDecorator("self", doc)); // Add at the end to ensure that actual augment decorator get run after this
         }
-        list.push(createDocFromCommentDecorator("self", doc)); // Add at the end to ensure that actual augment decorator get run after this
       }
     }
     // Is this a definition or reference?
