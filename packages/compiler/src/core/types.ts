@@ -2602,6 +2602,8 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
   /**
    * Get an asset emitter to write emitted output to disk using a TypeEmitter
    *
+   * @deprecated call {@link createAssetEmitter} directly instead.
+   *
    * @param TypeEmitterClass The TypeEmitter to construct your emitted output
    */
   getAssetEmitter<T>(TypeEmitterClass: typeof TypeEmitter<T, TOptions>): AssetEmitter<T, TOptions>;
