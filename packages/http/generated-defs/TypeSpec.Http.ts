@@ -117,6 +117,23 @@ export type BodyRootDecorator = (context: DecoratorContext, target: ModelPropert
 export type BodyIgnoreDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
+ *
+ *
+ *
+ * @example
+ * ```tsp
+ * op upload(
+ *   @header `content-type`: "multipart/form-data",
+ *   @multipartBody body: {
+ *     fullName: HttpPart<string>,
+ *     headShots: HttpPart<Image>[]
+ *   }
+ * ): void;
+ * ```
+ */
+export type MultipartBodyDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
  * Specify the HTTP verb for the target operation to be `GET`.
  *
  * @example

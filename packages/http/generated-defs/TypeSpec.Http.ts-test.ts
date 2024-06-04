@@ -8,6 +8,7 @@ import {
   $head,
   $header,
   $includeInapplicableMetadataInPayload,
+  $multipartBody,
   $patch,
   $path,
   $post,
@@ -28,6 +29,7 @@ import type {
   HeadDecorator,
   HeaderDecorator,
   IncludeInapplicableMetadataInPayloadDecorator,
+  MultipartBodyDecorator,
   PatchDecorator,
   PathDecorator,
   PostDecorator,
@@ -48,6 +50,7 @@ type Decorators = {
   $path: PathDecorator;
   $bodyRoot: BodyRootDecorator;
   $bodyIgnore: BodyIgnoreDecorator;
+  $multipartBody: MultipartBodyDecorator;
   $get: GetDecorator;
   $put: PutDecorator;
   $post: PostDecorator;
@@ -70,6 +73,7 @@ const _: Decorators = {
   $path,
   $bodyRoot,
   $bodyIgnore,
+  $multipartBody,
   $get,
   $put,
   $post,

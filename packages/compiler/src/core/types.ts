@@ -2047,7 +2047,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
-  linter: LinterDefinition;
+  linter: LinterResolvedDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
@@ -2435,6 +2435,14 @@ export interface PackageFlags {
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
   ruleSets?: Record<string, LinterRuleSet>;
+}
+
+export interface LinterResolvedDefinition {
+  readonly rules: LinterRule<string, DiagnosticMessages>[];
+  readonly ruleSets: {
+    all: LinterRuleSet;
+    [name: string]: LinterRuleSet;
+  };
 }
 
 export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
