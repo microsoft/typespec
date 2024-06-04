@@ -13,9 +13,9 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp
 {
-    public sealed class ModelTypeProvider : TypeProvider
+    public class ModelTypeProvider : TypeProvider
     {
-        private readonly InputModelType _inputModel;
+        protected InputModelType InputModel { get; }
         public override string Name { get; }
         public override string Namespace { get; }
         public override FormattableString Description { get; }
@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp
 
         public ModelTypeProvider(InputModelType inputModel)
         {
-            _inputModel = inputModel;
+            InputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
@@ -59,12 +59,12 @@ namespace Microsoft.Generator.CSharp
 
         protected override PropertyDeclaration[] BuildProperties()
         {
-            var propertiesCount = _inputModel.Properties.Count;
+            var propertiesCount = InputModel.Properties.Count;
             var propertyDeclarations = new PropertyDeclaration[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
-                var property = _inputModel.Properties[i];
+                var property = InputModel.Properties[i];
                 propertyDeclarations[i] = new PropertyDeclaration(property);
             }
 
@@ -103,7 +103,7 @@ namespace Microsoft.Generator.CSharp
         {
             List<Parameter> constructorParameters = new List<Parameter>();
 
-            foreach (var property in _inputModel.Properties)
+            foreach (var property in InputModel.Properties)
             {
                 CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
                 // All properties should be included in the serialization ctor
@@ -136,14 +136,14 @@ namespace Microsoft.Generator.CSharp
 
         private CSharpMethod? BuildInitializationConstructor()
         {
-            if (_inputModel.IsUnknownDiscriminatorModel)
+            if (InputModel.IsUnknownDiscriminatorModel)
             {
                 return null;
             }
 
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? MethodSignatureModifiers.Protected
-                : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                : InputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
             var constructorParameters = BuildConstructorParameters(false);

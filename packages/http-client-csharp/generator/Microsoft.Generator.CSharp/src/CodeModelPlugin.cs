@@ -16,14 +16,13 @@ namespace Microsoft.Generator.CSharp
     [InheritedExport]
     public class CodeModelPlugin
     {
-        public static CodeModelPlugin Instance { get; } = _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
+        public static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
         private static CodeModelPlugin? _instance;
 
         public Configuration Configuration { get; }
 
         internal CodeModelPlugin(Configuration configuration)
         {
-            _instance = this;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
 
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
@@ -43,7 +42,7 @@ namespace Microsoft.Generator.CSharp
 
         internal static void LoadPlugins(Configuration configuration)
         {
-            _instance = new(configuration);
+            _instance = new CodeModelPlugin(configuration);
         }
 
         private Lazy<InputLibrary> _inputLibrary;

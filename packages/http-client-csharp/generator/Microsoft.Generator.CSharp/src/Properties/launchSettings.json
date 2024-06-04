@@ -8,7 +8,7 @@
   "test-Unbranded-TypeSpec": {
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../testdist/generator/Microsoft.Generator.CSharp.exe",
-      "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec"
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Plugins/Unbranded-TypeSpec"
     }
   }
 }

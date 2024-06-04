@@ -125,5 +125,40 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
+
+        public override TypeProvider CreateModel(InputModelType inputModelType) => new PluginTypeProvider(inputModelType);
+    }
+
+    internal class PluginTypeProvider : ModelTypeProvider
+    {
+        public PluginTypeProvider(InputModelType inputModel) : base(inputModel)
+        {
+        }
+
+        protected override PropertyDeclaration[] BuildProperties()
+        {
+            var propertiesCount = InputModel.Properties.Count;
+            var propertyDeclarations = new PluginPropertyDeclaration[propertiesCount];
+
+            for (int i = 0; i < propertiesCount; i++)
+            {
+                var property = InputModel.Properties[i];
+                propertyDeclarations[i] = new PluginPropertyDeclaration(property);
+            }
+
+            return propertyDeclarations;
+        }
+    }
+
+    internal class PluginPropertyDeclaration : PropertyDeclaration
+    {
+        protected override bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
+        {
+            return type.IsCollection || base.PropertyHasSetter(type, inputProperty);
+        }
+
+        public PluginPropertyDeclaration(InputModelProperty inputProperty) : base(inputProperty)
+        {
+        }
     }
 }
