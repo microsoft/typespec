@@ -52,8 +52,8 @@ namespace Microsoft.Generator.CSharp
         public IReadOnlyList<ModelTypeProvider> Models => _models ??= BuildModels();
         public IReadOnlyList<ClientTypeProvider> Clients => _clients ??= BuildClients();
 
-        public IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
-        public IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
+        private IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
+        private IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
 
         public virtual EnumTypeProvider[] BuildEnums()
         {
@@ -78,6 +78,26 @@ namespace Microsoft.Generator.CSharp
             }
 
             return clientProviders;
+        }
+
+        public virtual EnumTypeProvider GetEnumProvider(InputEnumType inputEnumType)
+        {
+            if (EnumMappings.TryGetValue(inputEnumType, out var provider))
+            {
+                return provider;
+            }
+
+            throw new InvalidOperationException();
+        }
+
+        public virtual ModelTypeProvider GetModelProvider(InputModelType inputModelType)
+        {
+            if (ModelMappings.TryGetValue(inputModelType, out var provider))
+            {
+                return provider;
+            }
+
+            throw new InvalidOperationException();
         }
     }
 }

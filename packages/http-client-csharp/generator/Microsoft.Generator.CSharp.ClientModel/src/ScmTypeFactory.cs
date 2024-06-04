@@ -6,11 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Security.AccessControl;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -28,12 +25,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
+            InputEnumType enumType => GetEnumType(enumType, inputType.IsNullable),
+            InputModelType model => GetModelType(model, inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
@@ -125,6 +118,32 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
+        }
+
+        private CSharpType GetEnumType(InputEnumType inputEnumType, bool isNullable)
+        {
+            try
+            {
+                var provider = ClientModelPlugin.Instance.OutputLibrary.GetEnumProvider(inputEnumType);
+                return provider.Type.WithNullable(isNullable);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{inputEnumType.Name}` {nameof(InputEnumType)}.");
+            }
+        }
+
+        private CSharpType GetModelType(InputModelType inputModelType, bool isNullable)
+        {
+            try
+            {
+                var provider = ClientModelPlugin.Instance.OutputLibrary.GetModelProvider(inputModelType);
+                return provider.Type.WithNullable(inputModelType.IsNullable);
+            }
+            catch (InvalidOperationException)
+            {
+                return new CSharpType(typeof(object), inputModelType.IsNullable).WithNullable(isNullable);
+            }
         }
     }
 }
