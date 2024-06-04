@@ -349,10 +349,8 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
-  const augmentDecoratorsForSym = new Map<
-    Sym,
-    (AugmentDecoratorStatementNode | DecoratorApplication)[]
-  >();
+  const docFromCommentForSym = new Map<Sym, string>();
+  const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
@@ -2506,15 +2504,11 @@ export function createChecker(program: Program): Checker {
       for (const [name, memberSym] of members) {
         const doc = extractParamDoc(node, name);
         if (doc) {
-          let list = augmentDecoratorsForSym.get(memberSym);
-          if (list === undefined) {
-            list = [];
-            augmentDecoratorsForSym.set(memberSym, list);
-          }
-          list.push(createDocFromCommentDecorator("self", doc)); // Add at the end to ensure that actual augment decorator get run after this
+          docFromCommentForSym.set(memberSym, doc);
         }
       }
     }
+
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
@@ -2522,7 +2516,6 @@ export function createChecker(program: Program): Checker {
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
         sourceOperation = baseOperation;
-
         // Reference the same return type and create the parameters type
         const clone = initializeClone(baseOperation.parameters, {
           properties: createRekeyableMap(),
@@ -2531,7 +2524,7 @@ export function createChecker(program: Program): Checker {
         clone.properties = createRekeyableMap(
           Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
             key,
-            cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
               model: clone,
               sourceProperty: prop,
             }),
@@ -5179,6 +5172,15 @@ export function createChecker(program: Program): Checker {
     linkMapper(type, mapper);
 
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
+      if (
+        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
+        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
+      ) {
+        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
+        if (doc) {
+          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
+        }
+      }
       finishType(type);
     }
 
@@ -5539,26 +5541,14 @@ export function createChecker(program: Program): Checker {
     return valid;
   }
 
-  function checkAugmentDecorators(
-    sym: Sym,
-    targetType: Type,
-    mapper: TypeMapper | undefined
-  ): DecoratorApplication[] {
-    const augmentDecorators = augmentDecoratorsForSym.get(sym) ?? [];
+  function checkAugmentDecorators(sym: Sym, targetType: Type, mapper: TypeMapper | undefined) {
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
     const decorators: DecoratorApplication[] = [];
 
-    for (const decoratatorNodeOrApplication of augmentDecorators) {
-      if ("kind" in decoratatorNodeOrApplication) {
-        const decorator = checkDecoratorApplication(
-          targetType,
-          decoratatorNodeOrApplication,
-          mapper
-        );
-        if (decorator) {
-          decorators.unshift(decorator);
-        }
-      } else {
-        decorators.unshift(decoratatorNodeOrApplication);
+    for (const decNode of augmentDecoratorNodes) {
+      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
+      if (decorator) {
+        decorators.unshift(decorator);
       }
     }
     return decorators;
@@ -5569,19 +5559,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ) {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
+    const decorators: DecoratorApplication[] = [];
 
-    const augmentDecorators = checkAugmentDecorators(sym, targetType, mapper);
-    const standardDecorators: DecoratorApplication[] = [];
-    for (const decNode of node.decorators) {
+    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+    const decoratorNodes = [
+      ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
+      ...node.decorators,
+    ];
+    for (const decNode of decoratorNodes) {
       const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
-        standardDecorators.unshift(decorator);
+        decorators.unshift(decorator);
       }
     }
-    const decorators: DecoratorApplication[] = [
-      ...augmentDecorators, // the first decorator will be executed at last, so augmented decorator should be placed at first.
-      ...standardDecorators,
-    ];
 
     // Doc comment should always be the first decorator in case an explicit @doc must override it.
     const docComment = extractMainDoc(targetType);
@@ -5596,6 +5586,7 @@ export function createChecker(program: Program): Checker {
       if (returnTypesDocs.errors) {
         decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
       }
+    } else if (targetType.kind === "ModelProperty") {
     }
     return decorators;
   }
@@ -6535,6 +6526,10 @@ export function createChecker(program: Program): Checker {
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        clone.decorators.push(createDocFromCommentDecorator("self", docComment));
+      }
       for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
         clone.decorators.push(dec);
       }
