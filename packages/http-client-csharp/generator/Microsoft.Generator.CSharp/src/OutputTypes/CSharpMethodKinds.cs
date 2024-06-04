@@ -8,14 +8,14 @@ using System.ComponentModel;
 namespace Microsoft.Generator.CSharp
 {
     /// <summary>
-    /// Represents the kind of <see cref="CSharpMethod"/>.
+    /// Represents the kind of <see cref="MethodProvider"/>.
     /// </summary>
     public readonly partial struct CSharpMethodKinds : IEquatable<CSharpMethodKinds>
     {
-        internal const string ConvenienceValue = "Convenience";
-        internal const string ProtocolValue = "Protocol";
-        internal const string CreateMessageValue = "CreateMessage";
-        internal const string ConstructorValue = "Constructor";
+        private const string ConvenienceValue = "Convenience";
+        private const string ProtocolValue = "Protocol";
+        private const string CreateMessageValue = "CreateMessage";
+        private const string ConstructorValue = "Constructor";
 
         private readonly string _value;
 

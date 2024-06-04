@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -12,19 +14,20 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     public record ValueExpression
     {
-        public virtual void Write(CodeWriter writer) { }
+        internal virtual void Write(CodeWriter writer) { }
 
-        public static implicit operator ValueExpression(Type type) => new TypeReference(type);
-        public static implicit operator ValueExpression(CSharpType type) => new TypeReference(type);
-        public static implicit operator ValueExpression(Parameter parameter) => new ParameterReference(parameter);
-        public static implicit operator ValueExpression(FieldDeclaration field) => new MemberExpression(null, field.Name);
-        public static implicit operator ValueExpression(PropertyDeclaration property) => new MemberExpression(null, property.Name);
+        public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
+        public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
+        public static implicit operator ValueExpression(ParameterProvider parameter) => new ParameterReferenceSnippet(parameter);
+        public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
+        public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
-        public StringExpression InvokeToString() => new(Invoke(nameof(ToString)));
+        public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
+        public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
-        public BoolExpression InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
+        public BoolSnippet InvokeEquals(ValueExpression other) => new(Invoke(nameof(Equals), other));
 
         public virtual ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);

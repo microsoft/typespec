@@ -4,45 +4,53 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
-    public partial class KnownParameters
+    public static partial class KnownParameters
     {
-        public TypeFactory TypeFactory { get; }
-        public KnownParameters(TypeFactory typeFactory)
-        {
-            TypeFactory = typeFactory;
-        }
+        private static ParameterProvider? _tokenAuth;
+        public static ParameterProvider TokenAuth => _tokenAuth ??= new("tokenCredential", $"The token credential to copy", CodeModelPlugin.Instance.TypeFactory.TokenCredentialType());
 
-        private static readonly CSharpType RequestContentType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType);
-        private static readonly CSharpType RequestContentNullableType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, true);
-        private static readonly CSharpType RequestContextType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType);
-        private static readonly CSharpType RequestContextNullableType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType, true);
-        private static readonly CSharpType ResponseType = new(CodeModelPlugin.Instance.Configuration.ApiTypes.ResponseType);
+        private static ParameterProvider? _matchConditionsParameter;
+        public static ParameterProvider MatchConditionsParameter => _matchConditionsParameter ??= new("matchConditions", $"The content to send as the request conditions of the request.", CodeModelPlugin.Instance.TypeFactory.MatchConditionsType(), Snippet.DefaultOf(CodeModelPlugin.Instance.TypeFactory.RequestConditionsType()));
 
-        public Parameter TokenAuth => new("tokenCredential", $"The token credential to copy", TypeFactory.TokenCredentialType(), null, ValidationType.None, null);
-        public Parameter PageSizeHint => new("pageSizeHint", $"The number of items per {TypeFactory.PageResponseType():C} that should be requested (from service operations that support it). It's not guaranteed that the value will be respected.", new CSharpType(typeof(int), true), null, ValidationType.None, null);
-        public Parameter MatchConditionsParameter => new("matchConditions", $"The content to send as the request conditions of the request.", TypeFactory.MatchConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
-        public Parameter RequestConditionsParameter => new("requestConditions", $"The content to send as the request conditions of the request.", TypeFactory.RequestConditionsType(), Snippets.DefaultOf(TypeFactory.RequestConditionsType()), ValidationType.None, null, RequestLocation: RequestLocation.Header);
+        private static ParameterProvider? _requestConditionsParameter;
+        public static ParameterProvider RequestConditionsParameter => _requestConditionsParameter ??= new("requestConditions", $"The content to send as the request conditions of the request.", CodeModelPlugin.Instance.TypeFactory.RequestConditionsType(), Snippet.DefaultOf(CodeModelPlugin.Instance.TypeFactory.RequestConditionsType()));
 
-        public static readonly Parameter Pipeline = new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType), null, ValidationType.AssertNotNull, null);
-        public static readonly Parameter KeyAuth = new("keyCredential", $"The key credential to copy", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.KeyCredentialType), null, ValidationType.None, null);
-        public static readonly Parameter Endpoint = new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri)), null, ValidationType.None, null, RequestLocation: RequestLocation.Uri, IsEndpoint: true);
+        private static ParameterProvider? _pipeline;
+        public static ParameterProvider Pipeline => _pipeline ??= new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType));
 
-        public static readonly Parameter NextLink = new("nextLink", $"Continuation token", typeof(string), null, ValidationType.None, null);
+        private static ParameterProvider? _keyAuth;
+        public static ParameterProvider KeyAuth => _keyAuth ??= new("keyCredential", $"The key credential to copy", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.KeyCredentialType));
 
-        public static readonly Parameter RequestContent = new("content", $"The content to send as the body of the request.", RequestContentType, null, ValidationType.AssertNotNull, null, RequestLocation: RequestLocation.Body);
-        public static readonly Parameter RequestContentNullable = new("content", $"The content to send as the body of the request.", RequestContentNullableType, null, ValidationType.None, null, RequestLocation: RequestLocation.Body);
+        private static ParameterProvider? _endpoint;
+        public static ParameterProvider Endpoint => _endpoint ??= new("endpoint", $"Service endpoint", new CSharpType(typeof(Uri)));
 
-        public static readonly Parameter RequestContext = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextNullableType, Snippets.DefaultOf(RequestContextNullableType), ValidationType.None, null);
-        public static readonly Parameter RequestContextRequired = new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", RequestContextType, null, ValidationType.None, null);
+        private static ParameterProvider? _nextLink;
+        public static ParameterProvider NextLink => _nextLink ??= new("nextLink", $"Continuation token", typeof(string));
 
-        public static readonly Parameter CancellationTokenParameter = new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null);
-        public static readonly Parameter EnumeratorCancellationTokenParameter = new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippets.DefaultOf(typeof(CancellationToken)), ValidationType.None, null) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
+        private static ParameterProvider? _requestContent;
+        public static ParameterProvider RequestContent => _requestContent ??= new("content", $"The content to send as the body of the request.", CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType);
 
-        public static readonly Parameter Response = new("response", $"Response returned from backend service", ResponseType, null, ValidationType.None, null);
+        private static ParameterProvider? _requestContentNullable;
+        public static ParameterProvider RequestContentNullable => _requestContentNullable ??= new("content", $"The content to send as the body of the request.", new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, true));
+
+        private static ParameterProvider? _requestContext;
+        public static ParameterProvider RequestContext => _requestContext ??= new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType, true), Snippet.DefaultOf(new(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType, true)));
+
+        private static ParameterProvider? _requestContextRequired;
+        public static ParameterProvider RequestContextRequired => _requestContextRequired ??= new("context", $"The request context, which can override default behaviors of the client pipeline on a per-call basis.", CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContextType);
+
+        private static ParameterProvider? _cancellationTokenParameter;
+        public static ParameterProvider CancellationTokenParameter => _cancellationTokenParameter ??= new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippet.DefaultOf(typeof(CancellationToken)));
+
+        private static ParameterProvider? _enumerationCancellationTokenParameter;
+        public static ParameterProvider EnumeratorCancellationTokenParameter => _enumerationCancellationTokenParameter ??= new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippet.DefaultOf(typeof(CancellationToken))) { Attributes = new[] { new CSharpAttribute(typeof(EnumeratorCancellationAttribute)) } };
+
+        private static ParameterProvider? _response;
+        public static ParameterProvider Response => _response ??= new("response", $"Response returned from backend service", CodeModelPlugin.Instance.Configuration.ApiTypes.ResponseType);
     }
 }

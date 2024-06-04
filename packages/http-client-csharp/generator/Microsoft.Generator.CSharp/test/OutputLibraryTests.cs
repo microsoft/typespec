@@ -4,6 +4,7 @@
 using System;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -37,12 +38,12 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             public MockOutputLibrary() : base() { }
 
-            public override ModelTypeProvider[] BuildModels()
+            public override ModelProvider[] BuildModels()
             {
                 throw new NotImplementedException();
             }
 
-            public override ClientTypeProvider[] BuildClients()
+            public override ClientProvider[] BuildClients()
             {
                 throw new NotImplementedException();
             }

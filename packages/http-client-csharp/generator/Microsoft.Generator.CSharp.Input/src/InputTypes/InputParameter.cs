@@ -43,26 +43,6 @@ namespace Microsoft.Generator.CSharp.Input
             HeaderCollectionPrefix = headerCollectionPrefix;
         }
 
-        public InputParameter() : this(
-            name: string.Empty,
-            nameInRequest: string.Empty,
-            description: null,
-            type: InputPrimitiveType.Object,
-            location: RequestLocation.None,
-            defaultValue: null,
-            groupedBy: null,
-            kind: InputOperationParameterKind.Method,
-            isRequired: false,
-            isApiVersion: false,
-            isResourceParameter: false,
-            isContentType: false,
-            isEndpoint: false,
-            skipUrlEncoding: false,
-            explode: false,
-            arraySerializationDelimiter: null,
-            headerCollectionPrefix: null)
-        { }
-
         public string Name { get; }
         public string NameInRequest { get; }
         public string? Description { get; }

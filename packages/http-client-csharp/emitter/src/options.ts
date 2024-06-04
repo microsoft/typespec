@@ -30,6 +30,7 @@ export type NetEmitterOptions = {
   "generate-sample-project"?: boolean;
   "generate-test-project"?: boolean;
   "use-model-reader-writer"?: boolean;
+  "disable-xml-docs"?: boolean;
 } & SdkEmitterOptions;
 
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
@@ -101,6 +102,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
       default: false,
     },
     "use-model-reader-writer": { type: "boolean", nullable: true },
+    "disable-xml-docs": { type: "boolean", nullable: true },
   },
   required: [],
 };

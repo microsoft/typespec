@@ -6,5 +6,5 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "definitions/*.d.ts"]
+  "include": ["src/**/*.{ts,tsx}", ".storybook/**/*.{ts,tsx}", "definitions/*.d.ts"]
 }
