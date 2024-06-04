@@ -349,7 +349,10 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
-  const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
+  const augmentDecoratorsForSym = new Map<
+    Sym,
+    (AugmentDecoratorStatementNode | DecoratorApplication)[]
+  >();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
@@ -2494,6 +2497,22 @@ export function createChecker(program: Program): Checker {
     const name = node.id.sv;
     let decorators: DecoratorApplication[] = [];
 
+    const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+      "parameters"
+    )!;
+
+    const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members!);
+    for (const [name, memberSym] of members) {
+      const doc = extractParamDoc(node, name);
+      if (doc) {
+        let list = augmentDecoratorsForSym.get(memberSym);
+        if (list === undefined) {
+          list = [];
+          augmentDecoratorsForSym.set(memberSym, list);
+        }
+        list.push(createDocFromCommentDecorator("self", doc)); // Add at the end to ensure that actual augment decorator get run after this
+      }
+    }
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
@@ -2501,9 +2520,7 @@ export function createChecker(program: Program): Checker {
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
         sourceOperation = baseOperation;
-        const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-          "parameters"
-        )!;
+
         // Reference the same return type and create the parameters type
         const clone = initializeClone(baseOperation.parameters, {
           properties: createRekeyableMap(),
@@ -5160,15 +5177,6 @@ export function createChecker(program: Program): Checker {
     linkMapper(type, mapper);
 
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      if (
-        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
-        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
-      ) {
-        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
-        if (doc) {
-          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
-        }
-      }
       finishType(type);
     }
 
@@ -5529,14 +5537,26 @@ export function createChecker(program: Program): Checker {
     return valid;
   }
 
-  function checkAugmentDecorators(sym: Sym, targetType: Type, mapper: TypeMapper | undefined) {
-    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
+  function checkAugmentDecorators(
+    sym: Sym,
+    targetType: Type,
+    mapper: TypeMapper | undefined
+  ): DecoratorApplication[] {
+    const augmentDecorators = augmentDecoratorsForSym.get(sym) ?? [];
     const decorators: DecoratorApplication[] = [];
 
-    for (const decNode of augmentDecoratorNodes) {
-      const decorator = checkDecoratorApplication(targetType, decNode, mapper);
-      if (decorator) {
-        decorators.unshift(decorator);
+    for (const decoratatorNodeOrApplication of augmentDecorators) {
+      if ("kind" in decoratatorNodeOrApplication) {
+        const decorator = checkDecoratorApplication(
+          targetType,
+          decoratatorNodeOrApplication,
+          mapper
+        );
+        if (decorator) {
+          decorators.unshift(decorator);
+        }
+      } else {
+        decorators.unshift(decoratatorNodeOrApplication);
       }
     }
     return decorators;
@@ -5547,19 +5567,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ) {
     const sym = isMemberNode(node) ? getSymbolForMember(node) ?? node.symbol : node.symbol;
-    const decorators: DecoratorApplication[] = [];
 
-    const augmentDecoratorNodes = augmentDecoratorsForSym.get(sym) ?? [];
-    const decoratorNodes = [
-      ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
-      ...node.decorators,
-    ];
-    for (const decNode of decoratorNodes) {
+    const augmentDecorators = checkAugmentDecorators(sym, targetType, mapper);
+    const standardDecorators: DecoratorApplication[] = [];
+    for (const decNode of node.decorators) {
       const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
-        decorators.unshift(decorator);
+        standardDecorators.unshift(decorator);
       }
     }
+    const decorators: DecoratorApplication[] = [
+      ...augmentDecorators, // the first decorator will be executed at last, so augmented decorator should be placed at first.
+      ...standardDecorators,
+    ];
 
     // Doc comment should always be the first decorator in case an explicit @doc must override it.
     const docComment = extractMainDoc(targetType);
