@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input.Tests.Perf", "Microsoft.Generator.CSharp.Input\perf\Microsoft.Generator.CSharp.Input.Tests.Perf.csproj", "{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Tests.Perf", "Microsoft.Generator.CSharp\perf\Microsoft.Generator.CSharp.Tests.Perf.csproj", "{8AE5D726-610C-4A72-B2A9-5C53C423C485}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

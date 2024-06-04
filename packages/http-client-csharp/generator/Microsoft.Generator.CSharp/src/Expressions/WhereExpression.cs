@@ -16,12 +16,12 @@ namespace Microsoft.Generator.CSharp.Expressions
             writer
                 .AppendRaw("where ")
                 .Append($"{Type} : ");
-            foreach (var constraint in Constraints)
+            for (int i = 0; i < Constraints.Count; i++)
             {
-                constraint.Write(writer);
-                writer.AppendRaw(",");
+                Constraints[i].Write(writer);
+                if (i < Constraints.Count - 1)
+                    writer.AppendRaw(",");
             }
-            writer.RemoveTrailingComma();
         }
     }
 }

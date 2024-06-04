@@ -33,51 +33,33 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var model in output.Models)
             {
-                TypeProviderWriter modelWriter = CodeModelPlugin.Instance.GetWriter(model);
-                modelWriter.Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{model.Name}.cs"), modelWriter.ToString()));
+                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(model).Write()));
 
                 foreach (var serialization in model.SerializationProviders)
                 {
-                    var serializationWriter = CodeModelPlugin.Instance.GetWriter(serialization);
-                    serializationWriter.Write();
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.Serialization.cs"), serializationWriter.ToString()));
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(serialization).Write()));
                 }
             }
 
             foreach (var enumType in output.Enums)
             {
-                TypeProviderWriter enumWriter = CodeModelPlugin.Instance.GetWriter(enumType);
-                enumWriter.Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated","Models", $"{enumType.Name}.cs"), enumWriter.ToString()));
+                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(enumType).Write()));
 
                 if (enumType.Serialization is { } serialization)
                 {
-                    TypeProviderWriter enumSerializationWriter = CodeModelPlugin.Instance.GetWriter(serialization);
-                    enumSerializationWriter.Write();
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Models", $"{serialization.Name}.cs"), enumSerializationWriter.ToString()));
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(serialization).Write()));
                 }
             }
 
             foreach (var client in output.Clients)
             {
-                TypeProviderWriter clientWriter = CodeModelPlugin.Instance.GetWriter(client);
-                clientWriter.Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", $"{client.Name}.cs"), clientWriter.ToString()));
+                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(client).Write()));
             }
 
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
-            TypeProviderWriter helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingListProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingListProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
-            helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingDictionaryProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingDictionaryProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
-            helperWriter = CodeModelPlugin.Instance.GetWriter(ArgumentProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ArgumentProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
+            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ChangeTrackingListProvider.Instance).Write()));
+            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ChangeTrackingDictionaryProvider.Instance).Write()));
+            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ArgumentProvider.Instance).Write()));
 
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);

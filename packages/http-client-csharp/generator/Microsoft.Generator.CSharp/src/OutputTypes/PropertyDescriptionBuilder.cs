@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -19,22 +19,22 @@ namespace Microsoft.Generator.CSharp
         /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <param name="isPropertyReadOnly">Flag used to determine if the property <paramref name="property"/> is read-only.</param>
         /// <returns>The formatted property description string.</returns>
-        internal static FormattableString BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, bool isPropertyReadOnly)
+        internal static IReadOnlyList<FormattableString> BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, bool isPropertyReadOnly)
         {
-            FormattableString description;
+            List<FormattableString> description = new List<FormattableString>();
+
             if (string.IsNullOrEmpty(property.Description))
             {
-                description = CreateDefaultPropertyDescription(property.Name, isPropertyReadOnly);
+                description.Add(CreateDefaultPropertyDescription(property.Name, isPropertyReadOnly));
             }
             else
             {
-                description = FormattableStringHelpers.FromString(property.Description);
+                description.Add(FormattableStringHelpers.FromString(property.Description));
             }
 
             if (type.ContainsBinaryData)
             {
-                FormattableString binaryDataExtraDescription = CreateBinaryDataExtraDescription(type, serializationFormat);
-                description = $"{description}{binaryDataExtraDescription}";
+                description.AddRange(CreateBinaryDataExtraDescription(type, serializationFormat));
             }
 
             return description;
@@ -87,11 +87,11 @@ namespace Microsoft.Generator.CSharp
             string splitDeclarationName = string.Join(" ", StringExtensions.SplitByCamelCase(name)).ToLower();
             if (isReadOnly)
             {
-                return $"Gets the {splitDeclarationName}";
+                return $"Gets the {splitDeclarationName}.";
             }
             else
             {
-                return $"Gets or sets the {splitDeclarationName}";
+                return $"Gets or sets the {splitDeclarationName}.";
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp
         /// <param name="type">The CSharpType of the property.</param>
         /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <returns>The formatted description string for the property.</returns>
-        private static FormattableString CreateBinaryDataExtraDescription(CSharpType type, SerializationFormat serializationFormat)
+        private static IReadOnlyList<FormattableString> CreateBinaryDataExtraDescription(CSharpType type, SerializationFormat serializationFormat)
         {
             string typeSpecificDesc;
             var unionTypes = GetUnionTypes(type);
@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp
                 return ConstructBinaryDataDescription(typeSpecificDesc, serializationFormat, unionTypeDescriptions);
             }
 
-            return FormattableStringHelpers.Empty;
+            return Array.Empty<FormattableString>();
         }
 
         // recursively get the union types if any.
@@ -147,67 +147,84 @@ namespace Microsoft.Generator.CSharp
             return Array.Empty<CSharpType>();
         }
 
-        private static FormattableString ConstructBinaryDataDescription(string typeSpecificDesc, SerializationFormat serializationFormat, IReadOnlyList<FormattableString> unionTypeDescriptions)
+        private static IReadOnlyList<FormattableString> ConstructBinaryDataDescription(string typeSpecificDesc, SerializationFormat serializationFormat, IReadOnlyList<FormattableString> unionTypeDescriptions)
         {
-            FormattableString unionTypesAdditionalDescription = $"";
+            List<FormattableString> result = new List<FormattableString>();
+            List<FormattableString> unionTypesAdditionalDescription = new List<FormattableString>();
 
             if (unionTypeDescriptions.Count > 0)
             {
-                unionTypesAdditionalDescription = $"\n<remarks>\nSupported types:\n<list type=\"bullet\">\n";
+                unionTypesAdditionalDescription.Add($"<remarks>");
+                unionTypesAdditionalDescription.Add($"Supported types:");
+                unionTypesAdditionalDescription.Add($"<list type=\"bullet\">");
                 foreach (FormattableString unionTypeDescription in unionTypeDescriptions)
                 {
-                    unionTypesAdditionalDescription = $"{unionTypesAdditionalDescription}<item>\n{unionTypeDescription}\n</item>\n";
+                    unionTypesAdditionalDescription.Add($"<item>");
+                    unionTypesAdditionalDescription.Add(unionTypeDescription);
+                    unionTypesAdditionalDescription.Add($"</item>");
                 }
-                unionTypesAdditionalDescription = $"{unionTypesAdditionalDescription}</list>\n</remarks>";
+                unionTypesAdditionalDescription.Add($"</list>");
+                unionTypesAdditionalDescription.Add($"</remarks>");
             }
+
             switch (serializationFormat)
             {
                 case SerializationFormat.Bytes_Base64Url:
                 case SerializationFormat.Bytes_Base64:
-                    return $@"
-<para>
-To assign a byte[] to {typeSpecificDesc} use <see cref=""{typeof(BinaryData)}.FromBytes(byte[])""/>.
-The byte[] will be serialized to a Base64 encoded string.
-</para>
-<para>{unionTypesAdditionalDescription}
-Examples:
-<list type=""bullet"">
-<item>
-<term>BinaryData.FromBytes(new byte[] {{ 1, 2, 3 }})</term>
-<description>Creates a payload of ""AQID"".</description>
-</item>
-</list>
-</para>";
+                    result.Add($"<para>");
+                    result.Add($"To assign a byte[] to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromBytes(byte[])\"/>.");
+                    result.Add($"The byte[] will be serialized to a Base64 encoded string.");
+                    result.Add($"</para>");
+                    result.Add($"<para>");
+                    if (unionTypesAdditionalDescription.Count > 0)
+                    {
+                        result.AddRange(unionTypesAdditionalDescription);
+                    }
+                    result.Add($"Examples:");
+                    result.Add($"<list type=\"bullet\">");
+                    result.Add($"<item>");
+                    result.Add($"<term>BinaryData.FromBytes(new byte[] {{ 1, 2, 3 }})</term>");
+                    result.Add($"<description>Creates a payload of \"AQID\".</description>");
+                    result.Add($"</item>");
+                    result.Add($"</list>");
+                    result.Add($"</para>");
+                    break;
                 default:
-                    return $@"
-<para>
-To assign an object to {typeSpecificDesc} use <see cref=""{typeof(BinaryData)}.FromObjectAsJson{{T}}(T, System.Text.Json.JsonSerializerOptions?)""/>.
-</para>
-<para>
-To assign an already formatted json string to this property use <see cref=""{typeof(BinaryData)}.FromString(string)""/>.
-</para>
-<para>{unionTypesAdditionalDescription}
-Examples:
-<list type=""bullet"">
-<item>
-<term>BinaryData.FromObjectAsJson(""foo"")</term>
-<description>Creates a payload of ""foo"".</description>
-</item>
-<item>
-<term>BinaryData.FromString(""\""foo\"""")</term>
-<description>Creates a payload of ""foo"".</description>
-</item>
-<item>
-<term>BinaryData.FromObjectAsJson(new {{ key = ""value"" }})</term>
-<description>Creates a payload of {{ ""key"": ""value"" }}.</description>
-</item>
-<item>
-<term>BinaryData.FromString(""{{\""key\"": \""value\""}}"")</term>
-<description>Creates a payload of {{ ""key"": ""value"" }}.</description>
-</item>
-</list>
-</para>";
+                    result.Add($"<para>");
+                    result.Add($"To assign an object to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromObjectAsJson{{T}}(T, System.Text.Json.JsonSerializerOptions?)\"/>.");
+                    result.Add($"</para>");
+                    result.Add($"<para>");
+                    result.Add($"To assign an already formatted json string to this property use <see cref=\"{typeof(BinaryData)}.FromString(string)\"/>.");
+                    result.Add($"</para>");
+                    result.Add($"<para>");
+                    if (unionTypesAdditionalDescription.Count > 0)
+                    {
+                        result.AddRange(unionTypesAdditionalDescription);
+                    }
+                    result.Add($"Examples:");
+                    result.Add($"<list type=\"bullet\">");
+                    result.Add($"<item>");
+                    result.Add($"<term>BinaryData.FromObjectAsJson(\"foo\")</term>");
+                    result.Add($"<description>Creates a payload of \"foo\".</description>");
+                    result.Add($"</item>");
+                    result.Add($"<item>");
+                    result.Add($"<term>BinaryData.FromString(\"\\\"foo\\\"\")</term>");
+                    result.Add($"<description>Creates a payload of \"foo\".</description>");
+                    result.Add($"</item>");
+                    result.Add($"<item>");
+                    result.Add($"<term>BinaryData.FromObjectAsJson(new {{ key = \"value\" }})</term>");
+                    result.Add($"<description>Creates a payload of {{ \"key\": \"value\" }}.</description>");
+                    result.Add($"</item>");
+                    result.Add($"<item>");
+                    result.Add($"<term>BinaryData.FromString(\"{{\\\"key\\\": \\\"value\\\"}}\")</term>");
+                    result.Add($"<description>Creates a payload of {{ \"key\": \"value\" }}.</description>");
+                    result.Add($"</item>");
+                    result.Add($"</list>");
+                    result.Add($"</para>");
+                    break;
             }
+
+            return result;
         }
     }
 }

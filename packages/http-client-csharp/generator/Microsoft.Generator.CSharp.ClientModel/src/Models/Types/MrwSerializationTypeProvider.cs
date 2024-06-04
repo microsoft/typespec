@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -37,6 +38,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _iPersistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), _model.Type);
             _iPersistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
         }
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.serialization.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 

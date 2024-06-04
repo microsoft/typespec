@@ -17,11 +17,12 @@ namespace Microsoft.Generator.CSharp.Expressions
                 MatchExpression.Write(writer);
                 writer.WriteRawLine(" switch");
                 writer.WriteRawLine("{");
-                foreach (var switchCase in Cases)
+                for (int i = 0; i < Cases.Length; i++)
                 {
-                    switchCase.Write(writer);
+                    Cases[i].Write(writer);
+                    if (i < Cases.Length - 1)
+                        writer.WriteRawLine(",");
                 }
-                writer.RemoveTrailingComma();
                 writer.WriteLine();
                 writer.AppendRaw("}");
             }

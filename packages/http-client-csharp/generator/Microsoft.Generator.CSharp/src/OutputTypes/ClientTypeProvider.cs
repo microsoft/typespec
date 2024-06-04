@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -18,6 +18,8 @@ namespace Microsoft.Generator.CSharp
             _inputClient = inputClient;
             Name = inputClient.Name.ToCleanName();
         }
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override CSharpMethod[] BuildMethods()
         {

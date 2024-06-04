@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
             var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
-            var methodBody = new EmptyLineStatement();
+            var methodBody = Snippet.EmptyStatement;
 
             return new CSharpMethod(methodSignature, methodBody, CSharpMethodKinds.CreateMessage);
         }

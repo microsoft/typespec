@@ -20,6 +20,10 @@ namespace Microsoft.Generator.CSharp
             _existingType = new Lazy<INamedTypeSymbol?>(() => SourceInputModel.Instance.FindForType(Name));
         }
 
+        private string? _fileName;
+        public string FileName => _fileName ??= GetFileName();
+        protected virtual string GetFileName() => $"{Name}.cs";
+
         public abstract string Name { get; }
         public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         public virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;

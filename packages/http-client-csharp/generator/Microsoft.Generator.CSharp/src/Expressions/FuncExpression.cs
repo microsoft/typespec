@@ -26,8 +26,9 @@ namespace Microsoft.Generator.CSharp.Expressions
                 else
                 {
                     writer.AppendRaw("(");
-                    foreach (var parameter in Parameters)
+                    for (int i = 0; i < Parameters.Count; i++)
                     {
+                        var parameter = Parameters[i];
                         if (parameter is not null)
                         {
                             writer.WriteDeclaration(parameter);
@@ -36,10 +37,9 @@ namespace Microsoft.Generator.CSharp.Expressions
                         {
                             writer.AppendRaw("_");
                         }
-                        writer.AppendRaw(", ");
+                        if (i < Parameters.Count - 1)
+                            writer.AppendRaw(", ");
                     }
-
-                    writer.RemoveTrailingComma();
                     writer.AppendRaw(")");
                 }
 

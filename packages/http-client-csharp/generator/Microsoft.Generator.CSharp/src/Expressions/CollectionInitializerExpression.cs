@@ -12,13 +12,12 @@ namespace Microsoft.Generator.CSharp.Expressions
         internal override void Write(CodeWriter writer)
         {
             writer.AppendRaw("{ ");
-            foreach (var item in Items)
+            for (int i = 0; i < Items.Length; i++)
             {
-                item.Write(writer);
-                writer.AppendRaw(",");
+                Items[i].Write(writer);
+                if (i < Items.Length - 1)
+                    writer.AppendRaw(", ");
             }
-
-            writer.RemoveTrailingComma();
             writer.AppendRaw(" }");
         }
     }
