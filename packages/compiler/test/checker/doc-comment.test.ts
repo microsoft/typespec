@@ -242,7 +242,6 @@ describe("compiler: checker: doc comments", () => {
 
 describe("@param", () => {
   async function getDocForParam(code: string): Promise<string | undefined> {
-    // One @param has a hyphen but the other does not (should handle both cases)
     const { target } = (await runner.compile(code)) as { target: Operation };
     ok(target, `Make sure to have @test("target") in code.`);
     return getDoc(runner.program, target.parameters.properties.get("one")!);
