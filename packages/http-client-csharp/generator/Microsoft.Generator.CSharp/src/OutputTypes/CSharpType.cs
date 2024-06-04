@@ -191,8 +191,8 @@ namespace Microsoft.Generator.CSharp
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
-        public CSharpType InitializationType => _initializationType ??= GetImplementationType();
-        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyImplementationType();
+        public CSharpType InitializationType => _initializationType ??= GetInitializationType();
+        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyInitializationType();
         public CSharpType ElementType => _elementType ??= GetElementType();
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
@@ -240,7 +240,7 @@ namespace Microsoft.Generator.CSharp
         /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"/>.
         /// </summary>
         /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetImplementationType()
+        private CSharpType GetInitializationType()
         {
             if (IsFrameworkType)
             {
@@ -267,7 +267,7 @@ namespace Microsoft.Generator.CSharp
         /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"'s arguments/>.
         /// </summary>
         /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetPropertyImplementationType()
+        private CSharpType GetPropertyInitializationType()
         {
             if (IsFrameworkType)
             {
@@ -278,12 +278,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return CodeModelPlugin.Instance.TypeFactory.ListImplementationType.MakeGenericType(Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return CodeModelPlugin.Instance.TypeFactory.DictionaryImplementationType.MakeGenericType(Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(Arguments);
                 }
             }
 
