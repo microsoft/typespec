@@ -303,45 +303,6 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        public void InitializationType_ReadOnlyMemory()
-        {
-            var arguments = typeof(int);
-            var cSharpType = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
-            var actual = cSharpType.InitializationType;
-            var expected = new CSharpType(arguments.MakeArrayType());
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
-        public void InitializationType_List()
-        {
-            var arguments = typeof(int);
-            var listType = new CSharpType(typeof(IList<>), arguments: arguments);
-            var actual = listType.InitializationType;
-            var expected = new CSharpType(typeof(List<>), arguments: arguments);
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
-        public void InitializationType_Dictionary()
-        {
-            var arguments = new CSharpType[] { typeof(string), typeof(int) };
-            var cSharpType = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
-            var actual = cSharpType.InitializationType;
-            var expected = new CSharpType(typeof(Dictionary<,>), arguments: arguments);
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
         public void PropertyInitializationType_ReadOnlyMemory()
         {
             var arguments = typeof(int);

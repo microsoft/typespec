@@ -191,7 +191,12 @@ namespace Microsoft.Generator.CSharp
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
-        public CSharpType InitializationType => _initializationType ??= GetInitializationType();
+
+        /// <summary>
+        /// Retrieves the property initialization type variant of this type.
+        /// For majority of the types, the return value of PropertyInitializationType should just be itself.
+        /// For special cases like interface types, such as collections, this will return the concrete implementation type.
+        /// </summary>
         public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyInitializationType();
         public CSharpType ElementType => _elementType ??= GetElementType();
         public CSharpType InputType => _inputType ??= GetInputType();
@@ -237,34 +242,7 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"/>.
-        /// </summary>
-        /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetInitializationType()
-        {
-            if (IsFrameworkType)
-            {
-                if (IsReadOnlyMemory)
-                {
-                    return new CSharpType(Arguments[0].FrameworkType.MakeArrayType());
-                }
-
-                if (IsList)
-                {
-                    return new CSharpType(typeof(List<>), Arguments);
-                }
-
-                if (IsDictionary)
-                {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"'s arguments/>.
+        /// Retrieves the <see cref="CSharpType"/> initialization type with the <see cref="Arguments"/>.
         /// </summary>
         /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
         private CSharpType GetPropertyInitializationType()
