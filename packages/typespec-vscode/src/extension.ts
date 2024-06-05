@@ -8,9 +8,14 @@ import {
   LanguageClient,
   LanguageClientOptions,
 } from "vscode-languageclient/node.js";
+import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
 
 let client: LanguageClient | undefined;
-const outputChannel = vscode.window.createOutputChannel("TypeSpec", { log: true });
+/**
+ * Workaround: LogOutputChannel doesn't work well with LSP RemoteConsole, so having a customized LogOutputChannel to make them work together properly
+ * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
+ */
+const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(

@@ -59,13 +59,24 @@
     ],
     "configuration": [
       {
-        "title": "TypeSpec Language Server Path",
+        "title": "TypeSpec",
         "properties": {
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
             "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
             "scope": "machine-overridable"
+          },
+          "typespecLanguageServer.trace.server": {
+            "scope": "window",
+            "type": "string",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ],
+            "default": "off",
+            "description": "Trace setting for the TypeSpec language server. Make sure 'Log Level' is set to 'Trace' too for traces to be shown properly, which can be set through 'Developer: Set Log Level...' command."
           }
         }
       }
