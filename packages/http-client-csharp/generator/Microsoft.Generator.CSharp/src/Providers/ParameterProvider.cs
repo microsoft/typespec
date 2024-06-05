@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public sealed class ParameterProvider
+    public sealed class ParameterProvider : IEquatable<ParameterProvider>
     {
         public string Name { get; }
         public FormattableString Description { get; }
@@ -20,7 +20,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType? Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal static IEqualityComparer<ParameterProvider> TypeAndNameEqualityComparer = new ParameterTypeAndNameEqualityComparer();
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
 
         public ParameterProvider(InputModelProperty inputProperty)
@@ -60,8 +59,6 @@ namespace Microsoft.Generator.CSharp.Providers
             DefaultValue = defaultValue;
         }
 
-        internal static readonly IEqualityComparer<ParameterProvider> EqualityComparerByType = new ParameterByTypeEqualityComparer();
-
         private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
         {
             // We do not validate a parameter when it is a value type (struct or int, etc)
@@ -91,39 +88,35 @@ namespace Microsoft.Generator.CSharp.Providers
             return ParameterValidationType.AssertNotNull;
         }
 
-        private struct ParameterByTypeEqualityComparer : IEqualityComparer<ParameterProvider>
+        public override bool Equals(object? obj)
         {
-            public bool Equals(ParameterProvider? x, ParameterProvider? y)
-            {
-                return Equals(x?.Type, y?.Type);
-            }
-
-            public int GetHashCode([DisallowNull] ParameterProvider obj) => obj.Type.GetHashCode();
+            return obj is ParameterProvider parameter && Equals(parameter);
         }
 
-        private class ParameterTypeAndNameEqualityComparer : IEqualityComparer<ParameterProvider>
+        public bool Equals(ParameterProvider? y)
         {
-            public bool Equals(ParameterProvider? x, ParameterProvider? y)
+            if (ReferenceEquals(this, y))
             {
-                if (ReferenceEquals(x, y))
-                {
-                    return true;
-                }
-
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-
-                var result = x.Type.AreNamesEqual(y.Type) && x.Name == y.Name;
-                return result;
+                return true;
             }
 
-            public int GetHashCode([DisallowNull] ParameterProvider obj)
+            if (this is null || y is null)
             {
-                // remove type as part of the hash code generation as the type might have changes between versions
-                return HashCode.Combine(obj.Name);
+                return false;
             }
+
+            return Type.AreNamesEqual(y.Type) && Name == y.Name && Attributes.SequenceEqual(y.Attributes);
+        }
+
+        public override int GetHashCode()
+        {
+            return GetHashCode(this);
+        }
+
+        private int GetHashCode([DisallowNull] ParameterProvider obj)
+        {
+            // remove type as part of the hash code generation as the type might have changes between versions
+            return HashCode.Combine(obj.Name);
         }
 
         private string GetDebuggerDisplay()

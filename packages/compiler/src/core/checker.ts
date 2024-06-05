@@ -349,6 +349,7 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const docFromCommentForSym = new Map<Sym, string>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
@@ -2494,6 +2495,20 @@ export function createChecker(program: Program): Checker {
     const name = node.id.sv;
     let decorators: DecoratorApplication[] = [];
 
+    const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+      "parameters"
+    );
+
+    if (parameterModelSym?.members) {
+      const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
+      for (const [name, memberSym] of members) {
+        const doc = extractParamDoc(node, name);
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
@@ -2501,9 +2516,6 @@ export function createChecker(program: Program): Checker {
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
         sourceOperation = baseOperation;
-        const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-          "parameters"
-        )!;
         // Reference the same return type and create the parameters type
         const clone = initializeClone(baseOperation.parameters, {
           properties: createRekeyableMap(),
@@ -2512,7 +2524,7 @@ export function createChecker(program: Program): Checker {
         clone.properties = createRekeyableMap(
           Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
             key,
-            cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
               model: clone,
               sourceProperty: prop,
             }),
@@ -5574,6 +5586,7 @@ export function createChecker(program: Program): Checker {
       if (returnTypesDocs.errors) {
         decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
       }
+    } else if (targetType.kind === "ModelProperty") {
     }
     return decorators;
   }
@@ -6513,6 +6526,10 @@ export function createChecker(program: Program): Checker {
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        clone.decorators.push(createDocFromCommentDecorator("self", docComment));
+      }
       for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
         clone.decorators.push(dec);
       }
