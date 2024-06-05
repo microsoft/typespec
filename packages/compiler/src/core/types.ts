@@ -949,6 +949,7 @@ export enum SyntaxKind {
   Doc,
   DocText,
   DocParamTag,
+  DocPropTag,
   DocReturnsTag,
   DocErrorsTag,
   DocTemplateTag,
@@ -1903,6 +1904,7 @@ export type DocTag =
   | DocReturnsTagNode
   | DocErrorsTagNode
   | DocParamTagNode
+  | DocPropTagNode
   | DocTemplateTagNode
   | DocUnknownTagNode;
 export type DocContent = DocTextNode;
@@ -1923,6 +1925,11 @@ export interface DocErrorsTagNode extends DocTagBaseNode {
 export interface DocParamTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocParamTag;
   readonly paramName: IdentifierNode;
+}
+
+export interface DocPropTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocPropTag;
+  readonly propName: IdentifierNode;
 }
 
 export interface DocTemplateTagNode extends DocTagBaseNode {
