@@ -1,7 +1,7 @@
 import {
-  NoTarget,
   TypeSpecLanguageConfiguration,
   type DiagnosticTarget,
+  type NoTarget,
   type ServerHost,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
