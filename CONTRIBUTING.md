@@ -1,4 +1,4 @@
-# Developper guide
+# Developer guide
 
 This section goes over the setup of the repo for development.
 

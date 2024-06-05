@@ -16,7 +16,7 @@ import {
   isTemplateDeclaration,
   joinPaths,
   JSONSchemaType,
-  LinterDefinition,
+  LinterResolvedDefinition,
   LinterRuleDefinition,
   LinterRuleSet,
   Model,
@@ -29,6 +29,7 @@ import {
   NoTarget,
   Operation,
   Program,
+  resolveLinterDefinition,
   resolvePath,
   Scalar,
   SyntaxKind,
@@ -109,7 +110,7 @@ export async function extractLibraryRefDocs(
     // eslint-disable-next-line deprecation/deprecation
     const linter = entrypoint.$linter ?? lib?.linter;
     if (lib && linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, linter);
+      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
     }
   }
 
@@ -622,7 +623,7 @@ function extractEmitterOptionsRefDoc(
   });
 }
 
-function extractLinterRefDoc(libName: string, linter: LinterDefinition): LinterRefDoc {
+function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
   return {
     ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
     rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),

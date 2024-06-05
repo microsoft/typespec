@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -12,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             public abstract TypedSnippet GetTypedResponseFromValue(TypedSnippet value, TypedSnippet response);
             public abstract TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet response);
-            public abstract TypedSnippet GetTypedResponseFromEnum(EnumTypeProvider enumType, TypedSnippet response);
+            public abstract TypedSnippet GetTypedResponseFromEnum(EnumProvider enumType, TypedSnippet response);
             public abstract TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet response, string? contentType = null);
 
             public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message);

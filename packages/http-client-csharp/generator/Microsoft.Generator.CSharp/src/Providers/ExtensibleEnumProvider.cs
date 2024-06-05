@@ -12,14 +12,14 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public class ExtensibleEnumTypeProvider : EnumTypeProvider
+    internal sealed class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
 
-        protected internal ExtensibleEnumTypeProvider(InputEnumType input): base(input)
+        internal ExtensibleEnumProvider(InputEnumType input): base(input)
         {
             _allowedValues = input.Values;
 
@@ -30,10 +30,10 @@ namespace Microsoft.Generator.CSharp
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            _valueField = new FieldDeclaration(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
+            _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, ValueType, "_value");
         }
 
-        private readonly FieldDeclaration _valueField;
+        private readonly FieldProvider _valueField;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
@@ -51,12 +51,12 @@ namespace Microsoft.Generator.CSharp
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
-                var field = new FieldDeclaration(
-                    Description: FormattableStringHelpers.FromString(inputValue.Description),
-                    Modifiers: modifiers,
-                    Type: ValueType,
-                    Name: name,
-                    InitializationValue: initializationValue);
+                var field = new FieldProvider(
+                    modifiers,
+                    ValueType,
+                    name,
+                    FormattableStringHelpers.FromString(inputValue.Description),
+                    initializationValue);
 
                 values[i] = new EnumTypeMember(valueName, field, inputValue.Value);
             }
@@ -67,12 +67,12 @@ namespace Microsoft.Generator.CSharp
         protected override CSharpType[] BuildImplements()
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
-        protected override FieldDeclaration[] BuildFields()
+        protected override FieldProvider[] BuildFields()
             => [_valueField, .. Members.Select(v => v.Field)];
 
-        protected override PropertyDeclaration[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
-            var properties = new PropertyDeclaration[Members.Count];
+            var properties = new PropertyProvider[Members.Count];
 
             var index = 0;
             foreach (var enumValue in Members)
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp
                 var name = enumValue.Name;
                 var value = enumValue.Value;
                 var field = enumValue.Field;
-                properties[index++] = new PropertyDeclaration(
+                properties[index++] = new PropertyProvider(
                     description: field.Description,
                     modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                     type: Type,
@@ -91,10 +91,10 @@ namespace Microsoft.Generator.CSharp
             return properties;
         }
 
-        protected override CSharpMethod[] BuildConstructors()
+        protected override MethodProvider[] BuildConstructors()
         {
             var validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull;
-            var valueParameter = new Parameter("value", $"The value.", ValueType)
+            var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
             {
                 Validation = validation
             };
@@ -112,15 +112,15 @@ namespace Microsoft.Generator.CSharp
                 Assign(valueField, valueParameter)
             };
 
-            return [new CSharpMethod(signature, body, CSharpMethodKinds.Constructor)];
+            return [new MethodProvider(signature, body, CSharpMethodKinds.Constructor)];
         }
 
-        protected override CSharpMethod[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
-            var methods = new List<CSharpMethod>();
+            var methods = new List<MethodProvider>();
 
-            var leftParameter = new Parameter("left", $"The left value to compare.", Type);
-            var rightParameter = new Parameter("right", $"The right value to compare.", Type);
+            var leftParameter = new ParameterProvider("left", $"The left value to compare.", Type);
+            var rightParameter = new ParameterProvider("right", $"The right value to compare.", Type);
             var left = (ValueExpression)leftParameter;
             var right = (ValueExpression)rightParameter;
             var equalitySignature = new MethodSignature(
@@ -142,7 +142,7 @@ namespace Microsoft.Generator.CSharp
 
             methods.Add(new(inequalitySignature, Not(left.InvokeEquals(right))));
 
-            var valueParameter = new Parameter("value", $"The value.", ValueType);
+            var valueParameter = new ParameterProvider("value", $"The value.", ValueType);
             var castSignature = new MethodSignature(
                 Name: string.Empty,
                 Summary: null,
@@ -154,7 +154,7 @@ namespace Microsoft.Generator.CSharp
 
             methods.Add(new(castSignature, New.Instance(Type, valueParameter)));
 
-            var objParameter = new Parameter("obj", $"The object to compare.", typeof(object));
+            var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
                 Summary: null,
@@ -169,7 +169,7 @@ namespace Microsoft.Generator.CSharp
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
             methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolSnippet(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other])))));
 
-            var otherParameter = new Parameter("other", $"The instance to compare.", Type);
+            var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = equalsSignature with
             {
                 Modifiers = MethodSignatureModifiers.Public,
@@ -195,7 +195,7 @@ namespace Microsoft.Generator.CSharp
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
                 ReturnDescription: null,
-                Parameters: Array.Empty<Parameter>());
+                Parameters: Array.Empty<ParameterProvider>());
 
             // writes the method:
             // for string
@@ -214,7 +214,7 @@ namespace Microsoft.Generator.CSharp
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(string),
                 ReturnDescription: null,
-                Parameters: Array.Empty<Parameter>());
+                Parameters: Array.Empty<ParameterProvider>());
 
             // writes the method:
             // for string
@@ -234,7 +234,7 @@ namespace Microsoft.Generator.CSharp
                     Name: $"ToSerial{ValueType.Name}",
                     Modifiers: MethodSignatureModifiers.Internal,
                     ReturnType: ValueType,
-                    Parameters: Array.Empty<Parameter>(),
+                    Parameters: Array.Empty<ParameterProvider>(),
                     Summary: null, Description: null, ReturnDescription: null);
 
                 // writes the method:

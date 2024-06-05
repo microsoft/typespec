@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.Providers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -72,7 +73,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return false;
         }
 
-        private static bool TypesAreEqual(ImmutableArray<IParameterSymbol> candidateParameters, IReadOnlyList<Parameter> signatureParameters)
+        private static bool TypesAreEqual(ImmutableArray<IParameterSymbol> candidateParameters, IReadOnlyList<ParameterProvider> signatureParameters)
         {
             if (candidateParameters.Length != signatureParameters.Count)
             {

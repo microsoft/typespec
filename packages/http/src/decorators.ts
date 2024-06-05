@@ -17,12 +17,10 @@ import {
   ignoreDiagnostics,
   isArrayModelType,
   reportDeprecated,
-  setTypeSpecNamespace,
   typespecTypeToJson,
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
-import { PlainDataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
 import {
   BodyDecorator,
   BodyIgnoreDecorator,
@@ -31,6 +29,7 @@ import {
   GetDecorator,
   HeadDecorator,
   HeaderDecorator,
+  MultipartBodyDecorator,
   PatchDecorator,
   PathDecorator,
   PostDecorator,
@@ -219,6 +218,17 @@ export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
 
 export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
   return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
+}
+
+export const $multipartBody: MultipartBodyDecorator = (
+  context: DecoratorContext,
+  entity: ModelProperty
+) => {
+  context.program.stateSet(HttpStateKeys.multipartBody).add(entity);
+};
+
+export function isMultipartBodyProperty(program: Program, entity: Type): boolean {
+  return program.stateSet(HttpStateKeys.multipartBody).has(entity);
 }
 
 export const $statusCode: StatusCodeDecorator = (
@@ -449,36 +459,6 @@ export const $server: ServerDecorator = (
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
   return program.stateMap(HttpStateKeys.servers).get(type);
 }
-
-export const $plainData: PlainDataDecorator = (context: DecoratorContext, entity: Model) => {
-  const { program } = context;
-
-  const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
-  const [headers, bodies, queries, paths, statusCodes] = [
-    program.stateMap(HttpStateKeys.header),
-    program.stateSet(HttpStateKeys.body),
-    program.stateMap(HttpStateKeys.query),
-    program.stateMap(HttpStateKeys.path),
-    program.stateMap(HttpStateKeys.statusCode),
-  ];
-
-  for (const property of entity.properties.values()) {
-    // Remove the decorators so that they do not run in the future, for example,
-    // if this model is later spread into another.
-    property.decorators = property.decorators.filter(
-      (d) => !decoratorsToRemove.includes(d.decorator.name)
-    );
-
-    // Remove the impact the decorators already had on this model.
-    headers.delete(property);
-    bodies.delete(property);
-    queries.delete(property);
-    paths.delete(property);
-    statusCodes.delete(property);
-  }
-};
-
-setTypeSpecNamespace("Private", $plainData);
 
 export function $useAuth(
   context: DecoratorContext,

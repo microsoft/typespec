@@ -5,6 +5,7 @@ using System;
 using Microsoft.Generator.CSharp.Expressions;
 using System.ComponentModel.Composition;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -19,11 +20,11 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType CreateCSharpType(InputType input);
 
         /// <summary>
-        /// Factory method for creating a <see cref="Parameter"/> based on an input parameter <paramref name="parameter"/>.
+        /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
-        /// <returns>An instance of <see cref="Parameter"/>.</returns>
-        public abstract Parameter CreateCSharpParam(InputParameter parameter);
+        /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
+        public abstract ParameterProvider CreateCSharpParam(InputParameter parameter);
 
         /// <summary>
         /// Factory method for creating a <see cref="CSharpMethodCollection"/> based on an input operation <paramref name="operation"/>.
