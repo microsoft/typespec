@@ -14,7 +14,6 @@ namespace Microsoft.Generator.CSharp
     /// <summary>
     /// Base class for code model plugins. This class is exported via MEF and can be implemented by an inherited plugin class.
     /// </summary>
-    [InheritedExport]
     public class CodeModelPlugin
     {
         public static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
