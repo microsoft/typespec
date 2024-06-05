@@ -9,9 +9,6 @@ import style from "./output-view.module.css";
 const FileViewerComponent = ({ program, outputFiles }: OutputViewerProps) => {
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  if (outputFiles.length === 0) {
-    return <>No files emitted.</>;
-  }
 
   useEffect(() => {
     if (outputFiles.length > 0) {
@@ -36,6 +33,10 @@ const FileViewerComponent = ({ program, outputFiles }: OutputViewerProps) => {
     },
     [setFilename]
   );
+
+  if (outputFiles.length === 0) {
+    return <>No files emitted.</>;
+  }
 
   return (
     <div className={style["file-viewer"]}>
