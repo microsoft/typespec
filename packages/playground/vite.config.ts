@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
+import checker from "vite-plugin-checker";
 import dts from "vite-plugin-dts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -46,7 +47,16 @@ export default defineConfig({
   },
   assetsInclude: [/\.tsp$/],
   optimizeDeps: {},
-  plugins: [react({}), dts()],
+  plugins: [
+    react({}),
+    dts({
+      logLevel: "silent", // checker reports the errors
+    }),
+    checker({
+      // e.g. use TypeScript check
+      typescript: true,
+    }),
+  ],
   server: {
     fs: {
       strict: false,

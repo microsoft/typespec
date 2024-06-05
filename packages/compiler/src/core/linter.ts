@@ -33,10 +33,10 @@ export function resolveLinterDefinition(
   const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
     return { ...rule, id: `${libName}/${rule.name}` };
   });
-  if (linter.ruleSets && "all" in linter.ruleSets) {
+  if (linter.rules.length === 0 || (linter.ruleSets && "all" in linter.ruleSets)) {
     return {
       rules,
-      ruleSets: linter.ruleSets as any,
+      ruleSets: linter.ruleSets ?? {},
     };
   } else {
     return {
