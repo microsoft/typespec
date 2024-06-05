@@ -9,6 +9,7 @@ using System.Net;
 using Microsoft.Generator.CSharp.Input;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -28,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => CodeModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
+                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             InputModelType model => CodeModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
                 : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
@@ -66,9 +67,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _ => throw new Exception("Unknown type")
         };
 
-        public override Parameter CreateCSharpParam(InputParameter inputParameter)
+        public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {
-            return new Parameter(inputParameter);
+            return new ParameterProvider(inputParameter);
         }
 
         /// <summary>

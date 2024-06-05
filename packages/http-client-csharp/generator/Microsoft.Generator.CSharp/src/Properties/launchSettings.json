@@ -5,7 +5,7 @@
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec"
     },
-  "test-Unbranded-TypeSpec": {
+  "test-Unbraanded-TypeSpec": {
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../testdist/generator/Microsoft.Generator.CSharp.exe",
       "commandLineArgs": "$(SolutionDir)/TestProjects/Plugins/Unbranded-TypeSpec"

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -13,7 +14,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
         }
 
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider) => throw new NotImplementedException();
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => throw new NotImplementedException();
         public override string LiscenseString => "// License string";
     }
 }

@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Providers
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
+                propertyDeclarations[i] = CodeModelPlugin.Instance.TypeFactory.GetPropertyProvider(property);
             }
 
             return propertyDeclarations;

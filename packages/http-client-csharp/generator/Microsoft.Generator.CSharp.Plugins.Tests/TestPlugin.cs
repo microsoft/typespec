@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Plugin.Tests
 {
@@ -18,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Plugin.Tests
         /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider)
         {
             // Add MRW serialization type provider
             //return [new MrwSerializationTypeProvider(provider)];

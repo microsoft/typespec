@@ -19,11 +19,6 @@ namespace UnbrandedTypeSpec.Models
             Name = name;
         }
 
-        /// <summary> Initializes a new instance of <see cref="ProjectedModel"/> for deserialization. </summary>
-        internal ProjectedModel()
-        {
-        }
-
         /// <summary> name of the ModelWithProjectedName. </summary>
         public string Name { get; set; }
     }

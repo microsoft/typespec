@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -16,62 +17,17 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<long> requiredNullableList)
+        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (requiredUnion == null)
-            {
-                throw new ArgumentNullException(nameof(requiredUnion));
-            }
-            if (requiredBadDescription == null)
-            {
-                throw new ArgumentNullException(nameof(requiredBadDescription));
-            }
+            Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+            Argument.AssertNotNull(requiredBadDescription, nameof(requiredBadDescription));
 
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = new List<long>();
+            OptionalNullableList = new List<int>();
             RequiredNullableList = requiredNullableList?.ToList();
-        }
-
-        /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="name"> name of the Thing. </param>
-        /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
-        /// <param name="optionalLiteralString"> optional literal string. </param>
-        /// <param name="optionalLiteralInt"> optional literal int. </param>
-        /// <param name="optionalLiteralFloat"> optional literal float. </param>
-        /// <param name="optionalLiteralBool"> optional literal bool. </param>
-        /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
-        /// <param name="optionalNullableList"> optional nullable collection. </param>
-        /// <param name="requiredNullableList"> required nullable collection. </param>
-        internal Thing(string name, System.BinaryData requiredUnion, string requiredLiteralString, long requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, long optionalLiteralInt, float optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<long> optionalNullableList, IList<long> requiredNullableList)
-        {
-            Name = name;
-            RequiredUnion = requiredUnion;
-            RequiredLiteralString = requiredLiteralString;
-            RequiredLiteralInt = requiredLiteralInt;
-            RequiredLiteralFloat = requiredLiteralFloat;
-            RequiredLiteralBool = requiredLiteralBool;
-            OptionalLiteralString = optionalLiteralString;
-            OptionalLiteralInt = optionalLiteralInt;
-            OptionalLiteralFloat = optionalLiteralFloat;
-            OptionalLiteralBool = optionalLiteralBool;
-            RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = optionalNullableList;
-            RequiredNullableList = requiredNullableList;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
-        internal Thing()
-        {
         }
 
         /// <summary> name of the Thing. </summary>
@@ -96,7 +52,7 @@ namespace UnbrandedTypeSpec.Models
         /// <description><see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/></description>
         /// </item>
         /// <item>
-        /// <description><see cref="long"/></description>
+        /// <description><see cref="int"/></description>
         /// </item>
         /// </list>
         /// </remarks>
@@ -124,25 +80,25 @@ namespace UnbrandedTypeSpec.Models
         public System.BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; } = "accept";
+        public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
 
         /// <summary> required literal int. </summary>
-        public long RequiredLiteralInt { get; } = 123;
+        public ThingRequiredLiteralInt RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public float RequiredLiteralFloat { get; } = 1.23F;
+        public ThingRequiredLiteralFloat RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public string OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString OptionalLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public long OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public float OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool OptionalLiteralBool { get; set; }
@@ -151,13 +107,9 @@ namespace UnbrandedTypeSpec.Models
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>
-        public IList<long> OptionalNullableList { get; set; }
+        public IList<int> OptionalNullableList { get; set; }
 
         /// <summary> required nullable collection. </summary>
-        public IList<long> RequiredNullableList { get; set; }
-
-        // Add Methods
-
-        // Add Nested Type
+        public IList<int> RequiredNullableList { get; set; }
     }
 }
