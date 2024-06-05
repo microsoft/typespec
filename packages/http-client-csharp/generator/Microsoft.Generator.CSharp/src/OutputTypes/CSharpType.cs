@@ -43,7 +43,6 @@ namespace Microsoft.Generator.CSharp
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
-        private CSharpType? _initializationType;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
         private CSharpType? _inputType;
