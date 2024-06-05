@@ -9,7 +9,9 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.Generator.CSharp.Input;
 using System.Net.Http.Headers;
+using System.Reflection.Metadata;
 using Microsoft.Generator.CSharp.Plugin.Tests;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -29,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => CodeModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
+                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             InputModelType model => CodeModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
                 ? provider.Type.WithNullable(inputType.IsNullable)
                 : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
@@ -67,9 +69,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _ => throw new Exception("Unknown type")
         };
 
-        public override Parameter CreateCSharpParam(InputParameter inputParameter)
+        public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {
-            return new Parameter(inputParameter);
+            return new ParameterProvider(inputParameter);
         }
 
         /// <summary>
@@ -126,39 +128,18 @@ namespace Microsoft.Generator.CSharp.ClientModel
             throw new NotImplementedException();
         }
 
-        public override TypeProvider CreateModel(InputModelType inputModelType) => new PluginTypeProvider(inputModelType);
+        public override PropertyProvider GetPropertyProvider(InputModelProperty inputProperty) => new PluginPropertyProvider(inputProperty);
     }
 
-    internal class PluginTypeProvider : ModelTypeProvider
+    internal class PluginPropertyProvider : PropertyProvider
     {
-        public PluginTypeProvider(InputModelType inputModel) : base(inputModel)
+        public PluginPropertyProvider(InputModelProperty inputModel) : base(inputModel)
         {
         }
 
-        protected override PropertyDeclaration[] BuildProperties()
-        {
-            var propertiesCount = InputModel.Properties.Count;
-            var propertyDeclarations = new PluginPropertyDeclaration[propertiesCount];
-
-            for (int i = 0; i < propertiesCount; i++)
-            {
-                var property = InputModel.Properties[i];
-                propertyDeclarations[i] = new PluginPropertyDeclaration(property);
-            }
-
-            return propertyDeclarations;
-        }
-    }
-
-    internal class PluginPropertyDeclaration : PropertyDeclaration
-    {
         protected override bool PropertyHasSetter(CSharpType type, InputModelProperty inputProperty)
         {
             return type.IsCollection || base.PropertyHasSetter(type, inputProperty);
-        }
-
-        public PluginPropertyDeclaration(InputModelProperty inputProperty) : base(inputProperty)
-        {
         }
     }
 }

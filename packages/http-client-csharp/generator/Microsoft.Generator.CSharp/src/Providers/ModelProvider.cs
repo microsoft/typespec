@@ -7,15 +7,14 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Providers
 {
-    public class ModelTypeProvider : TypeProvider
+    public sealed class ModelProvider : TypeProvider
     {
-        protected InputModelType InputModel { get; }
+        private readonly InputModelType _inputModel;
         public override string Name { get; }
         public override string Namespace { get; }
         public override FormattableString Description { get; }
@@ -28,9 +27,9 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        public ModelTypeProvider(InputModelType inputModel)
+        public ModelProvider(InputModelType inputModel)
         {
-            InputModel = inputModel;
+            _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
@@ -57,98 +56,36 @@ namespace Microsoft.Generator.CSharp
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
-        protected override PropertyDeclaration[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
-            var propertiesCount = InputModel.Properties.Count;
-            var propertyDeclarations = new PropertyDeclaration[propertiesCount];
+            var propertiesCount = _inputModel.Properties.Count;
+            var propertyDeclarations = new PropertyProvider[propertiesCount];
 
             for (int i = 0; i < propertiesCount; i++)
             {
-                var property = InputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyDeclaration(property);
+                var property = _inputModel.Properties[i];
+                propertyDeclarations[i] = new PropertyProvider(property);
             }
 
             return propertyDeclarations;
         }
 
-        protected override CSharpMethod[] BuildConstructors()
+        protected override MethodProvider[] BuildConstructors()
         {
-            List<CSharpMethod> constructors = new List<CSharpMethod>();
-
-            var initializationConstructor = BuildInitializationConstructor();
-            if (initializationConstructor != null)
+            if (_inputModel.IsUnknownDiscriminatorModel)
             {
-                constructors.Add(initializationConstructor);
+                return Array.Empty<MethodProvider>();
             }
 
-            var serializationConstructor = BuildSerializationConstructor();
-            bool serializationParametersMatchInitialization = initializationConstructor != null &&
-                initializationConstructor.Signature.Parameters.SequenceEqual(serializationConstructor.Signature.Parameters, Parameter.EqualityComparerByType);
-
-            if (!serializationParametersMatchInitialization)
-            {
-                constructors.Add(serializationConstructor);
-            }
-
-            if (initializationConstructor?.Signature.Parameters.Count > 0)
-            {
-                var emptyConstructor = BuildEmptyConstructor();
-                constructors.Add(emptyConstructor);
-            }
-
-            return constructors.ToArray();
-        }
-
-        private IReadOnlyList<Parameter> BuildConstructorParameters(bool isSerializationConstructor)
-        {
-            List<Parameter> constructorParameters = new List<Parameter>();
-
-            foreach (var property in InputModel.Properties)
-            {
-                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
-                // All properties should be included in the serialization ctor
-                if (isSerializationConstructor)
-                {
-                    constructorParameters.Add(new Parameter(property)
-                    {
-                        Validation = ParameterValidationType.None,
-                    });
-                }
-                else
-                {
-                    // For classes, only required + not readonly + not initialization value + not discriminator could get into the public ctor
-                    // For structs, all properties must be set in the public ctor
-                    if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
-                    {
-                        if (!property.IsReadOnly)
-                        {
-                            constructorParameters.Add(new Parameter(property)
-                            {
-                                Type = propertyType.InputType,
-                            });
-                        }
-                    }
-                }
-            }
-
-            return constructorParameters;
-        }
-
-        private CSharpMethod? BuildInitializationConstructor()
-        {
-            if (InputModel.IsUnknownDiscriminatorModel)
-            {
-                return null;
-            }
-
+            // Build the initialization constructor
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? MethodSignatureModifiers.Protected
-                : InputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                : _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? MethodSignatureModifiers.Public
                     : MethodSignatureModifiers.Internal;
-            var constructorParameters = BuildConstructorParameters(false);
+            var constructorParameters = BuildConstructorParameters();
 
-            var constructor = new CSharpMethod(
+            var constructor = new MethodProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
@@ -162,33 +99,36 @@ namespace Microsoft.Generator.CSharp
                 },
                 kind: CSharpMethodKinds.Constructor);
 
-            return constructor;
+            return new MethodProvider[] { constructor };
         }
 
-        private CSharpMethod BuildSerializationConstructor()
+        private IReadOnlyList<ParameterProvider> BuildConstructorParameters()
         {
-            var constructorParameters = BuildConstructorParameters(true);
+            List<ParameterProvider> constructorParameters = new List<ParameterProvider>();
 
-            return new CSharpMethod(
-                signature: new ConstructorSignature(
-                    Type,
-                    $"Initializes a new instance of {Type:C}",
-                    null,
-                    MethodSignatureModifiers.Internal,
-                    constructorParameters),
-                bodyStatements: new MethodBodyStatement[]
+            foreach (var property in _inputModel.Properties)
+            {
+                CSharpType propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(property.Type);
+                if (_isStruct || (property is { IsRequired: true, IsDiscriminator: false } && !propertyType.IsLiteral))
                 {
-                    new ParameterValidationStatement(constructorParameters),
-                    GetPropertyInitializers(constructorParameters)
-                },
-                kind: CSharpMethodKinds.Constructor);
+                    if (!property.IsReadOnly)
+                    {
+                        constructorParameters.Add(new ParameterProvider(property)
+                        {
+                            Type = propertyType.InputType
+                        });
+                    }
+                }
+            }
+
+            return constructorParameters;
         }
 
-        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<Parameter> parameters)
+        private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
         {
             List<MethodBodyStatement> methodBodyStatements = new();
 
-            Dictionary<string, Parameter> parameterMap = parameters.ToDictionary(
+            Dictionary<string, ParameterProvider> parameterMap = parameters.ToDictionary(
                 parameter => parameter.Name,
                 parameter => parameter);
 
@@ -212,6 +152,7 @@ namespace Microsoft.Generator.CSharp
                 }
                 else if (initializationValue == null && property.Type.IsCollection)
                 {
+                    // TO-DO: Properly initialize collection properties - https://github.com/microsoft/typespec/issues/3509
                     initializationValue = New.Instance(property.Type.PropertyInitializationType);
                 }
 
@@ -222,15 +163,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return methodBodyStatements;
-        }
-
-        private CSharpMethod BuildEmptyConstructor()
-        {
-            var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
-            return new CSharpMethod(
-                signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<Parameter>()),
-                bodyStatements: new MethodBodyStatement(),
-                kind: CSharpMethodKinds.Constructor);
         }
     }
 }
