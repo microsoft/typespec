@@ -292,6 +292,10 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
         classifyOverride(node.paramName, SemanticTokenKind.Variable);
         break;
+      case SyntaxKind.DocPropTag:
+        classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+        classifyOverride(node.propName, SemanticTokenKind.Variable);
+        break;
       case SyntaxKind.DocReturnsTag:
         classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
         break;
