@@ -99,6 +99,23 @@ model OptionalProperties<Source>
 #### Properties
 None
 
+### `PickProperties` {#PickProperties}
+
+Represents a collection of properties with only the specified keys included.
+```typespec
+model PickProperties<Source, Keys>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| Source | An object whose properties are spread. |
+| Keys | The property keys to include. |
+
+
+#### Properties
+None
+
 ### `Record` {#Record}
 
 

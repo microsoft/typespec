@@ -604,6 +604,12 @@ extern dec withoutDefaultValues(target: Model);
  */
 extern dec withoutOmittedProperties(target: Model, omit: string | Union);
 
+/**
+ * Returns the model with only the given properties included.
+ * @param pick List of properties to include
+ */
+extern dec withPickedProperties(target: Model, pick: string | Union);
+
 //---------------------------------------------------------------------------
 // Debugging
 //---------------------------------------------------------------------------
