@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Tests
     public class ModelTypeProviderTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private GeneratorContext _generatorContext;
+        private Configuration _configuration;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
         private FieldInfo? _mockPlugin;
@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            _generatorContext = new GeneratorContext(Configuration.Load(_configFilePath));
+            _configuration = Configuration.Load(_configFilePath);
         }
 
         [TearDown]
@@ -39,10 +39,13 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource(nameof(BuildProperties_ValidatePropertySettersTestCases))]
         public void BuildProperties_ValidatePropertySetters(InputModelProperty inputModelProperty, CSharpType type, bool hasSetter)
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>() { };
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(type);
+            mockTypeFactory.Setup(t => t.GetPropertyProvider(It.IsAny<InputModelProperty>()))
+                .Returns(() => new PropertyProvider(inputModelProperty));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var props = new[]
@@ -130,8 +133,12 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void BuildConstructor_ValidateConstructors()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             var mockTypeFactory = new Mock<TypeFactory>() { };
+            var inputModelProperty = new List<InputModelProperty>();
+            mockTypeFactory.Setup(t => t.GetPropertyProvider(Capture.In(inputModelProperty)))
+                .Returns(() => new PropertyProvider(inputModelProperty.First()));
 
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),

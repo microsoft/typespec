@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Plugin.Tests;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
@@ -78,7 +77,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override Type StatusCodeClassifierType => typeof(object);
 
         public override ValueExpression GetCreateFromStreamSampleExpression(ValueExpression freeFormObjectExpression)
-            => new InvokeStaticMethodExpression(TestPlugin.Instance.Configuration.ApiTypes.RequestContentType, TestPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, [BinaryDataSnippet.FromObjectAsJson(freeFormObjectExpression).ToStream()]);
+            => new InvokeStaticMethodExpression(CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentType, CodeModelPlugin.Instance.Configuration.ApiTypes.RequestContentCreateName, [BinaryDataSnippet.FromObjectAsJson(freeFormObjectExpression).ToStream()]);
 
         public override string EndPointSampleValue => "https://my-service.com";
 

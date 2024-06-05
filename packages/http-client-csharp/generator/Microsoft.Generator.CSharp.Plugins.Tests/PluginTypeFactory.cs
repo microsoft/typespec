@@ -10,7 +10,6 @@ using System.Net.Http;
 using Microsoft.Generator.CSharp.Input;
 using System.Net.Http.Headers;
 using System.Reflection.Metadata;
-using Microsoft.Generator.CSharp.Plugin.Tests;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel

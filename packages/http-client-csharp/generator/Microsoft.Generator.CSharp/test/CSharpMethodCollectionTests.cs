@@ -32,8 +32,8 @@ namespace Microsoft.Generator.CSharp.Tests
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var mockGeneratorContext = new Mock<GeneratorContext>(Configuration.Load(configFilePath));
-            var mockPluginInstance = new Mock<CodeModelPlugin>(mockGeneratorContext.Object) { };
+            var mockPluginInstance = new Mock<CodeModelPlugin>() { };
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(Configuration.Load(configFilePath));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(_typeFactory);
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

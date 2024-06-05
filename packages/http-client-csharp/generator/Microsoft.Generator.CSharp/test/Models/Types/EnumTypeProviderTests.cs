@@ -19,9 +19,13 @@ namespace Microsoft.Generator.CSharp.Tests
         internal const string NewLine = "\n";
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private GeneratorContext _generatorContext;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private Configuration _configuration;
         private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
+        private MockApiTypes _mockApiTypes;
+        private MockTypeFactory _mockTypeFactory;
+        private MockExtensibleSnippets _mockExtensibleSnippets;
+        private OutputLibraryTests.MockOutputLibrary _mockOutputLibrary;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private FieldInfo? _mockPlugin;
 
         [SetUp]
@@ -29,7 +33,11 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            _generatorContext = new GeneratorContext(Configuration.Load(_configFilePath));
+            _configuration = Configuration.Load(_configFilePath);
+            _mockApiTypes = new MockApiTypes();
+            _mockTypeFactory = new MockTypeFactory();
+            _mockExtensibleSnippets = new MockExtensibleSnippets();
+            _mockOutputLibrary = new OutputLibraryTests.MockOutputLibrary();
         }
 
         [TearDown]
@@ -42,10 +50,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateIntBasedFixedEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>();
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(int));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false, false);
@@ -87,10 +96,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateFloatBasedFixedEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>() { };
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(float));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false, false);
@@ -129,10 +139,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateStringBasedFixedEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>();
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(string));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false, false);
@@ -171,10 +182,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateIntBasedExtensibleEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>();
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(int));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true, false);
@@ -232,10 +244,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateFloatBasedExtensibleEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>();
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(float));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true, false);
@@ -293,10 +306,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase]
         public void BuildEnumType_ValidateStringBasedExtensibleEnum()
         {
-            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
+            var mockPluginInstance = new Mock<CodeModelPlugin>();
             var mockTypeFactory = new Mock<TypeFactory>();
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(string));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPluginInstance.SetupGet(p => p.Configuration).Returns(_configuration);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
             var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true, false);

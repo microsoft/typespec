@@ -4,17 +4,22 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
     internal class MockCodeModelPlugin : CodeModelPlugin
     {
         internal MockCodeModelPlugin(Configuration configuration)
-            : base(configuration)
         {
+            Configuration = configuration;
+            TypeFactory = new MockTypeFactory();
         }
 
         public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => throw new NotImplementedException();
-        public override string LiscenseString => "// License string";
+        public override string LicenseString => "// License string";
+        public override Configuration Configuration { get; }
+
+        public override TypeFactory TypeFactory { get; }
     }
 }

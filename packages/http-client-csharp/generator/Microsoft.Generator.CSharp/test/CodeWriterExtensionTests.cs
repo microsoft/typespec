@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;

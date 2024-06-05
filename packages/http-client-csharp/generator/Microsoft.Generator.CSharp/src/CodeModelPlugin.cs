@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
@@ -19,24 +18,37 @@ namespace Microsoft.Generator.CSharp
         public static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
         private static CodeModelPlugin? _instance;
 
-        public Configuration Configuration { get; }
+        public virtual Configuration Configuration { get; }
+
+        /// <summary>
+        /// For mocking.
+        /// </summary>
+        protected CodeModelPlugin()
+        {
+            _instance = this;
+            Configuration = null!;
+            ApiTypes = null!;
+            TypeFactory = null!;
+            ExtensibleSnippets = null!;
+            OutputLibrary = null!;
+            _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+        }
 
         internal CodeModelPlugin(Configuration configuration)
         {
-            _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
-
+            Configuration = configuration;
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using (CompositionContainer container = new(directoryCatalog))
             {
-                Configuration = configuration;
-                ApiTypes = container.GetExportedValueOrDefault<ApiTypes>()
-                           ?? throw new InvalidOperationException("ApiTypes is not loaded.");
+                ApiTypes = container.GetExportedValueOrDefault<ApiTypes>() ??
+                           throw new InvalidOperationException("ApiTypes is not loaded.");
                 TypeFactory = container.GetExportedValueOrDefault<TypeFactory>()
                               ?? throw new InvalidOperationException("TypeFactory is not loaded.");
                 ExtensibleSnippets = container.GetExportedValueOrDefault<ExtensibleSnippets>()
                                      ?? throw new InvalidOperationException("ExtensibleSnippets is not loaded.");
                 OutputLibrary = container.GetExportedValueOrDefault<OutputLibrary>()
-                                ?? new OutputLibrary();
+                    ?? new OutputLibrary();
+                _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
             }
         }
 
@@ -48,15 +60,15 @@ namespace Microsoft.Generator.CSharp
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public ApiTypes ApiTypes { get; }
+        public virtual ApiTypes ApiTypes { get; }
 
-        public TypeFactory TypeFactory { get; }
+        public virtual TypeFactory TypeFactory { get; }
 
-        public ExtensibleSnippets ExtensibleSnippets { get; }
+        public virtual ExtensibleSnippets ExtensibleSnippets { get; }
 
-        public OutputLibrary OutputLibrary { get;}
+        public virtual OutputLibrary OutputLibrary { get; }
 
-        public InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
 
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
@@ -65,6 +77,6 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => Array.Empty<TypeProvider>();
-        public virtual string LiscenseString => string.Empty;
+        public virtual string LicenseString => string.Empty;
     }
 }
