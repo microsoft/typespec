@@ -235,12 +235,6 @@ function getParentAddedVersionInTimeline(
   return undefined;
 }
 
-enum AddRemovePattern {
-  AddedFirst,
-  RemovedFirst,
-  ImplicitlyAlwaysAvailable,
-}
-
 /**
  * Uses the added, removed and parent metadata to resolve any issues with
  * implicit versioning and return the added array with this taken into account.
