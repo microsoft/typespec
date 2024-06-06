@@ -1,6 +1,7 @@
 # User-specific files
 *.suo
 *.user
+*.idea
 *.sln.docstates
 .vs/
 *.lock.json

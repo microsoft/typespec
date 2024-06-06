@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
 using Moq;
@@ -44,10 +46,12 @@ namespace Microsoft.Generator.CSharp.Tests
 
         // Validates that a valid plugin implementation is accepted
         [Test]
-        public void TestCSharpGen_ValidPlugin()
+        [Ignore("Cannot test end to end as the tspCodeModel.json is not copied into output dir.")]
+        public async Task TestCSharpGen_ValidPlugin()
         {
+            var pluginField = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // mock plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(Configuration.Load(_mocksFolder))
+            var mockPlugin = new Mock<CodeModelPlugin>()
             {
                 CallBase = true
             };
@@ -70,17 +74,23 @@ namespace Microsoft.Generator.CSharp.Tests
                 CallBase = true
             };
 
+            // mock output library
+            var mockOutputLibrary = new Mock<OutputLibrary>()
+            {
+                CallBase = true
+            };
+
             mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
             mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
             mockPlugin.SetupGet(p => p.ApiTypes).Returns(mockApiTypes.Object);
             mockPlugin.SetupGet(p => p.ExtensibleSnippets).Returns(mockExtensibleSnippets.Object);
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            mockPlugin.SetupGet(p => p.Configuration).Returns(() => Configuration.Load(_mocksFolder));
+            mockPlugin.SetupGet(p => p.OutputLibrary).Returns(mockOutputLibrary.Object);
+            pluginField!.SetValue(null, mockPlugin.Object);
 
             var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");
-            var csharpGen = new CSharpGen().ExecuteAsync();
-
-            // TODO this test is invalid - the csharpGen task is faulted.
-            Assert.IsNotNull(csharpGen);
+            await new CSharpGen().ExecuteAsync();
         }
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)
