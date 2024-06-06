@@ -79,6 +79,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");
             var csharpGen = new CSharpGen().ExecuteAsync();
 
+            // TODO this test is invalid - the csharpGen task is faulted.
             Assert.IsNotNull(csharpGen);
         }
 
