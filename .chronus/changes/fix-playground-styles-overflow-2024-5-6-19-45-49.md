@@ -5,4 +5,4 @@ packages:
   - "@typespec/playground"
 ---
 
-Fix issue where hover tooltip would be cropped or not visibile
+Fix issue where hover tooltip would be cropped or not visible
