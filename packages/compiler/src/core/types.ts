@@ -2440,7 +2440,6 @@ export interface LinterDefinition {
 export interface LinterResolvedDefinition {
   readonly rules: LinterRule<string, DiagnosticMessages>[];
   readonly ruleSets: {
-    all: LinterRuleSet;
     [name: string]: LinterRuleSet;
   };
 }

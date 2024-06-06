@@ -4,39 +4,60 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
     public partial class ModelWithRequiredNullableProperties : System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>
     {
+        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
+
+        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
+        /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
+        /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
+        /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, System.BinaryData> serializedAdditionalRawData)
+        {
+            RequiredNullablePrimitive = requiredNullablePrimitive;
+            RequiredExtensibleEnum = requiredExtensibleEnum;
+            RequiredFixedEnum = requiredFixedEnum;
+            _serializedAdditionalRawData = serializedAdditionalRawData;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/> for deserialization. </summary>
+        internal ModelWithRequiredNullableProperties()
+        {
+        }
+
         /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         void System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
         /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ModelWithRequiredNullableProperties System.ClientModel.Primitives.IJsonModel<ModelWithRequiredNullableProperties>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new ModelWithRequiredNullableProperties();
         }
 
-        /// <param name="options"> The client options. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         System.BinaryData System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new System.BinaryData("IPersistableModel");
         }
 
         /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         ModelWithRequiredNullableProperties System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new ModelWithRequiredNullableProperties();
         }
 
-        /// <param name="options"> The client options. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
         string System.ClientModel.Primitives.IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

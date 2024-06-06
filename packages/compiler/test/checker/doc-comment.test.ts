@@ -4,12 +4,12 @@ import { Model, Operation } from "../../src/core/index.js";
 import { getDoc, getErrorsDoc, getReturnsDoc } from "../../src/lib/decorators.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 
-describe("compiler: checker: doc comments", () => {
-  let runner: BasicTestRunner;
-  beforeEach(async () => {
-    runner = await createTestRunner();
-  });
+let runner: BasicTestRunner;
+beforeEach(async () => {
+  runner = await createTestRunner();
+});
 
+describe("compiler: checker: doc comments", () => {
   const expectedMainDoc = "This is a doc comment.";
   const docComment = `/**
    *  ${expectedMainDoc}
@@ -238,8 +238,114 @@ describe("compiler: checker: doc comments", () => {
       strictEqual(getErrorsDoc(runner.program, test), "Another string");
     });
   });
+});
 
-  it("using @param in doc comment of operation applies doc on the parameters", async () => {
+describe("@param", () => {
+  async function getDocForParam(code: string): Promise<string | undefined> {
+    const { target } = (await runner.compile(code)) as { target: Operation };
+    ok(target, `Make sure to have @test("target") in code.`);
+    return getDoc(runner.program, target.parameters.properties.get("one")!);
+  }
+
+  it("applies doc on param", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      @test("target") op base(one: string): void;
+    `);
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("@doc on param wins", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      @test("target") op base(@doc("Explicit") one: string): void;
+    `);
+    strictEqual(doc, "Explicit");
+  });
+
+  it("augment @@doc on param wins", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      @test("target") op base(one: string): void;
+
+      @@doc(base::parameters.one, "Override");
+    `);
+    strictEqual(doc, "Override");
+  });
+
+  it("carry over with op is", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      op base(one: string): void;
+      
+      @test("target") op child is base;
+    `);
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("@param on child operation override parent @param", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      op base(one: string): void;
+      
+      /**
+       * @param one Override for child
+       */
+      @test("target") op child is base;
+    `);
+    strictEqual(doc, "Override for child");
+  });
+
+  it("augment @@doc wins over @param on child operation", async () => {
+    const doc = await getDocForParam(`
+      /**
+       * @param one Doc comment
+       */
+      op base(one: string): void;
+      
+      /**
+       * @param one Override for child
+       */
+      @test("target") op child is base;
+      @@doc(child::parameters.one, "Override for child again");
+    `);
+    strictEqual(doc, "Override for child again");
+  });
+
+  it("spread model without @param keeps doc on property", async () => {
+    const doc = await getDocForParam(`
+      model A {
+        @doc("Via model") one: string
+      }
+      @test("target") op base(...A): void;
+    `);
+    strictEqual(doc, "Via model");
+  });
+
+  it("@param override doc set from spread model", async () => {
+    const doc = await getDocForParam(`
+      model A {
+        @doc("Via model") one: string
+      }
+      /**
+       * @param one Doc comment
+       */
+      @test("target") op base(...A): void;
+    `);
+    strictEqual(doc, "Doc comment");
+  });
+
+  it("applies to distinct parameters", async () => {
     // One @param has a hyphen but the other does not (should handle both cases)
     const { addUser } = (await runner.compile(`
     

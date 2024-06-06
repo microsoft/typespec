@@ -5,7 +5,7 @@ import {
   type DiagnosticTarget,
   type NoTarget,
 } from "@typespec/compiler";
-import { FunctionComponent, memo, useCallback } from "react";
+import { memo, useCallback, type FunctionComponent } from "react";
 import style from "./diagnostic-list.module.css";
 
 export interface DiagnosticListProps {
