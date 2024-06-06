@@ -261,7 +261,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
             <SplitPane initialSizes={["50%", "50%"]}>
-              <Pane>
+              <Pane className={style["edit-pane"]}>
                 <EditorCommandBar
                   host={host}
                   selectedEmitter={selectedEmitter}
