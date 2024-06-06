@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestCSharpGen_ValidPlugin()
         {
             // mock plugin
-            var mockPlugin = new Mock<CodeModelPlugin>(new GeneratorContext(Configuration.Load(_mocksFolder)))
+            var mockPlugin = new Mock<CodeModelPlugin>(Configuration.Load(_mocksFolder))
             {
                 CallBase = true
             };
