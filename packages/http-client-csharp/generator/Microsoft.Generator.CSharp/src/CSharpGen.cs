@@ -80,6 +80,10 @@ namespace Microsoft.Generator.CSharp
             helperWriter.Write();
             generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ArgumentProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
 
+            helperWriter = CodeModelPlugin.Instance.GetWriter(OptionalProvider.Instance);
+            helperWriter.Write();
+            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{OptionalProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
+
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
