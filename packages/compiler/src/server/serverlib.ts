@@ -238,7 +238,7 @@ export function createServer(host: ServerHost): Server {
       ];
     }
 
-    log({ level: "info", message: "Workspace Folders", detail: workspaceFolders });
+    log({ level: "info", message: `Workspace Folders: ${workspaceFolders}` });
     return { capabilities };
   }
 
@@ -260,7 +260,7 @@ export function createServer(host: ServerHost): Server {
       });
     }
     workspaceFolders = Array.from(map.values());
-    log({ level: "info", message: "Workspace Folders", detail: workspaceFolders });
+    log({ level: "info", message: `Workspace Folders: ${workspaceFolders}` });
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
@@ -385,7 +385,7 @@ export function createServer(host: ServerHost): Server {
         // we report diagnostics with no location on the document that changed to
         // trigger.
         diagDocument = document;
-        log({ level: "trace", message: `Diagnostic with no location: ${each.message}` });
+        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
       }
 
       if (!diagDocument || !fileService.upToDate(diagDocument)) {

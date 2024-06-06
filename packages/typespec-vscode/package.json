@@ -76,7 +76,7 @@
               "verbose"
             ],
             "default": "off",
-            "description": "Trace setting for the TypeSpec language server. Make sure 'Log Level' is set to 'Trace' too for traces to be shown properly, which can be set through 'Developer: Set Log Level...' command."
+            "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
           }
         }
       }

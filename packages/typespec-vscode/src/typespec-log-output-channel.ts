@@ -36,9 +36,6 @@ export class TypeSpecLogOutputChannel implements LogOutputChannel {
   get name(): string {
     return this.delegate.name;
   }
-  append(value: string): void {
-    this.delegate.append(value);
-  }
   replace(value: string): void {
     this.delegate.replace(value);
   }
@@ -58,19 +55,52 @@ export class TypeSpecLogOutputChannel implements LogOutputChannel {
     this.delegate.dispose();
   }
 
+  append(value: string): void {
+    this.logToDelegate(value);
+  }
   appendLine(value: string): void {
+    this.logToDelegate(value);
+  }
+
+  private preLevel: "trace" | "debug" | "info" | "warning" | "error" | "" = "";
+  private logToDelegate(value: string) {
     if (TRACE_PREFIX.test(value)) {
+      this.preLevel = "trace";
       this.delegate.trace(value.replace(TRACE_PREFIX, ""));
     } else if (DEBUG_PREFIX.test(value)) {
+      this.preLevel = "debug";
       this.delegate.debug(value.replace(DEBUG_PREFIX, ""));
     } else if (INFO_PREFIX.test(value)) {
+      this.preLevel = "info";
       this.delegate.info(value.replace(INFO_PREFIX, ""));
     } else if (WARN_PREFIX.test(value)) {
+      this.preLevel = "warning";
       this.delegate.warn(value.replace(WARN_PREFIX, ""));
     } else if (ERROR_PREFIX.test(value)) {
+      this.preLevel = "error";
       this.delegate.error(value.replace(ERROR_PREFIX, ""));
     } else {
-      this.delegate.info(value);
+      // a msg sent without a level prefix should be because a message is sent by calling multiple appendLine()
+      // so just log it with the previous level
+      switch (this.preLevel) {
+        case "trace":
+          this.delegate.trace(value);
+          break;
+        case "debug":
+          this.delegate.debug(value);
+          break;
+        case "info":
+          this.delegate.info(value);
+          break;
+        case "warning":
+          this.delegate.warn(value);
+          break;
+        case "error":
+          this.delegate.error(value);
+          break;
+        default:
+          this.delegate.error("Log Message with invalid log level. Raw message: " + value);
+      }
     }
   }
 }

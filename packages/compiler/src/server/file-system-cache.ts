@@ -47,7 +47,12 @@ export function createFileSystemCache({
       }
       changes = [];
       const r = cache.get(path);
-      log({ level: "trace", message: `FileSystemCache ${r ? "hit" : "miss"} for ${path}` });
+      if (!r) {
+        const target: any = {};
+        Error.captureStackTrace(target);
+        const callstack = target.stack.substring("Error\n".length);
+        log({ level: "trace", message: `FileSystemCache miss for ${path}`, detail: callstack });
+      }
       return r;
     },
     set(path: string, entry: CachedFile | CachedError) {

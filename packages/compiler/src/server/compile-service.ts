@@ -100,14 +100,14 @@ export function createCompileService({
     const path = await fileService.getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
-    log({ level: "trace", message: `config resolved`, detail: config });
+    log({ level: "debug", message: `config resolved`, detail: config });
 
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
     };
-    log({ level: "trace", message: `compiler options resolved`, detail: options });
+    log({ level: "debug", message: `compiler options resolved`, detail: options });
 
     if (!fileService.upToDate(document)) {
       return undefined;
@@ -125,7 +125,7 @@ export function createCompileService({
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
         log({
-          level: "trace",
+          level: "debug",
           message: `target file was not included in compiling, try to compile ${path} as main file directly`,
         });
         program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
@@ -173,7 +173,7 @@ export function createCompileService({
     const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
     if (!configPath) {
       log({
-        level: "trace",
+        level: "debug",
         message: `can't find path with config file, try to use default config`,
       });
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
@@ -220,7 +220,7 @@ export function createCompileService({
    */
   async function getMainFileForDocument(path: string) {
     if (path.startsWith("untitled:")) {
-      log({ level: "trace", message: `untitled document treated as its own main file: ${path}` });
+      log({ level: "debug", message: `untitled document treated as its own main file: ${path}` });
       return path;
     }
 
@@ -249,7 +249,7 @@ export function createCompileService({
       const tspMain = resolveTspMain(pkg);
       if (typeof tspMain === "string") {
         log({
-          level: "trace",
+          level: "debug",
           message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
         });
         mainFile = tspMain;
@@ -264,7 +264,7 @@ export function createCompileService({
       );
 
       if (stat?.isFile()) {
-        log({ level: "trace", message: `main file found as ${candidate}` });
+        log({ level: "debug", message: `main file found as ${candidate}` });
         return candidate;
       }
 
@@ -273,7 +273,7 @@ export function createCompileService({
         break;
       }
       log({
-        level: "trace",
+        level: "debug",
         message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
       });
       dir = parentDir;

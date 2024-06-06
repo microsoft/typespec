@@ -46,9 +46,11 @@ function main() {
       void connection.sendDiagnostics(params);
     },
     log(log: ServerLog) {
-      const message = log.detail
-        ? `${log.message}: ${JSON.stringify(log.detail, undefined, 2)}`
-        : log.message;
+      let message = log.message;
+      if (log.detail) {
+        message = `${message}:\n${typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2)}`;
+      }
+
       switch (log.level) {
         case "trace":
           connection.tracer.log(message);
@@ -66,7 +68,7 @@ function main() {
           connection.console.error(message);
           break;
         default:
-          connection.console.info(message);
+          connection.console.error("Log Message with invalid LogLevel. Raw Message: " + message);
           break;
       }
     },
