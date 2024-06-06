@@ -16,7 +16,6 @@ namespace Microsoft.Generator.CSharp.Tests
             TypeFactory = new MockTypeFactory();
         }
 
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => throw new NotImplementedException();
         public override string LicenseString => "// License string";
         public override Configuration Configuration { get; }
 

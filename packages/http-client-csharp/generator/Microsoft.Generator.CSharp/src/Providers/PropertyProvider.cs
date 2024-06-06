@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; }
         public IReadOnlyDictionary<CSharpType, FormattableString>? Exceptions { get; }
         public CSharpType? ExplicitInterface { get; }
-        public PropertyProvider(InputModelProperty inputProperty)
+        protected internal PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             var serializationFormat = CodeModelPlugin.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
         }
 
-        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
+        protected internal PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             Modifiers = modifiers;

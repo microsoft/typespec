@@ -12,7 +12,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelProvider : TypeProvider
+    public class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string Name { get; }
@@ -22,12 +22,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
 
-        /// <summary>
-        /// The serializations providers for the model provider.
-        /// </summary>
-        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
-
-        public ModelProvider(InputModelType inputModel)
+        protected internal ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
@@ -48,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
             {
-                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this);
+                SerializationProviders = CodeModelPlugin.Instance.TypeFactory.GetSerializationTypeProviders(this);
             }
 
             _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.

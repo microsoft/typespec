@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     internal sealed record RequestOptionsSnippet(ValueExpression Untyped) : TypedSnippet<RequestOptions>(Untyped)
     {
         public static RequestOptionsSnippet FromCancellationToken()
-            => new(new InvokeStaticMethodExpression(null, "FromCancellationToken", new ValueExpression[] { KnownParameters.CancellationTokenParameter }));
+            => new(new InvokeStaticMethodExpression(null, "FromCancellationToken", new ValueExpression[] { CSharp.KnownParameters.CancellationTokenParameter }));
 
         public ValueExpression ErrorOptions => Property(nameof(RequestOptions.ErrorOptions));
     }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
@@ -20,33 +21,18 @@ namespace Microsoft.Generator.CSharp.Tests
             _outputLibrary = new MockOutputLibrary();
         }
 
-        // Tests that the BuildModels method is successfully overridden.
+        // Tests that the Providers property is successfully overridden.
         [Test]
-        public void BuildModels_Override()
+        public void Providers_Override()
         {
-            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Models; });
-        }
-
-        // Tests that the BuildClients method is successfully overridden.
-        [Test]
-        public void BuildClients_Override()
-        {
-            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Clients; });
+            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Providers; });
         }
 
         internal class MockOutputLibrary : OutputLibrary
         {
             public MockOutputLibrary() : base() { }
 
-            public override ModelProvider[] BuildModels()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override ClientProvider[] BuildClients()
-            {
-                throw new NotImplementedException();
-            }
+            public override IEnumerable<TypeProvider> Providers => throw new NotImplementedException();
         }
     }
 }

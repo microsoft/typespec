@@ -67,11 +67,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             _ => throw new Exception("Unknown type")
         };
 
-        public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
-        {
-            return new ParameterProvider(inputParameter);
-        }
-
         /// <summary>
         /// Creates a <see cref="CSharpMethodCollection"/> for the given operation. If the operation is a <see cref="OperationKinds.DefaultValue"/> operation,
         /// a method collection will be created consisting of a <see cref="CSharpMethodKinds.CreateMessage"/> method. Otherwise, <c>null</c> will be returned.
@@ -102,28 +97,33 @@ namespace Microsoft.Generator.CSharp.ClientModel
             };
         }
 
-        public override CSharpType MatchConditionsType()
+        public virtual CSharpType MatchConditionsType()
         {
             // TO-DO: Determine what the correct type is for MatchConditions: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
 
-        public override CSharpType RequestConditionsType()
+        public virtual CSharpType RequestConditionsType()
         {
             // TO-DO: Determine what the correct type is for RequestConditions: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
 
-        public override CSharpType TokenCredentialType()
+        public virtual CSharpType TokenCredentialType()
         {
             // TO-DO: Determine what the correct type is for TokenCredential: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
 
-        public override CSharpType PageResponseType()
+        public virtual CSharpType PageResponseType()
         {
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
+        }
+
+        public override ParameterProvider GetParameterProvider(InputModelProperty property)
+        {
+            return new ScmParameterProvider(property);
         }
     }
 }

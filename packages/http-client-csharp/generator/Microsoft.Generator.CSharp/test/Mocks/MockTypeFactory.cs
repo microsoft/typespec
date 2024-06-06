@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override ParameterProvider CreateCSharpParam(InputParameter parameter)
+        public override ParameterProvider GetParameterProvider(InputParameter parameter)
         {
             throw new NotImplementedException();
         }
@@ -25,14 +25,10 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override CSharpType MatchConditionsType() => typeof(int);
-
-        public override CSharpType PageResponseType() => typeof(int);
-
-        public override CSharpType RequestConditionsType() => typeof(int);
-
-        public override CSharpType TokenCredentialType() => typeof(int);
         public override CSharpType ChangeTrackingListType => new CSharpType(typeof(List<>), arguments: typeof(int));
         public override CSharpType ChangeTrackingDictionaryType => new CSharpType(typeof(Dictionary<,>), arguments: [typeof(string), typeof(int)]);
+
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => throw new NotImplementedException();
+
     }
 }

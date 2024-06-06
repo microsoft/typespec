@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using System.ComponentModel.Composition;
+using System.Linq;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -14,7 +15,7 @@ namespace Microsoft.Generator.CSharp
     {
         private IReadOnlyList<EnumProvider>? _enums;
         private IReadOnlyList<ModelProvider>? _models;
-        private IReadOnlyList<ClientProvider>? _clients;
+        // private IReadOnlyList<ClientProvider>? _clients;
 
         public OutputLibrary()
         {
@@ -51,36 +52,31 @@ namespace Microsoft.Generator.CSharp
             return (enums, models);
         }
 
-        public IReadOnlyList<EnumProvider> Enums => _enums ??= BuildEnums();
-        public IReadOnlyList<ModelProvider> Models => _models ??= BuildModels();
-        public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
+        private IReadOnlyList<EnumProvider> Enums => _enums ??= BuildEnums();
+        private IReadOnlyList<ModelProvider> Models => _models ??= BuildModels();
+
+        // clientProvider should be added in SCM by overriding Providers property
+        // public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
+
+        public virtual IEnumerable<TypeProvider> Providers
+        {
+            get
+            {
+                return Enums.Concat<TypeProvider>(Models);
+            }
+        }
 
         public IDictionary<InputEnumType, EnumProvider> EnumMappings { get; }
         public IDictionary<InputModelType, ModelProvider> ModelMappings { get; }
 
-        public virtual EnumProvider[] BuildEnums()
+        private EnumProvider[] BuildEnums()
         {
             return _allModels.Value.Enums;
         }
 
-        public virtual ModelProvider[] BuildModels()
+        private ModelProvider[] BuildModels()
         {
             return _allModels.Value.Models;
-        }
-
-        public virtual ClientProvider[] BuildClients()
-        {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var clientsCount = input.Clients.Count;
-            ClientProvider[] clientProviders = new ClientProvider[clientsCount];
-
-            for (int i = 0; i < clientsCount; i++)
-            {
-                clientProviders[i] = new ClientProvider(input.Clients[i]);
-            }
-
-            return clientProviders;
         }
     }
 }

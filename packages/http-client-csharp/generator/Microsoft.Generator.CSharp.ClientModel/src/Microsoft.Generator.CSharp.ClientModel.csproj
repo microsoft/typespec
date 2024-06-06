@@ -19,6 +19,12 @@
 
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\**\*.cs" LinkBase="Shared"  />
+    <Compile Include="..\..\Microsoft.Generator.CSharp\src\SourceInput\SourceInputHelper.cs">
+      <Link>Shared\SourceInputHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Microsoft.Generator.CSharp\src\Utilities\NamedTypeSymbolExtensions.cs">
+      <Link>Shared\NamedTypeSymbolExtensions.cs</Link>
+    </Compile>
   </ItemGroup>
 
   <!-- Copy output to package dist path for local execution and  -->

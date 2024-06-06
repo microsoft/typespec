@@ -29,6 +29,12 @@ namespace Microsoft.Generator.CSharp.Providers
         public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+
+        /// <summary>
+        /// The serializations providers for the type provider.
+        /// </summary>
+        public IReadOnlyList<TypeProvider> SerializationProviders { get; protected init; } = Array.Empty<TypeProvider>();
+
         private TypeSignatureModifiers GetDeclarationModifiersInternal()
         {
             var modifiers = GetDeclarationModifiers();

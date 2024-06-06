@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
-            Serialization = new FixedEnumSerializationProvider(this);
+            SerializationProviders = new[] { new FixedEnumSerializationProvider(this) };
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
@@ -67,10 +67,10 @@ namespace Microsoft.Generator.CSharp.Providers
             }
 
             // otherwise we call the corresponding extension method to convert the value
-            return new InvokeStaticMethodExpression(Serialization?.Type, $"ToSerial{ValueType.Name}", [enumExpression], CallAsExtension: true);
+            return new InvokeStaticMethodExpression(SerializationProviders.Single().Type, $"ToSerial{ValueType.Name}", [enumExpression], CallAsExtension: true);
         }
 
         public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => new InvokeStaticMethodExpression(Serialization?.Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
+            => new InvokeStaticMethodExpression(SerializationProviders.Single().Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
     }
 }

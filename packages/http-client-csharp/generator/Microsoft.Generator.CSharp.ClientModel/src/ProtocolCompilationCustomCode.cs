@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.SourceInput;
 
-namespace Microsoft.Generator.CSharp.SourceInput
+namespace Microsoft.Generator.CSharp.ClientModel
 {
     internal class ProtocolCompilationCustomCode : CompilationCustomCode
     {
@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return result;
         }
 
-        internal override IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters)
+        public override IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters)
         {
             var methods = MethodSet.Where(m =>
                 m.ContainingNamespace.ToString() == namespaceName &&

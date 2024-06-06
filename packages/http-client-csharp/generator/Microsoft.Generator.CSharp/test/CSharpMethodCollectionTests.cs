@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
             var mockTypeFactory = new Mock<TypeFactory>() { };
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(bool)));
-            mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
+            mockTypeFactory.Setup(t => t.GetParameterProvider(It.IsAny<InputParameter>())).Returns(mockParameter);
             _typeFactory = mockTypeFactory.Object;
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);

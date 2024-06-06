@@ -23,14 +23,11 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// For mocking.
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected CodeModelPlugin()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             _instance = this;
-            Configuration = null!;
-            ApiTypes = null!;
-            TypeFactory = null!;
-            ExtensibleSnippets = null!;
-            OutputLibrary = null!;
             _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
         }
 
@@ -72,11 +69,6 @@ namespace Microsoft.Generator.CSharp
 
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
-        /// <summary>
-        /// Returns the serialization type providers for the given model type provider.
-        /// </summary>
-        /// <param name="provider">The model type provider.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider) => Array.Empty<TypeProvider>();
         public virtual string LicenseString => string.Empty;
     }
 }

@@ -38,11 +38,11 @@ namespace Microsoft.Generator.CSharp
 
         public abstract Type HttpPipelineType { get; }
         public abstract string HttpPipelineCreateMessageName { get; }
-        public FormattableString GetHttpPipelineCreateMessageFormat(bool withContext)
-        {
-            FormattableString context = withContext ? (FormattableString)$"{KnownParameters.RequestContext.Name:I}" : $"";
-            return $"_pipeline.{CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineCreateMessageName}({context}";
-        }
+        // public FormattableString GetHttpPipelineCreateMessageFormat(bool withContext)
+        // {
+        //     FormattableString context = withContext ? (FormattableString)$"{KnownParameters.RequestContext.Name:I}" : $"";
+        //     return $"_pipeline.{CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineCreateMessageName}({context}";
+        // }
 
         public abstract Type HttpMessageType { get; }
         public abstract string HttpMessageResponseName { get; }

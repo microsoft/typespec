@@ -3,9 +3,11 @@
 
 using System;
 using System.IO;
+using System.Reflection;
+using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class KnownParametersTests
     {
@@ -15,8 +17,11 @@ namespace Microsoft.Generator.CSharp.Tests
         public void OneTimeSetup()
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
+            var mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var mockPluginInstance = new Mock<CodeModelPlugin>() { };
+            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(new MockTypeFactory());
             // initialize the singleton instance of the plugin
-            _ = new MockCodeModelPlugin(Configuration.Load(configFilePath));
+            mockPlugin?.SetValue(null, mockPluginInstance.Object);
         }
 
 

@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp
             List<ParameterProvider> methodParameters = new();
             foreach (var inputParam in operation.Parameters)
             {
-              methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+              methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.GetParameterProvider(inputParam));
             }
 
             var methodModifier = MethodSignatureModifiers.Internal;

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
-    internal abstract class CompilationCustomCode
+    public abstract class CompilationCustomCode
     {
         protected Compilation _compilation;
 
@@ -15,6 +15,6 @@ namespace Microsoft.Generator.CSharp.SourceInput
             _compilation = compilation;
         }
 
-        internal abstract IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters);
+        public abstract IMethodSymbol? FindMethod(string namespaceName, string typeName, string methodName, IEnumerable<CSharpType> parameters);
     }
 }

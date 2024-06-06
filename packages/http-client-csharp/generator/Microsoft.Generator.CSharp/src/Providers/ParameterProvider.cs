@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Input;
 namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
-    public sealed class ParameterProvider : IEquatable<ParameterProvider>
+    public class ParameterProvider : IEquatable<ParameterProvider>
     {
         public string Name { get; }
         public FormattableString Description { get; }
@@ -22,7 +22,16 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsOut { get; }
         internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
 
-        public ParameterProvider(InputModelProperty inputProperty)
+        /// <summary>
+        /// For mocking.
+        /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected ParameterProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+        }
+
+        protected internal ParameterProvider(InputModelProperty inputProperty)
         {
             Name = inputProperty.Name.ToVariableName();
             Description = FormattableStringHelpers.FromString(inputProperty.Description);
@@ -34,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
-        public ParameterProvider(InputParameter inputParameter)
+        protected internal ParameterProvider(InputParameter inputParameter)
         {
             // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
             Name = inputParameter.Name;

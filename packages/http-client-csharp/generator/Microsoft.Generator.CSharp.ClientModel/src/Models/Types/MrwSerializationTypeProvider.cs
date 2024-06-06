@@ -297,10 +297,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
             foreach (var property in _inputModel.Properties)
             {
-                var parameter = new ParameterProvider(property)
-                {
-                    Validation = ParameterValidationType.None,
-                };
+                var parameter = CodeModelPlugin.Instance.TypeFactory.GetParameterProvider(property);
+
                 constructorParameters.Add(parameter);
 
                 if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
