@@ -16,14 +16,14 @@ namespace Microsoft.Generator.CSharp
     {
         private const string SingleArgFormat = "{0}";
 
-        public CodeWriter WriteXmlDocumentationSummary(IReadOnlyList<FormattableString>? text)
+        public CodeWriter WriteXmlDocumentationSummary(IReadOnlyList<FormattableString> lines)
         {
-            return WriteXmlDocumentation("summary", text);
+            return WriteXmlDocumentation("summary", lines);
         }
 
-        public CodeWriter WriteXmlDocumentation(string tag, IReadOnlyList<FormattableString>? text)
+        public CodeWriter WriteXmlDocumentation(string tag, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<{tag}>", $"</{tag}>", text);
+            return WriteDocumentationLines($"<{tag}>", $"</{tag}>", lines);
         }
 
         public CodeWriter WriteXmlDocumentationParameters(IEnumerable<ParameterProvider> parameters)
@@ -36,9 +36,9 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public CodeWriter WriteXmlDocumentationParameter(string name, IReadOnlyList<FormattableString>? text)
+        public CodeWriter WriteXmlDocumentationParameter(string name, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<param name=\"{name}\">", $"</param>", text);
+            return WriteDocumentationLines($"<param name=\"{name}\">", $"</param>", lines);
         }
 
         /// <summary>
@@ -52,9 +52,9 @@ namespace Microsoft.Generator.CSharp
             return WriteXmlDocumentationParameter(parameter.Name, [parameter.Description]);
         }
 
-        public CodeWriter WriteXmlDocumentationException(CSharpType exception, IReadOnlyList<FormattableString>? description)
+        public CodeWriter WriteXmlDocumentationException(CSharpType exception, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<exception cref=\"{exception}\">", $"</exception>", description);
+            return WriteDocumentationLines($"<exception cref=\"{exception}\">", $"</exception>", lines);
         }
 
         public CodeWriter WriteXmlDocumentationReturns(FormattableString text)
@@ -139,8 +139,8 @@ namespace Microsoft.Generator.CSharp
             return WriteXmlDocumentationException(exceptionType, [description]);
         }
 
-        public CodeWriter WriteDocumentationLines(FormattableString startTag, FormattableString endTag, IReadOnlyList<FormattableString>? text)
-            => AppendXmlDocumentation(startTag, endTag, text ?? [$""]);
+        public CodeWriter WriteDocumentationLines(FormattableString startTag, FormattableString endTag, IReadOnlyList<FormattableString> lines)
+            => AppendXmlDocumentation(startTag, endTag, lines);
 
         public CodeWriter WriteMethodDocumentation(MethodSignatureBase methodBase)
         {
@@ -161,8 +161,8 @@ namespace Microsoft.Generator.CSharp
         {
             WriteXmlDocumentationParameters(methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public) ? methodBase.Parameters : methodBase.Parameters.Where(p => p.Description is not null));
 
-            WriteXmlDocumentationRequiredParametersException(methodBase.Parameters);
-            WriteXmlDocumentationNonEmptyParametersException(methodBase.Parameters);
+            WriteXmlDocumentationRequiredParametersException((IEnumerable<ParameterProvider>)methodBase.Parameters);
+            WriteXmlDocumentationNonEmptyParametersException((IEnumerable<ParameterProvider>)methodBase.Parameters);
             if (methodBase is MethodSignature { ReturnDescription: { } } method)
             {
                 WriteXmlDocumentationReturns(method.ReturnDescription);

@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 writer.WriteLine();
                 writer.WriteRawLine("{");
-                for (int i = 0;i < Elements.Count;i++)
+                for (int i = 0; i < Elements.Count; i++)
                 {
                     Elements[i].Write(writer);
                     if (i < Elements.Count - 1)
