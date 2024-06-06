@@ -14,6 +14,15 @@ test.describe("playground UI tests", () => {
     await expect(outputContainer).toContainText(`title: Widget Service`);
   });
 
+  test("report compilation errors", async ({ page }) => {
+    await page.goto(host);
+    const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
+    await typespecEditorContainer.click();
+    await typespecEditorContainer.pressSequentially("invalid");
+    const outputContainer = page.locator("_react=OutputView");
+    await expect(outputContainer).toContainText(`No files emitted.`);
+  });
+
   test("shared link works", async ({ page }) => {
     // Pass code "op sharedCode(): string;"
     // cspell:disable-next-line
