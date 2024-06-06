@@ -488,6 +488,8 @@ export interface HttpOperationPart {
   readonly optional: boolean;
   /** Part body */
   readonly body: HttpOperationBody;
+  /** If the Part is an HttpFile this is the property defining the filename */
+  readonly filename?: ModelProperty;
   /** Part headers */
   readonly headers: HeaderProperty[];
   /** If there can be multiple of that part */

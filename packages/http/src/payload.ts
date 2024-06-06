@@ -24,7 +24,7 @@ import {
 } from "./http-property.js";
 import { createDiagnostic } from "./lib.js";
 import { Visibility } from "./metadata.js";
-import { getHttpFileModel, getHttpPart } from "./private.decorators.js";
+import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "./types.js";
 
 export interface HttpPayload {
@@ -383,6 +383,10 @@ function resolvePart(
 ): [HttpOperationPart | undefined, readonly Diagnostic[]] {
   const part = getHttpPart(program, type);
   if (part) {
+    const file = getHttpFileModel(program, part.type);
+    if (file !== undefined) {
+      return getFilePart(part.options.name, file);
+    }
     let [{ body, metadata }, diagnostics] = resolveHttpPayload(
       program,
       part.type,
@@ -410,6 +414,30 @@ function resolvePart(
     ];
   }
   return [undefined, [createDiagnostic({ code: "multipart-part", target: type })]];
+}
+
+function getFilePart(
+  name: string | undefined,
+  file: HttpFileModel
+): [HttpOperationPart | undefined, readonly Diagnostic[]] {
+  const [contentTypes, diagnostics] = getContentTypes(file.contentType);
+  return [
+    {
+      multi: false,
+      name,
+      body: {
+        bodyKind: "single",
+        contentTypes: contentTypes,
+        type: file.contents.type,
+        isExplicit: false,
+        containsMetadataAnnotations: false,
+      },
+      filename: file.filename,
+      optional: false,
+      headers: [],
+    },
+    diagnostics,
+  ];
 }
 
 function resolveDefaultContentTypeForPart(program: Program, type: Type): string[] {

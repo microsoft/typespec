@@ -141,6 +141,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Cannot use @multipartBody inside of an HttpPart",
       },
     },
+    "http-file-extra-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`File model cannot define extra properties. Found '${"propName"}'.`,
+      },
+    },
     "formdata-no-part-name": {
       severity: "error",
       messages: {
