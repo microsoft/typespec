@@ -46,30 +46,34 @@ function main() {
       void connection.sendDiagnostics(params);
     },
     log(log: ServerLog) {
-      let message = log.message;
+      const message = log.message;
+      let detail: string | undefined = undefined;
+      let fullMessage = message;
       if (log.detail) {
-        message = `${message}:\n${typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2)}`;
+        detail =
+          typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2);
+        fullMessage = `${message}:\n${detail}`;
       }
 
       switch (log.level) {
         case "trace":
-          connection.tracer.log(message);
+          connection.tracer.log(message, detail);
           break;
         case "debug":
-          connection.console.debug(message);
+          connection.console.debug(fullMessage);
           break;
         case "info":
-          connection.console.info(message);
+          connection.console.info(fullMessage);
           break;
         case "warning":
-          connection.console.warn(message);
+          connection.console.warn(fullMessage);
           break;
         case "error":
-          connection.console.error(message);
+          connection.console.error(fullMessage);
           break;
         default:
           connection.console.error(
-            `Log Message with invalid LogLevel (${log.level}). Raw Message: ${message}`
+            `Log Message with invalid LogLevel (${log.level}). Raw Message: ${fullMessage}`
           );
           break;
       }
