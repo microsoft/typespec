@@ -68,7 +68,9 @@ function main() {
           connection.console.error(message);
           break;
         default:
-          connection.console.error("Log Message with invalid LogLevel. Raw Message: " + message);
+          connection.console.error(
+            `Log Message with invalid LogLevel (${log.level}). Raw Message: ${message}`
+          );
           break;
       }
     },

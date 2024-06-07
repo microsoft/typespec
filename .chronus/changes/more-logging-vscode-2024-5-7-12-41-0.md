@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Add more logs and traces in TypeSpec language server
+More logs and traces are added for diagnostic and troubleshooting in TypeSpec language server
