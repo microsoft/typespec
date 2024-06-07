@@ -176,7 +176,7 @@ function time<T extends (...args: any) => any>(func: T): T {
     const start = Date.now();
     const ret = await func.apply(undefined!, args);
     const end = Date.now();
-    server!.log({ level: `trace`, message: func.name, detail: end - start + " ms" });
+    server!.log({ level: `trace`, message: `${func.name}: ${end - start + " ms"}` });
     return ret;
   }) as T;
 }
