@@ -108,6 +108,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/typespec-vscode/dist/**/*.cjs"],
       "env": {
         // Log elapsed time for each call to server.
         //"TYPESPEC_SERVER_LOG_TIMING": "true",
