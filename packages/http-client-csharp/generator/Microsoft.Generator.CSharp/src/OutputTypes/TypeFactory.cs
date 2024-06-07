@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -9,12 +10,52 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
+        private readonly IDictionary<InputModelType, ModelProvider> _models = new Dictionary<InputModelType, ModelProvider>();
+        private readonly IDictionary<InputEnumType, EnumProvider> _enums = new Dictionary<InputEnumType, EnumProvider>();
+        private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
+
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>
         /// <param name="input">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         public abstract CSharpType CreateCSharpType(InputType input);
+
+        public virtual ModelProvider CreateModelType(InputModelType inputModel)
+        {
+            if (_models.TryGetValue(inputModel, out var modelProvider))
+            {
+                return modelProvider;
+            }
+
+            modelProvider = new ModelProvider(inputModel);
+            _models.Add(inputModel, modelProvider);
+            return modelProvider;
+        }
+
+        public virtual EnumProvider CreateEnumType(InputEnumType inputEnum)
+        {
+            if (_enums.TryGetValue(inputEnum, out var enumProvider))
+            {
+                return enumProvider;
+            }
+
+            enumProvider = EnumProvider.Create(inputEnum);
+            _enums.Add(inputEnum, enumProvider);
+            return enumProvider;
+        }
+
+        public virtual ClientProvider CreateClientType(InputClient inputClient)
+        {
+            if (_clients.TryGetValue(inputClient, out var clientProvider))
+            {
+                return clientProvider;
+            }
+
+            clientProvider = new ClientProvider(inputClient);
+            _clients.Add(inputClient, clientProvider);
+            return clientProvider;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.

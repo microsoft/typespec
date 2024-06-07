@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
@@ -50,6 +51,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             Name = model.Name;
             Namespace = model.Namespace;
         }
+
+        protected override string GetFilename() => Path.Combine("src", "Generated", "Models", $"{Name}.serialization.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 

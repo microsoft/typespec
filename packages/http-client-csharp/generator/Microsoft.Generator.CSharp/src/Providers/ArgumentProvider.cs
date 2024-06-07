@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -27,6 +28,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly ParameterReferenceSnippet _nameParamRef;
 
         public static ArgumentProvider Instance => _instance.Value;
+
+        protected override string GetFilename() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         private ArgumentProvider()
         {

@@ -11,6 +11,11 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         protected string? _deprecated;
 
+        private string? _filename;
+
+        public string Filename => _filename ??= GetFilename();
+        protected virtual string GetFilename() => $"{Name}.cs";
+
         public abstract string Name { get; }
         public virtual string Namespace => CodeModelPlugin.Instance.Configuration.Namespace;
         public virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;

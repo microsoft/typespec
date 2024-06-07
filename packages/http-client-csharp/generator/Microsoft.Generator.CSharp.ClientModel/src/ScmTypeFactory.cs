@@ -25,12 +25,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
+            InputEnumType inputEnum => CreateEnumType(inputEnum).Type.WithNullable(inputEnum.IsNullable),
+            InputModelType inputModel => CreateModelType(inputModel).Type.WithNullable(inputModel.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -27,6 +28,8 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
+        protected override string GetFilename() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
@@ -46,10 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
-            {
-                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
-            }
+            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
 
             _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
