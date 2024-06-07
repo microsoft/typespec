@@ -39,24 +39,6 @@ namespace Microsoft.Generator.CSharp
                 generateFilesTasks.Add(workspace.AddGeneratedFile(outputType.Filename, writer.ToString()));
             }
 
-            // TODO -- these should be removed
-            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
-            TypeProviderWriter helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingListProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingListProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
-            helperWriter = CodeModelPlugin.Instance.GetWriter(ChangeTrackingDictionaryProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ChangeTrackingDictionaryProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
-            helperWriter = CodeModelPlugin.Instance.GetWriter(ArgumentProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{ArgumentProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
-            helperWriter = CodeModelPlugin.Instance.GetWriter(OptionalProvider.Instance);
-            helperWriter.Write();
-            generateFilesTasks.Add(workspace.AddGeneratedFile(Path.Combine("src", "Generated", "Internal", $"{OptionalProvider.Instance.Type.Name}.cs"), helperWriter.ToString()));
-
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 

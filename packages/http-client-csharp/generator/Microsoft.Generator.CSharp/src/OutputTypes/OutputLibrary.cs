@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using System.IO;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -46,6 +48,11 @@ namespace Microsoft.Generator.CSharp
                 var clientType = CodeModelPlugin.Instance.TypeFactory.CreateClientType(inputClient);
                 outputTypes.Add(clientType);
             }
+
+            outputTypes.Add(ChangeTrackingListProvider.Instance);
+            outputTypes.Add(ChangeTrackingDictionaryProvider.Instance);
+            outputTypes.Add(ArgumentProvider.Instance);
+            outputTypes.Add(OptionalProvider.Instance);
 
             return outputTypes;
         }
