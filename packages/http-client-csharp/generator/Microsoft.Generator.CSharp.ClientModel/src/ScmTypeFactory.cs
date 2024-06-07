@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override CSharpType CreateCSharpType(InputType inputType) => inputType switch
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.UnionItemTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
