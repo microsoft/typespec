@@ -83,12 +83,12 @@ function main() {
   const s = createServer(host);
   server = s;
   s.log({ level: `info`, message: `TypeSpec language server v${typespecVersion}` });
-  s.log({ level: `info`, message: "Module", detail: fileURLToPath(import.meta.url) });
-  s.log({ level: `info`, message: "Process ID", detail: process.pid });
-  s.log({ level: `info`, message: "Command Line", detail: process.argv });
+  s.log({ level: `info`, message: `Module: ${fileURLToPath(import.meta.url)}` });
+  s.log({ level: `info`, message: `Process ID: ${process.pid}` });
+  s.log({ level: `info`, message: `Command Line`, detail: process.argv });
 
   if (profileDir) {
-    s.log({ level: `info`, message: "CPU profiling enabled", detail: profileDir });
+    s.log({ level: `info`, message: `CPU profiling enabled with dir: ${profileDir}` });
     profileSession = new inspector.Session();
     profileSession.connect();
   }

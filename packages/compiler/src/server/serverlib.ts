@@ -238,13 +238,13 @@ export function createServer(host: ServerHost): Server {
       ];
     }
 
-    log({ level: "info", message: `Workspace Folders: ${workspaceFolders}` });
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
     return { capabilities };
   }
 
   function initialized(params: InitializedParams): void {
     isInitialized = true;
-    log({ level: "debug", message: "Initialization complete." });
+    log({ level: "info", message: "Initialization complete." });
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
@@ -260,7 +260,7 @@ export function createServer(host: ServerHost): Server {
       });
     }
     workspaceFolders = Array.from(map.values());
-    log({ level: "info", message: `Workspace Folders: ${workspaceFolders}` });
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {

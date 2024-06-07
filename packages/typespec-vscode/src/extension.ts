@@ -85,7 +85,7 @@ async function launchLanguageClient(context: ExtensionContext) {
           " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
         ].join("\n")
       );
-      outputChannel.error("Exception detail", e);
+      outputChannel.error("Error detail", e);
       throw `TypeSpec server executable was not found: '${exe.command}' is not found.`;
     } else {
       throw e;
