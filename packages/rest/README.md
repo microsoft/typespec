@@ -12,22 +12,22 @@ npm install @typespec/rest
 
 ### TypeSpec.Rest
 
-- [`@action`](#@action)
-- [`@actionSeparator`](#@actionseparator)
-- [`@autoRoute`](#@autoroute)
-- [`@collectionAction`](#@collectionaction)
-- [`@copyResourceKeyParameters`](#@copyresourcekeyparameters)
-- [`@createsOrReplacesResource`](#@createsorreplacesresource)
-- [`@createsOrUpdatesResource`](#@createsorupdatesresource)
-- [`@createsResource`](#@createsresource)
-- [`@deletesResource`](#@deletesresource)
-- [`@listsResource`](#@listsresource)
-- [`@parentResource`](#@parentresource)
-- [`@readsResource`](#@readsresource)
-- [`@resource`](#@resource)
-- [`@segment`](#@segment)
-- [`@segmentOf`](#@segmentof)
-- [`@updatesResource`](#@updatesresource)
+- [`@action`](#action)
+- [`@actionSeparator`](#actionseparator)
+- [`@autoRoute`](#autoroute)
+- [`@collectionAction`](#collectionaction)
+- [`@copyResourceKeyParameters`](#copyresourcekeyparameters)
+- [`@createsOrReplacesResource`](#createsorreplacesresource)
+- [`@createsOrUpdatesResource`](#createsorupdatesresource)
+- [`@createsResource`](#createsresource)
+- [`@deletesResource`](#deletesresource)
+- [`@listsResource`](#listsresource)
+- [`@parentResource`](#parentresource)
+- [`@readsResource`](#readsresource)
+- [`@resource`](#resource)
+- [`@segment`](#segment)
+- [`@segmentOf`](#segmentof)
+- [`@updatesResource`](#updatesresource)
 
 #### `@action`
 
