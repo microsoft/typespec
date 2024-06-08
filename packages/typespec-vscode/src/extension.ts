@@ -68,7 +68,7 @@ async function launchLanguageClient(context: ExtensionContext) {
   };
 
   const name = "TypeSpec";
-  const id = "typespecLanguageServer";
+  const id = "typespec";
   try {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
