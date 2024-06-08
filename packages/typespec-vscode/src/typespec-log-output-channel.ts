@@ -99,7 +99,7 @@ export class TypeSpecLogOutputChannel implements LogOutputChannel {
           this.delegate.error(value);
           break;
         default:
-          this.delegate.error(
+          this.delegate.debug(
             `Log Message with invalid log level (${this.preLevel}). Raw message: ${value}`
           );
       }
