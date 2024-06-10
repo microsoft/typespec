@@ -8,9 +8,14 @@ import {
   LanguageClient,
   LanguageClientOptions,
 } from "vscode-languageclient/node.js";
+import { TypeSpecLogOutputChannel } from "./typespec-log-output-channel.js";
 
 let client: LanguageClient | undefined;
-const outputChannel = vscode.window.createOutputChannel("TypeSpec");
+/**
+ * Workaround: LogOutputChannel doesn't work well with LSP RemoteConsole, so having a customized LogOutputChannel to make them work together properly
+ * More detail can be found at https://github.com/microsoft/vscode-discussions/discussions/1149
+ */
+const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
@@ -36,11 +41,13 @@ async function restartTypeSpecServer(): Promise<void> {
   if (client) {
     await client.stop();
     await client.start();
+    outputChannel.debug("TypeSpec server restarted");
   }
 }
 
 async function launchLanguageClient(context: ExtensionContext) {
   const exe = await resolveTypeSpecServer(context);
+  outputChannel.debug("TypeSpec server resolved as ", exe);
   const options: LanguageClientOptions = {
     synchronize: {
       // Synchronize the setting section 'typespec' to the server
@@ -61,24 +68,24 @@ async function launchLanguageClient(context: ExtensionContext) {
   };
 
   const name = "TypeSpec";
-  const id = "typespecLanguageServer";
+  const id = "typespec";
   try {
     client = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     await client.start();
+    outputChannel.debug("TypeSpec server started");
   } catch (e) {
     if (typeof e === "string" && e.startsWith("Launching server using command")) {
       const workspaceFolder = workspace.workspaceFolders?.[0]?.uri?.fsPath ?? "";
 
-      client?.error(
+      outputChannel.error(
         [
           `TypeSpec server executable was not found: '${exe.command}' is not found. Make sure either:`,
           ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
           " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
           " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
-        ].join("\n"),
-        undefined,
-        false
+        ].join("\n")
       );
+      outputChannel.error("Error detail", e);
       throw `TypeSpec server executable was not found: '${exe.command}' is not found.`;
     } else {
       throw e;
@@ -96,6 +103,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
     // we use CLI instead of NODE_OPTIONS environment variable in this case
     // because --nolazy is not supported by NODE_OPTIONS.
     const options = nodeOptions?.split(" ").filter((o) => o) ?? [];
+    outputChannel.debug("TypeSpec server resolved in development mode");
     return { command: "node", args: [...options, script, ...args] };
   }
 
@@ -116,11 +124,14 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
 
   // Default to tsp-server on PATH, which would come from `npm install -g
   // @typespec/compiler` in a vanilla setup.
-  if (!serverPath) {
+  if (serverPath) {
+    outputChannel.debug(`Server path loaded from VS Code configuration: ${serverPath}`);
+  } else {
     serverPath = await resolveLocalCompiler(workspaceFolder);
   }
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
+    outputChannel.debug(`Can't resolve server path, try to use default value ${executable}.`);
     return { command: executable, args, options };
   }
   const variableResolver = new VSCodeVariableResolver({
@@ -129,6 +140,7 @@ async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executa
   });
 
   serverPath = variableResolver.resolve(serverPath);
+  outputChannel.debug(`Server path expanded to: ${serverPath}`);
 
   if (!serverPath.endsWith(".js")) {
     // Allow path to tsp-server.cmd to be passed.
@@ -159,16 +171,23 @@ async function resolveLocalCompiler(baseDir: string): Promise<string | undefined
     stat,
   };
   try {
+    outputChannel.debug(`Try to resolve compiler from local, baseDir: ${baseDir}`);
     const executable = await resolveModule(host, "@typespec/compiler", {
       baseDir,
     });
     if (executable.type === "module") {
+      outputChannel.debug(`Resolved compiler from local: ${executable.path}`);
       return executable.path;
+    } else {
+      outputChannel.debug(
+        `Failed to resolve compiler from local. Unexpected executable type: ${executable.type}`
+      );
     }
   } catch (e) {
     // Couldn't find the module
+    outputChannel.debug("Exception when resolving compiler from local", e);
+    return undefined;
   }
-
   return undefined;
 }
 

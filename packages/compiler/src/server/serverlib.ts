@@ -92,6 +92,7 @@ import {
   SemanticTokenKind,
   Server,
   ServerHost,
+  ServerLog,
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
@@ -105,6 +106,7 @@ export function createServer(host: ServerHost): Server {
   // a file change.
   const fileSystemCache = createFileSystemCache({
     fileService,
+    log,
   });
   const compilerHost = createCompilerHost();
 
@@ -121,7 +123,7 @@ export function createServer(host: ServerHost): Server {
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
-  let pendingMessages: string[] = [];
+  let pendingMessages: ServerLog[] = [];
 
   return {
     get pendingMessages() {
@@ -236,17 +238,17 @@ export function createServer(host: ServerHost): Server {
       ];
     }
 
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
     return { capabilities };
   }
 
   function initialized(params: InitializedParams): void {
     isInitialized = true;
-    log("Initialization complete.");
+    log({ level: "info", message: "Initialization complete." });
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
-    log("Workspace Folders Changed", e);
+    log({ level: "info", message: "Workspace Folders Changed", detail: e });
     const map = new Map(workspaceFolders.map((f) => [f.uri, f]));
     for (const folder of e.removed) {
       map.delete(folder.uri);
@@ -258,7 +260,7 @@ export function createServer(host: ServerHost): Server {
       });
     }
     workspaceFolders = Array.from(map.values());
-    log("Workspace Folders", workspaceFolders);
+    log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
   function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
@@ -383,6 +385,7 @@ export function createServer(host: ServerHost): Server {
         // we report diagnostics with no location on the document that changed to
         // trigger.
         diagDocument = document;
+        log({ level: "debug", message: `Diagnostic with no location: ${each.message}` });
       }
 
       if (!diagDocument || !fileService.upToDate(diagDocument)) {
@@ -883,14 +886,9 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function log(message: string, details: any = undefined) {
-    message = `[${new Date().toLocaleTimeString()}] ${message}`;
-    if (details) {
-      message += ": " + JSON.stringify(details, undefined, 2);
-    }
-
+  function log(log: ServerLog) {
     if (!isInitialized) {
-      pendingMessages.push(message);
+      pendingMessages.push(log);
       return;
     }
 
@@ -899,7 +897,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     pendingMessages = [];
-    host.log(message);
+    host.log(log);
   }
 
   function sendDiagnostics(document: TextDocument, diagnostics: VSDiagnostic[]) {
