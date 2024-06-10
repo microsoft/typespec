@@ -374,8 +374,8 @@ Misc labels
 
 ### Updating labels
 
-Labels are configured in `eng/common/labels.yaml`. To update labels, edit this file and run `pnpm sync-labels`.
-**If you create a new label in github UI without updating the `labels.yaml` file, it WILL be automatically removed**
+Labels are configured in `eng/common/config/labels.ts`. To update labels, edit this file and run `pnpm sync-labels`.
+**If you create a new label in github UI without updating the `labels.ts` file, it WILL be automatically removed**
 
 # TypeSpec Emitters
 

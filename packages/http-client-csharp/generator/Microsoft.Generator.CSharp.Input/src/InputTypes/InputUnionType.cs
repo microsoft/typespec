@@ -7,11 +7,11 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputUnionType : InputType
     {
-        public InputUnionType(string name, IReadOnlyList<InputType> unionItemTypes, bool isNullable) : base(name, isNullable)
+        public InputUnionType(string name, IReadOnlyList<InputType> variantTypes, bool isNullable) : base(name, isNullable)
         {
-            UnionItemTypes = unionItemTypes;
+            VariantTypes = variantTypes;
         }
 
-        public IReadOnlyList<InputType> UnionItemTypes { get; }
+        public IReadOnlyList<InputType> VariantTypes { get; internal set; }
     }
 }

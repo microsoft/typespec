@@ -840,7 +840,7 @@ namespace Microsoft.Generator.CSharp
                 .ThenBy(ns => ns, StringComparer.Ordinal);
             if (header)
             {
-                string licenseString = CodeModelPlugin.Instance.LiscenseString;
+                string licenseString = CodeModelPlugin.Instance.LicenseString;
                 if (!string.IsNullOrEmpty(licenseString))
                 {
                     builder.Append(licenseString);

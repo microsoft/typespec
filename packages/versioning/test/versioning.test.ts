@@ -248,6 +248,37 @@ describe("versioning: logic", () => {
       );
     });
 
+    it("can be added after parent", async () => {
+      const {
+        source,
+        projections: [v1, v2],
+      } = await versionedModel(
+        ["v1", "v2"],
+        `@added(Versions.v1)
+        model Test {
+          a: int32;
+          @added(Versions.v2)
+          b: NewThing;
+        }
+
+        @added(Versions.v2)
+        model NewThing {
+          val: string;
+        }
+        `
+      );
+      assertHasProperties(v1, ["a"]);
+      assertHasProperties(v2, ["a", "b"]);
+
+      assertModelProjectsTo(
+        [
+          [v1, "v1"],
+          [v2, "v2"],
+        ],
+        source
+      );
+    });
+
     it("can be removed", async () => {
       const {
         source,

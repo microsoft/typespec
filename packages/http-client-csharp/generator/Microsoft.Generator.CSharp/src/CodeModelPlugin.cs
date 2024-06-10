@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp
         // Extensibility points to be implemented by a plugin
         public abstract ApiTypes ApiTypes { get; }
         public abstract TypeFactory TypeFactory { get; }
-        public virtual string LiscenseString => string.Empty;
+        public virtual string LicenseString => string.Empty;
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary => _inputLibrary.Value;
