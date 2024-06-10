@@ -16,28 +16,31 @@ namespace Microsoft.Generator.CSharp
 {
     internal sealed partial class CodeWriter : IDisposable
     {
-        private static readonly string _newLine = "\n";
+        private const char _newLine = '\n';
+        private const char _space = ' ';
         //private static readonly string _braceNewLine = "{\n";
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
-        private readonly Stack<CodeWriterScope> _scopes;
+        private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
         private bool _writingXmlDocumentation;
+        private bool _atBeginningOfLine;
 
         internal CodeWriter()
         {
             _builder = new UnsafeBufferSequence(1024);
 
-            _scopes = new Stack<CodeWriterScope>();
-            _scopes.Push(new CodeWriterScope(this, "", false));
+            _scopes = new Stack<CodeScope>();
+            _scopes.Push(new CodeScope(this, "", false, 0));
+            _atBeginningOfLine = true;
         }
 
-        public CodeWriterScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
+        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
         {
             ValidateDeclarations(scopeDeclarations);
-            CodeWriterScope codeWriterScope = new CodeWriterScope(this, end, newLine);
+            CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
             _scopes.Push(codeWriterScope);
             WriteLine(line);
             WriteRawLine(start);
@@ -45,7 +48,7 @@ namespace Microsoft.Generator.CSharp
             return codeWriterScope;
         }
 
-        public CodeWriterScope Scope()
+        public CodeScope Scope()
         {
             return ScopeRaw();
         }
@@ -86,15 +89,15 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        private CodeWriterScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
+        internal CodeScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
         {
             WriteRawLine(start);
-            CodeWriterScope codeWriterScope = new CodeWriterScope(this, end, newLine);
+            CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
             _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
-        public CodeWriterScope SetNamespace(string @namespace)
+        public CodeScope SetNamespace(string @namespace)
         {
             _currentNamespace = @namespace;
             WriteLine($"namespace {@namespace}");
@@ -276,11 +279,11 @@ namespace Microsoft.Generator.CSharp
                     AppendRaw(";");
                     break;
                 case AutoPropertyBody(var hasSetter, var setterModifiers, var initialization):
-                    AppendRaw("{ get;");
+                    AppendRaw(" { get;");
                     if (hasSetter)
                     {
                         WritePropertyAccessorModifiers(setterModifiers);
-                        AppendRaw("set;");
+                        AppendRaw(" set;");
                     }
                     AppendRaw(" }");
                     if (initialization is not null)
@@ -291,15 +294,16 @@ namespace Microsoft.Generator.CSharp
                     break;
                 case MethodPropertyBody(var getter, var setter, var setterModifiers):
                     WriteLine();
-                    WriteRawLine("{");
-                    // write getter
-                    WriteMethodPropertyAccessor("get", getter);
-                    // write setter
-                    if (setter is not null)
+                    using (ScopeRaw(newLine: false))
                     {
-                        WriteMethodPropertyAccessor("set", setter, setterModifiers);
+                        // write getter
+                        WriteMethodPropertyAccessor("get", getter);
+                        // write setter
+                        if (setter is not null)
+                        {
+                            WriteMethodPropertyAccessor("set", setter, setterModifiers);
+                        }
                     }
-                    AppendRaw("}");
                     break;
                 default:
                     throw new InvalidOperationException($"Unhandled property body type {property.Body}");
@@ -310,13 +314,11 @@ namespace Microsoft.Generator.CSharp
             void WriteMethodPropertyAccessor(string name, MethodBodyStatement body, MethodSignatureModifiers modifiers = MethodSignatureModifiers.None)
             {
                 WritePropertyAccessorModifiers(modifiers);
-                WriteRawLine(name);
-                WriteRawLine("{");
-                using (AmbientScope())
+                WriteLine($"{name}");
+                using (Scope())
                 {
                     body.Write(this);
                 }
-                WriteRawLine("}");
             }
 
             void WritePropertyAccessorModifiers(MethodSignatureModifiers modifiers)
@@ -464,7 +466,7 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            foreach (CodeWriterScope codeWriterScope in _scopes)
+            foreach (CodeScope codeWriterScope in _scopes)
             {
                 if (codeWriterScope.Identifiers.Contains(s))
                 {
@@ -597,33 +599,52 @@ namespace Microsoft.Generator.CSharp
         public CodeWriter WriteLine(FormattableString formattableString)
         {
             Append(formattableString);
-            WriteLine();
-
-            return this;
+            return WriteLine();
         }
 
-        public CodeWriter WriteLine()
-        {
-            WriteRawLine(string.Empty);
-
-            return this;
-        }
+        public CodeWriter WriteLine() => AppendRawChar(_newLine);
 
         public CodeWriter WriteRawLine(string str)
         {
             AppendRaw(str);
-            AppendRaw(_newLine);
-            return this;
+            return WriteLine();
         }
 
         public CodeWriter AppendRaw(string str) => AppendRaw(str.AsSpan());
 
+        private CodeWriter AppendRawChar(char c)
+        {
+            var destination = _builder.GetSpan(1);
+            destination[0] = c;
+            _builder.Advance(1);
+            _atBeginningOfLine = true;
+            return this;
+        }
+
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
+            if (span.Length == 0 )
+                return this;
+
+            AddSpaces();
+
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
             _builder.Advance(span.Length);
+
+            _atBeginningOfLine = span[span.Length - 1] == _newLine;
             return this;
+        }
+
+        private void AddSpaces()
+        {
+            int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
+            if (spaces == 0)
+                return;
+
+            var destination = _builder.GetSpan(spaces);
+            destination.Slice(0, spaces).Fill(_space);
+            _builder.Advance(spaces);
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -662,6 +683,7 @@ namespace Microsoft.Generator.CSharp
         public IDisposable WriteMethodDeclaration(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
             var outerScope = WriteMethodDeclarationNoScope(methodBase, disabledWarnings);
+            WriteLine();
             var innerScope = Scope();
             return Disposable.Create(() =>
             {
@@ -672,24 +694,9 @@ namespace Microsoft.Generator.CSharp
 
         public IDisposable WriteMethodDeclarationNoScope(MethodSignatureBase methodBase, params string[] disabledWarnings)
         {
-            if (methodBase.Attributes is { } attributes)
+            foreach (var attribute in methodBase.Attributes)
             {
-                foreach (var attribute in attributes)
-                {
-                    if (attribute.Arguments.Any())
-                    {
-                        Append($"[{attribute.Type}(");
-                        foreach (var argument in attribute.Arguments)
-                        {
-                            argument.Write(this);
-                        }
-                        WriteRawLine(")]");
-                    }
-                    else
-                    {
-                        WriteLine($"[{attribute.Type}]");
-                    }
-                }
+                attribute.Write(this);
             }
 
             foreach (var disabledWarning in disabledWarnings)
@@ -775,11 +782,13 @@ namespace Microsoft.Generator.CSharp
 
             if (methodBase is MethodSignature { GenericParameterConstraints: { } constraints })
             {
-                WriteLine();
-                foreach (var constraint in constraints)
+                using (ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    constraint.Write(this);
-                    AppendRaw(" ");
+                    foreach (var constraint in constraints)
+                    {
+                        constraint.Write(this);
+                        AppendRaw(" ");
+                    }
                 }
             }
 
@@ -860,59 +869,15 @@ namespace Microsoft.Generator.CSharp
             return builder.ToString();
         }
 
-        public sealed class CodeWriterScope : IDisposable
-        {
-            private readonly CodeWriter _writer;
-            private readonly string? _end;
-            private readonly bool _newLine;
-
-            internal HashSet<string> Identifiers { get; } = new();
-
-            internal HashSet<string> AllDefinedIdentifiers { get; } = new();
-
-            internal List<CodeWriterDeclaration> Declarations { get; } = new();
-
-            internal CodeWriterScope(CodeWriter writer, string? end, bool newLine)
-            {
-                _writer = writer;
-                _end = end;
-                _newLine = newLine;
-            }
-
-            public void Dispose()
-            {
-                if (_writer != null)
-                {
-                    _writer.PopScope(this);
-                    foreach (var declaration in Declarations)
-                    {
-                        declaration.SetActualName(null);
-                    }
-
-                    Declarations.Clear();
-
-                    if (_end != null)
-                    {
-                        _writer.AppendRaw(_end);
-                    }
-
-                    if (_newLine)
-                    {
-                        _writer.WriteLine();
-                    }
-                }
-            }
-        }
-
-        private void PopScope(CodeWriterScope expected)
+        private void PopScope(CodeScope expected)
         {
             var actual = _scopes.Pop();
             Debug.Assert(actual == expected);
         }
 
-        public CodeWriterScope AmbientScope()
+        public CodeScope AmbientScope()
         {
-            var codeWriterScope = new CodeWriterScope(this, null, false);
+            var codeWriterScope = new CodeScope(this, null, false, _scopes.Peek().Depth);
             _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }

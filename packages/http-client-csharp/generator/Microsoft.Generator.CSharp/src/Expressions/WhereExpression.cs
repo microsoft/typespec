@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 Constraints[i].Write(writer);
                 if (i < Constraints.Count - 1)
-                    writer.AppendRaw(",");
+                    writer.AppendRaw(", ");
             }
         }
     }

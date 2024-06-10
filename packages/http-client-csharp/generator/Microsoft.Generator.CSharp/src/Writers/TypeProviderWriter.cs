@@ -42,13 +42,16 @@ namespace Microsoft.Generator.CSharp
                 writer.Append($"{_provider.Implements[i]:D}");
                 if (i < _provider.Implements.Count - 1)
                 {
-                    writer.AppendRaw(",");
+                    writer.AppendRaw(", ");
                 }
             }
 
             if (_provider.WhereClause is not null)
             {
-                _provider.WhereClause.Write(writer);
+                using (writer.ScopeRaw(string.Empty, string.Empty, false))
+                {
+                    _provider.WhereClause.Write(writer);
+                }
             }
 
             writer.WriteLine();
@@ -112,6 +115,7 @@ namespace Microsoft.Generator.CSharp
                         writer.WriteRawLine(",");
                     }
                 }
+                writer.WriteLine();
             }
         }
 

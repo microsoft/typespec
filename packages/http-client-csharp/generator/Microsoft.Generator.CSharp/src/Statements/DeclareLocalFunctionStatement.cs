@@ -34,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else if (BodyStatement is not null)
             {
+                writer.WriteLine();
                 using (writer.Scope())
                 {
                     BodyStatement.Write(writer);

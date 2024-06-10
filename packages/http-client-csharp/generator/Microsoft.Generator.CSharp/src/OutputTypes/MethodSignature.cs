@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -26,8 +27,8 @@ namespace Microsoft.Generator.CSharp
     /// <param name="ExplicitInterface">The explicit interface of the method.</param>
     /// <param name="NonDocumentComment">The non-document comment of the method.</param>
     /// <param name="IsRawSummaryText">Indicates if the summary text is raw.</param>
-    public sealed record MethodSignature(string Name, FormattableString? Summary, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<CSharpAttribute>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
-        : MethodSignatureBase(Name, Summary, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<CSharpAttribute>())
+    public sealed record MethodSignature(string Name, FormattableString? Summary, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
+        : MethodSignatureBase(Name, Summary, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>())
     {
         public static IEqualityComparer<MethodSignature> ParameterAndReturnTypeEqualityComparer = new MethodSignatureParameterAndReturnTypeEqualityComparer();
 

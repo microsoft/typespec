@@ -93,7 +93,6 @@ namespace Microsoft.Generator.CSharp
         private async Task<Document> ProcessDocument(Document document)
         {
             document = await Simplifier.ReduceAsync(document);
-            document = await Formatter.FormatAsync(document);
             return document;
         }
 

@@ -16,12 +16,15 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 MatchExpression.Write(writer);
                 writer.WriteRawLine(" switch");
-                writer.WriteRawLine("{");
-                for (int i = 0; i < Cases.Length; i++)
+                writer.AppendRaw("{");
+                using (writer.ScopeRaw(string.Empty, string.Empty, false))
                 {
-                    Cases[i].Write(writer);
-                    if (i < Cases.Length - 1)
-                        writer.WriteRawLine(",");
+                    for (int i = 0; i < Cases.Length; i++)
+                    {
+                        Cases[i].Write(writer);
+                        if (i < Cases.Length - 1)
+                            writer.WriteRawLine(",");
+                    }
                 }
                 writer.WriteLine();
                 writer.AppendRaw("}");
