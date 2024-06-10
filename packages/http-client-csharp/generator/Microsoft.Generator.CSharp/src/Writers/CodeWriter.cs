@@ -282,8 +282,9 @@ namespace Microsoft.Generator.CSharp
                     AppendRaw(" { get;");
                     if (hasSetter)
                     {
+                        AppendRaw(" ");
                         WritePropertyAccessorModifiers(setterModifiers);
-                        AppendRaw(" set;");
+                        AppendRaw("set;");
                     }
                     AppendRaw(" }");
                     if (initialization is not null)

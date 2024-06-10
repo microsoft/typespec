@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <None Remove="./**/*.*" />
-    <Compile Remove="./**/*.*" />
     <Compile Include="./**/*.cs" Exclude="./**/Properties/**/*.cs" />
   </ItemGroup>
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
@@ -34,6 +35,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "Optional";
 
