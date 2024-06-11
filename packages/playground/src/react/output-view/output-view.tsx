@@ -1,27 +1,26 @@
-import { tokens } from "@fluentui/react-components";
-import type { Program } from "@typespec/compiler";
-import {
-  ColorProvider,
-  TypeSpecProgramViewer,
-  type ColorPalette,
-} from "@typespec/html-program-viewer";
-import { useCallback, useEffect, useMemo, useState, type FunctionComponent } from "react";
-import { FileOutput } from "../file-output/file-output.js";
-import { OutputTabs, type OutputTab } from "../output-tabs/output-tabs.js";
+import { Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
+import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import type { PlaygroundEditorsOptions } from "../playground.js";
-import type { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "../types.js";
-import { OutputEditor } from "../typespec-editor.js";
+import type { CompilationState, CompileResult, FileOutputViewer, ProgramViewer } from "../types.js";
+import { createFileViewer } from "./file-viewer.js";
+import { TypeGraphViewer } from "./type-graph-viewer.js";
+
 import style from "./output-view.module.css";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
   editorOptions?: PlaygroundEditorsOptions;
-  viewers?: FileOutputViewer[];
+  /**
+   * List of custom viewers to display the output. It can be file viewers or program viewers.
+   */
+  viewers?: ProgramViewer[];
+  fileViewers?: FileOutputViewer[];
 }
 
 export const OutputView: FunctionComponent<OutputViewProps> = ({
   compilationState,
   viewers,
+  fileViewers,
   editorOptions,
 }) => {
   if (compilationState === undefined) {
@@ -30,148 +29,80 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   if ("internalCompilerError" in compilationState) {
     return <></>;
   }
+  const resolvedViewers = useMemo(() => resolveViewers(viewers, fileViewers), [viewers]);
   return (
     <OutputViewInternal
       compilationResult={compilationState}
-      viewers={viewers}
+      viewers={resolvedViewers}
       editorOptions={editorOptions}
     />
   );
 };
 
+function resolveViewers(
+  viewers: ProgramViewer[] | undefined,
+  fileViewers: FileOutputViewer[] | undefined
+): ResolvedViewers {
+  const fileViewer = createFileViewer(fileViewers ?? []);
+  const output: ResolvedViewers = {
+    programViewers: {
+      [fileViewer.key]: fileViewer,
+      [TypeGraphViewer.key]: TypeGraphViewer,
+    },
+  };
+
+  for (const item of viewers ?? []) {
+    output.programViewers[item.key] = item;
+  }
+
+  return output;
+}
+
+interface ResolvedViewers {
+  programViewers: Record<string, ProgramViewer>;
+}
+
 const OutputViewInternal: FunctionComponent<{
   compilationResult: CompileResult;
   editorOptions?: PlaygroundEditorsOptions;
-  viewers?: FileOutputViewer[];
+  viewers: ResolvedViewers;
 }> = ({ compilationResult, viewers, editorOptions }) => {
-  const { program, outputFiles } = compilationResult;
+  const viewerList = Object.values(viewers.programViewers);
+  const [selected, setSelected] = useState(viewerList[0].key);
 
-  const [viewSelection, setViewSelection] = useState<ViewSelection>({
-    type: "file",
-    filename: "",
-    content: "",
-  });
+  const onTabSelect = useCallback<SelectTabEventHandler>(
+    (_, data) => setSelected(data.value as any),
+    [setSelected]
+  );
 
-  useEffect(() => {
-    if (viewSelection.type === "file") {
-      if (outputFiles.length > 0) {
-        const fileStillThere = outputFiles.find((x) => x === viewSelection.filename);
-        void loadOutputFile(fileStillThere ?? outputFiles[0]);
-      } else {
-        setViewSelection({ type: "file", filename: viewSelection.filename, content: "" });
-      }
-    }
-  }, [program, outputFiles]);
-
-  async function loadOutputFile(path: string) {
-    const contents = await program.host.readFile("./tsp-output/" + path);
-    setViewSelection({ type: "file", filename: path, content: contents.text });
-  }
-
-  const diagnostics = program.diagnostics;
-  const tabs: OutputTab[] = useMemo(() => {
-    return [
-      ...outputFiles.map(
-        (x): OutputTab => ({
-          align: "left",
-          name: x,
-          id: x,
-        })
-      ),
-      { id: "type-graph", name: "Type Graph", align: "right" },
-    ];
-  }, [outputFiles, diagnostics]);
-  const handleTabSelection = useCallback((tabId: string) => {
-    if (tabId === "type-graph") {
-      setViewSelection({ type: "type-graph" });
-    } else {
-      void loadOutputFile(tabId);
-    }
-  }, []);
-
+  const viewer = useMemo(() => {
+    return viewers.programViewers[selected];
+  }, [viewers.programViewers, selected]);
   return (
     <div className={style["output-view"]}>
-      <OutputTabs
-        tabs={tabs}
-        selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
-        onSelect={handleTabSelection}
-      />
       <div className={style["output-content"]}>
-        <OutputContent
-          viewSelection={viewSelection}
-          editorOptions={editorOptions}
-          program={program}
-          viewers={viewers}
+        <viewer.render
+          program={compilationResult.program}
+          outputFiles={compilationResult.outputFiles}
         />
+      </div>
+      <div className={style["viewer-tabs-container"]}>
+        <TabList
+          vertical
+          size="large"
+          selectedValue={selected}
+          onTabSelect={onTabSelect}
+          className={style["viewer-tabs"]}
+        >
+          {viewerList.map((viewer) => {
+            return (
+              <Tab key={viewer.key} value={viewer.key} className={style["viewer-tab"]}>
+                <span title={viewer.label}>{viewer.icon}</span>
+              </Tab>
+            );
+          })}
+        </TabList>
       </div>
     </div>
   );
-};
-
-function getRawFileViewer(editorOptions?: PlaygroundEditorsOptions) {
-  return {
-    key: "raw",
-    label: "File",
-    render: ({ filename, content }: ViewerProps) => (
-      <OutputEditor editorOptions={editorOptions} filename={filename} value={content} />
-    ),
-  };
-}
-
-interface OutputContentProps {
-  viewSelection: ViewSelection;
-  program: Program | undefined;
-  internalCompilerError?: any;
-  editorOptions?: PlaygroundEditorsOptions;
-  viewers?: FileOutputViewer[];
-}
-
-const OutputContent: FunctionComponent<OutputContentProps> = ({
-  viewSelection,
-  program,
-  viewers,
-  editorOptions,
-}) => {
-  const resolvedViewers = useMemo(
-    () => [getRawFileViewer(editorOptions), ...(viewers ?? [])],
-    [viewers]
-  );
-  switch (viewSelection.type) {
-    case "file":
-      return (
-        <FileOutput
-          filename={viewSelection.filename}
-          content={viewSelection.content}
-          viewers={resolvedViewers}
-        />
-      );
-    default:
-      return program && <TypeGraphViewer program={program} />;
-  }
-};
-
-type ViewSelection = { type: "file"; filename: string; content: string } | { type: "type-graph" };
-
-interface TypeGraphViewerProps {
-  program: Program;
-}
-const TypeGraphViewer = ({ program }: TypeGraphViewerProps) => {
-  return (
-    <div className={style["type-graph-viewer"]}>
-      <ColorProvider colors={TypeGraphColors}>
-        <TypeSpecProgramViewer program={program} />
-      </ColorProvider>
-    </div>
-  );
-};
-
-const TypeGraphColors: ColorPalette = {
-  background: tokens.colorNeutralBackground1,
-  typeKind: tokens.colorPaletteBerryForeground2,
-  typeName: tokens.colorNeutralForeground2,
-  dataKey: tokens.colorNeutralForeground2,
-  ref: tokens.colorBrandForeground1,
-  literal: tokens.colorPaletteLightGreenForeground2,
-  indentationGuide: tokens.colorNeutralForeground4,
-  property: tokens.colorPaletteMarigoldForeground2,
 };

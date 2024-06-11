@@ -60,13 +60,13 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.Append($"{Item:D} in ");
                 Enumerable.Write(writer);
                 writer.WriteRawLine(")");
-
-                writer.WriteRawLine("{");
-                foreach (var bodyStatement in Body)
+                using (writer.Scope())
                 {
-                    bodyStatement.Write(writer);
+                    foreach (var bodyStatement in Body)
+                    {
+                        bodyStatement.Write(writer);
+                    }
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

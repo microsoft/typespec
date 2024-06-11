@@ -43,7 +43,6 @@ namespace Microsoft.Generator.CSharp
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
-        private CSharpType? _initializationType;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
         private CSharpType? _inputType;
@@ -191,8 +190,13 @@ namespace Microsoft.Generator.CSharp
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
-        public CSharpType InitializationType => _initializationType ??= GetImplementationType();
-        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyImplementationType();
+
+        /// <summary>
+        /// Retrieves the property initialization type variant of this type.
+        /// For majority of the types, the return value of PropertyInitializationType should just be itself.
+        /// For special cases like interface types, such as collections, this will return the concrete implementation type.
+        /// </summary>
+        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyInitializationType();
         public CSharpType ElementType => _elementType ??= GetElementType();
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
@@ -237,37 +241,10 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"/>.
+        /// Retrieves the <see cref="CSharpType"/> initialization type with the <see cref="Arguments"/>.
         /// </summary>
         /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetImplementationType()
-        {
-            if (IsFrameworkType)
-            {
-                if (IsReadOnlyMemory)
-                {
-                    return new CSharpType(Arguments[0].FrameworkType.MakeArrayType());
-                }
-
-                if (IsList)
-                {
-                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingListType.MakeGenericType(Arguments);
-                }
-
-                if (IsDictionary)
-                {
-                    return CodeModelPlugin.Instance.TypeFactory.ChangeTrackingDictionaryType.MakeGenericType(Arguments);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"'s arguments/>.
-        /// </summary>
-        /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetPropertyImplementationType()
+        private CSharpType GetPropertyInitializationType()
         {
             if (IsFrameworkType)
             {
@@ -278,16 +255,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return new CSharpType(typeof(List<>), Arguments);
-                    // Generate ChangeTrackingList type - https://github.com/microsoft/typespec/issues/3324
-                    // return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingListType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
-                    // Generate ChangeTrackingDictionary type - https://github.com/microsoft/typespec/issues/3324
-                    //return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingDictionaryType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(Arguments);
                 }
             }
 
@@ -518,7 +491,8 @@ namespace Microsoft.Generator.CSharp
 
         public sealed override string ToString()
         {
-            return new CodeWriter().Append($"{this}").ToString(false);
+            using var writer = new CodeWriter();
+            return writer.Append($"{this}").ToString(false);
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var result = boolExpression.Or(right);
 
-            Assert.AreEqual(new BinaryOperatorExpression(" || ", boolExpression, right), result.Untyped);
+            Assert.AreEqual(new BinaryOperatorExpression("||", boolExpression, right), result.Untyped);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var result = boolExpression.And(right);
 
-            Assert.AreEqual(new BinaryOperatorExpression(" && ", boolExpression, right), result.Untyped);
+            Assert.AreEqual(new BinaryOperatorExpression("&&", boolExpression, right), result.Untyped);
         }
 
         [TestCase(typeof(int))]

@@ -10,15 +10,24 @@ test.describe("playground UI tests", () => {
     await page.goto(host);
     const samplesDropDown = page.locator("_react=SamplesDropdown").locator("select");
     await samplesDropDown.selectOption({ label: "HTTP service" });
-    const outputContainer = page.locator("_react=OutputContent");
+    const outputContainer = page.locator("_react=FileOutput");
     await expect(outputContainer).toContainText(`title: Widget Service`);
+  });
+
+  test("report compilation errors", async ({ page }) => {
+    await page.goto(host);
+    const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
+    await typespecEditorContainer.click();
+    await typespecEditorContainer.pressSequentially("invalid");
+    const outputContainer = page.locator("_react=OutputView");
+    await expect(outputContainer).toContainText(`No files emitted.`);
   });
 
   test("shared link works", async ({ page }) => {
     // Pass code "op sharedCode(): string;"
     // cspell:disable-next-line
     await page.goto(`${host}/?c=b3Agc2hhcmVkQ29kZSgpOiBzdHJpbmc7`);
-    const outputContainer = page.locator("_react=OutputContent");
+    const outputContainer = page.locator("_react=FileOutput");
     await expect(outputContainer).toContainText(`operationId: sharedCode`);
   });
 

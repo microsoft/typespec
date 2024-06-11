@@ -43,6 +43,12 @@ namespace Microsoft.Generator.CSharp.Tests
             _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _codeWriter?.Dispose();
+        }
+
         [Test]
         public void GeneratesNewNamesInChildScope()
         {
@@ -58,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests
             sb.Append(_header);
             sb.Append("a").Append(NewLine);
             sb.Append("{").Append(NewLine);
-            sb.Append("a0").Append(NewLine);
+            sb.Append("    a0").Append(NewLine);
             sb.Append("}").Append(NewLine);
 
             Assert.AreEqual(sb.ToString(), _codeWriter.ToString());
@@ -79,11 +85,14 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append("a").Append(NewLine);
-            sb.Append("{").Append(NewLine);
+            //TODO strange behavior for scope that we might want to fix.
+            // if you want the "a" and "{" lines to be the same indent level as "}"
+            // you must write A then use an empty `Scope()` method call.
+            sb.Append("    a").Append(NewLine);
+            sb.Append("    {").Append(NewLine);
             sb.Append("}").Append(NewLine);
-            sb.Append("a").Append(NewLine);
-            sb.Append("{").Append(NewLine);
+            sb.Append("    a").Append(NewLine);
+            sb.Append("    {").Append(NewLine);
             sb.Append("}").Append(NewLine);
 
             Assert.AreEqual(sb.ToString(), _codeWriter.ToString());
@@ -104,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var sb = new StringBuilder();
             sb.Append(_header);
             sb.Append("{").Append(NewLine);
-            sb.Append("a").Append(NewLine);
+            sb.Append("    a").Append(NewLine);
             sb.Append("}").Append(NewLine);
             sb.Append("a0").Append(NewLine);
 
@@ -115,7 +124,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CorrectlyHandlesCurlyBraces()
         {
             _codeWriter.Append($"public {typeof(string)} Data {{ get; private set; }}");
-            var expected = "public string Data { get; private set; }" + NewLine;
+            var expected = "public string Data { get; private set; }";
             var sb = new StringBuilder();
             sb.Append(_header);
             sb.Append(expected);
@@ -131,7 +140,7 @@ namespace Microsoft.Generator.CSharp.Tests
             FormattableString fs2 = $"'a' is {typeof(char)} and {fs1} and 'true' is {typeof(bool)}";
 
             _codeWriter.Append(fs2);
-            var expected = "'a' is char and '1' is int and 'true' is bool" + NewLine;
+            var expected = "'a' is char and '1' is int and 'true' is bool";
             var sb = new StringBuilder();
             sb.Append(_header);
             sb.Append(expected);
@@ -144,7 +153,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void EnumerableFormatInFormat()
         {
             _codeWriter.Append($"Multiply:{Enumerable.Range(1, 4).Select(i => (FormattableString)$" {i} * 2 = {i * 2};")}");
-            var expected = "Multiply: 1 * 2 = 2; 2 * 2 = 4; 3 * 2 = 6; 4 * 2 = 8;" + NewLine;
+            var expected = "Multiply: 1 * 2 = 2; 2 * 2 = 4; 3 * 2 = 6; 4 * 2 = 8;";
             var sb = new StringBuilder();
             sb.Append(_header);
             sb.Append(expected);
@@ -155,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void SingleLineSummary()
         {
-            _codeWriter.WriteXmlDocumentationSummary($"Some {typeof(string)} summary.");
+            _codeWriter.WriteXmlDocumentationSummary([$"Some {typeof(string)} summary."]);
             var expected = "/// <summary> Some string summary. </summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(_header);
@@ -167,12 +176,12 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void NoEmptySummary()
         {
-            _codeWriter.WriteXmlDocumentationSummary($"{string.Empty}");
-            var expected = string.Empty;
+            _codeWriter.WriteXmlDocumentationSummary([$"{string.Empty}"]);
+            var expected = "/// <summary></summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(expected);
 
-            Assert.AreEqual(sb.ToString(), _codeWriter.ToString());
+            Assert.AreEqual(sb.ToString(), _codeWriter.ToString(false));
         }
 
         [TestCase(typeof(string), false, "<see cref=\"string\"/>", "")]
@@ -184,7 +193,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void SeeCRefType(Type type, bool isNullable, string expectedWritten, string ns)
         {
             var csType = new CSharpType(type).WithNullable(isNullable);
-            _codeWriter.WriteXmlDocumentationSummary($"Some {csType:C} summary.");
+            _codeWriter.WriteXmlDocumentationSummary([$"Some {csType:C} summary."]);
             var expected = $"/// <summary> Some {expectedWritten} summary. </summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(_header);
@@ -203,26 +212,40 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void MultiLineSummary()
         {
-            FormattableString fs1 = $@"L04
-L05
-L06 {typeof(int)}
+            List<FormattableString> fs1 = new List<FormattableString>
+            {
+                $"L04",
+                $"L05",
+                $"L06 {typeof(int)}",
+                $"",
+                $"",
+                $"L09"
+            };
 
+            List<FormattableString> fs2 = new List<FormattableString>
+            {
+                $"",
+                $"L11 {typeof(bool)}",
+                $"L12",
+                $"",
+                $""
+            };
 
-L09";
-            FormattableString fs2 = $@"
+            List<FormattableString> fss = new List<FormattableString>();
+            fss.AddRange(fs1);
+            fss.AddRange(fs2);
 
-L11 {typeof(bool)}
-L12
+            List<FormattableString> fs = new List<FormattableString>()
+            {
+                $"L00",
+                $"L01",
+                $"L02 {typeof(string)}",
+                $""
+            };
+            fs.AddRange(fss);
+            fs.Add($"L15");
+            fs.Add($"L16");
 
-";
-            IEnumerable<FormattableString> fss = new[] { fs1, fs2 };
-            FormattableString fs = $@"L00
-L01
-L02 {typeof(string)}
-
-{fss}
-L15
-L16";
             _codeWriter.WriteXmlDocumentationSummary(fs);
 
             var sb = new StringBuilder();
@@ -231,18 +254,18 @@ L16";
             sb.Append("/// L00").Append(NewLine);
             sb.Append("/// L01").Append(NewLine);
             sb.Append("/// L02 string").Append(NewLine);
-            sb.Append("///").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
             sb.Append("/// L04").Append(NewLine);
             sb.Append("/// L05").Append(NewLine);
             sb.Append("/// L06 int").Append(NewLine);
-            sb.Append("///").Append(NewLine);
-            sb.Append("///").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
             sb.Append("/// L09").Append(NewLine);
-            sb.Append("///").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
             sb.Append("/// L11 bool").Append(NewLine);
             sb.Append("/// L12").Append(NewLine);
-            sb.Append("///").Append(NewLine);
-            sb.Append("///").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
+            sb.Append("/// ").Append(NewLine);
             sb.Append("/// L15").Append(NewLine);
             sb.Append("/// L16").Append(NewLine);
             sb.Append("/// </summary>").Append(NewLine);
@@ -257,12 +280,12 @@ L16";
             var baseInitializerStatement = new ConstructorInitializer(true, new List<ValueExpression> { Literal("test") });
             var constructorSignature = new ConstructorSignature(new CSharpType(typeof(string)), $"Test constructor summary", $"Test description",
                 MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>(), null, baseInitializerStatement);
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteMethodDeclarationNoScope(constructorSignature);
 
             var expected = new StringBuilder()
                .Append(_header)
-               .Append("public String(): base(\"test\")").Append(NewLine)
+               .Append("public String(): base(\"test\")")
                .ToString();
             var result = codeWriter.ToString();
             Assert.AreEqual(expected, result);
@@ -275,9 +298,9 @@ L16";
             var field2 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "_stringValue", $"To test string");
             var field3 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, typeof(string), "withValue", $"To test a field with initialization value", Literal("abc"));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteField(field1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteField(field2);
             codeWriter.WriteField(field3);
 
@@ -305,9 +328,9 @@ L16";
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new AutoPropertyBody(true, MethodSignatureModifiers.Internal));
             var property4 = new PropertyProvider($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), "Property4", new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property2);
             codeWriter.WriteProperty(property3);
             codeWriter.WriteProperty(property4);
@@ -315,14 +338,14 @@ L16";
             var expected = new StringBuilder()
                 .Append(_header)
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
-                .Append("public string Property1{ get; }").Append(NewLine)
+                .Append("public string Property1 { get; }").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
-                .Append("public string Property2{ get;set; }").Append(NewLine)
+                .Append("public string Property2 { get; set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
-                .Append("public string Property3{ get;internal set; }").Append(NewLine)
+                .Append("public string Property3 { get; internal set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter and initialization value. </summary>").Append(NewLine)
-                .Append("public string Property4{ get;internal set; } = \"abc\";").Append(NewLine)
+                .Append("public string Property4 { get; internal set; } = \"abc\";").Append(NewLine)
                 .ToString();
 
             var result = codeWriter.ToString();
@@ -337,9 +360,9 @@ L16";
             var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new AutoPropertyBody(true, MethodSignatureModifiers.None), explicitInterface: typeof(IList<string>));
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property2);
             codeWriter.WriteProperty(property3);
 
@@ -347,12 +370,12 @@ L16";
                 .Append(_header)
                 .Append("using System.Collections.Generic;").Append(NewLine).Append(NewLine)
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
-                .Append("public int global::System.Collections.Generic.IList<string>.Count{ get; }").Append(NewLine)
+                .Append("public int global::System.Collections.Generic.IList<string>.Count { get; }").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
-                .Append("public bool global::System.Collections.Generic.IList<string>.IsReadOnly{ get;set; }").Append(NewLine)
+                .Append("public bool global::System.Collections.Generic.IList<string>.IsReadOnly { get; set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
-                .Append("public int global::System.Collections.Generic.IReadOnlyList<string>.Count{ get;internal set; }").Append(NewLine)
+                .Append("public int global::System.Collections.Generic.IReadOnlyList<string>.Count { get; internal set; }").Append(NewLine)
                 .ToString();
 
             var result = codeWriter.ToString();
@@ -366,9 +389,9 @@ L16";
             var property1 = new PropertyProvider($"To test an expression property with string type", MethodSignatureModifiers.Public, typeof(string), "Property1", new ExpressionPropertyBody(Literal("abc")));
             var property2 = new PropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), "Property2", new ExpressionPropertyBody(Literal(299792458)));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property2);
 
             var expected = new StringBuilder()
@@ -390,8 +413,8 @@ L16";
         {
             var property1 = new PropertyProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new ExpressionPropertyBody(Literal(299792458)), explicitInterface: typeof(IList<string>));
 
-            var codeWriter = new CodeWriter();
-            codeWriter.Append($"// test comment");
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property1);
 
             var expected = new StringBuilder()
@@ -414,9 +437,9 @@ L16";
             var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property2"), new KeywordExpression("value", null))));
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property("Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property2);
             codeWriter.WriteProperty(property3);
 
@@ -425,35 +448,35 @@ L16";
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
                 .Append("public string Property1").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
                 .Append("public string Property2").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property2 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property2 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
                 .Append("public string Property3").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("internal set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property3 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    internal set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property3 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .ToString();
 
@@ -469,9 +492,9 @@ L16";
             var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new MethodPropertyBody(Return(True), Assign(This.Property($"{nameof(IList<string>.IsReadOnly)}"), new KeywordExpression("value", null))), explicitInterface: typeof(IList<string>));
             var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), Assign(This.Property($"{nameof(IReadOnlyList<string>.Count)}"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(property2);
             codeWriter.WriteProperty(property3);
 
@@ -481,35 +504,35 @@ L16";
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
                 .Append("public int global::System.Collections.Generic.IList<string>.Count").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return 299792458;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return 299792458;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
                 .Append("public bool global::System.Collections.Generic.IList<string>.IsReadOnly").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return true;").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.IsReadOnly = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return true;").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.IsReadOnly = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
                 .Append("public int global::System.Collections.Generic.IReadOnlyList<string>.Count").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return 299792458;").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("internal set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Count = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return 299792458;").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    internal set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Count = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .ToString();
 
@@ -530,9 +553,9 @@ L16";
             var p4 = new ParameterProvider("p4", $"p4", typeof(double), null);
             var indexer4 = new IndexerProvider($"To test an auto property with an internal setter and initialization value", MethodSignatureModifiers.Public, typeof(string), p4, new AutoPropertyBody(true, MethodSignatureModifiers.Internal, Literal("abc")));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
             codeWriter.WriteProperty(indexer3);
             codeWriter.WriteProperty(indexer4);
@@ -540,14 +563,14 @@ L16";
             var expected = new StringBuilder()
                 .Append(_header)
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
-                .Append("public float this[int p1]{ get; }").Append(NewLine)
+                .Append("public float this[int p1] { get; }").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
-                .Append("public bool this[string p2]{ get;set; }").Append(NewLine)
+                .Append("public bool this[string p2] { get; set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
-                .Append("public double this[float p3]{ get;internal set; }").Append(NewLine)
+                .Append("public double this[float p3] { get; internal set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter and initialization value. </summary>").Append(NewLine)
-                .Append("public string this[double p4]{ get;internal set; } = \"abc\";").Append(NewLine)
+                .Append("public string this[double p4] { get; internal set; } = \"abc\";").Append(NewLine)
                 .ToString();
 
             var result = codeWriter.ToString();
@@ -563,9 +586,9 @@ L16";
             var indexer2 = new IndexerProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), index, new AutoPropertyBody(true, MethodSignatureModifiers.None), explicitInterface: typeof(IList<bool>));
             var indexer3 = new IndexerProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(double), index, new AutoPropertyBody(true, MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<double>));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
             codeWriter.WriteProperty(indexer3);
 
@@ -573,12 +596,12 @@ L16";
                 .Append(_header)
                 .Append("using System.Collections.Generic;").Append(NewLine).Append(NewLine)
                 .Append("/// <summary> To test an auto property without a setter. </summary>").Append(NewLine)
-                .Append("public string global::System.Collections.Generic.IReadOnlyList<string>.this[int index]{ get; }").Append(NewLine)
+                .Append("public string global::System.Collections.Generic.IReadOnlyList<string>.this[int index] { get; }").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test an auto property with a setter. </summary>").Append(NewLine)
-                .Append("public bool global::System.Collections.Generic.IList<bool>.this[int index]{ get;set; }").Append(NewLine)
+                .Append("public bool global::System.Collections.Generic.IList<bool>.this[int index] { get; set; }").Append(NewLine)
                 .Append("/// <summary> To test an auto property with an internal setter. </summary>").Append(NewLine)
-                .Append("public double global::System.Collections.Generic.IReadOnlyList<double>.this[int index]{ get;internal set; }").Append(NewLine)
+                .Append("public double global::System.Collections.Generic.IReadOnlyList<double>.this[int index] { get; internal set; }").Append(NewLine)
                 .ToString();
 
             var result = codeWriter.ToString();
@@ -594,9 +617,9 @@ L16";
             var p2 = new ParameterProvider("p2", $"p2", typeof(string), null);
             var indexer2 = new IndexerProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
 
             var expected = new StringBuilder()
@@ -621,9 +644,9 @@ L16";
             var p2 = new ParameterProvider("key", $"key", typeof(string), null);
             var indexer2 = new IndexerProvider($"To test an expression property with int type", MethodSignatureModifiers.Public, typeof(int), p2, new ExpressionPropertyBody(Literal(299792458)), explicitInterface: typeof(IReadOnlyDictionary<string, int>));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
 
             var expected = new StringBuilder()
@@ -651,9 +674,9 @@ L16";
             var p3 = new ParameterProvider("p3", $"p3", typeof(int), null);
             var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), p3, new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property($"Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
             codeWriter.WriteProperty(indexer3);
 
@@ -662,35 +685,35 @@ L16";
                 .Append("/// <summary> To test a method property without a setter. </summary>").Append(NewLine)
                 .Append("public string this[int p1]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test a method property with a setter. </summary>").Append(NewLine)
                 .Append("public string this[int p2]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property2 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property2 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("/// <summary> To test a method property with an internal setter. </summary>").Append(NewLine)
                 .Append("public string this[int p3]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("internal set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property3 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    internal set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property3 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .ToString();
 
@@ -707,9 +730,9 @@ L16";
             var indexer2 = new IndexerProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property($"Property2"), new KeywordExpression("value", null))), explicitInterface: typeof(IList<string>));
             var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), Assign(This.Property($"Property3"), new KeywordExpression("value", null)), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyDictionary<int, string>));
 
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
-            codeWriter.Append($"// test comment");
+            codeWriter.WriteLine($"// test comment");
             codeWriter.WriteProperty(indexer2);
             codeWriter.WriteProperty(indexer3);
 
@@ -719,35 +742,35 @@ L16";
                 .Append("/// <summary> To test a method property without a setter. </summary>").Append(NewLine)
                 .Append("public string global::System.Collections.Generic.IReadOnlyList<string>.this[int index]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("// test comment").Append(NewLine)
                 .Append("/// <summary> To test a method property with a setter. </summary>").Append(NewLine)
                 .Append("public string global::System.Collections.Generic.IList<string>.this[int index]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property2 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property2 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .Append("/// <summary> To test a method property with an internal setter. </summary>").Append(NewLine)
                 .Append("public string global::System.Collections.Generic.IReadOnlyDictionary<int, string>.this[int index]").Append(NewLine)
                 .Append("{").Append(NewLine)
-                .Append("get").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("return \"abc\";").Append(NewLine)
-                .Append("}").Append(NewLine)
-                .Append("internal set").Append(NewLine)
-                .Append("{").Append(NewLine)
-                .Append("this.Property3 = value;").Append(NewLine)
-                .Append("}").Append(NewLine)
+                .Append("    get").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        return \"abc\";").Append(NewLine)
+                .Append("    }").Append(NewLine)
+                .Append("    internal set").Append(NewLine)
+                .Append("    {").Append(NewLine)
+                .Append("        this.Property3 = value;").Append(NewLine)
+                .Append("    }").Append(NewLine)
                 .Append("}").Append(NewLine)
                 .ToString();
 

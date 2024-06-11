@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -24,59 +24,39 @@ namespace Microsoft.Generator.CSharp.Input
 
         public static InputUnionType CreateInputUnionType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null;
+            if (id == null)
+            {
+                reader.TryReadReferenceId(ref id);
+            }
+
+            id = id ?? throw new JsonException();
+
+            // create an empty model to resolve circular references
+            var union = new InputUnionType(null!, null!, false);
+            resolver.AddReference(id, union);
+
             bool isNullable = false;
-            var unionItemTypes = new List<InputType>();
+            IReadOnlyList<InputType>? variantTypes = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputUnionType.Name), ref name)
+                var isKnownProperty = reader.TryReadString(nameof(InputUnionType.Name), ref name)
+                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes)
                     || reader.TryReadBoolean(nameof(InputUnionType.IsNullable), ref isNullable);
 
-                if (isKnownProperty)
-                {
-                    continue;
-                }
-
-                if (reader.GetString() == nameof(InputUnionType.UnionItemTypes))
-                {
-                    reader.Read();
-                    CreateUnionItemTypes(ref reader, unionItemTypes, options);
-                }
-                else
+                if (!isKnownProperty)
                 {
                     reader.SkipProperty();
                 }
             }
 
-            name = name ?? throw new JsonException($"{nameof(InputLiteralType)} must have a name.");
-            if (unionItemTypes == null || unionItemTypes.Count == 0)
+            union.Name = name ?? throw new JsonException($"{nameof(InputLiteralType)} must have a name.");
+            if (variantTypes == null || variantTypes.Count == 0)
             {
                 throw new JsonException("Union must have a least one union type");
             }
-
-            var unionType = new InputUnionType(name, unionItemTypes, isNullable);
-            if (id != null)
-            {
-                resolver.AddReference(id, unionType);
-            }
-            return unionType;
-        }
-
-        private static void CreateUnionItemTypes(ref Utf8JsonReader reader, ICollection<InputType> itemTypes, JsonSerializerOptions options)
-        {
-            if (reader.TokenType != JsonTokenType.StartArray)
-            {
-                throw new JsonException();
-            }
-            reader.Read();
-
-            while (reader.TokenType != JsonTokenType.EndArray)
-            {
-                var type = reader.ReadWithConverter<InputType>(options);
-                itemTypes.Add(type ?? throw new JsonException($"null {nameof(InputType)} isn't allowed"));
-            }
-            reader.Read();
+            union.VariantTypes = variantTypes;
+            union.IsNullable = isNullable;
+            return union;
         }
     }
 }

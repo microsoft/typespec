@@ -26,7 +26,7 @@ namespace UnbrandedTypeSpec.Models
             Name = name;
             RequiredUnion = requiredUnion;
             RequiredBadDescription = requiredBadDescription;
-            OptionalNullableList = new List<int>();
+            OptionalNullableList = new ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
         }
 

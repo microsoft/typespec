@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             public MockExpressionTypeProviderWriter(TypeProvider provider) : base(provider) { }
 
-            public override void Write()
+            public override CodeFile Write()
             {
                 throw new NotImplementedException();
             }

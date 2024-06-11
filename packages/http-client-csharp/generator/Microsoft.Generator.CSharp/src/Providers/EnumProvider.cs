@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 
@@ -30,6 +31,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
         }
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }
