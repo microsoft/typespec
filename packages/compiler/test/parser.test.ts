@@ -1009,6 +1009,19 @@ describe("compiler: parser", () => {
         ],
         [
           `
+          /** Escape at the end \\*/
+          model M {}
+          `,
+          (script) => {
+            const docs = script.statements[0].docs;
+            strictEqual(docs?.length, 1);
+            strictEqual(docs[0].content.length, 1);
+            strictEqual(docs[0].content[0].text, "Escape at the end \\");
+            strictEqual(docs[0].tags.length, 0);
+          },
+        ],
+        [
+          `
           /**
            * This one has a \`code span\` and a code fence and it spreads over
            * more than one line.
@@ -1024,6 +1037,8 @@ describe("compiler: parser", () => {
            *\`\`\`
            *
            * \`This is not a @tag either because we're in a code span\`.
+           * 
+           * This is not a \\@tag because it is escaped.
            *
            * @param x the param
            * that continues on another line
@@ -1052,7 +1067,9 @@ describe("compiler: parser", () => {
                 "This code fence is glued\n" +
                 "to the stars\n" +
                 "```\n\n" +
-                "`This is not a @tag either because we're in a code span`."
+                "`This is not a @tag either because we're in a code span`.\n" +
+                "\n" +
+                "This is not a @tag because it is escaped."
             );
             strictEqual(docs[0].tags.length, 6);
             const [xParam, yParam, tTemplate, uTemplate, returns, pretend] = docs[0].tags;

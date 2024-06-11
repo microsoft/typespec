@@ -2850,6 +2850,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           }
           nextToken();
           break;
+        case Token.DocText:
+          parts.push(source.substring(start, tokenPos()));
+          parts.push(tokenValue());
+          nextToken();
+          start = tokenPos();
+          break;
         default:
           nextToken();
           break;
