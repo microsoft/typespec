@@ -1,5 +1,5 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { HttpOperationMultipartBody } from "../src/types.js";
 import { getOperationsWithServiceNamespace } from "./test-host.js";
@@ -151,6 +151,56 @@ describe("resolving part payload", () => {
     strictEqual(body.parts.length, 1);
     strictEqual(body.parts[0].headers.length, 1);
     strictEqual(body.parts[0].headers[0].options.name, "part-header");
+  });
+
+  describe("HttpFile part", () => {
+    it("emit diagnostic if adding extra properties to File", async () => {
+      const diagnostics = await diagnoseHttpOp(`
+        model InvalidFile extends File {
+          @header extra: string;
+        }
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http/http-file-extra-property",
+        message: "File model cannot define extra properties. Found 'extra'.",
+      });
+    });
+
+    it("use of HttpFile resolve optional filename", async () => {
+      const op = await getHttpOp(`
+        op read(
+          @header contentType: "multipart/mixed",
+          @multipartBody body: [
+            HttpPart<File, #{ name: "file" }>
+          ]): void;
+        `);
+
+      const body = op.parameters.body;
+      strictEqual(body?.bodyKind, "multipart");
+      strictEqual(body.parts.length, 1);
+      ok(body.parts[0].filename, "Filename property should have been resolved");
+      strictEqual(body.parts[0].filename.optional, true);
+    });
+
+    it("use of custom HttpFile with required filename resolve required", async () => {
+      const op = await getHttpOp(`
+        model FileWithFilename extends File {
+          filename: string;
+        }
+        op read(
+          @header contentType: "multipart/mixed",
+          @multipartBody body: [
+            HttpPart<FileWithFilename, #{ name: "file" }>
+          ]): void;
+        `);
+
+      const body = op.parameters.body;
+      strictEqual(body?.bodyKind, "multipart");
+      strictEqual(body.parts.length, 1);
+      ok(body.parts[0].filename, "Filename property should have been resolved");
+      strictEqual(body.parts[0].filename.optional, false);
+    });
   });
 
   describe("part default content type", () => {
