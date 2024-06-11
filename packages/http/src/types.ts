@@ -445,6 +445,8 @@ export interface HttpOperationResponseContent {
 export interface HttpOperationBodyBase {
   /** Content types. */
   readonly contentTypes: string[];
+  /** Property used to set the content type if exists */
+  readonly contentTypeProperty?: ModelProperty;
 }
 
 export interface HttpBody {
