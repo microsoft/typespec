@@ -2503,7 +2503,7 @@ export function createChecker(program: Program): Checker {
       const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
       const paramDocs = extractParamDocs(node);
       for (const [name, memberSym] of members) {
-        const doc = paramDocs[name];
+        const doc = paramDocs.get(name);
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
         }
@@ -3850,7 +3850,7 @@ export function createChecker(program: Program): Checker {
       const members = getOrCreateAugmentedSymbolTable(node.symbol.members);
       const propDocs = extractPropDocs(node);
       for (const [name, memberSym] of members) {
-        const doc = propDocs[name];
+        const doc = propDocs.get(name);
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
         }
@@ -8452,30 +8452,30 @@ function extractReturnsDocs(type: Type): {
   return result;
 }
 
-function extractParamDocs(node: OperationStatementNode): Record<string, string> {
+function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return {};
+    return new Map();
   }
-  const paramDocs: Record<string, string> = {};
+  const paramDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocParamTag) {
-        paramDocs[tag.paramName.sv] = getDocContent(tag.content);
+        paramDocs.set(tag.paramName.sv, getDocContent(tag.content));
       }
     }
   }
   return paramDocs;
 }
 
-function extractPropDocs(node: ModelStatementNode): Record<string, string> {
+function extractPropDocs(node: ModelStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return {};
+    return new Map();
   }
-  const propDocs: Record<string, string> = {};
+  const propDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocPropTag) {
-        propDocs[tag.propName.sv] = getDocContent(tag.content);
+        propDocs.set(tag.propName.sv, getDocContent(tag.content));
       }
     }
   }
