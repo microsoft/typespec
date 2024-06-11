@@ -660,7 +660,7 @@ export function createScanner(
 
         case CharCode.Backslash:
           tokenFlags |= TokenFlags.Escaped;
-          return next(Token.DocText, 2);
+          return position === endPosition - 1 ? next(Token.DocText) : next(Token.DocText, 2);
 
         case CharCode.Space:
         case CharCode.Tab:
@@ -1057,6 +1057,10 @@ export function createScanner(
           continue;
         }
 
+        if (pos === end - 1) {
+          break;
+        }
+
         result += input.substring(start, pos);
         switch (input.charCodeAt(pos + 1)) {
           case CharCode.At:
@@ -1069,7 +1073,7 @@ export function createScanner(
         start = pos;
       }
 
-      result += input.substring(start, pos);
+      result += input.substring(start, end);
       return result;
     } else {
       return input.substring(tokenPosition, position);
