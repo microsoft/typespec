@@ -6512,7 +6512,10 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    const clone = finishType(initializeClone(type, additionalProps));
+    let clone = initializeClone(type, additionalProps);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
