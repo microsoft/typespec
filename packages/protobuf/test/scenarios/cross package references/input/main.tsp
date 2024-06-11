@@ -29,6 +29,7 @@ namespace B {
   model Input {
     @field(1) testInputField: string;
     @field(2) mapField: Map<string, A.ReferentInput>;
+    @field(3) repeatedField: A.ReferentInput[];
   }
 }
 
