@@ -1,5 +1,7 @@
+import { DecoratorContext, Type } from "@typespec/compiler";
 import assert from "assert";
 import { describe, it } from "vitest";
+import { setExtension } from "../src/index.js";
 import { emitSchema } from "./utils.js";
 
 describe("emitting extensions", () => {
@@ -113,6 +115,7 @@ describe("emitting extensions", () => {
     assert.deepStrictEqual(Foo.properties.x["x-string-literal"], "hi");
   });
 
+  // These tests are skipped - can enable if @extension is updated to support `valueof unknown`
   it.skip("handles values", async () => {
     const schemas = await emitSchema(`
       @extension("x-anon-model", #{ name: "foo" })
@@ -136,6 +139,48 @@ describe("emitting extensions", () => {
     assert.deepStrictEqual(Foo.properties.x["x-null"], null);
   });
 
+  describe("setExtension", () => {
+    it("handles values", async () => {
+      const schemas = await emitSchema(
+        `
+        extern dec setExtension(target: unknown, key: valueof string, value: (valueof unknown));
+
+        @setExtension("x-anon-model", #{ name: "foo" })
+        @setExtension("x-nested-anon-model", #{ items: #[ #{foo: "bar" }]})
+        model Foo {
+          @setExtension("x-bool-literal", true)
+          @setExtension("x-int-literal", 42)
+          @setExtension("x-string-literal", "hi")
+          @setExtension("x-null", null)
+          x: string;
+        }
+      `,
+        undefined,
+        {
+          emitNamespace: true,
+          decorators: {
+            namespace: "test",
+            $flags: { decoratorArgMarshalling: "new" },
+            $setExtension(context: DecoratorContext, target: Type, key: string, value: unknown) {
+              setExtension(context.program, target, key, value);
+            },
+          },
+        }
+      );
+
+      const Foo = schemas["Foo.json"];
+
+      assert.deepStrictEqual(Foo["x-anon-model"], { name: "foo" });
+      assert.deepStrictEqual(Foo["x-nested-anon-model"], { items: [{ foo: "bar" }] });
+
+      assert.deepStrictEqual(Foo.properties.x["x-bool-literal"], true);
+      assert.deepStrictEqual(Foo.properties.x["x-int-literal"], 42);
+      assert.deepStrictEqual(Foo.properties.x["x-string-literal"], "hi");
+      assert.deepStrictEqual(Foo.properties.x["x-null"], null);
+    });
+  });
+
+  // Expect these to fail if @extension is updated to support `valueof unknown`.
   describe("breaking changes with value support", () => {
     it("supports in-line models types", async () => {
       const schemas = await emitSchema(`
