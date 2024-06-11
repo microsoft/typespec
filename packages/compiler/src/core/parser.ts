@@ -34,9 +34,11 @@ import {
   DocErrorsTagNode,
   DocNode,
   DocParamTagNode,
+  DocPropTagNode,
   DocReturnsTagNode,
   DocTag,
   DocTemplateTagNode,
+  DocTextNode,
   DocUnknownTagNode,
   EmptyStatementNode,
   EnumMemberNode,
@@ -2891,6 +2893,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocParamTag, "param");
       case "template":
         return parseDocParamLikeTag(pos, tagName, SyntaxKind.DocTemplateTag, "templateParam");
+      case "prop":
+        return parseDocPropTag(pos, tagName);
       case "return":
       case "returns":
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
@@ -2911,9 +2915,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     kind: ParamLikeTag["kind"],
     messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
-    const name = parseDocIdentifier(messageId);
-    parseOptionalHyphenDocParamLikeTag();
-    const content = parseDocContent();
+    const { name, content } = parseDocParamLikeTagInternal(messageId);
 
     return {
       kind,
@@ -2922,6 +2924,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       content,
       ...finishNode(pos),
     };
+  }
+
+  function parseDocPropTag(pos: number, tagName: IdentifierNode): DocPropTagNode {
+    const { name, content } = parseDocParamLikeTagInternal("prop");
+
+    return {
+      kind: SyntaxKind.DocPropTag,
+      tagName,
+      propName: name,
+      content,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseDocParamLikeTagInternal(
+    messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
+  ): { name: IdentifierNode; content: DocTextNode[] } {
+    const name = parseDocIdentifier(messageId);
+    parseOptionalHyphenDocParamLikeTag();
+    const content = parseDocContent();
+    return { name, content };
   }
 
   /**
@@ -3668,6 +3691,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.DocTemplateTag:
       return (
         visitNode(cb, node.tagName) || visitNode(cb, node.paramName) || visitEach(cb, node.content)
+      );
+    case SyntaxKind.DocPropTag:
+      return (
+        visitNode(cb, node.tagName) || visitNode(cb, node.propName) || visitEach(cb, node.content)
       );
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocErrorsTag:

@@ -2501,8 +2501,9 @@ export function createChecker(program: Program): Checker {
 
     if (parameterModelSym?.members) {
       const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
+      const paramDocs = extractParamDocs(node);
       for (const [name, memberSym] of members) {
-        const doc = extractParamDoc(node, name);
+        const doc = paramDocs[name];
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
         }
@@ -3844,6 +3845,18 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
     linkType(links, type, mapper);
+
+    if (node.symbol.members) {
+      const members = getOrCreateAugmentedSymbolTable(node.symbol.members);
+      const propDocs = extractPropDocs(node);
+      for (const [name, memberSym] of members) {
+        const doc = propDocs[name];
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
@@ -3859,7 +3872,8 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
-        const newProp = cloneType(prop, {
+        const memberSym = getMemberSymbol(node.symbol, prop.name)!;
+        const newProp = cloneTypeForSymbol(memberSym, prop, {
           sourceProperty: prop,
           model: type,
         });
@@ -5125,7 +5139,8 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
-    const symId = getSymbolId(getSymbolForMember(prop)!);
+    const sym = getSymbolForMember(prop)!;
+    const symId = getSymbolId(sym);
     const links = getSymbolLinksForMember(prop);
 
     if (links && links.declaredType && mapper === undefined) {
@@ -5172,14 +5187,9 @@ export function createChecker(program: Program): Checker {
     linkMapper(type, mapper);
 
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      if (
-        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
-        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
-      ) {
-        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
-        if (doc) {
-          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
-        }
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
       finishType(type);
     }
@@ -8442,18 +8452,34 @@ function extractReturnsDocs(type: Type): {
   return result;
 }
 
-function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
+function extractParamDocs(node: OperationStatementNode): Record<string, string> {
   if (node.docs === undefined) {
-    return undefined;
+    return {};
   }
+  const paramDocs: Record<string, string> = {};
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
-      if (tag.kind === SyntaxKind.DocParamTag && tag.paramName.sv === paramName) {
-        return getDocContent(tag.content);
+      if (tag.kind === SyntaxKind.DocParamTag) {
+        paramDocs[tag.paramName.sv] = getDocContent(tag.content);
       }
     }
   }
-  return undefined;
+  return paramDocs;
+}
+
+function extractPropDocs(node: ModelStatementNode): Record<string, string> {
+  if (node.docs === undefined) {
+    return {};
+  }
+  const propDocs: Record<string, string> = {};
+  for (const doc of node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocPropTag) {
+        propDocs[tag.propName.sv] = getDocContent(tag.content);
+      }
+    }
+  }
+  return propDocs;
 }
 
 function getDocContent(content: readonly DocContent[]) {
