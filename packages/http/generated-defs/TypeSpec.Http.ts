@@ -12,8 +12,13 @@ import type {
  *
  * @example
  * ```typespec
- * op read(): {@statusCode: 200, @body pet: Pet}
- * op create(): {@statusCode: 201 | 202}
+ * op read(): {
+ *   @statusCode _: 200;
+ *   @body pet: Pet;
+ * };
+ * op create(): {
+ *   @statusCode _: 201 | 202;
+ * };
  * ```
  */
 export type StatusCodeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
@@ -110,6 +115,23 @@ export type BodyRootDecorator = (context: DecoratorContext, target: ModelPropert
  * ```
  */
 export type BodyIgnoreDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+
+/**
+ *
+ *
+ *
+ * @example
+ * ```tsp
+ * op upload(
+ *   @header `content-type`: "multipart/form-data",
+ *   @multipartBody body: {
+ *     fullName: HttpPart<string>,
+ *     headShots: HttpPart<Image>[]
+ *   }
+ * ): void;
+ * ```
+ */
+export type MultipartBodyDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
  * Specify the HTTP verb for the target operation to be `GET`.

@@ -6,7 +6,6 @@ import {
   SdkContext,
   getAllModels,
   getClientType,
-  getSdkModelPropertyType,
 } from "@azure-tools/typespec-client-generator-core";
 import {
   Model,
@@ -15,7 +14,6 @@ import {
   Type,
   UsageFlags,
   getEffectiveModelType,
-  ignoreDiagnostics,
   isArrayModelType,
   isRecordModelType,
   resolveUsages,
@@ -36,12 +34,7 @@ import {
   isInputLiteralType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import {
-  fromSdkEnumType,
-  fromSdkModelPropertyType,
-  fromSdkModelType,
-  fromSdkType,
-} from "./converter.js";
+import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
 import { Logger } from "./logger.js";
 import { capitalize, getTypeName } from "./utils.js";
 
@@ -104,14 +97,6 @@ export function getInputType(
   literalTypeContext?: LiteralTypeContext
 ): InputType {
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
-
-  // TODO -- we might could remove this workaround when we adopt getAllOperations
-  //         or when we decide not to honor the `@format` decorators on parameters
-  // this is specifically dealing with the case of an operation parameter
-  if (type.kind === "ModelProperty") {
-    const propertyType = ignoreDiagnostics(getSdkModelPropertyType(context, type, operation));
-    return fromSdkModelPropertyType(propertyType, context, models, enums, literalTypeContext);
-  }
 
   const sdkType = getClientType(context, type, operation);
   return fromSdkType(sdkType, context, models, enums, literalTypeContext);
@@ -244,7 +229,7 @@ export function getUsages(
         if (!isInputLiteralType(type)) continue;
         // now type should be a literal type
         // find its corresponding enum type
-        const literalValueType = type.LiteralValueType;
+        const literalValueType = type.ValueType;
         if (!isInputEnumType(literalValueType)) continue;
         // now literalValueType should be an enum type
         // apply the usage on this model to the usagesMap

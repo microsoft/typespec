@@ -8,6 +8,7 @@ import {
   DiagnosticMessages,
   LibraryInstance,
   LinterDefinition,
+  LinterResolvedDefinition,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
@@ -20,6 +21,34 @@ import {
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   lint(): readonly Diagnostic[];
+}
+
+/**
+ * Resolve the linter definition
+ */
+export function resolveLinterDefinition(
+  libName: string,
+  linter: LinterDefinition
+): LinterResolvedDefinition {
+  const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
+    return { ...rule, id: `${libName}/${rule.name}` };
+  });
+  if (linter.rules.length === 0 || (linter.ruleSets && "all" in linter.ruleSets)) {
+    return {
+      rules,
+      ruleSets: linter.ruleSets ?? {},
+    };
+  } else {
+    return {
+      rules,
+      ruleSets: {
+        all: {
+          enable: Object.fromEntries(rules.map((x) => [x.id, true])) as any,
+        },
+        ...linter.ruleSets,
+      },
+    };
+  }
 }
 
 export function createLinter(
@@ -37,11 +66,6 @@ export function createLinter(
     lint,
   };
 
-  function getLinterDefinition(library: LibraryInstance): LinterDefinition | undefined {
-    // eslint-disable-next-line deprecation/deprecation
-    return library?.linter ?? library?.definition?.linter;
-  }
-
   async function extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
@@ -50,7 +74,7 @@ export function createLinter(
         const ref = diagnostics.pipe(parseRuleReference(extendingRuleSetName));
         if (ref) {
           const library = await resolveLibrary(ref.libraryName);
-          const libLinterDefinition = library && getLinterDefinition(library);
+          const libLinterDefinition = library?.linter;
           const extendingRuleSet = libLinterDefinition?.ruleSets?.[ref.name];
           if (extendingRuleSet) {
             await extendRuleSet(extendingRuleSet);
@@ -146,19 +170,17 @@ export function createLinter(
     tracer.trace("register-library", name);
 
     const library = await loadLibrary(name);
-    const linter = library && getLinterDefinition(library);
+    const linter = library?.linter;
     if (linter?.rules) {
-      for (const ruleDef of linter.rules) {
-        const ruleId = `${name}/${ruleDef.name}`;
+      for (const rule of linter.rules) {
         tracer.trace(
           "register-library.rule",
-          `Registering rule "${ruleId}" for library "${name}".`
+          `Registering rule "${rule.id}" for library "${name}".`
         );
-        const rule: LinterRule<string, any> = { ...ruleDef, id: ruleId };
-        if (ruleMap.has(ruleId)) {
-          compilerAssert(false, `Unexpected duplicate linter rule: "${ruleId}"`);
+        if (ruleMap.has(rule.id)) {
+          compilerAssert(false, `Unexpected duplicate linter rule: "${rule.id}"`);
         } else {
-          ruleMap.set(ruleId, rule);
+          ruleMap.set(rule.id, rule);
         }
       }
     }

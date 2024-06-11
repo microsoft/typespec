@@ -10,7 +10,5 @@ namespace UnbrandedTypeSpec.Models
         internal ReturnsAnonymousModelResponse()
         {
         }
-
-        // Add Nested Type
     }
 }

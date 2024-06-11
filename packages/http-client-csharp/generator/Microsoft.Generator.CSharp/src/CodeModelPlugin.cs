@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -32,17 +33,18 @@ namespace Microsoft.Generator.CSharp
 
         // Extensibility points to be implemented by a plugin
         public abstract ApiTypes ApiTypes { get; }
-        public abstract CodeWriterExtensionMethods CodeWriterExtensionMethods { get; }
         public abstract TypeFactory TypeFactory { get; }
+        public virtual string LicenseString => string.Empty;
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary => _inputLibrary.Value;
-        public virtual TypeProviderWriter GetWriter(CodeWriter writer, TypeProvider provider) => new(writer, provider);
+        public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
         /// <summary>
-        /// Returns a serialization type provider for the given model type provider.
+        /// Returns the serialization type providers for the given model type provider.
         /// </summary>
         /// <param name="provider">The model type provider.</param>
-        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelTypeProvider provider);
+        /// <param name="inputModel">The input model.</param>
+        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel);
     }
 }

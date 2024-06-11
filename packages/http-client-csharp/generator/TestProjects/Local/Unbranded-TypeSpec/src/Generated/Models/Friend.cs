@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -13,22 +14,12 @@ namespace UnbrandedTypeSpec.Models
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         public Friend(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+            Argument.AssertNotNull(name, nameof(name));
 
             Name = name;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>
-        internal Friend()
-        {
-        }
-
         /// <summary> name of the NotFriend. </summary>
         public string Name { get; set; }
-
-        // Add Nested Type
     }
 }

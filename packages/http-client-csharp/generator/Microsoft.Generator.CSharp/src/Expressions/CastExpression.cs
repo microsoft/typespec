@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <param name="Type">The type to cast to.</param>
     public sealed record CastExpression(ValueExpression Inner, CSharpType Type) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             // wrap the cast expression with parenthesis, so that it would not cause ambiguity for leading recursive calls
             // if the parenthesis are not needed, the roslyn reducer will remove it.

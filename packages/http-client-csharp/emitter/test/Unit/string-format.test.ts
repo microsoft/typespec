@@ -3,8 +3,6 @@ import { getAllHttpServices } from "@typespec/http";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
-import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
 import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
@@ -44,9 +42,9 @@ describe("Test string format", () => {
     );
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Uri,
+        Kind: "url",
         IsNullable: false,
+        Encode: undefined,
       } as InputPrimitiveType,
       operation.Parameters[0].Type
     );
@@ -73,132 +71,9 @@ describe("Test string format", () => {
     assert(foo !== undefined);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Uri,
+        Kind: "url",
         IsNullable: false,
-      } as InputPrimitiveType,
-      foo.Properties[0].Type
-    );
-  });
-
-  it("format uri on operation parameter", async () => {
-    const program = await typeSpecCompile(
-      `
-            op test(@path @format("uri")sourceUrl: string): void;
-      `,
-      runner
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    deepStrictEqual(
-      {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Uri,
-        IsNullable: false,
-      },
-      operation.Parameters[0].Type
-    );
-  });
-
-  it("format uri on model property", async () => {
-    const program = await typeSpecCompile(
-      `
-            @doc("This is a model.")
-            model Foo {
-                @doc("The source url.")
-                @format("uri")
-                source: string
-            }
-      `,
-      runner
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const foo = modelMap.get("Foo");
-    assert(foo !== undefined);
-    deepStrictEqual(
-      {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Uri,
-        IsNullable: false,
-      },
-      foo.Properties[0].Type,
-      `string property format is not correct. Got ${JSON.stringify(foo.Properties[0].Type)}`
-    );
-  });
-
-  it("format uuid on operation parameter", async () => {
-    const program = await typeSpecCompile(
-      `
-            op test(@path @format("uuid")subscriptionId: string): void;
-      `,
-      runner
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    const operation = loadOperation(
-      sdkContext,
-      services[0].operations[0],
-      "",
-      [],
-      services[0].namespace,
-      modelMap,
-      enumMap
-    );
-    deepStrictEqual(
-      {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Guid,
-        IsNullable: false,
-      },
-      operation.Parameters[0].Type
-    );
-  });
-
-  it("format on model property", async () => {
-    const program = await typeSpecCompile(
-      `
-            @doc("This is a model.")
-            model Foo {
-                @doc("The subscription id.")
-                @format("uuid")
-                subscriptionId: string
-            }
-      `,
-      runner
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = createNetSdkContext(context);
-    const [services] = getAllHttpServices(program);
-    const modelMap = new Map<string, InputModelType>();
-    const enumMap = new Map<string, InputEnumType>();
-    navigateModels(sdkContext, services[0].namespace, modelMap, enumMap);
-    const foo = modelMap.get("Foo");
-    assert(foo !== undefined);
-    deepStrictEqual(
-      {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.Guid,
-        IsNullable: false,
+        Encode: undefined,
       } as InputPrimitiveType,
       foo.Properties[0].Type
     );

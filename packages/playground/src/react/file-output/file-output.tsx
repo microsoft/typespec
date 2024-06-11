@@ -1,25 +1,35 @@
 import { Select, type SelectOnChangeData } from "@fluentui/react-components";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import type { FileOutputViewer } from "../types.js";
+import { OutputEditor } from "../typespec-editor.js";
 import style from "./file-output.module.css";
 
 export interface FileOutputProps {
-  filename: string;
-  content: string;
-  viewers: FileOutputViewer[];
+  readonly filename: string;
+  readonly content: string;
+  readonly viewers: Record<string, FileOutputViewer>;
 }
 
 /**
  * Display a file output using different viewers.
  */
 export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, content, viewers }) => {
-  if (viewers.length === 0) {
+  const resolvedViewers: Record<string, FileOutputViewer> = useMemo(
+    () => ({
+      [RawFileViewer.key]: RawFileViewer,
+      ...viewers,
+    }),
+    [viewers]
+  );
+  const keys = Object.keys(resolvedViewers);
+
+  if (keys.length === 0) {
     return <>No viewers</>;
-  } else if (viewers.length === 1) {
-    return viewers[0].render({ filename, content });
+  } else if (keys.length === 1) {
+    return resolvedViewers[keys[0]].render({ filename, content });
   }
 
-  const [selected, setSelected] = useState<string>(viewers[0].key);
+  const [selected, setSelected] = useState<string>(keys[0]);
 
   const handleSelected = useCallback(
     (_: unknown, data: SelectOnChangeData) => {
@@ -29,13 +39,13 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
   );
 
   const selectedRender = useMemo(() => {
-    return viewers.find((x) => x.key === selected)?.render;
-  }, [selected, viewers]);
+    return resolvedViewers[selected].render;
+  }, [selected, resolvedViewers]);
   return (
     <div className={style["file-output"]}>
       <div className={style["viewer-selector"]}>
         <Select value={selected} onChange={handleSelected} aria-label="Select viewer">
-          {viewers.map(({ key, label }) => (
+          {Object.values(resolvedViewers).map(({ key, label }) => (
             <option key={key} value={key}>
               {label}
             </option>
@@ -46,4 +56,10 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
       {selectedRender && selectedRender({ filename, content })}
     </div>
   );
+};
+
+const RawFileViewer: FileOutputViewer = {
+  key: "raw",
+  label: "File",
+  render: ({ filename, content }) => <OutputEditor filename={filename} value={content} />,
 };

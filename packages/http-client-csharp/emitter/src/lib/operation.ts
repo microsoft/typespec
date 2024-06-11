@@ -29,7 +29,6 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputTypeKind } from "../type/input-type-kind.js";
 import {
   InputEnumType,
   InputListType,
@@ -133,15 +132,15 @@ export function loadOperation(
     if (isInputLiteralType(contentTypeParameter.Type)) {
       mediaTypes.push(contentTypeParameter.DefaultValue?.Value);
     } else if (isInputUnionType(contentTypeParameter.Type)) {
-      const mediaTypeValues = contentTypeParameter.Type.UnionItemTypes.map((item) =>
-        isInputLiteralType(item) ? item.Value : undefined
-      );
-      if (mediaTypeValues.some((item) => item === undefined)) {
-        throw "Media type of content type should be string.";
+      for (const unionItem of contentTypeParameter.Type.VariantTypes) {
+        if (isInputLiteralType(unionItem)) {
+          mediaTypes.push(unionItem.Value as string);
+        } else {
+          throw "Media type of content type should be string.";
+        }
       }
-      mediaTypes.push(...mediaTypeValues);
     } else if (isInputEnumType(contentTypeParameter.Type)) {
-      const mediaTypeValues = contentTypeParameter.Type.AllowedValues.map((value) => value.Value);
+      const mediaTypeValues = contentTypeParameter.Type.Values.map((value) => value.Value);
       if (mediaTypeValues.some((item) => item === undefined)) {
         throw "Media type of content type should be string.";
       }
@@ -221,7 +220,7 @@ export function loadOperation(
     const isContentType: boolean =
       requestLocation === RequestLocation.Header && name.toLowerCase() === "content-type";
     const kind: InputOperationParameterKind =
-      isContentType || inputType.Kind === InputTypeKind.Literal
+      isContentType || inputType.Kind === "constant"
         ? InputOperationParameterKind.Constant
         : isApiVer
           ? defaultValue

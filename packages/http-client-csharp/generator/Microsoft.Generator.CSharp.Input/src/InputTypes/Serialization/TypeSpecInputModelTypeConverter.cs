@@ -32,19 +32,8 @@ namespace Microsoft.Generator.CSharp.Input
 
             id = id ?? throw new JsonException();
 
-            // skip every other property until we have a name
-            while (name == null)
-            {
-                var hasName = reader.TryReadString(nameof(InputModelType.Name), ref name);
-                if (!hasName)
-                {
-                    reader.SkipProperty();
-                }
-            }
-            name = name ?? throw new JsonException("Model must have name");
-
             // create an empty model to resolve circular references
-            var model = new InputModelType(name, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false);
+            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false);
             resolver.AddReference(id, model);
 
             bool isNullable = false;
@@ -55,14 +44,15 @@ namespace Microsoft.Generator.CSharp.Input
             string? usageString = null;
             string? discriminatorPropertyName = null;
             string? discriminatorValue = null;
-            InputDictionary? inheritedDictionaryType = null;
+            InputDictionaryType? inheritedDictionaryType = null;
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                var isKnownProperty = reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
+                var isKnownProperty = reader.TryReadString(nameof(InputModelType.Name), ref name)
+                    || reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
                     || reader.TryReadString(nameof(InputModelType.Namespace), ref ns)
                     || reader.TryReadString(nameof(InputModelType.Accessibility), ref accessibility)
                     || reader.TryReadString(nameof(InputModelType.Deprecated), ref deprecated)

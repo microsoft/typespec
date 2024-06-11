@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// Creates a default property description based on the property name and if it is read only.
         /// </summary>
-        private static FormattableString CreateDefaultPropertyDescription(string name, bool isReadOnly)
+        internal static FormattableString CreateDefaultPropertyDescription(string name, bool isReadOnly)
         {
             string splitDeclarationName = string.Join(" ", StringExtensions.SplitByCamelCase(name)).ToLower();
             if (isReadOnly)

@@ -7,8 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.Generator.CSharp.Input;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -21,66 +20,54 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <returns>The <see cref="CSharpType"/> of the input type.</returns>
         public override CSharpType CreateCSharpType(InputType inputType) => inputType switch
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.LiteralValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.UnionItemTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
-            InputList { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
-            InputList listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
-            InputDictionary dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            // Uncomment this when the enums are implemented: https://github.com/Azure/autorest.csharp/issues/4579
-            //InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-            //? provider.Type.WithNullable(inputType.IsNullable)
-            //: throw new InvalidOperationException($"No {nameof(EnumType)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            // TODO -- this is temporary until we have support for enums
-            InputEnumType enumType => CreateCSharpType(enumType.EnumValueType).WithNullable(enumType.IsNullable),
+            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
+            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
+            InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
+            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
+            InputEnumType enumType => ClientModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
+                ? provider.Type.WithNullable(inputType.IsNullable)
+                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
             InputModelType model => ClientModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-            ? provider.Type.WithNullable(inputType.IsNullable)
-            : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
+                ? provider.Type.WithNullable(inputType.IsNullable)
+                : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                InputPrimitiveTypeKind.BinaryData => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
-                InputPrimitiveTypeKind.BytesBase64Url => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData), inputType.IsNullable),
-                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(HttpContent), inputType.IsNullable),
-                InputPrimitiveTypeKind.Date => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTime => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTimeISO8601 => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTimeRFC1123 => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTimeRFC3339 => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTimeRFC7231 => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.DateTimeUnix => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
+                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string), inputType.IsNullable),
+                InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
                 InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal), inputType.IsNullable),
                 InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal), inputType.IsNullable),
-                InputPrimitiveTypeKind.DurationISO8601 => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.DurationSeconds => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.DurationSecondsFloat => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.DurationConstant => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.ETag => new CSharpType(typeof(EntityTagHeaderValue), inputType.IsNullable),
+                InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
                 InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float), inputType.IsNullable),
                 InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double), inputType.IsNullable),
                 InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal), inputType.IsNullable),
-                InputPrimitiveTypeKind.Guid => new CSharpType(typeof(Guid), inputType.IsNullable),
-                InputPrimitiveTypeKind.SByte => new CSharpType(typeof(sbyte), inputType.IsNullable),
-                InputPrimitiveTypeKind.Byte => new CSharpType(typeof(byte), inputType.IsNullable),
+                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid), inputType.IsNullable),
+                InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte), inputType.IsNullable),
+                InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte), inputType.IsNullable),
                 InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int), inputType.IsNullable),
                 InputPrimitiveTypeKind.Int64 => new CSharpType(typeof(long), inputType.IsNullable),
                 InputPrimitiveTypeKind.SafeInt => new CSharpType(typeof(long), inputType.IsNullable),
+                InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long), inputType.IsNullable), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Float => new CSharpType(typeof(double), inputType.IsNullable), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double), inputType.IsNullable), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
                 InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress), inputType.IsNullable),
-                InputPrimitiveTypeKind.RequestMethod => new CSharpType(typeof(HttpMethod), inputType.IsNullable),
                 InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream), inputType.IsNullable),
                 InputPrimitiveTypeKind.String => new CSharpType(typeof(string), inputType.IsNullable),
-                InputPrimitiveTypeKind.Time => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.Uri => new CSharpType(typeof(Uri), inputType.IsNullable),
+                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri), inputType.IsNullable),
+                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char), inputType.IsNullable),
+                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData), inputType.IsNullable),
                 _ => new CSharpType(typeof(object), inputType.IsNullable),
             },
-            InputGenericType genericType => new CSharpType(genericType.Type, genericType.Arguments.Select(CreateCSharpType).ToArray(), genericType.IsNullable),
-            InputIntrinsicType { Kind: InputIntrinsicTypeKind.Unknown } => typeof(BinaryData),
+            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
+            InputDurationType durationType => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
             _ => throw new Exception("Unknown type")
         };
 
-        public override Parameter CreateCSharpParam(InputParameter inputParameter)
+        public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {
-            return Parameter.FromInputParameter(inputParameter);
+            return new ParameterProvider(inputParameter);
         }
 
         /// <summary>

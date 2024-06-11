@@ -1,8 +1,15 @@
-import type { StorybookConfig } from "@storybook/react-vite";
+import type { FrameworkOptions, StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
   stories: ["../stories/**/*.stories.@(ts|tsx)"],
-  framework: "@storybook/react-vite",
+  framework: {
+    name: "@storybook/react-vite",
+    options: {
+      builder: {
+        viteConfigPath: "vite.storybook.config.ts",
+      },
+    } satisfies FrameworkOptions,
+  },
   typescript: {
     reactDocgen: false,
   },

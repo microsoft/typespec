@@ -7,7 +7,6 @@ import { InputEnumType, InputModelType } from "./input-type.js";
 
 export interface CodeModel {
   Name: string;
-  Description?: string;
   ApiVersions: string[];
   Enums: InputEnumType[];
   Models: InputModelType[];

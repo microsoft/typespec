@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Expressions;
 using System.ClientModel.Primitives;
-using System.ClientModel;
-using Microsoft.Generator.CSharp.ClientModel.Expressions;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -21,34 +22,37 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private const string _processHeadAsBoolMessageAsync = "ProcessHeadAsBoolMessageAsync";
         private const string _processHeadAsBoolMessage = "ProcessHeadAsBoolMessage";
 
-        private Parameter _pipelineParam;
-        private Parameter _messageParam;
-        private Parameter _requestContextParam;
-        private ParameterReference _pipeline;
-        private ParameterReference _message;
-        private ParameterReference _requestContext;
+        private ParameterProvider _pipelineParam;
+        private ParameterProvider _messageParam;
+        private ParameterProvider _requestContextParam;
+        private ParameterReferenceSnippet _pipeline;
+        private ParameterReferenceSnippet _message;
+        private ParameterReferenceSnippet _requestContext;
         private MemberExpression _messageResponse;
 
         private ClientPipelineExtensionsProvider()
-            : base(null)
         {
             Name = "ClientPipelineExtensions";
-            DeclarationModifiers = TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-            _pipelineParam = new Parameter("pipeline", null, typeof(ClientPipeline), null, ValidationType.None, null);
-            _messageParam = new Parameter("message", null, typeof(PipelineMessage), null, ValidationType.None, null);
-            _requestContextParam = new Parameter("requestContext", null, typeof(RequestOptions), null, ValidationType.None, null);
-            _pipeline = new ParameterReference(_pipelineParam);
-            _message = new ParameterReference(_messageParam);
-            _requestContext = new ParameterReference(_requestContextParam);
+            _pipelineParam = new ParameterProvider("pipeline", $"The pipeline.", typeof(ClientPipeline));
+            _messageParam = new ParameterProvider("message", $"The message.", typeof(PipelineMessage));
+            _requestContextParam = new ParameterProvider("requestContext", $"The request context.", typeof(RequestOptions));
+            _pipeline = new ParameterReferenceSnippet(_pipelineParam);
+            _message = new ParameterReferenceSnippet(_messageParam);
+            _requestContext = new ParameterReferenceSnippet(_requestContextParam);
             _messageResponse = new MemberExpression(_message, "Response");
         }
 
-        internal PipelineResponseExpression ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
+        }
+
+        internal PipelineResponseSnippet ProcessMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processMessageAsync : _processMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }
 
-        internal ClientResultExpression ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
+        internal ClientResultSnippet ProcessHeadAsBoolMessage(IReadOnlyList<ValueExpression> arguments, bool isAsync)
         {
             return new(new InvokeStaticMethodExpression(Type, isAsync ? _processHeadAsBoolMessageAsync : _processHeadAsBoolMessage, arguments, CallAsExtension: true, CallAsAsync: isAsync));
         }

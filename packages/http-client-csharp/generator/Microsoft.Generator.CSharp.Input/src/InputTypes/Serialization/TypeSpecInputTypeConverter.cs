@@ -20,11 +20,6 @@ namespace Microsoft.Generator.CSharp.Input
 
         public override InputType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                return CreatePrimitiveType(reader.GetString(), false);
-            }
-
             return reader.ReadReferenceAndResolve<InputType>(_referenceHandler.CurrentResolver) ?? CreateObject(ref reader, options);
         }
 
@@ -54,38 +49,41 @@ namespace Microsoft.Generator.CSharp.Input
             return result ?? throw new JsonException("cannot deserialize InputType");
         }
 
-        private const string PrimitiveKind = "Primitive";
-        private const string LiteralKind = "Literal";
-        private const string UnionKind = "Union";
+        private const string LiteralKind = "constant";
+        private const string UnionKind = "union";
         private const string ModelKind = "Model";
-        private const string EnumKind = "Enum";
+        private const string EnumKind = "enum";
         private const string ArrayKind = "Array";
         private const string DictionaryKind = "Dictionary";
-        private const string IntrinsicKind = "Intrinsic";
+        private const string UtcDateTimeKind = "utcDateTime";
+        private const string OffsetDateTimeKind = "offsetDateTime";
+        private const string DurationKind = "duration";
 
         private InputType CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options) => kind switch
         {
-            PrimitiveKind => ReadPrimitiveType(ref reader, id, name, _referenceHandler.CurrentResolver),
+            null => throw new JsonException("InputType must have a 'Kind' property"),
             LiteralKind => TypeSpecInputLiteralTypeConverter.CreateInputLiteralType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             UnionKind => TypeSpecInputUnionTypeConverter.CreateInputUnionType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ModelKind => TypeSpecInputModelTypeConverter.CreateModelType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             EnumKind => TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             ArrayKind => TypeSpecInputListTypeConverter.CreateListType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
             DictionaryKind => TypeSpecInputDictionaryTypeConverter.CreateDictionaryType(ref reader, id, name, options, _referenceHandler.CurrentResolver),
-            IntrinsicKind => ReadIntrinsicType(ref reader, id, name, _referenceHandler.CurrentResolver),
-            null => throw new JsonException("InputType must have a 'Kind' property"),
-            _ => throw new JsonException($"unknown kind {kind}")
+            UtcDateTimeKind or OffsetDateTimeKind => TypeSpecInputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, options, _referenceHandler.CurrentResolver),
+            DurationKind => TypeSpecInputDurationTypeConverter.CreateDurationType(ref reader, id, options, _referenceHandler.CurrentResolver),
+            _ => ReadPrimitiveType(ref reader, id, kind, _referenceHandler.CurrentResolver),
         };
 
-        public static InputPrimitiveType ReadPrimitiveType(ref Utf8JsonReader reader, string? id, string? name, ReferenceResolver resolver)
+        private static InputPrimitiveType ReadPrimitiveType(ref Utf8JsonReader reader, string? id, string? kind, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null;
             var isNullable = false;
+            string? encode = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadBoolean(nameof(InputPrimitiveType.IsNullable), ref isNullable)
-                    || reader.TryReadString(nameof(InputPrimitiveType.Name), ref name); // the primitive kind in the json is represented by the property `Name`.
+                    || reader.TryReadString(nameof(InputPrimitiveType.Kind), ref kind)
+                    || reader.TryReadString(nameof(InputPrimitiveType.Encode), ref encode);
 
                 if (!isKnownProperty)
                 {
@@ -93,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            var primitiveType = CreatePrimitiveType(name, isNullable);
+            var primitiveType = CreatePrimitiveType(kind, encode, isNullable);
             if (id != null)
             {
                 resolver.AddReference(id, primitiveType);
@@ -102,43 +100,13 @@ namespace Microsoft.Generator.CSharp.Input
             return primitiveType;
         }
 
-        public static InputPrimitiveType CreatePrimitiveType(string? inputTypeKindString, bool isNullable)
+        public static InputPrimitiveType CreatePrimitiveType(string? primitiveKind, string? encode, bool isNullable)
         {
-            ArgumentNullException.ThrowIfNull(inputTypeKindString, nameof(inputTypeKindString));
-            return Enum.TryParse<InputPrimitiveTypeKind>(inputTypeKindString, ignoreCase: true, out var kind)
-                ? new InputPrimitiveType(kind, isNullable)
-                : throw new JsonException($"{inputTypeKindString} type is unknown.");
-        }
+            ArgumentNullException.ThrowIfNull(primitiveKind, nameof(primitiveKind));
 
-        private static InputIntrinsicType ReadIntrinsicType(ref Utf8JsonReader reader, string? id, string? name, ReferenceResolver resolver)
-        {
-            var isFirstProperty = id == null;
-            while (reader.TokenType != JsonTokenType.EndObject)
-            {
-                var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputIntrinsicType.Kind), ref name); // the InputIntrinsicType kind in the json is represented by the property `Name`.
-
-                if (!isKnownProperty)
-                {
-                    reader.SkipProperty();
-                }
-            }
-
-            var intrinsicType = CreateIntrinsicType(name);
-            if (id != null)
-            {
-                resolver.AddReference(id, intrinsicType);
-            }
-
-            return intrinsicType;
-        }
-
-        private static InputIntrinsicType CreateIntrinsicType(string? inputTypeKindString)
-        {
-            ArgumentNullException.ThrowIfNull(inputTypeKindString, nameof(inputTypeKindString));
-            return Enum.TryParse<InputIntrinsicTypeKind>(inputTypeKindString, ignoreCase: true, out var kind)
-                ? new InputIntrinsicType(kind)
-                : throw new InvalidOperationException($"{inputTypeKindString} type is unknown for InputIntrinsicType.");
+            return Enum.TryParse<InputPrimitiveTypeKind>(primitiveKind, ignoreCase: true, out var kind)
+                ? new InputPrimitiveType(kind, encode, isNullable)
+                : throw new JsonException($"{primitiveKind} type is unknown.");
         }
     }
 }

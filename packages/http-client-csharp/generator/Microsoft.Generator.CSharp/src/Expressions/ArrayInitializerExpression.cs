@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     /// <param name="Elements">The elements to initialize the array to.</param>
     /// <param name="IsInline">Flag to determine if the array should be initialized inline.</param>
-    public sealed record ArrayInitializerExpression(IReadOnlyList<ValueExpression>? Elements = null, bool IsInline = true) : InitializerExpression
+    public sealed record ArrayInitializerExpression(IReadOnlyList<ValueExpression>? Elements = null, bool IsInline = true) : ValueExpression
     {
-        public override void Write(CodeWriter writer)
+        internal override void Write(CodeWriter writer)
         {
             if (Elements is not { Count: > 0 })
             {

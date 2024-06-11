@@ -3,9 +3,7 @@ import { getAllHttpServices } from "@typespec/http";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { loadOperation } from "../../src/lib/operation.js";
-import { InputPrimitiveTypeKind } from "../../src/type/input-primitive-type-kind.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
-import { InputEnumType, InputModelType, InputPrimitiveType } from "../../src/type/input-type.js";
+import { InputDurationType, InputEnumType, InputModelType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -48,10 +46,15 @@ describe("Test encode duration", () => {
     );
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationISO8601,
+        Kind: "duration",
+        Encode: "ISO8601",
+        WireType: {
+          Kind: "string",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      } as InputPrimitiveType,
+      } as InputDurationType,
       operation.Parameters[0].Type
     );
   });
@@ -83,10 +86,15 @@ describe("Test encode duration", () => {
     );
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationSeconds,
+        Kind: "duration",
+        Encode: "seconds",
+        WireType: {
+          Kind: "int32",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      } as InputPrimitiveType,
+      } as InputDurationType,
       operation.Parameters[0].Type
     );
   });
@@ -96,7 +104,7 @@ describe("Test encode duration", () => {
       `
             op test(
                 @query
-                @encode(DurationKnownEncoding.seconds, float)
+                @encode(DurationKnownEncoding.seconds, float32)
                 input: duration
               ): NoContentResponse;
       `,
@@ -118,10 +126,15 @@ describe("Test encode duration", () => {
     );
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationSecondsFloat,
+        Kind: "duration",
+        Encode: "seconds",
+        WireType: {
+          Kind: "float32",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      } as InputPrimitiveType,
+      } as InputDurationType,
       operation.Parameters[0].Type
     );
   });
@@ -147,10 +160,15 @@ describe("Test encode duration", () => {
     assert(durationProperty !== undefined);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationISO8601,
+        Kind: "duration",
+        Encode: "ISO8601",
+        WireType: {
+          Kind: "string",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      } as InputPrimitiveType,
+      } as InputDurationType,
       durationProperty.Properties[0].Type
     );
   });
@@ -176,20 +194,25 @@ describe("Test encode duration", () => {
     assert(durationProperty !== undefined);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationSeconds,
+        Kind: "duration",
+        Encode: "seconds",
+        WireType: {
+          Kind: "int32",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      },
+      } as InputDurationType,
       durationProperty.Properties[0].Type
     );
   });
 
-  it("encode seconds float on duration model property", async () => {
+  it("encode seconds float32 on duration model property", async () => {
     const program = await typeSpecCompile(
       `
             @doc("This is a model.")
             model FloatSecondsDurationProperty {
-                @encode(DurationKnownEncoding.seconds, float)
+                @encode(DurationKnownEncoding.seconds, float32)
                 value: duration;
             }
       `,
@@ -205,10 +228,15 @@ describe("Test encode duration", () => {
     assert(durationProperty !== undefined);
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Primitive,
-        Name: InputPrimitiveTypeKind.DurationSecondsFloat,
+        Kind: "duration",
+        Encode: "seconds",
+        WireType: {
+          Kind: "float32",
+          IsNullable: false,
+          Encode: undefined,
+        },
         IsNullable: false,
-      },
+      } as InputDurationType,
       durationProperty.Properties[0].Type
     );
   });

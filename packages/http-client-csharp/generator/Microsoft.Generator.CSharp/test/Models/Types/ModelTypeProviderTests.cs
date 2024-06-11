@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using NUnit.Framework;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private GeneratorContext _generatorContext;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "mocks");
+        private readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, "Mocks");
         private FieldInfo? _mockPlugin;
 
         [SetUp]
@@ -50,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Tests
             };
 
             var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, null, false);
-            var modelTypeProvider = new ModelTypeProvider(inputModel, null);
+            var modelTypeProvider = new ModelProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
             Assert.IsNotNull(properties);
@@ -71,27 +72,27 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
                     new CSharpType(typeof(IList<string>)),
                     false);
                 // read only list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<string>)),
                     false);
                 // nullable list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
                     true);
                 // dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>)),
                     false);
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionary("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true),
                     true);
                 // primitive type property
@@ -106,38 +107,25 @@ namespace Microsoft.Generator.CSharp.Tests
                     false);
                 // readonlymemory property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputList("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), true, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), true, false), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
                     true);
             }
         }
 
-        private CSharpType GetCSharpType(InputType type)
+        private CSharpType GetCSharpType(InputType type) => type switch
         {
-            switch (type)
+            InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                case InputPrimitiveType:
-                    {
-                        var primitiveType = (InputPrimitiveType)type;
-
-                        if (primitiveType.Kind is InputPrimitiveTypeKind.String)
-                            return new CSharpType(typeof(string));
-
-                        if (primitiveType.Kind is InputPrimitiveTypeKind.Int32)
-                            return new CSharpType(typeof(int));
-
-                        throw new ArgumentException("Unsupported input type.");
-                    }
-                case InputList:
-                    return new CSharpType(typeof(IList<string>));
-                case InputDictionary:
-                    return new CSharpType(typeof(IDictionary<string, string>));
-                case InputIntrinsicType:
-                    return new CSharpType(typeof(BinaryData));
-                default:
-                    throw new ArgumentException("Unsupported input type.");
-            }
-        }
+                InputPrimitiveTypeKind.String => typeof(string),
+                InputPrimitiveTypeKind.Int32 => typeof(int),
+                InputPrimitiveTypeKind.Any => typeof(BinaryData),
+                _ => throw new ArgumentException("Unsupported input type.")
+            },
+            InputListType => typeof(IList<string>),
+            InputDictionaryType => typeof(IDictionary<string, string>),
+            _ => throw new ArgumentException("Unsupported input type.")
+        };
 
         [Test]
         public void BuildConstructor_ValidateConstructors()
@@ -148,9 +136,9 @@ namespace Microsoft.Generator.CSharp.Tests
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputList("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
-                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionary("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
-                    new InputModelProperty("optionalUnknown", "optional unknown", "", new InputIntrinsicType(InputIntrinsicTypeKind.Unknown), false, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputListType("List", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), true, false, false),
+                    new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), true, false, false),
+                    new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };
 
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns((InputType inputType) =>
@@ -172,23 +160,15 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
 
-            var modelTypeProvider = new ModelTypeProvider(inputModel, null);
+            var modelTypeProvider = new ModelProvider(inputModel);
             var ctors = modelTypeProvider.Constructors;
             Assert.IsNotNull(ctors);
 
-            Assert.AreEqual(3, ctors.Count);
+            Assert.AreEqual(1, ctors.Count);
 
             var initializationCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor.Signature.Modifiers);
             Assert.AreEqual(3, initializationCtor.Signature.Parameters.Count);
-
-            var serializationCtor = ctors[1];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, serializationCtor.Signature.Modifiers);
-            Assert.AreEqual(5, serializationCtor.Signature.Parameters.Count);
-
-            var emptyCtor = ctors[2];
-            Assert.AreEqual(MethodSignatureModifiers.Internal, emptyCtor.Signature.Modifiers);
-            Assert.AreEqual(0, emptyCtor.Signature.Parameters.Count);
         }
     }
 }

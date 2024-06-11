@@ -2,15 +2,21 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
     public class TypeProviderWriter
     {
         protected readonly TypeProvider _provider;
-        protected readonly CodeWriter _writer;
+        private readonly CodeWriter _writer;
 
-        public TypeProviderWriter(CodeWriter writer, TypeProvider provider)
+        public TypeProviderWriter(TypeProvider provider)
+            : this(new CodeWriter(), provider)
+        {
+        }
+
+        private TypeProviderWriter(CodeWriter writer, TypeProvider provider)
         {
             _provider = provider;
             _writer = writer;
@@ -18,8 +24,7 @@ namespace Microsoft.Generator.CSharp
 
         public virtual void Write()
         {
-            var ns = TypeProvider.GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            using (_writer.SetNamespace(ns))
+            using (_writer.SetNamespace(_provider.Namespace))
             {
                 WriteType();
             }
@@ -27,27 +32,7 @@ namespace Microsoft.Generator.CSharp
 
         private void WriteType()
         {
-            if (_provider.IsEnum)
-            {
-                WriteEnum();
-            }
-            else
-            {
-                WriteClassOrStruct();
-            }
-        }
-
-        private void WriteClassOrStruct()
-        {
-            _writer.WriteTypeModifiers(_provider.DeclarationModifiers);
-            if (_provider.IsStruct)
-            {
-                _writer.AppendRaw("struct ");
-            }
-            else
-            {
-                _writer.AppendRaw("class ");
-            }
+            _writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             _writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
                 .AppendIf($"{_provider.Inherits},", _provider.Inherits != null);
@@ -64,6 +49,23 @@ namespace Microsoft.Generator.CSharp
             }
 
             _writer.WriteLine();
+
+            if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum))
+            {
+                WriteEnumContent();
+            }
+            else if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Interface))
+            {
+                WriteInterfaceContent();
+            }
+            else
+            {
+                WriteClassOrStructContent();
+            }
+        }
+
+        private void WriteClassOrStructContent()
+        {
             using (_writer.Scope())
             {
                 WriteFields();
@@ -71,20 +73,15 @@ namespace Microsoft.Generator.CSharp
                 WriteConstructors();
 
                 WriteProperties();
+
                 WriteMethods();
 
-                _writer.WriteLine($"// Add Nested Type");
                 WriteNestedTypes();
             }
         }
 
-        private void WriteEnum()
+        private void WriteEnumContent()
         {
-            _writer.WriteTypeModifiers(_provider.DeclarationModifiers);
-            _writer.Append($" enum {_provider.Type:D}")
-                .AppendRawIf(" : ", _provider.Inherits != null)
-                .AppendIf($"{_provider.Inherits}", _provider.Inherits != null);
-
             using (_writer.Scope())
             {
                 foreach (var field in _provider.Fields)
@@ -98,6 +95,14 @@ namespace Microsoft.Generator.CSharp
                     _writer.WriteRawLine(",");
                 }
                 _writer.RemoveTrailingComma();
+            }
+        }
+
+        private void WriteInterfaceContent()
+        {
+            using (_writer.Scope())
+            {
+                // temporarily do nothing until we have a requirement for writing interfaces: https://github.com/microsoft/typespec/issues/3442
             }
         }
 
@@ -146,6 +151,11 @@ namespace Microsoft.Generator.CSharp
                 nestedWriter.Write();
                 _writer.WriteLine();
             }
+        }
+
+        override public string ToString()
+        {
+            return _writer.ToString();
         }
     }
 }

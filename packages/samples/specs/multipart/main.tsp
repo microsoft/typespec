@@ -2,10 +2,15 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
+model Jpeg extends File {
+  contentType: "image/jpeg";
+}
+
 model Data {
-  id: string;
-  profileImage: bytes;
-  address: Address;
+  id: HttpPart<string>;
+  profileImage: HttpPart<File>;
+  photos: HttpPart<Jpeg>[];
+  address: HttpPart<Address>;
 }
 
 model Address {
@@ -13,4 +18,4 @@ model Address {
   street: string;
 }
 
-op basic(@header contentType: "multipart/form-data", @body body: Data): string;
+op basic(@header contentType: "multipart/form-data", @multipartBody body: Data): string;
