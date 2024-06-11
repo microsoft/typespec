@@ -362,6 +362,7 @@ export function printNode(
       return printDoc(path as AstPath<DocNode>, options, print);
     case SyntaxKind.DocText:
     case SyntaxKind.DocParamTag:
+    case SyntaxKind.DocPropTag:
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
     case SyntaxKind.DocErrorsTag:
