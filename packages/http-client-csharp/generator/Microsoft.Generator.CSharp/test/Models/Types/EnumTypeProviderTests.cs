@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(1, serialization?.Methods.Count);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(2, serialization?.Methods.Count);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
@@ -152,7 +152,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(2, serialization?.Methods.Count);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
@@ -213,7 +213,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
@@ -274,7 +274,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
@@ -335,7 +335,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();

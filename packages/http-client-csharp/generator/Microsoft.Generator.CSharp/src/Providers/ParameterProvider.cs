@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -20,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType? Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal CSharpAttribute[] Attributes { get; init; } = Array.Empty<CSharpAttribute>();
+        internal AttributeStatement[] Attributes { get; init; } = Array.Empty<AttributeStatement>();
 
         public ParameterProvider(InputModelProperty inputProperty)
         {

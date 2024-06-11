@@ -17,16 +17,15 @@ namespace Microsoft.Generator.CSharp.Expressions
 
             writer.WriteLine();
             writer.WriteRawLine("{");
-            foreach (var (key, value) in Values)
+            for (int i = 0; i < Values.Count; i++)
             {
-                writer.AppendRaw("[");
+                var (key, value) = Values[i];
                 key.Write(writer);
-                writer.AppendRaw("] = ");
+                writer.AppendRaw(" = ");
                 value.Write(writer);
-                writer.WriteRawLine(",");
+                if (i < Values.Count - 1)
+                    writer.WriteRawLine(",");
             }
-
-            writer.RemoveTrailingComma();
             writer.WriteLine();
             writer.AppendRaw("}");
         }

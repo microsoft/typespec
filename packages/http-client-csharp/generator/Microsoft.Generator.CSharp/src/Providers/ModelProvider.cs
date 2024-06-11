@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -26,6 +27,8 @@ namespace Microsoft.Generator.CSharp.Providers
         /// The serializations providers for the model provider.
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public ModelProvider(InputModelType inputModel)
         {

@@ -389,7 +389,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var cSharpType = new CSharpType(type);
             var actual = cSharpType.ToString();
             var expected = new StringBuilder()
-                .Append(expectedString).Append(CodeWriterTests.NewLine)
+                .Append(expectedString)
                 .ToString();
 
             Assert.AreEqual(expected, actual);

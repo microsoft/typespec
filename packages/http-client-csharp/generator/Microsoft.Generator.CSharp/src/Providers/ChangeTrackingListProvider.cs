@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -47,6 +48,8 @@ namespace Microsoft.Generator.CSharp.Providers
             _tParam = new ParameterProvider("item", $"The item.", _t);
             EnsureList = This.Invoke(_ensureListSignature);
         }
+
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {

@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,14 +14,16 @@ namespace Microsoft.Generator.CSharp
 {
     internal sealed partial class CodeWriter
     {
-        public CodeWriter WriteXmlDocumentationSummary(FormattableString? text)
+        private const string SingleArgFormat = "{0}";
+
+        public CodeWriter WriteXmlDocumentationSummary(IReadOnlyList<FormattableString> lines)
         {
-            return WriteXmlDocumentation("summary", text);
+            return WriteXmlDocumentation("summary", lines);
         }
 
-        public CodeWriter WriteXmlDocumentation(string tag, FormattableString? text)
+        public CodeWriter WriteXmlDocumentation(string tag, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<{tag}>", $"</{tag}>", text);
+            return WriteDocumentationLines($"<{tag}>", $"</{tag}>", lines);
         }
 
         public CodeWriter WriteXmlDocumentationParameters(IEnumerable<ParameterProvider> parameters)
@@ -32,9 +36,9 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public CodeWriter WriteXmlDocumentationParameter(string name, FormattableString? text)
+        public CodeWriter WriteXmlDocumentationParameter(string name, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<param name=\"{name}\">", $"</param>", text);
+            return WriteDocumentationLines($"<param name=\"{name}\">", $"</param>", lines);
         }
 
         /// <summary>
@@ -45,17 +49,17 @@ namespace Microsoft.Generator.CSharp
         /// <returns></returns>
         public CodeWriter WriteXmlDocumentationParameter(ParameterProvider parameter)
         {
-            return WriteXmlDocumentationParameter(parameter.Name, parameter.Description);
+            return WriteXmlDocumentationParameter(parameter.Name, [parameter.Description]);
         }
 
-        public CodeWriter WriteXmlDocumentationException(CSharpType exception, FormattableString? description)
+        public CodeWriter WriteXmlDocumentationException(CSharpType exception, IReadOnlyList<FormattableString> lines)
         {
-            return WriteDocumentationLines($"<exception cref=\"{exception}\">", $"</exception>", description);
+            return WriteDocumentationLines($"<exception cref=\"{exception}\">", $"</exception>", lines);
         }
 
         public CodeWriter WriteXmlDocumentationReturns(FormattableString text)
         {
-            return WriteDocumentationLines($"<returns>", $"</returns>", text);
+            return WriteDocumentationLines($"<returns>", $"</returns>", [text]);
         }
 
         public CodeWriter WriteXmlDocumentationInclude(string filename, MethodSignature methodSignature, out string memberId)
@@ -132,19 +136,14 @@ namespace Microsoft.Generator.CSharp
             formatBuilder.Append(reason);
 
             var description = FormattableStringFactory.Create(formatBuilder.ToString(), parameters.Select(p => (object)p.Name).ToArray());
-            return WriteXmlDocumentationException(exceptionType, description);
+            return WriteXmlDocumentationException(exceptionType, [description]);
         }
 
-        public CodeWriter WriteDocumentationLines(FormattableString startTag, FormattableString endTag, FormattableString? text)
-            => AppendXmlDocumentation(startTag, endTag, text ?? $"");
+        public CodeWriter WriteDocumentationLines(FormattableString startTag, FormattableString endTag, IReadOnlyList<FormattableString> lines)
+            => AppendXmlDocumentation(startTag, endTag, lines);
 
         public CodeWriter WriteMethodDocumentation(MethodSignatureBase methodBase)
         {
-            if (methodBase.IsRawSummaryText)
-            {
-                return WriteRawXmlDocumentation(methodBase.Description);
-            }
-
             if (methodBase.NonDocumentComment is { } comment)
             {
                 WriteLine($"// {comment}");
@@ -152,7 +151,7 @@ namespace Microsoft.Generator.CSharp
 
             if (methodBase.SummaryText is { } summaryText)
             {
-                WriteXmlDocumentationSummary(summaryText);
+                WriteXmlDocumentationSummary([summaryText]);
             }
 
             return WriteMethodDocumentationSignature(methodBase);
@@ -162,8 +161,8 @@ namespace Microsoft.Generator.CSharp
         {
             WriteXmlDocumentationParameters(methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Public) ? methodBase.Parameters : methodBase.Parameters.Where(p => p.Description is not null));
 
-            WriteXmlDocumentationRequiredParametersException(methodBase.Parameters);
-            WriteXmlDocumentationNonEmptyParametersException(methodBase.Parameters);
+            WriteXmlDocumentationRequiredParametersException((IEnumerable<ParameterProvider>)methodBase.Parameters);
+            WriteXmlDocumentationNonEmptyParametersException((IEnumerable<ParameterProvider>)methodBase.Parameters);
             if (methodBase is MethodSignature { ReturnDescription: { } } method)
             {
                 WriteXmlDocumentationReturns(method.ReturnDescription);
@@ -177,106 +176,89 @@ namespace Microsoft.Generator.CSharp
                 ? WriteLine($"/// <inheritdoc />")
                 : WriteLine($"/// <inheritdoc cref=\"{crefType}\"/>");
 
-        internal CodeWriter WriteRawXmlDocumentation(FormattableString? content)
-        {
-            if (content is null)
-                return this;
+        internal CodeWriter AppendXmlDocumentation(FormattableString startTag, FormattableString endTag, params FormattableString[] lines)
+            => AppendXmlDocumentation(startTag, endTag, (IReadOnlyList<FormattableString>)lines);
 
-            var lines = content.ToString().Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            var xmlLines = string.Join('\n', lines.Select(l => "/// " + l));
-            AppendRaw(xmlLines);
-            WriteLine();
+
+        internal CodeWriter AppendXmlDocumentation(FormattableString startTag, FormattableString endTag, IReadOnlyList<FormattableString> lines)
+        {
+            Debug.Assert(!HasNewLines(lines, out var offendingLine), $"'{offendingLine!.ToString()}': contains a newline character.  Split this into multiple entries instead.");
+
+            _writingXmlDocumentation = true;
+
+            if (lines.Count == 0 || IsEmpty(lines))
+            {
+                WriteLine($"/// {startTag}{endTag}");
+            }
+            else if (lines.Count == 1)
+            {
+                //should we auto add the '.'?
+                string lineFormat = lines[0].Format;
+                string stringToCheck = lineFormat;
+                if (lineFormat == SingleArgFormat && lines[0].ArgumentCount == 1 && lines[0].GetArgument(0) is string strLine)
+                {
+                    stringToCheck = strLine;
+                }
+                string period = stringToCheck.EndsWith(".") ? string.Empty : ".";
+                WriteLine($"/// {startTag} {lines[0]}{period} {endTag}");
+            }
+            else
+            {
+                WriteLine($"/// {startTag}");
+                foreach (var line in lines)
+                {
+                    WriteLine($"/// {line}");
+                }
+                WriteLine($"/// {endTag}");
+            }
+
+            _writingXmlDocumentation = false;
+
             return this;
         }
 
-        internal CodeWriter AppendXmlDocumentation(FormattableString startTag, FormattableString endTag, FormattableString content)
+        private static bool IsEmpty(IReadOnlyList<FormattableString> lines)
         {
-            const string xmlDoc = "/// ";
-            const string xmlDocNewLine = "\n/// ";
-
-            var commentStart = _length;
-            AppendRaw(CurrentLine.IsEmpty ? xmlDoc : xmlDocNewLine);
-
-            var startTagStart = _length;
-            Append(startTag);
-            _writingXmlDocumentation = true;
-
-            var contentStart = _length;
-            if (content.Format.Length > 0)
+            if (lines.Count != 1)
             {
-                Append(content);
-            }
-            var contentEnd = _length;
-
-            _writingXmlDocumentation = false;
-            Append(endTag);
-
-            if (contentStart == contentEnd)
-            {
-                var startTagSpan = WrittenText.Slice(startTagStart + 1, contentStart - startTagStart - 1);
-                var endTagSpan = WrittenText.Slice(contentEnd + 2);
-
-                if (startTagSpan.SequenceEqual(endTagSpan))
-                {
-                    // Remove empty tags
-                    _length = commentStart;
-                }
-                else
-                {
-                    WriteLine();
-                }
-
-                return this;
+                return false;
             }
 
-            WriteLine();
-            var contentSpan = _builder.AsSpan(contentStart, contentEnd - contentStart);
-
-            var lastLineBreak = contentSpan.LastIndexOf(_newLine);
-            if (lastLineBreak == -1)
+            string lineFormat = lines[0].Format;
+            if (lineFormat.Equals(string.Empty))
             {
-                // Add spaces and dot to match existing formatting
-                if (contentEnd > contentStart)
-                {
-                    if (contentSpan[^1] != ' ')
-                    {
-                        InsertRaw(contentSpan[^1] == '.' ? " " : ". ", contentEnd);
-                    }
-                    else
-                    {
-                        var trimmedContentSpan = contentSpan.TrimEnd();
-                        if (trimmedContentSpan[^1] != '.')
-                        {
-                            InsertRaw(".", contentStart + trimmedContentSpan.Length);
-                        }
-                    }
+                return true;
+            }
 
-                    if (contentSpan[0] != ' ')
+            if (lineFormat != SingleArgFormat)
+            {
+                return false;
+            }
+
+            var firstArg = lines[0].GetArgument(0);
+            return firstArg is not null && firstArg.Equals(string.Empty);
+        }
+
+        private static bool HasNewLines(IReadOnlyList<FormattableString> lines, [MaybeNullWhen(false)] out FormattableString offendingLine)
+        {
+            offendingLine = null;
+            foreach (var line in lines)
+            {
+                if (line.Format.Contains(_newLine))
+                {
+                    offendingLine = line;
+                    return true;
+                }
+                for (int i = 0; i < line.ArgumentCount; i++)
+                {
+                    if (line.GetArgument(i) is string str && str.Contains(_newLine))
                     {
-                        InsertRaw(" ", contentStart);
+                        offendingLine = line;
+                        return true;
                     }
                 }
-                return this;
             }
-
-            if (lastLineBreak != contentSpan.Length)
-            {
-                InsertRaw(xmlDocNewLine, contentEnd);
-            }
-
-            while (lastLineBreak != -1)
-            {
-                InsertRaw(xmlDoc, lastLineBreak + contentStart + 1);
-                contentSpan = contentSpan.Slice(0, lastLineBreak);
-                lastLineBreak = contentSpan.LastIndexOf(_newLine);
-            }
-
-            if (contentSpan.Length > 0)
-            {
-                InsertRaw(xmlDocNewLine, contentStart);
-            }
-
-            return this;
+            return false;
         }
     }
 }

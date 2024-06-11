@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
-        public FormattableString Description { get; }
+        public IReadOnlyList<FormattableString> Description { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
         {
-            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
+            Description = [description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter)];
             Modifiers = modifiers;
             Type = type;
             Name = name;
