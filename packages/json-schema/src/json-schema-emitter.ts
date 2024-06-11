@@ -71,6 +71,7 @@ import {
   getPrefixItems,
   getUniqueItems,
   isJsonSchemaDeclaration,
+  isOneOf,
 } from "./index.js";
 import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
@@ -172,6 +173,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (property.default) {
       // eslint-disable-next-line deprecation/deprecation
       result.default = this.#getDefaultValue(property.type, property.default);
+    }
+
+    if (result.anyOf && isOneOf(this.emitter.getProgram(), property)) {
+      result.oneOf = result.anyOf;
+      delete result.anyOf;
     }
 
     this.#applyConstraints(property, result);
@@ -296,8 +302,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
+    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
+
     const withConstraints = this.#initializeSchema(union, name, {
-      anyOf: this.emitter.emitUnionVariants(union),
+      [key]: this.emitter.emitUnionVariants(union),
     });
 
     this.#applyConstraints(union, withConstraints);
@@ -305,8 +313,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
+    const key = isOneOf(this.emitter.getProgram(), union) ? "oneOf" : "anyOf";
+
     return new ObjectBuilder({
-      anyOf: this.emitter.emitUnionVariants(union),
+      [key]: this.emitter.emitUnionVariants(union),
     });
   }
 

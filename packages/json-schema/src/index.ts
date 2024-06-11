@@ -29,6 +29,7 @@ import {
   MinContainsDecorator,
   MinPropertiesDecorator,
   MultipleOfDecorator,
+  OneOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
 } from "../generated-defs/TypeSpec.JsonSchema.js";
@@ -143,6 +144,15 @@ export const $id: IdDecorator = (context: DecoratorContext, target: Type, value:
 
 export function getId(program: Program, target: Type) {
   return program.stateMap(idKey).get(target);
+}
+
+const oneOfKey = createStateSymbol("JsonSchema.oneOf");
+export const $oneOf: OneOfDecorator = (context: DecoratorContext, target: Type) => {
+  context.program.stateMap(oneOfKey).set(target, true);
+};
+
+export function isOneOf(program: Program, target: Type) {
+  return program.stateMap(oneOfKey).has(target);
 }
 
 const containsKey = createStateSymbol("JsonSchema.contains");
