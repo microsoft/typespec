@@ -285,7 +285,7 @@ export function getPrefixItems(program: Program, target: Type): Tuple | undefine
 
 export interface ExtensionRecord {
   key: string;
-  value: Type | any;
+  value: Type | unknown;
 }
 
 const extensionsKey = createStateSymbol("JsonSchema.extension");
@@ -302,7 +302,7 @@ export function getExtensions(program: Program, target: Type): ExtensionRecord[]
   return program.stateMap(extensionsKey).get(target) ?? [];
 }
 
-export function setExtension(program: Program, target: Type, key: string, value: any) {
+export function setExtension(program: Program, target: Type, key: string, value: unknown) {
   const stateMap = program.stateMap(extensionsKey) as Map<Type, ExtensionRecord[]>;
   const extensions = stateMap.has(target)
     ? stateMap.get(target)!

@@ -597,12 +597,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     const extensions = getExtensions(this.emitter.getProgram(), type);
     for (const { key, value } of extensions) {
-      if (typeof value === "object" && value !== null && isType(value)) {
+      if (this.#isTypeLike(value)) {
         schema.set(key, this.emitter.emitTypeReference(value));
       } else {
         schema.set(key, value);
       }
     }
+  }
+
+  #isTypeLike(value: any): value is Type {
+    return typeof value === "object" && value !== null && isType(value);
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {
