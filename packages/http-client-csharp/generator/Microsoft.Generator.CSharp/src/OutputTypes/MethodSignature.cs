@@ -26,7 +26,6 @@ namespace Microsoft.Generator.CSharp
     /// <param name="GenericParameterConstraints">The generic parameter constraints of the method.</param>
     /// <param name="ExplicitInterface">The explicit interface of the method.</param>
     /// <param name="NonDocumentComment">The non-document comment of the method.</param>
-    /// <param name="IsRawSummaryText">Indicates if the summary text is raw.</param>
     public sealed record MethodSignature(string Name, FormattableString? Summary, FormattableString? Description, MethodSignatureModifiers Modifiers, CSharpType? ReturnType, FormattableString? ReturnDescription, IReadOnlyList<ParameterProvider> Parameters, IReadOnlyList<AttributeStatement>? Attributes = null, IReadOnlyList<CSharpType>? GenericArguments = null, IReadOnlyList<WhereExpression>? GenericParameterConstraints = null, CSharpType? ExplicitInterface = null, string? NonDocumentComment = null)
         : MethodSignatureBase(Name, Summary, Description, NonDocumentComment, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>())
     {

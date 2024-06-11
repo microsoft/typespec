@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp
     {
         private const char _newLine = '\n';
         private const char _space = ' ';
-        //private static readonly string _braceNewLine = "{\n";
 
         private readonly HashSet<string> _usingNamespaces = new HashSet<string>();
 
