@@ -5,6 +5,7 @@ import type {
   Numeric,
   Scalar,
   Type,
+  Union,
 } from "@typespec/compiler";
 
 /**
@@ -42,6 +43,11 @@ export type BaseUriDecorator = (
  * @param id the id of the JSON schema for this declaration.
  */
 export type IdDecorator = (context: DecoratorContext, target: Type, id: string) => void;
+
+/**
+ * Specify that `oneOf` should be used instead of `anyOf` for that union.
+ */
+export type OneOfDecorator = (context: DecoratorContext, target: Union | ModelProperty) => void;
 
 /**
  * Specify that the numeric type must be a multiple of some numeric value.
