@@ -5,3 +5,8 @@
   height: 100%;
   overflow: hidden;
 }
+
+.edit-pane {
+  display: flex;
+  flex-direction: column;
+}

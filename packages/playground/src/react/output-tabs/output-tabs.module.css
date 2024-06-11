@@ -1,6 +1,7 @@
 .tabs {
   border-bottom: 1px solid var(--colorNeutralStroke1);
   box-shadow: var(--shadow2);
+  overflow-y: auto;
 }
 
 .tab-divider {
