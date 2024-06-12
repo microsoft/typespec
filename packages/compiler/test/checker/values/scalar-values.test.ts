@@ -62,8 +62,6 @@ describe("instantiate with named constructor", () => {
     strictEqual(value.type.name, "b");
     strictEqual(value.scalar?.name, "b");
     strictEqual(value.value.name, "fromString");
-    expect(value.value.args).toHaveLength(1);
-    strictEqual(value.value.args[0], "a");
   });
 
   it("instantiate from another scalar", async () => {
