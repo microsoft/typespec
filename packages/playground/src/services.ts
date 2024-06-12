@@ -59,23 +59,24 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       switch (log.level) {
         case "error":
           // eslint-disable-next-line no-console
-          console.error(log);
+          console.error(log.message, log.detail);
           break;
         case "warning":
           // eslint-disable-next-line no-console
-          console.warn(log);
+          console.warn(log.message, log.detail);
           break;
         case "info":
           // eslint-disable-next-line no-console
-          console.info(log);
+          console.info(log.message, log.detail);
           break;
         case "debug":
+          // corresponding to Verbose LogLevel in Edge/Chrome which is off by default
           // eslint-disable-next-line no-console
-          console.debug(log);
+          console.debug(log.message, log.detail);
           break;
         case "trace":
         default:
-          // avoid trace logs in playground which would have side effect on perf
+          // just skip traces in playground
           break;
       }
     },
