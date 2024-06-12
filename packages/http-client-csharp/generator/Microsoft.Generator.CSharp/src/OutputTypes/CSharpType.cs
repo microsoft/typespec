@@ -70,28 +70,6 @@ namespace Microsoft.Generator.CSharp
             isNullable)
         { }
 
-        private static Type GetRealType(Type type)
-        {
-            return Nullable.GetUnderlyingType(type) ?? type;
-        }
-
-        private static IReadOnlyList<CSharpType> GetRealArguments(Type type)
-        {
-            var underlyingType = Nullable.GetUnderlyingType(type);
-            if (underlyingType != null)
-            {
-                // if we are a System.Nullable<T> type, we put nothing in the arguments because we have promoted the first argument to the position of type
-                return Array.Empty<CSharpType>();
-            }
-
-            return type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>();
-        }
-
-        private static bool GetRealIsNullable(Type type, bool isNullable)
-        {
-            return Nullable.GetUnderlyingType(type) != null ? true : isNullable;
-        }
-
         /// <summary>
         /// Constructs a non-nullable <see cref="CSharpType"/> from a <see cref="Type"/> with arguments
         /// </summary>
