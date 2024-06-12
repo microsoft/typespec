@@ -228,8 +228,8 @@ Provide an example value for a type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| example | `valueof unknown` |  |
-| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) |  |
+| example | `valueof unknown` | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
 
 #### Examples
 

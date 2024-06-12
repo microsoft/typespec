@@ -512,6 +512,9 @@ model ExampleOptions {
 /**
  * Provide an example value for a type.
  *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ *
  * @example
  *
  * ```tsp
@@ -530,6 +533,8 @@ extern dec example(
 
 /**
  * Operation example configuration.
+ * @param example Example value.
+ * @param options Optional metadata for the example.
  */
 model OperationExample {
   /** Example request body. */
