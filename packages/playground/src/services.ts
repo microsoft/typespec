@@ -74,10 +74,8 @@ export async function registerMonacoLanguage(host: BrowserHost) {
           console.debug(log);
           break;
         case "trace":
-          // eslint-disable-next-line no-console
-          console.trace(log);
-          break;
         default:
+          // avoid trace logs in playground which would have side effect on perf
           break;
       }
     },
