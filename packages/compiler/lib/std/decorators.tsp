@@ -533,8 +533,6 @@ extern dec example(
 
 /**
  * Operation example configuration.
- * @param example Example value.
- * @param options Optional metadata for the example.
  */
 model OperationExample {
   /** Example request body. */
@@ -544,6 +542,19 @@ model OperationExample {
   returnType?: unknown;
 }
 
+/**
+ * Provide an example value for a type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ *
+ * @example
+ *
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
 extern dec opExample(
   target: Operation,
   example: valueof OperationExample,
