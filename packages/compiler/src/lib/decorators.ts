@@ -1446,15 +1446,17 @@ export const $example: ExampleDecorator = (
     (d) => d.decorator === $example && d.node === context.decoratorTarget
   );
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
-  const rawExample = decorator.args[0].value;
-  // const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
-  //   rawExample,
-  //   { entityKind: "MixedParameterConstraint", valueType: target },
-  //   context.getArgumentTarget(0)!
-  // );
-  // if (!assignable) {
-  //   context.program.reportDiagnostics(diagnostics);
-  // } else {
+  const rawExample = decorator.args[0].value as Value;
+  const exactType = context.program.checker.getValueExactType(rawExample);
+  const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
+    exactType ?? rawExample.type,
+    target,
+    context.getArgumentTarget(0)!
+  );
+  if (!assignable) {
+    context.program.reportDiagnostics(diagnostics);
+    return;
+  }
   let list = context.program.stateMap(exampleKey).get(target);
   if (list === undefined) {
     list = [];
