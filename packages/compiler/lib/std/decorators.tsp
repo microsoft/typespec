@@ -500,6 +500,7 @@ extern dec encode(
   encodedAs?: Scalar
 );
 
+/** Options for example decorators */
 model ExampleOptions {
   /** The title of the example */
   title?: string;
@@ -508,15 +509,31 @@ model ExampleOptions {
   description?: string;
 }
 
+/**
+ * Provide an example value for a type.
+ *
+ * @example
+ *
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
 extern dec example(
   target: Model | Enum | Scalar | Union | ModelProperty,
   example: valueof unknown,
   options?: valueof ExampleOptions
 );
 
+/**
+ * Operation example configuration.
+ */
 model OperationExample {
   /** Example request body. */
-  parmaeters?: unknown;
+  parameters?: unknown;
 
   /** Example response body. */
   returnType?: unknown;

@@ -214,6 +214,34 @@ op get(): Pet | NotFound;
 ```
 
 
+### `@example` {#@example}
+
+Provide an example value for a type.
+```typespec
+@example(example: valueof unknown, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Model | Enum | Scalar | Union | ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | `valueof unknown` |  |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) |  |
+
+#### Examples
+
+```tsp
+@example(#{name: "Fluffy", age: 2})
+model Pet {
+ name: string;
+ age: int32;
+}
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -568,6 +596,25 @@ value.
 @minValueExclusive(0)
 scalar distance is float64;
 ```
+
+
+### `@opExample` {#@opExample}
+
+
+```typespec
+@opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) |  |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) |  |
+
 
 
 ### `@overload` {#@overload}
