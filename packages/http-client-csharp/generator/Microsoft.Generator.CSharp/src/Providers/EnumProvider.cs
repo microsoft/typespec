@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public CSharpType ValueType { get; }
         public bool IsExtensible { get; }

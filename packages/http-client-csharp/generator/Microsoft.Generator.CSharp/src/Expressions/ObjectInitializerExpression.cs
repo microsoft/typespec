@@ -23,14 +23,20 @@ namespace Microsoft.Generator.CSharp.Expressions
             if (UseSingleLine)
             {
                 writer.AppendRaw("{");
-                foreach (var (name, value) in Parameters)
+                var iterator = Parameters.GetEnumerator();
+                if (iterator.MoveNext())
                 {
+                    var (name, value) = iterator.Current;
                     writer.Append($"{name} = ");
                     value.Write(writer);
-                    writer.AppendRaw(", ");
+                    while (iterator.MoveNext())
+                    {
+                        writer.AppendRaw(", ");
+                        (name, value) = iterator.Current;
+                        writer.Append($"{name} = ");
+                        value.Write(writer);
+                    }
                 }
-
-                writer.RemoveTrailingComma();
                 writer.AppendRaw("}");
             }
             else

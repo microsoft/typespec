@@ -273,20 +273,18 @@ function fromUnionType(
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
 ): InputUnionType | InputType {
-  const itemTypes: InputType[] = [];
+  const variantTypes: InputType[] = [];
   for (const value of union.values) {
-    const inputType = fromSdkType(value, context, models, enums);
-    itemTypes.push(inputType);
+    const variantType = fromSdkType(value, context, models, enums);
+    variantTypes.push(variantType);
   }
 
-  return itemTypes.length > 1
-    ? {
-        Kind: InputTypeKind.Union,
-        Name: InputTypeKind.Union,
-        UnionItemTypes: itemTypes,
-        IsNullable: false,
-      }
-    : itemTypes[0];
+  return {
+    Kind: "union",
+    Name: union.name,
+    VariantTypes: variantTypes,
+    IsNullable: false,
+  };
 }
 
 function fromSdkConstantType(

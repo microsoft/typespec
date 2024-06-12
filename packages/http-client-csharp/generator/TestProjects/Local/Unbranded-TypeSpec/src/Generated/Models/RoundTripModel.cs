@@ -38,15 +38,15 @@ namespace UnbrandedTypeSpec.Models
             RequiredCollection = requiredCollection.ToList();
             RequiredDictionary = requiredDictionary;
             RequiredModel = requiredModel;
-            IntExtensibleEnumCollection = new List<IntExtensibleEnum>();
-            FloatExtensibleEnumCollection = new List<FloatExtensibleEnum>();
-            FloatFixedEnumCollection = new List<FloatFixedEnum>();
-            IntFixedEnumCollection = new List<IntFixedEnum>();
+            IntExtensibleEnumCollection = new ChangeTrackingList<IntExtensibleEnum>();
+            FloatExtensibleEnumCollection = new ChangeTrackingList<FloatExtensibleEnum>();
+            FloatFixedEnumCollection = new ChangeTrackingList<FloatFixedEnum>();
+            IntFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
-            ReadOnlyRequiredRecordUnknown = new Dictionary<string, System.BinaryData>();
-            ReadOnlyOptionalRecordUnknown = new Dictionary<string, System.BinaryData>();
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
+            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
+            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
             ModelWithRequiredNullable = modelWithRequiredNullable;
             RequiredBytes = requiredBytes;
         }

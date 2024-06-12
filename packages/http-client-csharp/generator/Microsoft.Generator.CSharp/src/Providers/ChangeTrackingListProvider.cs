@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureList = This.Invoke(_ensureListSignature);
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {

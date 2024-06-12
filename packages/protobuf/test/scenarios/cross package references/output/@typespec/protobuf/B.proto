@@ -8,8 +8,11 @@ import "A.proto";
 
 message Input {
   string testInputField = 1;
+  map<string, A.ReferentInput> mapField = 2;
+  repeated A.ReferentInput repeatedField = 3;
 }
 
 service Service {
   rpc Foo(Input) returns (A.Output);
+  rpc Bar(A.ReferentInput) returns (A.Output);
 }

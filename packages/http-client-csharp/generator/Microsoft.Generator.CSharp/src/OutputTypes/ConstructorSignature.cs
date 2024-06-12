@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -23,7 +24,7 @@ namespace Microsoft.Generator.CSharp
         FormattableString? Description,
         MethodSignatureModifiers Modifiers,
         IReadOnlyList<ParameterProvider> Parameters,
-        IReadOnlyList<CSharpAttribute>? Attributes = null,
+        IReadOnlyList<AttributeStatement>? Attributes = null,
         ConstructorInitializer? Initializer = null)
-        : MethodSignatureBase(Type.Name, Summary, Description, null, Modifiers, Parameters, Attributes ?? Array.Empty<CSharpAttribute>());
+        : MethodSignatureBase(Type.Name, Summary, Description, null, Modifiers, Parameters, Attributes ?? Array.Empty<AttributeStatement>());
 }

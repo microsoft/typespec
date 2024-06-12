@@ -9,153 +9,179 @@ namespace Microsoft.Generator.CSharp
     public class TypeProviderWriter
     {
         protected readonly TypeProvider _provider;
-        private readonly CodeWriter _writer;
 
         public TypeProviderWriter(TypeProvider provider)
-            : this(new CodeWriter(), provider)
-        {
-        }
-
-        private TypeProviderWriter(CodeWriter writer, TypeProvider provider)
         {
             _provider = provider;
-            _writer = writer;
         }
 
-        public virtual void Write()
+        public virtual CodeFile Write()
         {
-            using (_writer.SetNamespace(_provider.Namespace))
+            using var writer = new CodeWriter();
+            return Write(writer);
+        }
+
+        private CodeFile Write(CodeWriter writer)
+        {
+            using (writer.SetNamespace(_provider.Namespace))
             {
-                WriteType();
+                WriteType(writer);
             }
+            return new CodeFile(writer.ToString(), _provider.FileName);
         }
 
-        private void WriteType()
+        private void WriteType(CodeWriter writer)
         {
-            _writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
-            _writer.Append($"{_provider.Type:D}")
+            writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
+            writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
                 .AppendIf($"{_provider.Inherits},", _provider.Inherits != null);
 
-            foreach (var implement in _provider.Implements)
+            for (int i = 0; i < _provider.Implements.Count; i++)
             {
-                _writer.Append($"{implement:D},");
+                writer.Append($"{_provider.Implements[i]:D}");
+                if (i < _provider.Implements.Count - 1)
+                {
+                    writer.AppendRaw(", ");
+                }
             }
-            _writer.RemoveTrailingComma();
 
             if (_provider.WhereClause is not null)
             {
-                _provider.WhereClause.Write(_writer);
+                using (writer.ScopeRaw(string.Empty, string.Empty, false))
+                {
+                    _provider.WhereClause.Write(writer);
+                }
             }
 
-            _writer.WriteLine();
+            writer.WriteLine();
 
             if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Enum))
             {
-                WriteEnumContent();
+                WriteEnumContent(writer);
             }
             else if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Interface))
             {
-                WriteInterfaceContent();
+                WriteInterfaceContent(writer);
             }
             else
             {
-                WriteClassOrStructContent();
+                WriteClassOrStructContent(writer);
             }
         }
 
-        private void WriteClassOrStructContent()
+        private void WriteClassOrStructContent(CodeWriter writer)
         {
-            using (_writer.Scope())
+            using (writer.Scope())
             {
-                WriteFields();
+                bool sectionWritten = _provider.Fields.Any();
+                WriteFields(writer);
 
-                WriteConstructors();
+                if (sectionWritten && _provider.Constructors.Any())
+                    writer.WriteLine();
+                WriteConstructors(writer);
+                sectionWritten |= _provider.Constructors.Any();
 
-                WriteProperties();
+                if (sectionWritten && _provider.Properties.Any())
+                    writer.WriteLine();
+                WriteProperties(writer);
+                sectionWritten |= _provider.Properties.Any();
 
-                WriteMethods();
+                if (sectionWritten && _provider.Methods.Any())
+                    writer.WriteLine();
+                WriteMethods(writer);
+                sectionWritten |= _provider.Methods.Any();
 
-                WriteNestedTypes();
+                if (sectionWritten = _provider.NestedTypes.Any())
+                    writer.WriteLine();
+                WriteNestedTypes(writer);
             }
         }
 
-        private void WriteEnumContent()
+        private void WriteEnumContent(CodeWriter writer)
         {
-            using (_writer.Scope())
+            using (writer.Scope())
             {
-                foreach (var field in _provider.Fields)
+                for (int i = 0; i < _provider.Fields.Count; i++)
                 {
-                    _writer.Append($"{field.Name}");
-                    if (field.InitializationValue != null)
+                    writer.Append($"{_provider.Fields[i].Name}");
+                    if (_provider.Fields[i].InitializationValue != null)
                     {
-                        _writer.AppendRaw(" = ");
-                        field.InitializationValue.Write(_writer);
+                        writer.AppendRaw(" = ");
+                        _provider.Fields[i].InitializationValue!.Write(writer);
                     }
-                    _writer.WriteRawLine(",");
+                    if (i < _provider.Fields.Count - 1)
+                    {
+                        writer.WriteRawLine(",");
+                    }
                 }
-                _writer.RemoveTrailingComma();
+                writer.WriteLine();
             }
         }
 
-        private void WriteInterfaceContent()
+        private void WriteInterfaceContent(CodeWriter writer)
         {
-            using (_writer.Scope())
+            using (writer.Scope())
             {
                 // temporarily do nothing until we have a requirement for writing interfaces: https://github.com/microsoft/typespec/issues/3442
             }
         }
 
-        protected virtual void WriteProperties()
+        private void WriteProperties(CodeWriter writer)
         {
-            foreach (var property in _provider.Properties)
+            for (int i = 0; i < _provider.Properties.Count; i++)
             {
-                _writer.WriteProperty(property);
-                _writer.WriteLine();
-            }
-            _writer.WriteLine();
-        }
-
-        protected virtual void WriteFields()
-        {
-            foreach (var field in _provider.Fields)
-            {
-                _writer.WriteField(field);
-            }
-            _writer.WriteLine();
-        }
-
-        protected virtual void WriteConstructors()
-        {
-            foreach (var ctor in _provider.Constructors)
-            {
-                _writer.WriteMethod(ctor);
-            }
-            _writer.WriteLine();
-        }
-
-        protected virtual void WriteMethods()
-        {
-            foreach (var method in _provider.Methods)
-            {
-                _writer.WriteMethod(method);
-            }
-            _writer.WriteLine();
-        }
-
-        protected virtual void WriteNestedTypes()
-        {
-            foreach (var nested in _provider.NestedTypes)
-            {
-                var nestedWriter = new TypeProviderWriter(_writer, nested);
-                nestedWriter.Write();
-                _writer.WriteLine();
+                writer.WriteProperty(_provider.Properties[i]);
+                if (i < _provider.Properties.Count - 1)
+                {
+                    writer.WriteLine();
+                }
             }
         }
 
-        override public string ToString()
+        private void WriteFields(CodeWriter writer)
         {
-            return _writer.ToString();
+            for (int i = 0; i < _provider.Fields.Count; i++)
+            {
+                writer.WriteField(_provider.Fields[i]);
+            }
+        }
+
+        private void WriteConstructors(CodeWriter writer)
+        {
+            for (int i = 0; i < _provider.Constructors.Count; i++)
+            {
+                writer.WriteMethod(_provider.Constructors[i]);
+                if (i < _provider.Constructors.Count - 1)
+                {
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private void WriteMethods(CodeWriter writer)
+        {
+            for (int i = 0; i < _provider.Methods.Count; i++)
+            {
+                writer.WriteMethod(_provider.Methods[i]);
+                if (i < _provider.Methods.Count - 1)
+                {
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private void WriteNestedTypes(CodeWriter writer)
+        {
+            for (int i = 0; i < _provider.NestedTypes.Count; i++)
+            {
+                var nestedWriter = new TypeProviderWriter(_provider.NestedTypes[i]);
+                nestedWriter.Write(writer);
+                if (i < _provider.NestedTypes.Count - 1)
+                {
+                    writer.WriteLine();
+                }
+            }
         }
     }
 }

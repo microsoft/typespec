@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public ModelProvider(InputModelType inputModel)
         {

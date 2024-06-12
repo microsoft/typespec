@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = $"{_enumType.Name}Extensions";
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 

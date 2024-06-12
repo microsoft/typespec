@@ -68,8 +68,8 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       }
       diagnostics.set(params.uri, params.diagnostics);
     },
-    log(message) {
-      logMessages.push(message);
+    log(log) {
+      logMessages.push(`[${log.level}] ${log.message}`);
     },
     getURL(path: string) {
       if (path.startsWith("untitled:")) {

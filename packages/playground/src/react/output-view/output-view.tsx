@@ -2,7 +2,7 @@ import { Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-compon
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import type { PlaygroundEditorsOptions } from "../playground.js";
 import type { CompilationState, CompileResult, FileOutputViewer, ProgramViewer } from "../types.js";
-import { FileViewer } from "./file-viewer.js";
+import { createFileViewer } from "./file-viewer.js";
 import { TypeGraphViewer } from "./type-graph-viewer.js";
 
 import style from "./output-view.module.css";
@@ -43,10 +43,10 @@ function resolveViewers(
   viewers: ProgramViewer[] | undefined,
   fileViewers: FileOutputViewer[] | undefined
 ): ResolvedViewers {
+  const fileViewer = createFileViewer(fileViewers ?? []);
   const output: ResolvedViewers = {
-    fileViewers: {},
     programViewers: {
-      [FileViewer.key]: FileViewer,
+      [fileViewer.key]: fileViewer,
       [TypeGraphViewer.key]: TypeGraphViewer,
     },
   };
@@ -54,15 +54,11 @@ function resolveViewers(
   for (const item of viewers ?? []) {
     output.programViewers[item.key] = item;
   }
-  for (const item of fileViewers ?? []) {
-    output.fileViewers[item.key] = item;
-  }
 
   return output;
 }
 
 interface ResolvedViewers {
-  fileViewers: Record<string, FileOutputViewer>;
   programViewers: Record<string, ProgramViewer>;
 }
 

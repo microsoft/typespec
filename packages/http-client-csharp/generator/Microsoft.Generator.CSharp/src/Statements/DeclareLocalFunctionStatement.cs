@@ -19,12 +19,12 @@ namespace Microsoft.Generator.CSharp.Statements
         internal override void Write(CodeWriter writer)
         {
             writer.Append($"{ReturnType} {Name:D}(");
-            foreach (var parameter in Parameters)
+            for (int i = 0; i < Parameters.Count; i++)
             {
-                writer.Append($"{parameter.Type} {parameter.Name}, ");
+                writer.Append($"{Parameters[i].Type} {Parameters[i].Name}, ");
+                if (i < Parameters.Count - 1)
+                    writer.AppendRaw(", ");
             }
-
-            writer.RemoveTrailingComma();
             writer.AppendRaw(")");
             if (BodyExpression is not null)
             {
@@ -34,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else if (BodyStatement is not null)
             {
+                writer.WriteLine();
                 using (writer.Scope())
                 {
                     BodyStatement.Write(writer);

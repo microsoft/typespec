@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void NoExtensionMethods()
         {
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             Assert.IsNotNull(writer);
         }
 
@@ -61,12 +61,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestWriteValueExpression_DefaultCastExpression(Type type, object inner, string expectedWritten)
         {
             var castExpression = new CastExpression(Snippet.Literal(inner), type);
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             castExpression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append(expectedWritten).Append(CodeWriterTests.NewLine);
+            sb.Append(expectedWritten);
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
@@ -76,12 +76,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestWriteValueExpression_CustomExpression()
         {
             var mockCastExpression = new MockExpression();
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             mockCastExpression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append("Custom implementation").Append(CodeWriterTests.NewLine);
+            sb.Append("Custom implementation");
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
@@ -93,12 +93,12 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var stringLiteralExpression = Snippet.Literal(literal);
             CollectionInitializerExpression expression = new CollectionInitializerExpression(stringLiteralExpression);
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             expression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append(expectedWritten).Append(CodeWriterTests.NewLine);
+            sb.Append(expectedWritten);
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }

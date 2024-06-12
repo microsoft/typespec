@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public static ArgumentProvider Instance => _instance.Value;
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         private ArgumentProvider()
         {

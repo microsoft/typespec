@@ -1807,7 +1807,7 @@ namespace Foo {
     });
   });
 
-  describe("string literals", () => {
+  describe("single line string literals", () => {
     it("format single line string literal", async () => {
       await assertFormat({
         code: `
@@ -1835,14 +1835,37 @@ model Foo {}
 `,
       });
     });
+  });
 
-    it("format multi line string literal", async () => {
+  describe("multi line string literals", () => {
+    it("keeps trailing whitespaces", async () => {
       await assertFormat({
         code: `
 @doc(   """
+3 whitespaces   
+
+and blank line above  
+"""
+ )
+model Foo {}
+`,
+        expected: `
+@doc("""
+  3 whitespaces   
   
-this is a doc.  
- that 
+  and blank line above  
+  """)
+model Foo {}
+`,
+      });
+    });
+
+    it("keeps indent relative to closing quotes", async () => {
+      await assertFormat({
+        code: `
+@doc(   """
+this is a doc.
+ that
  span
  multiple lines.
 """
@@ -1851,12 +1874,31 @@ model Foo {}
 `,
         expected: `
 @doc("""
-  
-this is a doc.  
- that 
- span
- multiple lines.
-""")
+  this is a doc.
+   that
+   span
+   multiple lines.
+  """)
+model Foo {}
+`,
+      });
+    });
+
+    it("keeps escaped charaters", async () => {
+      await assertFormat({
+        code: `
+@doc(   """
+with \\n
+and \\t
+"""
+ )
+model Foo {}
+`,
+        expected: `
+@doc("""
+  with \\n
+  and \\t
+  """)
 model Foo {}
 `,
       });
@@ -2847,11 +2889,11 @@ alias T = "foo \${{
         await assertFormat({
           code: `
 alias T = """
-  This \${     "one" } goes over
-  multiple
-  \${     "two" }
-  lines
-  """;`,
+    This \${     "one" } goes over
+    multiple
+    \${     "two" }
+    lines
+    """;`,
           expected: `
 alias T = """
   This \${"one"} goes over

@@ -163,7 +163,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 ReturnType: typeof(bool),
                 ReturnDescription: null,
                 Parameters: [objParameter],
-                Attributes: [new CSharpAttribute(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
+                Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
 
             // writes the method:
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
@@ -174,7 +174,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Modifiers = MethodSignatureModifiers.Public,
                 Parameters = [otherParameter],
-                Attributes = Array.Empty<CSharpAttribute>()
+                Attributes = Array.Empty<AttributeStatement>()
             };
 
             // writes the method:

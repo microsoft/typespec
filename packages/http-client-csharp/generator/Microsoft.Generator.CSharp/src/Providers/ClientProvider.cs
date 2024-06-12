@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = inputClient.Name.ToCleanName();
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", $"{Name}.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override MethodProvider[] BuildMethods()
         {

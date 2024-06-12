@@ -1,5 +1,5 @@
-import type { Program } from "@typespec/compiler";
-import { reportDiagnostic } from "./lib.js";
+import type { Model, Program } from "@typespec/compiler";
+import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { getAllHttpServices } from "./operations.js";
 import { isSharedRoute } from "./route.js";
 import { HttpOperation, HttpService } from "./types.js";
@@ -11,6 +11,32 @@ export function $onValidate(program: Program) {
     program.reportDiagnostics(diagnostics);
   }
   validateSharedRouteConsistency(program, services);
+  validateHttpFiles(program);
+}
+
+function validateHttpFiles(program: Program) {
+  const httpFiles = [...program.stateSet(HttpStateKeys.file)];
+
+  for (const model of httpFiles) {
+    if (model.kind === "Model") {
+      validateHttpFileModel(program, model);
+    }
+  }
+}
+
+function validateHttpFileModel(program: Program, model: Model) {
+  for (const prop of model.properties.values()) {
+    if (prop.name !== "contentType" && prop.name !== "filename" && prop.name !== "contents") {
+      reportDiagnostic(program, {
+        code: "http-file-extra-property",
+        format: { propName: prop.name },
+        target: prop,
+      });
+    }
+  }
+  for (const child of model.derivedModels) {
+    validateHttpFileModel(program, child);
+  }
 }
 
 function groupHttpOperations(
@@ -34,6 +60,7 @@ function groupHttpOperations(
   }
   return paths;
 }
+
 function validateSharedRouteConsistency(program: Program, services: HttpService[]) {
   for (const service of services) {
     const paths = groupHttpOperations(service.operations);

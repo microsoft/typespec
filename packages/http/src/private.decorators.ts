@@ -101,7 +101,7 @@ export const $httpPart: HttpPartDecorator = (
   type,
   options
 ) => {
-  context.program.stateMap(HttpStateKeys.file).set(target, { type, options });
+  context.program.stateMap(HttpStateKeys.httpPart).set(target, { type, options });
 };
 
 export interface HttpPart {
@@ -111,5 +111,5 @@ export interface HttpPart {
 
 /** Return the http part information on a model that is an `HttpPart` */
 export function getHttpPart(program: Program, target: Type): HttpPart | undefined {
-  return program.stateMap(HttpStateKeys.file).get(target);
+  return program.stateMap(HttpStateKeys.httpPart).get(target);
 }
