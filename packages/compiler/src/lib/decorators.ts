@@ -1448,15 +1448,19 @@ export const $example: ExampleDecorator = (
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
   const exactType = context.program.checker.getValueExactType(rawExample);
-  const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
-    exactType ?? rawExample.type,
-    target.kind === "ModelProperty" ? target.type : target,
-    context.getArgumentTarget(0)!
-  );
-  if (!assignable) {
-    context.program.reportDiagnostics(diagnostics);
-    return;
+  if (target.projectionBase === undefined) {
+    // skip validation in projections
+    const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
+      exactType ?? rawExample.type,
+      target.kind === "ModelProperty" ? target.type : target,
+      context.getArgumentTarget(0)!
+    );
+    if (!assignable) {
+      context.program.reportDiagnostics(diagnostics);
+      return;
+    }
   }
+
   let list = context.program.stateMap(exampleKey).get(target);
   if (list === undefined) {
     list = [];
