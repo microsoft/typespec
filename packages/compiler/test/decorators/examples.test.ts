@@ -69,3 +69,95 @@ describe("Provide example on", () => {
     expect(serializeValueAsJson(program, examples[0].value, target)).toEqual("a");
   });
 });
+
+describe("json serialization of examples", () => {
+  async function getJsonValueOfExample(code: string) {
+    const { examples, program, target } = await getExamplesFor(code);
+    return serializeValueAsJson(program, examples[0].value, target);
+  }
+
+  const allCases: [
+    string,
+    {
+      value: string;
+      expect: unknown;
+      encode?: string;
+    }[],
+  ][] = [
+    ["int32", [{ value: `123`, expect: 123 }]],
+    ["string", [{ value: `"abc"`, expect: "abc" }]],
+    ["boolean", [{ value: `true`, expect: true }]],
+    [
+      "utcDateTime",
+      [
+        { value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`, expect: "2024-01-01T11:32:00Z" },
+        {
+          value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
+          expect: "Mon, 01 Jan 2024 11:32:00 GMT",
+          encode: `@encode("rfc7231")`,
+        },
+        {
+          value: `utcDateTime.fromISO("2024-01-01T11:32:00Z")`,
+          expect: 1704108720,
+          encode: `@encode("unixTimestamp", int32)`,
+        },
+      ],
+    ],
+    [
+      "offsetDateTime",
+      [
+        {
+          value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
+          expect: "2024-01-01T11:32:00+01:00",
+        },
+        {
+          value: `offsetDateTime.fromISO("2024-01-01T11:32:00+01:00")`,
+          expect: "Mon, 01 Jan 2024 10:32:00 GMT",
+          encode: `@encode("rfc7231")`,
+        },
+      ],
+    ],
+    [
+      "plainDate",
+      [
+        {
+          value: `plainDate.fromISO("2024-01-01")`,
+          expect: "2024-01-01",
+        },
+      ],
+    ],
+    [
+      "plainTime",
+      [
+        {
+          value: `plainTime.fromISO("11:31")`,
+          expect: "11:31",
+        },
+      ],
+    ],
+  ];
+
+  describe.each(allCases)("%s", (type, cases) => {
+    const casesWithLabel = cases.map((x) => ({
+      ...x,
+      encodeLabel: x.encode ?? "default encoding",
+    }));
+    it.each(casesWithLabel)(
+      `serialize with $encodeLabel`,
+      async ({ value, expect: expected, encode }) => {
+        const result = await getJsonValueOfExample(`
+          model TestModel {
+            @example(${value})
+            ${encode ?? ""}
+            @test test: ${type};
+          }
+        `);
+        if (expected instanceof RegExp) {
+          expect(result).toMatch(expected);
+        } else {
+          expect(result).toEqual(expected);
+        }
+      }
+    );
+  });
+});

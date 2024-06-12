@@ -12,6 +12,9 @@ export function serializeValueAsJson(
   type: Type,
   encodeAs?: EncodeData
 ): unknown {
+  if (type.kind === "ModelProperty") {
+    return serializeValueAsJson(program, value, type.type, encodeAs ?? getEncode(program, type));
+  }
   switch (value.valueKind) {
     case "NullValue":
       return null;
@@ -40,12 +43,7 @@ function serializeObjectValueAsJson(
   for (const propValue of value.properties.values()) {
     const definition = type.properties.get(propValue.name);
     if (definition) {
-      obj[propValue.name] = serializeValueAsJson(
-        program,
-        propValue.value,
-        definition.type,
-        getEncode(program, definition)
-      );
+      obj[propValue.name] = serializeValueAsJson(program, propValue.value, definition);
     }
   }
   return obj;
@@ -56,7 +54,9 @@ function resolveKnownScalar(
   scalar: Scalar
 ):
   | {
-      scalar: Scalar & { name: "utcDateTime" | "offsetDateTime" | "plainDate" | "duration" };
+      scalar: Scalar & {
+        name: "utcDateTime" | "offsetDateTime" | "plainDate" | "plainTime" | "duration";
+      };
       encodeAs: EncodeData | undefined;
     }
   | undefined {
@@ -100,6 +100,8 @@ function serializeScalarValueAsJson(
     case "offsetDateTime":
       return ScalarSerializers.offsetDateTime((value.value.args[0] as any).value, encodeAs);
     case "plainDate":
+      return ScalarSerializers.plainDate((value.value.args[0] as any).value);
+    case "plainTime":
       return ScalarSerializers.plainTime((value.value.args[0] as any).value);
     case "duration":
       return serializeValueAsJson(program, value.value.args[0], value.value.args[0].type);
@@ -116,7 +118,7 @@ const ScalarSerializers = {
 
     switch (encodeAs.encoding) {
       case "unixTimestamp":
-        return date.getTime();
+        return Math.floor(date.getTime() / 1000);
       case "rfc7231":
         return date.toUTCString();
       default:
@@ -131,8 +133,8 @@ const ScalarSerializers = {
     const date = new Date(value);
 
     switch (encodeAs.encoding) {
-      case "rfc7321":
-        return date.toString();
+      case "rfc7231":
+        return date.toUTCString();
       default:
         return date.toISOString();
     }
