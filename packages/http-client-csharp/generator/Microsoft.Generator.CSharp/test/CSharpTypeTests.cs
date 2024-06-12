@@ -396,20 +396,70 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        [TestCase(typeof(int), false)]
-        [TestCase(typeof(int?), true)]
-        [TestCase(typeof(Uri), false)]
-        [TestCase(typeof(Guid), false)]
-        [TestCase(typeof(Guid?), true)]
-        [TestCase(typeof(TestStruct<int>), false)]
-        [TestCase(typeof(TestStruct<int>?), true)]
-        public void ValidateNullableTypes(Type type, bool expectedIsNullable)
+        [TestCaseSource(nameof(ValidateNullableTypesData))]
+        public void ValidateNullableTypes(Type type, IReadOnlyList<CSharpType> expectedArguments, bool expectedIsNullable)
         {
             var csharpType = new CSharpType(type);
 
+            CollectionAssert.AreEqual(expectedArguments, csharpType.Arguments);
             Assert.AreEqual(expectedIsNullable, csharpType.IsNullable);
         }
 
-        internal struct TestStruct<T> where T : struct { }
+        private static object[] ValidateNullableTypesData = [
+            new object[]
+            {
+                typeof(int), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(int?), Array.Empty<CSharpType>(), true
+            },
+            new object[]
+            {
+                typeof(Uri), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(Guid), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(Guid?), Array.Empty<CSharpType>(), true
+            },
+            new object[]
+            {
+                typeof(TestStruct<int>), new CSharpType[] { typeof(int) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<int>?), new CSharpType[] { typeof(int) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<int?>), new CSharpType[] { typeof(int?) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<int?>?), new CSharpType[] { typeof(int?) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>>), new CSharpType[] { typeof(TestStruct<int>) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>>?), new CSharpType[] { typeof(TestStruct<int>) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>?>), new CSharpType[] { typeof(TestStruct<int>?) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>?>?), new CSharpType[] { typeof(TestStruct<int>?) }, true
+            },
+        ];
+
+        internal struct TestStruct<T> { }
     }
 }
