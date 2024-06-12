@@ -46,6 +46,7 @@
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {
+    "@azure-tools/typespec-autorest": ">=0.36.0 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.36.0 <1.0.0",
     "@azure-tools/typespec-azure-resource-manager": ">=0.36.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.36.0 <1.0.0",
@@ -57,6 +58,7 @@
     "@typespec/versioning": ">=0.50.0 <1.0.0"
   },
   "devDependencies": {
+    "@azure-tools/typespec-autorest": "0.42.1",
     "@azure-tools/typespec-azure-core": "0.42.0",
     "@azure-tools/typespec-azure-resource-manager": "0.42.1",
     "@azure-tools/typespec-azure-rulesets": "0.42.1",
