@@ -600,7 +600,7 @@ scalar distance is float64;
 
 ### `@opExample` {#@opExample}
 
-
+Provide an example value for a type.
 ```typespec
 @opExample(example: valueof OperationExample, options?: valueof ExampleOptions)
 ```
@@ -612,9 +612,15 @@ scalar distance is float64;
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) |  |
-| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) |  |
+| example | [valueof `OperationExample`](./built-in-data-types.md#OperationExample) | Example value. |
+| options | [valueof `ExampleOptions`](./built-in-data-types.md#ExampleOptions) | Optional metadata for the example. |
 
+#### Examples
+
+```tsp
+@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+op createPet(pet: Pet): Pet;
+```
 
 
 ### `@overload` {#@overload}
