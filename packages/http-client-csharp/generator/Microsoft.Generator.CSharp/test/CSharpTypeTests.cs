@@ -9,6 +9,7 @@ using System.Collections.Immutable;
 using Moq;
 using System.IO;
 using System.Text;
+using System.Net;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -393,6 +394,18 @@ namespace Microsoft.Generator.CSharp.Tests
                 .ToString();
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [TestCase(typeof(int), false)]
+        [TestCase(typeof(int?), true)]
+        [TestCase(typeof(Uri), false)]
+        [TestCase(typeof(Guid), false)]
+        [TestCase(typeof(Guid?), true)]
+        public void ValidateNullableTypes(Type type, bool expectedIsNullable)
+        {
+            var csharpType = new CSharpType(type);
+
+            Assert.AreEqual(expectedIsNullable, csharpType.IsNullable);
         }
     }
 }
