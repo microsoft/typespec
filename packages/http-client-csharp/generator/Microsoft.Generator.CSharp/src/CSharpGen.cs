@@ -35,8 +35,7 @@ namespace Microsoft.Generator.CSharp
             foreach (var outputType in output.OutputTypes)
             {
                 var writer  = CodeModelPlugin.Instance.GetWriter(outputType);
-                writer.Write();
-                generateFilesTasks.Add(workspace.AddGeneratedFile(outputType.Filename, writer.ToString()));
+                generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
             }
 
             // Add all the generated files to the workspace

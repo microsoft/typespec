@@ -51,8 +51,6 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureDictionary = This.Invoke(_ensureDictionarySignature);
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;

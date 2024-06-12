@@ -31,8 +31,6 @@ namespace Microsoft.Generator.CSharp.Providers
             _genericChangeTrackingDictionary = ChangeTrackingDictionaryProvider.Instance.Type;
         }
 
-        protected override string GetFilename() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
