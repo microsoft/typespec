@@ -763,10 +763,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #applySchemaExamples(type: Model | Scalar | Union | Enum, target: ObjectBuilder<unknown>) {
-    const examples = getExamples(this.emitter.getProgram(), type);
-    console.log("Set examples", examples);
+    const program = this.emitter.getProgram();
+    const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set("example", serializeValueAsJson(examples[0].value, type));
+      target.set("example", serializeValueAsJson(program, examples[0].value, type));
     }
   }
 
