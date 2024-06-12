@@ -55,8 +55,27 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       return model ? textDocumentForModel(model) : undefined;
     },
     sendDiagnostics() {},
-    // eslint-disable-next-line no-console
-    log: console.log,
+    log: (log) => {
+      switch (log.level) {
+        case "error":
+          // eslint-disable-next-line no-console
+          console.error(log);
+          break;
+        case "warning":
+          // eslint-disable-next-line no-console
+          console.warn(log);
+          break;
+        case "info":
+          // eslint-disable-next-line no-console
+          console.info(log);
+          break;
+        case "debug":
+        case "trace":
+        default:
+          // avoid too verbose logging in playground which would have side effects on perf
+          break;
+      }
+    },
     applyEdit(param) {
       return Promise.resolve({ applied: false });
     },
