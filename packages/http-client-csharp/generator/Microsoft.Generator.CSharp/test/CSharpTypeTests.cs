@@ -401,11 +401,15 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCase(typeof(Uri), false)]
         [TestCase(typeof(Guid), false)]
         [TestCase(typeof(Guid?), true)]
+        [TestCase(typeof(TestStruct<int>), false)]
+        [TestCase(typeof(TestStruct<int>?), true)]
         public void ValidateNullableTypes(Type type, bool expectedIsNullable)
         {
             var csharpType = new CSharpType(type);
 
             Assert.AreEqual(expectedIsNullable, csharpType.IsNullable);
         }
+
+        internal struct TestStruct<T> where T : struct { }
     }
 }
