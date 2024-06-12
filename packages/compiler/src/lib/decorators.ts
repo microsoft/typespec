@@ -1438,7 +1438,7 @@ export interface OperationExample extends ExampleOptions {
 const exampleKey = createStateSymbol("examples");
 export const $example: ExampleDecorator = (
   context: DecoratorContext,
-  target: Model | Scalar | Enum | Union,
+  target: Model | Scalar | Enum | Union | ModelProperty,
   _example: unknown,
   options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
 ) => {
@@ -1450,7 +1450,7 @@ export const $example: ExampleDecorator = (
   const exactType = context.program.checker.getValueExactType(rawExample);
   const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
     exactType ?? rawExample.type,
-    target,
+    target.kind === "ModelProperty" ? target.type : target,
     context.getArgumentTarget(0)!
   );
   if (!assignable) {
@@ -1468,7 +1468,7 @@ export const $example: ExampleDecorator = (
 
 export function getExamples(
   program: Program,
-  target: Model | Scalar | Enum | Union
+  target: Model | Scalar | Enum | Union | ModelProperty
 ): readonly Example[] {
   return program.stateMap(exampleKey).get(target) ?? [];
 }

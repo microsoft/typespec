@@ -509,7 +509,7 @@ model ExampleOptions {
 }
 
 extern dec example(
-  target: Model | Enum | Scalar | Union,
+  target: Model | Enum | Scalar | Union | ModelProperty,
   example: valueof unknown,
   options?: valueof ExampleOptions
 );

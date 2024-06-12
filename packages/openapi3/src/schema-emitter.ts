@@ -762,7 +762,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #applySchemaExamples(type: Model | Scalar | Union | Enum, target: ObjectBuilder<unknown>) {
+  #applySchemaExamples(
+    type: Model | Scalar | Union | Enum | ModelProperty,
+    target: ObjectBuilder<unknown>
+  ) {
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
@@ -783,10 +786,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     };
 
-    if (type.kind !== "ModelProperty") {
-      this.#applySchemaExamples(type, schema);
-    }
-
+    this.#applySchemaExamples(type, schema);
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");

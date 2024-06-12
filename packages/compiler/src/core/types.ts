@@ -1127,7 +1127,8 @@ export type MemberContainerNode =
   | ModelExpressionNode
   | InterfaceStatementNode
   | EnumStatementNode
-  | UnionStatementNode;
+  | UnionStatementNode
+  | ScalarStatementNode;
 
 export type MemberNode =
   | ModelPropertyNode
@@ -1141,7 +1142,7 @@ export type MemberContainerType = Model | Enum | Interface | Union | Scalar;
 /**
  * Type that can be used as members of a container type.
  */
-export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant | ScalarConstructor;
 
 export type Comment = LineComment | BlockComment;
 
