@@ -5,6 +5,7 @@ import type {
   EncodeDecorator,
   ErrorDecorator,
   ErrorsDocDecorator,
+  ExampleDecorator,
   FormatDecorator,
   FriendlyNameDecorator,
   InspectTypeDecorator,
@@ -19,6 +20,7 @@ import type {
   MinLengthDecorator,
   MinValueDecorator,
   MinValueExclusiveDecorator,
+  OpExampleDecorator,
   OverloadDecorator,
   ParameterVisibilityDecorator,
   PatternDecorator,
@@ -47,6 +49,7 @@ import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
   Numeric,
   StdTypeName,
+  compilerAssert,
   getDiscriminatedUnion,
   getTypeName,
   ignoreDiagnostics,
@@ -91,9 +94,11 @@ import {
   Scalar,
   Type,
   Union,
+  Value,
 } from "../core/types.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
+export { serializeValueAsJson } from "./examples.js";
 export * from "./service.js";
 
 export const namespace = "TypeSpec";
@@ -1415,4 +1420,70 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
  */
 export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(returnTypeVisibilityKey).get(entity);
+}
+
+export interface ExampleOptions {
+  readonly title?: string;
+  readonly description?: string;
+}
+
+export interface Example extends ExampleOptions {
+  readonly value: Value;
+}
+export interface OperationExample extends ExampleOptions {
+  readonly parameters?: Operation;
+  readonly returnType?: unknown;
+}
+
+const exampleKey = createStateSymbol("examples");
+export const $example: ExampleDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar | Enum | Union,
+  _example: unknown,
+  options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
+) => {
+  const decorator = target.decorators.find(
+    (d) => d.decorator === $example && d.node === context.decoratorTarget
+  );
+  compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
+  const rawExample = decorator.args[0].value;
+  // const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
+  //   rawExample,
+  //   { entityKind: "MixedParameterConstraint", valueType: target },
+  //   context.getArgumentTarget(0)!
+  // );
+  // if (!assignable) {
+  //   context.program.reportDiagnostics(diagnostics);
+  // } else {
+  let list = context.program.stateMap(exampleKey).get(target);
+  if (list === undefined) {
+    list = [];
+    context.program.stateMap(exampleKey).set(target, list);
+  }
+  list.push({ value: rawExample, ...(options as any) });
+  // }
+};
+
+export function getExamples(
+  program: Program,
+  target: Model | Scalar | Enum | Union
+): readonly Example[] {
+  return program.stateMap(exampleKey).get(target) ?? [];
+}
+
+const opExampleKey = createStateSymbol("opExamples");
+export const $opExample: OpExampleDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  example: unknown, // TODO: change `example: OperationExample` when tspd supports it
+  options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
+) => {
+  context.program.stateMap(opExampleKey).set(target, { example, ...(options as any) });
+};
+
+export function getOpExamples(
+  program: Program,
+  target: Model | Scalar | Enum | Union
+): OperationExample[] {
+  return program.stateMap(opExampleKey).get(target) ?? [];
 }

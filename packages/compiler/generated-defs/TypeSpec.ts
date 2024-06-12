@@ -571,6 +571,20 @@ export type DiscriminatorDecorator = (
   propertyName: string
 ) => void;
 
+export type ExampleDecorator = (
+  context: DecoratorContext,
+  target: Model | Enum | Scalar | Union,
+  example: unknown,
+  options?: unknown
+) => void;
+
+export type OpExampleDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  example: unknown,
+  options?: unknown
+) => void;
+
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied

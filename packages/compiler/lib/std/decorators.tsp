@@ -500,6 +500,33 @@ extern dec encode(
   encodedAs?: Scalar
 );
 
+model ExampleOptions {
+  /** The title of the example */
+  title?: string;
+
+  /** Description of the example */
+  description?: string;
+}
+
+extern dec example(
+  target: Model | Enum | Scalar | Union,
+  example: valueof unknown,
+  options?: valueof ExampleOptions
+);
+
+model OperationExample {
+  /** Example request body. */
+  parmaeters?: unknown;
+
+  /** Example response body. */
+  returnType?: unknown;
+}
+
+extern dec opExample(
+  target: Operation,
+  example: valueof OperationExample,
+  options?: valueof ExampleOptions
+);
 /**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
