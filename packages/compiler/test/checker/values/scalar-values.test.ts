@@ -49,6 +49,23 @@ describe("instantiate with named constructor", () => {
     ]);
   });
 
+  it("instantiate using constructor from parent scalar", async () => {
+    const value = await compileValue(
+      `b.fromString("a")`,
+      `
+      scalar a { init fromString(val: string);}
+      scalar b extends a { }
+    `
+    );
+    strictEqual(value.valueKind, "ScalarValue");
+    strictEqual(value.type.kind, "Scalar");
+    strictEqual(value.type.name, "b");
+    strictEqual(value.scalar?.name, "b");
+    strictEqual(value.value.name, "fromString");
+    expect(value.value.args).toHaveLength(1);
+    strictEqual(value.value.args[0], "a");
+  });
+
   it("instantiate from another scalar", async () => {
     const value = await compileValue(
       `b.fromA(a.fromString("a"))`,
