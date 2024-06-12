@@ -66,8 +66,8 @@ namespace Microsoft.Generator.CSharp
         /// <param name="isNullable">Optional flag to determine if the constructed type should be nullable. Defaults to <c>false</c>.</param>
         public CSharpType(Type type, bool isNullable = false) : this(
             type,
-            isNullable,
-            type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>())
+            type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>(),
+            isNullable)
         { }
 
         /// <summary>
@@ -96,6 +96,16 @@ namespace Microsoft.Generator.CSharp
         public CSharpType(Type type, IReadOnlyList<CSharpType> arguments, bool isNullable = false)
         {
             Debug.Assert(type.Namespace != null, "type.Namespace != null");
+
+            // handle nullable value types explicitly because they are implemented using generic type `System.Nullable<T>`
+            var underlyingValueType = Nullable.GetUnderlyingType(type);
+            if (underlyingValueType != null)
+            {
+                // in this block, we are converting input like `typeof(int?)` into the way as if they input: `typeof(int), isNullable: true`
+                type = underlyingValueType;
+                arguments = type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>();
+                isNullable = true;
+            }
 
             _type = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
             ValidateArguments(_type, arguments);
