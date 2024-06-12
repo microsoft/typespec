@@ -5621,7 +5621,6 @@ export function createChecker(program: Program): Checker {
       decorators,
       derivedScalars: [],
     });
-    checkScalarConstructors(type, node, type.constructors, mapper);
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -5631,6 +5630,7 @@ export function createChecker(program: Program): Checker {
         type.baseScalar.derivedScalars.push(type);
       }
     }
+    checkScalarConstructors(type, node, type.constructors, mapper);
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (mapper === undefined) {
@@ -5695,6 +5695,19 @@ export function createChecker(program: Program): Checker {
     constructors: Map<string, ScalarConstructor>,
     mapper: TypeMapper | undefined
   ) {
+    if (parentScalar.baseScalar) {
+      for (const member of parentScalar.baseScalar.constructors.values()) {
+        const newConstructor: ScalarConstructor = cloneTypeForSymbol(
+          getMemberSymbol(node.symbol, member.name)!,
+          {
+            ...member,
+            scalar: parentScalar,
+          }
+        );
+        linkIndirectMember(node, newConstructor, mapper);
+        constructors.set(member.name, newConstructor);
+      }
+    }
     for (const member of node.members) {
       const constructor = checkScalarConstructor(member, mapper, parentScalar);
       if (constructors.has(constructor.name as string)) {
