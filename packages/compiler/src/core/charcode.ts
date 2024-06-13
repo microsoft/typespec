@@ -247,17 +247,20 @@ export function isNonAsciiIdentifierCharacter(codePoint: number) {
   return lookupInNonAsciiMap(codePoint, nonAsciiIdentifierMap);
 }
 
-export function codePointBefore(text: string, pos: number): number | undefined {
-  if (pos <= 0 || pos >= text.length) {
-    return undefined;
+export function codePointBefore(
+  text: string,
+  pos: number
+): { char: number | undefined; size: number } {
+  if (pos <= 0 || pos > text.length) {
+    return { char: undefined, size: 0 };
   }
 
   const ch = text.charCodeAt(pos - 1);
   if (!isLowSurrogate(ch) || !isHighSurrogate(text.charCodeAt(pos - 2))) {
-    return ch;
+    return { char: ch, size: 1 };
   }
 
-  return text.codePointAt(pos - 2);
+  return { char: text.codePointAt(pos - 2), size: 2 };
 }
 
 function lookupInNonAsciiMap(codePoint: number, map: readonly number[]) {
