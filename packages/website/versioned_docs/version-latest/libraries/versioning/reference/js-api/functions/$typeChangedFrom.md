@@ -4,7 +4,7 @@ title: "[F] $typeChangedFrom"
 
 ---
 ```ts
-$typeChangedFrom(
+function $typeChangedFrom(
    context, 
    target, 
    version, 

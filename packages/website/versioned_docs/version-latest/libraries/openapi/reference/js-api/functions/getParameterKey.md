@@ -4,7 +4,7 @@ title: "[F] getParameterKey"
 
 ---
 ```ts
-getParameterKey(
+function getParameterKey(
    program, 
    property, 
    newParam, 

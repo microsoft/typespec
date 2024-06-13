@@ -232,7 +232,7 @@ Deletes a directory or file.
 ### stat()
 
 ```ts
-stat(path): Promise<Object>
+stat(path): Promise<object>
 ```
 
 #### Parameters
@@ -243,13 +243,12 @@ stat(path): Promise<Object>
 
 #### Returns
 
-`Promise`<`Object`\>
+`Promise`<`object`\>
 
-> | Member | Type |
-> | :------ | :------ |
-> | `isDirectory` | `boolean` |
-> | `isFile` | `boolean` |
->
+| Member | Type |
+| :------ | :------ |
+| `isDirectory` | `boolean` |
+| `isFile` | `boolean` |
 
 ***
 

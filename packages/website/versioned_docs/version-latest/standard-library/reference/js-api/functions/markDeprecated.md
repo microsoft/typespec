@@ -4,7 +4,7 @@ title: "[F] markDeprecated"
 
 ---
 ```ts
-markDeprecated(
+function markDeprecated(
    program, 
    type, 
    details): void

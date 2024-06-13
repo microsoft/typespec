@@ -4,7 +4,7 @@ title: "[F] getOneOf"
 
 ---
 ```ts
-getOneOf(program, entity): boolean
+function getOneOf(program, entity): boolean
 ```
 
 ## Parameters

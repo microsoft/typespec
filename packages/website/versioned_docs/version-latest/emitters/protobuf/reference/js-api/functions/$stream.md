@@ -4,7 +4,7 @@ title: "[F] $stream"
 
 ---
 ```ts
-$stream(
+function $stream(
    context, 
    target, 
    mode): void

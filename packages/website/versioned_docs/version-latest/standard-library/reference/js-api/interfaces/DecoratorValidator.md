@@ -7,9 +7,9 @@ title: "[I] DecoratorValidator"
 
 | Type parameter | Value |
 | :------ | :------ |
-| `T` extends [`TypeKind`](../type-aliases/TypeKind.md) | - |
-| `P` extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |
-| `S` extends [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> \| `undefined` | `undefined` |
+| `T` *extends* [`TypeKind`](../type-aliases/TypeKind.md) | - |
+| `P` *extends* readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |
+| `S` *extends* [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> \| `undefined` | `undefined` |
 
 ## Methods
 

@@ -4,7 +4,7 @@ title: "[F] $useRef"
 
 ---
 ```ts
-$useRef(
+function $useRef(
    context, 
    target, 
    ref): void
@@ -15,7 +15,7 @@ $useRef(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `ModelProperty` \| `Model` |
+| `target` | `Model` \| `ModelProperty` |
 | `ref` | `string` |
 
 ## Returns

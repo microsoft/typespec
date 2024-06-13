@@ -4,7 +4,7 @@ title: "[F] $id"
 
 ---
 ```ts
-$id(
+function $id(
    context, 
    target, 
    id): void

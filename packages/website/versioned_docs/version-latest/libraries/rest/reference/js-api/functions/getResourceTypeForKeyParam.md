@@ -4,7 +4,7 @@ title: "[F] getResourceTypeForKeyParam"
 
 ---
 ```ts
-getResourceTypeForKeyParam(program, param): Model | undefined
+function getResourceTypeForKeyParam(program, param): Model | undefined
 ```
 
 ## Parameters

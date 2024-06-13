@@ -4,7 +4,7 @@ title: "[F] isSecret"
 
 ---
 ```ts
-isSecret(program, target): boolean | undefined
+function isSecret(program, target): boolean | undefined
 ```
 
 ## Parameters

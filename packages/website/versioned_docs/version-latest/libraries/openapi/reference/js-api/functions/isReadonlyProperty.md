@@ -4,7 +4,7 @@ title: "[F] isReadonlyProperty"
 
 ---
 ```ts
-isReadonlyProperty(program, property): boolean
+function isReadonlyProperty(program, property): boolean
 ```
 
 Determines if a property is read-only, which is defined as being

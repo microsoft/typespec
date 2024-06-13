@@ -1,5 +1,21 @@
 # Change Log - @typespec/openapi3
 
+## 0.57.0
+
+### Bug Fixes
+
+- [#3342](https://github.com/microsoft/typespec/pull/3342) Add support for new multipart constructs in http library
+- [#3574](https://github.com/microsoft/typespec/pull/3574) Emit diagnostic when an invalid type is used as a property instead of crashing.
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Add support for new object and array values as default values (e.g. `decimals: decimal[] = #[123, 456.7];`)
+
+
 ## 0.56.0
 
 ### Bug Fixes

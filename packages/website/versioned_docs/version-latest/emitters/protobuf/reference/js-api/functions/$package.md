@@ -4,7 +4,7 @@ title: "[F] $package"
 
 ---
 ```ts
-$package(
+function $package(
    context, 
    target, 
    details?): void

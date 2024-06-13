@@ -4,7 +4,7 @@ title: "[F] $encodedName"
 
 ---
 ```ts
-$encodedName(
+function $encodedName(
    context, 
    target, 
    mimeType, 

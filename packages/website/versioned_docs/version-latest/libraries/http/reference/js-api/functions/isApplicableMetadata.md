@@ -4,7 +4,7 @@ title: "[F] isApplicableMetadata"
 
 ---
 ```ts
-isApplicableMetadata(
+function isApplicableMetadata(
    program, 
    property, 
    visibility, 

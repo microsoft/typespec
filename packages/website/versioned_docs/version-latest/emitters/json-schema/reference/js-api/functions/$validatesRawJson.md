@@ -4,7 +4,7 @@ title: "[F] $validatesRawJson"
 
 ---
 ```ts
-$validatesRawJson(
+function $validatesRawJson(
    context, 
    target, 
    value): void

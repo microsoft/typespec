@@ -4,7 +4,7 @@ title: "[F] normalizePath"
 
 ---
 ```ts
-normalizePath(path): string
+function normalizePath(path): string
 ```
 
 ## Parameters

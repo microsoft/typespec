@@ -4,7 +4,7 @@ title: "[F] isTrivia"
 
 ---
 ```ts
-isTrivia(token): boolean
+function isTrivia(token): boolean
 ```
 
 ## Parameters

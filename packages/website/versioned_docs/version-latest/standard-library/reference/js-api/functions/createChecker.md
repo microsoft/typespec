@@ -4,7 +4,7 @@ title: "[F] createChecker"
 
 ---
 ```ts
-createChecker(program): Checker
+function createChecker(program): Checker
 ```
 
 ## Parameters

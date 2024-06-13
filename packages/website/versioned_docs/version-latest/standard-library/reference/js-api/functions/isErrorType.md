@@ -4,14 +4,14 @@ title: "[F] isErrorType"
 
 ---
 ```ts
-isErrorType(type): type is ErrorType
+function isErrorType(type): type is ErrorType
 ```
 
 ## Parameters
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` | [`Type`](../type-aliases/Type.md) |
+| `type` | [`Entity`](../type-aliases/Entity.md) |
 
 ## Returns
 

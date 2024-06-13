@@ -4,7 +4,7 @@ title: "[F] getMinItems"
 
 ---
 ```ts
-getMinItems(program, target): number | undefined
+function getMinItems(program, target): number | undefined
 ```
 
 ## Parameters

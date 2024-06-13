@@ -48,7 +48,7 @@ Resolve the real path for the current host.
 ### stat()
 
 ```ts
-stat(path): Promise<Object>
+stat(path): Promise<object>
 ```
 
 Get information about the given path
@@ -61,10 +61,9 @@ Get information about the given path
 
 #### Returns
 
-`Promise`<`Object`\>
+`Promise`<`object`\>
 
-> | Member | Type |
-> | :------ | :------ |
-> | `isDirectory` | `boolean` |
-> | `isFile` | `boolean` |
->
+| Member | Type |
+| :------ | :------ |
+| `isDirectory` | `boolean` |
+| `isFile` | `boolean` |

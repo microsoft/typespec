@@ -4,7 +4,7 @@ title: "[F] checkDuplicateTypeName"
 
 ---
 ```ts
-checkDuplicateTypeName(
+function checkDuplicateTypeName(
    program, 
    type, 
    name, 

@@ -4,7 +4,7 @@ title: "[F] validateDecoratorUniqueOnNode"
 
 ---
 ```ts
-validateDecoratorUniqueOnNode(
+function validateDecoratorUniqueOnNode(
    context, 
    type, 
    decorator): boolean

@@ -9,27 +9,28 @@ title: "[I] Namespace"
 
 ## Properties
 
-| Property | Type | Description | Overrides | Inherited from |
-| :------ | :------ | :------ | :------ | :------ |
-| `decoratorDeclarations` | `Map`<`string`, [`Decorator`](Decorator.md)\> | The decorators declared in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
-| `enums` | `Map`<`string`, [`Enum`](Enum.md)\> | The enums in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `functionDeclarations` | `Map`<`string`, [`FunctionType`](FunctionType.md)\> | The functions declared in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `interfaces` | `Map`<`string`, [`Interface`](Interface.md)\> | The interfaces in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"Namespace"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
-| `models` | `Map`<`string`, [`Model`](Model.md)\> | The models in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `name` | `string` | - | - | - |
-| `namespace?` | [`Namespace`](Namespace.md) | - | - | - |
-| `namespaces` | `Map`<`string`, [`Namespace`](Namespace.md)\> | The sub-namespaces in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `node` | [`JsNamespaceDeclarationNode`](JsNamespaceDeclarationNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
-| `operations` | `Map`<`string`, [`Operation`](Operation.md)\> | The operations in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
-| `scalars` | `Map`<`string`, [`Scalar`](Scalar.md)\> | The scalars in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
-| `unions` | `Map`<`string`, [`Union`](Union.md)\> | The unions in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ | :------ |
+| `decoratorDeclarations` | `public` | `Map`<`string`, [`Decorator`](Decorator.md)\> | <p>The decorators declared in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `decorators` | `public` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `entityKind` | `readonly` | `"Type"` | - | [`BaseType`](BaseType.md).`entityKind` | [`BaseType`](BaseType.md).`entityKind` |
+| `enums` | `public` | `Map`<`string`, [`Enum`](Enum.md)\> | <p>The enums in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `functionDeclarations` | `public` | `Map`<`string`, [`FunctionType`](FunctionType.md)\> | <p>The functions declared in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `interfaces` | `public` | `Map`<`string`, [`Interface`](Interface.md)\> | <p>The interfaces in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `isFinished` | `public` | `boolean` | <p>Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished:</p><ul><li>a template declaration will not</li><li>a template instance that argument that are still template parameters</li><li>a template instance that is only partially instantiated(like a templated operation inside a templated interface)</li></ul> | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"Namespace"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `models` | `public` | `Map`<`string`, [`Model`](Model.md)\> | <p>The models in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `name` | `public` | `string` | - | - | - |
+| `namespace?` | `public` | [`Namespace`](Namespace.md) | - | - | - |
+| `namespaces` | `public` | `Map`<`string`, [`Namespace`](Namespace.md)\> | <p>The sub-namespaces in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `node` | `public` | [`JsNamespaceDeclarationNode`](JsNamespaceDeclarationNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `operations` | `public` | `Map`<`string`, [`Operation`](Operation.md)\> | <p>The operations in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| `scalars` | `public` | `Map`<`string`, [`Scalar`](Scalar.md)\> | <p>The scalars in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
+| `unions` | `public` | `Map`<`string`, [`Union`](Union.md)\> | <p>The unions in the namespace.</p><p>Order is implementation-defined and may change.</p> | - | - |
 
 ## Accessors
 

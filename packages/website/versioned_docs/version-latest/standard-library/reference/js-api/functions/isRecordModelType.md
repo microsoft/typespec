@@ -4,7 +4,7 @@ title: "[F] isRecordModelType"
 
 ---
 ```ts
-isRecordModelType(program, type): type is ArrayModelType
+function isRecordModelType(program, type): type is ArrayModelType
 ```
 
 Check if a model is an array type.

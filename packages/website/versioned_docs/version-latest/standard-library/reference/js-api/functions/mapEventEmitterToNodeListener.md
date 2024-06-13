@@ -4,7 +4,7 @@ title: "[F] mapEventEmitterToNodeListener"
 
 ---
 ```ts
-mapEventEmitterToNodeListener(eventEmitter): SemanticNodeListener
+function mapEventEmitterToNodeListener(eventEmitter): SemanticNodeListener
 ```
 
 Create a Semantic node listener from an event emitter.

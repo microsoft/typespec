@@ -4,7 +4,7 @@ title: "[F] validateDecoratorParamType"
 
 ---
 ```ts
-validateDecoratorParamType<K>(
+function validateDecoratorParamType<K>(
    program, 
    target, 
    value, 
@@ -17,30 +17,31 @@ Validate a decorator parameter has the correct type.
 
 | Type parameter |
 | :------ |
-| `K` extends 
-  \| `"Scalar"`
-  \| `"ModelProperty"`
-  \| `"Model"`
-  \| `"Interface"`
+| `K` *extends* 
+  \| `"Boolean"`
+  \| `"Decorator"`
   \| `"Enum"`
   \| `"EnumMember"`
-  \| `"TemplateParameter"`
+  \| `"FunctionParameter"`
+  \| `"Function"`
+  \| `"Interface"`
+  \| `"Intrinsic"`
+  \| `"Model"`
+  \| `"ModelProperty"`
   \| `"Namespace"`
-  \| `"Operation"`
-  \| `"String"`
   \| `"Number"`
-  \| `"Boolean"`
+  \| `"Object"`
+  \| `"Operation"`
+  \| `"Projection"`
+  \| `"Scalar"`
+  \| `"ScalarConstructor"`
+  \| `"String"`
   \| `"StringTemplate"`
   \| `"StringTemplateSpan"`
+  \| `"TemplateParameter"`
   \| `"Tuple"`
   \| `"Union"`
-  \| `"UnionVariant"`
-  \| `"Intrinsic"`
-  \| `"Function"`
-  \| `"Decorator"`
-  \| `"FunctionParameter"`
-  \| `"Object"`
-  \| `"Projection"` |
+  \| `"UnionVariant"` |
 
 ## Parameters
 

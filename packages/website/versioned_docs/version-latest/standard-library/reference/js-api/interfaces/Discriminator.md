@@ -5,6 +5,6 @@ title: "[I] Discriminator"
 ---
 ## Properties
 
-| Property | Type |
-| :------ | :------ |
-| `propertyName` | `string` |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `propertyName` | `readonly` | `string` |

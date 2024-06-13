@@ -4,14 +4,14 @@ title: "[F] isCadlValueTypeOf"
 
 ---
 ```ts
-isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
+function isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
 ## Type parameters
 
 | Type parameter |
 | :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 

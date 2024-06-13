@@ -4,7 +4,7 @@ title: "[F] getPatternData"
 
 ---
 ```ts
-getPatternData(program, target): PatternData | undefined
+function getPatternData(program, target): PatternData | undefined
 ```
 
 Gets the associated pattern data, including the pattern regular expression and optional validation message, if any

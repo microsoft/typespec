@@ -4,7 +4,7 @@ title: "[F] $useAuth"
 
 ---
 ```ts
-$useAuth(
+function $useAuth(
    context, 
    entity, 
    authConfig): void
@@ -15,7 +15,7 @@ $useAuth(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `Interface` \| `Namespace` \| `Operation` |
+| `entity` | `Namespace` \| `Interface` \| `Operation` |
 | `authConfig` | `Type` |
 
 ## Returns

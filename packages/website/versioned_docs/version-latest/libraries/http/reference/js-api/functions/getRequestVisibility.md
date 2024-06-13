@@ -4,7 +4,7 @@ title: "[F] getRequestVisibility"
 
 ---
 ```ts
-getRequestVisibility(verb): Visibility
+function getRequestVisibility(verb): Visibility
 ```
 
 Determines the visibility to use for a request with the given verb.

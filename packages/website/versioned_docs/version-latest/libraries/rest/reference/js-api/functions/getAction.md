@@ -4,7 +4,7 @@ title: "[F] getAction"
 
 ---
 ```ts
-getAction(program, operation): string | null | undefined
+function getAction(program, operation): string | null | undefined
 ```
 
 ## Parameters

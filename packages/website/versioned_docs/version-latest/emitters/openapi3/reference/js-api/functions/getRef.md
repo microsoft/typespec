@@ -4,7 +4,7 @@ title: "[F] getRef"
 
 ---
 ```ts
-getRef(program, entity): string | undefined
+function getRef(program, entity): string | undefined
 ```
 
 ## Parameters

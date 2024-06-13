@@ -4,7 +4,7 @@ title: "[F] $readsResource"
 
 ---
 ```ts
-$readsResource(
+function $readsResource(
    context, 
    target, 
    resourceType): void

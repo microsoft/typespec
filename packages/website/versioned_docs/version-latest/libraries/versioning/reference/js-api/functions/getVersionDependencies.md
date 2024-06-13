@@ -4,7 +4,7 @@ title: "[F] getVersionDependencies"
 
 ---
 ```ts
-getVersionDependencies(program, namespace): Map<Namespace, Map<Version, Version> | Version> | undefined
+function getVersionDependencies(program, namespace): Map<Namespace, Map<Version, Version> | Version> | undefined
 ```
 
 ## Parameters

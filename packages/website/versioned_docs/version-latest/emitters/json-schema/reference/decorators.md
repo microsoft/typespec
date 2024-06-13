@@ -258,6 +258,22 @@ Specify that the numeric type must be a multiple of some numeric value.
 | ----- | ----------------- | -------------------------------------------------- |
 | value | `valueof numeric` | The numeric type must be a multiple of this value. |
 
+### `@oneOf` {#@TypeSpec.JsonSchema.oneOf}
+
+Specify that `oneOf` should be used instead of `anyOf` for that union.
+
+```typespec
+@TypeSpec.JsonSchema.oneOf
+```
+
+#### Target
+
+`Union | ModelProperty`
+
+#### Parameters
+
+None
+
 ### `@prefixItems` {#@TypeSpec.JsonSchema.prefixItems}
 
 Specify that the target array must begin with the provided types.

@@ -205,6 +205,20 @@ model TypeSpec.Http.CreatedResponse
 | ---------- | ----- | ---------------- |
 | statusCode | `201` | The status code. |
 
+### `File` {#TypeSpec.Http.File}
+
+```typespec
+model TypeSpec.Http.File
+```
+
+#### Properties
+
+| Name         | Type     | Description |
+| ------------ | -------- | ----------- |
+| contentType? | `string` |             |
+| filename?    | `string` |             |
+| contents     | `bytes`  |             |
+
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
 Access is forbidden.
@@ -233,6 +247,35 @@ model TypeSpec.Http.HeaderOptions
 | ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
 | name?   | `string`                                                              | Name of the header when sent over HTTP.                   |
 | format? | `"csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
+
+### `HttpPart` {#TypeSpec.Http.HttpPart}
+
+```typespec
+model TypeSpec.Http.HttpPart<Type, Options>
+```
+
+#### Template Parameters
+
+| Name    | Description |
+| ------- | ----------- |
+| Type    |             |
+| Options |             |
+
+#### Properties
+
+None
+
+### `HttpPartOptions` {#TypeSpec.Http.HttpPartOptions}
+
+```typespec
+model TypeSpec.Http.HttpPartOptions
+```
+
+#### Properties
+
+| Name  | Type     | Description                                 |
+| ----- | -------- | ------------------------------------------- |
+| name? | `string` | Name of the part when using the array form. |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 

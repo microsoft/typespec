@@ -4,7 +4,7 @@ title: "[F] isKeyword"
 
 ---
 ```ts
-isKeyword(token): boolean
+function isKeyword(token): boolean
 ```
 
 ## Parameters

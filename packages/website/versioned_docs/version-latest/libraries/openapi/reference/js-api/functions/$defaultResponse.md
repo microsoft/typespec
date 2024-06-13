@@ -4,7 +4,7 @@ title: "[F] $defaultResponse"
 
 ---
 ```ts
-$defaultResponse(context, target): void
+function $defaultResponse(context, target): void
 ```
 
 ## Parameters
