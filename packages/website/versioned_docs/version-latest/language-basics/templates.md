@@ -108,3 +108,43 @@ alias Example3 = Test<
 Since template arguments can be specified by name, the names of template parameters are part of the template's public API. **Renaming a template parameter may break existing specifications that use the template.**
 
 **Note**: Template arguments are evaluated in the order the parameters are defined in the template _definition_, not the order in which they are written in the template _instance_. While this is usually inconsequential, it may be important in some cases where evaluating a template argument may trigger decorators with side effects.
+
+## Templates with values
+
+Templates can be declared to accept values using a `valueof` constraint. This is useful for providing default values and parameters for decorators that take values.
+
+```typespec
+alias TakesValue<StringType extends string, StringValue extends valueof string> = {
+  @doc(StringValue)
+  property: StringType;
+};
+
+alias M1 = TakesValue<"a", "b">;
+```
+
+When a passing a literal or an enum or union member reference directly as a template parameter that accepts either a type or a value, we pass the value. In particular, `StringTypeOrValue` is a value with the string literal type `"a"`.
+
+```typespec
+alias TakesTypeOrValue<StringTypeOrValue extends string | (valueof string)> = {
+  @customDecorator(StringOrValue)
+  property: string;
+};
+
+alias M1 = TakesValue<"a">;
+```
+
+The [`typeof` operator](./values.md#the-typeof-operator) can be used to get the declared type of a value if needed.
+
+### Template parameter value types
+
+When a template is instantiated with a value, the type of the value and the result of the `typeof` operator is determined based on the argument rather than the template parameter constraint. This follows the same rules as [const declaration type inference](./values.md#const-declarations). In particular, inside the template `TakesValue`, the type of `StringValue` is the string literal type `"b"`. If we passed a `const` instead, the type of the value would be the const's type. In the following example, the type of `property` in `M1` is `"a" | "b"`.
+
+```typespec
+alias TakesValue<StringValue extends valueof string> = {
+  @doc(StringValue)
+  property: typeof StringValue;
+};
+
+const str: "a" | "b" = "a";
+alias M1 = TakesValue<str>;
+```

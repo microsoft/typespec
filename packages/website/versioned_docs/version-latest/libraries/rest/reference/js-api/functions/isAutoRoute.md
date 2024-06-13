@@ -4,7 +4,7 @@ title: "[F] isAutoRoute"
 
 ---
 ```ts
-isAutoRoute(program, entity): boolean
+function isAutoRoute(program, entity): boolean
 ```
 
 ## Parameters

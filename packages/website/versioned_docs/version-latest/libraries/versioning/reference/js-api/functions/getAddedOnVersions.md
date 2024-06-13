@@ -4,7 +4,7 @@ title: "[F] getAddedOnVersions"
 
 ---
 ```ts
-getAddedOnVersions(p, t): Version[] | undefined
+function getAddedOnVersions(p, t): Version[] | undefined
 ```
 
 ## Parameters

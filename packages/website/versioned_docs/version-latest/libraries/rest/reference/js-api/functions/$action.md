@@ -4,7 +4,7 @@ title: "[F] $action"
 
 ---
 ```ts
-$action(
+function $action(
    context, 
    target, 
    name?): void

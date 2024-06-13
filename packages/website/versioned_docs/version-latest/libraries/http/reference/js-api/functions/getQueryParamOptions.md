@@ -4,7 +4,7 @@ title: "[F] getQueryParamOptions"
 
 ---
 ```ts
-getQueryParamOptions(program, entity): QueryParameterOptions
+function getQueryParamOptions(program, entity): QueryParameterOptions
 ```
 
 ## Parameters

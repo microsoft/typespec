@@ -4,7 +4,7 @@ title: "[F] getAuthentication"
 
 ---
 ```ts
-getAuthentication(program, entity): Authentication | undefined
+function getAuthentication(program, entity): Authentication | undefined
 ```
 
 ## Parameters
@@ -12,7 +12,7 @@ getAuthentication(program, entity): Authentication | undefined
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `entity` | `Interface` \| `Namespace` \| `Operation` |
+| `entity` | `Namespace` \| `Interface` \| `Operation` |
 
 ## Returns
 

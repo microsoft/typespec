@@ -4,7 +4,7 @@ title: "[F] $resourceLocation"
 
 ---
 ```ts
-$resourceLocation(
+function $resourceLocation(
    context, 
    target, 
    resourceType): void

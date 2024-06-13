@@ -4,7 +4,7 @@ title: "[F] getAllHttpServices"
 
 ---
 ```ts
-getAllHttpServices(program, options?): [HttpService[], readonly Diagnostic[]]
+function getAllHttpServices(program, options?): [HttpService[], readonly Diagnostic[]]
 ```
 
 Returns all the services defined.

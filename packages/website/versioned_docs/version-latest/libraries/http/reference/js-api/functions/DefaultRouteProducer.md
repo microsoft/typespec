@@ -4,7 +4,7 @@ title: "[F] DefaultRouteProducer"
 
 ---
 ```ts
-DefaultRouteProducer(
+function DefaultRouteProducer(
    program, 
    operation, 
    parentSegments, 

@@ -225,6 +225,32 @@ Specify if inapplicable metadata should be included in the payload for the given
 | ----- | ----------------- | --------------------------------------------------------------- |
 | value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
+### `@multipartBody` {#@TypeSpec.Http.multipartBody}
+
+```typespec
+@TypeSpec.Http.multipartBody
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+None
+
+#### Examples
+
+```tsp
+op upload(
+  @header `content-type`: "multipart/form-data",
+  @multipartBody body: {
+    fullName: HttpPart<string>;
+    headShots: HttpPart<Image>[];
+  },
+): void;
+```
+
 ### `@patch` {#@TypeSpec.Http.patch}
 
 Specify the HTTP verb for the target operation to be `PATCH`.
@@ -358,7 +384,7 @@ it will be used as a prefix to the route URI of the operation.
 `@route` can only be applied to operations, namespaces, and interfaces.
 
 ```typespec
-@TypeSpec.Http.route(path: valueof string, options?: (anonymous model))
+@TypeSpec.Http.route(path: valueof string, options?: { shared: boolean })
 ```
 
 #### Target
@@ -411,8 +437,8 @@ namespace PetStore;
 
 ```typespec
 @server("https://{region}.foo.com", "Regional endpoint", {
-@doc("Region name")
-region?: string = "westus",
+  @doc("Region name")
+  region?: string = "westus",
 })
 ```
 
@@ -462,8 +488,13 @@ None
 #### Examples
 
 ```typespec
-op read(): {@statusCode: 200, @body pet: Pet}
-op create(): {@statusCode: 201 | 202}
+op read(): {
+  @statusCode _: 200;
+  @body pet: Pet;
+};
+op create(): {
+  @statusCode _: 201 | 202;
+};
 ```
 
 ### `@useAuth` {#@TypeSpec.Http.useAuth}

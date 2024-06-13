@@ -4,7 +4,7 @@ title: "[F] listHttpOperationsIn"
 
 ---
 ```ts
-listHttpOperationsIn(
+function listHttpOperationsIn(
    program, 
    container, 
    options?): [HttpOperation[], readonly Diagnostic[]]

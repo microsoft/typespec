@@ -4,7 +4,7 @@ title: "[F] getMaxProperties"
 
 ---
 ```ts
-getMaxProperties(program, target): any
+function getMaxProperties(program, target): any
 ```
 
 ## Parameters

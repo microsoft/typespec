@@ -4,7 +4,7 @@ title: "[F] $madeOptional"
 
 ---
 ```ts
-$madeOptional(
+function $madeOptional(
    context, 
    target, 
    version): void

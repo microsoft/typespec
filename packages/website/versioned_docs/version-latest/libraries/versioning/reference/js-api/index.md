@@ -17,14 +17,11 @@ title: "[P] JS API"
 - [VersionProjections](interfaces/VersionProjections.md)
 - [VersionResolution](interfaces/VersionResolution.md)
 
-## Variables
-
-- [namespace](variables/namespace.md)
-
 ## Functions
 
 - [$added](functions/$added.md)
 - [$madeOptional](functions/$madeOptional.md)
+- [$madeRequired](functions/$madeRequired.md)
 - [$onValidate](functions/$onValidate.md)
 - [$removed](functions/$removed.md)
 - [$renamedFrom](functions/$renamedFrom.md)
@@ -33,19 +30,15 @@ title: "[P] JS API"
 - [$useDependency](functions/$useDependency.md)
 - [$versioned](functions/$versioned.md)
 - [buildVersionProjections](functions/buildVersionProjections.md)
-- [existsAtVersion](functions/existsAtVersion.md)
 - [findVersionedNamespace](functions/findVersionedNamespace.md)
 - [getAddedOnVersions](functions/getAddedOnVersions.md)
 - [getAvailabilityMap](functions/getAvailabilityMap.md)
 - [getAvailabilityMapInTimeline](functions/getAvailabilityMapInTimeline.md)
 - [getMadeOptionalOn](functions/getMadeOptionalOn.md)
-- [getNameAtVersion](functions/getNameAtVersion.md)
 - [getRemovedOnVersions](functions/getRemovedOnVersions.md)
 - [getRenamedFrom](functions/getRenamedFrom.md)
 - [getRenamedFromVersions](functions/getRenamedFromVersions.md)
-- [getReturnTypeBeforeVersion](functions/getReturnTypeBeforeVersion.md)
 - [getReturnTypeChangedFrom](functions/getReturnTypeChangedFrom.md)
-- [getTypeBeforeVersion](functions/getTypeBeforeVersion.md)
 - [getTypeChangedFrom](functions/getTypeChangedFrom.md)
 - [getUseDependencies](functions/getUseDependencies.md)
 - [getVersion](functions/getVersion.md)
@@ -53,8 +46,4 @@ title: "[P] JS API"
 - [getVersionForEnumMember](functions/getVersionForEnumMember.md)
 - [getVersions](functions/getVersions.md)
 - [getVersionsForEnum](functions/getVersionsForEnum.md)
-- [hasDifferentNameAtVersion](functions/hasDifferentNameAtVersion.md)
-- [hasDifferentReturnTypeAtVersion](functions/hasDifferentReturnTypeAtVersion.md)
-- [hasDifferentTypeAtVersion](functions/hasDifferentTypeAtVersion.md)
-- [madeOptionalAfter](functions/madeOptionalAfter.md)
 - [resolveVersions](functions/resolveVersions.md)

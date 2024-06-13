@@ -4,7 +4,7 @@ title: "[F] $contentEncoding"
 
 ---
 ```ts
-$contentEncoding(
+function $contentEncoding(
    context, 
    target, 
    value): void
@@ -15,7 +15,7 @@ $contentEncoding(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Scalar` \| `ModelProperty` |
+| `target` | `ModelProperty` \| `Scalar` |
 | `value` | `string` |
 
 ## Returns
