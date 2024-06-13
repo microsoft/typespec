@@ -27,6 +27,8 @@ const $lib: TypeSpecLibrary<object, OpenAPI3EmitterOptions, never>;
 | `invalid-default.default` | `CallableMessage`<[`"type"`]\> | ... |
 | `invalid-format` | `object` | ... |
 | `invalid-format.default` | `CallableMessage`<[`"value"`, `"paramType"`]\> | ... |
+| `invalid-model-property` | `object` | ... |
+| `invalid-model-property.default` | `CallableMessage`<[`"type"`]\> | ... |
 | `invalid-schema` | `object` | ... |
 | `invalid-schema.default` | `CallableMessage`<[`"type"`]\> | ... |
 | `invalid-server-variable` | `object` | ... |
