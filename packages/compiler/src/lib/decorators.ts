@@ -84,12 +84,14 @@ import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
   DecoratorContext,
+  DiagnosticTarget,
   Enum,
   EnumMember,
   Interface,
   Model,
   ModelProperty,
   Namespace,
+  ObjectValue,
   Operation,
   Scalar,
   Type,
@@ -1431,8 +1433,8 @@ export interface Example extends ExampleOptions {
   readonly value: Value;
 }
 export interface OperationExample extends ExampleOptions {
-  readonly parameters?: Operation;
-  readonly returnType?: unknown;
+  readonly parameters?: Value;
+  readonly returnType?: Value;
 }
 
 const exampleKey = createStateSymbol("examples");
@@ -1447,16 +1449,16 @@ export const $example: ExampleDecorator = (
   );
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
-  const exactType = context.program.checker.getValueExactType(rawExample);
+  // skip validation in projections
   if (target.projectionBase === undefined) {
-    // skip validation in projections
-    const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
-      exactType ?? rawExample.type,
-      target.kind === "ModelProperty" ? target.type : target,
-      context.getArgumentTarget(0)!
-    );
-    if (!assignable) {
-      context.program.reportDiagnostics(diagnostics);
+    if (
+      !checkExampleValid(
+        context.program,
+        rawExample,
+        target.kind === "ModelProperty" ? target.type : target,
+        context.getArgumentTarget(0)!
+      )
+    ) {
       return;
     }
   }
@@ -1467,7 +1469,6 @@ export const $example: ExampleDecorator = (
     context.program.stateMap(exampleKey).set(target, list);
   }
   list.push({ value: rawExample, ...(options as any) });
-  // }
 };
 
 export function getExamples(
@@ -1480,12 +1481,69 @@ export function getExamples(
 const opExampleKey = createStateSymbol("opExamples");
 export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
-  target: Type,
-  example: unknown, // TODO: change `example: OperationExample` when tspd supports it
+  target: Operation,
+  _example: unknown,
   options?: unknown // TODO: change `options?: ExampleOptions` when tspd supports it
 ) => {
-  context.program.stateMap(opExampleKey).set(target, { example, ...(options as any) });
+  const decorator = target.decorators.find(
+    (d) => d.decorator === $opExample && d.node === context.decoratorTarget
+  );
+  compilerAssert(decorator, `Couldn't find @opExample decorator`, context.decoratorTarget);
+  const rawExampleConfig = decorator.args[0].value as ObjectValue;
+  const parameters = rawExampleConfig.properties.get("parameters")?.value;
+  const returnType = rawExampleConfig.properties.get("returnType")?.value;
+
+  // skip validation in projections
+  if (target.projectionBase === undefined) {
+    if (
+      parameters &&
+      !checkExampleValid(
+        context.program,
+        parameters,
+        target.parameters,
+        context.getArgumentTarget(0)!
+      )
+    ) {
+      return;
+    }
+    if (
+      returnType &&
+      !checkExampleValid(
+        context.program,
+        returnType,
+        target.returnType,
+        context.getArgumentTarget(0)!
+      )
+    ) {
+      return;
+    }
+  }
+
+  let list = context.program.stateMap(opExampleKey).get(target);
+  if (list === undefined) {
+    list = [];
+    context.program.stateMap(opExampleKey).set(target, list);
+  }
+  list.push({ parameters, returnType, ...(options as any) });
 };
+
+function checkExampleValid(
+  program: Program,
+  value: Value,
+  target: Type,
+  diagnosticTarget: DiagnosticTarget
+): boolean {
+  const exactType = program.checker.getValueExactType(value);
+  const [assignable, diagnostics] = program.checker.isTypeAssignableTo(
+    exactType ?? value.type,
+    target,
+    diagnosticTarget
+  );
+  if (!assignable) {
+    program.reportDiagnostics(diagnostics);
+  }
+  return assignable;
+}
 
 export function getOpExamples(
   program: Program,
