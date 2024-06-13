@@ -314,6 +314,25 @@ describe("json serialization of examples", () => {
         },
       ],
     ],
+    [
+      "duration",
+      [
+        {
+          value: `duration.fromISO("PT5M")`,
+          expect: "PT5M",
+        },
+        {
+          value: `duration.fromISO("PT5M")`,
+          expect: 300,
+          encode: `@encode("seconds", int32)`,
+        },
+        {
+          value: `duration.fromISO("PT0.5S")`,
+          expect: 0.5,
+          encode: `@encode("seconds", float32)`,
+        },
+      ],
+    ],
   ];
 
   describe.each(allCases)("%s", (type, cases) => {

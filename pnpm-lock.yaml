@@ -264,6 +264,9 @@ importers:
       semver:
         specifier: ^7.6.2
         version: 7.6.2
+      temporal-polyfill:
+        specifier: ^0.2.5
+        version: 0.2.5
       vscode-languageserver:
         specifier: ~9.0.1
         version: 9.0.1
@@ -19708,6 +19711,16 @@ packages:
     dependencies:
       rimraf: 2.6.3
     dev: true
+
+  /temporal-polyfill@0.2.5:
+    resolution: {integrity: sha512-ye47xp8Cb0nDguAhrrDS1JT1SzwEV9e26sSsrWzVu+yPZ7LzceEcH0i2gci9jWfOfSCCgM3Qv5nOYShVUUFUXA==}
+    dependencies:
+      temporal-spec: 0.2.4
+    dev: false
+
+  /temporal-spec@0.2.4:
+    resolution: {integrity: sha512-lDMFv4nKQrSjlkHKAlHVqKrBG4DyFfa9F74cmBZ3Iy3ed8yvWnlWSIdi4IKfSqwmazAohBNwiN64qGx4y5Q3IQ==}
+    dev: false
 
   /tempy@1.0.1:
     resolution: {integrity: sha512-biM9brNqxSc04Ee71hzFbryD11nX7VPhQQY32AdDmjFvodsRFz/3ufeoTZ6uYkRFfGo188tENcASNs3vTdsM0w==}

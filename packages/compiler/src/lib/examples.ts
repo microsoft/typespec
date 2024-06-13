@@ -1,3 +1,4 @@
+import { Temporal } from "temporal-polyfill";
 import type { Program } from "../core/program.js";
 import type { Model, ObjectValue, Scalar, ScalarValue, Type, Value } from "../core/types.js";
 import { getEncode, type EncodeData } from "./decorators.js";
@@ -104,7 +105,7 @@ function serializeScalarValueAsJson(
     case "plainTime":
       return ScalarSerializers.plainTime((value.value.args[0] as any).value);
     case "duration":
-      return serializeValueAsJson(program, value.value.args[0], value.value.args[0].type);
+      return ScalarSerializers.duration((value.value.args[0] as any).value, encodeAs);
   }
 }
 
@@ -145,4 +146,28 @@ const ScalarSerializers = {
   plainTime: (value: string): unknown => {
     return value;
   },
+  duration: (value: string, encodeAs: EncodeData | undefined): unknown => {
+    const duration = Temporal.Duration.from(value);
+
+    switch (encodeAs?.encoding) {
+      case "seconds":
+        if (isInteger(encodeAs.type)) {
+          return Math.floor(duration.total({ unit: "seconds" }));
+        } else {
+          return duration.total({ unit: "seconds" });
+        }
+      default:
+        return duration.toString();
+    }
+  },
 };
+
+function isInteger(scalar: Scalar) {
+  while (scalar.baseScalar) {
+    scalar = scalar.baseScalar;
+    if (scalar.name === "integer") {
+      return true;
+    }
+  }
+  return false;
+}
