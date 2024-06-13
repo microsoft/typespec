@@ -2503,7 +2503,7 @@ export function createChecker(program: Program): Checker {
       const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
       const paramDocs = extractParamDocs(node);
       for (const [name, memberSym] of members) {
-        const doc = paramDocs[name];
+        const doc = paramDocs.get(name);
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
         }
@@ -3850,7 +3850,7 @@ export function createChecker(program: Program): Checker {
       const members = getOrCreateAugmentedSymbolTable(node.symbol.members);
       const propDocs = extractPropDocs(node);
       for (const [name, memberSym] of members) {
-        const doc = propDocs[name];
+        const doc = propDocs.get(name);
         if (doc) {
           docFromCommentForSym.set(memberSym, doc);
         }
@@ -5621,7 +5621,6 @@ export function createChecker(program: Program): Checker {
       decorators,
       derivedScalars: [],
     });
-    checkScalarConstructors(type, node, type.constructors, mapper);
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -5631,6 +5630,7 @@ export function createChecker(program: Program): Checker {
         type.baseScalar.derivedScalars.push(type);
       }
     }
+    checkScalarConstructors(type, node, type.constructors, mapper);
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (mapper === undefined) {
@@ -5695,6 +5695,19 @@ export function createChecker(program: Program): Checker {
     constructors: Map<string, ScalarConstructor>,
     mapper: TypeMapper | undefined
   ) {
+    if (parentScalar.baseScalar) {
+      for (const member of parentScalar.baseScalar.constructors.values()) {
+        const newConstructor: ScalarConstructor = cloneTypeForSymbol(
+          getMemberSymbol(node.symbol, member.name)!,
+          {
+            ...member,
+            scalar: parentScalar,
+          }
+        );
+        linkIndirectMember(node, newConstructor, mapper);
+        constructors.set(member.name, newConstructor);
+      }
+    }
     for (const member of node.members) {
       const constructor = checkScalarConstructor(member, mapper, parentScalar);
       if (constructors.has(constructor.name as string)) {
@@ -6512,7 +6525,10 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    const clone = finishType(initializeClone(type, additionalProps));
+    let clone = initializeClone(type, additionalProps);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
@@ -8452,30 +8468,30 @@ function extractReturnsDocs(type: Type): {
   return result;
 }
 
-function extractParamDocs(node: OperationStatementNode): Record<string, string> {
+function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return {};
+    return new Map();
   }
-  const paramDocs: Record<string, string> = {};
+  const paramDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocParamTag) {
-        paramDocs[tag.paramName.sv] = getDocContent(tag.content);
+        paramDocs.set(tag.paramName.sv, getDocContent(tag.content));
       }
     }
   }
   return paramDocs;
 }
 
-function extractPropDocs(node: ModelStatementNode): Record<string, string> {
+function extractPropDocs(node: ModelStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return {};
+    return new Map();
   }
-  const propDocs: Record<string, string> = {};
+  const propDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
       if (tag.kind === SyntaxKind.DocPropTag) {
-        propDocs[tag.propName.sv] = getDocContent(tag.content);
+        propDocs.set(tag.propName.sv, getDocContent(tag.content));
       }
     }
   }
