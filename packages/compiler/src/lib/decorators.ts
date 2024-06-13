@@ -1432,7 +1432,7 @@ export interface ExampleOptions {
 export interface Example extends ExampleOptions {
   readonly value: Value;
 }
-export interface OperationExample extends ExampleOptions {
+export interface OpExample extends ExampleOptions {
   readonly parameters?: Value;
   readonly returnType?: Value;
 }
@@ -1545,9 +1545,6 @@ function checkExampleValid(
   return assignable;
 }
 
-export function getOpExamples(
-  program: Program,
-  target: Model | Scalar | Enum | Union
-): OperationExample[] {
+export function getOpExamples(program: Program, target: Operation): OpExample[] {
   return program.stateMap(opExampleKey).get(target) ?? [];
 }
