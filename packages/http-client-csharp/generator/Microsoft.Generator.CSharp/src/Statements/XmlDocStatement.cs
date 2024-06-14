@@ -25,21 +25,14 @@ namespace Microsoft.Generator.CSharp.Statements
         {
             using var scope = new CodeWriter.XmlDocWritingScope(writer);
 
-            if (Lines.Count == 0 || IsEmpty(Lines))
+            if (Lines.Count == 0 || IsEmptySingleLine(Lines))
             {
                 writer.WriteLine($"/// {StartTag}{EndTag}");
             }
             else if (Lines.Count == 1)
             {
-                //should we auto add the '.'?
-                string lineFormat = Lines[0].Format;
-                string stringToCheck = lineFormat;
-                if (lineFormat == SingleArgFormat && Lines[0].ArgumentCount == 1 && Lines[0].GetArgument(0) is string strLine)
-                {
-                    stringToCheck = strLine;
-                }
-                string period = stringToCheck.EndsWith(".") ? string.Empty : ".";
-                writer.WriteLine($"/// {StartTag} {Lines[0]}{period} {EndTag}");
+                string periodOrEmpty = GetPeriodOrEmpty(Lines[0]);
+                writer.WriteLine($"/// {StartTag} {Lines[0]}{periodOrEmpty} {EndTag}");
             }
             else
             {
@@ -52,7 +45,20 @@ namespace Microsoft.Generator.CSharp.Statements
             }
         }
 
-        private static bool IsEmpty(IReadOnlyList<FormattableString> lines)
+        private string GetPeriodOrEmpty(FormattableString formattableString)
+        {
+            //should we auto add the '.'?
+
+            string lineFormat = Lines[0].Format;
+            string stringToCheck = lineFormat;
+            if (lineFormat == SingleArgFormat && Lines[0].ArgumentCount == 1 && Lines[0].GetArgument(0) is string strLine)
+            {
+                stringToCheck = strLine;
+            }
+            return stringToCheck.EndsWith(".") ? string.Empty : ".";
+        }
+
+        private static bool IsEmptySingleLine(IReadOnlyList<FormattableString> lines)
         {
             if (lines.Count != 1)
             {
