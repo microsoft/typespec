@@ -15,7 +15,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
