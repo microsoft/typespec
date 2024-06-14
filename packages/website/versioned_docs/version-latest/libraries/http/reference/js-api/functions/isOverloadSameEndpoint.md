@@ -4,14 +4,14 @@ title: "[F] isOverloadSameEndpoint"
 
 ---
 ```ts
-isOverloadSameEndpoint(overload): boolean
+function isOverloadSameEndpoint(overload): boolean
 ```
 
 ## Parameters
 
 | Parameter | Type |
 | :------ | :------ |
-| `overload` | [`HttpOperation`](../interfaces/HttpOperation.md) & `Object` |
+| `overload` | [`HttpOperation`](../interfaces/HttpOperation.md) & `object` |
 
 ## Returns
 

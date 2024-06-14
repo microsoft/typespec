@@ -4,7 +4,7 @@ title: "[F] isListOperation"
 
 ---
 ```ts
-isListOperation(program, target): boolean
+function isListOperation(program, target): boolean
 ```
 
 ## Parameters

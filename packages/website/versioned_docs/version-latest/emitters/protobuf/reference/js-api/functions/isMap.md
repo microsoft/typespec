@@ -4,7 +4,7 @@ title: "[F] isMap"
 
 ---
 ```ts
-isMap(program, m): boolean
+function isMap(program, m): boolean
 ```
 
 Determines whether a type represents a Protobuf map.

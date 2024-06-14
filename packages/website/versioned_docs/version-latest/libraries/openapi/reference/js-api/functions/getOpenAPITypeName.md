@@ -4,7 +4,7 @@ title: "[F] getOpenAPITypeName"
 
 ---
 ```ts
-getOpenAPITypeName(
+function getOpenAPITypeName(
    program, 
    type, 
    options, 

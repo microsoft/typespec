@@ -4,7 +4,7 @@ title: "[F] getResourceOperation"
 
 ---
 ```ts
-getResourceOperation(program, typespecOperation): ResourceOperation | undefined
+function getResourceOperation(program, typespecOperation): ResourceOperation | undefined
 ```
 
 ## Parameters

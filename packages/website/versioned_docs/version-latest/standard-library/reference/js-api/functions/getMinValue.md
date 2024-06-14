@@ -4,7 +4,7 @@ title: "[F] getMinValue"
 
 ---
 ```ts
-getMinValue(program, target): number | undefined
+function getMinValue(program, target): number | undefined
 ```
 
 ## Parameters

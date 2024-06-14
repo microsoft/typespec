@@ -17,7 +17,7 @@ get(args): undefined | Type
 
 | Parameter | Type |
 | :------ | :------ |
-| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `args` | readonly ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] |
 
 #### Returns
 
@@ -35,7 +35,7 @@ set(args, type): void
 
 | Parameter | Type |
 | :------ | :------ |
-| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `args` | readonly ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] |
 | `type` | [`Type`](../type-aliases/Type.md) |
 
 #### Returns

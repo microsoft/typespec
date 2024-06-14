@@ -4,7 +4,7 @@ title: "[F] isErrorModel"
 
 ---
 ```ts
-isErrorModel(program, target): boolean
+function isErrorModel(program, target): boolean
 ```
 
 Check if the type is an error model or a descendant of an error model.

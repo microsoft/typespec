@@ -4,7 +4,7 @@ title: "[F] isUnwrapped"
 
 ---
 ```ts
-isUnwrapped(program, target): boolean
+function isUnwrapped(program, target): boolean
 ```
 
 Check if the given property should be unwrapped in the XML containing node.

@@ -353,7 +353,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     });
 
     if (refSchema.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
+      reportDiagnostic(program, {
+        code: "invalid-model-property",
+        format: {
+          type: prop.type.kind,
+        },
+        target: prop,
+      });
+      return {};
     }
 
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;

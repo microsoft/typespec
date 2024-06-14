@@ -18,3 +18,4 @@ title: "[I] TemplateDeclarationNode"
 | :------ | :------ | :------ |
 | `locals?` | `readonly` | `SymbolTable` |
 | `templateParameters` | `readonly` | readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[] |
+| `templateParametersRange` | `readonly` | [`TextRange`](TextRange.md) |

@@ -4,5 +4,10 @@ title: "[T] MemberContainerType"
 
 ---
 ```ts
-type MemberContainerType: Model | Enum | Interface | Union;
+type MemberContainerType: 
+  | Model
+  | Enum
+  | Interface
+  | Union
+  | Scalar;
 ```

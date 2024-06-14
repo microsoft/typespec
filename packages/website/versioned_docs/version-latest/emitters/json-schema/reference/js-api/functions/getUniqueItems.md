@@ -4,7 +4,7 @@ title: "[F] getUniqueItems"
 
 ---
 ```ts
-getUniqueItems(program, target): any
+function getUniqueItems(program, target): any
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] setResourceOperation"
 
 ---
 ```ts
-setResourceOperation(
+function setResourceOperation(
    context, 
    entity, 
    resourceType, 

@@ -7,6 +7,7 @@ Defined in the user project.
 
 ## Properties
 
-| Property | Type |
-| :------ | :------ |
-| `type` | `"project"` |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `flags?` | `readonly` | [`PackageFlags`](PackageFlags.md) |
+| `type` | `readonly` | `"project"` |

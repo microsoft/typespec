@@ -4,7 +4,7 @@ title: TypeSpec Visual Studio Extension
 
 ## Installation
 
-Install the extension via the Visual Studio extension manager from the [TypeSpec for Visual Studio - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vs).
+Install the extension via the Visual Studio extension manager from the [TypeSpec for Visual Studio - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs).
 
 ## Configure
 

@@ -4,44 +4,46 @@ title: "[V] $lib"
 
 ---
 ```ts
-const $lib: TypeSpecLibrary<Object, OpenAPI3EmitterOptions, never>;
+const $lib: TypeSpecLibrary<object, OpenAPI3EmitterOptions, never>;
 ```
 
 ## Type declaration
 
 | Member | Type | Value |
 | :------ | :------ | :------ |
-| `duplicate-header` | `Object` | - |
-| `duplicate-header.default` | `CallableMessage`<[`"header"`]\> | - |
-| `empty-enum` | `Object` | - |
+| `duplicate-header` | `object` | ... |
+| `duplicate-header.default` | `CallableMessage`<[`"header"`]\> | ... |
+| `empty-enum` | `object` | ... |
 | `empty-enum.default` | `"Empty enums are not supported for OpenAPI v3 - enums must have at least one value."` | "Empty enums are not supported for OpenAPI v3 - enums must have at least one value." |
-| `empty-union` | `Object` | - |
+| `empty-union` | `object` | ... |
 | `empty-union.default` | `"Empty unions are not supported for OpenAPI v3 - enums must have at least one value."` | "Empty unions are not supported for OpenAPI v3 - enums must have at least one value." |
-| `enum-unique-type` | `Object` | - |
+| `enum-unique-type` | `object` | ... |
 | `enum-unique-type.default` | `"Enums are not supported unless all options are literals of the same type."` | "Enums are not supported unless all options are literals of the same type." |
-| `inconsistent-shared-route-request-visibility` | `Object` | - |
+| `inconsistent-shared-route-request-visibility` | `object` | ... |
 | `inconsistent-shared-route-request-visibility.default` | "All operations with \`@sharedRoutes\` must have the same \`@requestVisibility\`." | "All operations with \`@sharedRoutes\` must have the same \`@requestVisibility\`." |
-| `inline-cycle` | `Object` | - |
-| `inline-cycle.default` | `CallableMessage`<[`"type"`]\> | - |
-| `invalid-default` | `Object` | - |
-| `invalid-default.default` | `CallableMessage`<[`"type"`]\> | - |
-| `invalid-format` | `Object` | - |
-| `invalid-format.default` | `CallableMessage`<[`"value"`, `"paramType"`]\> | - |
-| `invalid-schema` | `Object` | - |
-| `invalid-schema.default` | `CallableMessage`<[`"type"`]\> | - |
-| `invalid-server-variable` | `Object` | - |
-| `invalid-server-variable.default` | `CallableMessage`<[`"propName"`]\> | - |
-| `oneof-union` | `Object` | - |
+| `inline-cycle` | `object` | ... |
+| `inline-cycle.default` | `CallableMessage`<[`"type"`]\> | ... |
+| `invalid-default` | `object` | ... |
+| `invalid-default.default` | `CallableMessage`<[`"type"`]\> | ... |
+| `invalid-format` | `object` | ... |
+| `invalid-format.default` | `CallableMessage`<[`"value"`, `"paramType"`]\> | ... |
+| `invalid-model-property` | `object` | ... |
+| `invalid-model-property.default` | `CallableMessage`<[`"type"`]\> | ... |
+| `invalid-schema` | `object` | ... |
+| `invalid-schema.default` | `CallableMessage`<[`"type"`]\> | ... |
+| `invalid-server-variable` | `object` | ... |
+| `invalid-server-variable.default` | `CallableMessage`<[`"propName"`]\> | ... |
+| `oneof-union` | `object` | ... |
 | `oneof-union.default` | `"@oneOf decorator can only be used on a union or a model property which type is a union."` | "@oneOf decorator can only be used on a union or a model property which type is a union." |
-| `path-query` | `Object` | - |
-| `path-query.default` | `"OpenAPI does not allow paths containing a query string."` | - |
-| `resource-namespace` | `Object` | - |
+| `path-query` | `object` | ... |
+| `path-query.default` | `"OpenAPI does not allow paths containing a query string."` | ... |
+| `resource-namespace` | `object` | ... |
 | `resource-namespace.default` | `"Resource goes on namespace"` | "Resource goes on namespace" |
-| `status-code-in-default-response` | `Object` | - |
+| `status-code-in-default-response` | `object` | ... |
 | `status-code-in-default-response.default` | `"a default response should not have an explicit status code"` | "a default response should not have an explicit status code" |
-| `union-null` | `Object` | - |
+| `union-null` | `object` | ... |
 | `union-null.default` | `"Cannot have a union containing only null types."` | "Cannot have a union containing only null types." |
-| `unsupported-auth` | `Object` | - |
-| `unsupported-auth.default` | `CallableMessage`<[`"authType"`]\> | - |
-| `unsupported-status-code-range` | `Object` | - |
-| `unsupported-status-code-range.default` | `CallableMessage`<[`"start"`, `"end"`]\> | - |
+| `unsupported-auth` | `object` | ... |
+| `unsupported-auth.default` | `CallableMessage`<[`"authType"`]\> | ... |
+| `unsupported-status-code-range` | `object` | ... |
+| `unsupported-status-code-range.default` | `CallableMessage`<[`"start"`, `"end"`]\> | ... |

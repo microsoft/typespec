@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.57.0
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Add support for values
+
+
 ## 0.56.0
 
 ### Bump dependencies

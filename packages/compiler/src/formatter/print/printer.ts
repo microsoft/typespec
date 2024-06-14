@@ -700,12 +700,14 @@ function printCallOrDecoratorArgs(
   }
 
   // So that decorator with single object arguments have ( and { hugging.
-  // @deco({
+  // @deco(#{
   //   value: "foo"
   // })
   const shouldHug =
     node.arguments.length === 1 &&
     (node.arguments[0].kind === SyntaxKind.ModelExpression ||
+      node.arguments[0].kind === SyntaxKind.ObjectLiteral ||
+      node.arguments[0].kind === SyntaxKind.ArrayLiteral ||
       node.arguments[0].kind === SyntaxKind.StringLiteral ||
       node.arguments[0].kind === SyntaxKind.StringTemplateExpression);
 

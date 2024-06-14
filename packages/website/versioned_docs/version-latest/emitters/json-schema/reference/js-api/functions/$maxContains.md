@@ -4,7 +4,7 @@ title: "[F] $maxContains"
 
 ---
 ```ts
-$maxContains(
+function $maxContains(
    context, 
    target, 
    value): void

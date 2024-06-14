@@ -4,7 +4,7 @@ title: "[F] isBodyRoot"
 
 ---
 ```ts
-isBodyRoot(program, entity): boolean
+function isBodyRoot(program, entity): boolean
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] isMetadata"
 
 ---
 ```ts
-isMetadata(program, property): boolean
+function isMetadata(program, property): boolean
 ```
 
 Determines if a property is metadata. A property is defined to be

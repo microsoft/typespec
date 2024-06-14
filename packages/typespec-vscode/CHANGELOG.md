@@ -1,5 +1,20 @@
 # Change Log - typespec-vscode
 
+## 0.57.0
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3533](https://github.com/microsoft/typespec/pull/3533) Enhance logging and trace
+ 1. Support "Developer: Set Log Level..." command to filter logs in TypeSpec output channel
+ 2. Add "typespecLanguageServer.trace.server" config for whether and how to send the traces from TypeSpec language server to client. (It still depends on client to decide whether to show these traces based on the configured Log Level.)
+ 3. More logs and traces are added for diagnostic and troubleshooting
+- [#3385](https://github.com/microsoft/typespec/pull/3385) Add 'TypeSpec: Show Output Channel' command in VSCode extension
+
+
 ## 0.56.0
 
 ### Bump dependencies

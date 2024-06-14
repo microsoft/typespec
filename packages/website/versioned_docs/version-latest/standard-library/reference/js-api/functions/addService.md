@@ -4,7 +4,7 @@ title: "[F] addService"
 
 ---
 ```ts
-addService(
+function addService(
    program, 
    namespace, 
    details): void

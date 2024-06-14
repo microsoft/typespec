@@ -4,7 +4,7 @@ title: "[F] isTypeSpecValueTypeOf"
 
 ---
 ```ts
-isTypeSpecValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
+function isTypeSpecValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
 Check if the given target is of any of the TypeSpec types.
@@ -13,7 +13,7 @@ Check if the given target is of any of the TypeSpec types.
 
 | Type parameter |
 | :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 

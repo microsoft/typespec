@@ -4,7 +4,7 @@ title: "[F] $contains"
 
 ---
 ```ts
-$contains(
+function $contains(
    context, 
    target, 
    value): void

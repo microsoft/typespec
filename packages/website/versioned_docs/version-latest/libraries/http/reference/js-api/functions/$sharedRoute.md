@@ -4,7 +4,7 @@ title: "[F] $sharedRoute"
 
 ---
 ```ts
-$sharedRoute(context, target): void
+function $sharedRoute(context, target): void
 ```
 
 `@sharedRoute` marks the operation as sharing a route path with other operations.

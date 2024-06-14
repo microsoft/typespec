@@ -7,7 +7,7 @@ title: "[I] CallableMessage"
 
 | Type parameter |
 | :------ |
-| `T` extends `string`[] |
+| `T` *extends* `string`[] |
 
 ```ts
 interface CallableMessage(dict): string

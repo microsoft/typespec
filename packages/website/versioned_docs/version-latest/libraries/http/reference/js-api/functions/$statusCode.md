@@ -4,7 +4,7 @@ title: "[F] $statusCode"
 
 ---
 ```ts
-$statusCode(context, target): void
+function $statusCode(context, target): void
 ```
 
 ## Parameters

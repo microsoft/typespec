@@ -4,7 +4,7 @@ title: "[F] getTags"
 
 ---
 ```ts
-getTags(program, target): string[]
+function getTags(program, target): string[]
 ```
 
 ## Parameters

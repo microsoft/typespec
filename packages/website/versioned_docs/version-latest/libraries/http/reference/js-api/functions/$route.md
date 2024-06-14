@@ -4,7 +4,7 @@ title: "[F] $route"
 
 ---
 ```ts
-$route(
+function $route(
    context, 
    target, 
    path, 
@@ -24,7 +24,7 @@ it will be used as a prefix to the route URI of the operation.
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Interface` \| `Namespace` \| `Operation` |
+| `target` | `Namespace` \| `Interface` \| `Operation` |
 | `path` | `string` |
 | `options`? | `Type` |
 

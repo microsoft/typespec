@@ -18,6 +18,7 @@ title: "[P] JS API"
 
 ## Variables
 
+- [$flags](variables/$flags.md)
 - [$lib](variables/$lib.md)
 - [EmitterOptionsSchema](variables/EmitterOptionsSchema.md)
 - [namespace](variables/namespace.md)
@@ -38,6 +39,7 @@ title: "[P] JS API"
 - [$minProperties](functions/$minProperties.md)
 - [$multipleOf](functions/$multipleOf.md)
 - [$onEmit](functions/$onEmit.md)
+- [$oneOf](functions/$oneOf.md)
 - [$prefixItems](functions/$prefixItems.md)
 - [$uniqueItems](functions/$uniqueItems.md)
 - [$validatesRawJson](functions/$validatesRawJson.md)
@@ -56,6 +58,8 @@ title: "[P] JS API"
 - [getMinContains](functions/getMinContains.md)
 - [getMinProperties](functions/getMinProperties.md)
 - [getMultipleOf](functions/getMultipleOf.md)
+- [getMultipleOfAsNumeric](functions/getMultipleOfAsNumeric.md)
 - [getPrefixItems](functions/getPrefixItems.md)
 - [getUniqueItems](functions/getUniqueItems.md)
 - [isJsonSchemaDeclaration](functions/isJsonSchemaDeclaration.md)
+- [isOneOf](functions/isOneOf.md)

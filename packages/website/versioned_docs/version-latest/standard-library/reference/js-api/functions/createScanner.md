@@ -4,7 +4,7 @@ title: "[F] createScanner"
 
 ---
 ```ts
-createScanner(source, diagnosticHandler): Scanner
+function createScanner(source, diagnosticHandler): Scanner
 ```
 
 ## Parameters

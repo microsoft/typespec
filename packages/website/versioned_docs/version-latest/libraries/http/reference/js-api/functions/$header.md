@@ -4,7 +4,7 @@ title: "[F] $header"
 
 ---
 ```ts
-$header(
+function $header(
    context, 
    target, 
    headerNameOrOptions?): void

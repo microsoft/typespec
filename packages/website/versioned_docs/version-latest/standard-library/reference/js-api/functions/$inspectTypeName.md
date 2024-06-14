@@ -4,7 +4,7 @@ title: "[F] $inspectTypeName"
 
 ---
 ```ts
-$inspectTypeName(
+function $inspectTypeName(
    context, 
    target, 
    text): void

@@ -4,7 +4,7 @@ title: "[F] setAuthentication"
 
 ---
 ```ts
-setAuthentication(
+function setAuthentication(
    program, 
    entity, 
    auth): void
@@ -15,7 +15,7 @@ setAuthentication(
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `entity` | `Interface` \| `Namespace` \| `Operation` |
+| `entity` | `Namespace` \| `Interface` \| `Operation` |
 | `auth` | [`Authentication`](../interfaces/Authentication.md) |
 
 ## Returns

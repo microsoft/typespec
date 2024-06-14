@@ -4,7 +4,7 @@ title: "[F] getFriendlyName"
 
 ---
 ```ts
-getFriendlyName(program, target): string
+function getFriendlyName(program, target): string
 ```
 
 ## Parameters

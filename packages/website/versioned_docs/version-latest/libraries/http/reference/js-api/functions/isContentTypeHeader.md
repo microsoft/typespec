@@ -4,10 +4,8 @@ title: "[F] isContentTypeHeader"
 
 ---
 ```ts
-isContentTypeHeader(program, property): boolean
+function isContentTypeHeader(program, property): boolean
 ```
-
-Check if the given model property is the content type header.
 
 ## Parameters
 
@@ -21,3 +19,8 @@ Check if the given model property is the content type header.
 `boolean`
 
 True if the model property is marked as a header and has the name `content-type`(case insensitive.)
+
+## Deprecated
+
+Use `OperationProperty.kind === 'contentType'` instead.
+Check if the given model property is the content type header.

@@ -4,7 +4,7 @@ title: "[F] hasTrailingDirectorySeparator"
 
 ---
 ```ts
-hasTrailingDirectorySeparator(path): boolean
+function hasTrailingDirectorySeparator(path): boolean
 ```
 
 Determines whether a path has a trailing separator (`/` or `\\`).
