@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Statements
 
         private string GetPeriodOrEmpty(FormattableString formattableString)
         {
-            //should we auto add the '.'?
+            // for single line comment we always want the line to end in a period.
 
             string lineFormat = Lines[0].Format;
             string stringToCheck = lineFormat;
