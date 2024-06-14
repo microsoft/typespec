@@ -115,7 +115,7 @@ const ItemListTree = ({ path, items }: { path: string; items: Map<string, NamedT
   return (
     <Tree>
       {Array.from(items.entries()).map(([key, value]) => {
-        return <EntityTreeNode path={path} type={value} />;
+        return <EntityTreeNode key={key} path={path} type={value} />;
       })}
     </Tree>
   );

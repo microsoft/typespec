@@ -22,7 +22,7 @@ export interface TypeGraphProps {
 export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
   return (
     <ProgramProvider value={program}>
-      <SplitPane initialSizes={["200px"]} split="vertical">
+      <SplitPane initialSizes={["200px", ""]} split="vertical">
         <Pane>
           <TreeNavigation />
         </Pane>
