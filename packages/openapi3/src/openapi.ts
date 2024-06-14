@@ -1048,7 +1048,7 @@ function createOAPIEmitter(
       }
       for (const [contentType, contents] of schemaMap) {
         if (contents.length === 1) {
-          obj.content[contentType] = { schema: contents[0] };
+          obj.content[contentType] = contents[0];
         } else {
           obj.content[contentType] = {
             schema: { anyOf: contents.map((x) => x.schema) as any },
