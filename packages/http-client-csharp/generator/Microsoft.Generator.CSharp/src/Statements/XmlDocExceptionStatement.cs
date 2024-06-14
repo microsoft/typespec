@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            writer.WritingXmlDocumentation = true;
+            using var scope = new CodeWriter.XmlDocWritingScope(writer);
 
             writer.Append($"/// <exception cref=\"{ExceptionType}\">");
 
@@ -51,8 +51,6 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].Name}\"/>");
 
             writer.WriteLine($" {_reason} </exception>");
-
-            writer.WritingXmlDocumentation = false;
         }
     }
 }

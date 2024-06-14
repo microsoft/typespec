@@ -25,8 +25,7 @@ namespace Microsoft.Generator.CSharp
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
         private bool _atBeginningOfLine;
-
-        internal bool WritingXmlDocumentation { get; set; }
+        private bool _writingXmlDocumentation;
 
         internal CodeWriter()
         {
@@ -131,7 +130,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (isCref)
                 {
-                    if (!WritingXmlDocumentation)
+                    if (!_writingXmlDocumentation)
                     {
                         throw new InvalidOperationException($"':C' formatter can be used only inside XmlDoc");
                     }
@@ -566,16 +565,16 @@ namespace Microsoft.Generator.CSharp
 
             if (type.Arguments.Any())
             {
-                AppendRaw(WritingXmlDocumentation ? "{" : "<");
+                AppendRaw(_writingXmlDocumentation ? "{" : "<");
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
                     AppendType(type.Arguments[i], false, writeTypeNameOnly);
                     if (i != type.Arguments.Count - 1)
                     {
-                        AppendRaw(WritingXmlDocumentation ? "," : ", ");
+                        AppendRaw(_writingXmlDocumentation ? "," : ", ");
                     }
                 }
-                AppendRaw(WritingXmlDocumentation ? "}" : ">");
+                AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
             if (!isDeclaration && type is { IsNullable: true, IsValueType: true })
@@ -658,7 +657,7 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriter WriteDeclaration(CodeWriterDeclaration declaration)
         {
-            if (WritingXmlDocumentation)
+            if (_writingXmlDocumentation)
             {
                 throw new InvalidOperationException("Can't declare variables inside documentation.");
             }

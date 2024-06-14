@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            writer.WritingXmlDocumentation = true;
+            using var scope = new CodeWriter.XmlDocWritingScope(writer);
 
             if (Lines.Count == 0 || IsEmpty(Lines))
             {
@@ -50,8 +50,6 @@ namespace Microsoft.Generator.CSharp.Statements
                 }
                 writer.WriteLine($"/// {EndTag}");
             }
-
-            writer.WritingXmlDocumentation = false;
         }
 
         private static bool IsEmpty(IReadOnlyList<FormattableString> lines)
