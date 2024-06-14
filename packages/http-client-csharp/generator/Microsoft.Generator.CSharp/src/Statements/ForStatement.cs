@@ -7,8 +7,19 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, ValueExpression? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public AssignmentExpression? IndexerAssignment { get; set; }
+        public ValueExpression? Condition { get; set; }
+        public ValueExpression? IncrementExpression { get; set; }
+
+        public ForStatement(AssignmentExpression? indexerAssignment, ValueExpression? condition, ValueExpression? incrementExpression)
+        {
+            IndexerAssignment = indexerAssignment;
+            Condition = condition;
+            IncrementExpression = incrementExpression;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 

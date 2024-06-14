@@ -8,8 +8,23 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression? BodyExpression, MethodBodyStatement? BodyStatement) : MethodBodyStatement
+    public sealed class DeclareLocalFunctionStatement : MethodBodyStatement
     {
+        public CodeWriterDeclaration Name { get; }
+        public IReadOnlyList<ParameterProvider> Parameters { get; }
+        public CSharpType ReturnType { get; }
+        public ValueExpression? BodyExpression { get; }
+        public MethodBodyStatement? BodyStatement { get; }
+
+        private DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, ValueExpression? bodyExpression, MethodBodyStatement? bodyStatement)
+        {
+            Name = name;
+            Parameters = parameters;
+            ReturnType = returnType;
+            BodyExpression = bodyExpression;
+            BodyStatement = bodyStatement;
+        }
+
         internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, MethodBodyStatement BodyStatement)
             : this(Name, Parameters, ReturnType, null, BodyStatement) { }
 

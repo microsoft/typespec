@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void IfStatementInlineOptionTrue()
         {
             var condition = new BoolSnippet(BoolSnippet.True);
-            var ifStatement = new IfStatement(condition, Inline: true);
+            var ifStatement = new IfStatement(condition, inline: true);
 
             Assert.IsTrue(ifStatement.Inline);
         }
@@ -146,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void IfStatementAddBracesOptionFalse()
         {
             var condition = new BoolSnippet(BoolSnippet.True);
-            var ifStatement = new IfStatement(condition, AddBraces: false);
+            var ifStatement = new IfStatement(condition, addBraces: false);
 
             Assert.IsFalse(ifStatement.AddBraces);
         }

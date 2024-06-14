@@ -93,10 +93,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override MethodProvider[] BuildConstructors()
         {
-            var validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull;
             var valueParameter = new ParameterProvider("value", $"The value.", ValueType)
             {
-                Validation = validation
+                Validation = ValueType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
                 Type: Type,
@@ -108,11 +107,10 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]
             {
-                new ParameterValidationStatement(signature.Parameters),
                 Assign(valueField, valueParameter)
             };
 
-            return [new MethodProvider(signature, body, CSharpMethodKinds.Constructor)];
+            return [new MethodProvider(signature, body)];
         }
 
         protected override MethodProvider[] BuildMethods()
