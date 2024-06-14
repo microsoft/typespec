@@ -262,8 +262,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(serializationCtorParameters)
-                },
-                true);
+                });
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)

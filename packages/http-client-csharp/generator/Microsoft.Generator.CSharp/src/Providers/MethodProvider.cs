@@ -23,11 +23,10 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyStatements">The method body.</param>
-        /// <param name="skipParamValidation">Indicates if validation statements for parameters should be added.</param>
-        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements, bool skipParamValidation = false)
+        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements)
         {
             Signature = signature;
-            skipParamValidation = skipParamValidation || !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
+            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
             List<MethodBodyStatement> statements = skipParamValidation ? new List<MethodBodyStatement>() : [.. GetValidationStatements()];
             statements.Add(bodyStatements);
             BodyStatements = statements;
