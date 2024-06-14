@@ -14,7 +14,7 @@ const lang = {
     },
   ],
 
-  directives: { pattern: /#.*/g, greedy: true, alias: "comment" },
+  directives: { pattern: /#[^{[].*/g, greedy: true, alias: "comment" },
 
   decorator: {
     pattern: /@@?[$\w\xA0-\uFFFF]+/,
@@ -72,7 +72,7 @@ const lang = {
 
   number: /(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:E[+-]?\d+)?/i,
   operator: /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
-  punctuation: /[{}[\];(),.:]/,
+  punctuation: /[#{}[\];(),.:]/,
 };
 
 lang.string[0].inside.interpolation.inside = lang;
