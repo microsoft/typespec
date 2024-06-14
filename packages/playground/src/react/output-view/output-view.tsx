@@ -1,5 +1,6 @@
-import { Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
+import { Button, Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
+import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { PlaygroundEditorsOptions } from "../playground.js";
 import type { CompilationState, CompileResult, FileOutputViewer, ProgramViewer } from "../types.js";
 import { createFileViewer } from "./file-viewer.js";
@@ -81,10 +82,12 @@ const OutputViewInternal: FunctionComponent<{
   return (
     <div className={style["output-view"]}>
       <div className={style["output-content"]}>
-        <viewer.render
-          program={compilationResult.program}
-          outputFiles={compilationResult.outputFiles}
-        />
+        <ErrorBoundary fallbackRender={fallbackRender}>
+          <viewer.render
+            program={compilationResult.program}
+            outputFiles={compilationResult.outputFiles}
+          />
+        </ErrorBoundary>
       </div>
       <div className={style["viewer-tabs-container"]}>
         <TabList
@@ -106,3 +109,13 @@ const OutputViewInternal: FunctionComponent<{
     </div>
   );
 };
+
+function fallbackRender({ error, resetErrorBoundary }: FallbackProps) {
+  return (
+    <div role="alert" className={style["viewer-error"]}>
+      <h2>Something went wrong:</h2>
+      <div style={{ color: "red" }}>{error.toString()}</div>
+      <Button onClick={resetErrorBoundary}>Try again</Button>
+    </div>
+  );
+}

@@ -142,7 +142,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tValue), "Values", new ExpressionPropertyBody(
                 new MemberExpression(This, "Values")),
-                null,
                 _IReadOnlyDictionary);
         }
 
@@ -150,7 +149,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tKey), "Keys", new ExpressionPropertyBody(
                 new MemberExpression(This, "Keys")),
-                null,
                 _IReadOnlyDictionary);
         }
 

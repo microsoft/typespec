@@ -8,8 +8,21 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record SwitchCaseStatement(IReadOnlyList<ValueExpression> Matches, MethodBodyStatement Statement, bool Inline = false, bool AddScope = false) : MethodBodyStatement
+    public sealed class SwitchCaseStatement : MethodBodyStatement
     {
+        public IReadOnlyList<ValueExpression> Matches { get; }
+        public MethodBodyStatement Statement { get; }
+        public bool Inline { get; }
+        public bool AddScope { get; }
+
+        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement, bool inline = false, bool addScope = false)
+        {
+            Matches = matches;
+            Statement = statement;
+            Inline = inline;
+            AddScope = addScope;
+        }
+
         public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool inline = false, bool addScope = false) : this(new[] { match }, statement, inline, addScope) { }
 
         public static SwitchCaseStatement Default(MethodBodyStatement statement, bool inline = false, bool addScope = false) => new(Array.Empty<ValueExpression>(), statement, inline, addScope);

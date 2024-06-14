@@ -8,8 +8,21 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForeachStatement(CSharpType? ItemType, CodeWriterDeclaration Item, ValueExpression Enumerable, bool IsAsync) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForeachStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public CSharpType? ItemType { get; }
+        public CodeWriterDeclaration Item { get; }
+        public ValueExpression Enumerable { get; }
+        public bool IsAsync { get; }
+
+        public ForeachStatement(CSharpType? itemType, CodeWriterDeclaration item, ValueExpression enumerable, bool isAsync)
+        {
+            ItemType = itemType;
+            Item = item;
+            Enumerable = enumerable;
+            IsAsync = isAsync;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 

@@ -26,3 +26,7 @@
 .viewer-tabs-container {
   background-color: var(--colorNeutralBackground3);
 }
+
+.viewer-error {
+  padding: 20px;
+}

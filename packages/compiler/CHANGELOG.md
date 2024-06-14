@@ -2,6 +2,22 @@
 
 ## 0.57.0
 
+
+### Breaking changes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Addition of new `const` keyword means using `const` as a property name or decorator name will result in an error. This can be fixed by wrapping the property in backtick.
+
+```tsp
+model Test {
+  // error
+  const: string;
+
+  // correct
+  `const`: string;
+
+}
+```
+
 ### Bug Fixes
 
 - [#3399](https://github.com/microsoft/typespec/pull/3399) Preserve leading whitespace in fenced blocks in doc comments

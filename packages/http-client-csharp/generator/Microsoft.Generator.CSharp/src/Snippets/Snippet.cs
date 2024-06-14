@@ -11,8 +11,18 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
+        private class PrivateEmptyLineStatement : MethodBodyStatement
+        {
+            internal override void Write(CodeWriter writer)
+            {
+                writer.WriteLine();
+            }
+        }
+
+        public readonly static MethodBodyStatement EmptyStatement = new();
+        public readonly static MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
+
         public static ExtensibleSnippets Extensible => CodeModelPlugin.Instance.ExtensibleSnippets;
-        public static MethodBodyStatement EmptyStatement { get; } = new();
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
         public static ValueExpression Dash { get; } = new KeywordExpression("_", null);
@@ -67,7 +77,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static BoolSnippet And(BoolSnippet left, BoolSnippet right) => new(new BinaryOperatorExpression("&&", left.Untyped, right.Untyped));
         public static BoolSnippet Not(BoolSnippet operand) => new(new UnaryOperatorExpression("!", operand, false));
 
-        public static MethodBodyStatement EmptyLine => new EmptyLineStatement();
         public static KeywordStatement Continue => new("continue", null);
         public static KeywordStatement Break => new("break", null);
         public static KeywordStatement Return(ValueExpression expression) => new("return", expression);

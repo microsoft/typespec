@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -164,7 +165,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void SingleLineSummary()
         {
-            _codeWriter.WriteXmlDocumentationSummary([$"Some {typeof(string)} summary."]);
+            var summary = new XmlDocSummaryStatement([$"Some {typeof(string)} summary."]);
+            summary.Write(_codeWriter);
             var expected = "/// <summary> Some string summary. </summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(_header);
@@ -176,7 +178,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void NoEmptySummary()
         {
-            _codeWriter.WriteXmlDocumentationSummary([$"{string.Empty}"]);
+            var summary = new XmlDocSummaryStatement([$"{string.Empty}"]);
+            summary.Write(_codeWriter);
             var expected = "/// <summary></summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(expected);
@@ -193,7 +196,8 @@ namespace Microsoft.Generator.CSharp.Tests
         public void SeeCRefType(Type type, bool isNullable, string expectedWritten, string ns)
         {
             var csType = new CSharpType(type).WithNullable(isNullable);
-            _codeWriter.WriteXmlDocumentationSummary([$"Some {csType:C} summary."]);
+            var summary = new XmlDocSummaryStatement([$"Some {csType:C} summary."]);
+            summary.Write(_codeWriter);
             var expected = $"/// <summary> Some {expectedWritten} summary. </summary>" + NewLine;
             var sb = new StringBuilder();
             sb.Append(_header);
@@ -246,7 +250,8 @@ namespace Microsoft.Generator.CSharp.Tests
             fs.Add($"L15");
             fs.Add($"L16");
 
-            _codeWriter.WriteXmlDocumentationSummary(fs);
+            var summary = new XmlDocSummaryStatement(fs);
+            summary.Write(_codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
