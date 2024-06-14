@@ -250,6 +250,12 @@ const config: Config = {
           className: "header-github-link",
           "aria-label": "Github repository",
         },
+        {
+          href: "https://aka.ms/typespec/discord",
+          position: "right",
+          className: "header-discord-link",
+          "aria-label": "Discord server",
+        },
       ],
     } satisfies ThemeConfig,
     footer: {
