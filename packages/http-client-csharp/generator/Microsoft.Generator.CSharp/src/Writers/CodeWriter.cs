@@ -892,7 +892,7 @@ namespace Microsoft.Generator.CSharp
 
         public void WriteTypeArguments(IEnumerable<CSharpType>? typeArguments)
         {
-            if (typeArguments is null)
+            if (typeArguments is null || !typeArguments.Any())
             {
                 return;
             }

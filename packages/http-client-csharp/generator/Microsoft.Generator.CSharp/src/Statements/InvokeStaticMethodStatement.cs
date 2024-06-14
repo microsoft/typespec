@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Statements
         public CSharpType? MethodType { get; }
         public string MethodName { get; }
         public IReadOnlyList<ValueExpression> Arguments { get; }
-        public IReadOnlyList<CSharpType>? TypeArguments { get; }
+        public IReadOnlyList<CSharpType> TypeArguments { get; }
         public bool CallAsExtension { get; }
         public bool CallAsAsync { get; }
 
@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Statements
             MethodType = methodType;
             MethodName = methodName;
             Arguments = arguments;
-            TypeArguments = typeArguments;
+            TypeArguments = typeArguments ?? Array.Empty<CSharpType>();
             CallAsExtension = callAsExtension;
             CallAsAsync = callAsAsync;
         }
