@@ -91,8 +91,5 @@ namespace Microsoft.Generator.CSharp
         /// The type for change tracking dictionaries.
         /// </summary>
         public virtual CSharpType ChangeTrackingDictionaryType => ChangeTrackingDictionaryProvider.Instance.Type;
-
-        //public IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
-        //public IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
     }
 }

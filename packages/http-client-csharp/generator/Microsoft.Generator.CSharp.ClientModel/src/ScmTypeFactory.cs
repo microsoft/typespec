@@ -25,8 +25,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => GetEnumType(enumType, inputType.IsNullable),
-            InputModelType model => GetModelType(model, inputType.IsNullable),
+            InputEnumType enumType => GetEnumTypeWithProvider(enumType, inputType.IsNullable),
+            InputModelType model => GetModelTypeWithProvider(model, inputType.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
@@ -120,30 +120,33 @@ namespace Microsoft.Generator.CSharp.ClientModel
             throw new NotImplementedException();
         }
 
-        private CSharpType GetEnumType(InputEnumType inputEnumType, bool isNullable)
+        private CSharpType GetEnumTypeWithProvider(InputEnumType inputEnumType, bool isNullable)
         {
-            try
+            if (EnumMappings.TryGetValue(inputEnumType, out var provider))
             {
-                var provider = ClientModelPlugin.Instance.OutputLibrary.GetEnumProvider(inputEnumType);
                 return provider.Type.WithNullable(isNullable);
             }
-            catch (InvalidOperationException)
+            else
             {
                 throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{inputEnumType.Name}` {nameof(InputEnumType)}.");
             }
         }
 
-        private CSharpType GetModelType(InputModelType inputModelType, bool isNullable)
+        private CSharpType GetModelTypeWithProvider(InputModelType inputModelType, bool isNullable)
         {
-            try
+            if (ModelMappings.TryGetValue(inputModelType, out var provider))
             {
-                var provider = ClientModelPlugin.Instance.OutputLibrary.GetModelProvider(inputModelType);
-                return provider.Type.WithNullable(inputModelType.IsNullable);
+                return provider.Type.WithNullable(isNullable);
             }
-            catch (InvalidOperationException)
+            else
             {
-                return new CSharpType(typeof(object), inputModelType.IsNullable).WithNullable(isNullable);
+                return new CSharpType(typeof(object), isNullable).WithNullable(isNullable);
             }
         }
+
+        // MOVE and change Type for both
+        private IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
+        private IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
+        private readonly Lazy<(EnumTypeProvider[] Enums, ModelTypeProvider[] Models)> _allModels;
     }
 }
