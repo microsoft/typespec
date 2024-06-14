@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Statements;
@@ -27,10 +28,28 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             Signature = signature;
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            List<MethodBodyStatement> statements = skipParamValidation ? new List<MethodBodyStatement>() : [.. GetValidationStatements()];
-            statements.Add(bodyStatements);
-            BodyStatements = statements;
-            XmlDocs = BuildXmlDocs(skipParamValidation);
+            var paramHash = GetParamhash(skipParamValidation);
+            BodyStatements = GetBodyStatementWithValidation(bodyStatements, paramHash);
+            XmlDocs = BuildXmlDocs(paramHash);
+        }
+
+        private Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(bool skipParamValidation)
+        {
+            Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
+            if (!skipParamValidation)
+            {
+                paramHash = new();
+                foreach (var parameter in Signature.Parameters)
+                {
+                    if (parameter.Validation == ParameterValidationType.None)
+                        continue;
+
+                    if (!paramHash.ContainsKey(parameter.Validation))
+                        paramHash[parameter.Validation] = new List<ParameterProvider>();
+                    paramHash[parameter.Validation].Add(parameter);
+                }
+            }
+            return paramHash;
         }
 
         /// <summary>
@@ -42,47 +61,66 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = BuildXmlDocs(true);
+            XmlDocs = BuildXmlDocs(null);
         }
 
 
-        private IEnumerable<MethodBodyStatement> GetValidationStatements()
+        private MethodBodyStatement GetBodyStatementWithValidation(MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
-            bool wroteValidation = false;
+            if (paramHash is null)
+                return bodyStatements;
+
+            int count = 0;
+            foreach (var kvp in paramHash)
+            {
+                if (kvp.Key == ParameterValidationType.None)
+                    continue;
+                count += kvp.Value.Count;
+            }
+
+            if (count == 0)
+                return bodyStatements;
+
+            MethodBodyStatement[] statements = new MethodBodyStatement[count + 2];
+            int index = 0;
             foreach (var parameter in Signature.Parameters)
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    yield return Argument.ValidateParameter(parameter);
-                    wroteValidation = true;
+                    statements[index] = Argument.ValidateParameter(parameter);
+                    index++;
                 }
             }
-            if (wroteValidation)
-                yield return EmptyLineStatement;
+            statements[index] = EmptyLineStatement;
+            index++;
+
+            statements[index] = bodyStatements;
+
+            return statements;
         }
 
-        private XmlDocProvider BuildXmlDocs(bool skipExceptions)
+        private XmlDocProvider BuildXmlDocs(Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
             var docs = new XmlDocProvider();
             if (Signature.SummaryText is not null)
                 docs.Summary = new XmlDocSummaryStatement([Signature.SummaryText]);
-            Dictionary<ParameterValidationType, List<ParameterProvider>> paramHash = [];
+
             foreach (var parameter in Signature.Parameters)
             {
                 docs.Params.Add(new XmlDocParamStatement(parameter.Name, parameter.Description));
-                if (!skipExceptions && parameter.Validation != ParameterValidationType.None)
+            }
+
+            if (paramHash is not null)
+            {
+                foreach (var kvp in paramHash)
                 {
-                    if (!paramHash.ContainsKey(parameter.Validation))
-                        paramHash[parameter.Validation] = new List<ParameterProvider>();
-                    paramHash[parameter.Validation].Add(parameter);
+                    docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
                 }
             }
-            foreach (var kvp in paramHash)
-            {
-                docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
-            }
+
             if (Signature is MethodSignature methodSignature && methodSignature.ReturnDescription is not null)
                 docs.Returns = new XmlDocReturnsStatement(methodSignature.ReturnDescription);
+
             return docs;
         }
     }
