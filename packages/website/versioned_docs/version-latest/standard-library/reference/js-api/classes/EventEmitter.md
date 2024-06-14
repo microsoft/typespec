@@ -7,7 +7,7 @@ title: "[C] EventEmitter"
 
 | Type parameter |
 | :------ |
-| `T` extends `Object` |
+| `T` *extends* `object` |
 
 ## Constructors
 
@@ -23,9 +23,9 @@ new EventEmitter<T>(): EventEmitter<T>
 
 ## Properties
 
-| Property | Modifier | Type |
-| :------ | :------ | :------ |
-| `listeners` | `private` | `Map`<keyof `T`, (...`args`) => `any`[]\> |
+| Property | Modifier | Type | Default value |
+| :------ | :------ | :------ | :------ |
+| `listeners` | `private` | `Map`<keyof `T`, (...`args`) => `any`[]\> | `...` |
 
 ## Methods
 
@@ -39,7 +39,7 @@ emit<K>(name, ...args): void
 
 | Type parameter |
 | :------ |
-| `K` extends `string` \| `number` \| `symbol` |
+| `K` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 
@@ -64,7 +64,7 @@ on<K>(name, listener): void
 
 | Type parameter |
 | :------ |
-| `K` extends `string` \| `number` \| `symbol` |
+| `K` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 

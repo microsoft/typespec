@@ -4,7 +4,7 @@ title: "[F] getFormat"
 
 ---
 ```ts
-getFormat(program, target): string | undefined
+function getFormat(program, target): string | undefined
 ```
 
 ## Parameters

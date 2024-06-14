@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.56.0",
+  "version": "0.57.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -59,13 +59,24 @@
     ],
     "configuration": [
       {
-        "title": "TypeSpec Language Server Path",
+        "title": "TypeSpec",
         "properties": {
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
             "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
             "scope": "machine-overridable"
+          },
+          "typespec.trace.server": {
+            "scope": "window",
+            "type": "string",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ],
+            "default": "off",
+            "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
           }
         }
       }

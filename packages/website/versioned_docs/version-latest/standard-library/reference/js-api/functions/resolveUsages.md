@@ -4,7 +4,7 @@ title: "[F] resolveUsages"
 
 ---
 ```ts
-resolveUsages(types): UsageTracker
+function resolveUsages(types): UsageTracker
 ```
 
 Resolve usage(input, output or both) of various types in the given namespace.

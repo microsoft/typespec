@@ -1,5 +1,28 @@
 # Change Log - @typespec/http
 
+## 0.57.0
+
+### Bug Fixes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Update Flow Template to make use of the new array values
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3342](https://github.com/microsoft/typespec/pull/3342) Add new multipart handling. Using `@multipartBody` with `HttpPart<Type, Options>`. See [multipart docs](https://typespec.io/docs/next/libraries/http/multipart) for more information.
+  
+  ```tsp
+  op upload(@header contentType: "multipart/mixed", @multipartBody body: {
+    name: HttpPart<string>;
+    avatar: HttpPart<bytes>[];
+  }): void;
+  ```
+- [#3462](https://github.com/microsoft/typespec/pull/3462) Use new compiler automatic `all` ruleset instead of explicitly provided one
+
+
 ## 0.56.0
 
 ### Bug Fixes

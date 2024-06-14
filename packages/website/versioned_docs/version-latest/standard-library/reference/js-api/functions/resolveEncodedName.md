@@ -4,7 +4,7 @@ title: "[F] resolveEncodedName"
 
 ---
 ```ts
-resolveEncodedName(
+function resolveEncodedName(
    program, 
    target, 
    mimeType): string
@@ -18,7 +18,7 @@ If a specific value was provided by `@encodedName` decorator for that mime type 
 | Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
-| `target` | [`Type`](../type-aliases/Type.md) & `Object` |
+| `target` | [`Type`](../type-aliases/Type.md) & `object` |
 | `mimeType` | `string` |
 
 ## Returns

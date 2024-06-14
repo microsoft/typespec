@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -18,10 +19,10 @@ namespace Microsoft.Generator.CSharp
             EnumMappings = new Dictionary<InputEnumType, TypeProvider>();
             ModelMappings = new Dictionary<InputModelType, TypeProvider>();
 
-            _allModels = new Lazy<(TypeProvider[] Enums, TypeProvider[] Models)>(() => InitializeAllModels());
+            _allModels = new(InitializeAllModels);
         }
 
-        private readonly Lazy<(EnumTypeProvider[] Enums, ModelTypeProvider[] Models)> _allModels;
+        private readonly Lazy<(EnumProvider[] Enums, ModelProvider[] Models)> _allModels;
 
         private (TypeProvider[] Enums, TypeProvider[] Models) InitializeAllModels()
         {
@@ -57,26 +58,26 @@ namespace Microsoft.Generator.CSharp
         private IDictionary<InputEnumType, TypeProvider> EnumMappings { get; }
         private IDictionary<InputModelType, TypeProvider> ModelMappings { get; }
 
-        public virtual EnumTypeProvider[] BuildEnums()
+        public virtual EnumProvider[] BuildEnums()
         {
             return _allModels.Value.Enums;
         }
 
-        public virtual ModelTypeProvider[] BuildModels()
+        public virtual ModelProvider[] BuildModels()
         {
             return _allModels.Value.Models;
         }
 
-        public virtual ClientTypeProvider[] BuildClients()
+        public virtual ClientProvider[] BuildClients()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
 
             var clientsCount = input.Clients.Count;
-            ClientTypeProvider[] clientProviders = new ClientTypeProvider[clientsCount];
+            ClientProvider[] clientProviders = new ClientProvider[clientsCount];
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientTypeProvider(input.Clients[i]);
+                clientProviders[i] = new ClientProvider(input.Clients[i]);
             }
 
             return clientProviders;

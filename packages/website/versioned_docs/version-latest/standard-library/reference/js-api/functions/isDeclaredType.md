@@ -4,7 +4,7 @@ title: "[F] isDeclaredType"
 
 ---
 ```ts
-isDeclaredType(type): boolean
+function isDeclaredType(type): boolean
 ```
 
 Check if the type is a declared type. This include:

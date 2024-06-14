@@ -4,7 +4,7 @@ title: "[F] isGlobalNamespace"
 
 ---
 ```ts
-isGlobalNamespace(program, namespace): namespace is Namespace & Object
+function isGlobalNamespace(program, namespace): namespace is Namespace & Object
 ```
 
 Check if the given namespace is the global namespace

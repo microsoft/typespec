@@ -4,7 +4,7 @@ title: "[F] includeInterfaceRoutesInNamespace"
 
 ---
 ```ts
-includeInterfaceRoutesInNamespace(
+function includeInterfaceRoutesInNamespace(
    program, 
    target, 
    sourceInterface): void

@@ -7,6 +7,6 @@ Built-in
 
 ## Properties
 
-| Property | Type |
-| :------ | :------ |
-| `type` | `"compiler"` |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `type` | `readonly` | `"compiler"` |

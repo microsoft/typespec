@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -42,7 +43,6 @@ namespace Microsoft.Generator.CSharp
         private bool? _isIAsyncEnumerableOfT;
         private bool? _containsBinaryData;
         private int? _hashCode;
-        private CSharpType? _initializationType;
         private CSharpType? _propertyInitializationType;
         private CSharpType? _elementType;
         private CSharpType? _inputType;
@@ -66,8 +66,8 @@ namespace Microsoft.Generator.CSharp
         /// <param name="isNullable">Optional flag to determine if the constructed type should be nullable. Defaults to <c>false</c>.</param>
         public CSharpType(Type type, bool isNullable = false) : this(
             type,
-            isNullable,
-            type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>())
+            type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>(),
+            isNullable)
         { }
 
         /// <summary>
@@ -96,6 +96,16 @@ namespace Microsoft.Generator.CSharp
         public CSharpType(Type type, IReadOnlyList<CSharpType> arguments, bool isNullable = false)
         {
             Debug.Assert(type.Namespace != null, "type.Namespace != null");
+
+            // handle nullable value types explicitly because they are implemented using generic type `System.Nullable<T>`
+            var underlyingValueType = Nullable.GetUnderlyingType(type);
+            if (underlyingValueType != null)
+            {
+                // in this block, we are converting input like `typeof(int?)` into the way as if they input: `typeof(int), isNullable: true`
+                type = underlyingValueType;
+                arguments = type.IsGenericType ? type.GetGenericArguments().Select(p => new CSharpType(p)).ToArray() : Array.Empty<CSharpType>();
+                isNullable = true;
+            }
 
             _type = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
             ValidateArguments(_type, arguments);
@@ -190,8 +200,13 @@ namespace Microsoft.Generator.CSharp
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         public TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
-        public CSharpType InitializationType => _initializationType ??= GetImplementationType();
-        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyImplementationType();
+
+        /// <summary>
+        /// Retrieves the property initialization type variant of this type.
+        /// For majority of the types, the return value of PropertyInitializationType should just be itself.
+        /// For special cases like interface types, such as collections, this will return the concrete implementation type.
+        /// </summary>
+        public CSharpType PropertyInitializationType => _propertyInitializationType ??= GetPropertyInitializationType();
         public CSharpType ElementType => _elementType ??= GetElementType();
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
@@ -236,37 +251,10 @@ namespace Microsoft.Generator.CSharp
         }
 
         /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"/>.
+        /// Retrieves the <see cref="CSharpType"/> initialization type with the <see cref="Arguments"/>.
         /// </summary>
         /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetImplementationType()
-        {
-            if (IsFrameworkType)
-            {
-                if (IsReadOnlyMemory)
-                {
-                    return new CSharpType(Arguments[0].FrameworkType.MakeArrayType());
-                }
-
-                if (IsList)
-                {
-                    return new CSharpType(typeof(List<>), Arguments);
-                }
-
-                if (IsDictionary)
-                {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
-                }
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// Retrieves the <see cref="CSharpType"/> implementation type for the <see cref="_type"'s arguments/>.
-        /// </summary>
-        /// <returns>The implementation type <see cref="CSharpType"/>.</returns>
-        private CSharpType GetPropertyImplementationType()
+        private CSharpType GetPropertyInitializationType()
         {
             if (IsFrameworkType)
             {
@@ -277,16 +265,12 @@ namespace Microsoft.Generator.CSharp
 
                 if (IsList)
                 {
-                    return new CSharpType(typeof(List<>), Arguments);
-                    // Generate ChangeTrackingList type - https://github.com/microsoft/typespec/issues/3324
-                    // return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingListType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(Arguments);
                 }
 
                 if (IsDictionary)
                 {
-                    return new CSharpType(typeof(Dictionary<,>), Arguments);
-                    // Generate ChangeTrackingDictionary type - https://github.com/microsoft/typespec/issues/3324
-                    //return new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.ChangeTrackingDictionaryType, Arguments);
+                    return CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(Arguments);
                 }
             }
 
@@ -439,7 +423,7 @@ namespace Microsoft.Generator.CSharp
         /// Method checks if object of "<c>from</c>" type can be converted to "<c>to</c>" type by calling `ToList` extension method.
         /// It returns true if "<c>from</c>" is <see cref="IEnumerable{T}"/> and "<c>to</c>" is <see cref="IReadOnlyList{T}"/> or <see cref="IList{T}"/>.
         /// </summary>
-        internal static bool RequiresToList(CSharpType from, CSharpType to)
+        public static bool RequiresToList(CSharpType from, CSharpType to)
         {
             if (!to.IsFrameworkType || !from.IsFrameworkType || from.FrameworkType != typeof(IEnumerable<>))
             {
@@ -517,7 +501,8 @@ namespace Microsoft.Generator.CSharp
 
         public sealed override string ToString()
         {
-            return new CodeWriter().Append($"{this}").ToString(false);
+            using var writer = new CodeWriter();
+            return writer.Append($"{this}").ToString(false);
         }
 
         /// <summary>
@@ -585,7 +570,7 @@ namespace Microsoft.Generator.CSharp
 
                 return literalType;
             }
-            else if (type is { IsFrameworkType: false, Implementation: EnumTypeProvider enumType })
+            else if (type is { IsFrameworkType: false, Implementation: EnumProvider enumType })
             {
                 var literalType = new CSharpType(enumType, type.Arguments, type.IsNullable)
                 {

@@ -4,7 +4,7 @@ title: "[F] isProjectedProgram"
 
 ---
 ```ts
-isProjectedProgram(program): program is ProjectedProgram
+function isProjectedProgram(program): program is ProjectedProgram
 ```
 
 ## Parameters

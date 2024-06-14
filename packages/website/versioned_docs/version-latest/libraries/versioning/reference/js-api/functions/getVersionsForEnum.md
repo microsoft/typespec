@@ -4,7 +4,7 @@ title: "[F] getVersionsForEnum"
 
 ---
 ```ts
-getVersionsForEnum(program, en): [Namespace, VersionMap] | []
+function getVersionsForEnum(program, en): [Namespace, VersionMap] | []
 ```
 
 ## Parameters

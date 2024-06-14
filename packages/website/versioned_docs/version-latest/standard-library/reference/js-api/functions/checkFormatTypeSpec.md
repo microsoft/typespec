@@ -4,7 +4,7 @@ title: "[F] checkFormatTypeSpec"
 
 ---
 ```ts
-checkFormatTypeSpec(code, prettierConfig?): Promise<boolean>
+function checkFormatTypeSpec(code, prettierConfig?): Promise<boolean>
 ```
 
 Check the given is correctly formatted.

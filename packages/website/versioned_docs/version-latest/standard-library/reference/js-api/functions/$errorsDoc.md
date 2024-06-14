@@ -4,7 +4,7 @@ title: "[F] $errorsDoc"
 
 ---
 ```ts
-$errorsDoc(
+function $errorsDoc(
    context, 
    target, 
    doc): void

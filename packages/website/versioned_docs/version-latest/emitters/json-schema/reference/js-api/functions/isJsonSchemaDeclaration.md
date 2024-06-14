@@ -4,7 +4,7 @@ title: "[F] isJsonSchemaDeclaration"
 
 ---
 ```ts
-isJsonSchemaDeclaration(program, target): boolean
+function isJsonSchemaDeclaration(program, target): boolean
 ```
 
 ## Parameters

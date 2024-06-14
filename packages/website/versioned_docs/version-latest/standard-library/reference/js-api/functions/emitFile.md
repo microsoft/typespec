@@ -4,7 +4,7 @@ title: "[F] emitFile"
 
 ---
 ```ts
-emitFile(program, options): Promise<void>
+function emitFile(program, options): Promise<void>
 ```
 
 Helper to emit a file.

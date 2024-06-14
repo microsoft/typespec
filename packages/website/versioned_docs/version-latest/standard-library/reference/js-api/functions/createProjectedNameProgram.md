@@ -4,7 +4,7 @@ title: "[F] createProjectedNameProgram"
 
 ---
 ```ts
-createProjectedNameProgram(program, target): ProjectedNameView
+function createProjectedNameProgram(program, target): ProjectedNameView
 ```
 
 Create an helper to manager project names.

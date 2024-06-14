@@ -4,7 +4,7 @@ title: "[F] getOverloads"
 
 ---
 ```ts
-getOverloads(program, operation): Operation[] | undefined
+function getOverloads(program, operation): Operation[] | undefined
 ```
 
 Get all operations that are marked as overloads of the given operation

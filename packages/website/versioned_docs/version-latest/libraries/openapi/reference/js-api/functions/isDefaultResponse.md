@@ -4,7 +4,7 @@ title: "[F] isDefaultResponse"
 
 ---
 ```ts
-isDefaultResponse(program, entity): boolean
+function isDefaultResponse(program, entity): boolean
 ```
 
 Check if the given model has been mark as a default response.

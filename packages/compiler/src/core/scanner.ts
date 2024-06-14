@@ -1,5 +1,6 @@
 import {
   CharCode,
+  codePointBefore,
   isAsciiIdentifierContinue,
   isAsciiIdentifierStart,
   isBinaryDigit,
@@ -17,8 +18,9 @@ import {
 } from "./charcode.js";
 import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import { getCommentAtPosition } from "./parser-utils.js";
 import { createSourceFile } from "./source-file.js";
-import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
+import { DiagnosticReport, SourceFile, TextRange, TypeSpecScriptNode } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is
 // a <<<<<<< or >>>>>>> marker then it is also followed by a space.
@@ -459,6 +461,8 @@ export function createScanner(
         return getStringTokenValue(token, tokenFlags);
       case Token.Identifier:
         return getIdentifierTokenValue();
+      case Token.DocText:
+        return getDocTextValue();
       default:
         return getTokenText();
     }
@@ -655,6 +659,10 @@ export function createScanner(
         // fallthrough
         case CharCode.LineFeed:
           return next(Token.NewLine);
+
+        case CharCode.Backslash:
+          tokenFlags |= TokenFlags.Escaped;
+          return position === endPosition - 1 ? next(Token.DocText) : next(Token.DocText, 2);
 
         case CharCode.Space:
         case CharCode.Tab:
@@ -1036,6 +1044,44 @@ export function createScanner(
     return text;
   }
 
+  function getDocTextValue(): string {
+    if (tokenFlags & TokenFlags.Escaped) {
+      let start = tokenPosition;
+      const end = position;
+
+      let result = "";
+      let pos = start;
+
+      while (pos < end) {
+        const ch = input.charCodeAt(pos);
+        if (ch !== CharCode.Backslash) {
+          pos++;
+          continue;
+        }
+
+        if (pos === end - 1) {
+          break;
+        }
+
+        result += input.substring(start, pos);
+        switch (input.charCodeAt(pos + 1)) {
+          case CharCode.At:
+            result += "@";
+            break;
+          default:
+            result += input.substring(pos, pos + 2);
+        }
+        pos += 2;
+        start = pos;
+      }
+
+      result += input.substring(start, end);
+      return result;
+    } else {
+      return input.substring(tokenPosition, position);
+    }
+  }
+
   function findTripleQuotedStringIndent(start: number, end: number): [number, number] {
     end = end - 3; // Remove the """
     // remove whitespace before closing delimiter and record it as required
@@ -1231,6 +1277,8 @@ export function createScanner(
         return "\\";
       case CharCode.$:
         return "$";
+      case CharCode.At:
+        return "@";
       case CharCode.Backtick:
         return "`";
       default:
@@ -1372,7 +1420,54 @@ export function createScanner(
   }
 }
 
+/**
+ *
+ * @param script
+ * @param position
+ * @param endPosition exclude
+ * @returns return === endPosition (or -1) means not found non-trivia until endPosition + 1
+ */
+export function skipTriviaBackward(
+  script: TypeSpecScriptNode,
+  position: number,
+  endPosition = -1
+): number {
+  endPosition = endPosition < -1 ? -1 : endPosition;
+  const input = script.file.text;
+  if (position === input.length) {
+    // it's possible if the pos is at the end of the file, just treat it as trivia
+    position--;
+  } else if (position > input.length) {
+    compilerAssert(false, "position out of range");
+  }
+
+  while (position > endPosition) {
+    const ch = input.charCodeAt(position);
+
+    if (isWhiteSpace(ch)) {
+      position--;
+    } else {
+      const comment = getCommentAtPosition(script, position);
+      if (comment) {
+        position = comment.pos - 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return position;
+}
+
+/**
+ *
+ * @param input
+ * @param position
+ * @param endPosition exclude
+ * @returns return === endPosition (or input.length) means not found non-trivia until endPosition - 1
+ */
 export function skipTrivia(input: string, position: number, endPosition = input.length): number {
+  endPosition = endPosition > input.length ? input.length : endPosition;
   while (position < endPosition) {
     const ch = input.charCodeAt(position);
 
@@ -1448,6 +1543,20 @@ function skipMultiLineComment(
   }
 
   return [position, false];
+}
+
+export function skipContinuousIdentifier(input: string, position: number, isBackward = false) {
+  let cur = position;
+  const direction = isBackward ? -1 : 1;
+  const bar = isBackward ? (p: number) => p >= 0 : (p: number) => p < input.length;
+  while (bar(cur)) {
+    const { char: cp, size } = codePointBefore(input, cur);
+    cur += direction * size;
+    if (!cp || !isIdentifierContinue(cp)) {
+      break;
+    }
+  }
+  return cur;
 }
 
 function isConflictMarker(input: string, position: number, endPosition = input.length): boolean {

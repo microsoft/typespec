@@ -4,5 +4,10 @@ title: "[T] MemberNode"
 
 ---
 ```ts
-type MemberNode: ModelPropertyNode | EnumMemberNode | OperationStatementNode | UnionVariantNode;
+type MemberNode: 
+  | ModelPropertyNode
+  | EnumMemberNode
+  | OperationStatementNode
+  | UnionVariantNode
+  | ScalarConstructorNode;
 ```

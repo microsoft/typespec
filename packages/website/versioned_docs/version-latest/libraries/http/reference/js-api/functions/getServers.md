@@ -4,7 +4,7 @@ title: "[F] getServers"
 
 ---
 ```ts
-getServers(program, type): HttpServer[] | undefined
+function getServers(program, type): HttpServer[] | undefined
 ```
 
 ## Parameters

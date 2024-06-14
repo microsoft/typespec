@@ -84,7 +84,7 @@ it("issues diagnostics for invalid content types", async () => {
 
       @route("/test1")
       @get
-      op test1(): { @header contentType: string, @body body: Foo };
+      op test1(): { @header contentType: int32, @body body: Foo };
       @route("/test2")
       @get
       op test2(): { @header contentType: 42, @body body: Foo };
@@ -106,15 +106,12 @@ it("supports any casing for string literal 'Content-Type' header properties.", a
       model Foo {}
 
       @route("/test1")
-      @get
       op test1(): { @header "content-Type": "text/html", @body body: Foo };
 
       @route("/test2")
-      @get
       op test2(): { @header "CONTENT-type": "text/plain", @body body: Foo };
 
       @route("/test3")
-      @get
       op test3(): { @header "content-type": "application/json", @body body: Foo };
     `
   );

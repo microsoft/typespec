@@ -4,7 +4,7 @@ title: "[F] $maxProperties"
 
 ---
 ```ts
-$maxProperties(
+function $maxProperties(
    context, 
    target, 
    value): void

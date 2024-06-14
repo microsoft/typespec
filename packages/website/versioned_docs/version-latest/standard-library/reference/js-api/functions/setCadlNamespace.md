@@ -4,7 +4,7 @@ title: "[F] setCadlNamespace"
 
 ---
 ```ts
-setCadlNamespace(namespace, ...functions): void
+function setCadlNamespace(namespace, ...functions): void
 ```
 
 ## Parameters

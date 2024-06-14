@@ -349,6 +349,7 @@ export function createChecker(program: Program): Checker {
   const stdTypes: Partial<StdTypes> = {};
   const symbolLinks = new Map<number, SymbolLinks>();
   const mergedSymbols = new Map<Sym, Sym>();
+  const docFromCommentForSym = new Map<Sym, string>();
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const referenceSymCache = new WeakMap<
@@ -2494,6 +2495,21 @@ export function createChecker(program: Program): Checker {
     const name = node.id.sv;
     let decorators: DecoratorApplication[] = [];
 
+    const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
+      "parameters"
+    );
+
+    if (parameterModelSym?.members) {
+      const members = getOrCreateAugmentedSymbolTable(parameterModelSym.members);
+      const paramDocs = extractParamDocs(node);
+      for (const [name, memberSym] of members) {
+        const doc = paramDocs.get(name);
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     // Is this a definition or reference?
     let parameters: Model, returnType: Type, sourceOperation: Operation | undefined;
     if (node.signature.kind === SyntaxKind.OperationSignatureReference) {
@@ -2501,9 +2517,6 @@ export function createChecker(program: Program): Checker {
       const baseOperation = checkOperationIs(node, node.signature.baseOperation, mapper);
       if (baseOperation) {
         sourceOperation = baseOperation;
-        const parameterModelSym = getOrCreateAugmentedSymbolTable(symbol!.metatypeMembers!).get(
-          "parameters"
-        )!;
         // Reference the same return type and create the parameters type
         const clone = initializeClone(baseOperation.parameters, {
           properties: createRekeyableMap(),
@@ -2512,7 +2525,7 @@ export function createChecker(program: Program): Checker {
         clone.properties = createRekeyableMap(
           Array.from(baseOperation.parameters.properties.entries()).map(([key, prop]) => [
             key,
-            cloneTypeForSymbol(getMemberSymbol(parameterModelSym, prop.name)!, prop, {
+            cloneTypeForSymbol(getMemberSymbol(parameterModelSym!, prop.name)!, prop, {
               model: clone,
               sourceProperty: prop,
             }),
@@ -3832,6 +3845,18 @@ export function createChecker(program: Program): Checker {
       derivedModels: [],
     });
     linkType(links, type, mapper);
+
+    if (node.symbol.members) {
+      const members = getOrCreateAugmentedSymbolTable(node.symbol.members);
+      const propDocs = extractPropDocs(node);
+      for (const [name, memberSym] of members) {
+        const doc = propDocs.get(name);
+        if (doc) {
+          docFromCommentForSym.set(memberSym, doc);
+        }
+      }
+    }
+
     const isBase = checkModelIs(node, node.is, mapper);
 
     if (isBase) {
@@ -3847,7 +3872,8 @@ export function createChecker(program: Program): Checker {
 
     if (isBase) {
       for (const prop of isBase.properties.values()) {
-        const newProp = cloneType(prop, {
+        const memberSym = getMemberSymbol(node.symbol, prop.name)!;
+        const newProp = cloneTypeForSymbol(memberSym, prop, {
           sourceProperty: prop,
           model: type,
         });
@@ -5113,7 +5139,8 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
-    const symId = getSymbolId(getSymbolForMember(prop)!);
+    const sym = getSymbolForMember(prop)!;
+    const symId = getSymbolId(sym);
     const links = getSymbolLinksForMember(prop);
 
     if (links && links.declaredType && mapper === undefined) {
@@ -5160,14 +5187,9 @@ export function createChecker(program: Program): Checker {
     linkMapper(type, mapper);
 
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
-      if (
-        prop.parent?.parent?.kind === SyntaxKind.OperationSignatureDeclaration &&
-        prop.parent.parent.parent?.kind === SyntaxKind.OperationStatement
-      ) {
-        const doc = extractParamDoc(prop.parent.parent.parent, type.name);
-        if (doc) {
-          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
-        }
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        type.decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
       finishType(type);
     }
@@ -5574,6 +5596,7 @@ export function createChecker(program: Program): Checker {
       if (returnTypesDocs.errors) {
         decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
       }
+    } else if (targetType.kind === "ModelProperty") {
     }
     return decorators;
   }
@@ -5598,7 +5621,6 @@ export function createChecker(program: Program): Checker {
       decorators,
       derivedScalars: [],
     });
-    checkScalarConstructors(type, node, type.constructors, mapper);
     linkType(links, type, mapper);
 
     if (node.extends) {
@@ -5608,6 +5630,7 @@ export function createChecker(program: Program): Checker {
         type.baseScalar.derivedScalars.push(type);
       }
     }
+    checkScalarConstructors(type, node, type.constructors, mapper);
     decorators.push(...checkDecorators(type, node, mapper));
 
     if (mapper === undefined) {
@@ -5672,6 +5695,19 @@ export function createChecker(program: Program): Checker {
     constructors: Map<string, ScalarConstructor>,
     mapper: TypeMapper | undefined
   ) {
+    if (parentScalar.baseScalar) {
+      for (const member of parentScalar.baseScalar.constructors.values()) {
+        const newConstructor: ScalarConstructor = cloneTypeForSymbol(
+          getMemberSymbol(node.symbol, member.name)!,
+          {
+            ...member,
+            scalar: parentScalar,
+          }
+        );
+        linkIndirectMember(node, newConstructor, mapper);
+        constructors.set(member.name, newConstructor);
+      }
+    }
     for (const member of node.members) {
       const constructor = checkScalarConstructor(member, mapper, parentScalar);
       if (constructors.has(constructor.name as string)) {
@@ -6489,7 +6525,10 @@ export function createChecker(program: Program): Checker {
    * recursively by the caller.
    */
   function cloneType<T extends Type>(type: T, additionalProps: Partial<T> = {}): T {
-    const clone = finishType(initializeClone(type, additionalProps));
+    let clone = initializeClone(type, additionalProps);
+    if (type.isFinished) {
+      clone = finishType(clone);
+    }
     const projection = projectionsByType.get(type);
     if (projection) {
       projectionsByType.set(clone, projection);
@@ -6513,6 +6552,10 @@ export function createChecker(program: Program): Checker {
   ): T {
     let clone = initializeClone(type, additionalProps);
     if ("decorators" in clone) {
+      const docComment = docFromCommentForSym.get(sym);
+      if (docComment) {
+        clone.decorators.push(createDocFromCommentDecorator("self", docComment));
+      }
       for (const dec of checkAugmentDecorators(sym, clone, undefined)) {
         clone.decorators.push(dec);
       }
@@ -8425,18 +8468,34 @@ function extractReturnsDocs(type: Type): {
   return result;
 }
 
-function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {
+function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   if (node.docs === undefined) {
-    return undefined;
+    return new Map();
   }
+  const paramDocs = new Map();
   for (const doc of node.docs) {
     for (const tag of doc.tags) {
-      if (tag.kind === SyntaxKind.DocParamTag && tag.paramName.sv === paramName) {
-        return getDocContent(tag.content);
+      if (tag.kind === SyntaxKind.DocParamTag) {
+        paramDocs.set(tag.paramName.sv, getDocContent(tag.content));
       }
     }
   }
-  return undefined;
+  return paramDocs;
+}
+
+function extractPropDocs(node: ModelStatementNode): Map<string, string> {
+  if (node.docs === undefined) {
+    return new Map();
+  }
+  const propDocs = new Map();
+  for (const doc of node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocPropTag) {
+        propDocs.set(tag.propName.sv, getDocContent(tag.content));
+      }
+    }
+  }
+  return propDocs;
 }
 
 function getDocContent(content: readonly DocContent[]) {

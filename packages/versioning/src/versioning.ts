@@ -1,5 +1,11 @@
-import type { Enum, EnumMember, Namespace, Program, Type } from "@typespec/compiler";
-import { compilerAssert, getNamespaceFullName } from "@typespec/compiler";
+import {
+  getNamespaceFullName,
+  type Enum,
+  type EnumMember,
+  type Namespace,
+  type Program,
+  type Type,
+} from "@typespec/compiler";
 import {
   getAddedOnVersions,
   getRemovedOnVersions,
@@ -189,6 +195,86 @@ export enum Availability {
   Removed = "Removed",
 }
 
+function getParentAddedVersion(
+  program: Program,
+  type: Type,
+  versions: Version[]
+): Version | undefined {
+  let parentMap: Map<string, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMap(program, type.model);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMap(program, type.interface);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [key, value] of parentMap.entries()) {
+    if (value === Availability.Added) {
+      return versions.find((x) => x.name === key);
+    }
+  }
+  return undefined;
+}
+
+function getParentAddedVersionInTimeline(
+  program: Program,
+  type: Type,
+  timeline: VersioningTimeline
+): Version | undefined {
+  let parentMap: Map<TimelineMoment, Availability> | undefined = undefined;
+  if (type.kind === "ModelProperty" && type.model !== undefined) {
+    parentMap = getAvailabilityMapInTimeline(program, type.model, timeline);
+  } else if (type.kind === "Operation" && type.interface !== undefined) {
+    parentMap = getAvailabilityMapInTimeline(program, type.interface, timeline);
+  }
+  if (parentMap === undefined) return undefined;
+  for (const [moment, availability] of parentMap.entries()) {
+    if (availability === Availability.Added) {
+      return moment.versions().next().value;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Uses the added, removed and parent metadata to resolve any issues with
+ * implicit versioning and return the added array with this taken into account.
+ * @param added the array of versions from the `@added` decorator
+ * @param removed the array of versions from the `@removed` decorator
+ * @param parentAdded the version when the parent type was added
+ * @returns the added array, with any implicit versioning taken into consideration.
+ */
+function resolveWhenFirstAdded(
+  added: Version[],
+  removed: Version[],
+  parentAdded: Version
+): Version[] {
+  const implicitlyAvailable = !added.length && !removed.length;
+  if (implicitlyAvailable) {
+    // if type has no version info, it inherits from the parent
+    return [parentAdded];
+  }
+
+  if (added.length) {
+    const addedFirst = !removed.length || added[0].index < removed[0].index;
+    if (addedFirst) {
+      // if the type was added first, then implicitly it wasn't available before
+      // and thus should NOT inherit from its parent
+      return added;
+    }
+  }
+
+  if (removed.length) {
+    const removedFirst = !added.length || removed[0].index < added[0].index;
+    if (removedFirst) {
+      // if the type was removed first the implicitly it was available before
+      // and thus SHOULD inherit from its parent
+      return [parentAdded, ...added];
+    }
+  }
+  // we shouldn't get here, but if we do, then make no change to the added array
+  return added;
+}
+
 export function getAvailabilityMap(
   program: Program,
   type: Type
@@ -199,7 +285,9 @@ export function getAvailabilityMap(
   // if unversioned then everything exists
   if (allVersions === undefined) return undefined;
 
-  const added = getAddedOnVersions(program, type) ?? [];
+  const firstVersion = allVersions[0];
+  const parentAdded = getParentAddedVersion(program, type, allVersions) ?? firstVersion;
+  let added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
@@ -214,28 +302,7 @@ export function getAvailabilityMap(
   )
     return undefined;
 
-  let parentMap: Map<string, Availability> | undefined = undefined;
-  if (type.kind === "ModelProperty" && type.model !== undefined) {
-    parentMap = getAvailabilityMap(program, type.model);
-  } else if (type.kind === "Operation" && type.interface !== undefined) {
-    parentMap = getAvailabilityMap(program, type.interface);
-  }
-
-  // implicitly, all versioned things are assumed to have been added at
-  // v1 if not specified
-  if (!added.length) {
-    if (parentMap !== undefined) {
-      parentMap.forEach((key, value) => {
-        if (key === Availability.Added.valueOf()) {
-          const match = allVersions.find((x) => x.name === value);
-          compilerAssert(match !== undefined, "Version not found");
-          added.push(match);
-        }
-      });
-    } else {
-      added.push(allVersions[0]);
-    }
-  }
+  added = resolveWhenFirstAdded(added, removed, parentAdded);
 
   // something isn't available by default
   let isAvail = false;
@@ -264,7 +331,9 @@ export function getAvailabilityMapInTimeline(
 ): Map<TimelineMoment, Availability> | undefined {
   const avail = new Map<TimelineMoment, Availability>();
 
-  const added = getAddedOnVersions(program, type) ?? [];
+  const firstVersion = timeline.first().versions().next().value;
+  const parentAdded = getParentAddedVersionInTimeline(program, type, timeline) ?? firstVersion;
+  let added = getAddedOnVersions(program, type) ?? [];
   const removed = getRemovedOnVersions(program, type) ?? [];
   const typeChanged = getTypeChangedFrom(program, type);
   const returnTypeChanged = getReturnTypeChangedFrom(program, type);
@@ -279,11 +348,7 @@ export function getAvailabilityMapInTimeline(
   )
     return undefined;
 
-  // implicitly, all versioned things are assumed to have been added at
-  // v1 if not specified
-  if (!added.length) {
-    added.push(timeline.first().versions().next().value);
-  }
+  added = resolveWhenFirstAdded(added, removed, parentAdded);
 
   // something isn't available by default
   let isAvail = false;

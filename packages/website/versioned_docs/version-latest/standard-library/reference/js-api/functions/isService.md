@@ -4,7 +4,7 @@ title: "[F] isService"
 
 ---
 ```ts
-isService(program, namespace): boolean
+function isService(program, namespace): boolean
 ```
 
 Check if the namespace is defined as a service.

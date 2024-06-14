@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SourceInput;
 using Moq;
 using NUnit.Framework;
@@ -32,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             public MockExpressionTypeProviderWriter(TypeProvider provider) : base(provider) { }
 
-            public override void Write()
+            public override CodeFile Write()
             {
                 throw new NotImplementedException();
             }

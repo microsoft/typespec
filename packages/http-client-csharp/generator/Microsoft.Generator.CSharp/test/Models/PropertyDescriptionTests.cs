@@ -15,8 +15,8 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource(nameof(BuildPropertyDescriptionTestCases))]
         public void BuildPropertyDescription(InputModelProperty inputModelProperty, CSharpType type)
         {
-            var propertyDescription = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, false);
-            var propertyDescriptionString = propertyDescription.ToString();
+            IReadOnlyList<FormattableString> propertyDescription = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, false);
+            var propertyDescriptionString = string.Join(Environment.NewLine, propertyDescription);
             Assert.IsNotNull(propertyDescription);
             Assert.IsNotEmpty(propertyDescriptionString);
 
@@ -47,8 +47,8 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.AreEqual(7, descriptions.Count);
 
-            var codeWriter = new CodeWriter();
-            codeWriter.AppendXmlDocumentation($"<test>", $"</test>", descriptions.ToList().Join("\n"));
+            using var codeWriter = new CodeWriter();
+            codeWriter.AppendXmlDocumentation($"<test>", $"</test>", descriptions);
             var actual = codeWriter.ToString(false);
 
             var expected = string.Join("\n",

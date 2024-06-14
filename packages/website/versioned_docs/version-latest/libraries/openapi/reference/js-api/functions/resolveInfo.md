@@ -4,7 +4,7 @@ title: "[F] resolveInfo"
 
 ---
 ```ts
-resolveInfo(program, entity): AdditionalInfo | undefined
+function resolveInfo(program, entity): AdditionalInfo | undefined
 ```
 
 Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`.

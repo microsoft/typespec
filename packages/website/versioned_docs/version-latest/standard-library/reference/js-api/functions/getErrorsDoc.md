@@ -4,7 +4,7 @@ title: "[F] getErrorsDoc"
 
 ---
 ```ts
-getErrorsDoc(program, target): string | undefined
+function getErrorsDoc(program, target): string | undefined
 ```
 
 Get the documentation string for the return errors types of an operation.

@@ -4,7 +4,7 @@ title: "[F] validateDecoratorTarget"
 
 ---
 ```ts
-validateDecoratorTarget<K>(
+function validateDecoratorTarget<K>(
    context, 
    target, 
    decoratorName, 
@@ -17,7 +17,7 @@ Validate the decorator target is matching the expected value.
 
 | Type parameter |
 | :------ |
-| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
+| `K` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Parameters
 

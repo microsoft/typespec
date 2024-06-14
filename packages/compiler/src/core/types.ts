@@ -949,6 +949,7 @@ export enum SyntaxKind {
   Doc,
   DocText,
   DocParamTag,
+  DocPropTag,
   DocReturnsTag,
   DocErrorsTag,
   DocTemplateTag,
@@ -1043,6 +1044,7 @@ export interface BaseNode extends TextRange {
 
 export interface TemplateDeclarationNode {
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
+  readonly templateParametersRange: TextRange;
   readonly locals?: SymbolTable;
 }
 
@@ -1050,11 +1052,35 @@ export interface TemplateDeclarationNode {
  * owner node and other related information according to the position
  */
 export interface PositionDetail {
-  readonly node: Node;
+  readonly node: Node | undefined;
   readonly position: number;
   readonly char: number;
   readonly preChar: number;
   readonly nextChar: number;
+  readonly inTrivia: boolean;
+
+  /**
+   * if the position is in a trivia, return the start position of the trivia containing the position
+   * if the position is not a trivia, return the start position of the trivia before the text(identifier code) containing the position
+   *
+   * Please be aware that this may not be the pre node in the tree because some non-trivia char is ignored in the tree but will counted here
+   *
+   * also comments are considered as trivia
+   */
+  readonly triviaStartPosition: number;
+  /**
+   * if the position is in a trivia, return the end position (exclude as other 'end' means) of the trivia containing the position
+   * if the position is not a trivia, return the end position (exclude as other 'end' means) of the trivia after the node containing the position
+   *
+   * Please be aware that this may not be the next node in the tree because some non-trivia char is ignored in the tree but will considered here
+   *
+   * also comments are considered as trivia
+   */
+  readonly triviaEndPosition: number;
+  /** get the PositionDetail of positionBeforeTrivia */
+  readonly getPositionDetailBeforeTrivia: () => PositionDetail;
+  /** get the PositionDetail of positionAfterTrivia */
+  readonly getPositionDetailAfterTrivia: () => PositionDetail;
 }
 
 export type Node =
@@ -1126,7 +1152,8 @@ export type MemberContainerNode =
   | ModelExpressionNode
   | InterfaceStatementNode
   | EnumStatementNode
-  | UnionStatementNode;
+  | UnionStatementNode
+  | ScalarStatementNode;
 
 export type MemberNode =
   | ModelPropertyNode
@@ -1140,7 +1167,7 @@ export type MemberContainerType = Model | Enum | Interface | Union | Scalar;
 /**
  * Type that can be used as members of a container type.
  */
-export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant;
+export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant | ScalarConstructor;
 
 export type Comment = LineComment | BlockComment;
 
@@ -1358,6 +1385,7 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly bodyRange: TextRange;
   readonly extends?: Expression;
   readonly is?: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1369,6 +1397,7 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly members: readonly ScalarConstructorNode[];
+  readonly bodyRange: TextRange;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -1382,6 +1411,7 @@ export interface ScalarConstructorNode extends BaseNode {
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.InterfaceStatement;
   readonly operations: readonly OperationStatementNode[];
+  readonly bodyRange: TextRange;
   readonly extends: readonly TypeReferenceNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
@@ -1452,6 +1482,7 @@ export interface EmptyStatementNode extends BaseNode {
 export interface ModelExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.ModelExpression;
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly bodyRange: TextRange;
 }
 
 export interface ArrayExpressionNode extends BaseNode {
@@ -1482,6 +1513,7 @@ export interface ModelSpreadPropertyNode extends BaseNode {
 export interface ObjectLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.ObjectLiteral;
   readonly properties: (ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode)[];
+  readonly bodyRange: TextRange;
 }
 
 export interface ObjectLiteralPropertyNode extends BaseNode {
@@ -1903,6 +1935,7 @@ export type DocTag =
   | DocReturnsTagNode
   | DocErrorsTagNode
   | DocParamTagNode
+  | DocPropTagNode
   | DocTemplateTagNode
   | DocUnknownTagNode;
 export type DocContent = DocTextNode;
@@ -1923,6 +1956,11 @@ export interface DocErrorsTagNode extends DocTagBaseNode {
 export interface DocParamTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocParamTag;
   readonly paramName: IdentifierNode;
+}
+
+export interface DocPropTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocPropTag;
+  readonly propName: IdentifierNode;
 }
 
 export interface DocTemplateTagNode extends DocTagBaseNode {
@@ -2047,7 +2085,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
-  linter: LinterDefinition;
+  linter: LinterResolvedDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
@@ -2435,6 +2473,13 @@ export interface PackageFlags {
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
   ruleSets?: Record<string, LinterRuleSet>;
+}
+
+export interface LinterResolvedDefinition {
+  readonly rules: LinterRule<string, DiagnosticMessages>[];
+  readonly ruleSets: {
+    [name: string]: LinterRuleSet;
+  };
 }
 
 export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {

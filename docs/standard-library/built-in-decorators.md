@@ -933,6 +933,24 @@ Returns the model with the given properties omitted.
 
 
 
+### `@withPickedProperties` {#@withPickedProperties}
+
+Returns the model with only the given properties included.
+```typespec
+@withPickedProperties(pick: string | Union)
+```
+
+#### Target
+
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| pick | `string \| Union` | List of properties to include |
+
+
+
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
 Returns the model with non-updateable properties removed.

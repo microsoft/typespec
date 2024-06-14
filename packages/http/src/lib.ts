@@ -117,10 +117,40 @@ export const $lib = createTypeSpecLibrary({
         default: `@visibility("write") is not supported. Use @visibility("update"), @visibility("create") or @visibility("create", "update") as appropriate.`,
       },
     },
+    "multipart-invalid-content-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Content type '${"contentType"}' is not a multipart content type. Supported content types are: ${"supportedContentTypes"}.`,
+      },
+    },
     "multipart-model": {
       severity: "error",
       messages: {
         default: "Multipart request body must be a model.",
+      },
+    },
+    "multipart-part": {
+      severity: "error",
+      messages: {
+        default: "Expect item to be an HttpPart model.",
+      },
+    },
+    "multipart-nested": {
+      severity: "error",
+      messages: {
+        default: "Cannot use @multipartBody inside of an HttpPart",
+      },
+    },
+    "http-file-extra-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`File model cannot define extra properties. Found '${"propName"}'.`,
+      },
+    },
+    "formdata-no-part-name": {
+      severity: "error",
+      messages: {
+        default: "Part used in multipart/form-data must have a name.",
       },
     },
     "header-format-required": {
@@ -144,6 +174,7 @@ export const $lib = createTypeSpecLibrary({
     body: { description: "State for the @body decorator" },
     bodyRoot: { description: "State for the @bodyRoot decorator" },
     bodyIgnore: { description: "State for the @bodyIgnore decorator" },
+    multipartBody: { description: "State for the @bodyIgnore decorator" },
     statusCode: { description: "State for the @statusCode decorator" },
     verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
     servers: { description: "State for the @server decorator" },
@@ -157,6 +188,10 @@ export const $lib = createTypeSpecLibrary({
     routes: {},
     sharedRoutes: { description: "State for the @sharedRoute decorator" },
     routeOptions: {},
+
+    // private
+    file: { description: "State for the @Private.file decorator" },
+    httpPart: { description: "State for the @Private.httpPart decorator" },
   },
 } as const);
 

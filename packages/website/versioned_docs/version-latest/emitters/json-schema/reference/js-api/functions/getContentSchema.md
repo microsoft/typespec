@@ -4,7 +4,7 @@ title: "[F] getContentSchema"
 
 ---
 ```ts
-getContentSchema(program, target): any
+function getContentSchema(program, target): any
 ```
 
 ## Parameters

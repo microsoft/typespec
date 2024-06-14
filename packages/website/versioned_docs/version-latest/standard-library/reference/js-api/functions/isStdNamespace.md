@@ -4,7 +4,7 @@ title: "[F] isStdNamespace"
 
 ---
 ```ts
-isStdNamespace(namespace): boolean
+function isStdNamespace(namespace): boolean
 ```
 
 ## Parameters

@@ -61,13 +61,13 @@ export interface InputDurationType extends InputTypeBase {
 }
 
 export interface InputUnionType extends InputTypeBase {
-  Kind: InputTypeKind.Union; // TODO -- will change to TCGC value in future refactor
-  Name: InputTypeKind.Union; // union type does not really have a name right now, we just use its kind
-  UnionItemTypes: InputType[];
+  Kind: "union";
+  Name: string;
+  VariantTypes: InputType[];
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
-  return type.Kind === InputTypeKind.Union;
+  return type.Kind === "union";
 }
 
 export interface InputModelType extends InputTypeBase {

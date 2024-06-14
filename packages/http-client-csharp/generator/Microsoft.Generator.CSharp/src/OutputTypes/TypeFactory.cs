@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -17,11 +18,11 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType CreateCSharpType(InputType input);
 
         /// <summary>
-        /// Factory method for creating a <see cref="Parameter"/> based on an input parameter <paramref name="parameter"/>.
+        /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
-        /// <returns>An instance of <see cref="Parameter"/>.</returns>
-        public abstract Parameter CreateCSharpParam(InputParameter parameter);
+        /// <returns>An instance of <see cref="ParameterProvider"/>.</returns>
+        public abstract ParameterProvider CreateCSharpParam(InputParameter parameter);
 
         /// <summary>
         /// Factory method for creating a <see cref="CSharpMethodCollection"/> based on an input operation <paramref name="operation"/>.
@@ -83,13 +84,13 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType PageResponseType();
 
         /// <summary>
-        /// The type for change tracking lists.
+        /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.
         /// </summary>
-        public virtual CSharpType ChangeTrackingListType => ChangeTrackingListProvider.Instance.Type;
+        public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Instance.Type;
 
         /// <summary>
-        /// The type for change tracking dictionaries.
+        /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
-        public virtual CSharpType ChangeTrackingDictionaryType => ChangeTrackingDictionaryProvider.Instance.Type;
+        public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Instance.Type;
     }
 }

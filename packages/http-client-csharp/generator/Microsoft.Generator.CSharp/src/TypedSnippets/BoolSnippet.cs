@@ -7,9 +7,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record BoolSnippet(ValueExpression Untyped) : TypedSnippet<bool>(Untyped)
     {
-        public BoolSnippet Or(ValueExpression other) => new(new BinaryOperatorExpression(" || ", this, other));
+        public BoolSnippet Or(ValueExpression other) => new(new BinaryOperatorExpression("||", this, other));
 
-        public BoolSnippet And(ValueExpression other) => new(new BinaryOperatorExpression(" && ", this, other));
+        public BoolSnippet And(ValueExpression other) => new(new BinaryOperatorExpression("&&", this, other));
 
         public static BoolSnippet True { get; } = Snippet.True;
 

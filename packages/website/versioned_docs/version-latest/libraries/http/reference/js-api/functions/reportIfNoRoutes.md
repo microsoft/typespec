@@ -4,7 +4,7 @@ title: "[F] reportIfNoRoutes"
 
 ---
 ```ts
-reportIfNoRoutes(program, routes): void
+function reportIfNoRoutes(program, routes): void
 ```
 
 ## Parameters

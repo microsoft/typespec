@@ -4,7 +4,7 @@ title: "[F] createRekeyableMap"
 
 ---
 ```ts
-createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
+function createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
 ```
 
 ## Type parameters

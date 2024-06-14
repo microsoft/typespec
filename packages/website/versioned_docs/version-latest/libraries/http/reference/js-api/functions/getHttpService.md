@@ -4,7 +4,7 @@ title: "[F] getHttpService"
 
 ---
 ```ts
-getHttpService(
+function getHttpService(
    program, 
    serviceNamespace, 
    options?): [HttpService, readonly Diagnostic[]]

@@ -4,7 +4,7 @@ title: "[F] findBaseUri"
 
 ---
 ```ts
-findBaseUri(program, target): string | undefined
+function findBaseUri(program, target): string | undefined
 ```
 
 ## Parameters

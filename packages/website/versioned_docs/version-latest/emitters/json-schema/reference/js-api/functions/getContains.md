@@ -4,7 +4,7 @@ title: "[F] getContains"
 
 ---
 ```ts
-getContains(program, target): any
+function getContains(program, target): any
 ```
 
 ## Parameters

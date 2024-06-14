@@ -1443,6 +1443,23 @@ function testColorization(description: string, tokenize: Tokenize) {
         ]);
       });
 
+      it("tokenize @prop", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @prop foo Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("prop"),
+          Token.identifiers.variable("foo"),
+          ...common,
+        ]);
+      });
+
       it("tokenize @returns", async () => {
         const tokens = await tokenizeDocComment(
           `/**

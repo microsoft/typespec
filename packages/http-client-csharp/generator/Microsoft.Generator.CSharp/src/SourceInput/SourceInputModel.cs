@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
+using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
 namespace Microsoft.Generator.CSharp.SourceInput

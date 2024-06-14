@@ -3,11 +3,11 @@ alias myConst = "foobar";
 model Person {
   simple: "Simple ${123} end";
   multiline: """
-  Multi 
-     ${123} 
-    ${true}
-  line
-  """;
+    Multi 
+       ${123} 
+      ${true}
+    line
+    """;
   ref: "Ref this alias ${myConst} end";
   template: Template<"custom">;
 }

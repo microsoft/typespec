@@ -80,9 +80,9 @@ model Kiosk {
 }
 
 @doc("""
-Describes a digital sign.
-Signs can include text, images, or both.
-""")
+  Describes a digital sign.
+  Signs can include text, images, or both.
+  """)
 model Sign {
   @doc("unique id")
   id?: int32; // Output only.

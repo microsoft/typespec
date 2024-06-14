@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -55,7 +55,6 @@
     "watch": "vite build --watch",
     "storybook": "sb dev",
     "build: storybook": "sb build",
-    "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "test": "echo 'no tests'",
@@ -107,11 +106,12 @@
     "@typespec/bundler": "workspace:~",
     "@vitejs/plugin-react": "~4.2.1",
     "c8": "^9.1.0",
-    "copyfiles": "~2.4.1",
     "cross-env": "~7.0.3",
+    "es-module-shims": "~1.10.0",
     "rimraf": "~5.0.7",
     "typescript": "~5.4.5",
     "vite": "^5.2.11",
+    "vite-plugin-checker": "^0.6.4",
     "vite-plugin-dts": "^3.9.1"
   }
 }

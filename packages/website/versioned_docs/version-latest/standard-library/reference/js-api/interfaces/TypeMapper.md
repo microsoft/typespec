@@ -7,7 +7,7 @@ title: "[I] TypeMapper"
 
 | Property | Type |
 | :------ | :------ |
-| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `args` | readonly ([`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md))[] |
 | `partial` | `boolean` |
 
 ## Methods
@@ -15,7 +15,7 @@ title: "[I] TypeMapper"
 ### getMappedType()
 
 ```ts
-getMappedType(type): Type
+getMappedType(type): Type | Value | IndeterminateEntity
 ```
 
 #### Parameters
@@ -26,4 +26,4 @@ getMappedType(type): Type
 
 #### Returns
 
-[`Type`](../type-aliases/Type.md)
+[`Type`](../type-aliases/Type.md) \| [`Value`](../type-aliases/Value.md) \| [`IndeterminateEntity`](IndeterminateEntity.md)

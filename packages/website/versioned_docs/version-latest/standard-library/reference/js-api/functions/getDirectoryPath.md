@@ -4,7 +4,7 @@ title: "[F] getDirectoryPath"
 
 ---
 ```ts
-getDirectoryPath(path): string
+function getDirectoryPath(path): string
 ```
 
 ## Parameters

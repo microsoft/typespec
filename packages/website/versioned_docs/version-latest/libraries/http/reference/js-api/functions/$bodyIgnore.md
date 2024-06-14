@@ -4,7 +4,7 @@ title: "[F] $bodyIgnore"
 
 ---
 ```ts
-$bodyIgnore(context, target): void
+function $bodyIgnore(context, target): void
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] parse"
 
 ---
 ```ts
-parse(code, options): TypeSpecScriptNode
+function parse(code, options): TypeSpecScriptNode
 ```
 
 ## Parameters

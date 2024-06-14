@@ -77,6 +77,17 @@ export type WithoutOmittedPropertiesDecorator = (
 ) => void;
 
 /**
+ * Returns the model with only the given properties included.
+ *
+ * @param pick List of properties to include
+ */
+export type WithPickedPropertiesDecorator = (
+  context: DecoratorContext,
+  target: Model,
+  pick: Type
+) => void;
+
+/**
  * Returns the model with any default values removed.
  */
 export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: Model) => void;

@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System;
-using NUnit.Framework;
-using System.Linq;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using Moq;
 using System.IO;
+using System.Linq;
 using System.Text;
+using Moq;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -303,45 +303,6 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
-        public void InitializationType_ReadOnlyMemory()
-        {
-            var arguments = typeof(int);
-            var cSharpType = new CSharpType(typeof(ReadOnlyMemory<>), arguments: arguments);
-            var actual = cSharpType.InitializationType;
-            var expected = new CSharpType(arguments.MakeArrayType());
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
-        public void InitializationType_List()
-        {
-            var arguments = typeof(int);
-            var listType = new CSharpType(typeof(IList<>), arguments: arguments);
-            var actual = listType.InitializationType;
-            var expected = new CSharpType(typeof(List<>), arguments: arguments);
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
-        public void InitializationType_Dictionary()
-        {
-            var arguments = new CSharpType[] { typeof(string), typeof(int) };
-            var cSharpType = new CSharpType(typeof(IDictionary<,>), arguments: arguments);
-            var actual = cSharpType.InitializationType;
-            var expected = new CSharpType(typeof(Dictionary<,>), arguments: arguments);
-
-            var areEqual = actual.Equals(expected);
-
-            Assert.IsTrue(areEqual);
-        }
-
-        [Test]
         public void PropertyInitializationType_ReadOnlyMemory()
         {
             var arguments = typeof(int);
@@ -428,10 +389,76 @@ namespace Microsoft.Generator.CSharp.Tests
             var cSharpType = new CSharpType(type);
             var actual = cSharpType.ToString();
             var expected = new StringBuilder()
-                .Append(expectedString).Append(CodeWriterTests.NewLine)
+                .Append(expectedString)
                 .ToString();
 
             Assert.AreEqual(expected, actual);
         }
+
+        [TestCaseSource(nameof(ValidateNullableTypesData))]
+        public void ValidateNullableTypes(Type type, IReadOnlyList<CSharpType> expectedArguments, bool expectedIsNullable)
+        {
+            var csharpType = new CSharpType(type);
+
+            CollectionAssert.AreEqual(expectedArguments, csharpType.Arguments);
+            Assert.AreEqual(expectedIsNullable, csharpType.IsNullable);
+        }
+
+        private static object[] ValidateNullableTypesData = [
+            new object[]
+            {
+                typeof(int), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(int?), Array.Empty<CSharpType>(), true
+            },
+            new object[]
+            {
+                typeof(Uri), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(Guid), Array.Empty<CSharpType>(), false
+            },
+            new object[]
+            {
+                typeof(Guid?), Array.Empty<CSharpType>(), true
+            },
+            new object[]
+            {
+                typeof(TestStruct<int>), new CSharpType[] { typeof(int) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<int>?), new CSharpType[] { typeof(int) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<int?>), new CSharpType[] { typeof(int?) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<int?>?), new CSharpType[] { typeof(int?) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>>), new CSharpType[] { typeof(TestStruct<int>) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>>?), new CSharpType[] { typeof(TestStruct<int>) }, true
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>?>), new CSharpType[] { typeof(TestStruct<int>?) }, false
+            },
+            new object[]
+            {
+                typeof(TestStruct<TestStruct<int>?>?), new CSharpType[] { typeof(TestStruct<int>?) }, true
+            },
+        ];
+
+        internal struct TestStruct<T> { }
     }
 }

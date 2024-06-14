@@ -4,7 +4,7 @@ title: "[F] getAllRoutes"
 
 ---
 ```ts
-getAllRoutes(program, options?): [HttpOperation[], readonly Diagnostic[]]
+function getAllRoutes(program, options?): [HttpOperation[], readonly Diagnostic[]]
 ```
 
 ## Parameters

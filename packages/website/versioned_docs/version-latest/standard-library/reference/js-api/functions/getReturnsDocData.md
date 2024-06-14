@@ -4,7 +4,7 @@ title: "[F] getReturnsDocData"
 
 ---
 ```ts
-getReturnsDocData(program, target): DocData | undefined
+function getReturnsDocData(program, target): DocData | undefined
 ```
 
 Get the documentation information for the return success types of an operation. In most cases you probably just want to use [getReturnsDoc](getReturnsDoc.md)
@@ -18,6 +18,6 @@ Get the documentation information for the return success types of an operation. 
 
 ## Returns
 
-[`DocData`](../interfaces/DocData.md) \| `undefined`
+`DocData` \| `undefined`
 
 Doc data with source information.

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Moq;
@@ -49,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void NoExtensionMethods()
         {
-            var writer = new CodeWriter();
+            using var writer = new CodeWriter();
             Assert.IsNotNull(writer);
         }
 
@@ -60,12 +61,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestWriteValueExpression_DefaultCastExpression(Type type, object inner, string expectedWritten)
         {
             var castExpression = new CastExpression(Snippet.Literal(inner), type);
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             castExpression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append(expectedWritten).Append(CodeWriterTests.NewLine);
+            sb.Append(expectedWritten);
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
@@ -75,12 +76,12 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestWriteValueExpression_CustomExpression()
         {
             var mockCastExpression = new MockExpression();
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             mockCastExpression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append("Custom implementation").Append(CodeWriterTests.NewLine);
+            sb.Append("Custom implementation");
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
@@ -92,19 +93,19 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var stringLiteralExpression = Snippet.Literal(literal);
             CollectionInitializerExpression expression = new CollectionInitializerExpression(stringLiteralExpression);
-            var codeWriter = new CodeWriter();
+            using var codeWriter = new CodeWriter();
             expression.Write(codeWriter);
 
             var sb = new StringBuilder();
             sb.Append(_header);
-            sb.Append(expectedWritten).Append(CodeWriterTests.NewLine);
+            sb.Append(expectedWritten);
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
 
         // Construct a mock method with a body. The body can be either a list of statements or a single expression
         // depending on the value of the useExpressionAsBody parameter.
-        private static CSharpMethod ConstructMockMethod()
+        private static MethodProvider ConstructMockMethod()
         {
             // create method signature
             var methodName = "TestMethod";
@@ -113,9 +114,9 @@ namespace Microsoft.Generator.CSharp.Tests
             FormattableString returnDescription = $"Sample return description for {methodName}";
             var methodSignatureModifiers = MethodSignatureModifiers.Public;
             var returnType = new CSharpType(typeof(BinaryData));
-            var parameters = new List<Parameter>()
+            var parameters = new List<ParameterProvider>()
             {
-                new Parameter("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
+                new ParameterProvider("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
             };
 
             var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
@@ -126,7 +127,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 new KeywordStatement("return", responseVar)
             };
 
-            var method = new CSharpMethod
+            var method = new MethodProvider
             (
                 new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
                 resultStatements,

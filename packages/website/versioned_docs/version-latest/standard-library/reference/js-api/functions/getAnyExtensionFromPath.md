@@ -4,7 +4,7 @@ title: "[F] getAnyExtensionFromPath"
 
 ---
 ```ts
-getAnyExtensionFromPath(path): string
+function getAnyExtensionFromPath(path): string
 ```
 
 Gets the file extension for a path.

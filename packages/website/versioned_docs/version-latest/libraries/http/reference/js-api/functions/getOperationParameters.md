@@ -4,7 +4,7 @@ title: "[F] getOperationParameters"
 
 ---
 ```ts
-getOperationParameters(
+function getOperationParameters(
    program, 
    operation, 
    overloadBase?, 

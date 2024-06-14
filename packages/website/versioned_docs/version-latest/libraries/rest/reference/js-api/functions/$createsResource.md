@@ -4,7 +4,7 @@ title: "[F] $createsResource"
 
 ---
 ```ts
-$createsResource(
+function $createsResource(
    context, 
    entity, 
    resourceType): void

@@ -4,7 +4,7 @@ title: "[F] $collectionAction"
 
 ---
 ```ts
-$collectionAction(
+function $collectionAction(
    context, 
    target, 
    resourceType, 

@@ -5,25 +5,21 @@ import {
   type SelectTabData,
   type SelectTabEvent,
   type SelectTabEventHandler,
-  type TabProps,
 } from "@fluentui/react-components";
-import { useCallback, type FunctionComponent, type ReactElement } from "react";
+import { useCallback, type FunctionComponent } from "react";
 import style from "./output-tabs.module.css";
 
-export interface OutputTab {
-  id: string;
-  name: string | ReactElement<any, any>;
-  align: "left" | "right";
-}
 export interface OutputTabsProps {
-  tabs: OutputTab[];
+  filenames: string[];
   selected: string;
   onSelect: (file: string) => void;
 }
 
-export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected, onSelect }) => {
-  const [leftTabs, rightTabs] = chunk(tabs, (x) => x.align === "left");
-
+export const OutputTabs: FunctionComponent<OutputTabsProps> = ({
+  filenames,
+  selected,
+  onSelect,
+}) => {
   const onTabSelect: SelectTabEventHandler = useCallback(
     (event: SelectTabEvent, data: SelectTabData) => {
       onSelect(data.value as any);
@@ -33,46 +29,17 @@ export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected,
 
   return (
     <TabList selectedValue={selected} onTabSelect={onTabSelect} className={style["tabs"]}>
-      {leftTabs.map((tab) => {
+      {filenames.map((filename) => {
         return (
-          <OutputTabEl
-            key={tab.id}
-            value={tab.id}
-            className={tab.id === selected && style["tab--selected"]}
+          <Tab
+            key={filename}
+            value={filename}
+            className={mergeClasses(style["tab"], filename === selected && style["tab--selected"])}
           >
-            {tab.name}
-          </OutputTabEl>
-        );
-      })}
-      <div className={style["tab-divider"]}></div>
-      {rightTabs.map((tab) => {
-        return (
-          <OutputTabEl
-            key={tab.id}
-            value={tab.id}
-            className={tab.id === selected && style["tab--selected"]}
-          >
-            {tab.name}
-          </OutputTabEl>
+            {filename}
+          </Tab>
         );
       })}
     </TabList>
   );
 };
-
-const OutputTabEl = (props: TabProps) => {
-  return <Tab {...props} className={mergeClasses(style["tab"], props.className)} />;
-};
-
-function chunk<T>(items: T[], condition: (item: T) => boolean) {
-  const match = [];
-  const unMatch = [];
-  for (const item of items) {
-    if (condition(item)) {
-      match.push(item);
-    } else {
-      unMatch.push(item);
-    }
-  }
-  return [match, unMatch];
-}

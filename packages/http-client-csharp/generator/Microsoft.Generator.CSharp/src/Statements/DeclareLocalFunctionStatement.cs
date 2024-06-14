@@ -4,26 +4,27 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<Parameter> Parameters, CSharpType ReturnType, ValueExpression? BodyExpression, MethodBodyStatement? BodyStatement) : MethodBodyStatement
+    public sealed record DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression? BodyExpression, MethodBodyStatement? BodyStatement) : MethodBodyStatement
     {
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<Parameter> Parameters, CSharpType ReturnType, MethodBodyStatement BodyStatement)
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, MethodBodyStatement BodyStatement)
             : this(Name, Parameters, ReturnType, null, BodyStatement) { }
 
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<Parameter> Parameters, CSharpType ReturnType, ValueExpression BodyExpression)
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression BodyExpression)
             : this(Name, Parameters, ReturnType, BodyExpression, null) { }
 
         internal override void Write(CodeWriter writer)
         {
             writer.Append($"{ReturnType} {Name:D}(");
-            foreach (var parameter in Parameters)
+            for (int i = 0; i < Parameters.Count; i++)
             {
-                writer.Append($"{parameter.Type} {parameter.Name}, ");
+                writer.Append($"{Parameters[i].Type} {Parameters[i].Name}, ");
+                if (i < Parameters.Count - 1)
+                    writer.AppendRaw(", ");
             }
-
-            writer.RemoveTrailingComma();
             writer.AppendRaw(")");
             if (BodyExpression is not null)
             {
@@ -33,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else if (BodyStatement is not null)
             {
+                writer.WriteLine();
                 using (writer.Scope())
                 {
                     BodyStatement.Write(writer);

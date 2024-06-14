@@ -23,26 +23,24 @@ namespace Microsoft.Generator.CSharp.Expressions
             if (IsInline)
             {
                 writer.AppendRaw("{");
-                foreach (var item in Elements)
+                for (int i = 0; i < Elements.Count; i++)
                 {
-                    item.Write(writer);
-                    writer.AppendRaw(", ");
+                    Elements[i].Write(writer);
+                    if (i < Elements.Count - 1)
+                        writer.AppendRaw(", ");
                 }
-
-                writer.RemoveTrailingComma();
                 writer.AppendRaw("}");
             }
             else
             {
                 writer.WriteLine();
                 writer.WriteRawLine("{");
-                foreach (var item in Elements)
+                for (int i = 0; i < Elements.Count; i++)
                 {
-                    item.Write(writer);
-                    writer.WriteRawLine(",");
+                    Elements[i].Write(writer);
+                    if (i < Elements.Count - 1)
+                        writer.WriteRawLine(",");
                 }
-
-                writer.RemoveTrailingComma();
                 writer.WriteLine();
                 writer.AppendRaw("}");
             }

@@ -4,7 +4,7 @@ title: "[F] getPathParamOptions"
 
 ---
 ```ts
-getPathParamOptions(program, entity): PathParameterOptions
+function getPathParamOptions(program, entity): PathParameterOptions
 ```
 
 ## Parameters

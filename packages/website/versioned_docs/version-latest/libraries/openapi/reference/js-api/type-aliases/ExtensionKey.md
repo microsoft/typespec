@@ -4,5 +4,5 @@ title: "[T] ExtensionKey"
 
 ---
 ```ts
-type ExtensionKey: \x-${string}\;
+type ExtensionKey: `x-${string}`;
 ```

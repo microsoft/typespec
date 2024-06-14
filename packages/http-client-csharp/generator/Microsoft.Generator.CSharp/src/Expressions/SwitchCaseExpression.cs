@@ -23,7 +23,6 @@ namespace Microsoft.Generator.CSharp.Expressions
             Case.Write(writer);
             writer.AppendRaw(" => ");
             Expression.Write(writer);
-            writer.WriteRawLine(",");
         }
     }
 }

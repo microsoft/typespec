@@ -4,7 +4,7 @@ title: "[F] filterModelProperties"
 
 ---
 ```ts
-filterModelProperties(
+function filterModelProperties(
    program, 
    model, 
    filter): Model

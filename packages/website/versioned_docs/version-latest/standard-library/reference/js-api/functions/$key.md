@@ -4,7 +4,7 @@ title: "[F] $key"
 
 ---
 ```ts
-$key(
+function $key(
    context, 
    target, 
    altName?): void

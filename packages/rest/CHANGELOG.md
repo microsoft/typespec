@@ -1,5 +1,16 @@
 # Change Log - @typespec/rest
 
+## 0.57.0
+
+### Bug Fixes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Update types to support new values in TypeSpec
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+
 ## 0.56.0
 
 ### Bump dependencies

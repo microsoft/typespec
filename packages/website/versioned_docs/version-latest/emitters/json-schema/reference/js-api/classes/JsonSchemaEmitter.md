@@ -9,7 +9,7 @@ title: "[C] JsonSchemaEmitter"
 
 ## Constructors
 
-### new JsonSchemaEmitter(emitter)
+### new JsonSchemaEmitter()
 
 ```ts
 new JsonSchemaEmitter(emitter): JsonSchemaEmitter
@@ -34,12 +34,12 @@ call `createAssetEmitter` on the emitter context object.
 
 ## Properties
 
-| Property | Modifier | Type | Inherited from |
-| :------ | :------ | :------ | :------ |
-| `#idDuplicateTracker` | `private` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | - |
-| `#refToDecl` | `private` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | - |
-| `#typeForSourceFile` | `private` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | - |
-| `emitter` | `protected` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | `TypeEmitter.emitter` |
+| Property | Modifier | Type | Default value | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `#idDuplicateTracker` | `private` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | `...` | - |
+| `#refToDecl` | `private` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | `...` | - |
+| `#typeForSourceFile` | `private` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | `...` | - |
+| `emitter` | `protected` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | `undefined` | `TypeEmitter.emitter` |
 
 ## Methods
 
@@ -53,7 +53,7 @@ private #applyConstraints(type, schema): void
 
 | Parameter | Type |
 | :------ | :------ |
-| `type` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Enum` \| `Union` |
+| `type` |  \| `Enum` \| `Model` \| `ModelProperty` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `schema` | `ObjectBuilder`<`unknown`\> |
 
 #### Returns
@@ -94,6 +94,24 @@ private #fileExtension(): "json" | "yaml"
 #### Returns
 
 `"json"` \| `"yaml"`
+
+***
+
+### #finalizeSourceFileContent()
+
+```ts
+private #finalizeSourceFileContent(sourceFile): Record<string, any>
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `sourceFile` | `SourceFile`<`object`\> |
+
+#### Returns
+
+`Record`<`string`, `any`\>
 
 ***
 
@@ -147,10 +165,34 @@ private #getDefaultValue(type, defaultType): any
 
 ***
 
+### #getRootSchemaProps()
+
+```ts
+private #getRootSchemaProps(type, name): object
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
+| `name` | `string` |
+
+#### Returns
+
+`object`
+
+| Member | Type | Value |
+| :------ | :------ | :------ |
+| `$id` | `string` | ... |
+| `$schema` | `string` | "https://json-schema.org/draft/2020-12/schema" |
+
+***
+
 ### #getSchemaForScalar()
 
 ```ts
-private #getSchemaForScalar(scalar): Object
+private #getSchemaForScalar(scalar): object
 ```
 
 #### Parameters
@@ -161,14 +203,14 @@ private #getSchemaForScalar(scalar): Object
 
 #### Returns
 
-`Object`
+`object`
 
 ***
 
 ### #getSchemaForStdScalars()
 
 ```ts
-private #getSchemaForStdScalars(baseBuiltIn): Object | Object | Object | Object
+private #getSchemaForStdScalars(baseBuiltIn): object | object | object | object
 ```
 
 #### Parameters
@@ -179,7 +221,30 @@ private #getSchemaForStdScalars(baseBuiltIn): Object | Object | Object | Object
 
 #### Returns
 
-`Object` \| `Object` \| `Object` \| `Object`
+`object` \| `object` \| `object` \| `object`
+
+***
+
+### #initializeSchema()
+
+```ts
+private #initializeSchema(
+   type, 
+   name, 
+props): ObjectBuilder<unknown>
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
+| `name` | `string` |
+| `props` | `Record`<`string`, `unknown`\> |
+
+#### Returns
+
+`ObjectBuilder`<`unknown`\>
 
 ***
 
@@ -204,7 +269,7 @@ private #isStdType(type): boolean
 ### #newFileScope()
 
 ```ts
-private #newFileScope(type): Object
+private #newFileScope(type): object
 ```
 
 #### Parameters
@@ -215,7 +280,7 @@ private #newFileScope(type): Object
 
 #### Returns
 
-`Object`
+`object`
 
 | Member | Type | Value |
 | :------ | :------ | :------ |
@@ -250,6 +315,42 @@ private #requiredModelProperties(model): undefined | string[]
 #### Returns
 
 `undefined` \| `string`[]
+
+***
+
+### #serializeSourceFileContent()
+
+```ts
+private #serializeSourceFileContent(content): string
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `content` | `Record`<`string`, `any`\> |
+
+#### Returns
+
+`string`
+
+***
+
+### #shouldEmitRootSchema()
+
+```ts
+private #shouldEmitRootSchema(type): boolean
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
+
+#### Returns
+
+`boolean`
 
 ***
 
@@ -608,7 +709,7 @@ enumMember(member): EmitterOutput<Record<string, any>>
 ### enumMemberContext()
 
 ```ts
-enumMemberContext(member): Object
+enumMemberContext(member): object
 ```
 
 #### Parameters
@@ -619,7 +720,7 @@ enumMemberContext(member): Object
 
 #### Returns
 
-`Object`
+`object`
 
 #### Inherited from
 
@@ -1644,17 +1745,23 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 programContext(program): Context
 ```
 
+Context shared by the entire program. In cases where you are emitting to a
+single file, use this method to establish your main source file and set the
+`scope` property to that source file's `globalScope`.
+
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `program` | `Program` |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `program` | `Program` |  |
 
 #### Returns
 
 `Context`
 
-#### Overrides
+Context
+
+#### Inherited from
 
 `TypeEmitter.programContext`
 

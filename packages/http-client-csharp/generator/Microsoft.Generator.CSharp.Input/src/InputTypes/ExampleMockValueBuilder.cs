@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.Input
                     // when it is constant, it could have DefaultValue
                     value = InputExampleValue.Value(parameter.Type, parameter.DefaultValue.Value);
                 }
-                else if (parameter.Type is InputUnionType unionType && unionType.UnionItemTypes.First() is InputLiteralType literalType)
+                else if (parameter.Type is InputUnionType unionType && unionType.VariantTypes[0] is InputLiteralType literalType)
                 {
                     // or it could be a union of literal types
                     value = InputExampleValue.Value(parameter.Type, literalType.Value);
@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Input
             InputPrimitiveType primitiveType => BuildPrimitiveExampleValue(primitiveType, hint),
             InputLiteralType literalType => InputExampleValue.Value(literalType, literalType.Value),
             InputModelType modelType => BuildModelExampleValue(modelType, useAllParameters, visitedModels),
-            InputUnionType unionType => BuildExampleValue(unionType.UnionItemTypes.First(), hint, useAllParameters, visitedModels),
+            InputUnionType unionType => BuildExampleValue(unionType.VariantTypes[0], hint, useAllParameters, visitedModels),
             InputDateTimeType dateTimeType => BuildDateTimeExampleValue(dateTimeType),
             InputDurationType durationType => BuildDurationExampleValue(durationType),
             _ => InputExampleValue.Object(type, new Dictionary<string, InputExampleValue>())

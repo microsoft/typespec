@@ -6,7 +6,7 @@ title: "[F] getNodeAtPosition"
 ## getNodeAtPosition(script, position, filter)
 
 ```ts
-getNodeAtPosition(
+function getNodeAtPosition(
    script, 
    position, 
    filter?): Node | undefined
@@ -29,7 +29,7 @@ Resolve the node in the syntax tree that that is at the given position.
 ## getNodeAtPosition(script, position, filter)
 
 ```ts
-getNodeAtPosition<T>(
+function getNodeAtPosition<T>(
    script, 
    position, 
    filter): T | undefined
@@ -39,7 +39,7 @@ getNodeAtPosition<T>(
 
 | Type parameter |
 | :------ |
-| `T` extends [`Node`](../type-aliases/Node.md) |
+| `T` *extends* [`Node`](../type-aliases/Node.md) |
 
 ### Parameters
 
