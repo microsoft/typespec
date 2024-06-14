@@ -17,7 +17,8 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "lib": ["DOM"]
+    "lib": ["DOM"],
+    "types": ["vite/client"]
   },
   "include": ["src", "test/**/*.ts"]
 }

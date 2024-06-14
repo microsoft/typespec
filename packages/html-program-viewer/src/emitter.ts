@@ -1,5 +1,5 @@
 import { emitFile, resolvePath, type EmitContext } from "@typespec/compiler";
-import { renderProgram } from "./react/ui.js";
+import { renderProgram } from "./react/type-graph.js";
 
 import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
 

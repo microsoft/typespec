@@ -1,2 +1,2 @@
 export { ColorProvider, type ColorProviderProps } from "./color-provider.js";
-export { TypeSpecProgramViewer } from "./ui.js";
+export { TypeGraph } from "./type-graph.js";

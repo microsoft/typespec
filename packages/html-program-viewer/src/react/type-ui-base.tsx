@@ -1,6 +1,5 @@
 import type { Type } from "@typespec/compiler";
 import type { FunctionComponent } from "react";
-import { Colors } from "../constants.js";
 import { getIdForType } from "../utils.js";
 import { KeyValueSection } from "./common.js";
 
@@ -21,36 +20,20 @@ export interface TypeUIBaseProps {
   properties: TypeUIBaseProperty[];
 }
 
-const TypeNameStyles = css({
-  display: "inline",
-  color: Colors.typeName,
-});
-
 export const TypeUIBase: FunctionComponent<TypeUIBaseProps> = (props) => {
   const id = props.id ?? getIdForType(props.type);
   const properties = props.properties.map((prop) => {
     return (
       <li key={prop.name}>
-        <span css={{ color: Colors.property }} title={prop.description}>
-          {prop.name}
-        </span>
-        : <span>{prop.value}</span>
+        <span title={prop.description}>{prop.name}</span>: <span>{prop.value}</span>
       </li>
     );
   });
   return (
     <div>
       <div id={id}>
-        <span
-          css={{
-            display: "inline",
-            color: Colors.typeKind,
-            marginRight: "5px",
-          }}
-        >
-          {props.type.kind}
-        </span>
-        <span css={TypeNameStyles}>{props.name}</span>
+        <span>{props.type.kind}</span>
+        <span>{props.name}</span>
       </div>
       <KeyValueSection>{properties}</KeyValueSection>
     </div>

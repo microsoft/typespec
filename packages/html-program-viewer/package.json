@@ -26,7 +26,8 @@
     "./react": {
       "types": "./dist/src/react/index.d.ts",
       "default": "./dist/react/index.js"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "engines": {
     "node": ">=14.0.0"

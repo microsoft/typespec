@@ -7,65 +7,18 @@ import type {
   ModelProperty,
   Namespace,
   Operation,
-  Program,
   Scalar,
   Type,
   Union,
   UnionVariant,
 } from "@typespec/compiler";
 import { getNamespaceFullName, getTypeName } from "@typespec/compiler";
-import React, { useContext, type FunctionComponent, type ReactElement } from "react";
-import ReactDOMServer from "react-dom/server";
-import { Colors } from "../constants.js";
+import { type FunctionComponent, type ReactElement } from "react";
 import { inspect } from "../inspect.js";
 import { getIdForType, isNamedUnion } from "../utils.js";
 import { KeyValueSection, Literal } from "./common.js";
+import { useProgram } from "./program-context.js";
 import { TypeUIBase, type TypeUIBaseProperty } from "./type-ui-base.js";
-
-function expandNamespaces(namespace: Namespace): Namespace[] {
-  return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
-}
-
-const ProgramContext = React.createContext<Program>({} as any);
-
-export function renderProgram(program: Program) {
-  const html = ReactDOMServer.renderToString(<TypeSpecProgramViewer program={program} />);
-  return html;
-}
-
-export interface TypeSpecProgramViewerProps {
-  program: Program;
-}
-
-const ProgramViewerStyles = css({
-  fontFamily: "monospace",
-  backgroundColor: Colors.background,
-  li: {
-    margin: 0,
-    listStyle: "none",
-    position: "relative",
-  },
-});
-
-export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps> = ({
-  program,
-}) => {
-  const root = program.checker!.getGlobalNamespaceType();
-  const namespaces = expandNamespaces(root);
-  return (
-    <ProgramContext.Provider value={program}>
-      <div css={ProgramViewerStyles}>
-        <ul css={{ padding: "0 0 0 10px", margin: 0 }}>
-          {namespaces.map((namespace) => (
-            <li key={getNamespaceFullName(namespace)}>
-              <NamespaceUI type={namespace} />
-            </li>
-          ))}
-        </ul>
-      </div>
-    </ProgramContext.Provider>
-  );
-};
 
 export interface ItemListProps<T> {
   items: Map<string | symbol, T> | T[];
@@ -176,7 +129,12 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
     case "Namespace":
       return <NamespaceUI type={type} />;
     case "Interface":
-      return <InterfaceUI type={type} />;
+      return <Interf indexer: "skip",
+      baseModel: "ref",
+      derivedModels: "ref",
+      properties: "nested",
+      sourceModel: "ref",
+      sourceModels: "value",aceUI type={type} />;
     case "Operation":
       return <OperationUI type={type} />;
     case "Model":
@@ -359,14 +317,14 @@ const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
   const href = `#${id}`;
   return (
     <a
-      css={{
-        color: Colors.ref,
-        textDecoration: "none",
+      // css={{
+      //   color: Colors.ref,
+      //   textDecoration: "none",
 
-        "&:hover": {
-          textDecoration: "underline",
-        },
-      }}
+      //   "&:hover": {
+      //     textDecoration: "underline",
+      //   },
+      // }}
       href={href}
       title={type.kind + ": " + id}
     >
@@ -424,7 +382,7 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
 };
 
 const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
-  const program = useContext(ProgramContext);
+  const program = useProgram();
   const entries = [...program.stateMaps.entries()]
     .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
     .filter(([k, v]) => !!v);
@@ -434,9 +392,8 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   return (
     <KeyValueSection>
       {entries.map(([k, v], i) => (
-        <div css={{ display: "flex" }} key={i}>
-          <div css={{ color: Colors.indentationGuide, marginRight: "5px" }}>{k.toString()}:</div>{" "}
-          <div>{inspect(v)}</div>
+        <div key={i}>
+          <div>{k.toString()}:</div> <div>{inspect(v)}</div>
         </div>
       ))}
     </KeyValueSection>
