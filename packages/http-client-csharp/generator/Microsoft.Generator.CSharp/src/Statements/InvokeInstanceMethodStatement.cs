@@ -7,8 +7,21 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record InvokeInstanceMethodStatement(ValueExpression? InstanceReference, string MethodName, IReadOnlyList<ValueExpression> Arguments, bool CallAsAsync) : MethodBodyStatement
+    public sealed class InvokeInstanceMethodStatement : MethodBodyStatement
     {
+        public ValueExpression? InstanceReference { get; }
+        public string MethodName { get; }
+        public IReadOnlyList<ValueExpression> Arguments { get; }
+        public bool CallAsAsync { get; }
+
+        public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName, IReadOnlyList<ValueExpression> arguments, bool callAsAsync)
+        {
+            InstanceReference = instance;
+            MethodName = methodName;
+            Arguments = arguments;
+            CallAsAsync = callAsAsync;
+        }
+
         public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName) : this(instance, methodName, Array.Empty<ValueExpression>(), false) { }
         public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName, ValueExpression arg) : this(instance, methodName, new[] { arg }, false) { }
         public InvokeInstanceMethodStatement(ValueExpression? instance, string methodName, ValueExpression arg1, ValueExpression arg2) : this(instance, methodName, new[] { arg1, arg2 }, false) { }

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Generator.CSharp.Input;
-using NUnit.Framework;
-using System.Collections.Generic;
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Statements;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -48,7 +48,8 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(7, descriptions.Count);
 
             using var codeWriter = new CodeWriter();
-            codeWriter.AppendXmlDocumentation($"<test>", $"</test>", descriptions);
+            var xmlDoc = new XmlDocStatement($"<test>", $"</test>", descriptions);
+            xmlDoc.Write(codeWriter);
             var actual = codeWriter.ToString(false);
 
             var expected = string.Join("\n",

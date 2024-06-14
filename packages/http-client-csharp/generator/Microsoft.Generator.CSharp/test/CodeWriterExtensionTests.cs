@@ -127,12 +127,9 @@ namespace Microsoft.Generator.CSharp.Tests
                 new KeywordStatement("return", responseVar)
             };
 
-            var method = new MethodProvider
-            (
+            var method = new MethodProvider(
                 new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
-                resultStatements,
-                "GET"
-            );
+                resultStatements);
 
             return method;
         }

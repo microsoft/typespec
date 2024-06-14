@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public record MethodBodyStatement
+    public class MethodBodyStatement
     {
         internal virtual void Write(CodeWriter writer) { }
-        public static implicit operator MethodBodyStatement(MethodBodyStatement[] statements) => new MethodBodyStatements(Statements: statements);
-        public static implicit operator MethodBodyStatement(List<MethodBodyStatement> statements) => new MethodBodyStatements(Statements: statements);
+        public static implicit operator MethodBodyStatement(MethodBodyStatement[] statements) => new MethodBodyStatements(statements);
+        public static implicit operator MethodBodyStatement(List<MethodBodyStatement> statements) => new MethodBodyStatements(statements);
     }
 }

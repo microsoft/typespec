@@ -5,8 +5,19 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record DeclareVariableStatement(CSharpType? Type, CodeWriterDeclaration Name, ValueExpression Value) : MethodBodyStatement
+    public sealed class DeclareVariableStatement : MethodBodyStatement
     {
+        public CodeWriterDeclaration Name { get; }
+        public ValueExpression Value { get; }
+        public CSharpType? Type { get; }
+
+        public DeclareVariableStatement(CSharpType? type, CodeWriterDeclaration name, ValueExpression value)
+        {
+            Name = name;
+            Value = value;
+            Type = type;
+        }
+
         internal override void Write(CodeWriter writer)
         {
             if (Type != null)
