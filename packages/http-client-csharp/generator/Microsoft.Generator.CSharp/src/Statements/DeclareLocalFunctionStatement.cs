@@ -25,11 +25,11 @@ namespace Microsoft.Generator.CSharp.Statements
             BodyStatement = bodyStatement;
         }
 
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, MethodBodyStatement BodyStatement)
-            : this(Name, Parameters, ReturnType, null, BodyStatement) { }
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, MethodBodyStatement bodyStatement)
+            : this(name, parameters, returnType, null, bodyStatement) { }
 
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression BodyExpression)
-            : this(Name, Parameters, ReturnType, BodyExpression, null) { }
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, ValueExpression bodyExpression)
+            : this(name, parameters, returnType, bodyExpression, null) { }
 
         internal override void Write(CodeWriter writer)
         {
