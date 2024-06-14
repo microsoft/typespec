@@ -9,13 +9,13 @@ namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed class ForStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
-        public AssignmentExpression? IndexerAssignment { get; set; }
+        public ValueExpression? IndexExpression { get; set; }
         public ValueExpression? Condition { get; set; }
         public ValueExpression? IncrementExpression { get; set; }
 
-        public ForStatement(AssignmentExpression? indexerAssignment, ValueExpression? condition, ValueExpression? incrementExpression)
+        public ForStatement(ValueExpression? indexExpression, ValueExpression? condition, ValueExpression? incrementExpression)
         {
-            IndexerAssignment = indexerAssignment;
+            IndexExpression = indexExpression;
             Condition = condition;
             IncrementExpression = incrementExpression;
         }
@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Statements
             using (writer.AmbientScope())
             {
                 writer.AppendRaw("for (");
-                IndexerAssignment?.Write(writer);
+                IndexExpression?.Write(writer);
                 writer.AppendRaw("; ");
                 Condition?.Write(writer);
                 writer.AppendRaw("; ");
