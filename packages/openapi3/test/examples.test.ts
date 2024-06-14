@@ -1,5 +1,4 @@
-import { describe } from "node:test";
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 
