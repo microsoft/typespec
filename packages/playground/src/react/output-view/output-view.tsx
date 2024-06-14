@@ -1,10 +1,10 @@
 import { Button, Tab, TabList, type SelectTabEventHandler } from "@fluentui/react-components";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
+import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { PlaygroundEditorsOptions } from "../playground.js";
 import type { CompilationState, CompileResult, FileOutputViewer, ProgramViewer } from "../types.js";
 import { createFileViewer } from "./file-viewer.js";
 import { TypeGraphViewer } from "./type-graph-viewer.js";
-import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 
 import style from "./output-view.module.css";
 
@@ -109,7 +109,6 @@ const OutputViewInternal: FunctionComponent<{
     </div>
   );
 };
-
 
 function fallbackRender({ error, resetErrorBoundary }: FallbackProps) {
   return (
