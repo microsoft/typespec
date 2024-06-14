@@ -5,7 +5,7 @@ export interface PaneProps {
   minSize?: number | string;
 }
 
-export default function Pane({
+export function Pane({
   children,
   ...props
 }: PropsWithChildren<HTMLAttributes<HTMLDivElement> & PaneProps>) {

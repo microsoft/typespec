@@ -129,12 +129,7 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
     case "Namespace":
       return <NamespaceUI type={type} />;
     case "Interface":
-      return <Interf indexer: "skip",
-      baseModel: "ref",
-      derivedModels: "ref",
-      properties: "nested",
-      sourceModel: "ref",
-      sourceModels: "value",aceUI type={type} />;
+      return <InterfaceUI type={type} />;
     case "Operation":
       return <OperationUI type={type} />;
     case "Model":

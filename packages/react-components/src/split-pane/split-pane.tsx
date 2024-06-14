@@ -10,7 +10,7 @@ import {
   type MouseEvent,
 } from "react";
 import { useControllableValue } from "../hooks.js";
-import Pane, { type PaneProps } from "./pane.js";
+import { Pane, type PaneProps } from "./pane.js";
 import { SashContent } from "./sash-content.js";
 import { Sash } from "./sash.js";
 import style from "./split-pane.module.css";

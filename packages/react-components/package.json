@@ -1,5 +1,5 @@
 {
-  "name": "@typespec/html-program-viewer",
+  "name": "@typespec/react-components",
   "version": "0.57.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
@@ -23,10 +23,6 @@
       "types": "./dist/src/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./react": {
-      "types": "./dist/src/react/index.d.ts",
-      "default": "./dist/react/index.js"
-    },
     "./style.css": "./dist/style.css"
   },
   "engines": {
@@ -43,13 +39,9 @@
     "lint:fix": "eslint . --fix"
   },
   "files": [
-    "lib/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
-  "peerDependencies": {
-    "@typespec/compiler": "workspace:~"
-  },
   "dependencies": {
     "@fluentui/react-components": "~9.52.0",
     "@fluentui/react-icons": "^2.0.240",
@@ -61,8 +53,6 @@
     "@types/node": "~18.11.19",
     "@types/react-dom": "~18.3.0",
     "@types/react": "~18.3.2",
-    "@typespec/compiler": "workspace:~",
-    "@typespec/react-components": "workspace:~",
     "@vitejs/plugin-react": "~4.2.1",
     "@vitest/coverage-v8": "^1.6.0",
     "@vitest/ui": "^1.6.0",
