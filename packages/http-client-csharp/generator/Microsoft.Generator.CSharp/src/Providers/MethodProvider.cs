@@ -81,6 +81,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 docs.Exceptions.Add(new XmlDocExceptionStatement(kvp.Key, kvp.Value));
             }
+            if (Signature is MethodSignature methodSignature && methodSignature.ReturnDescription is not null)
+                docs.Returns = new XmlDocReturnsStatement(methodSignature.ReturnDescription);
             return docs;
         }
     }

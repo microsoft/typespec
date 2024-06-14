@@ -233,7 +233,9 @@ namespace Microsoft.Generator.CSharp.Providers
                     Modifiers: MethodSignatureModifiers.Internal,
                     ReturnType: ValueType,
                     Parameters: Array.Empty<ParameterProvider>(),
-                    Summary: null, Description: null, ReturnDescription: null);
+                    Summary: null,
+                    Description: null,
+                    ReturnDescription: null);
 
                 // writes the method:
                 // internal float ToSerialSingle() => _value; // when ValueType is float

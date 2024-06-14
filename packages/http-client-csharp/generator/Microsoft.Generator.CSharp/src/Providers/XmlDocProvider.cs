@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public XmlDocSummaryStatement? Summary { get; set; }
         public IList<XmlDocParamStatement> Params { get; }
-        public XmlDocStatement? Returns { get; }
+        public XmlDocReturnsStatement? Returns { get; set; }
         public IList<XmlDocExceptionStatement> Exceptions { get; }
     }
 }
