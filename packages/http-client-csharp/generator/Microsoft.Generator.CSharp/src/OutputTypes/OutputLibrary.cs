@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp
     {
         private IReadOnlyList<TypeProvider>? _enums;
         private IReadOnlyList<TypeProvider>? _models;
-        private IReadOnlyList<ClientTypeProvider>? _clients;
+        private IReadOnlyList<ClientProvider>? _clients;
 
         public OutputLibrary()
         {
@@ -21,8 +21,6 @@ namespace Microsoft.Generator.CSharp
 
             _allModels = new(InitializeAllModels);
         }
-
-        private readonly Lazy<(EnumProvider[] Enums, ModelProvider[] Models)> _allModels;
 
         private (TypeProvider[] Enums, TypeProvider[] Models) InitializeAllModels()
         {
@@ -53,17 +51,19 @@ namespace Microsoft.Generator.CSharp
 
         public IReadOnlyList<TypeProvider> Enums => _enums ??= BuildEnums();
         public IReadOnlyList<TypeProvider> Models => _models ??= BuildModels();
-        public IReadOnlyList<ClientTypeProvider> Clients => _clients ??= BuildClients();
+        public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
 
         private IDictionary<InputEnumType, TypeProvider> EnumMappings { get; }
         private IDictionary<InputModelType, TypeProvider> ModelMappings { get; }
 
-        public virtual EnumProvider[] BuildEnums()
+        private readonly Lazy<(TypeProvider[] Enums, TypeProvider[] Models)> _allModels;
+
+        public virtual TypeProvider[] BuildEnums()
         {
             return _allModels.Value.Enums;
         }
 
-        public virtual ModelProvider[] BuildModels()
+        public virtual TypeProvider[] BuildModels()
         {
             return _allModels.Value.Models;
         }
@@ -81,26 +81,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return clientProviders;
-        }
-
-        public virtual EnumTypeProvider GetEnumProvider(InputEnumType inputEnumType)
-        {
-            if (EnumMappings.TryGetValue(inputEnumType, out var provider))
-            {
-                return provider;
-            }
-
-            throw new InvalidOperationException();
-        }
-
-        public virtual ModelTypeProvider GetModelProvider(InputModelType inputModelType)
-        {
-            if (ModelMappings.TryGetValue(inputModelType, out var provider))
-            {
-                return provider;
-            }
-
-            throw new InvalidOperationException();
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -26,8 +27,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => GetEnumTypeWithProvider(enumType, inputType.IsNullable),
-            InputModelType model => GetModelTypeWithProvider(model, inputType.IsNullable),
+            InputEnumType enumType => EnumProvider.Create(enumType).Type.WithNullable(enumType.IsNullable),
+            InputModelType model => new ModelProvider(model).Type.WithNullable(model.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
@@ -120,34 +121,5 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
             throw new NotImplementedException();
         }
-
-        private CSharpType GetEnumTypeWithProvider(InputEnumType inputEnumType, bool isNullable)
-        {
-            if (EnumMappings.TryGetValue(inputEnumType, out var provider))
-            {
-                return provider.Type.WithNullable(isNullable);
-            }
-            else
-            {
-                throw new InvalidOperationException($"No {nameof(EnumTypeProvider)} has been created for `{inputEnumType.Name}` {nameof(InputEnumType)}.");
-            }
-        }
-
-        private CSharpType GetModelTypeWithProvider(InputModelType inputModelType, bool isNullable)
-        {
-            if (ModelMappings.TryGetValue(inputModelType, out var provider))
-            {
-                return provider.Type.WithNullable(isNullable);
-            }
-            else
-            {
-                return new CSharpType(typeof(object), isNullable).WithNullable(isNullable);
-            }
-        }
-
-        // MOVE and change Type for both
-        private IDictionary<InputEnumType, EnumTypeProvider> EnumMappings { get; }
-        private IDictionary<InputModelType, ModelTypeProvider> ModelMappings { get; }
-        private readonly Lazy<(EnumTypeProvider[] Enums, ModelTypeProvider[] Models)> _allModels;
     }
 }
