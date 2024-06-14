@@ -1,4 +1,4 @@
-import { getNamespaceFullName, Type, Union } from "@typespec/compiler";
+import { getNamespaceFullName, type Type, type Union } from "@typespec/compiler";
 
 export function getIdForType(type: Type): string | undefined {
   if (type.kind === "Namespace") {

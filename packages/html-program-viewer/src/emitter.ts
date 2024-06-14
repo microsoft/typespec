@@ -1,7 +1,7 @@
-import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
-import { renderProgram } from "./ui.js";
+import { emitFile, resolvePath, type EmitContext } from "@typespec/compiler";
+import { renderProgram } from "./react/ui.js";
 
-import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
 
 export interface HtmlProgramViewerOptions {
   /**

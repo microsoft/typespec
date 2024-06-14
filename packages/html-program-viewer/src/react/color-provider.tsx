@@ -1,5 +1,5 @@
-import { FunctionComponent, ReactNode, useMemo } from "react";
-import { ColorPalette, ColorVariable, ColorsVariables } from "./constants.js";
+import { useMemo, type FunctionComponent, type ReactNode } from "react";
+import { ColorsVariables, type ColorPalette, type ColorVariable } from "../constants.js";
 
 export interface ColorProviderProps {
   colors: Partial<ColorPalette>;

@@ -1,9 +1,8 @@
-import { css } from "@emotion/react";
-import { Type } from "@typespec/compiler";
-import { FunctionComponent } from "react";
+import type { Type } from "@typespec/compiler";
+import type { FunctionComponent } from "react";
+import { Colors } from "../constants.js";
+import { getIdForType } from "../utils.js";
 import { KeyValueSection } from "./common.js";
-import { Colors } from "./constants.js";
-import { getIdForType } from "./utils.js";
 
 export interface TypeUIBaseProperty {
   name: string;

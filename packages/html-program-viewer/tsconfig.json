@@ -6,14 +6,18 @@
     { "path": "../openapi/tsconfig.json" }
   ],
   "compilerOptions": {
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "lib": ["DOM", "ES2022"],
-    "types": ["@emotion/react"]
+    "lib": ["DOM"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
+  "include": ["src", "test/**/*.ts"]
 }

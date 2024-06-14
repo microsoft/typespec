@@ -1,10 +1,7 @@
-import { css } from "@emotion/react";
-import {
+import type {
   Entity,
   Enum,
   EnumMember,
-  getNamespaceFullName,
-  getTypeName,
   Interface,
   Model,
   ModelProperty,
@@ -16,13 +13,14 @@ import {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
-import React, { FunctionComponent, ReactElement, useContext } from "react";
+import { getNamespaceFullName, getTypeName } from "@typespec/compiler";
+import React, { useContext, type FunctionComponent, type ReactElement } from "react";
 import ReactDOMServer from "react-dom/server";
+import { Colors } from "../constants.js";
+import { inspect } from "../inspect.js";
+import { getIdForType, isNamedUnion } from "../utils.js";
 import { KeyValueSection, Literal } from "./common.js";
-import { Colors } from "./constants.js";
-import { inspect } from "./inspect.js";
-import { TypeUIBase, TypeUIBaseProperty } from "./type-ui-base.js";
-import { getIdForType, isNamedUnion } from "./utils.js";
+import { TypeUIBase, type TypeUIBaseProperty } from "./type-ui-base.js";
 
 function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];

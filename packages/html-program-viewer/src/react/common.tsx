@@ -1,5 +1,5 @@
-import { FunctionComponent, ReactElement } from "react";
-import { Colors } from "./constants.js";
+import type { FunctionComponent, ReactElement } from "react";
+import { Colors } from "../constants.js";
 
 export const Literal: FunctionComponent<{ children: any }> = ({ children }) => (
   <div css={{ color: Colors.literal, display: "inline" }}>{children}</div>
