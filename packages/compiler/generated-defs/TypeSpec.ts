@@ -571,13 +571,38 @@ export type DiscriminatorDecorator = (
   propertyName: string
 ) => void;
 
+/**
+ * Provide an example value for a type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
 export type ExampleDecorator = (
   context: DecoratorContext,
-  target: Model | Enum | Scalar | Union,
+  target: Model | Enum | Scalar | Union | ModelProperty,
   example: unknown,
   options?: unknown
 ) => void;
 
+/**
+ * Provide an example value for a type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
 export type OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
