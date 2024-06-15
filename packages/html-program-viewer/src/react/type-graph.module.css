@@ -1,4 +1,12 @@
+.type-graph * {
+  box-sizing: border-box;
+}
+
 .tree-navigation-pane {
   height: 100%;
   overflow-y: auto;
+}
+
+.view-pane {
+  padding: 10px;
 }

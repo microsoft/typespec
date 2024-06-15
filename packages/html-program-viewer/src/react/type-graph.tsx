@@ -3,6 +3,7 @@ import type { Program } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
 import { type FunctionComponent } from "react";
 import ReactDOMServer from "react-dom/server";
+import { ListNodeView } from "./list-node-view.js";
 import { ProgramProvider } from "./program-context.js";
 import { TreeNavigation } from "./tree-navigation.js";
 import style from "./type-graph.module.css";
@@ -26,11 +27,11 @@ export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
 
   return (
     <ProgramProvider value={program}>
-      <SplitPane initialSizes={["200px", ""]} split="vertical">
+      <SplitPane initialSizes={["200px", ""]} split="vertical" className={style["type-graph"]}>
         <Pane className={style["tree-navigation-pane"]}>
           <TreeNavigation nav={nav} />
         </Pane>
-        <Pane>
+        <Pane className={style["view-pane"]}>
           <TypeGraphContent nav={nav} />
         </Pane>
       </SplitPane>
@@ -39,5 +40,14 @@ export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
 };
 
 const TypeGraphContent = ({ nav }: { nav: TreeNavigator }) => {
-  return <div>Nav: {nav.selectedPath}</div>;
+  const node = nav.selectedNode;
+
+  switch (node?.kind) {
+    case "type":
+      return <div>Type: {(node.type as any).name}</div>;
+    case "list":
+      return <ListNodeView nav={nav} node={node} />;
+    default:
+      return <ListNodeView nav={nav} node={nav.tree} />;
+  }
 };
