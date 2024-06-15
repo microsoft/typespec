@@ -7,6 +7,7 @@ import { ListNodeView } from "./list-node-view.js";
 import { ProgramProvider } from "./program-context.js";
 import { TreeNavigation } from "./tree-navigation.js";
 import style from "./type-graph.module.css";
+import { TypeNodeView } from "./type-view/type-view.js";
 import { useTreeNavigator, type TreeNavigator } from "./use-tree-navigation.js";
 
 export function renderProgram(program: Program) {
@@ -44,7 +45,7 @@ const TypeGraphContent = ({ nav }: { nav: TreeNavigator }) => {
 
   switch (node?.kind) {
     case "type":
-      return <div>Type: {(node.type as any).name}</div>;
+      return <TypeNodeView nav={nav} node={node} />;
     case "list":
       return <ListNodeView nav={nav} node={node} />;
     default:

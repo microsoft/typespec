@@ -1,0 +1,11 @@
+.mono {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.literal {
+  color: var(--colorPaletteLightGreenForeground2);
+}
+
+.type-kind {
+  color: var(--colorPaletteBerryForeground2);
+}

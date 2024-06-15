@@ -16,10 +16,10 @@ export const ListNodeView = ({ nav, node }: ListNodeViewProps) => {
             {node.name}
           </Text>
         }
-      ></CardHeader>
+      />
       <List navigationMode="items">
         {node.children.map((item) => (
-          <Item item={item} nav={nav} />
+          <Item key={item.id} item={item} nav={nav} />
         ))}
 
         {node.children.length === 0 && <ListItem>No items</ListItem>}
@@ -32,9 +32,5 @@ const Item = ({ item, nav }: { nav: TreeNavigator; item: TypeGraphNode }) => {
   const select = useCallback(() => {
     nav.selectPath(item.id);
   }, [nav.selectPath]);
-  return (
-    <ListItem key={item.id} onAction={select}>
-      {item.name}
-    </ListItem>
-  );
+  return <ListItem onAction={select}>{item.name}</ListItem>;
 };
