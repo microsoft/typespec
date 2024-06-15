@@ -15,7 +15,6 @@ export interface TreeNavigationProps {
 export const TreeNavigation = ({ nav }: TreeNavigationProps) => {
   const onOpenChange = useCallback(
     (evt: any, data: TreeOpenChangeData) => {
-      console.log("onOpenChange", data.value);
       nav.selectPath(data.value.toString());
     },
     [nav.selectPath]

@@ -1,6 +1,6 @@
 import type { Entity, Type } from "@typespec/compiler";
 import { getTypeName } from "@typespec/compiler";
-import { type FunctionComponent, type ReactElement } from "react";
+import { type FunctionComponent, type ReactElement, type ReactNode } from "react";
 import { inspect } from "../../inspect.js";
 import { getIdForType, isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
@@ -67,14 +67,6 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
   );
 };
 
-// function getDataProperty(type: Type): TypeUIBaseProperty {
-//   return {
-//     name: "data",
-//     description: "in program.stateMap()",
-//     value: <TypeData type={type} />,
-//   };
-// }
-
 const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
   const id = getIdForType(type);
   const href = `#${id}`;
@@ -124,13 +116,29 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
     case "TemplateParameter":
       return <span>Template Param: {type.node.id.sv}</span>;
     case "String":
-      return <Literal>"{type.value}"</Literal>;
+      return (
+        <SimpleType type={type}>
+          <Literal>"{type.value}"</Literal>
+        </SimpleType>
+      );
     case "Number":
     case "Boolean":
-      return <>{type.value}</>;
+      return <SimpleType type={type}>{type.value.toString()}</SimpleType>;
     default:
       return null;
   }
+};
+
+const SimpleType = ({ type, children }: { type: Type; children: ReactNode }) => {
+  return (
+    <>
+      <TypeKind type={type} /> {children}
+    </>
+  );
+};
+
+const JsValue = ({ value }: { value: any }) => {
+  return <Mono className={style["js-value"]}>{value.toString()}</Mono>;
 };
 
 export const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
@@ -153,7 +161,6 @@ export const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
 };
 
 const EntityProperties = ({ entity: type }: { entity: Entity }) => {
-  console.log("Type", type);
   const properties = (TypeConfig as any)[(type as any).kind as any];
   const props = Object.entries(type)
     .map(([key, value]) => {
@@ -179,27 +186,15 @@ const EntityProperties = ({ entity: type }: { entity: Entity }) => {
       ) {
         valueUI = <ItemList items={value} render={render} />;
       } else {
-        valueUI = value;
+        valueUI = <JsValue value={value} />;
       }
-      return {
-        name: key,
-        value: valueUI,
-      };
+      return (
+        <li key={key}>
+          <span className={style["property"]}>{key}</span>: <span>{valueUI}</span>
+        </li>
+      );
     })
     .filter((x): x is any => Boolean(x));
 
-  return (
-    <KeyValueSection>
-      {props.map((prop) => {
-        return (
-          <li key={prop.name}>
-            <span title={prop.description} className={style["property"]}>
-              {prop.name}
-            </span>
-            : <span>{prop.value}</span>
-          </li>
-        );
-      })}
-    </KeyValueSection>
-  );
+  return <KeyValueSection>{props}</KeyValueSection>;
 };

@@ -11,7 +11,7 @@
 
 .inspect-type {
   background-color: var(--colorNeutralBackground2);
-  padding: 10px;
+  padding: 10px 10px 10px 0;
 }
 
 .type-name {
@@ -30,4 +30,8 @@
 
 .named-type-ref:hover {
   text-decoration: underline;
+}
+
+.js-value {
+  color: var(--colorPaletteDarkOrangeForeground1);
 }
