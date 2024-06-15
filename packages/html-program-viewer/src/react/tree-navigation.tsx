@@ -1,18 +1,34 @@
-import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
-import type { Type } from "@typespec/compiler";
+import {
+  Tree,
+  TreeItem,
+  TreeItemLayout,
+  type TreeOpenChangeData,
+} from "@fluentui/react-components";
+import { useCallback } from "react";
 import style from "./tree-navigation.module.css";
-import { useTreeNavigation, type TypeGraphNode } from "./use-tree-navigation.js";
+import { type TreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
 
 export interface TreeNavigationProps {
-  onSelectionChange?: (path: string, type: Type) => void;
+  readonly nav: TreeNavigator;
 }
 
-export const TreeNavigation = (props: TreeNavigationProps) => {
-  const program = useTreeNavigation();
+export const TreeNavigation = ({ nav }: TreeNavigationProps) => {
+  const onOpenChange = useCallback(
+    (evt: any, data: TreeOpenChangeData) => {
+      console.log("onOpenChange", data.value);
+      nav.selectPath(data.value.toString());
+    },
+    [nav.selectPath]
+  );
 
   return (
-    <Tree size="small" aria-label="Type graph navigation" className={style["tree-navigation"]}>
-      <TreeNodeItemsUI nodes={program.tree.children} />
+    <Tree
+      size="small"
+      aria-label="Type graph navigation"
+      className={style["tree-navigation"]}
+      onOpenChange={onOpenChange}
+    >
+      <TreeNodeItemsUI nodes={nav.tree.children} />
     </Tree>
   );
 };

@@ -1,6 +1,5 @@
 import { getNamespaceFullName, type Namespace, type Program, type Type } from "@typespec/compiler";
-import { useMemo } from "react";
-import { useProgram } from "./program-context.js";
+import { useMemo, useState } from "react";
 import { TypeConfig } from "./type-config.js";
 
 export interface TypeGraphNode {
@@ -8,21 +7,24 @@ export interface TypeGraphNode {
   readonly name: string;
   readonly children: TypeGraphNode[];
 }
-export interface TreeNavigation {
+
+export interface TreeNavigator {
+  readonly selectedPath?: string;
+  readonly selectPath: (path: string) => void;
   readonly tree: TypeGraphNode;
-  // select(path: string | Type);
 }
 
 function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
 }
 
-export function useTreeNavigation(): TreeNavigation {
-  const program = useProgram();
+export function useTreeNavigator(program: Program): TreeNavigator {
+  const [selectedPath, selectPath] = useState<string>("");
 
   const tree = useMemo(() => computeTree(program), [program]);
 
-  return { tree };
+  console.log("Strate", selectedPath);
+  return { tree, selectedPath, selectPath };
 }
 
 function computeTree(program: Program): TypeGraphNode {
