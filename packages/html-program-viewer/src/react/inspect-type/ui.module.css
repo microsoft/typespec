@@ -1,0 +1,33 @@
+.inspect-type li {
+  margin: 0;
+  list-style: none;
+  position: relative;
+}
+
+.inspect-type ul {
+  padding: 0 0 0 10px;
+  margin: 0;
+}
+
+.inspect-type {
+  background-color: var(--colorNeutralBackground2);
+  padding: 10px;
+}
+
+.type-name {
+  margin-left: 5px;
+  color: var(--colorNeutralForeground2);
+}
+
+.property {
+  color: var(--colorPaletteMarigoldForeground2);
+}
+
+.named-type-ref {
+  color: var(--colorBrandForeground1);
+  text-decoration: none;
+}
+
+.named-type-ref:hover {
+  text-decoration: underline;
+}

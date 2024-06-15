@@ -97,26 +97,3 @@ function computeItemList(path: string, name: string, items: Map<string, NamedTyp
     }),
   };
 }
-
-const omittedProps = [
-  "entityKind",
-  "kind",
-  "name",
-  "node",
-  "symbol",
-  "namespace",
-  "templateNode",
-  "templateArguments",
-  "templateMapper",
-  "instantiationParameters",
-  "decorators",
-  "projectionBase",
-  "projectionsByName",
-  "projectionSource",
-  "projector",
-  "projections",
-  "isFinished",
-] as const;
-const omittedPropsSet = new Set(omittedProps);
-
-type PropertyAction = "skip" | "ref" | "nested" | "value";

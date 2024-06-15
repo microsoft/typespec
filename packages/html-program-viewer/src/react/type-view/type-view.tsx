@@ -1,6 +1,7 @@
 import { Caption1, Card, CardHeader, Text } from "@fluentui/react-components";
 import { getDoc } from "@typespec/compiler";
 import { Mono, TypeKind } from "../common.js";
+import { InspectType } from "../inspect-type/ui.js";
 import { useProgram } from "../program-context.js";
 import type { TreeNavigator, TypeGraphTypeNode } from "../use-tree-navigation.js";
 import style from "./type-view.module.css";
@@ -27,6 +28,7 @@ export const TypeNodeView = ({ node }: TypeNodeViewProps) => {
           }
           description={<Caption1>{getDoc(program, node.type)}</Caption1>}
         />
+        <InspectType entity={node.type} />
       </Card>
     </>
   );
