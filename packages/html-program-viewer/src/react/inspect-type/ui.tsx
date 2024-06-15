@@ -133,7 +133,7 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   }
 };
 
-const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
+export const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
   const program = useProgram();
   const entries = [...program.stateMaps.entries()]
     .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
