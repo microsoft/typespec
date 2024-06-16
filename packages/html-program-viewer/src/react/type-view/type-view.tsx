@@ -1,7 +1,8 @@
 import { Caption1, Card, CardHeader, Divider, Text } from "@fluentui/react-components";
 import { getDoc } from "@typespec/compiler";
 import { Mono, TypeKindTag } from "../common.js";
-import { InspectType, TypeData } from "../inspect-type/ui.js";
+import { InspectType } from "../inspect-type/inspect-type.js";
+import { TypeDataTable } from "../inspect-type/type-data-table.js";
 import { useProgram } from "../program-context.js";
 import type { TreeNavigator, TypeGraphTypeNode } from "../use-tree-navigation.js";
 import style from "./type-view.module.css";
@@ -38,7 +39,7 @@ export const TypeNodeView = ({ node }: TypeNodeViewProps) => {
 
       <Card>
         <CardHeader header={<Text weight="semibold">Type data</Text>} />
-        <TypeData type={node.type} />
+        <TypeDataTable type={node.type} />
       </Card>
     </div>
   );

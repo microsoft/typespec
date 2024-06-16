@@ -1,0 +1,19 @@
+.table {
+  border-collapse: collapse;
+}
+
+.table th {
+  font-weight: bold;
+}
+
+.table thead tr,
+.table tbody tr:not(:last-child) {
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+}
+
+.key {
+  color: var(--colorNeutralForeground2);
+}
+
+.data {
+}

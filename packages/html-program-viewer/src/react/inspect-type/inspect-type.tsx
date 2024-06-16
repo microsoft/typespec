@@ -3,11 +3,9 @@ import { getTypeName } from "@typespec/compiler";
 import { useCallback, type FunctionComponent, type ReactElement, type ReactNode } from "react";
 import { isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
-import { useProgram } from "../program-context.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
 import { useTreeNavigator } from "../use-tree-navigation.js";
-import { inspect } from "./inspect-js.js";
-import style from "./ui.module.css";
+import style from "./inspect-type.module.css";
 
 type NamedType = Type & { name: string };
 
@@ -134,25 +132,6 @@ const SimpleType = ({ type, children }: { type: Type; children: ReactNode }) => 
 
 const JsValue = ({ value }: { value: any }) => {
   return <Mono className={style["js-value"]}>{value.toString()}</Mono>;
-};
-
-export const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
-  const program = useProgram();
-  const entries = [...program.stateMaps.entries()]
-    .map(([k, v]) => [k, v.get(undefined)?.get(type) as any])
-    .filter(([k, v]) => !!v);
-  if (entries.length === 0) {
-    return null;
-  }
-  return (
-    <KeyValueSection>
-      {entries.map(([k, v], i) => (
-        <div key={i}>
-          <div>{k.toString()}:</div> <div>{inspect(v)}</div>
-        </div>
-      ))}
-    </KeyValueSection>
-  );
 };
 
 const EntityProperties = ({ entity: type }: { entity: Entity }) => {

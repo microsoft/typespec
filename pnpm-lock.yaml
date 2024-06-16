@@ -392,6 +392,9 @@ importers:
       react-dom:
         specifier: ~18.3.1
         version: 18.3.1(react@18.3.1)
+      react-inspector:
+        specifier: ^6.0.2
+        version: 6.0.2(react@18.3.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.24.5
@@ -18308,6 +18311,14 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
       react-fast-compare: 3.2.2
       shallowequal: 1.1.0
+
+  /react-inspector@6.0.2(react@18.3.1):
+    resolution: {integrity: sha512-x+b7LxhmHXjHoU/VrFAzw5iutsILRoYyDq97EDYdFpPLcvqtEzk4ZSZSQjnFPbr5T57tLXnHcqFYoN1pI6u8uQ==}
+    peerDependencies:
+      react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.3.1
+    dev: false
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
