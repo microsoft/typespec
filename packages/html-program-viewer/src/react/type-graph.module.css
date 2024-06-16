@@ -11,3 +11,7 @@
   padding: 10px;
   overflow-y: auto;
 }
+
+.breadcrumb {
+  margin-bottom: 10px;
+}

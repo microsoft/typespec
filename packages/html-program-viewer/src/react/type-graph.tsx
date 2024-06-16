@@ -1,7 +1,14 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import {
+  Breadcrumb,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+  BreadcrumbItem,
+  FluentProvider,
+  webLightTheme,
+} from "@fluentui/react-components";
 import type { Program } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
-import { type FunctionComponent } from "react";
+import { Fragment, type FunctionComponent } from "react";
 import ReactDOMServer from "react-dom/server";
 import { ListNodeView } from "./list-node-view.js";
 import { ProgramProvider } from "./program-context.js";
@@ -32,6 +39,7 @@ export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
             <TreeNavigation />
           </Pane>
           <Pane className={style["view-pane"]}>
+            <TypeGraphBreadcrumb />
             <TypeGraphContent />
           </Pane>
         </SplitPane>
@@ -52,4 +60,30 @@ const TypeGraphContent = () => {
     default:
       return <ListNodeView nav={nav} node={nav.tree} />;
   }
+};
+
+const TypeGraphBreadcrumb = () => {
+  const nav = useTreeNavigator();
+  const segments = nav.selectedPath.split(".");
+
+  return (
+    <Breadcrumb size="small" className={style["breadcrumb"]}>
+      {segments.map((x, i) => {
+        const last = i === segments.length - 1;
+        return (
+          <Fragment key={x}>
+            <BreadcrumbItem>
+              <BreadcrumbButton
+                current={last}
+                onClick={() => nav.selectPath(segments.slice(0, i).join("."))}
+              >
+                {x}
+              </BreadcrumbButton>
+            </BreadcrumbItem>
+            {!last && <BreadcrumbDivider />}
+          </Fragment>
+        );
+      })}
+    </Breadcrumb>
+  );
 };
