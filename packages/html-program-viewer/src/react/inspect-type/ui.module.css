@@ -14,6 +14,14 @@
   padding: 10px 10px 10px 0;
 }
 
+.type-ui-header {
+  cursor: pointer;
+}
+
+.type-ui-header:hover {
+  text-decoration: underline;
+}
+
 .type-name {
   margin-left: 5px;
   color: var(--colorNeutralForeground2);

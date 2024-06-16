@@ -9,30 +9,6 @@ import { useTreeNavigator } from "../use-tree-navigation.js";
 import { inspect } from "./inspect-js.js";
 import style from "./ui.module.css";
 
-export interface ItemListProps<T> {
-  items: Map<string | symbol, T> | T[];
-  render: (t: T) => ReactElement<any, any> | null;
-}
-
-export const ItemList = <T extends object>(props: ItemListProps<T>) => {
-  if (Array.isArray(props.items)) {
-    if (props.items.length === 0) {
-      return <>{"[]"}</>;
-    }
-  } else {
-    if (props.items.size === 0) {
-      return <>{"{}"}</>;
-    }
-  }
-  return (
-    <KeyValueSection>
-      {[...props.items.entries()].map(([k, v], i) => (
-        <li key={typeof k === "symbol" ? i : k}>{props.render(v)}</li>
-      ))}
-    </KeyValueSection>
-  );
-};
-
 type NamedType = Type & { name: string };
 
 interface TypeUIProps {
@@ -57,9 +33,12 @@ const EntityUI: FunctionComponent<TypeUIProps> = ({ entity }) => {
 };
 
 const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
+  const nav = useTreeNavigator();
+
+  const navToType = useCallback(() => nav.navToType(type), [nav.navToType, type]);
   return (
     <div>
-      <div>
+      <div className={style["type-ui-header"]} onClick={navToType}>
         <TypeKind type={type} />
         <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
       </div>
@@ -79,6 +58,15 @@ const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
       {getTypeName(type)}
     </a>
   );
+};
+
+const EntityReference = ({ entity }: { entity: Entity }) => {
+  switch (entity.entityKind) {
+    case "Type":
+      return <TypeReference type={entity} />;
+    default:
+      return null;
+  }
 };
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   switch (type.kind) {
@@ -197,7 +185,7 @@ const EntityProperty = (props: EntityPropertyProps) => {
 const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
   const render = (x: Entity) => {
     const renderRef = action === "ref" || action === "parent";
-    return renderRef ? <TypeReference type={value} /> : <EntityUI entity={x} />;
+    return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} />;
   };
 
   if (value === undefined) {
@@ -213,4 +201,28 @@ const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
   } else {
     return <JsValue value={value} />;
   }
+};
+
+interface ItemListProps<T> {
+  items: Map<string | symbol, T> | T[];
+  render: (t: T) => ReactElement<any, any> | null;
+}
+
+const ItemList = <T extends object>(props: ItemListProps<T>) => {
+  if (Array.isArray(props.items)) {
+    if (props.items.length === 0) {
+      return <>{"[]"}</>;
+    }
+  } else {
+    if (props.items.size === 0) {
+      return <>{"{}"}</>;
+    }
+  }
+  return (
+    <KeyValueSection>
+      {[...props.items.entries()].map(([k, v], i) => (
+        <li key={typeof k === "symbol" ? i : k}>{props.render(v)}</li>
+      ))}
+    </KeyValueSection>
+  );
 };
