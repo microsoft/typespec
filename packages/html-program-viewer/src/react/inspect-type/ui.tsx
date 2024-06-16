@@ -1,12 +1,12 @@
 import type { Entity, Type } from "@typespec/compiler";
 import { getTypeName } from "@typespec/compiler";
 import { useCallback, type FunctionComponent, type ReactElement, type ReactNode } from "react";
-import { inspect } from "../../inspect.js";
 import { isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
 import { useProgram } from "../program-context.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
 import { useTreeNavigator } from "../use-tree-navigation.js";
+import { inspect } from "./inspect-js.js";
 import style from "./ui.module.css";
 
 export interface ItemListProps<T> {
