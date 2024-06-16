@@ -5,7 +5,7 @@ import { inspect } from "../../inspect.js";
 import { getIdForType, isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
 import { useProgram } from "../program-context.js";
-import { HiddenPropsSet, TypeConfig } from "../type-config.js";
+import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
 import style from "./ui.module.css";
 
 export interface ItemListProps<T> {
@@ -161,40 +161,52 @@ export const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
 };
 
 const EntityProperties = ({ entity: type }: { entity: Entity }) => {
-  const properties = (TypeConfig as any)[(type as any).kind as any];
   const props = Object.entries(type)
     .map(([key, value]) => {
-      if (HiddenPropsSet.has(key as any)) {
+      const action = getPropertyRendering(type as any, key);
+      if (action === undefined || action === "skip") {
         return undefined;
       }
-      const action = properties?.[key] as "skip" | "ref" | "nested";
-      if (action === "skip" || action === undefined) {
-        return undefined;
-      }
-
-      const render = (x: Entity) =>
-        action === "ref" ? <TypeReference type={value} /> : <EntityUI entity={x} />;
-      let valueUI;
-      if (value === undefined) {
-        valueUI = value;
-      } else if (value.entityKind) {
-        valueUI = render(value);
-      } else if (
-        typeof value === "object" &&
-        "entries" in value &&
-        typeof value.entries === "function"
-      ) {
-        valueUI = <ItemList items={value} render={render} />;
-      } else {
-        valueUI = <JsValue value={value} />;
-      }
-      return (
-        <li key={key}>
-          <span className={style["property"]}>{key}</span>: <span>{valueUI}</span>
-        </li>
-      );
+      return <EntityProperty key={key} name={key} value={value} action={action} />;
     })
     .filter((x): x is any => Boolean(x));
 
   return <KeyValueSection>{props}</KeyValueSection>;
+};
+
+interface EntityPropertyProps {
+  name: string;
+  value: any;
+  action: EntityPropertyConfig;
+}
+const EntityProperty = (props: EntityPropertyProps) => {
+  return (
+    <li>
+      <span className={style["property"]}>{props.name}</span>:{" "}
+      <span>
+        <EntityPropertyValue {...props} />
+      </span>
+    </li>
+  );
+};
+
+const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
+  const render = (x: Entity) => {
+    const renderRef = action === "ref" || action === "parent";
+    return renderRef ? <TypeReference type={value} /> : <EntityUI entity={x} />;
+  };
+
+  if (value === undefined) {
+    return null;
+  } else if (value.entityKind) {
+    return render(value);
+  } else if (
+    typeof value === "object" &&
+    "entries" in value &&
+    typeof value.entries === "function"
+  ) {
+    return <ItemList items={value} render={render} />;
+  } else {
+    return <JsValue value={value} />;
+  }
 };

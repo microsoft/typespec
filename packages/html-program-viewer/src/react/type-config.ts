@@ -1,5 +1,7 @@
 import type { Type } from "@typespec/compiler";
 
+export type EntityPropertyConfig = "parent" | "nested" | "ref" | "value" | "skip";
+
 export const TypeConfig: TypeGraphConfig = {
   Namespace: {
     namespaces: "skip",
@@ -17,7 +19,7 @@ export const TypeConfig: TypeGraphConfig = {
     sourceInterfaces: "ref",
   },
   Operation: {
-    interface: "skip",
+    interface: "parent",
     parameters: "nested",
     returnType: "ref",
     sourceOperation: "ref",
@@ -36,7 +38,7 @@ export const TypeConfig: TypeGraphConfig = {
     constructors: "nested",
   },
   ModelProperty: {
-    model: "skip",
+    model: "parent",
     type: "ref",
     optional: "value",
     sourceProperty: "ref",
@@ -47,7 +49,7 @@ export const TypeConfig: TypeGraphConfig = {
     members: "nested",
   },
   EnumMember: {
-    enum: "skip",
+    enum: "parent",
     sourceMember: "ref",
     value: "value",
   },
@@ -57,7 +59,7 @@ export const TypeConfig: TypeGraphConfig = {
     variants: "nested",
   },
   UnionVariant: {
-    union: "skip",
+    union: "parent",
     type: "ref",
   },
   Boolean: {
@@ -69,8 +71,8 @@ export const TypeConfig: TypeGraphConfig = {
     target: "ref",
   },
   ScalarConstructor: {
+    scalar: "parent",
     parameters: "nested",
-    scalar: "skip",
   },
   FunctionParameter: null,
   Number: {
@@ -104,11 +106,17 @@ export const TypeConfig: TypeGraphConfig = {
   Projection: null,
 };
 
-type PropsToDefine<T extends Type> = Exclude<keyof T, HiddenPropsType>;
-type TypePropertyConfig = "nested" | "ref" | "value" | "skip";
-type TypeConfig<T extends Type> = Record<PropsToDefine<T>, TypePropertyConfig> | null;
+type PropsToDefine<T extends Type> = Exclude<
+  keyof T,
+  HiddenPropsType | keyof typeof CommonPropsConfig
+>;
+type TypeConfig<T extends Type> = Record<PropsToDefine<T>, EntityPropertyConfig> | null;
 type TypeGraphConfig = {
   [K in Type["kind"]]: TypeConfig<Extract<Type, { kind: K }>>;
+};
+
+export const CommonPropsConfig = {
+  namespace: "parent",
 };
 
 const HiddenProps = [
@@ -117,7 +125,6 @@ const HiddenProps = [
   "name",
   "node",
   "symbol",
-  "namespace",
   "templateNode",
   "templateArguments",
   "templateMapper",
@@ -133,3 +140,12 @@ const HiddenProps = [
 type HiddenPropsType = (typeof HiddenProps)[number];
 
 export const HiddenPropsSet = new Set(HiddenProps);
+
+export function getPropertyRendering<T extends Type, K extends keyof T>(
+  type: T,
+  key: K
+): EntityPropertyConfig {
+  const properties = (TypeConfig as any)[type.kind];
+  const action = properties?.[key] ?? (CommonPropsConfig as any)[key];
+  return action;
+}
