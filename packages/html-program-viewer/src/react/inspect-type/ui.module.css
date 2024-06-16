@@ -26,6 +26,7 @@
 .named-type-ref {
   color: var(--colorBrandForeground1);
   text-decoration: none;
+  cursor: pointer;
 }
 
 .named-type-ref:hover {

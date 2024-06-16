@@ -1,5 +1,5 @@
 import { getNamespaceFullName, type Namespace, type Program, type Type } from "@typespec/compiler";
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { TypeConfig } from "./type-config.js";
 
 export interface TypeGraphNodeBase {
@@ -23,6 +23,7 @@ export interface TreeNavigator {
   readonly selectedNode?: TypeGraphNode;
   readonly selectedPath: string;
   readonly selectPath: (path: string) => void;
+  readonly navToType: (type: Type) => void;
   readonly tree: TypeGraphListNode;
 }
 
@@ -32,7 +33,7 @@ function expandNamespaces(namespace: Namespace): Namespace[] {
 
 const TreeNavigatorContext = createContext<TreeNavigator | undefined>(undefined);
 
-export function useTreeNavigator() {
+export function useTreeNavigator(): TreeNavigator {
   const nav = useContext(TreeNavigatorContext);
   if (nav === undefined) {
     throw new Error(`Expect to be used inside a TypeGraphNavigatorProvider`);
@@ -55,21 +56,36 @@ function useTreeNavigatorInternal(program: Program): TreeNavigator {
   const [selectedPath, selectPath] = useState<string>("");
 
   const tree = useMemo(() => computeTree(program), [program]);
-  const nodes = useMemo(() => computeFlatTree(tree), [tree]);
-  const selectedNode = useMemo(() => nodes.get(selectedPath), [nodes, selectedPath]);
-
-  return { tree, selectedPath, selectedNode, selectPath };
+  const { pathToNode, typeToPath } = useMemo(() => computeReferences(tree), [tree]);
+  const selectedNode = useMemo(() => pathToNode.get(selectedPath), [pathToNode, selectedPath]);
+  const navToType = useCallback(
+    (type: Type) => {
+      const path = typeToPath.get(type);
+      if (path) {
+        selectPath(path);
+      }
+    },
+    [selectPath, typeToPath]
+  );
+  return { tree, selectedPath, selectedNode, selectPath, navToType };
 }
 
-function computeFlatTree(node: TypeGraphNode): Map<string, TypeGraphNode> {
-  const nodes = new Map<string, TypeGraphNode>();
+function computeReferences(node: TypeGraphNode): {
+  pathToNode: Map<string, TypeGraphNode>;
+  typeToPath: Map<Type, string>;
+} {
+  const pathToNode = new Map<string, TypeGraphNode>();
+  const typeToPath = new Map<Type, string>();
   const stack = [node];
   while (stack.length > 0) {
     const current = stack.pop()!;
-    nodes.set(current.id, current);
+    pathToNode.set(current.id, current);
+    if (current.kind === "type") {
+      typeToPath.set(current.type, current.id);
+    }
     stack.push(...current.children);
   }
-  return nodes;
+  return { pathToNode, typeToPath };
 }
 
 function computeTree(program: Program): TypeGraphListNode {

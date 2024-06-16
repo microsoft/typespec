@@ -1,11 +1,12 @@
 import type { Entity, Type } from "@typespec/compiler";
 import { getTypeName } from "@typespec/compiler";
-import { type FunctionComponent, type ReactElement, type ReactNode } from "react";
+import { useCallback, type FunctionComponent, type ReactElement, type ReactNode } from "react";
 import { inspect } from "../../inspect.js";
-import { getIdForType, isNamedUnion } from "../../utils.js";
+import { isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
 import { useProgram } from "../program-context.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
+import { useTreeNavigator } from "../use-tree-navigation.js";
 import style from "./ui.module.css";
 
 export interface ItemListProps<T> {
@@ -68,10 +69,13 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
 };
 
 const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
-  const id = getIdForType(type);
-  const href = `#${id}`;
+  const nav = useTreeNavigator();
+
+  const navToType = useCallback(() => {
+    nav.navToType(type);
+  }, [nav.navToType, type]);
   return (
-    <a className={style["named-type-ref"]} href={href} title={type.kind + ": " + id}>
+    <a className={style["named-type-ref"]} onClick={navToType}>
       {getTypeName(type)}
     </a>
   );
