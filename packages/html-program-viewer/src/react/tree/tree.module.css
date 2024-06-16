@@ -1,25 +1,6 @@
 .tree {
   outline: none;
 }
-
-.tree .ms-DetailsRow {
-  width: 100%;
-  cursor: pointer;
-}
-
-.tree .ms-Button {
-  width: 24px;
-  padding: 0;
-}
-.tree .ms-Button-icon {
-  font-size: 12px;
-}
-
-.tree .ms-DetailsRow-cell {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 .tree-row {
   cursor: pointer;
   display: block;
@@ -47,6 +28,7 @@
   display: flex;
   align-items: center;
 }
+
 .tree-row .label {
   flex: 1;
 }
