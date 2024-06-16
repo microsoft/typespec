@@ -25,7 +25,12 @@ export function TreeViewRow(props: TreeViewRowProps) {
       role="treeitem"
       style={{ paddingLeft }}
       className={mergeClasses(style["tree-view-row"], active && style["active"])}
+      aria-selected={active}
+      aria-expanded={row.expanded}
+      aria-posinset={row.index}
+      aria-level={row.depth}
       onClick={activate}
+      tabIndex={0}
     >
       <span className={style["caret"]}>
         <Caret row={row} />

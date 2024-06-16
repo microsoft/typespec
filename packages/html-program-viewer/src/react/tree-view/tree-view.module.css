@@ -39,9 +39,8 @@
 
 .tree-view-row .caret {
   width: 16px;
-  font-size: 16px;
-  display: inline-block;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
 }
 .tree-view-row .label {
   flex: 1;

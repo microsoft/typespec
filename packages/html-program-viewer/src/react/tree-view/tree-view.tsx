@@ -1,4 +1,8 @@
-import { useSelection, type OnSelectionChangeData } from "@fluentui/react-components";
+import {
+  useArrowNavigationGroup,
+  useSelection,
+  type OnSelectionChangeData,
+} from "@fluentui/react-components";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { TreeViewRow } from "./tree-view-row.js";
 import style from "./tree-view.module.css";
@@ -51,8 +55,13 @@ export function TreeView<T extends TreeNode>(props: TreeViewProps<T>) {
     },
     [methods.selectItem, toggleExpand]
   );
+  const arrowNavigationAttrs = useArrowNavigationGroup({
+    axis: "both",
+    memorizeCurrent: true,
+  });
+
   return (
-    <div className={style["tree-view"]} role="tree">
+    <div className={style["tree-view"]} role="tree" {...arrowNavigationAttrs}>
       {rows.map((row) => {
         return (
           <TreeViewRow
@@ -77,7 +86,7 @@ function getTreeRowsForNode<T extends TreeNode>(
   if (!node.children) {
     return [];
   }
-  for (const child of node.children) {
+  for (const [index, child] of node.children.entries()) {
     const hasChildren = Boolean(child.children && child.children.length > 0);
     const id = child.id;
 
@@ -88,7 +97,7 @@ function getTreeRowsForNode<T extends TreeNode>(
       expanded,
       depth,
       hasChildren,
-      index: -1,
+      index,
       toggleExpand: () => {
         toggleExpand(id);
       },
