@@ -8,7 +8,7 @@ import { ProgramProvider } from "./program-context.js";
 import { TreeNavigation } from "./tree-navigation.js";
 import style from "./type-graph.module.css";
 import { TypeNodeView } from "./type-view/type-view.js";
-import { useTreeNavigator, type TreeNavigator } from "./use-tree-navigation.js";
+import { TypeGraphNavigatorProvider, useTreeNavigator } from "./use-tree-navigation.js";
 
 export function renderProgram(program: Program) {
   const html = ReactDOMServer.renderToString(
@@ -24,23 +24,24 @@ export interface TypeGraphProps {
 }
 
 export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
-  const nav = useTreeNavigator(program);
-
   return (
-    <ProgramProvider value={program}>
-      <SplitPane initialSizes={["200px", ""]} split="vertical" className={style["type-graph"]}>
-        <Pane className={style["tree-navigation-pane"]}>
-          <TreeNavigation nav={nav} />
-        </Pane>
-        <Pane className={style["view-pane"]}>
-          <TypeGraphContent nav={nav} />
-        </Pane>
-      </SplitPane>
-    </ProgramProvider>
+    <TypeGraphNavigatorProvider program={program}>
+      <ProgramProvider value={program}>
+        <SplitPane initialSizes={["200px", ""]} split="vertical" className={style["type-graph"]}>
+          <Pane className={style["tree-navigation-pane"]}>
+            <TreeNavigation />
+          </Pane>
+          <Pane className={style["view-pane"]}>
+            <TypeGraphContent />
+          </Pane>
+        </SplitPane>
+      </ProgramProvider>
+    </TypeGraphNavigatorProvider>
   );
 };
 
-const TypeGraphContent = ({ nav }: { nav: TreeNavigator }) => {
+const TypeGraphContent = () => {
+  const nav = useTreeNavigator();
   const node = nav.selectedNode;
 
   switch (node?.kind) {

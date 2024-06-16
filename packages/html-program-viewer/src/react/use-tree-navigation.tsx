@@ -1,5 +1,5 @@
 import { getNamespaceFullName, type Namespace, type Program, type Type } from "@typespec/compiler";
-import { useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import { TypeConfig } from "./type-config.js";
 
 export interface TypeGraphNodeBase {
@@ -30,7 +30,28 @@ function expandNamespaces(namespace: Namespace): Namespace[] {
   return [namespace, ...[...namespace.namespaces.values()].flatMap(expandNamespaces)];
 }
 
-export function useTreeNavigator(program: Program): TreeNavigator {
+const TreeNavigatorContext = createContext<TreeNavigator | undefined>(undefined);
+
+export function useTreeNavigator() {
+  const nav = useContext(TreeNavigatorContext);
+  if (nav === undefined) {
+    throw new Error(`Expect to be used inside a TypeGraphNavigatorProvider`);
+  }
+  return nav;
+}
+
+export interface TypeGraphNavigatorProvider {
+  program: Program;
+  children: ReactNode;
+}
+export const TypeGraphNavigatorProvider = ({ program, children }: TypeGraphNavigatorProvider) => {
+  const treeNavigator = useTreeNavigatorInternal(program);
+  return (
+    <TreeNavigatorContext.Provider value={treeNavigator}>{children}</TreeNavigatorContext.Provider>
+  );
+};
+
+function useTreeNavigatorInternal(program: Program): TreeNavigator {
   const [selectedPath, selectPath] = useState<string>("");
 
   const tree = useMemo(() => computeTree(program), [program]);

@@ -6,13 +6,12 @@ import {
 } from "@fluentui/react-components";
 import { useCallback } from "react";
 import style from "./tree-navigation.module.css";
-import { type TreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
+import { useTreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
 
-export interface TreeNavigationProps {
-  readonly nav: TreeNavigator;
-}
+export interface TreeNavigationProps {}
 
-export const TreeNavigation = ({ nav }: TreeNavigationProps) => {
+export const TreeNavigation = (_: TreeNavigationProps) => {
+  const nav = useTreeNavigator();
   const onOpenChange = useCallback(
     (evt: any, data: TreeOpenChangeData) => {
       nav.selectPath(data.value.toString());
