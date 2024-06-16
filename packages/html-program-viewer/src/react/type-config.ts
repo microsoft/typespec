@@ -1,4 +1,6 @@
-export const TypeConfig = {
+import type { Type } from "@typespec/compiler";
+
+export const TypeConfig: TypeGraphConfig = {
   Namespace: {
     namespaces: "skip",
     models: "nested",
@@ -10,7 +12,7 @@ export const TypeConfig = {
     decoratorDeclarations: "nested",
     functionDeclarations: "nested",
   },
-  Interace: {
+  Interface: {
     operations: "nested",
     sourceInterfaces: "ref",
   },
@@ -58,6 +60,55 @@ export const TypeConfig = {
     union: "skip",
     type: "ref",
   },
+  Boolean: {
+    value: "value",
+  },
+  Decorator: {
+    parameters: "nested",
+    implementation: "skip",
+    target: "ref",
+  },
+  ScalarConstructor: {
+    parameters: "nested",
+    scalar: "skip",
+  },
+  FunctionParameter: null,
+  Number: {
+    numericValue: "value",
+    value: "value",
+    valueAsString: "value",
+  },
+  String: {
+    value: "value",
+  },
+  Tuple: {
+    values: "nested",
+  },
+  StringTemplate: {
+    spans: "nested",
+    stringValue: "value",
+  },
+  StringTemplateSpan: {
+    isInterpolated: "value",
+    type: "skip",
+  },
+  TemplateParameter: {
+    constraint: "value",
+    default: "value",
+  },
+
+  // Don't want to expose those for now
+  Function: null,
+  Object: null,
+  Intrinsic: null,
+  Projection: null,
+};
+
+type PropsToDefine<T extends Type> = Exclude<keyof T, HiddenPropsType>;
+type TypePropertyConfig = "nested" | "ref" | "value" | "skip";
+type TypeConfig<T extends Type> = Record<PropsToDefine<T>, TypePropertyConfig> | null;
+type TypeGraphConfig = {
+  [K in Type["kind"]]: TypeConfig<Extract<Type, { kind: K }>>;
 };
 
 const HiddenProps = [
@@ -79,5 +130,6 @@ const HiddenProps = [
   "projections",
   "isFinished",
 ] as const;
+type HiddenPropsType = (typeof HiddenProps)[number];
 
 export const HiddenPropsSet = new Set(HiddenProps);
