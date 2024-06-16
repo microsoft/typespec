@@ -11,36 +11,51 @@ import style from "./ui.module.css";
 
 type NamedType = Type & { name: string };
 
-interface TypeUIProps {
+interface InspectTypeProps {
   readonly entity: Entity;
 }
 
-export const InspectType: FunctionComponent<TypeUIProps> = ({ entity }) => {
+export const InspectType: FunctionComponent<InspectTypeProps> = ({ entity }) => {
   return (
     <Mono className={style["inspect-type"]}>
       <EntityProperties entity={entity} />
     </Mono>
   );
 };
+interface EntityUIProps {
+  readonly entity: Entity;
+  readonly nameAsKey?: boolean;
+}
 
-const EntityUI: FunctionComponent<TypeUIProps> = ({ entity }) => {
+const EntityUI: FunctionComponent<EntityUIProps> = ({ entity, nameAsKey }) => {
   switch (entity.entityKind) {
     case "Type":
-      return <TypeUI type={entity} />;
+      return <TypeUI type={entity} nameAsKey={nameAsKey} />;
     default:
       return null;
   }
 };
 
-const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
+const TypeUI: FunctionComponent<{ type: Type; nameAsKey?: boolean }> = ({ type, nameAsKey }) => {
   const nav = useTreeNavigator();
 
   const navToType = useCallback(() => nav.navToType(type), [nav.navToType, type]);
+  const name = (
+    <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
+  );
+  const typeKind = <TypeKind type={type} />;
   return (
     <div>
       <div className={style["type-ui-header"]} onClick={navToType}>
-        <TypeKind type={type} />
-        <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
+        {nameAsKey ? (
+          <>
+            {name}: {typeKind}
+          </>
+        ) : (
+          <>
+            {typeKind} {name}
+          </>
+        )}
       </div>
       <EntityProperties entity={type} />
     </div>
@@ -187,6 +202,10 @@ const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
     const renderRef = action === "ref" || action === "parent";
     return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} />;
   };
+  const renderInList = (x: Entity) => {
+    const renderRef = action === "ref" || action === "parent";
+    return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} nameAsKey />;
+  };
 
   if (value === undefined) {
     return null;
@@ -197,7 +216,7 @@ const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
     "entries" in value &&
     typeof value.entries === "function"
   ) {
-    return <ItemList items={value} render={render} />;
+    return <ItemList items={value} render={renderInList} />;
   } else {
     return <JsValue value={value} />;
   }
