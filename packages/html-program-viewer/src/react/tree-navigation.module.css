@@ -1,2 +1,7 @@
-.tree-navigation {
+.tree-navigation :global(.fui-Radio) {
+  display: none;
+}
+
+.selected {
+  background-color: var(--colorNeutralBackground4);
 }

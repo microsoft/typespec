@@ -4,31 +4,30 @@ import {
   TreeItemLayout,
   type TreeOpenChangeData,
 } from "@fluentui/react-components";
-import { useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 import style from "./tree-navigation.module.css";
+import { TreeView } from "./tree-view/tree-view.js";
 import { useTreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
 
 export interface TreeNavigationProps {}
 
 export const TreeNavigation = (_: TreeNavigationProps) => {
   const nav = useTreeNavigator();
+  const [openItems, setOpenItems] = useState<Set<string | number>>(new Set());
+
   const onOpenChange = useCallback(
     (evt: any, data: TreeOpenChangeData) => {
-      nav.selectPath(data.value.toString());
+      setOpenItems(data.openItems);
     },
-    [nav.selectPath]
+    [setOpenItems]
   );
 
-  return (
-    <Tree
-      size="small"
-      aria-label="Type graph navigation"
-      className={style["tree-navigation"]}
-      onOpenChange={onOpenChange}
-    >
-      <TreeNodeItemsUI nodes={nav.tree.children} />
-    </Tree>
-  );
+  const resolvedOpenItems = useMemo(() => {
+    const path = nav.selectedPath.split(".");
+    return new Set([...openItems, ...path.map((_, i) => path.slice(0, i + 1).join("."))]);
+  }, [openItems, nav.selectedPath]);
+
+  return <TreeView tree={nav.tree} onSelect={nav.selectPath} />;
 };
 
 const TreeNodeItemsUI = ({ nodes }: { nodes: TypeGraphNode[] }) => {
@@ -40,10 +39,15 @@ const TreeNodeItemsUI = ({ nodes }: { nodes: TypeGraphNode[] }) => {
     </>
   );
 };
+
 const TreeNodeUI = ({ node }: { node: TypeGraphNode }) => {
+  const nav = useTreeNavigator();
+  const selected = nav.selectedPath === node.id;
   return (
     <TreeItem itemType={node.children.length === 0 ? "leaf" : "branch"} value={node.id}>
-      <TreeItemLayout>{node.name}</TreeItemLayout>
+      <TreeItemLayout className={selected ? style["selected"] : undefined} aria-selected={selected}>
+        {node.name}
+      </TreeItemLayout>
       {node.children.length > 0 && (
         <Tree>
           <TreeNodeItemsUI nodes={node.children} />

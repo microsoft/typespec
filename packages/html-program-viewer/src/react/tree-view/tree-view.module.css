@@ -1,0 +1,52 @@
+.tree-view .ms-DetailsRow {
+  width: 100%;
+  cursor: pointer;
+}
+
+.tree-view .ms-Button {
+  width: 24px;
+  padding: 0;
+}
+.tree-view .ms-Button-icon {
+  font-size: 12px;
+}
+
+.tree-view .ms-DetailsRow-cell {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.tree-view-row {
+  cursor: pointer;
+  display: block;
+  height: 22px;
+  line-height: 22px;
+  user-select: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  display: flex;
+}
+
+.tree-view-row:hover {
+  background: var(--colorNeutralBackground4);
+}
+
+.tree-view-row.active {
+  background: var(--colorNeutralBackground2Selected);
+}
+
+.tree-view-row .caret {
+  width: 16px;
+  font-size: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.tree-view-row .label {
+  flex: 1;
+}
+
+.tree-view-row .column:last-child {
+  margin-right: 5px;
+}
