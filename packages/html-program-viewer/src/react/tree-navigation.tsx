@@ -6,7 +6,6 @@ import {
 } from "@fluentui/react-components";
 import { useCallback, useMemo, useState } from "react";
 import style from "./tree-navigation.module.css";
-import { TreeView } from "./tree-view/tree-view.js";
 import { useTreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
 
 export interface TreeNavigationProps {}
@@ -27,7 +26,7 @@ export const TreeNavigation = (_: TreeNavigationProps) => {
     return new Set([...openItems, ...path.map((_, i) => path.slice(0, i + 1).join("."))]);
   }, [openItems, nav.selectedPath]);
 
-  return <TreeView tree={nav.tree} onSelect={nav.selectPath} />;
+  return <Tree tree={nav.tree} onSelect={nav.selectPath} />;
 };
 
 const TreeNodeItemsUI = ({ nodes }: { nodes: TypeGraphNode[] }) => {

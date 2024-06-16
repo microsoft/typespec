@@ -12,6 +12,7 @@ export interface TreeNode extends TreeItem {
 export interface TreeRow<T extends TreeNode> {
   readonly id: string;
   readonly index: number;
+  readonly localIndex: number;
   readonly item: T;
   readonly depth: number;
   readonly expanded: boolean;

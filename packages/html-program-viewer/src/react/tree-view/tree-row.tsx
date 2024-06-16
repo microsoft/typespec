@@ -3,34 +3,38 @@ import type { TreeRow, TreeRowColumn } from "./types.js";
 
 import { mergeClasses } from "@fluentui/react-components";
 import { useCallback, type SyntheticEvent } from "react";
-import style from "./tree-view.module.css";
+import style from "./tree.module.css";
 
 const INDENT_SIZE = 8;
 
 export interface TreeViewRowProps {
+  readonly id: string;
+  readonly focussed: boolean;
   readonly row: TreeRow<any>;
   readonly active: boolean;
   readonly columns?: Array<TreeRowColumn<any>>;
   readonly activate: (row: TreeRow<any>) => void;
 }
 
-export function TreeViewRow(props: TreeViewRowProps) {
-  const { row, active } = props;
-
+export function TreeViewRow({ id, row, active, focussed, activate }: TreeViewRowProps) {
   const paddingLeft = row.depth * INDENT_SIZE;
 
-  const activate = useCallback(() => props.activate(props.row), [props.activate, props.row]);
+  const onClick = useCallback(() => activate(row), [activate, row]);
   return (
     <div
+      id={id}
       role="treeitem"
       style={{ paddingLeft }}
-      className={mergeClasses(style["tree-view-row"], active && style["active"])}
+      className={mergeClasses(
+        style["tree-row"],
+        active && style["active"],
+        focussed && style["focus"]
+      )}
       aria-selected={active}
       aria-expanded={row.expanded}
-      aria-posinset={row.index}
+      aria-posinset={row.localIndex}
       aria-level={row.depth}
-      onClick={activate}
-      tabIndex={0}
+      onClick={onClick}
     >
       <span className={style["caret"]}>
         <Caret row={row} />
