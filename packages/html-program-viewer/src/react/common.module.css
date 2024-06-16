@@ -9,3 +9,9 @@
 .type-kind {
   color: var(--colorPaletteBerryForeground2);
 }
+.type-kind-tag {
+  color: white;
+  background-color: var(--colorPaletteBerryForeground2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}

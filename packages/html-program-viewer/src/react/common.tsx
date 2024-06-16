@@ -12,9 +12,12 @@ export const Literal: FunctionComponent<{ children: any }> = ({ children }) => (
 );
 
 export const TypeKind = ({ type }: { type: Type }) => {
-  return <Mono className={style["type-kind"]}>{type.kind}</Mono>;
+  return <span className={style["type-kind"]}>{type.kind}</span>;
 };
 
+export const TypeKindTag = ({ type }: { type: Type }) => {
+  return <Mono className={style["type-kind-tag"]}>{type.kind}</Mono>;
+};
 export const KeyValueSection: FunctionComponent<{ children: ReactElement | ReactElement[] }> = ({
   children,
 }) => {

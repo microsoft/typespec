@@ -1,17 +1,18 @@
-.inspect-type li {
-  margin: 0;
-  list-style: none;
-  position: relative;
+.inspect-type {
 }
-
 .inspect-type ul {
   padding: 0 0 0 16px;
   margin: 0;
 }
 
-.inspect-type {
-  background-color: var(--colorNeutralBackground2);
-  padding: 10px 10px 10px 0;
+.inspect-type > ul {
+  padding: 0;
+}
+
+.inspect-type li {
+  margin: 0;
+  list-style: none;
+  position: relative;
 }
 
 .type-ui-header {

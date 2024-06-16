@@ -24,38 +24,26 @@ export const InspectType: FunctionComponent<InspectTypeProps> = ({ entity }) => 
 };
 interface EntityUIProps {
   readonly entity: Entity;
-  readonly nameAsKey?: boolean;
 }
 
-const EntityUI: FunctionComponent<EntityUIProps> = ({ entity, nameAsKey }) => {
+const EntityUI: FunctionComponent<EntityUIProps> = ({ entity }) => {
   switch (entity.entityKind) {
     case "Type":
-      return <TypeUI type={entity} nameAsKey={nameAsKey} />;
+      return <TypeUI type={entity} />;
     default:
       return null;
   }
 };
 
-const TypeUI: FunctionComponent<{ type: Type; nameAsKey?: boolean }> = ({ type, nameAsKey }) => {
+const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
   const nav = useTreeNavigator();
 
   const navToType = useCallback(() => nav.navToType(type), [nav.navToType, type]);
-  const name = (
-    <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
-  );
-  const typeKind = <TypeKind type={type} />;
   return (
     <div>
       <div className={style["type-ui-header"]} onClick={navToType}>
-        {nameAsKey ? (
-          <>
-            {name}: {typeKind}
-          </>
-        ) : (
-          <>
-            {typeKind} {name}
-          </>
-        )}
+        <TypeKind type={type} />{" "}
+        <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
       </div>
       <EntityProperties entity={type} />
     </div>
@@ -202,10 +190,6 @@ const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
     const renderRef = action === "ref" || action === "parent";
     return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} />;
   };
-  const renderInList = (x: Entity) => {
-    const renderRef = action === "ref" || action === "parent";
-    return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} nameAsKey />;
-  };
 
   if (value === undefined) {
     return null;
@@ -216,7 +200,7 @@ const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
     "entries" in value &&
     typeof value.entries === "function"
   ) {
-    return <ItemList items={value} render={renderInList} />;
+    return <ItemList items={value} render={render} />;
   } else {
     return <JsValue value={value} />;
   }
