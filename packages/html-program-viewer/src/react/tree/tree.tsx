@@ -54,7 +54,7 @@ export function Tree<T extends TreeNode>({
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
       if (selectedKey === row.id) {
-        collapse(row.id);
+        toggleExpand(row.id);
       } else {
         expand(row.id);
         setSelectedKey(row.id);
