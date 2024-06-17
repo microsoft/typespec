@@ -67,23 +67,25 @@ const TypeGraphBreadcrumb = () => {
   const segments = nav.selectedPath.split(".");
 
   return (
-    <Breadcrumb size="small" className={style["breadcrumb"]}>
-      {segments.map((x, i) => {
-        const last = i === segments.length - 1;
-        return (
-          <Fragment key={x}>
-            <BreadcrumbItem>
-              <BreadcrumbButton
-                current={last}
-                onClick={() => nav.selectPath(segments.slice(0, i).join("."))}
-              >
-                {x}
-              </BreadcrumbButton>
-            </BreadcrumbItem>
-            {!last && <BreadcrumbDivider />}
-          </Fragment>
-        );
-      })}
-    </Breadcrumb>
+    <div className={style["breadcrumb"]}>
+      <Breadcrumb size="small">
+        {segments.map((x, i) => {
+          const last = i === segments.length - 1;
+          return (
+            <Fragment key={x}>
+              <BreadcrumbItem>
+                <BreadcrumbButton
+                  current={last}
+                  onClick={() => nav.selectPath(segments.slice(0, i).join("."))}
+                >
+                  {x}
+                </BreadcrumbButton>
+              </BreadcrumbItem>
+              {!last && <BreadcrumbDivider />}
+            </Fragment>
+          );
+        })}
+      </Breadcrumb>
+    </div>
   );
 };
