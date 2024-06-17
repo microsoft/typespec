@@ -98,7 +98,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(constructorParameters)
-                });
+                },
+                this);
 
             return [constructor];
         }

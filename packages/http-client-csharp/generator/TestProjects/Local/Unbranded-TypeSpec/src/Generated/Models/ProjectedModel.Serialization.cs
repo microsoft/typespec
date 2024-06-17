@@ -14,47 +14,35 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        /// <summary> Initializes a new instance of <see cref="ProjectedModel"/>. </summary>
-        /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
         internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary> Initializes a new instance of <see cref="ProjectedModel"/> for deserialization. </summary>
         internal ProjectedModel()
         {
         }
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<ProjectedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         ProjectedModel IJsonModel<ProjectedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             return new ProjectedModel();
         }
 
-        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)
         {
             return new BinaryData("IPersistableModel");
         }
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
             return new ProjectedModel();
         }
 
-        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

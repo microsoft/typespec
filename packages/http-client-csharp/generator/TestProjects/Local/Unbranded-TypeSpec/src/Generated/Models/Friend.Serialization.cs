@@ -14,47 +14,35 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        /// <summary> Initializes a new instance of <see cref="Friend"/>. </summary>
-        /// <param name="name"> name of the NotFriend. </param>
-        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
         internal Friend(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Friend"/> for deserialization. </summary>
         internal Friend()
         {
         }
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<Friend>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
         }
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         Friend IJsonModel<Friend>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             return new Friend();
         }
 
-        /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options)
         {
             return new BinaryData("IPersistableModel");
         }
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
         Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
             return new Friend();
         }
 
-        /// <param name="options"> The client options for reading and writing models. </param>
         string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

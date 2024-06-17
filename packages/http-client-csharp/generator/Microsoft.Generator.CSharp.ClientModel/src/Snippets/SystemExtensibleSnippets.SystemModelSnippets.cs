@@ -21,7 +21,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     {
                         Snippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),
                         Snippet.Return(TypeProviderSnippet.Deserialize(typeProvider, document.RootElement))
-                    });
+                    },
+                    typeProvider);
             }
         }
     }
