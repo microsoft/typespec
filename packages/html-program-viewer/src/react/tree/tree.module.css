@@ -29,6 +29,12 @@
   align-items: center;
 }
 
+.tree-row .icon {
+  width: 16px;
+  display: flex;
+  align-items: center;
+}
+
 .tree-row .label {
   flex: 1;
 }

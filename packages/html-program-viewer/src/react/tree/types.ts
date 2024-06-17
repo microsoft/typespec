@@ -6,7 +6,7 @@ export interface TreeItem {
 }
 
 export interface TreeNode extends TreeItem {
-  readonly children?: Array<TreeNode>;
+  readonly children?: TreeNode[];
 }
 
 export interface TreeRow<T extends TreeNode> {
@@ -17,6 +17,7 @@ export interface TreeRow<T extends TreeNode> {
   readonly depth: number;
   readonly expanded: boolean;
   readonly hasChildren: boolean;
+  readonly icon?: ReactNode;
   readonly toggleExpand: () => void;
 }
 

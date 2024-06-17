@@ -1,18 +1,27 @@
 import { useControllableValue } from "@typespec/react-components";
-import { useCallback, useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type FC,
+  type KeyboardEvent,
+} from "react";
 import { useTreeControls } from "./tree-control.js";
 import { TreeViewRow } from "./tree-row.js";
 import type { TreeNode, TreeRow } from "./types.js";
 
 import style from "./tree.module.css";
 
-export interface TreeViewProps {
-  readonly tree: TreeNode;
+export interface TreeViewProps<T extends TreeNode> {
+  readonly tree: T;
+  readonly nodeIcon?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
 }
 
-export function Tree(props: TreeViewProps) {
+export function Tree<T extends TreeNode>(props: TreeViewProps<T>) {
   const id = useId();
   const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls();
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -90,6 +99,7 @@ export function Tree(props: TreeViewProps) {
         return (
           <TreeViewRow
             id={`${id}-${row.index}`}
+            icon={props.nodeIcon as any}
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}
