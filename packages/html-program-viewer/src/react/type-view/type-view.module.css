@@ -22,9 +22,6 @@
   gap: 10px;
 }
 
-.divider {
-  margin: 0 -10px;
-}
 .doc {
   color: var(--colorNeutralForeground3);
 }
