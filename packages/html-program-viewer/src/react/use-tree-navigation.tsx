@@ -105,6 +105,10 @@ function computeTree(program: Program): TypeGraphListNode {
 
 type NamedType = Type & { name: string };
 
+function isMapLike(value: any): value is Map<string, any> {
+  return "entries" in value && typeof value.entries === "function";
+}
+
 function computeTypeNode(parentPath: string, type: NamedType, name?: string): TypeGraphTypeNode {
   const path = parentPath + "." + type.name;
 
@@ -112,7 +116,12 @@ function computeTypeNode(parentPath: string, type: NamedType, name?: string): Ty
   const children: TypeGraphNode[] = Object.entries(type)
     .filter(([key]) => typeRendering?.[key] === "nested")
     .map(([key, value]): TypeGraphNode => {
-      return computeItemList(path + "." + key, key, value);
+      const propPath = path + "." + key;
+      if (isMapLike(value)) {
+        return computeItemList(propPath, key, value);
+      } else {
+        return computeTypeNode(propPath, value, key);
+      }
     });
 
   return {
