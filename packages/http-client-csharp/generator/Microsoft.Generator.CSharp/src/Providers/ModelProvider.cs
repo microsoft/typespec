@@ -49,6 +49,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
+            _discriminator = new(BuildDiscriminator);
+
             if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
             {
                 SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
@@ -57,7 +59,24 @@ namespace Microsoft.Generator.CSharp.Providers
             _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            if (Discriminator != null)
+            {
+                return _declarationModifiers | TypeSignatureModifiers.Abstract;
+            }
+
+            return _declarationModifiers;
+        }
+
+        private readonly Lazy<ModelDiscriminator?> _discriminator;
+        public ModelDiscriminator? Discriminator => _discriminator.Value;
+
+        // TODO -- in the future this is potentially to be protected virtual when this type is un-sealed.
+        private ModelDiscriminator? BuildDiscriminator()
+        {
+            return null;
+        }
 
         protected override PropertyProvider[] BuildProperties()
         {
