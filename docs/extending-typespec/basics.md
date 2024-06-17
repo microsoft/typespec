@@ -154,7 +154,7 @@ Alternatively, you can add these as scripts in your `package.json` to make them 
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "node --test ./dist/test"
+    "test": "node --test ./dist/test/**/*.test.js"
   }
 ```
 
