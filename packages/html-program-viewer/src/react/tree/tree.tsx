@@ -19,23 +19,28 @@ export interface TreeViewProps<T extends TreeNode> {
   readonly nodeIcon?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
+  readonly expandNodes?: string[];
 }
 
-export function Tree<T extends TreeNode>(props: TreeViewProps<T>) {
+export function Tree<T extends TreeNode>({
+  tree,
+  selected,
+  onSelect,
+  expandNodes,
+  nodeIcon,
+}: TreeViewProps<T>) {
   const id = useId();
-  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls();
+  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
+    expandNodes,
+  });
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const [selectedKey, setSelectedKey] = useControllableValue(
-    props.selected,
-    undefined,
-    props.onSelect
-  );
+  const [selectedKey, setSelectedKey] = useControllableValue(selected, undefined, onSelect);
 
   const rows = useMemo(
-    () => getTreeRowsForNode(expanded, toggleExpand, props.tree),
-    [renderSignal, toggleExpand, props.tree]
+    () => getTreeRowsForNode(expanded, toggleExpand, tree),
+    [renderSignal, toggleExpand, tree]
   );
-  const parentMap = useMemo(() => computeParent(props.tree), [props.tree]);
+  const parentMap = useMemo(() => computeParent(tree), [tree]);
 
   useEffect(() => {
     expand(selectedKey);
@@ -64,7 +69,6 @@ export function Tree<T extends TreeNode>(props: TreeViewProps<T>) {
           break;
         case "ArrowUp": // Move focus up
           setFocusedIndex((focusedIndex - 1) % rows.length);
-
           event.preventDefault();
           break;
         case "ArrowRight": // Expand current row if applicable
@@ -99,7 +103,7 @@ export function Tree<T extends TreeNode>(props: TreeViewProps<T>) {
         return (
           <TreeViewRow
             id={`${id}-${row.index}`}
-            icon={props.nodeIcon as any}
+            icon={nodeIcon as any}
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}

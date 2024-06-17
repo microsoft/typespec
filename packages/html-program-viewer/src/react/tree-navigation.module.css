@@ -5,3 +5,15 @@
   border-radius: 2px;
   line-height: 16px;
 }
+
+.search {
+  width: 100%;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+  height: 22px;
+  line-height: 22px;
+}
+.search:focus {
+  border-bottom: 1px solid var(--colorBrandForeground1);
+}
