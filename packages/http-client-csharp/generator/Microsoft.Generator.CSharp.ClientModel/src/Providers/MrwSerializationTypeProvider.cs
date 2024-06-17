@@ -300,10 +300,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var property in _inputModel.Properties)
             {
-                var parameter = new ParameterProvider(property)
-                {
-                    Validation = ParameterValidationType.None,
-                };
+                var parameter = new ParameterProvider(property);
                 constructorParameters.Add(parameter);
 
                 if (shouldAddRawDataField && string.Equals(parameter.Name, _rawDataField?.Name, StringComparison.OrdinalIgnoreCase))
