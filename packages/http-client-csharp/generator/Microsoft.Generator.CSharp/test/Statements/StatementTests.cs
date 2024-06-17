@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Statements
 {
     public class StatementTests
     {

@@ -32,6 +32,10 @@ namespace Microsoft.Generator.CSharp
 
         private void WriteType(CodeWriter writer)
         {
+            if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                writer.WriteXmlDocs(_provider.XmlDocs);
+            }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
                 .AppendRawIf(" : ", _provider.Inherits != null || _provider.Implements.Any())
@@ -104,6 +108,7 @@ namespace Microsoft.Generator.CSharp
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
+                    writer.WriteXmlDocs(_provider.Fields[i].XmlDocs);
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)
                     {

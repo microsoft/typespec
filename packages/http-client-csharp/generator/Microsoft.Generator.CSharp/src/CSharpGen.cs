@@ -58,10 +58,10 @@ namespace Microsoft.Generator.CSharp
             }
 
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
-            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ChangeTrackingListProvider.Instance).Write()));
-            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ChangeTrackingDictionaryProvider.Instance).Write()));
-            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(ArgumentProvider.Instance).Write()));
-            generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(OptionalProvider.Instance).Write()));
+            foreach (var type in output.Types)
+            {
+                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(type).Write()));
+            }
 
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
