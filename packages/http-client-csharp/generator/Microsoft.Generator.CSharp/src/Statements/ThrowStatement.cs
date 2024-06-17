@@ -5,8 +5,15 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ThrowStatement(ValueExpression ThrowExpression) : MethodBodyStatement
+    public sealed class ThrowStatement : MethodBodyStatement
     {
+        public ValueExpression ThrowExpression { get; }
+
+        public ThrowStatement(ValueExpression throwExpression)
+        {
+            ThrowExpression = throwExpression;
+        }
+
         internal override void Write(CodeWriter writer)
         {
             ThrowExpression.Write(writer);

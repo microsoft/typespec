@@ -4,7 +4,7 @@ title: "[F] getMinProperties"
 
 ---
 ```ts
-getMinProperties(program, target): any
+function getMinProperties(program, target): any
 ```
 
 ## Parameters

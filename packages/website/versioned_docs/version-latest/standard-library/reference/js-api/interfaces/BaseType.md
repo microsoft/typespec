@@ -11,6 +11,7 @@ title: "[I] BaseType"
 - [`Model`](Model.md)
 - [`ModelProperty`](ModelProperty.md)
 - [`Scalar`](Scalar.md)
+- [`ScalarConstructor`](ScalarConstructor.md)
 - [`Interface`](Interface.md)
 - [`Enum`](Enum.md)
 - [`EnumMember`](EnumMember.md)
@@ -28,19 +29,20 @@ title: "[I] BaseType"
 - [`TemplateParameter`](TemplateParameter.md)
 - [`Decorator`](Decorator.md)
 - [`FunctionType`](FunctionType.md)
-- [`FunctionParameter`](FunctionParameter.md)
+- [`FunctionParameterBase`](FunctionParameterBase.md)
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) |
-| `kind` | `string` | - |
-| `node?` | [`Node`](../type-aliases/Node.md) | - |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - |
-| `projector?` | [`Projector`](Projector.md) | - |
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `entityKind` | `readonly` | `"Type"` | - |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - |
+| `isFinished` | `public` | `boolean` | <p>Reflect if a type has been finished(Decorators have been called). There is multiple reasons a type might not be finished:</p><ul><li>a template declaration will not</li><li>a template instance that argument that are still template parameters</li><li>a template instance that is only partially instantiated(like a templated operation inside a templated interface)</li></ul> |
+| `kind` | `public` | `string` | - |
+| `node?` | `public` | [`Node`](../type-aliases/Node.md) | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - |
+| `projector?` | `public` | [`Projector`](Projector.md) | - |
 
 ## Accessors
 

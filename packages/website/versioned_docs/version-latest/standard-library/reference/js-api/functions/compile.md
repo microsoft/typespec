@@ -4,7 +4,7 @@ title: "[F] compile"
 
 ---
 ```ts
-compile(
+function compile(
    host, 
    mainFile, 
    options, 

@@ -7,8 +7,19 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record IfStatement(ValueExpression Condition, bool Inline = false, bool AddBraces = true) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class IfStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public ValueExpression Condition { get; }
+        public bool Inline { get; }
+        public bool AddBraces { get; }
+
+        public IfStatement(ValueExpression condition, bool inline = false, bool addBraces = true)
+        {
+            Condition = condition;
+            Inline = inline;
+            AddBraces = addBraces;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public MethodBodyStatement Body => _body;
 

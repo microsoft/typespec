@@ -4,7 +4,7 @@ title: "[F] $deprecated"
 
 ---
 ```ts
-$deprecated(
+function $deprecated(
    context, 
    target, 
    message): void

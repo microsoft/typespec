@@ -4,7 +4,7 @@ title: "[F] getPathFromPathComponents"
 
 ---
 ```ts
-getPathFromPathComponents(pathComponents): string
+function getPathFromPathComponents(pathComponents): string
 ```
 
 Formats a parsed path consisting of a root component (at index 0) and zero or more path

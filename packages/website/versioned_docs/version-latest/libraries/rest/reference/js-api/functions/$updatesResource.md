@@ -4,7 +4,7 @@ title: "[F] $updatesResource"
 
 ---
 ```ts
-$updatesResource(
+function $updatesResource(
    context, 
    entity, 
    resourceType): void

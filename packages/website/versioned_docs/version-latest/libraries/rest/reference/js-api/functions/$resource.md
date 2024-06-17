@@ -4,7 +4,7 @@ title: "[F] $resource"
 
 ---
 ```ts
-$resource(
+function $resource(
    context, 
    target, 
    collectionName): void

@@ -4,7 +4,7 @@ title: "[F] $baseUri"
 
 ---
 ```ts
-$baseUri(
+function $baseUri(
    context, 
    target, 
    baseUri): void

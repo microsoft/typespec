@@ -15,7 +15,6 @@ namespace UnbrandedTypeSpec
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="headParameter"/>, <paramref name="queryParameter"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateSayHiRequest(System.Uri unbrandedTypeSpecUrl, string headParameter, string queryParameter, string optionalQuery, string accept)
         {
         }
@@ -27,7 +26,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="contentType"/>, <paramref name="p2"/>, <paramref name="action"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateHelloAgainRequest(System.Uri unbrandedTypeSpecUrl, string p1, string contentType, string p2, RoundTripModel action, string accept)
         {
         }
@@ -39,7 +37,6 @@ namespace UnbrandedTypeSpec
         /// <param name="action"></param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="p2"/>, <paramref name="action"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateNoContentTypeRequest(System.Uri unbrandedTypeSpecUrl, string p1, string p2, RoundTripModel action, string accept, string contentType)
         {
         }
@@ -47,7 +44,6 @@ namespace UnbrandedTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateHelloDemo2Request(System.Uri unbrandedTypeSpecUrl, string accept)
         {
         }
@@ -57,7 +53,6 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateCreateLiteralRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
         {
         }
@@ -68,7 +63,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="p3"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="p1"/>, <paramref name="p2"/>, <paramref name="p3"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateHelloLiteralRequest(System.Uri unbrandedTypeSpecUrl, string p1, int p2, bool p3, string accept)
         {
         }
@@ -77,7 +71,6 @@ namespace UnbrandedTypeSpec
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="action"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="action"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateTopActionRequest(System.Uri unbrandedTypeSpecUrl, DateTimeOffset action, string accept)
         {
         }
@@ -85,7 +78,6 @@ namespace UnbrandedTypeSpec
         /// <summary> top level method2. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateTopAction2Request(System.Uri unbrandedTypeSpecUrl, string accept)
         {
         }
@@ -95,7 +87,6 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreatePatchActionRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
         {
         }
@@ -105,7 +96,6 @@ namespace UnbrandedTypeSpec
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="Thing"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateAnonymousBodyRequest(System.Uri unbrandedTypeSpecUrl, Thing Thing, string accept, string contentType)
         {
         }
@@ -115,7 +105,6 @@ namespace UnbrandedTypeSpec
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="Friend"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateFriendlyModelRequest(System.Uri unbrandedTypeSpecUrl, Friend Friend, string accept, string contentType)
         {
         }
@@ -124,7 +113,6 @@ namespace UnbrandedTypeSpec
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="repeatabilityFirstSent"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateAddTimeHeaderRequest(System.Uri unbrandedTypeSpecUrl, DateTimeOffset repeatabilityFirstSent, string accept)
         {
         }
@@ -134,7 +122,6 @@ namespace UnbrandedTypeSpec
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="ProjectedModel"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateProjectedNameModelRequest(System.Uri unbrandedTypeSpecUrl, ProjectedModel ProjectedModel, string accept, string contentType)
         {
         }
@@ -142,7 +129,6 @@ namespace UnbrandedTypeSpec
         /// <summary> return anonymous model. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateReturnsAnonymousModelRequest(System.Uri unbrandedTypeSpecUrl, string accept)
         {
         }
@@ -150,7 +136,6 @@ namespace UnbrandedTypeSpec
         /// <summary> get extensible enum. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateGetUnknownValueRequest(System.Uri unbrandedTypeSpecUrl, string accept)
         {
         }
@@ -160,7 +145,6 @@ namespace UnbrandedTypeSpec
         /// <param name="body"></param>
         /// <param name="accept"></param>
         /// <param name="contentType"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="body"/>, <paramref name="accept"/> or <paramref name="contentType"/> is null. </exception>
         internal void CreateInternalProtocolRequest(System.Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
         {
         }
@@ -168,7 +152,6 @@ namespace UnbrandedTypeSpec
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateStillConvenientRequest(System.Uri unbrandedTypeSpecUrl, string accept)
         {
         }
@@ -177,7 +160,6 @@ namespace UnbrandedTypeSpec
         /// <param name="unbrandedTypeSpecUrl"></param>
         /// <param name="id"></param>
         /// <param name="accept"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="unbrandedTypeSpecUrl"/>, <paramref name="id"/> or <paramref name="accept"/> is null. </exception>
         internal void CreateHeadAsBooleanRequest(System.Uri unbrandedTypeSpecUrl, string id, string accept)
         {
         }

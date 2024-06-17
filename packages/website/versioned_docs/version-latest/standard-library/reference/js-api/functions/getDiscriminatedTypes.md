@@ -4,7 +4,7 @@ title: "[F] getDiscriminatedTypes"
 
 ---
 ```ts
-getDiscriminatedTypes(program): [Model | Union, Discriminator][]
+function getDiscriminatedTypes(program): [Model | Union, Discriminator][]
 ```
 
 ## Parameters

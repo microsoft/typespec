@@ -94,12 +94,10 @@ namespace Microsoft.Generator.CSharp.Providers
                     constructorParameters),
                 bodyStatements: new MethodBodyStatement[]
                 {
-                    new ParameterValidationStatement(constructorParameters),
                     GetPropertyInitializers(constructorParameters)
-                },
-                kind: CSharpMethodKinds.Constructor);
+                });
 
-            return new MethodProvider[] { constructor };
+            return [constructor];
         }
 
         private IReadOnlyList<ParameterProvider> BuildConstructorParameters()

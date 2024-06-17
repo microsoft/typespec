@@ -4,7 +4,7 @@ title: "[F] getVersionForEnumMember"
 
 ---
 ```ts
-getVersionForEnumMember(program, member): Version | undefined
+function getVersionForEnumMember(program, member): Version | undefined
 ```
 
 ## Parameters

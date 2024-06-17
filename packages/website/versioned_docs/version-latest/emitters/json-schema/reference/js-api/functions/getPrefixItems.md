@@ -4,7 +4,7 @@ title: "[F] getPrefixItems"
 
 ---
 ```ts
-getPrefixItems(program, target): Tuple | undefined
+function getPrefixItems(program, target): Tuple | undefined
 ```
 
 ## Parameters

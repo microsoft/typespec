@@ -5,8 +5,17 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record AssignValueStatement(ValueExpression To, ValueExpression From) : MethodBodyStatement
+    public sealed class AssignValueStatement : MethodBodyStatement
     {
+        public ValueExpression To { get; }
+        public ValueExpression From { get; }
+
+        public AssignValueStatement(ValueExpression to, ValueExpression from)
+        {
+            To = to;
+            From = from;
+        }
+
         internal override void Write(CodeWriter writer)
         {
             To.Write(writer);

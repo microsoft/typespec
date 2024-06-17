@@ -4,7 +4,7 @@ title: "[F] getKeyName"
 
 ---
 ```ts
-getKeyName(program, property): string
+function getKeyName(program, property): string
 ```
 
 ## Parameters

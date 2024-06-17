@@ -4,7 +4,7 @@ title: "[F] getOperationVerb"
 
 ---
 ```ts
-getOperationVerb(program, entity): HttpVerb | undefined
+function getOperationVerb(program, entity): HttpVerb | undefined
 ```
 
 ## Parameters

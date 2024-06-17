@@ -4,7 +4,7 @@ title: "[F] projectProgram"
 
 ---
 ```ts
-projectProgram(
+function projectProgram(
    program, 
    projections, 
    startNode?): ProjectedProgram

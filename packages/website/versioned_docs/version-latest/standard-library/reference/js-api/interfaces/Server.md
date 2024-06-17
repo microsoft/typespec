@@ -7,7 +7,7 @@ title: "[I] Server"
 
 | Property | Modifier | Type |
 | :------ | :------ | :------ |
-| `pendingMessages` | `readonly` | readonly `string`[] |
+| `pendingMessages` | `readonly` | readonly [`ServerLog`](ServerLog.md)[] |
 | `workspaceFolders` | `readonly` | readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[] |
 
 ## Methods
@@ -339,15 +339,14 @@ initialized(params): void
 ### log()
 
 ```ts
-log(message, details?): void
+log(log): void
 ```
 
 #### Parameters
 
 | Parameter | Type |
 | :------ | :------ |
-| `message` | `string` |
-| `details`? | `any` |
+| `log` | [`ServerLog`](ServerLog.md) |
 
 #### Returns
 

@@ -4,7 +4,7 @@ title: "[F] getDiscriminator"
 
 ---
 ```ts
-getDiscriminator(program, entity): Discriminator | undefined
+function getDiscriminator(program, entity): Discriminator | undefined
 ```
 
 ## Parameters

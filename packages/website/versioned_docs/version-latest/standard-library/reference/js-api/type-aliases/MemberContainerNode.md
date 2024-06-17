@@ -9,7 +9,8 @@ type MemberContainerNode:
   | ModelExpressionNode
   | InterfaceStatementNode
   | EnumStatementNode
-  | UnionStatementNode;
+  | UnionStatementNode
+  | ScalarStatementNode;
 ```
 
 Node types that can have referencable members

@@ -30,8 +30,8 @@ Cookie: X-API-KEY=abcdef12345
 
 | Type parameter |
 | :------ |
-| `TLocation` extends `ApiKeyLocation` |
-| `TName` extends `string` |
+| `TLocation` *extends* `ApiKeyLocation` |
+| `TName` *extends* `string` |
 
 ## Properties
 

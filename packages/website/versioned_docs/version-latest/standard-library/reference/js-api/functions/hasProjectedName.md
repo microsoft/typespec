@@ -4,7 +4,7 @@ title: "[F] hasProjectedName"
 
 ---
 ```ts
-hasProjectedName(
+function hasProjectedName(
    program, 
    target, 
    projectionName): boolean

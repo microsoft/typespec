@@ -4,7 +4,7 @@ title: "[F] $segmentOf"
 
 ---
 ```ts
-$segmentOf(
+function $segmentOf(
    context, 
    target, 
    type): void

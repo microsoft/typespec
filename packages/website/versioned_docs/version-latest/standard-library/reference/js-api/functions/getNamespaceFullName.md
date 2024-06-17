@@ -4,7 +4,7 @@ title: "[F] getNamespaceFullName"
 
 ---
 ```ts
-getNamespaceFullName(type, options?): string
+function getNamespaceFullName(type, options?): string
 ```
 
 Return the full name of the namespace(e.g. "Foo.Bar")

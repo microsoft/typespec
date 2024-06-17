@@ -11,8 +11,8 @@ title: "[I] LinterRuleDefinition"
 
 | Type parameter |
 | :------ |
-| `N` extends `string` |
-| `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| `N` *extends* `string` |
+| `DM` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 

@@ -1,5 +1,17 @@
 # Change Log - @typespec/protobuf
 
+## 0.57.0
+
+### Bug Fixes
+
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Update to support new value types
+- [#3561](https://github.com/microsoft/typespec/pull/3561) Corrected cross-package reference behavior in some buggy cases.
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+
 ## 0.56.0
 
 ### Bump dependencies

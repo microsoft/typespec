@@ -4,7 +4,7 @@ title: "[F] createMetadataInfo"
 
 ---
 ```ts
-createMetadataInfo(program, options?): MetadataInfo
+function createMetadataInfo(program, options?): MetadataInfo
 ```
 
 ## Parameters

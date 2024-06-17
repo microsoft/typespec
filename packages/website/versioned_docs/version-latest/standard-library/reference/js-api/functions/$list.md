@@ -4,7 +4,7 @@ title: "[F] $list"
 
 ---
 ```ts
-$list(
+function $list(
    context, 
    target, 
    listedType?): void

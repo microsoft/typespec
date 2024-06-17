@@ -4,7 +4,7 @@ title: "[F] $returnsDoc"
 
 ---
 ```ts
-$returnsDoc(
+function $returnsDoc(
    context, 
    target, 
    doc): void

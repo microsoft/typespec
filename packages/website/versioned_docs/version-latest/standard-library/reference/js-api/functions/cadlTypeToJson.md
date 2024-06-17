@@ -4,7 +4,7 @@ title: "[F] cadlTypeToJson"
 
 ---
 ```ts
-cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
+function cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 ```
 
 ## Type parameters

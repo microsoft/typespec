@@ -4,7 +4,7 @@ title: "[F] isModifier"
 
 ---
 ```ts
-isModifier(token): boolean
+function isModifier(token): boolean
 ```
 
 ## Parameters

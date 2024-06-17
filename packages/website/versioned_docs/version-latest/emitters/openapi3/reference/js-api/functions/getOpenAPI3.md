@@ -4,7 +4,7 @@ title: "[F] getOpenAPI3"
 
 ---
 ```ts
-getOpenAPI3(program, options): Promise<OpenAPI3ServiceRecord[]>
+function getOpenAPI3(program, options): Promise<OpenAPI3ServiceRecord[]>
 ```
 
 Get the OpenAPI 3 document records from the given program. The documents are

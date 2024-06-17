@@ -4,7 +4,7 @@ title: "[F] $onValidate"
 
 ---
 ```ts
-$onValidate(program): Promise<void>
+function $onValidate(program): Promise<void>
 ```
 
 Validation function

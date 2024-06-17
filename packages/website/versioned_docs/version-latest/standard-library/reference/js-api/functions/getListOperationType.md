@@ -4,7 +4,7 @@ title: "[F] getListOperationType"
 
 ---
 ```ts
-getListOperationType(program, target): Model | undefined
+function getListOperationType(program, target): Model | undefined
 ```
 
 ## Parameters

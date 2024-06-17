@@ -4,7 +4,7 @@ title: "[F] getMinValueExclusive"
 
 ---
 ```ts
-getMinValueExclusive(program, target): number | undefined
+function getMinValueExclusive(program, target): number | undefined
 ```
 
 ## Parameters

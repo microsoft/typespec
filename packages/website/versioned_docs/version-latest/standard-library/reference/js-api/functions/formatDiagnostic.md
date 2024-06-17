@@ -4,7 +4,7 @@ title: "[F] formatDiagnostic"
 
 ---
 ```ts
-formatDiagnostic(diagnostic): string
+function formatDiagnostic(diagnostic): string
 ```
 
 ## Parameters

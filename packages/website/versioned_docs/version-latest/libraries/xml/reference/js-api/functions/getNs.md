@@ -4,7 +4,7 @@ title: "[F] getNs"
 
 ---
 ```ts
-getNs(program, target): XmlNamespace | undefined
+function getNs(program, target): XmlNamespace | undefined
 ```
 
 Get the namespace and prefix for the given type.

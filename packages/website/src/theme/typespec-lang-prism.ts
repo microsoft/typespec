@@ -14,7 +14,7 @@ const lang = {
     },
   ],
 
-  directives: { pattern: /#.*/g, greedy: true, alias: "comment" },
+  directives: { pattern: /#[^{[].*/g, greedy: true, alias: "comment" },
 
   decorator: {
     pattern: /@@?[$\w\xA0-\uFFFF]+/,
@@ -65,14 +65,14 @@ const lang = {
 
   boolean: /\b(?:false|true)\b/,
   keyword:
-    /\b(?:import|model|scalar|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection|dec|extern|fn)\b/,
+    /\b(?:import|model|scalar|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection|dec|extern|fn|const)\b/,
 
   function: /\b[a-z_]\w*(?=[ \t]*\()/i,
   variable: /\b[A-Za-z]\w*\b/,
 
   number: /(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:E[+-]?\d+)?/i,
   operator: /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
-  punctuation: /[{}[\];(),.:]/,
+  punctuation: /[#{}[\];(),.:]/,
 };
 
 lang.string[0].inside.interpolation.inside = lang;

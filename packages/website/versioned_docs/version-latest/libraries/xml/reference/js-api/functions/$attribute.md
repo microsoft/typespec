@@ -4,7 +4,7 @@ title: "[F] $attribute"
 
 ---
 ```ts
-$attribute(context, target): void
+function $attribute(context, target): void
 ```
 
 ## Parameters

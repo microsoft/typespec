@@ -4,7 +4,7 @@ title: "[F] getDoc"
 
 ---
 ```ts
-getDoc(program, target): string | undefined
+function getDoc(program, target): string | undefined
 ```
 
 Get the documentation string for the given type.

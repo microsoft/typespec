@@ -4,7 +4,7 @@ title: "[F] getResponsesForOperation"
 
 ---
 ```ts
-getResponsesForOperation(program, operation): [HttpOperationResponse[], readonly Diagnostic[]]
+function getResponsesForOperation(program, operation): [HttpOperationResponse[], readonly Diagnostic[]]
 ```
 
 Get the responses for a given operation.

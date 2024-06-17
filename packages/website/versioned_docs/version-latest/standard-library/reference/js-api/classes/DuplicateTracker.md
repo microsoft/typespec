@@ -26,9 +26,9 @@ new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 
 ## Properties
 
-| Property | Modifier | Type |
-| :------ | :------ | :------ |
-| `#entries` | `private` | `Map`<`K`, `V`[]\> |
+| Property | Modifier | Type | Default value |
+| :------ | :------ | :------ | :------ |
+| `#entries` | `private` | `Map`<`K`, `V`[]\> | `...` |
 
 ## Methods
 

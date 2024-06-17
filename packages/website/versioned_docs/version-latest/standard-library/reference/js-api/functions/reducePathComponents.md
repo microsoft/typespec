@@ -4,7 +4,7 @@ title: "[F] reducePathComponents"
 
 ---
 ```ts
-reducePathComponents(components): string[]
+function reducePathComponents(components): string[]
 ```
 
 Reduce an array of path components to a more simplified path by navigating any

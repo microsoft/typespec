@@ -4,7 +4,7 @@ title: "[F] getNormalizedAbsolutePath"
 
 ---
 ```ts
-getNormalizedAbsolutePath(fileName, currentDirectory): string
+function getNormalizedAbsolutePath(fileName, currentDirectory): string
 ```
 
 ## Parameters

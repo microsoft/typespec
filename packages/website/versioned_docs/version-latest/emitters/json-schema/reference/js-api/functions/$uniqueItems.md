@@ -4,7 +4,7 @@ title: "[F] $uniqueItems"
 
 ---
 ```ts
-$uniqueItems(context, target): void
+function $uniqueItems(context, target): void
 ```
 
 ## Parameters

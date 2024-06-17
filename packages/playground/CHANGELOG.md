@@ -1,5 +1,21 @@
 # Change Log - @typespec/playground
 
+## 0.3.0
+
+### Bug Fixes
+
+- [#3542](https://github.com/microsoft/typespec/pull/3542) Fix issue where hover tooltip would be cropped or not visible
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3465](https://github.com/microsoft/typespec/pull/3465) Provide ability to add custom program viewers
+- [#3569](https://github.com/microsoft/typespec/pull/3569) Support loglevel in playground's logging
+
+
 ## 0.2.2
 
 ### Bug Fixes

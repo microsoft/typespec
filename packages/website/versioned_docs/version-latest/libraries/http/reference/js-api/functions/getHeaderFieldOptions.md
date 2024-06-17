@@ -4,7 +4,7 @@ title: "[F] getHeaderFieldOptions"
 
 ---
 ```ts
-getHeaderFieldOptions(program, entity): HeaderFieldOptions
+function getHeaderFieldOptions(program, entity): HeaderFieldOptions
 ```
 
 ## Parameters

@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         // Validate that the default method collection consists of the expected method kind(s)
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
-        public void TestDefaultCSharpMethodCollection(InputOperation inputOperation, CSharpMethodKinds expectedMethodKind)
+        public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
 
             var methodCollection = CSharpMethodCollection.DefaultCSharpMethodCollection(inputOperation);
@@ -55,8 +55,6 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(1, methodCollection?.Count);
 
             var method = methodCollection![0];
-            Assert.AreEqual(expectedMethodKind, method.Kind);
-
             var signature = method.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
@@ -92,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Tests
                     paging: null,
                     generateProtocolMethod: true,
                     generateConvenienceMethod: true
-                ), CSharpMethodKinds.CreateMessage);
+                ));
             }
         }
     }

@@ -4,7 +4,7 @@ title: "[F] getReturnsDoc"
 
 ---
 ```ts
-getReturnsDoc(program, target): string | undefined
+function getReturnsDoc(program, target): string | undefined
 ```
 
 Get the documentation string for the return success types of an operation.

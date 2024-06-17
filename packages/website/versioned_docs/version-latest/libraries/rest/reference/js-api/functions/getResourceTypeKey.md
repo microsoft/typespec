@@ -4,7 +4,7 @@ title: "[F] getResourceTypeKey"
 
 ---
 ```ts
-getResourceTypeKey(program, resourceType): ResourceKey | undefined
+function getResourceTypeKey(program, resourceType): ResourceKey | undefined
 ```
 
 ## Parameters

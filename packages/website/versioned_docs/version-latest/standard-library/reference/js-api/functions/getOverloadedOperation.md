@@ -4,7 +4,7 @@ title: "[F] getOverloadedOperation"
 
 ---
 ```ts
-getOverloadedOperation(program, operation): Operation | undefined
+function getOverloadedOperation(program, operation): Operation | undefined
 ```
 
 If the given operation overloads another operation, return that operation.

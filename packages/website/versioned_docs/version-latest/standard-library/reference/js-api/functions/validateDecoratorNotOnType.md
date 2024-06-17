@@ -4,7 +4,7 @@ title: "[F] validateDecoratorNotOnType"
 
 ---
 ```ts
-validateDecoratorNotOnType(
+function validateDecoratorNotOnType(
    context, 
    type, 
    badDecorator, 

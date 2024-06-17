@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp
@@ -60,21 +59,18 @@ namespace Microsoft.Generator.CSharp
             var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
             var methodBody = Snippet.EmptyStatement;
 
-            return new MethodProvider(methodSignature, methodBody, CSharpMethodKinds.CreateMessage);
+            return new MethodProvider(methodSignature, methodBody);
         }
 
         /// <summary>
         /// Returns all methods in the collection of a specific kind.
         /// </summary>
-        internal List<MethodProvider> GetMethods(CSharpMethodKinds kind)
+        internal List<MethodProvider> GetMethods()
         {
             var methods = new List<MethodProvider>();
             foreach (var method in _cSharpMethods)
             {
-                if (method.Kind == kind)
-                {
-                    methods.Add(method);
-                }
+                 methods.Add(method);
             }
 
             return methods;

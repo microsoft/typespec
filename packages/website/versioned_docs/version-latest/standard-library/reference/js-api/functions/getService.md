@@ -4,7 +4,7 @@ title: "[F] getService"
 
 ---
 ```ts
-getService(program, namespace): Service | undefined
+function getService(program, namespace): Service | undefined
 ```
 
 Get the service information for the given namespace.

@@ -4,7 +4,7 @@ title: "[F] defineCodeFix"
 
 ---
 ```ts
-defineCodeFix(fix): CodeFix
+function defineCodeFix(fix): CodeFix
 ```
 
 ## Parameters
