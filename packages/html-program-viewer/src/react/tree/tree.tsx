@@ -1,57 +1,48 @@
-import { useSelection, type OnSelectionChangeData } from "@fluentui/react-components";
-import { useCallback, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useControllableValue } from "@typespec/react-components";
+import { useCallback, useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
+import { useTreeControls } from "./tree-control.js";
 import { TreeViewRow } from "./tree-row.js";
-import style from "./tree.module.css";
 import type { TreeNode, TreeRow } from "./types.js";
+
+import style from "./tree.module.css";
 
 export interface TreeViewProps {
   readonly tree: TreeNode;
+  readonly selected?: string;
   readonly onSelect?: (id: string) => void;
 }
 
 export function Tree(props: TreeViewProps) {
   const id = useId();
+  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls();
   const [focusedIndex, setFocusedIndex] = useState(0);
-  const onSelectionChange = useCallback(
-    (_: any, data: OnSelectionChangeData) => {
-      if (data.selectedItems.size > 0 && props.onSelect) {
-        props.onSelect(data.selectedItems.keys().next().value);
-      }
-    },
-    [props.onSelect]
-  );
-  const [selected, methods] = useSelection({
-    selectionMode: "single",
-    onSelectionChange,
-  });
-  const [rerender, setRerender] = useState(false);
-
-  const expanded = useRef(new Set<string>());
-
-  const toggleExpand = useCallback(
-    (key: string) => {
-      if (expanded.current.has(key)) {
-        expanded.current.delete(key);
-      } else {
-        expanded.current.add(key);
-      }
-      setRerender(!rerender);
-    },
-    [expanded, rerender]
+  const [selectedKey, setSelectedKey] = useControllableValue(
+    props.selected,
+    undefined,
+    props.onSelect
   );
 
   const rows = useMemo(
-    () => getTreeRowsForNode(expanded.current, toggleExpand, props.tree),
-    [rerender, toggleExpand, props.tree]
+    () => getTreeRowsForNode(expanded, toggleExpand, props.tree),
+    [renderSignal, toggleExpand, props.tree]
   );
+  const parentMap = useMemo(() => computeParent(props.tree), [props.tree]);
 
+  useEffect(() => {
+    expand(selectedKey);
+    let current = parentMap.get(selectedKey);
+    while (current) {
+      expand(current);
+      current = parentMap.get(current);
+    }
+  }, [expand, selectedKey]);
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
       toggleExpand(row.id);
-      methods.selectItem(null as any, row.id);
+      setSelectedKey(row.id);
     },
-    [methods.selectItem, toggleExpand]
+    [selectedKey, toggleExpand]
   );
 
   const handleKeyDown = useCallback(
@@ -68,11 +59,11 @@ export function Tree(props: TreeViewProps) {
           event.preventDefault();
           break;
         case "ArrowRight": // Expand current row if applicable
-          curTreeRow.toggleExpand();
+          expand(curTreeRow.id);
           event.preventDefault();
           break;
         case "ArrowLeft": // Expand current row if applicable
-          curTreeRow.toggleExpand();
+          collapse(curTreeRow.id);
           event.preventDefault();
           break;
         case "Space":
@@ -83,7 +74,7 @@ export function Tree(props: TreeViewProps) {
         default:
       }
     },
-    [setFocusedIndex, focusedIndex, rows, activateRow]
+    [setFocusedIndex, focusedIndex, rows, activateRow, expand, collapse]
   );
 
   return (
@@ -102,7 +93,7 @@ export function Tree(props: TreeViewProps) {
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}
-            active={selected.has(row.id)}
+            active={row.id === selectedKey}
             activate={activateRow}
           />
         );
@@ -149,4 +140,19 @@ function getTreeRowsForNode<T extends TreeNode>(
     }
   }
   return rows;
+}
+
+function computeParent(node: TreeNode) {
+  const map = new Map<string, string>();
+  const queue: TreeNode[] = [node];
+  let current;
+  while ((current = queue.pop())) {
+    if (current.children) {
+      for (const child of current.children) {
+        map.set(child.id, current.id);
+        queue.push(child);
+      }
+    }
+  }
+  return map;
 }
