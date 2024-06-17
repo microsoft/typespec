@@ -140,7 +140,7 @@ namespace Microsoft.Generator.CSharp.Statements
         private const string EscapedAmpersand = "&amp;";
         private const string EscapedLessThan = "&lt;";
         private const string EscapedGreaterThan = "&gt;";
-        private const string EscapedAppostrophe = "&apos;";
+        private const string EscapedApostrophe = "&apos;";
         private const string EscapedQuote = "&quot;";
         public static string EscapeLine(string s)
         {
@@ -207,7 +207,7 @@ namespace Microsoft.Generator.CSharp.Statements
             return IsEscapedMatch(ref span, i, EscapedAmpersand, out escapeLength) ||
                 IsEscapedMatch(ref span, i, EscapedLessThan, out escapeLength) ||
                 IsEscapedMatch(ref span, i, EscapedGreaterThan, out escapeLength) ||
-                IsEscapedMatch(ref span, i, EscapedAppostrophe, out escapeLength) ||
+                IsEscapedMatch(ref span, i, EscapedApostrophe, out escapeLength) ||
                 IsEscapedMatch(ref span, i, EscapedQuote, out escapeLength);
         }
 
