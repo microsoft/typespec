@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class EnumTypeProviderTests
     {

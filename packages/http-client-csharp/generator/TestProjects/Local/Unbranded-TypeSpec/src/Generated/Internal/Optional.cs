@@ -41,9 +41,9 @@ namespace UnbrandedTypeSpec
         }
 
         /// <param name="value"> The value. </param>
-        public static bool IsDefined(System.Text.Json.JsonElement value)
+        public static bool IsDefined(JsonElement value)
         {
-            return value.ValueKind != System.Text.Json.JsonValueKind.Undefined;
+            return value.ValueKind != JsonValueKind.Undefined;
         }
 
         /// <param name="value"> The value. </param>

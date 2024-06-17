@@ -9,14 +9,15 @@ using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
-    public partial class ProjectedModel : System.ClientModel.Primitives.IJsonModel<ProjectedModel>
+    /// <summary></summary>
+    public partial class ProjectedModel : IJsonModel<ProjectedModel>
     {
-        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
+        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
         /// <summary> Initializes a new instance of <see cref="ProjectedModel"/>. </summary>
         /// <param name="name"> name of the ModelWithProjectedName. </param>
         /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
-        internal ProjectedModel(string name, IDictionary<string, System.BinaryData> serializedAdditionalRawData)
+        internal ProjectedModel(string name, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             _serializedAdditionalRawData = serializedAdditionalRawData;
@@ -29,31 +30,31 @@ namespace UnbrandedTypeSpec.Models
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void System.ClientModel.Primitives.IJsonModel<ProjectedModel>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        void IJsonModel<ProjectedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
         }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ProjectedModel System.ClientModel.Primitives.IJsonModel<ProjectedModel>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ProjectedModel IJsonModel<ProjectedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             return new ProjectedModel();
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)
         {
-            return new System.BinaryData("IPersistableModel");
+            return new BinaryData("IPersistableModel");
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ProjectedModel System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
             return new ProjectedModel();
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string System.ClientModel.Primitives.IPersistableModel<ProjectedModel>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

@@ -13,16 +13,16 @@ namespace UnbrandedTypeSpec
 {
     internal static partial class ModelSerializationExtensions
     {
-        internal static readonly System.ClientModel.Primitives.ModelReaderWriterOptions WireOptions = new System.ClientModel.Primitives.ModelReaderWriterOptions("W");
+        internal static readonly ModelReaderWriterOptions WireOptions = new ModelReaderWriterOptions("W");
 
         /// <param name="element"></param>
-        public static object GetObject(this System.Text.Json.JsonElement element)
+        public static object GetObject(this JsonElement element)
         {
             switch (element.ValueKind)
             {
-            case System.Text.Json.JsonValueKind.String: 
+            case JsonValueKind.String: 
             return element.GetString();
-            case System.Text.Json.JsonValueKind.Number: 
+            case JsonValueKind.Number: 
             if (element.TryGetInt32(out int intValue))
             {
                 return intValue;
@@ -32,21 +32,21 @@ namespace UnbrandedTypeSpec
                 return longValue;
             }
             return element.GetDouble();
-            case System.Text.Json.JsonValueKind.True: 
+            case JsonValueKind.True: 
             return true;
-            case System.Text.Json.JsonValueKind.False: 
+            case JsonValueKind.False: 
             return false;
-            case System.Text.Json.JsonValueKind.Undefined:
-            case System.Text.Json.JsonValueKind.Null: 
+            case JsonValueKind.Undefined:
+            case JsonValueKind.Null: 
             return null;
-            case System.Text.Json.JsonValueKind.Object: 
+            case JsonValueKind.Object: 
             var dictionary = new Dictionary<string, object>();
             foreach (var jsonProperty in element.EnumerateObject())
             {
                 dictionary.Add(jsonProperty.Name, jsonProperty.Value.GetObject());
             }
             return dictionary;
-            case System.Text.Json.JsonValueKind.Array: 
+            case JsonValueKind.Array: 
             var list = new List<object>();
             foreach (var item in element.EnumerateArray())
             {
@@ -60,9 +60,9 @@ namespace UnbrandedTypeSpec
 
         /// <param name="element"></param>
         /// <param name="format"></param>
-        public static byte[] GetBytesFromBase64(this System.Text.Json.JsonElement element, string format)
+        public static byte[] GetBytesFromBase64(this JsonElement element, string format)
         {
-            if (element.ValueKind == System.Text.Json.JsonValueKind.Null)
+            if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
@@ -77,20 +77,20 @@ namespace UnbrandedTypeSpec
 
         /// <param name="element"></param>
         /// <param name="format"></param>
-        public static DateTimeOffset GetDateTimeOffset(this System.Text.Json.JsonElement element, string format) => format switch
+        public static DateTimeOffset GetDateTimeOffset(this JsonElement element, string format) => format switch
         {
-            "U" when element.ValueKind == System.Text.Json.JsonValueKind.Number => DateTimeOffset.FromUnixTimeSeconds(element.GetInt64()),
+            "U" when element.ValueKind == JsonValueKind.Number => DateTimeOffset.FromUnixTimeSeconds(element.GetInt64()),
             _ => TypeFormatters.ParseDateTimeOffset(element.GetString(), format)
         };
 
         /// <param name="element"></param>
         /// <param name="format"></param>
-        public static TimeSpan GetTimeSpan(this System.Text.Json.JsonElement element, string format) => TypeFormatters.ParseTimeSpan(element.GetString(), format);
+        public static TimeSpan GetTimeSpan(this JsonElement element, string format) => TypeFormatters.ParseTimeSpan(element.GetString(), format);
 
         /// <param name="element"></param>
-        public static char GetChar(this System.Text.Json.JsonElement element)
+        public static char GetChar(this JsonElement element)
         {
-            if (element.ValueKind == System.Text.Json.JsonValueKind.String)
+            if (element.ValueKind == JsonValueKind.String)
             {
                 var text = element.GetString();
                 if (text == null || text.Length != 1)
@@ -107,13 +107,13 @@ namespace UnbrandedTypeSpec
 
         /// <param name="property"></param>
         [Conditional("DEBUG")]
-        public static void ThrowNonNullablePropertyIsNull(this System.Text.Json.JsonProperty @property)
+        public static void ThrowNonNullablePropertyIsNull(this JsonProperty @property)
         {
-            throw new System.Text.Json.JsonException($"A property '{@property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
+            throw new JsonException($"A property '{@property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
         }
 
         /// <param name="element"></param>
-        public static string GetRequiredString(this System.Text.Json.JsonElement element)
+        public static string GetRequiredString(this JsonElement element)
         {
             var value = element.GetString();
             if (value == null)
@@ -126,7 +126,7 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        public static void WriteStringValue(this System.Text.Json.Utf8JsonWriter writer, DateTimeOffset value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
@@ -134,7 +134,7 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        public static void WriteStringValue(this System.Text.Json.Utf8JsonWriter writer, DateTime value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, DateTime value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
@@ -142,14 +142,14 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        public static void WriteStringValue(this System.Text.Json.Utf8JsonWriter writer, TimeSpan value, string format)
+        public static void WriteStringValue(this Utf8JsonWriter writer, TimeSpan value, string format)
         {
             writer.WriteStringValue(TypeFormatters.ToString(value, format));
         }
 
         /// <param name="writer"></param>
         /// <param name="value"></param>
-        public static void WriteStringValue(this System.Text.Json.Utf8JsonWriter writer, char value)
+        public static void WriteStringValue(this Utf8JsonWriter writer, char value)
         {
             writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
         }
@@ -157,7 +157,7 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        public static void WriteBase64StringValue(this System.Text.Json.Utf8JsonWriter writer, byte[] value, string format)
+        public static void WriteBase64StringValue(this Utf8JsonWriter writer, byte[] value, string format)
         {
             if (value == null)
             {
@@ -180,7 +180,7 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="format"></param>
-        public static void WriteNumberValue(this System.Text.Json.Utf8JsonWriter writer, DateTimeOffset value, string format)
+        public static void WriteNumberValue(this Utf8JsonWriter writer, DateTimeOffset value, string format)
         {
             if (format != "U")
             {
@@ -192,23 +192,23 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="options"></param>
-        public static void WriteObjectValue<T>(this System.Text.Json.Utf8JsonWriter writer, T value, System.ClientModel.Primitives.ModelReaderWriterOptions options = (System.ClientModel.Primitives.ModelReaderWriterOptions)null)
+        public static void WriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = null)
         {
             switch (value)
             {
             case null: 
             writer.WriteNullValue();
             break;
-            case System.ClientModel.Primitives.IJsonModel<T> jsonModel: 
+            case IJsonModel<T> jsonModel: 
             jsonModel.Write(writer, options ?? WireOptions);
             break;
             case byte[] bytes: 
             writer.WriteBase64StringValue(bytes);
             break;
-            case System.BinaryData bytes0: 
+            case BinaryData bytes0: 
             writer.WriteBase64StringValue(bytes0);
             break;
-            case System.Text.Json.JsonElement json: 
+            case JsonElement json: 
             json.WriteTo(writer);
             break;
             case int i: 
@@ -276,7 +276,7 @@ namespace UnbrandedTypeSpec
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="options"></param>
-        public static void WriteObjectValue(this System.Text.Json.Utf8JsonWriter writer, object value, System.ClientModel.Primitives.ModelReaderWriterOptions options = (System.ClientModel.Primitives.ModelReaderWriterOptions)null)
+        public static void WriteObjectValue(this Utf8JsonWriter writer, object value, ModelReaderWriterOptions options = null)
         {
             writer.WriteObjectValue<object>(value, options);
         }

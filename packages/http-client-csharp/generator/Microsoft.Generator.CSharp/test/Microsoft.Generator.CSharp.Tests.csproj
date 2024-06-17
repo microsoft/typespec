@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.csproj" />
-    <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
+    <Compile Include="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Exclude="../../TestProjects/Local/Unbranded-TypeSpec/src/Generated/Internal/ModelSerializationExtensions.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Input;
@@ -26,6 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public override TypeFactory TypeFactory { get; }
 
         public override ExtensibleSnippets ExtensibleSnippets { get; }
+
+        public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
         /// <summary>
         /// Returns the serialization type providers for the given model type provider.

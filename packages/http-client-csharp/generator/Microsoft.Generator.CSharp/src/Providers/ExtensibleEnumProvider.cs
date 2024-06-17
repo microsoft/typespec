@@ -203,7 +203,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var getHashCodeExpressionBody = IsStringValueType
                             ? NullCoalescing(valueField.NullConditional().InvokeGetHashCode(), Int(0))
                             : valueField.Untyped.InvokeGetHashCode();
-            methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody));
+            methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, XmlDocProvider.InheritDocs));
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
@@ -222,7 +222,7 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression toStringExpressionBody = IsStringValueType
                             ? valueField
                             : valueField.Untyped.Invoke(nameof(object.ToString), new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)));
-            methods.Add(new(toStringSignature, toStringExpressionBody));
+            methods.Add(new(toStringSignature, toStringExpressionBody, XmlDocProvider.InheritDocs));
 
             // for string-based extensible enums, we are using `ToString` as its serialization
             // for non-string-based extensible enums, we need a method to serialize them

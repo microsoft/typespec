@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     internal class PropertyDescriptionTests
     {
@@ -15,7 +15,10 @@ namespace Microsoft.Generator.CSharp.Tests
         [TestCaseSource(nameof(BuildPropertyDescriptionTestCases))]
         public void BuildPropertyDescription(InputModelProperty inputModelProperty, CSharpType type)
         {
-            IReadOnlyList<FormattableString> propertyDescription = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, false);
+            var propertySummaryStatement = PropertyDescriptionBuilder.BuildPropertyDescription(inputModelProperty, type, SerializationFormat.Default, PropertyDescriptionBuilder.CreateDefaultPropertyDescription(inputModelProperty.Name, false));
+            CodeWriter codeWriter = new CodeWriter();
+            propertySummaryStatement.Write(codeWriter);
+            string propertyDescription = codeWriter.ToString(false);
             var propertyDescriptionString = string.Join(Environment.NewLine, propertyDescription);
             Assert.IsNotNull(propertyDescription);
             Assert.IsNotEmpty(propertyDescriptionString);
@@ -43,24 +46,24 @@ namespace Microsoft.Generator.CSharp.Tests
                 CSharpType.FromLiteral(new CSharpType(typeof(DateTimeOffset), false), dateTime)
             };
 
-            IReadOnlyList<FormattableString> descriptions = PropertyDescriptionBuilder.GetUnionTypesDescriptions(unionItems);
+            IReadOnlyList<XmlDocStatement> descriptions = PropertyDescriptionBuilder.GetUnionTypesDescriptions(unionItems);
 
             Assert.AreEqual(7, descriptions.Count);
 
             using var codeWriter = new CodeWriter();
-            var xmlDoc = new XmlDocStatement($"<test>", $"</test>", descriptions);
+            var xmlDoc = new XmlDocStatement("test", [], innerStatements: [.. descriptions]);
             xmlDoc.Write(codeWriter);
             var actual = codeWriter.ToString(false);
 
             var expected = string.Join("\n",
                 "/// <test>",
-                "/// <description><see cref=\"bool\"/></description>",
-                "/// <description><see cref=\"int\"/></description>",
-                "/// <description><see cref=\"global::System.Collections.Generic.IDictionary{TKey,TValue}\"/> where <c>TKey</c> is of type <see cref=\"string\"/>, where <c>TValue</c> is of type <see cref=\"int\"/></description>",
-                "/// <description>21</description>",
-                "/// <description>\"test\"</description>",
-                "/// <description>True</description>",
-                $"/// <description>{dateTime}</description>",
+                "/// <description> <see cref=\"bool\"/>. </description>",
+                "/// <description> <see cref=\"int\"/>. </description>",
+                "/// <description> <see cref=\"global::System.Collections.Generic.IDictionary{TKey,TValue}\"/> where <c>TKey</c> is of type <see cref=\"string\"/>, where <c>TValue</c> is of type <see cref=\"int\"/>. </description>",
+                "/// <description> 21. </description>",
+                "/// <description> \"test\". </description>",
+                "/// <description> True. </description>",
+                $"/// <description> {dateTime}. </description>",
                 "/// </test>") + "\n";
 
             Assert.AreEqual(expected, actual);

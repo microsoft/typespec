@@ -24,13 +24,14 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyStatements">The method body.</param>
-        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements)
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(MethodSignatureBase signature, MethodBodyStatement bodyStatements, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
             var paramHash = GetParamhash(skipParamValidation);
             BodyStatements = GetBodyStatementWithValidation(bodyStatements, paramHash);
-            XmlDocs = BuildXmlDocs(paramHash);
+            XmlDocs = xmlDocProvider ?? BuildXmlDocs(paramHash);
         }
 
         private Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamhash(bool skipParamValidation)
@@ -57,11 +58,12 @@ namespace Microsoft.Generator.CSharp.Providers
         /// </summary>
         /// <param name="signature">The method signature.</param>
         /// <param name="bodyExpression">The method body expression.</param>
-        public MethodProvider(MethodSignatureBase signature, ValueExpression bodyExpression)
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(MethodSignatureBase signature, ValueExpression bodyExpression, XmlDocProvider? xmlDocProvider = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = BuildXmlDocs(null);
+            XmlDocs = xmlDocProvider ?? BuildXmlDocs(null);
         }
 
 
