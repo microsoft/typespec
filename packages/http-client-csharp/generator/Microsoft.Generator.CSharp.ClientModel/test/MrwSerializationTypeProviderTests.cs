@@ -2,17 +2,14 @@
 // Licensed under the MIT License.
 
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Reflection;

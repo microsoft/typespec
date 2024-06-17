@@ -8,7 +8,7 @@ using Microsoft.Generator.CSharp.Snippets;
 namespace Microsoft.Generator.CSharp.ClientModel
 {
     /// <summary>
-    /// Provides functionality for property serialization.
+    /// Provides functionality for property serialization for a model.
     /// </summary>
     internal sealed class PropertySerializationProvider : PropertyProvider
     {
