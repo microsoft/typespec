@@ -1,13 +1,14 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
 import { List, ListItem } from "@fluentui/react-list-preview";
 import { useCallback } from "react";
-import type { TreeNavigator, TypeGraphListNode, TypeGraphNode } from "./use-tree-navigation.js";
+import type { TreeNavigator, TypeGraphListNode, TypeGraphNode } from "../use-tree-navigation.js";
+import style from "./list-type-view.module.css";
 
-export interface ListNodeViewProps {
+export interface ListTypeViewProps {
   readonly nav: TreeNavigator;
   readonly node: TypeGraphListNode;
 }
-export const ListNodeView = ({ nav, node }: ListNodeViewProps) => {
+export const ListTypeView = ({ nav, node }: ListTypeViewProps) => {
   return (
     <Card>
       <CardHeader
@@ -32,5 +33,9 @@ const Item = ({ item, nav }: { nav: TreeNavigator; item: TypeGraphNode }) => {
   const select = useCallback(() => {
     nav.selectPath(item.id);
   }, [nav.selectPath]);
-  return <ListItem onAction={select}>{item.name}</ListItem>;
+  return (
+    <ListItem onAction={select} className={style["item"]}>
+      {item.name}
+    </ListItem>
+  );
 };

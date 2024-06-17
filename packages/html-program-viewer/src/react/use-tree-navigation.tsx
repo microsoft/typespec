@@ -1,5 +1,6 @@
 import { getNamespaceFullName, type Namespace, type Program, type Type } from "@typespec/compiler";
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { isMapLike, type NamedType } from "../utils.js";
 import { TypeConfig } from "./type-config.js";
 
 export interface TypeGraphNodeBase {
@@ -103,15 +104,12 @@ function computeTree(program: Program): TypeGraphListNode {
   };
 }
 
-type NamedType = Type & { name: string };
-
-function isMapLike(value: any): value is Map<string, any> {
-  return "entries" in value && typeof value.entries === "function";
-}
-
 function computeTypeNode(parentPath: string, type: NamedType, name?: string): TypeGraphTypeNode {
   const path = parentPath + "." + type.name;
+  return computeTypeNodeProps(path, type, name);
+}
 
+function computeTypeNodeProps(path: string, type: NamedType, name?: string): TypeGraphTypeNode {
   const typeRendering = (TypeConfig as any)[type.kind];
   const children: TypeGraphNode[] = Object.entries(type)
     .filter(([key]) => typeRendering?.[key] === "nested")
@@ -120,7 +118,7 @@ function computeTypeNode(parentPath: string, type: NamedType, name?: string): Ty
       if (isMapLike(value)) {
         return computeItemList(propPath, key, value);
       } else {
-        return computeTypeNode(propPath, value, key);
+        return computeTypeNodeProps(propPath, value, key);
       }
     });
 

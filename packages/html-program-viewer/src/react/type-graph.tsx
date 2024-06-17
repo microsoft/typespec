@@ -10,7 +10,7 @@ import type { Program } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
 import { Fragment, type FunctionComponent } from "react";
 import ReactDOMServer from "react-dom/server";
-import { ListNodeView } from "./list-node-view.js";
+import { ListTypeView } from "./list-type-view/list-type-view.js";
 import { ProgramProvider } from "./program-context.js";
 import { TreeNavigation } from "./tree-navigation.js";
 import style from "./type-graph.module.css";
@@ -56,9 +56,9 @@ const TypeGraphContent = () => {
     case "type":
       return <TypeNodeView nav={nav} node={node} />;
     case "list":
-      return <ListNodeView nav={nav} node={node} />;
+      return <ListTypeView nav={nav} node={node} />;
     default:
-      return <ListNodeView nav={nav} node={nav.tree} />;
+      return <ListTypeView nav={nav} node={nav.tree} />;
   }
 };
 
