@@ -53,8 +53,12 @@ export function Tree<T extends TreeNode>({
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
-      toggleExpand(row.id);
-      setSelectedKey(row.id);
+      if (selectedKey === row.id) {
+        collapse(row.id);
+      } else {
+        expand(row.id);
+        setSelectedKey(row.id);
+      }
     },
     [selectedKey, toggleExpand]
   );
@@ -97,6 +101,8 @@ export function Tree<T extends TreeNode>({
       tabIndex={0}
       role="tree"
       onKeyDown={handleKeyDown}
+      onFocus={() => setFocusedIndex(rows.findIndex((row) => row.id === selectedKey))}
+      onBlur={() => setFocusedIndex(-1)}
       aria-activedescendant={`${id}-${focusedIndex}`}
     >
       {rows.map((row) => {
