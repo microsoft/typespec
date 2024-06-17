@@ -38,7 +38,7 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
 
   const navToType = useCallback(() => nav.navToType(type), [nav.navToType, type]);
   return (
-    <div>
+    <div className={style["type-ui"]}>
       <div className={style["type-ui-header"]} onClick={navToType}>
         <TypeKind type={type} />{" "}
         <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
@@ -69,6 +69,27 @@ const EntityReference = ({ entity }: { entity: Entity }) => {
       return null;
   }
 };
+
+const ParentReference = ({ type }: { type: Type }) => {
+  switch (type.kind) {
+    case "Namespace":
+    case "Operation":
+    case "Interface":
+    case "Enum":
+    case "ModelProperty":
+    case "Scalar":
+    case "Model":
+    case "Union":
+      if (type.name !== undefined) {
+        return <NamedTypeRef type={type as any} />;
+      } else {
+        return null;
+      }
+    default:
+      return null;
+  }
+};
+
 const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   switch (type.kind) {
     case "Namespace":
@@ -166,7 +187,10 @@ const EntityProperty = (props: EntityPropertyProps) => {
 
 const EntityPropertyValue = ({ value, action }: EntityPropertyProps) => {
   const render = (x: Entity) => {
-    const renderRef = action === "ref" || action === "parent";
+    if (action === "parent") {
+      return x.entityKind === "Type" ? <ParentReference type={x} /> : null;
+    }
+    const renderRef = action === "ref";
     return renderRef ? <EntityReference entity={x} /> : <EntityUI entity={x} />;
   };
 

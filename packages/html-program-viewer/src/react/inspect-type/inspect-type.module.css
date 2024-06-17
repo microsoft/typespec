@@ -15,8 +15,12 @@
   position: relative;
 }
 
+.type-ui {
+  display: inline;
+}
 .type-ui-header {
   cursor: pointer;
+  display: inline;
 }
 
 .type-ui-header:hover {
