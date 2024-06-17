@@ -210,7 +210,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     Return(Null)
                 },
-                EmptyLine,
+                EmptyLineStatement,
                 Return(new SwitchExpression(format,
                     new SwitchCaseExpression(Literal("U"), _typeFormattersProvider.FromBase64UrlString(GetRequiredString(element))),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
@@ -312,7 +312,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public MethodBodyStatement ThrowNonNullablePropertyIsNull(JsonPropertySnippet property)
-            => new InvokeStaticMethodStatement(Type, _throwNonNullablePropertyIsNullMethodName, [property], CallAsExtension: true);
+            => new InvokeStaticMethodStatement(Type, _throwNonNullablePropertyIsNullMethodName, [property], callAsExtension: true);
 
         private MethodProvider BuildGetRequiredStringMethodProvider()
         {
@@ -347,7 +347,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string _writeObjectValueMethodName = "WriteObjectValue";
 
         public MethodBodyStatement WriteStringValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeStringValueMethodName, new[] { writer, value, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodStatement(Type, _writeStringValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
 
         private MethodProvider BuildWriteBase64StringValueMethodProvider()
         {
@@ -388,7 +388,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeBase64StringValueMethodName, new[] { writer, value, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodStatement(Type, _writeBase64StringValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
 
         private MethodProvider BuildWriteNumberValueMethodProvider()
         {
@@ -415,7 +415,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         public MethodBodyStatement WriteNumberValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeNumberValueMethodName, new[] { writer, value, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodStatement(Type, _writeNumberValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
 
         private MethodProvider BuildWriteObjectValueMethodProvider()
         {
@@ -601,7 +601,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var parameters = options is null
                 ? new ValueExpression[] { writer, value }
                 : new ValueExpression[] { writer, value, options };
-            return new InvokeStaticMethodStatement(Type, _writeObjectValueMethodName, parameters, CallAsExtension: true, TypeArguments: new[] { value.Type });
+            return new InvokeStaticMethodStatement(Type, _writeObjectValueMethodName, parameters, callAsExtension: true, typeArguments: [value.Type]);
         }
         #endregion
     }

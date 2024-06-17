@@ -163,9 +163,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             body.Add(new MethodBodyStatement[]
             {
                 Declare(output, New.Array(typeof(char), size)),
-                EmptyLine,
+                EmptyLineStatement,
                 Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), new[] { value, Int(0), valueLength, output, Int(0) })), out var numBase64Chars),
-                EmptyLine,
+                EmptyLineStatement,
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, LessThan(i, numBase64Chars), new UnaryOperatorExpression("++", i, true))
                 {
@@ -181,7 +181,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         Break
                     }))
                 },
-                EmptyLine,
+                EmptyLineStatement,
                 Return(New.Instance(typeof(string), output, Int(0), i))
             });
 
@@ -231,12 +231,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         Assign(new IndexerExpression(output, i), Literal('/'))
                     }, Assign(new IndexerExpression(output, i), ch)))
                 },
-                EmptyLine,
+                EmptyLineStatement,
                 new ForStatement(null, LessThan(i, outputLength), new UnaryOperatorExpression("++", i, true))
                 {
                     Assign(new IndexerExpression(output, i), Literal('='))
                 },
-                EmptyLine,
+                EmptyLineStatement,
                 Return(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.FromBase64CharArray), new[] { output, Int(0), outputLength }))
             });
 
