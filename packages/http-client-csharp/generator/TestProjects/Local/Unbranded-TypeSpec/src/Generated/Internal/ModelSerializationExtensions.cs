@@ -19,41 +19,41 @@ namespace UnbrandedTypeSpec
         {
             switch (element.ValueKind)
             {
-            case JsonValueKind.String: 
-            return element.GetString();
-            case JsonValueKind.Number: 
-            if (element.TryGetInt32(out int intValue))
-            {
-                return intValue;
-            }
-            if (element.TryGetInt64(out long longValue))
-            {
-                return longValue;
-            }
-            return element.GetDouble();
-            case JsonValueKind.True: 
-            return true;
-            case JsonValueKind.False: 
-            return false;
-            case JsonValueKind.Undefined:
-            case JsonValueKind.Null: 
-            return null;
-            case JsonValueKind.Object: 
-            var dictionary = new Dictionary<string, object>();
-            foreach (var jsonProperty in element.EnumerateObject())
-            {
-                dictionary.Add(jsonProperty.Name, jsonProperty.Value.GetObject());
-            }
-            return dictionary;
-            case JsonValueKind.Array: 
-            var list = new List<object>();
-            foreach (var item in element.EnumerateArray())
-            {
-                list.Add(item.GetObject());
-            }
-            return list.ToArray();
-            default: 
-            throw new NotSupportedException($"Not supported value kind {element.ValueKind}");
+                case JsonValueKind.String:
+                    return element.GetString();
+                case JsonValueKind.Number:
+                    if (element.TryGetInt32(out int intValue))
+                    {
+                        return intValue;
+                    }
+                    if (element.TryGetInt64(out long longValue))
+                    {
+                        return longValue;
+                    }
+                    return element.GetDouble();
+                case JsonValueKind.True:
+                    return true;
+                case JsonValueKind.False:
+                    return false;
+                case JsonValueKind.Undefined:
+                case JsonValueKind.Null:
+                    return null;
+                case JsonValueKind.Object:
+                    var dictionary = new Dictionary<string, object>();
+                    foreach (var jsonProperty in element.EnumerateObject())
+                    {
+                        dictionary.Add(jsonProperty.Name, jsonProperty.Value.GetObject());
+                    }
+                    return dictionary;
+                case JsonValueKind.Array:
+                    var list = new List<object>();
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        list.Add(item.GetObject());
+                    }
+                    return list.ToArray();
+                default:
+                    throw new NotSupportedException($"Not supported value kind {element.ValueKind}");
             }
         }
 
@@ -91,8 +91,8 @@ namespace UnbrandedTypeSpec
                 }
                 return text[0];
             }
-                else
-                {
+            else
+            {
                 throw new NotSupportedException($"Cannot convert {element.ValueKind} to a char");
             }
         }
@@ -142,14 +142,14 @@ namespace UnbrandedTypeSpec
             }
             switch (format)
             {
-            case "U": 
-            writer.WriteStringValue(TypeFormatters.ToBase64UrlString(value));
-            break;
-            case "D": 
-            writer.WriteBase64StringValue(value);
-            break;
-            default: 
-            throw new ArgumentException($"Format is not supported: '{format}'", nameof(format));
+                case "U":
+                    writer.WriteStringValue(TypeFormatters.ToBase64UrlString(value));
+                    break;
+                case "D":
+                    writer.WriteBase64StringValue(value);
+                    break;
+                default:
+                    throw new ArgumentException($"Format is not supported: '{format}'", nameof(format));
             }
         }
 
@@ -166,80 +166,80 @@ namespace UnbrandedTypeSpec
         {
             switch (value)
             {
-            case null: 
-            writer.WriteNullValue();
-            break;
-            case IJsonModel<T> jsonModel: 
-            jsonModel.Write(writer, options ?? WireOptions);
-            break;
-            case byte[] bytes: 
-            writer.WriteBase64StringValue(bytes);
-            break;
-            case BinaryData bytes0: 
-            writer.WriteBase64StringValue(bytes0);
-            break;
-            case JsonElement json: 
-            json.WriteTo(writer);
-            break;
-            case int i: 
-            writer.WriteNumberValue(i);
-            break;
-            case decimal d: 
-            writer.WriteNumberValue(d);
-            break;
-            case double d0: 
-            if (double.IsNaN(d0))
-            {
-                writer.WriteStringValue("NaN");
-            }
-                else
-                {
-                writer.WriteNumberValue(d0);
-            }
-            break;
-            case float f: 
-            writer.WriteNumberValue(f);
-            break;
-            case long l: 
-            writer.WriteNumberValue(l);
-            break;
-            case string s: 
-            writer.WriteStringValue(s);
-            break;
-            case bool b: 
-            writer.WriteBooleanValue(b);
-            break;
-            case Guid g: 
-            writer.WriteStringValue(g);
-            break;
-            case DateTimeOffset dateTimeOffset: 
-            writer.WriteStringValue(dateTimeOffset, "O");
-            break;
-            case DateTime dateTime: 
-            writer.WriteStringValue(dateTime, "O");
-            break;
-            case IEnumerable<KeyValuePair<string, object>> enumerable: 
-            writer.WriteStartObject();
-            foreach (var pair in enumerable)
-            {
-                writer.WritePropertyName(pair.Key);
-                writer.WriteObjectValue<object>(pair.Value, options);
-            }
-            writer.WriteEndObject();
-            break;
-            case IEnumerable<object> objectEnumerable: 
-            writer.WriteStartArray();
-            foreach (var item in objectEnumerable)
-            {
-                writer.WriteObjectValue<object>(item, options);
-            }
-            writer.WriteEndArray();
-            break;
-            case TimeSpan timeSpan: 
-            writer.WriteStringValue(timeSpan, "P");
-            break;
-            default: 
-            throw new NotSupportedException($"Not supported type {value.GetType()}");
+                case null:
+                    writer.WriteNullValue();
+                    break;
+                case IJsonModel<T> jsonModel:
+                    jsonModel.Write(writer, options ?? WireOptions);
+                    break;
+                case byte[] bytes:
+                    writer.WriteBase64StringValue(bytes);
+                    break;
+                case BinaryData bytes0:
+                    writer.WriteBase64StringValue(bytes0);
+                    break;
+                case JsonElement json:
+                    json.WriteTo(writer);
+                    break;
+                case int i:
+                    writer.WriteNumberValue(i);
+                    break;
+                case decimal d:
+                    writer.WriteNumberValue(d);
+                    break;
+                case double d0:
+                    if (double.IsNaN(d0))
+                    {
+                        writer.WriteStringValue("NaN");
+                    }
+                    else
+                    {
+                        writer.WriteNumberValue(d0);
+                    }
+                    break;
+                case float f:
+                    writer.WriteNumberValue(f);
+                    break;
+                case long l:
+                    writer.WriteNumberValue(l);
+                    break;
+                case string s:
+                    writer.WriteStringValue(s);
+                    break;
+                case bool b:
+                    writer.WriteBooleanValue(b);
+                    break;
+                case Guid g:
+                    writer.WriteStringValue(g);
+                    break;
+                case DateTimeOffset dateTimeOffset:
+                    writer.WriteStringValue(dateTimeOffset, "O");
+                    break;
+                case DateTime dateTime:
+                    writer.WriteStringValue(dateTime, "O");
+                    break;
+                case IEnumerable<KeyValuePair<string, object>> enumerable:
+                    writer.WriteStartObject();
+                    foreach (var pair in enumerable)
+                    {
+                        writer.WritePropertyName(pair.Key);
+                        writer.WriteObjectValue<object>(pair.Value, options);
+                    }
+                    writer.WriteEndObject();
+                    break;
+                case IEnumerable<object> objectEnumerable:
+                    writer.WriteStartArray();
+                    foreach (var item in objectEnumerable)
+                    {
+                        writer.WriteObjectValue<object>(item, options);
+                    }
+                    writer.WriteEndArray();
+                    break;
+                case TimeSpan timeSpan:
+                    writer.WriteStringValue(timeSpan, "P");
+                    break;
+                default:
+                    throw new NotSupportedException($"Not supported type {value.GetType()}");
             }
         }
 

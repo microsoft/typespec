@@ -61,14 +61,14 @@ namespace UnbrandedTypeSpec
                 {
                     output[i] = '-';
                 }
-                    else
-                    {
+                else
+                {
                     if (ch == '/')
                     {
                         output[i] = '_';
                     }
-                        else
-                        {
+                    else
+                    {
                         if (ch == '=')
                         {
                             break;
@@ -98,14 +98,14 @@ namespace UnbrandedTypeSpec
                 {
                     output[i] = '+';
                 }
-                    else
-                    {
+                else
+                {
                     if (ch == '_')
                     {
                         output[i] = '/';
                     }
-                        else
-                        {
+                    else
+                    {
                         output[i] = ch;
                     }
                 }
