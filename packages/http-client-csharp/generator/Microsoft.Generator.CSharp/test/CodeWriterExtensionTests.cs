@@ -102,36 +102,5 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Assert.AreEqual(sb.ToString(), codeWriter.ToString());
         }
-
-        // Construct a mock method with a body. The body can be either a list of statements or a single expression
-        // depending on the value of the useExpressionAsBody parameter.
-        private static MethodProvider ConstructMockMethod()
-        {
-            // create method signature
-            var methodName = "TestMethod";
-            FormattableString summary = $"Sample summary for {methodName}";
-            FormattableString description = $"Sample description for {methodName}";
-            FormattableString returnDescription = $"Sample return description for {methodName}";
-            var methodSignatureModifiers = MethodSignatureModifiers.Public;
-            var returnType = new CSharpType(typeof(BinaryData));
-            var parameters = new List<ParameterProvider>()
-            {
-                new ParameterProvider("param1", $"Sample description for param1", new CSharpType(typeof(string))) { Validation = ParameterValidationType.AssertNotNull }
-            };
-
-            var responseVar = new VariableReferenceSnippet(returnType, "responseParamName");
-            var responseRef = Snippet.Var(responseVar, BinaryDataSnippet.FromBytes(Snippet.Literal("sample response")));
-            var resultStatements = new List<MethodBodyStatement>()
-            {
-                responseRef,
-                new KeywordStatement("return", responseVar)
-            };
-
-            var method = new MethodProvider(
-                new MethodSignature(methodName, summary, description, methodSignatureModifiers, returnType, returnDescription, parameters),
-                resultStatements);
-
-            return method;
-        }
     }
 }

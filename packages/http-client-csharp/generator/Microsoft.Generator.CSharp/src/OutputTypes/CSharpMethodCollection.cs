@@ -27,9 +27,10 @@ namespace Microsoft.Generator.CSharp
         /// with a single method that creates a message.
         /// </summary>
         /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
-        public static CSharpMethodCollection DefaultCSharpMethodCollection(InputOperation operation)
+        /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
+        public static CSharpMethodCollection DefaultCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType)
         {
-            var createMessageMethod = BuildCreateMessageMethod(operation);
+            var createMessageMethod = BuildCreateMessageMethod(operation, enclosingType);
             var cSharpMethods = new List<MethodProvider>() { createMessageMethod };
             // TO-DO: Add Protocol and Convenience methods https://github.com/Azure/autorest.csharp/issues/4585, https://github.com/Azure/autorest.csharp/issues/4586
             return new CSharpMethodCollection(cSharpMethods);
@@ -45,7 +46,7 @@ namespace Microsoft.Generator.CSharp
             get { return _cSharpMethods.Count; }
         }
 
-        private static MethodProvider BuildCreateMessageMethod(InputOperation operation)
+        private static MethodProvider BuildCreateMessageMethod(InputOperation operation, TypeProvider enclosingType)
         {
             // TO-DO: properly build method https://github.com/Azure/autorest.csharp/issues/4583
             List<ParameterProvider> methodParameters = new();
@@ -59,7 +60,7 @@ namespace Microsoft.Generator.CSharp
             var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
             var methodBody = Snippet.EmptyStatement;
 
-            return new MethodProvider(methodSignature, methodBody);
+            return new MethodProvider(methodSignature, methodBody, enclosingType);
         }
 
         /// <summary>

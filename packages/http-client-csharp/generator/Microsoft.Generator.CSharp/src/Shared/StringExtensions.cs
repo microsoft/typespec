@@ -84,7 +84,6 @@ namespace Microsoft.Generator.CSharp
         [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name) => ToCleanName(name, isCamelCase: false);
 
-
         public static GetPathPartsEnumerator GetPathParts(string? path) => new GetPathPartsEnumerator(path);
 
         public ref struct GetPathPartsEnumerator

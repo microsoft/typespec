@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
@@ -39,6 +40,7 @@ namespace Microsoft.Generator.CSharp
         public abstract OutputLibrary OutputLibrary { get; }
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
+        public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
 
         /// <summary>
         /// Returns the serialization type providers for the given model type provider.

@@ -15,7 +15,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             Namespace = model.Namespace;
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.serialization.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 
@@ -84,7 +84,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 {
                     ctorWithNoParamsExist = true;
                 }
-
 
                 if (!serializationCtorParamsMatch)
                 {
@@ -179,7 +178,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, new[] { utf8JsonWriterParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Add body for json properties' serialization https://github.com/microsoft/typespec/issues/3330
-              Snippet.EmptyStatement
+              Snippet.EmptyStatement,
+              this
             );
         }
 
@@ -195,7 +195,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
               new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { utf8JsonReaderParameter, _serializationOptionsParameter }, ExplicitInterface: _iJsonModelTInterface),
               // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>())),
+              this
             );
         }
 
@@ -210,7 +211,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
                 // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-                Snippet.Return(new NewInstanceExpression(returnType, [Snippet.Literal(_iPersistableModelTInterface.Name)]))
+                Snippet.Return(new NewInstanceExpression(returnType, [Snippet.Literal(_iPersistableModelTInterface.Name)])),
+                this
             );
         }
 
@@ -224,9 +226,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
-              // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
-              Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>()))
+                new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, new[] { dataParameter, _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+                // TO-DO: Call the base model ctor for now until the model properties are serialized https://github.com/microsoft/typespec/issues/3330
+                Snippet.Return(new NewInstanceExpression(typeOfT, Array.Empty<ValueExpression>())),
+                this
             );
         }
 
@@ -239,8 +242,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
-              jsonWireFormat
+                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _iPersistableModelTInterface),
+                jsonWireFormat,
+                this
             );
         }
 
@@ -262,7 +266,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(serializationCtorParameters)
-                });
+                },
+                this);
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
@@ -326,7 +331,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new MethodProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<ParameterProvider>()),
-                bodyStatements: new MethodBodyStatement());
+                bodyStatements: new MethodBodyStatement(),
+                this);
         }
 
         /// <summary>

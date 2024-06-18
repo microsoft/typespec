@@ -230,10 +230,16 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        private void WriteXmlDocs(XmlDocProvider? docs)
+        internal void WriteXmlDocs(XmlDocProvider? docs)
         {
             if (docs is null)
                 return;
+
+            if (docs.Inherit is not null)
+            {
+                docs.Inherit.Write(this);
+                return; //skip all other docs
+            }
 
             if (docs.Summary is not null)
             {
