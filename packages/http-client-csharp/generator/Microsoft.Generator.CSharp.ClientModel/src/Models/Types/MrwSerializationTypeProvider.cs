@@ -31,12 +31,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly CSharpType? _iJsonModelObjectInterface;
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
-        private ModelProvider _model;
-        private InputModelType _inputModel;
+        private TypeProvider _model;
+        private InputType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
 
-        public MrwSerializationTypeProvider(ModelProvider model, InputModelType inputModel)
+        public MrwSerializationTypeProvider(TypeProvider model, InputType inputModel)
         {
             _model = model;
             _inputModel = inputModel;

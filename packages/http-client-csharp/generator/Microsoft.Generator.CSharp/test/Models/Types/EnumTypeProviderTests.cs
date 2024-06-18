@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
@@ -63,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(2, value2?.Literal);
 
             // int based fixed enum does not have serialization method therefore we only have one method
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(1, serialization?.Methods.Count);
 
@@ -105,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(2, serialization?.Methods.Count);
 
@@ -147,7 +148,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(2, serialization?.Methods.Count);
 
@@ -209,7 +210,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
@@ -270,7 +271,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
@@ -331,7 +332,7 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
