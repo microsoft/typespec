@@ -17,10 +17,19 @@
 }
 
 .option {
-  height: 24px !important;
+  padding: 2px 4px !important;
 }
 
-.search-placeholder-gap {
+.option .doc {
+  color: var(--colorNeutralForeground4);
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+}
+
+.flex-gap {
   flex: 1;
 }
 

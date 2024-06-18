@@ -3,14 +3,17 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
+  Caption1,
   Combobox,
   Option,
   mergeClasses,
   type OptionOnSelectData,
 } from "@fluentui/react-components";
 import { DatabaseRegular } from "@fluentui/react-icons";
+import { getDoc } from "@typespec/compiler";
 import { useCallback, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { useProgram } from "../program-context.js";
 import { NodeIcon } from "../tree-navigation.js";
 import { useTreeNavigator, type TypeGraphNode } from "../use-tree-navigation.js";
 import style from "./current-path.module.css";
@@ -65,7 +68,7 @@ export const CurrentPath = () => {
                 </Fragment>
               );
             })}
-            <span className={style["search-placeholder-gap"]}></span>
+            <span className={style["flex-gap"]} />
             <span className={style["search-placeholder"]}>Search (⌘+⇧+F)</span>
           </>
         )}
@@ -99,7 +102,7 @@ const Search = ({ onBlur }: SearchProps) => {
       size="small"
       className={style["breadcrumb-search"]}
       onFocus={(event) => event.target.select()}
-      onBlur={onBlur}
+      // onBlur={onBlur}
       value={search}
       expandIcon={null}
       onChange={(evt) => setSearch(evt.target.value)}
@@ -107,21 +110,34 @@ const Search = ({ onBlur }: SearchProps) => {
       open
     >
       {options.map((node) => (
-        <Option
-          key={node.id}
-          value={node.id}
-          text={node.name}
-          checkIcon={<></>}
-          className={style["option"]}
-        >
-          <NodeIcon node={node} />
-          {node.name}
-        </Option>
+        <SearchOption node={node} key={node.id} />
       ))}
     </Combobox>
   );
 };
 
+const SearchOption = ({ node }: { node: TypeGraphNode }) => {
+  const program = useProgram();
+
+  return (
+    <Option
+      key={node.id}
+      value={node.id}
+      text={node.name}
+      checkIcon={<></>}
+      className={style["option"]}
+    >
+      <NodeIcon node={node} />
+      {node.name}
+      {node.kind === "type" && (
+        <>
+          <span className={style["flex-gap"]} />
+          <Caption1 className={style["doc"]}>{getDoc(program, node.type)}</Caption1>
+        </>
+      )}
+    </Option>
+  );
+};
 function findNodes(node: TypeGraphNode, search: string): TypeGraphNode[] {
   const searchSegments = search.toLowerCase().split(".");
   const [first, ...remaining] = searchSegments;
