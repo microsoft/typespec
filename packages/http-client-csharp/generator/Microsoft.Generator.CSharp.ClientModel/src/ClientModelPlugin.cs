@@ -38,8 +38,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <param name="inputModel">The input model.</param>
         public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel)
         {
-            // Add MRW serialization type provider
-            return [new MrwSerializationTypeProvider(provider, inputModel)];
+            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                // Add MRW serialization type provider
+                return [new MrwSerializationTypeProvider(provider, inputModel)];
+            }
+
+            return Array.Empty<TypeProvider>();
         }
 
         [ImportingConstructor]

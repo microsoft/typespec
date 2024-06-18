@@ -23,7 +23,6 @@ namespace Microsoft.Generator.CSharp.Expressions
             Args = args;
         }
 
-
         private string Format { get; init; }
         private IReadOnlyList<ValueExpression> Args { get; init; }
 

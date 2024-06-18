@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Namespace = model.Namespace;
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.serialization.cs");
+        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 
@@ -84,7 +84,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     ctorWithNoParamsExist = true;
                 }
-
 
                 if (!serializationCtorParamsMatch)
                 {

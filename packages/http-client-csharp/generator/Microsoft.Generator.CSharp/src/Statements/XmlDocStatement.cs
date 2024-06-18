@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cSpell:ignore apos
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
