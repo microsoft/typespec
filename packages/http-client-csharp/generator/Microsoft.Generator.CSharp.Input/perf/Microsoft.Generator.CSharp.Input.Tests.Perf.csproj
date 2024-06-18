@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.Input.csproj" />
   </ItemGroup>
 
