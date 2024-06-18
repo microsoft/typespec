@@ -49,10 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
-            {
-                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
-            }
+            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
 
             _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
