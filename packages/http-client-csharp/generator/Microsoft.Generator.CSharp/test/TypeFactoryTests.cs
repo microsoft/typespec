@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 throw new NotImplementedException();
             }
 
-            public override MethodProviderCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType)
+            public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
             {
                 throw new NotImplementedException();
             }

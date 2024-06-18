@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType)
+        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
         {
             if (_operations.TryGetValue(operation, out var methods))
             {

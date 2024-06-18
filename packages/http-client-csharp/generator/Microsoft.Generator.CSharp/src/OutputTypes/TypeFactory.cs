@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public abstract MethodProviderCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType);
+        public abstract MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
