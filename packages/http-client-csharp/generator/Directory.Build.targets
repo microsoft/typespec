@@ -1,5 +1,7 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
     <Import Project="$(CentralPackagesFile)" Condition="'$(ShouldUseCentralVersions)' == 'true'" />
+
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" Condition="'$(IsTestProject)' != 'true'">
             <PrivateAssets>all</PrivateAssets>
@@ -9,8 +11,9 @@
             <Visible>false</Visible>
         </AdditionalFiles>
     </ItemGroup>
+
      <!-- Add Package Icon to Non-test Packages -->
-    <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+    <ItemGroup Condition="'$(IsSrcProject)' == 'true'">
         <None Include="$(PackageIconPath)" Pack="true" PackagePath=""/>
     </ItemGroup>
 

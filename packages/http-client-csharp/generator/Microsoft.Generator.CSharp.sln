@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -20,13 +21,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.Local.Tests", "TestProjects\Local\TestProjects.Local.Tests.csproj", "{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.ClientModel.Tests", "Microsoft.Generator.CSharp.ClientModel\test\Microsoft.Generator.CSharp.ClientModel.Tests.csproj", "{D30EC838-B0A0-44CD-A361-239FF256A176}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input.Tests.Perf", "Microsoft.Generator.CSharp.Input\perf\Microsoft.Generator.CSharp.Input.Tests.Perf.csproj", "{DF2E7916-D0C4-47CA-876A-5B78A3A3FD77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Tests.Perf", "Microsoft.Generator.CSharp\perf\Microsoft.Generator.CSharp.Tests.Perf.csproj", "{8AE5D726-610C-4A72-B2A9-5C53C423C485}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.Local.Tests", "TestProjects\ProjFiles\TestProjects.Local.Tests.csproj", "{3AEDFB67-39E3-4BB7-976E-F44F59402034}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,10 +59,6 @@ Global
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFE39EDA-ADA1-4F60-A47C-ADE88C67B3B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D30EC838-B0A0-44CD-A361-239FF256A176}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,6 +71,10 @@ Global
 		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AE5D726-610C-4A72-B2A9-5C53C423C485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AEDFB67-39E3-4BB7-976E-F44F59402034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AEDFB67-39E3-4BB7-976E-F44F59402034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AEDFB67-39E3-4BB7-976E-F44F59402034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AEDFB67-39E3-4BB7-976E-F44F59402034}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
