@@ -1,9 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <IsPackable>false</IsPackable>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
