@@ -97,7 +97,7 @@ namespace UnbrandedTypeSpec.Models
             }
             writer.WriteEndObject();
             writer.WritePropertyName("requiredModel"u8);
-            ((IJsonModel<Thing>)RequiredModel).Write(writer, options);
+            writer.WriteObjectValue(RequiredModel, options);
             writer.WritePropertyName("intExtensibleEnum"u8);
             writer.WriteNumberValue(IntExtensibleEnum.ToSerialInt32());
             if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
@@ -285,18 +285,9 @@ namespace UnbrandedTypeSpec.Models
                 writer.WriteEndObject();
             }
             writer.WritePropertyName("modelWithRequiredNullable"u8);
-            ((IJsonModel<ModelWithRequiredNullableProperties>)ModelWithRequiredNullable).Write(writer, options);
+            writer.WriteObjectValue(ModelWithRequiredNullable, options);
             writer.WritePropertyName("requiredBytes"u8);
-            #if NET6_0_OR_GREATER
-
-                writer.WriteRawValue(RequiredBytes);
-            #else
-
-                using (JsonDocument document = JsonDocument.Parse(RequiredBytes))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-            #endif
+            writer.WriteBase64StringValue(RequiredBytes.ToArray(), "D");
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
                 foreach (var item in _serializedAdditionalRawData)
@@ -632,7 +623,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredBytes"u8))
                 {
-                    requiredBytes = BinaryData.FromBytes(prop.Value.GetBytesFromBase64());
+                    requiredBytes = BinaryData.FromBytes(prop.Value.GetBytesFromBase64("D"));
                     continue;
                 }
                 if (options.Format != "W")

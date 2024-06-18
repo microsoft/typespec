@@ -28,9 +28,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
         private readonly ParameterProvider _mrwDeserializationOptionsParameter =
             new("options", $"The client options", new CSharpType(typeof(ModelReaderWriterOptions), isNullable: true), Null);
-        private const string _privateAdditionalRawDataPropertyDescription = "Keeps track of any properties unknown to the library.";
-        private const string _privateAdditionalRawDataPropertyName = "_serializedAdditionalRawData";
-        private const string _additionalRawDataVarName = "serializedAdditionalRawData";
+        private const string PrivateAdditionalRawDataPropertyDescription = "Keeps track of any properties unknown to the library.";
+        private const string PrivateAdditionalRawDataPropertyName = "_serializedAdditionalRawData";
+        private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
+        private const string JsonModelWriteMethodName = $"{nameof(IJsonModel<object>.Write)}Core";
+        private const string JsonModelCreateMethodName = $"{nameof(IJsonModel<object>.Create)}Core";
+        private const string IModelWriteMethodName = $"{nameof(IPersistableModel<object>.Write)}Core";
+        private const string IModelCreateMethodName = $"{nameof(IPersistableModel<object>.Create)}Core";
         private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _iJsonModelTInterface;
         private readonly CSharpType? _iJsonModelObjectInterface;
@@ -133,7 +137,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var FieldProvider = new FieldProvider(
                 modifiers: FieldModifiers.Private,
                 type: _privateAdditionalRawDataPropertyType,
-                name: _privateAdditionalRawDataPropertyName);
+                name: PrivateAdditionalRawDataPropertyName);
 
             return FieldProvider;
         }
@@ -158,7 +162,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
-            // Add JSON serialization method declarations
+            // Add JSON serialization method declarations in the case that the model doesn't inherit from another model.
+            // Generated methods will invoke the core write and create methods ie.
+            // void IJsonModel<T>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => WriteCore(writer, options);
+            // In the case that the model inherits from another model, the generated core methods will override the base methods.
             if (_model.Inherits == null)
             {
                 methods.Add(BuildJsonModelWriteMethodDeclaration());
@@ -188,18 +195,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// <returns>An array of <see cref="CSharpType"/> types that the model implements.</returns>
         protected override CSharpType[] BuildImplements()
         {
-            List<CSharpType> interfaces = [_iJsonModelTInterface];
-            CSharpType? inheritedType = _model.Inherits;
-            if (inheritedType != null)
-            {
-                interfaces.Add(inheritedType);
-            }
+            int interfaceCount = _iJsonModelObjectInterface != null ? 2 : 1;
+            CSharpType[] interfaces = new CSharpType[interfaceCount];
+            interfaces[0] = _iJsonModelTInterface;
+
             if (_iJsonModelObjectInterface != null)
             {
-                interfaces.Add(_iJsonModelObjectInterface);
+                interfaces[1] = _iJsonModelObjectInterface;
             }
 
-            return interfaces.ToArray();
+            return interfaces;
         }
 
         /// <summary>
@@ -207,17 +212,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelWriteMethod()
         {
-            var methodName = $"{nameof(IJsonModel<object>.Write)}Core";
             ParameterProvider utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
             MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (_model.Inherits != null)
+            if (ShouldOverrideMethod())
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
             // void WriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, null, modifiers, null, null, [utf8JsonWriterParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelWriteMethodName, null, null, modifiers, null, null, [utf8JsonWriterParameter, _serializationOptionsParameter]),
               BuildJsonModelWriteMethodBody(utf8JsonWriterParameter),
               this
             );
@@ -228,10 +232,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildJsonModelCreateMethod()
         {
-            var methodName = $"{nameof(IJsonModel<object>.Create)}Core";
             ParameterProvider utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
             MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (_model.Inherits != null)
+            if (ShouldOverrideMethod())
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -239,7 +242,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // T CreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, null, modifiers, typeOfT, null, [utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateMethodName, null, null, modifiers, typeOfT, null, [utf8JsonReaderParameter, _serializationOptionsParameter]),
               BuildJsonModelCreateMethodBody(utf8JsonReaderParameter, typeOfT),
               this
             );
@@ -267,10 +270,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildIModelWriteMethod()
         {
-            var methodName = $"{nameof(IPersistableModel<object>.Write)}Core";
             var returnType = typeof(BinaryData);
             MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (_model.Inherits != null)
+            if (ShouldOverrideMethod())
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -278,7 +280,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // BinaryData WriteCore(ModelReaderWriterOptions options)
             return new MethodProvider
             (
-                new MethodSignature(methodName, null, null, modifiers, returnType, null, [_serializationOptionsParameter]),
+                new MethodSignature(IModelWriteMethodName, null, null, modifiers, returnType, null, [_serializationOptionsParameter]),
                 BuildIModelWriteMethodBody(),
                 this
             );
@@ -290,9 +292,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         internal MethodProvider BuildIModelCreateMethod()
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
-            var methodName = $"{nameof(IPersistableModel<object>.Create)}Core";
             MethodSignatureModifiers modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (_model.Inherits != null)
+            if (ShouldOverrideMethod())
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -301,7 +302,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var typeOfT = GetModelArgumentType(_iPersistableModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, null, modifiers, typeOfT, null, [dataParameter, _serializationOptionsParameter]),
+              new MethodSignature(IModelCreateMethodName, null, null, modifiers, typeOfT, null, [dataParameter, _serializationOptionsParameter]),
               BuildIModelCreateMethodBody(dataParameter, typeOfT),
               this
             );
@@ -402,7 +403,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         /// <summary>
-        /// Builds the JSON serialization write method declaration for the model.
+        /// Builds the JSON serialization write method declaration for the model. This method is used to
+        /// invoke the core write method for the model.
         /// </summary>
         private MethodProvider BuildJsonModelWriteMethodDeclaration()
         {
@@ -411,13 +413,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, [utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: _iJsonModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Write)}Core", [utf8JsonWriterParameter, _serializationOptionsParameter]),
+              new InvokeInstanceMethodExpression(null, JsonModelWriteMethodName, [utf8JsonWriterParameter, _serializationOptionsParameter]),
               this
             );
         }
 
         /// <summary>
-        /// Builds the JSON serialization create method declaration for the model.
+        /// Builds the JSON serialization create method declaration for the model. This method is used to
+        /// invoke the core create method for the model.
         /// </summary>
         private MethodProvider BuildJsonModelCreateMethodDeclaration()
         {
@@ -427,13 +430,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, [utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _iJsonModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Create)}Core", [utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new InvokeInstanceMethodExpression(null, JsonModelCreateMethodName, [utf8JsonReaderParameter, _serializationOptionsParameter]),
               this
             );
         }
 
         /// <summary>
-        /// Builds the IModel serialization write method declaration for the model.
+        /// Builds the IModel serialization write method declaration for the model. This method is used to
+        /// invoke the core write method for the model.
         /// </summary>
         private MethodProvider BuildIModelWriteMethodDeclaration()
         {
@@ -442,13 +446,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: _iPersistableModelTInterface),
-                new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Write)}Core", [_serializationOptionsParameter]),
+                new InvokeInstanceMethodExpression(null, IModelWriteMethodName, [_serializationOptionsParameter]),
                 this
             );
         }
 
         /// <summary>
-        /// Builds the IModel serialization create method declaration for the model if it doesn't inherit from another model.
+        /// Builds the IModel serialization create method declaration for the model. This method is used to
+        /// invoke the core create method for the model.
         /// </summary>
         private MethodProvider BuildIModelCreateMethodDeclaration()
         {
@@ -458,7 +463,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider
             (
               new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _iPersistableModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Create)}Core", [dataParameter, _serializationOptionsParameter]),
+              new InvokeInstanceMethodExpression(null, IModelCreateMethodName, [dataParameter, _serializationOptionsParameter]),
               this
             );
         }
@@ -549,7 +554,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     // IDictionary<string, BinaryData> serializedAdditionalRawData = default;
                     Declare(
                         _privateAdditionalRawDataPropertyType,
-                        _additionalRawDataVarName,
+                        AdditionalRawDataVarName,
                         new DictionarySnippet(_privateAdditionalRawDataPropertyType.Arguments[0], _privateAdditionalRawDataPropertyType.Arguments[1], Default),
                         out additionalRawDataDictionary),
                      // Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>()
@@ -579,7 +584,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (additionalRawDataDictionary != null)
             {
                 // add the additional raw data to the list of parameters
-                serializationCtorParameterValues.Add(_additionalRawDataVarName, additionalRawDataDictionary);
+                serializationCtorParameterValues.Add(AdditionalRawDataVarName, additionalRawDataDictionary);
             }
 
             var serializationCtorParametersCount = SerializationConstructor.Signature.Parameters.Count;
@@ -1289,11 +1294,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return type switch
             {
                 { SerializeAs: not null } or { IsFrameworkType: true } =>
-                    SerializeFrameworkTypeValue(utf8JsonWriter, type, serializationFormat, value, type.SerializeAs ?? type.FrameworkType),
+                    SerializeFrameworkTypeValue(utf8JsonWriter, type, serializationFormat, value, type.SerializeAs ?? type.FrameworkType, options),
                 { Implementation: EnumProvider enumProvider } =>
                     SerializeEnumProvider(utf8JsonWriter, enumProvider, type, value),
                 { Implementation: ModelProvider modelProvider } =>
-                    SerializeModelProvider(utf8JsonWriter, modelProvider, value, options),
+                    utf8JsonWriter.WriteObjectValue(new TypeProviderSnippet(modelProvider, value), options: options),
                 _ => null
             };
         }
@@ -1303,28 +1308,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             EnumProvider enumProvider,
             CSharpType type,
             ValueExpression value)
+        {
+            var enumerableSnippet = new EnumerableSnippet(type, value.NullableStructValue(type));
+            if ((enumProvider.IsIntValueType && !enumProvider.IsExtensible) || enumProvider.IsNumericValueType)
             {
-                var enumerableSnippet = new EnumerableSnippet(type, value.NullableStructValue(type));
-                if ((enumProvider.IsIntValueType && !enumProvider.IsExtensible) || enumProvider.IsNumericValueType)
-                {
-                    return utf8JsonWriter.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
-                }
-                else
-                {
-                    return utf8JsonWriter.WriteStringValue(enumProvider.ToSerial(enumerableSnippet));
-                }
+                return utf8JsonWriter.WriteNumberValue(enumProvider.ToSerial(enumerableSnippet));
             }
-
-        private MethodBodyStatement? SerializeModelProvider(
-            Utf8JsonWriterSnippet utf8JsonWriter,
-            ModelProvider modelProvider,
-            ValueExpression value,
-            ModelReaderWriterOptionsSnippet options)
+            else
             {
-                ValueExpression[] parameters = { utf8JsonWriter, options };
-                var exp = value.CastTo(new CSharpType(typeof(IJsonModel<>), modelProvider.Type));
-                return new InvokeInstanceMethodStatement(exp, "Write", parameters, false);
+                return utf8JsonWriter.WriteStringValue(enumProvider.ToSerial(enumerableSnippet));
             }
+        }
 
         private EnumerableSnippet GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
         {
@@ -1339,7 +1333,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CSharpType type,
             SerializationFormat serializationFormat,
             ValueExpression value,
-            Type valueType)
+            Type valueType,
+            ModelReaderWriterOptionsSnippet modelReaderWriterOptions)
         {
             if (valueType == typeof(JsonElement))
             {
@@ -1365,11 +1360,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return utf8JsonWriter.WriteNumberValue(value);
             }
 
-            // TO-DO - Invoke the ModelSerializationExtensions `WriteObjectValue` method : https://github.com/microsoft/typespec/issues/3536
-            //if (valueType == typeof(object))
-            //{
-            //    return utf8JsonWriter.WriteObjectValue(new TypedSnippet(valueType, value), options);
-            //}
+            if (valueType == typeof(object))
+            {
+                return utf8JsonWriter.WriteObjectValue(new FrameworkTypeSnippet(valueType, value), modelReaderWriterOptions);
+            }
 
             if (valueType == typeof(string) || valueType == typeof(char) || valueType == typeof(Guid))
             {
@@ -1381,11 +1375,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 return utf8JsonWriter.WriteBooleanValue(value);
             }
 
-            // TO-DO - Invoke the ModelSerializationExtensions `WriteObjectValue` method : https://github.com/microsoft/typespec/issues/3536
-            //if (valueType == typeof(byte[]))
-            //{
-            //    return utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier());
-            //}
+            if (valueType == typeof(byte[]))
+            {
+                return utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier());
+            }
 
             if (valueType == typeof(DateTimeOffset) || valueType == typeof(DateTime) || valueType == typeof(TimeSpan))
             {
@@ -1401,14 +1394,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return utf8JsonWriter.WriteNumberValue(InvokeToDouble(new TimeSpanSnippet(value).InvokeToString(format)));
                 }
 
-                // TO-DO - Invoke the ModelSerializationExtensions `WriteObjectValue` method : https://github.com/microsoft/typespec/issues/3536
-                //if (serializationFormat is SerializationFormat.DateTime_Unix)
-                //{
-                //    return utf8JsonWriter.WriteNumberValue(value, format);
-                //}
-                //return format is not null
-                //    ? utf8JsonWriter.WriteStringValue(value, format)
-                //    : utf8JsonWriter.WriteStringValue(value);
+                if (serializationFormat is SerializationFormat.DateTime_Unix)
+                {
+                    return utf8JsonWriter.WriteNumberValue(value, format);
+                }
+
+                return format is not null
+                    ? utf8JsonWriter.WriteStringValue(value, format)
+                    : utf8JsonWriter.WriteStringValue(value);
             }
 
             if (valueType == typeof(IPAddress))
@@ -1426,8 +1419,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var binaryDataValue = new BinaryDataSnippet(value);
                 if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
                 {
-                    // TO-DO - Invoke the ModelSerializationExtensions `WriteObjectValue` method : https://github.com/microsoft/typespec/issues/3536
-                    // return utf8JsonWriter.WriteBase64StringValue(new BinaryDataExpression(value).ToArray(), serializationFormat.ToFormatSpecifier());
+                    return utf8JsonWriter.WriteBase64StringValue(new BinaryDataSnippet(value).ToArray(), serializationFormat.ToFormatSpecifier());
                 }
 
                 return utf8JsonWriter.WriteBinaryData(binaryDataValue);
@@ -1454,9 +1446,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (frameworkType == typeof(BinaryData))
             {
-                // TO-DO - Invoke the ModelSerializationExtensions `GetBytesFromBase64` method : https://github.com/microsoft/typespec/issues/3536
                 return format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
-                    ? BinaryDataSnippet.FromBytes(element.GetBytesFromBase64())
+                    ? BinaryDataSnippet.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
                     : BinaryDataSnippet.FromString(element.GetRawText());
             }
 
@@ -1468,15 +1459,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (frameworkType == typeof(JsonElement))
                 return element.InvokeClone();
             if (frameworkType == typeof(object))
-                return element.GetBoolean();
-                // TO-DO - Invoke the ModelSerializationExtensions `GetObject` method : https://github.com/microsoft/typespec/issues/3536
-                //return element.GetObject();
+                return element.GetObject();
             if (frameworkType == typeof(bool))
                 return element.GetBoolean();
             if (frameworkType == typeof(char))
-                // TO-DO - Invoke the ModelSerializationExtensions `GetChar` method : https://github.com/microsoft/typespec/issues/3536
-                //return element.GetChar();
-
+                return element.GetChar();
             if (frameworkType == typeof(sbyte))
                 return element.GetSByte();
             if (frameworkType == typeof(byte))
@@ -1498,15 +1485,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (frameworkType == typeof(Guid))
                 return element.GetGuid();
             if (frameworkType == typeof(byte[]))
-                // TO-DO - Invoke the ModelSerializationExtensions `GetBytesFromBase64` method : https://github.com/microsoft/typespec/issues/3536
-                //return element.GetBytesFromBase64(format.ToFormatSpecifier());
+                return element.GetBytesFromBase64(format.ToFormatSpecifier());
 
             if (frameworkType == typeof(DateTimeOffset))
             {
-                    return DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64());
-                    // TO-DO - Invoke the ModelSerializationExtensions `GetDateTimeOffset` method : https://github.com/microsoft/typespec/issues/3536
-                    //? DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())
-                    //: element.GetDateTimeOffset(format.ToFormatSpecifier());
+                return format == SerializationFormat.DateTime_Unix
+                    ? DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())
+                    : element.GetDateTimeOffset(format.ToFormatSpecifier());
             }
 
             if (frameworkType == typeof(DateTime))
@@ -1523,8 +1508,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return TimeSpanSnippet.FromSeconds(element.GetDouble());
                 }
 
-                // TO-DO - Invoke the ModelSerializationExtensions `GetTimeSpan` method : https://github.com/microsoft/typespec/issues/3536
-                //return element.GetTimeSpan(format.ToFormatSpecifier());
+                return element.GetTimeSpan(format.ToFormatSpecifier());
             }
 
             throw new NotSupportedException($"Framework type {frameworkType} is not supported.");
@@ -1556,7 +1540,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 constructorParameters.Add(new ParameterProvider(
                     _rawDataField.Name.ToVariableName(),
-                    FormattableStringHelpers.FromString(_privateAdditionalRawDataPropertyDescription),
+                    FormattableStringHelpers.FromString(PrivateAdditionalRawDataPropertyDescription),
                     _rawDataField.Type));
             }
 
@@ -1612,6 +1596,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return false;
+        }
+
+        private bool ShouldOverrideMethod()
+        {
+            return _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: ModelProvider };
         }
     }
 }
