@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using System.IO;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -14,10 +12,10 @@ namespace Microsoft.Generator.CSharp
         {
         }
 
-        private IReadOnlyList<TypeProvider>? _outputTypes;
-        public IReadOnlyList<TypeProvider> OutputTypes => _outputTypes ??= BuildOutputTypes();
+        private IReadOnlyList<TypeProvider>? _types;
+        public IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
 
-        protected virtual IReadOnlyList<TypeProvider> BuildOutputTypes()
+        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
         {
             var inputNamespace = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
             var inputEnums = inputNamespace.Enums;
@@ -55,21 +53,6 @@ namespace Microsoft.Generator.CSharp
             outputTypes.Add(OptionalProvider.Instance);
 
             return outputTypes;
-        }
-
-        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
-        //https://github.com/microsoft/typespec/issues/3589
-        private IReadOnlyList<TypeProvider>? _types;
-        public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
-        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
-        {
-            return
-            [
-                ChangeTrackingListProvider.Instance,
-                ChangeTrackingDictionaryProvider.Instance,
-                ArgumentProvider.Instance,
-                OptionalProvider.Instance
-            ];
         }
     }
 }

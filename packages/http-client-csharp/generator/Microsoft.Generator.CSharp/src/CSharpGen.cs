@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (var outputType in output.OutputTypes)
+            foreach (var outputType in output.Types)
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
