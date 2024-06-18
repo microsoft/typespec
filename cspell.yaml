@@ -147,14 +147,6 @@ ignorePaths:
   - .github/CODEOWNERS
   - packages/samples/test/output/**
   - "**/BenchmarkDotNet.Artifacts/**"
-  - cspell.yaml
-overrides:
-  - filename: "packages/http-client-csharp/generator/Microsoft.Generator.CSharp.ClientModel/test/TypeFormatterTests.cs"
-    words:
-      - BAUG
-  - filename: "packages/http-client-csharp/generator/Microsoft.Generator.CSharp/src/Statements/XmlDocStatement.cs"
-    words:
-      - apos
 useGitignore: true
 enableGlobDot: true
 enableFiletypes:
