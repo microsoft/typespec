@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
 
-            var methodCollection = CSharpMethodCollection.DefaultCSharpMethodCollection(inputOperation, new MockTypeProvider());
+            var methodCollection = MethodProviderCollection.DefaultCSharpMethodCollection(inputOperation, new MockTypeProvider());
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(1, methodCollection?.Count);
 

@@ -25,14 +25,14 @@ namespace Microsoft.Generator.CSharp
         public abstract ParameterProvider CreateCSharpParam(InputParameter parameter);
 
         /// <summary>
-        /// Factory method for creating a <see cref="CSharpMethodCollection"/> based on an input operation <paramref name="operation"/>.
+        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
         /// </summary>
         /// <param name="operation">The <see cref="InputOperation"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
-        /// <returns>An instance of <see cref="CSharpMethodCollection"/> containing the chain of methods
+        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
         /// associated with the input operation, or <c>null</c> if no methods are constructed.
         /// </returns>
-        public abstract CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType);
+        public abstract MethodProviderCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType);
 
         /// <summary>
         /// Factory method for retrieving the serialization format for a given input type.
