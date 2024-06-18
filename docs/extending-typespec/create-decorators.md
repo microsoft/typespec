@@ -81,7 +81,7 @@ Decorators can be implemented in JavaScript by prefixing the function name with 
 // model.ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
 
-export function $logType(context: DecoratorContext, target: Type, name: valueof string) {
+export function $logType(context: DecoratorContext, target: Type, name:  string) {
   console.log(name + ": " + targetType.kind);
 }
 ```
