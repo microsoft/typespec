@@ -11,11 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         protected override IReadOnlyList<TypeProvider> BuildTypes()
         {
-            List<TypeProvider> types = new List<TypeProvider>();
-            types.AddRange(base.BuildTypes());
-            types.Add(ModelSerializationExtensionsProvider.Instance);
-            types.Add(TypeFormattersProvider.Instance);
-            return types;
+            return [.. base.BuildTypes(), TypeFormattersProvider.Instance];
         }
     }
 }
