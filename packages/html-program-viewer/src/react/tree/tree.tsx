@@ -19,20 +19,11 @@ export interface TreeViewProps<T extends TreeNode> {
   readonly nodeIcon?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
-  readonly expandNodes?: string[];
 }
 
-export function Tree<T extends TreeNode>({
-  tree,
-  selected,
-  onSelect,
-  expandNodes,
-  nodeIcon,
-}: TreeViewProps<T>) {
+export function Tree<T extends TreeNode>({ tree, selected, onSelect, nodeIcon }: TreeViewProps<T>) {
   const id = useId();
-  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
-    expandNodes,
-  });
+  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls();
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedKey, setSelectedKey] = useControllableValue(selected, undefined, onSelect);
 

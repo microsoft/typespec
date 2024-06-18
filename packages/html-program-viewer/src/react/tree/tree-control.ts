@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 export interface TreeControls {
   readonly renderSignal: number;
@@ -8,18 +8,10 @@ export interface TreeControls {
   toggleExpand(key: string): void;
 }
 
-export function useTreeControls({ expandNodes }: { expandNodes?: string[] }): TreeControls {
+export function useTreeControls(): TreeControls {
   const expanded = useRef(new Set<string>()).current;
   const [rerender, setRerender] = useState(0);
 
-  useEffect(() => {
-    if (expandNodes) {
-      for (const key of expandNodes) {
-        expanded.add(key);
-      }
-      setRerender((x) => x + 1);
-    }
-  }, [expandNodes]);
   const toggleExpand = useCallback(
     (key: string) => {
       if (expanded.has(key)) {
