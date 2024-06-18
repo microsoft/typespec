@@ -168,7 +168,6 @@ namespace Microsoft.Generator.CSharp
             return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
         }
 
-
         private static string? ReadStringOption(JsonElement root, string option)
         {
             if (root.TryGetProperty(option, out JsonElement value))

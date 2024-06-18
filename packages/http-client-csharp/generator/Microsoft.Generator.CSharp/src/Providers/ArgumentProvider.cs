@@ -81,7 +81,6 @@ namespace Microsoft.Generator.CSharp.Providers
             ];
         }
 
-
         private MethodProvider BuildAssertNull()
         {
             var valueParam = new ParameterProvider("value", $"The value.", _t);
