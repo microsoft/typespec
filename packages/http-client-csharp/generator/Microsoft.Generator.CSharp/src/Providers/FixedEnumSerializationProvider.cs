@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
                 var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);
-                methods.Add(new(serializationSignature, serializationBody));
+                methods.Add(new(serializationSignature, serializationBody, this));
             }
 
             // deserialization method (we always need a deserialization)
@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // add a fallback throw statement to ensure every path of this method returns a value
             deserializationBody.Add(Throw(New.ArgumentOutOfRangeException(_enumType, deserializationValueParameter)));
 
-            methods.Add(new(deserializationSignature, deserializationBody));
+            methods.Add(new(deserializationSignature, deserializationBody, this));
 
             return methods.ToArray();
         }

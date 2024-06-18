@@ -14,9 +14,13 @@ namespace Microsoft.Generator.CSharp.Providers
             Exceptions = new List<XmlDocExceptionStatement>();
         }
 
+        private static XmlDocProvider? _inheritDocs;
+        public static XmlDocProvider InheritDocs => _inheritDocs ??= new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
+
         public XmlDocSummaryStatement? Summary { get; set; }
         public IList<XmlDocParamStatement> Params { get; }
         public XmlDocReturnsStatement? Returns { get; set; }
         public IList<XmlDocExceptionStatement> Exceptions { get; }
+        public XmlDocInheritStatement? Inherit { get; set;  }
     }
 }

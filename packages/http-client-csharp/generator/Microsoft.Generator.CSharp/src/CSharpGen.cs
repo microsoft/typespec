@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var outputType in output.OutputTypes)
             {
-                var writer  = CodeModelPlugin.Instance.GetWriter(outputType);
+                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
             }
 

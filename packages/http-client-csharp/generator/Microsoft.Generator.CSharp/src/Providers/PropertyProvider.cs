@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -14,7 +13,8 @@ namespace Microsoft.Generator.CSharp.Providers
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
-        public IReadOnlyList<FormattableString> Description { get; }
+        public FormattableString Description { get; }
+        public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
@@ -31,15 +31,17 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Description = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, !propHasSetter);
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
+            Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
+            XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
         }
 
         public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, CSharpType? explicitInterface = null)
         {
-            Description = [description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter)];
+            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
+            XmlDocSummary = new XmlDocSummaryStatement([Description]);
             Modifiers = modifiers;
             Type = type;
             Name = name;
@@ -54,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return new XmlDocProvider()
             {
-                Summary = new XmlDocSummaryStatement(Description),
+                Summary = XmlDocSummary,
             };
         }
 

@@ -11,7 +11,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class ModelProviderTests
     {
