@@ -15,13 +15,14 @@ namespace Microsoft.Generator.CSharp.Tests
     public class CSharpGenTests
     {
         private readonly string _mocksFolder = "./Mocks";
+
         // Validates that the output path is parsed correctly when provided
         [Test]
         public void TestGetOutputPath_OutputPathProvided()
         {
             var outputPath = "./outputDir";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath).Replace("\\", "/");
-            var expectedPath = $"{outputPath}/src";
+            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
+            var expectedPath = Path.Combine(outputPath, "src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
@@ -35,8 +36,8 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestGetConfigurationInputFilePath_DefaultPath()
         {
             var outputPath = "";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath).Replace("\\", "/");
-            var expectedPath = $"src";
+            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
+            var expectedPath = Path.Combine("src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
@@ -84,15 +85,14 @@ namespace Microsoft.Generator.CSharp.Tests
 
         private void TestOutputPathAppended(string outputPath, string expectedPath)
         {
-            var srcPath = "/src";
+            var srcPath = "src";
 
-            outputPath += srcPath;
+            outputPath = Path.Combine(outputPath, srcPath);
 
 
             var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
-            var cleanedOutputPath = parsedOutputPath.Replace("\\", "/");
 
-            var areEqual = string.Equals(expectedPath, cleanedOutputPath, StringComparison.OrdinalIgnoreCase);
+            var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
             Assert.IsTrue(areEqual);
         }

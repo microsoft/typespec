@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -14,6 +13,7 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
+        private const string GeneratedFolderName = "Generated";
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
@@ -24,12 +24,12 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", "Generated");
+            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", GeneratedFolderName);
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
-            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
+            Directory.CreateDirectory(Path.Combine(outputPath, "src", GeneratedFolderName, "Models"));
             List<Task> generateFilesTasks = new();
 
             foreach (var model in output.Models)
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp
                 generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(client).Write()));
             }
 
-            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Internal"));
+            Directory.CreateDirectory(Path.Combine(outputPath, "src", GeneratedFolderName, "Internal"));
             foreach (var type in output.Types)
             {
                 generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(type).Write()));
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp
 
             if (CodeModelPlugin.Instance.Configuration.ClearOutputFolder)
             {
-                DeleteDirectory(outputPath, _filesToKeep);
+                DeleteDirectory(ParseOutputPath(outputPath), _filesToKeep);
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
@@ -97,6 +97,8 @@ namespace Microsoft.Generator.CSharp
             {
                 outputPath = Path.Combine(outputPath, "src");
             }
+
+            outputPath = Path.Combine(outputPath, GeneratedFolderName);
 
             return outputPath;
         }
