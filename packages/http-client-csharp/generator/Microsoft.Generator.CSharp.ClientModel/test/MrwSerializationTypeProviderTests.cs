@@ -1,19 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Providers;
-using Moq;
-using NUnit.Framework;
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
+using Moq;
+using NUnit.Framework;
 using System.Text.Json;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
+using System.ClientModel;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {

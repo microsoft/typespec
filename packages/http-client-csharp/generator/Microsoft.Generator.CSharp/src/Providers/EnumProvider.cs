@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
             IsFloatValueType = ValueType.Equals(typeof(float)) || ValueType.Equals(typeof(double));
             IsNumericValueType = IsIntValueType || IsFloatValueType;
 
-            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : FormattableStringHelpers.Empty;
+            Description = input.Description != null ? FormattableStringHelpers.FromString(input.Description) : $"The {Name}.";
         }
 
         protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public bool IsNumericValueType { get; }
         public override string Name { get; }
         public override string Namespace { get; }
-        public override FormattableString Description { get; }
+        protected override FormattableString Description { get; }
 
         /// <summary>
         /// The serialization provider for this enum.

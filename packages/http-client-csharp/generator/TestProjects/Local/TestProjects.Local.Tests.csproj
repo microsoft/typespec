@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="System.ClientModel" />

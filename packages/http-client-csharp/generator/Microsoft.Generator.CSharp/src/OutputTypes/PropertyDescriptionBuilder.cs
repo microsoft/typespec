@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -19,25 +21,10 @@ namespace Microsoft.Generator.CSharp
         /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <param name="isPropertyReadOnly">Flag used to determine if the property <paramref name="property"/> is read-only.</param>
         /// <returns>The formatted property description string.</returns>
-        internal static IReadOnlyList<FormattableString> BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, bool isPropertyReadOnly)
+        internal static XmlDocSummaryStatement BuildPropertyDescription(InputModelProperty property, CSharpType type, SerializationFormat serializationFormat, FormattableString description)
         {
-            List<FormattableString> description = new List<FormattableString>();
-
-            if (string.IsNullOrEmpty(property.Description))
-            {
-                description.Add(CreateDefaultPropertyDescription(property.Name, isPropertyReadOnly));
-            }
-            else
-            {
-                description.Add(FormattableStringHelpers.FromString(property.Description));
-            }
-
-            if (type.ContainsBinaryData)
-            {
-                description.AddRange(CreateBinaryDataExtraDescription(type, serializationFormat));
-            }
-
-            return description;
+            var innerStatements = type.ContainsBinaryData ? CreateBinaryDataExtraDescription(type, serializationFormat) : Array.Empty<XmlDocStatement>();
+            return new XmlDocSummaryStatement([description], [.. innerStatements]);
         }
 
         /// <summary>
@@ -48,35 +35,35 @@ namespace Microsoft.Generator.CSharp
         /// <param name="unionItems">the list of union type items.</param>
         /// <returns>A list of FormattableString representing the description of each union item.
         /// </returns>
-        internal static IReadOnlyList<FormattableString> GetUnionTypesDescriptions(IReadOnlyList<CSharpType> unionItems)
+        internal static IReadOnlyList<XmlDocStatement> GetUnionTypesDescriptions(IReadOnlyList<CSharpType> unionItems)
         {
-            var values = new List<FormattableString>();
+            var values = new List<XmlDocStatement>();
 
             foreach (CSharpType item in unionItems)
             {
-                FormattableString description;
+                XmlDocStatement description;
 
                 if (item.IsLiteral && item.Literal != null)
                 {
                     var literalValue = item.Literal;
                     if (item.FrameworkType == typeof(string))
                     {
-                        description = $"<description>{literalValue:L}</description>";
+                        description = new XmlDocStatement("description", [$"{literalValue:L}"]);
                     }
                     else
                     {
-                        description = $"<description>{literalValue}</description>";
+                        description = new XmlDocStatement("description", [$"{literalValue}"]);
                     }
                 }
                 else
                 {
-                    description = $"<description>{item:C}</description>";
+                    description = new XmlDocStatement("description", [$"{item:C}"]);
                 }
 
                 values.Add(description);
             }
 
-            return values.Distinct().ToList();
+            return values;
         }
 
         /// <summary>
@@ -102,11 +89,11 @@ namespace Microsoft.Generator.CSharp
         /// <param name="type">The CSharpType of the property.</param>
         /// <param name="serializationFormat">The serialization format of the property.</param>
         /// <returns>The formatted description string for the property.</returns>
-        private static IReadOnlyList<FormattableString> CreateBinaryDataExtraDescription(CSharpType type, SerializationFormat serializationFormat)
+        private static IReadOnlyList<XmlDocStatement> CreateBinaryDataExtraDescription(CSharpType type, SerializationFormat serializationFormat)
         {
             string typeSpecificDesc;
             var unionTypes = GetUnionTypes(type);
-            IReadOnlyList<FormattableString> unionTypeDescriptions = Array.Empty<FormattableString>();
+            IReadOnlyList<XmlDocStatement> unionTypeDescriptions = Array.Empty<XmlDocStatement>();
 
             if (unionTypes.Any())
             {
@@ -129,7 +116,7 @@ namespace Microsoft.Generator.CSharp
                 return ConstructBinaryDataDescription(typeSpecificDesc, serializationFormat, unionTypeDescriptions);
             }
 
-            return Array.Empty<FormattableString>();
+            return Array.Empty<XmlDocStatement>();
         }
 
         // recursively get the union types if any.
@@ -147,80 +134,65 @@ namespace Microsoft.Generator.CSharp
             return Array.Empty<CSharpType>();
         }
 
-        private static IReadOnlyList<FormattableString> ConstructBinaryDataDescription(string typeSpecificDesc, SerializationFormat serializationFormat, IReadOnlyList<FormattableString> unionTypeDescriptions)
+        private static IReadOnlyList<XmlDocStatement> ConstructBinaryDataDescription(string typeSpecificDesc, SerializationFormat serializationFormat, IReadOnlyList<XmlDocStatement> unionTypeDescriptions)
         {
-            List<FormattableString> result = new List<FormattableString>();
-            List<FormattableString> unionTypesAdditionalDescription = new List<FormattableString>();
+            List<XmlDocStatement> result = new List<XmlDocStatement>();
+            XmlDocStatement? unionRemarks = null;
 
             if (unionTypeDescriptions.Count > 0)
             {
-                unionTypesAdditionalDescription.Add($"<remarks>");
-                unionTypesAdditionalDescription.Add($"Supported types:");
-                unionTypesAdditionalDescription.Add($"<list type=\"bullet\">");
-                foreach (FormattableString unionTypeDescription in unionTypeDescriptions)
+                XmlDocStatement[] listItems = new XmlDocStatement[unionTypeDescriptions.Count];
+                for (int i = 0; i < unionTypeDescriptions.Count; i++)
                 {
-                    unionTypesAdditionalDescription.Add($"<item>");
-                    unionTypesAdditionalDescription.Add(unionTypeDescription);
-                    unionTypesAdditionalDescription.Add($"</item>");
+                    listItems[i] = new XmlDocStatement("item", [], innerStatements: unionTypeDescriptions[i]);
                 }
-                unionTypesAdditionalDescription.Add($"</list>");
-                unionTypesAdditionalDescription.Add($"</remarks>");
+                var listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: listItems);
+                unionRemarks = new XmlDocStatement("remarks", [$"Supported types:"], innerStatements: listXmlDoc);
             }
 
             switch (serializationFormat)
             {
                 case SerializationFormat.Bytes_Base64Url:
                 case SerializationFormat.Bytes_Base64:
-                    result.Add($"<para>");
-                    result.Add($"To assign a byte[] to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromBytes(byte[])\"/>.");
-                    result.Add($"The byte[] will be serialized to a Base64 encoded string.");
-                    result.Add($"</para>");
-                    result.Add($"<para>");
-                    if (unionTypesAdditionalDescription.Count > 0)
+                    result.Add(new XmlDocStatement("para",
+                        [
+                            $"To assign a byte[] to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromBytes(byte[])\"/>.",
+                            $"The byte[] will be serialized to a Base64 encoded string."
+                        ]));
+                    if (unionRemarks is not null)
                     {
-                        result.AddRange(unionTypesAdditionalDescription);
+                        result.Add(new XmlDocStatement("para", [], innerStatements: unionRemarks));
                     }
-                    result.Add($"Examples:");
-                    result.Add($"<list type=\"bullet\">");
-                    result.Add($"<item>");
-                    result.Add($"<term>BinaryData.FromBytes(new byte[] {{ 1, 2, 3 }})</term>");
-                    result.Add($"<description>Creates a payload of \"AQID\".</description>");
-                    result.Add($"</item>");
-                    result.Add($"</list>");
-                    result.Add($"</para>");
+                    var listItems = new XmlDocStatement("item", [],
+                        new XmlDocStatement("term", [$"BinaryData.FromBytes(new byte[] {{ 1, 2, 3 }})"]),
+                        new XmlDocStatement("description", [$"Creates a payload of \"AQID\"."]));
+                    var listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: listItems);
+                    result.Add(new XmlDocStatement("para", [$"Examples:"], innerStatements: listXmlDoc));
                     break;
                 default:
-                    result.Add($"<para>");
-                    result.Add($"To assign an object to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromObjectAsJson{{T}}(T, System.Text.Json.JsonSerializerOptions?)\"/>.");
-                    result.Add($"</para>");
-                    result.Add($"<para>");
-                    result.Add($"To assign an already formatted json string to this property use <see cref=\"{typeof(BinaryData)}.FromString(string)\"/>.");
-                    result.Add($"</para>");
-                    result.Add($"<para>");
-                    if (unionTypesAdditionalDescription.Count > 0)
+                    result.Add(new XmlDocStatement("para", [$"To assign an object to {typeSpecificDesc} use <see cref=\"{typeof(BinaryData)}.FromObjectAsJson{{T}}(T, {typeof(JsonSerializerOptions)}?)\"/>."]));
+                    result.Add(new XmlDocStatement("para", [$"To assign an already formatted json string to this property use <see cref=\"{typeof(BinaryData)}.FromString(string)\"/>."]));
+                    if (unionRemarks is not null)
                     {
-                        result.AddRange(unionTypesAdditionalDescription);
+                        result.Add(new XmlDocStatement("para", [], innerStatements: unionRemarks));
                     }
-                    result.Add($"Examples:");
-                    result.Add($"<list type=\"bullet\">");
-                    result.Add($"<item>");
-                    result.Add($"<term>BinaryData.FromObjectAsJson(\"foo\")</term>");
-                    result.Add($"<description>Creates a payload of \"foo\".</description>");
-                    result.Add($"</item>");
-                    result.Add($"<item>");
-                    result.Add($"<term>BinaryData.FromString(\"\\\"foo\\\"\")</term>");
-                    result.Add($"<description>Creates a payload of \"foo\".</description>");
-                    result.Add($"</item>");
-                    result.Add($"<item>");
-                    result.Add($"<term>BinaryData.FromObjectAsJson(new {{ key = \"value\" }})</term>");
-                    result.Add($"<description>Creates a payload of {{ \"key\": \"value\" }}.</description>");
-                    result.Add($"</item>");
-                    result.Add($"<item>");
-                    result.Add($"<term>BinaryData.FromString(\"{{\\\"key\\\": \\\"value\\\"}}\")</term>");
-                    result.Add($"<description>Creates a payload of {{ \"key\": \"value\" }}.</description>");
-                    result.Add($"</item>");
-                    result.Add($"</list>");
-                    result.Add($"</para>");
+                    XmlDocStatement[] bdListItems =
+                    [
+                        new XmlDocStatement("item", [],
+                            new XmlDocStatement("term", [$"BinaryData.FromObjectAsJson(\"foo\")"]),
+                            new XmlDocStatement("description", [$"Creates a payload of \"foo\"."])),
+                        new XmlDocStatement("item", [],
+                            new XmlDocStatement("term", [$"BinaryData.FromString(\"\\\"foo\\\"\")"]),
+                            new XmlDocStatement("description", [$"Creates a payload of \"foo\"."])),
+                        new XmlDocStatement("item", [],
+                            new XmlDocStatement("term", [$"BinaryData.FromObjectAsJson(new {{ key = \"value\" }})"]),
+                            new XmlDocStatement("description", [$"Creates a payload of {{ \"key\": \"value\" }}."])),
+                        new XmlDocStatement("item", [],
+                            new XmlDocStatement("term", [$"BinaryData.FromString(\"{{\\\"key\\\": \\\"value\\\"}}\")"]),
+                            new XmlDocStatement("description", [$"Creates a payload of {{ \"key\": \"value\" }}."])),
+                    ];
+                    var bdList = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: bdListItems);
+                    result.Add(new XmlDocStatement("para", [$"Examples:"], innerStatements: bdList));
                     break;
             }
 

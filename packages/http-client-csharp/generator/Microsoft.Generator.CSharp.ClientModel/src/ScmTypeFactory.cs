@@ -75,12 +75,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// a method collection will be created consisting of a <see cref="CSharpMethodKinds.CreateMessage"/> method. Otherwise, <c>null</c> will be returned.
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
-        public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation)
+        /// <param name="enclosingType">The enclosing type of the operation.</param>
+        public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType)
         {
             switch (GetOperationKind(operation))
             {
                 case var value when value == OperationKinds.Default:
-                    return CSharpMethodCollection.DefaultCSharpMethodCollection(operation);
+                    return CSharpMethodCollection.DefaultCSharpMethodCollection(operation, enclosingType);
                 default:
                     return null;
             }

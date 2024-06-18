@@ -17,7 +17,7 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
@@ -218,7 +218,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(methodName, null, null, modifiers, null, null, [utf8JsonWriterParameter, _serializationOptionsParameter]),
-              BuildJsonModelWriteMethodBody(utf8JsonWriterParameter)
+              BuildJsonModelWriteMethodBody(utf8JsonWriterParameter),
+              this
             );
         }
 
@@ -239,7 +240,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(methodName, null, null, modifiers, typeOfT, null, [utf8JsonReaderParameter, _serializationOptionsParameter]),
-              BuildJsonModelCreateMethodBody(utf8JsonReaderParameter, typeOfT)
+              BuildJsonModelCreateMethodBody(utf8JsonReaderParameter, typeOfT),
+              this
             );
         }
 
@@ -255,7 +257,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(methodName, null, null, signatureModifiers, _model.Type, null, [jsonElementParam, _mrwDeserializationOptionsParameter]),
-              BuildDeserializationMethodBody(new JsonElementSnippet(jsonElementParam))
+              BuildDeserializationMethodBody(new JsonElementSnippet(jsonElementParam)),
+              this
             );
         }
 
@@ -276,7 +279,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
                 new MethodSignature(methodName, null, null, modifiers, returnType, null, [_serializationOptionsParameter]),
-                BuildIModelWriteMethodBody()
+                BuildIModelWriteMethodBody(),
+                this
             );
         }
 
@@ -298,7 +302,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(methodName, null, null, modifiers, typeOfT, null, [dataParameter, _serializationOptionsParameter]),
-              BuildIModelCreateMethodBody(dataParameter, typeOfT)
+              BuildIModelCreateMethodBody(dataParameter, typeOfT),
+              this
             );
         }
 
@@ -311,7 +316,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _iPersistableModelTInterface),
-              ModelReaderWriterOptionsSnippet.JsonFormat
+              ModelReaderWriterOptionsSnippet.JsonFormat,
+              this
             );
         }
 
@@ -338,7 +344,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
                     UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),
                     // DeserializeT(document.RootElement);
                     Return(TypeProviderSnippet.Deserialize(_model, document.RootElement))
-                }
+                },
+                this
             );
         }
 
@@ -350,7 +357,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var methodName = "ToBinaryContent";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
             var requestContentType = typeof(BinaryContent);
-            // TO-DO - Invoke the ModelSerializationExtensions `WireOptions` field : https://github.com/microsoft/typespec/issues/3536
+
             return new MethodProvider
             (
                 new MethodSignature(
@@ -365,9 +372,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 {
                     Return(BinaryContentSnippet.Create(
                         This,
-                        ModelReaderWriterOptionsSnippet.InitializeWireOptions,
+                        ModelReaderWriterOptionsSnippet.Wire,
                         _model.Type))
-                }
+                },
+                this
             );
         }
 
@@ -389,7 +397,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(serializationCtorParameters)
-                });
+                },
+                this);
         }
 
         /// <summary>
@@ -402,7 +411,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(nameof(IJsonModel<object>.Write), null, null, MethodSignatureModifiers.None, null, null, [utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: _iJsonModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Write)}Core", [utf8JsonWriterParameter, _serializationOptionsParameter])
+              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Write)}Core", [utf8JsonWriterParameter, _serializationOptionsParameter]),
+              this
             );
         }
 
@@ -417,7 +427,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(nameof(IJsonModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, [utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _iJsonModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Create)}Core", [utf8JsonReaderParameter, _serializationOptionsParameter])
+              new InvokeInstanceMethodExpression(null, $"{nameof(IJsonModel<object>.Create)}Core", [utf8JsonReaderParameter, _serializationOptionsParameter]),
+              this
             );
         }
 
@@ -431,7 +442,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
                 new MethodSignature(nameof(IPersistableModel<object>.Write), null, null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: _iPersistableModelTInterface),
-                new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Write)}Core", [_serializationOptionsParameter])
+                new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Write)}Core", [_serializationOptionsParameter]),
+                this
             );
         }
 
@@ -446,7 +458,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return new MethodProvider
             (
               new MethodSignature(nameof(IPersistableModel<object>.Create), null, null, MethodSignatureModifiers.None, typeOfT, null, [dataParameter, _serializationOptionsParameter], ExplicitInterface: _iPersistableModelTInterface),
-              new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Create)}Core", [dataParameter, _serializationOptionsParameter])
+              new InvokeInstanceMethodExpression(null, $"{nameof(IPersistableModel<object>.Create)}Core", [dataParameter, _serializationOptionsParameter]),
+              this
             );
         }
 
@@ -484,15 +497,13 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         private MethodBodyStatement[] BuildDeserializationMethodBody(JsonElementSnippet jsonElementSnippet)
         {
-            // options ??= new ModelReaderWriterOptions("W");
-            // TO-DO - Invoke the ModelSerializationExtensions `WireOptions` field : https://github.com/microsoft/typespec/issues/3536
-            var wireOptions = ModelReaderWriterOptionsSnippet.InitializeWireOptions;
             var (rawDataDeclarations, additionalRawDataDictionary, rawDataDictionary, assignRawData) = CreateRawDataVariableDeclarationStatements();
             var serializationCtorParameters = BuildSerializationConstructorParameters(additionalRawDataDictionary);
 
             return
             [
-                AssignIfNull(ModelReaderWriterOptionsSnippet.MrwNullableOptions(_mrwDeserializationOptionsParameter), wireOptions),
+                // options ??= new ModelReaderWriterOptions("W");
+                AssignIfNull(ModelReaderWriterOptionsSnippet.MrwNullableOptions(_mrwDeserializationOptionsParameter), ModelReaderWriterOptionsSnippet.Wire),
                 EmptyLineStatement,
                 GetValueKindEqualsNullCheck(jsonElementSnippet),
                 GetPropertyVariableDeclarations(),
@@ -917,14 +928,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             var switchCase = new SwitchCaseStatement(
                 ModelReaderWriterOptionsSnippet.JsonFormat,
-                Return(new InvokeStaticMethodExpression(typeof(ModelReaderWriter), nameof(ModelReaderWriter.Write), [This, options])),
-                inline: true);
+                Return(new InvokeStaticMethodExpression(typeof(ModelReaderWriter), nameof(ModelReaderWriter.Write), [This, options])));
 
             // default case
             var typeOfT = _iPersistableModelTInterface.Arguments[0];
             var defaultCase = SwitchCaseStatement.Default(
-                ThrowValidationFailException(options.Format, typeOfT, SerializationFormatValidationType.Write),
-                inline: true);
+                ThrowValidationFailException(options.Format, typeOfT, SerializationFormatValidationType.Write));
             return new SwitchStatement(format, [switchCase, defaultCase]);
         }
 
@@ -954,12 +963,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
                      */
                     UsingDeclare("document", JsonDocumentSnippet.Parse(data), out var docVariable),
                     Return(TypeProviderSnippet.Deserialize(_model, docVariable.RootElement, options))
-                }, addScope: true);
+                }, addBraces: true);
 
             // default case
             var defaultCase = SwitchCaseStatement.Default(
-                ThrowValidationFailException(options.Format, typeOfT, SerializationFormatValidationType.Read),
-                inline: true);
+                ThrowValidationFailException(options.Format, typeOfT, SerializationFormatValidationType.Read));
             return new SwitchStatement(format, [switchCase, defaultCase]);
         }
 
@@ -1560,7 +1568,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             var accessibility = _isStruct ? MethodSignatureModifiers.Public : MethodSignatureModifiers.Internal;
             return new MethodProvider(
                 signature: new ConstructorSignature(Type, $"Initializes a new instance of {Type:C} for deserialization.", null, accessibility, Array.Empty<ParameterProvider>()),
-                bodyStatements: new MethodBodyStatement());
+                bodyStatements: new MethodBodyStatement(),
+                this);
         }
 
         /// <summary>

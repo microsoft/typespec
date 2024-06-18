@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     /// <summary>
     /// Provides functionality for property serialization for a model.

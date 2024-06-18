@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
-namespace Microsoft.Generator.CSharp.ClientModel
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ClientPipelineExtensionsProvider : TypeProvider
     {

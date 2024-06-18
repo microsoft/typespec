@@ -12,20 +12,18 @@ namespace Microsoft.Generator.CSharp.Statements
     {
         public IReadOnlyList<ValueExpression> Matches { get; }
         public MethodBodyStatement Statement { get; }
-        public bool Inline { get; }
-        public bool AddScope { get; }
+        public bool AddBraces { get; }
 
-        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement, bool inline = false, bool addScope = false)
+        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement, bool addBraces = false)
         {
             Matches = matches;
             Statement = statement;
-            Inline = inline;
-            AddScope = addScope;
+            AddBraces = addBraces;
         }
 
-        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool inline = false, bool addScope = false) : this(new[] { match }, statement, inline, addScope) { }
+        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool addBraces = false) : this([match], statement, addBraces) { }
 
-        public static SwitchCaseStatement Default(MethodBodyStatement statement, bool inline = false, bool addScope = false) => new(Array.Empty<ValueExpression>(), statement, inline, addScope);
+        public static SwitchCaseStatement Default(MethodBodyStatement statement, bool addBraces = false) => new(Array.Empty<ValueExpression>(), statement, addBraces);
 
         internal override void Write(CodeWriter writer)
         {
@@ -47,14 +45,10 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.AppendRaw("default");
             }
 
-            writer.AppendRaw(": ");
-            if (!Inline)
+            if (AddBraces)
             {
+                writer.AppendRaw(": ");
                 writer.WriteLine();
-            }
-
-            if (AddScope)
-            {
                 using (writer.Scope())
                 {
                     Statement.Write(writer);
@@ -62,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Statements
             }
             else
             {
-                using (writer.ScopeRaw(string.Empty, string.Empty, false))
+                using (writer.ScopeRaw(":", "", false))
                 {
                     Statement.Write(writer);
                 }
