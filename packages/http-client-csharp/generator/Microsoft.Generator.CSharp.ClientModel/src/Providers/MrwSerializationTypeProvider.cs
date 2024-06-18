@@ -85,7 +85,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ctorWithNoParamsExist = true;
                 }
 
-
                 if (!serializationCtorParamsMatch)
                 {
                     // Check if the model constructor parameters match the serialization constructor parameters
