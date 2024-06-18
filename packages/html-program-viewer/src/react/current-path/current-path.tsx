@@ -102,7 +102,7 @@ const Search = ({ onBlur }: SearchProps) => {
       size="small"
       className={style["breadcrumb-search"]}
       onFocus={(event) => event.target.select()}
-      // onBlur={onBlur}
+      onBlur={onBlur}
       value={search}
       expandIcon={null}
       onChange={(evt) => setSearch(evt.target.value)}
