@@ -71,7 +71,7 @@ export const TreeNavigation = (_: TreeNavigationProps) => {
   );
 };
 
-const NodeIcon = ({ node }: { node: TypeGraphNode }) => {
+export const NodeIcon = ({ node }: { node: TypeGraphNode }) => {
   switch (node.kind) {
     case "type":
       return <span className={style["type-kind-icon"]}>{node.type.kind[0]}</span>;

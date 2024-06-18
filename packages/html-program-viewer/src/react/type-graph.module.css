@@ -12,7 +12,6 @@
   overflow-y: auto;
 }
 
-.breadcrumb {
+.current-path {
   margin-bottom: 10px;
-  overflow-y: auto;
 }

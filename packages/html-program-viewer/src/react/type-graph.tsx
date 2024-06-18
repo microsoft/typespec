@@ -1,15 +1,9 @@
-import {
-  Breadcrumb,
-  BreadcrumbButton,
-  BreadcrumbDivider,
-  BreadcrumbItem,
-  FluentProvider,
-  webLightTheme,
-} from "@fluentui/react-components";
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import type { Program } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
-import { Fragment, type FunctionComponent } from "react";
+import { type FunctionComponent } from "react";
 import ReactDOMServer from "react-dom/server";
+import { CurrentPath } from "./current-path/current-path.js";
 import { ListTypeView } from "./list-type-view/list-type-view.js";
 import { ProgramProvider } from "./program-context.js";
 import { TreeNavigation } from "./tree-navigation.js";
@@ -39,7 +33,9 @@ export const TypeGraph: FunctionComponent<TypeGraphProps> = ({ program }) => {
             <TreeNavigation />
           </Pane>
           <Pane className={style["view-pane"]}>
-            <TypeGraphBreadcrumb />
+            <div className={style["current-path"]}>
+              <CurrentPath />
+            </div>
             <TypeGraphContent />
           </Pane>
         </SplitPane>
@@ -60,32 +56,4 @@ const TypeGraphContent = () => {
     default:
       return <ListTypeView nav={nav} node={nav.tree} />;
   }
-};
-
-const TypeGraphBreadcrumb = () => {
-  const nav = useTreeNavigator();
-  const segments = nav.selectedPath.split(".");
-
-  return (
-    <div className={style["breadcrumb"]}>
-      <Breadcrumb size="small">
-        {segments.map((x, i) => {
-          const last = i === segments.length - 1;
-          return (
-            <Fragment key={x}>
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  current={last}
-                  onClick={() => nav.selectPath(segments.slice(0, i).join("."))}
-                >
-                  {x}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              {!last && <BreadcrumbDivider />}
-            </Fragment>
-          );
-        })}
-      </Breadcrumb>
-    </div>
-  );
 };
