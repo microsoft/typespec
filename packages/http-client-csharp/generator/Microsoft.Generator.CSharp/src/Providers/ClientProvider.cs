@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = CodeModelPlugin.Instance.TypeFactory.CreateCSharpMethodCollection(operation, this);
+                var methodCollection = CodeModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);
