@@ -13,6 +13,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     internal class ScmTypeFactory : TypeFactory
     {
+        private readonly IDictionary<InputModelType, ModelProvider> _models = new Dictionary<InputModelType, ModelProvider>();
+        private readonly IDictionary<InputEnumType, EnumProvider> _enums = new Dictionary<InputEnumType, EnumProvider>();
+        private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
+
         /// <summary>
         /// This method will attempt to retrieve the <see cref="CSharpType"/> of the input type.
         /// </summary>
@@ -25,8 +29,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType inputEnum => CreateEnumType(inputEnum).Type.WithNullable(inputEnum.IsNullable),
-            InputModelType inputModel => CreateModelType(inputModel).Type.WithNullable(inputModel.IsNullable),
+            InputEnumType inputEnum => CreateEnum(inputEnum).Type.WithNullable(inputEnum.IsNullable),
+            InputModelType inputModel => CreateModel(inputModel).Type.WithNullable(inputModel.IsNullable),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
@@ -60,6 +64,42 @@ namespace Microsoft.Generator.CSharp.ClientModel
             InputDurationType durationType => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
             _ => throw new Exception("Unknown type")
         };
+
+        public override ModelProvider CreateModel(InputModelType inputModel)
+        {
+            if (_models.TryGetValue(inputModel, out var modelProvider))
+            {
+                return modelProvider;
+            }
+
+            modelProvider = new ModelProvider(inputModel);
+            _models.Add(inputModel, modelProvider);
+            return modelProvider;
+        }
+
+        public override EnumProvider CreateEnum(InputEnumType inputEnum)
+        {
+            if (_enums.TryGetValue(inputEnum, out var enumProvider))
+            {
+                return enumProvider;
+            }
+
+            enumProvider = EnumProvider.Create(inputEnum);
+            _enums.Add(inputEnum, enumProvider);
+            return enumProvider;
+        }
+
+        public override ClientProvider CreateClient(InputClient inputClient)
+        {
+            if (_clients.TryGetValue(inputClient, out var clientProvider))
+            {
+                return clientProvider;
+            }
+
+            clientProvider = new ClientProvider(inputClient);
+            _clients.Add(inputClient, clientProvider);
+            return clientProvider;
+        }
 
         public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {

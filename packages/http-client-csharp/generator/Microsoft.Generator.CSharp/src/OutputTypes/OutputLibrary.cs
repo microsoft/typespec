@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var inputEnum in inputEnums)
             {
-                var enumType = CodeModelPlugin.Instance.TypeFactory.CreateEnumType(inputEnum);
+                var enumType = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
                 outputTypes.Add(enumType);
                 if (enumType.Serialization is not null)
                 {
@@ -36,14 +36,14 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var inputModel in inputModels)
             {
-                var modelType = CodeModelPlugin.Instance.TypeFactory.CreateModelType(inputModel);
+                var modelType = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
                 outputTypes.Add(modelType);
                 outputTypes.AddRange(modelType.SerializationProviders);
             }
 
             foreach (var inputClient in inputClients)
             {
-                var clientType = CodeModelPlugin.Instance.TypeFactory.CreateClientType(inputClient);
+                var clientType = CodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
                 outputTypes.Add(clientType);
             }
 

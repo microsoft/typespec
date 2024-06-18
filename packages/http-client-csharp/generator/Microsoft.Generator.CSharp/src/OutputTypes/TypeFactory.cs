@@ -10,10 +10,6 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
-        private readonly IDictionary<InputModelType, ModelProvider> _models = new Dictionary<InputModelType, ModelProvider>();
-        private readonly IDictionary<InputEnumType, EnumProvider> _enums = new Dictionary<InputEnumType, EnumProvider>();
-        private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
-
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>
@@ -21,41 +17,26 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         public abstract CSharpType CreateCSharpType(InputType input);
 
-        public virtual ModelProvider CreateModelType(InputModelType inputModel)
-        {
-            if (_models.TryGetValue(inputModel, out var modelProvider))
-            {
-                return modelProvider;
-            }
+        /// <summary>
+        /// Factory method for creating a <see cref="ModelProvider"/> based on an input model <paramref name="inputModel"/>.
+        /// </summary>
+        /// <param name="inputModel">The <see cref="InputModelType"/> to convert.</param>
+        /// <returns>An instance of <see cref="ModelProvider"/>.</returns>
+        public abstract ModelProvider CreateModel(InputModelType inputModel);
 
-            modelProvider = new ModelProvider(inputModel);
-            _models.Add(inputModel, modelProvider);
-            return modelProvider;
-        }
+        /// <summary>
+        /// Factory method for creating a <see cref="EnumProvider"/> based on an input enum <paramref name="inputEnum"/>.
+        /// </summary>
+        /// <param name="inputEnum">The <see cref="InputEnumType"/> to convert.</param>
+        /// <returns>An instance of <see cref="EnumProvider"/>.</returns>
+        public abstract EnumProvider CreateEnum(InputEnumType inputEnum);
 
-        public virtual EnumProvider CreateEnumType(InputEnumType inputEnum)
-        {
-            if (_enums.TryGetValue(inputEnum, out var enumProvider))
-            {
-                return enumProvider;
-            }
-
-            enumProvider = EnumProvider.Create(inputEnum);
-            _enums.Add(inputEnum, enumProvider);
-            return enumProvider;
-        }
-
-        public virtual ClientProvider CreateClientType(InputClient inputClient)
-        {
-            if (_clients.TryGetValue(inputClient, out var clientProvider))
-            {
-                return clientProvider;
-            }
-
-            clientProvider = new ClientProvider(inputClient);
-            _clients.Add(inputClient, clientProvider);
-            return clientProvider;
-        }
+        /// <summary>
+        /// Factory method for creating a <see cref="ClientProvider"/> based on an input client <paramref name="inputClient"/>.
+        /// </summary>
+        /// <param name="inputClient">The <see cref="InputClient"/> to convert.</param>
+        /// <returns>An instance of <see cref="ClientProvider"/>.</returns>
+        public abstract ClientProvider CreateClient(InputClient inputClient);
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
