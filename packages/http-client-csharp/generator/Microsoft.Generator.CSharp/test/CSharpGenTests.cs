@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestGetOutputPath_OutputPathProvided()
         {
             var outputPath = "./outputDir";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
             var expectedPath = Path.Combine(outputPath, "src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void TestGetConfigurationInputFilePath_DefaultPath()
         {
             var outputPath = "";
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
             var expectedPath = Path.Combine("src", "Generated");
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Tests
             outputPath = Path.Combine(outputPath, srcPath);
 
 
-            var parsedOutputPath = CSharpGen.ParseOutputPath(outputPath);
+            var parsedOutputPath = CSharpGen.ParseGeneratedSourceOutputPath(outputPath);
 
             var areEqual = string.Equals(expectedPath, parsedOutputPath, StringComparison.OrdinalIgnoreCase);
 
