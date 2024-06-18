@@ -133,7 +133,7 @@ namespace Microsoft.Generator.CSharp
             { Options.UseModelNamespace, true },
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
-            { Options.ClearOutputFolder, false },
+            { Options.ClearOutputFolder, true },
             { Options.GenerateTestProject, false }
         };
 
