@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly CSharpType _iPersistableModelTInterface;
         private readonly CSharpType? _iPersistableModelObjectInterface;
         private TypeProvider _model;
-        private InputType _inputModel;
+        private InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
 

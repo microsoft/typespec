@@ -4,6 +4,7 @@
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> A model with a few required nullable properties. </summary>
     public partial class ModelWithRequiredNullableProperties
     {
         /// <summary> Initializes a new instance of <see cref="ModelWithRequiredNullableProperties"/>. </summary>
