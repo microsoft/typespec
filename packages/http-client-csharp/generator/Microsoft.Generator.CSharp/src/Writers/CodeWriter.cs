@@ -603,7 +603,7 @@ namespace Microsoft.Generator.CSharp
             return WriteLine();
         }
 
-        public CodeWriter AppendRaw(string str) => AppendRaw(str.AsSpan());
+        public CodeWriter AppendRaw(string str, bool addSpaces = true) => AppendRaw(str.AsSpan(), addSpaces);
 
         private CodeWriter AppendRawChar(char c)
         {
@@ -614,12 +614,12 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private CodeWriter AppendRaw(ReadOnlySpan<char> span)
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span, bool addSpaces = true)
         {
             if (span.Length == 0 )
                 return this;
-
-            AddSpaces();
+            if (addSpaces)
+                AddSpaces();
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
@@ -936,19 +936,18 @@ namespace Microsoft.Generator.CSharp
             }
             else
             {
-                WriteRawLine("(");
+                AppendRaw("(");
                 var iterator = arguments.GetEnumerator();
                 if (iterator.MoveNext())
                 {
-                    AppendRaw("\t");
-                    iterator.Current.Write(this);
-                    WriteRawLine(",");
-                    while (iterator.MoveNext())
+                    using (ScopeRaw(string.Empty, string.Empty, false))
                     {
-                        AppendRaw(", ");
-                        AppendRaw("\t");
                         iterator.Current.Write(this);
-                        WriteRawLine(",");
+                        while (iterator.MoveNext())
+                        {
+                            WriteRawLine(",");
+                            iterator.Current.Write(this);
+                        }
                     }
                 }
                 AppendRaw(")");
