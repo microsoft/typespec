@@ -8,7 +8,6 @@ using System.Globalization;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> float fixed enum. </summary>
     public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<FloatExtensibleEnumWithIntValue>
     {
         private readonly float _value;
@@ -53,10 +52,8 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="other"> The instance to compare. </param>
         public bool Equals(FloatExtensibleEnumWithIntValue other) => Equals(_value, other._value);
 
-        /// <inheritdoc/>
         public override int GetHashCode() => _value.GetHashCode();
 
-        /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         internal float ToSerialSingle() => _value;

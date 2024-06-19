@@ -5,12 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> this is a roundtrip model. </summary>
     public partial class RoundTripModel
     {
         /// <summary> Initializes a new instance of <see cref="RoundTripModel"/>. </summary>
@@ -24,7 +22,7 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="modelWithRequiredNullable"> this is a model with required nullable properties. </param>
         /// <param name="requiredBytes"> Required bytes. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="requiredString"/>, <paramref name="requiredCollection"/>, <paramref name="requiredDictionary"/>, <paramref name="requiredModel"/>, <paramref name="requiredUnknown"/>, <paramref name="requiredRecordUnknown"/>, <paramref name="modelWithRequiredNullable"/> or <paramref name="requiredBytes"/> is null. </exception>
-        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum?> requiredCollection, IDictionary<string, StringExtensibleEnum?> requiredDictionary, Thing requiredModel, BinaryData requiredUnknown, IDictionary<string, BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, BinaryData requiredBytes)
+        public RoundTripModel(string requiredString, int requiredInt, IEnumerable<StringFixedEnum?> requiredCollection, IDictionary<string, StringExtensibleEnum?> requiredDictionary, Thing requiredModel, System.BinaryData requiredUnknown, IDictionary<string, System.BinaryData> requiredRecordUnknown, ModelWithRequiredNullableProperties modelWithRequiredNullable, System.BinaryData requiredBytes)
         {
             Argument.AssertNotNull(requiredString, nameof(requiredString));
             Argument.AssertNotNull(requiredCollection, nameof(requiredCollection));
@@ -46,9 +44,9 @@ namespace UnbrandedTypeSpec.Models
             IntFixedEnumCollection = new ChangeTrackingList<IntFixedEnum>();
             RequiredUnknown = requiredUnknown;
             RequiredRecordUnknown = requiredRecordUnknown;
-            OptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
-            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
-            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, BinaryData>();
+            OptionalRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
+            ReadOnlyRequiredRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
+            ReadOnlyOptionalRecordUnknown = new ChangeTrackingDictionary<string, System.BinaryData>();
             ModelWithRequiredNullable = modelWithRequiredNullable;
             RequiredBytes = requiredBytes;
         }
@@ -103,171 +101,195 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary>
         /// required unknown
-        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData RequiredUnknown { get; set; }
+        public System.BinaryData RequiredUnknown { get; set; }
 
         /// <summary>
         /// optional unknown
-        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData OptionalUnknown { get; set; }
+        public System.BinaryData OptionalUnknown { get; set; }
 
         /// <summary>
         /// required record of unknown
-        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> RequiredRecordUnknown { get; }
+        public IDictionary<string, System.BinaryData> RequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional record of unknown
-        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> OptionalRecordUnknown { get; }
+        public IDictionary<string, System.BinaryData> OptionalRecordUnknown { get; }
 
         /// <summary>
         /// required readonly record of unknown
-        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
+        public IDictionary<string, System.BinaryData> ReadOnlyRequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional readonly record of unknown
-        /// <para> To assign an object to the value of this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
-        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
+        /// <para>
+        /// To assign an object to the value of this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
+        /// </para>
+        /// <para>
+        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
+        /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromObjectAsJson("foo")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("\"foo\""). </term>
-        /// <description> Creates a payload of "foo". </description>
+        /// <term>BinaryData.FromString("\"foo\"")</term>
+        /// <description>Creates a payload of "foo".</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// <item>
-        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
-        /// <description> Creates a payload of { "key": "value" }. </description>
+        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
+        /// <description>Creates a payload of { "key": "value" }.</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
+        public IDictionary<string, System.BinaryData> ReadOnlyOptionalRecordUnknown { get; }
 
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
@@ -275,19 +297,19 @@ namespace UnbrandedTypeSpec.Models
         /// <summary>
         /// Required bytes
         /// <para>
-        /// To assign a byte[] to this property use <see cref="BinaryData.FromBytes(byte[])"/>.
+        /// To assign a byte[] to this property use <see cref="System.BinaryData.FromBytes(byte[])"/>.
         /// The byte[] will be serialized to a Base64 encoded string.
         /// </para>
         /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term> BinaryData.FromBytes(new byte[] { 1, 2, 3 }). </term>
-        /// <description> Creates a payload of "AQID". </description>
+        /// <term>BinaryData.FromBytes(new byte[] { 1, 2, 3 })</term>
+        /// <description>Creates a payload of "AQID".</description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public BinaryData RequiredBytes { get; set; }
+        public System.BinaryData RequiredBytes { get; set; }
     }
 }

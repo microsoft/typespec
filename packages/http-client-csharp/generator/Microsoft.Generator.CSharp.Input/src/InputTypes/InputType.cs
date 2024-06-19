@@ -19,19 +19,10 @@ namespace Microsoft.Generator.CSharp.Input
         {
             Name = name;
             IsNullable = isNullable;
-            Properties = new List<InputModelProperty>();
-        }
-
-        protected InputType(string name, bool isNullable, IReadOnlyList<InputModelProperty> properties)
-        {
-            Name = name;
-            IsNullable = isNullable;
-            Properties = properties;
         }
 
         public string Name { get; internal set; }
         public bool IsNullable { get; internal set; }
-        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {

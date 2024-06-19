@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly FieldProvider? _rawDataField;
         private readonly bool _isStruct;
 
-        public MrwSerializationTypeProvider(TypeProvider model, InputType inputModel)
+        public MrwSerializationTypeProvider(TypeProvider model, InputModelType inputModel)
         {
             _model = model;
             _inputModel = inputModel;

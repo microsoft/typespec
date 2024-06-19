@@ -9,35 +9,44 @@ using System.Text.Json;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary></summary>
-    public partial class ReturnsAnonymousModelResponse : IJsonModel<ReturnsAnonymousModelResponse>
+    public partial class ReturnsAnonymousModelResponse : System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>
     {
-        private IDictionary<string, BinaryData> _serializedAdditionalRawData;
+        private IDictionary<string, System.BinaryData> _serializedAdditionalRawData;
 
-        internal ReturnsAnonymousModelResponse(IDictionary<string, BinaryData> serializedAdditionalRawData)
+        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResponse"/>. </summary>
+        /// <param name="serializedAdditionalRawData"> Keeps track of any properties unknown to the library. </param>
+        internal ReturnsAnonymousModelResponse(IDictionary<string, System.BinaryData> serializedAdditionalRawData)
         {
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
-        void IJsonModel<ReturnsAnonymousModelResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Write(System.Text.Json.Utf8JsonWriter writer, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
         }
 
-        ReturnsAnonymousModelResponse IJsonModel<ReturnsAnonymousModelResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            return new ReturnsAnonymousModelResponse();
-        }
-
-        BinaryData IPersistableModel<ReturnsAnonymousModelResponse>.Write(ModelReaderWriterOptions options)
-        {
-            return new BinaryData("IPersistableModel");
-        }
-
-        ReturnsAnonymousModelResponse IPersistableModel<ReturnsAnonymousModelResponse>.Create(BinaryData data, ModelReaderWriterOptions options)
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ReturnsAnonymousModelResponse System.ClientModel.Primitives.IJsonModel<ReturnsAnonymousModelResponse>.Create(ref System.Text.Json.Utf8JsonReader reader, System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             return new ReturnsAnonymousModelResponse();
         }
 
-        string IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        /// <param name="options"> The client options for reading and writing models. </param>
+        System.BinaryData System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.Write(System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            return new System.BinaryData("IPersistableModel");
+        }
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ReturnsAnonymousModelResponse System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.Create(System.BinaryData data, System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            return new ReturnsAnonymousModelResponse();
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string System.ClientModel.Primitives.IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(System.ClientModel.Primitives.ModelReaderWriterOptions options) => "J";
     }
 }

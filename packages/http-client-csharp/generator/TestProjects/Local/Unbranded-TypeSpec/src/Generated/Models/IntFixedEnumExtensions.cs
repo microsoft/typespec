@@ -8,6 +8,7 @@ namespace UnbrandedTypeSpec.Models
 {
     internal static partial class IntFixedEnumExtensions
     {
+        /// <param name="value"> The value to deserialize. </param>
         public static IntFixedEnum ToIntFixedEnum(this int value)
         {
             if (value == 1)

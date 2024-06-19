@@ -8,7 +8,6 @@ using System.Globalization;
 
 namespace UnbrandedTypeSpec.Models
 {
-    /// <summary> The Thing_optionalLiteralFloat. </summary>
     public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
     {
         private readonly float _value;
@@ -46,10 +45,8 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="other"> The instance to compare. </param>
         public bool Equals(ThingOptionalLiteralFloat other) => Equals(_value, other._value);
 
-        /// <inheritdoc/>
         public override int GetHashCode() => _value.GetHashCode();
 
-        /// <inheritdoc/>
         public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
 
         internal float ToSerialSingle() => _value;

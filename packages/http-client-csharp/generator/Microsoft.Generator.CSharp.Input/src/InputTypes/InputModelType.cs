@@ -39,6 +39,7 @@ namespace Microsoft.Generator.CSharp.Input
         public InputDictionaryType? InheritedDictionaryType { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
+        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);
 
