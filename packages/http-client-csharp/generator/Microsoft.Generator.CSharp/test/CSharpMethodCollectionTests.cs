@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests
                     description: string.Empty,
                     accessibility: null,
                     parameters: [
-                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
+                        new InputParameter("message", "message", "The message to create.", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), RequestLocation.Body, null, InputOperationParameterKind.Method, true, false, false, false, false, false, false, null, null)
                         ],
                     responses: Array.Empty<OperationResponse>(),
                     httpMethod: "GET",
