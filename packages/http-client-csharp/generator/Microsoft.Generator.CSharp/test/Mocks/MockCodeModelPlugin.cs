@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Tests
     {
         private static MockCodeModelPlugin? _instance;
 #pragma warning disable CS0108 // Member hides inherited member; missing new keyword
-        internal static MockCodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
+        internal static MockCodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not loaded.");
 #pragma warning restore CS0108 // Member hides inherited member; missing new keyword
         public MockCodeModelPlugin(GeneratorContext context) : base(context)
         {
