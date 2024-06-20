@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 inputModelProperty
             };
 
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, null, false);
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, props, null, new List<InputModelType>(), null, null, null, false, false);
             var modelTypeProvider = new ModelProvider(inputModel);
             var properties = modelTypeProvider.Properties;
 
@@ -158,7 +158,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false, false);
 
             var modelTypeProvider = new ModelProvider(inputModel);
             var ctors = modelTypeProvider.Constructors;
@@ -169,6 +169,40 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var initializationCtor = ctors[0];
             Assert.AreEqual(MethodSignatureModifiers.Public, initializationCtor.Signature.Modifiers);
             Assert.AreEqual(3, initializationCtor.Signature.Parameters.Count);
+        }
+
+        [Test]
+        public void GenerateModelAsStruct()
+        {
+            var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
+            var mockTypeFactory = new Mock<TypeFactory>() { };
+
+            var properties = new List<InputModelProperty>{
+                    new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
+                    new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
+             };
+
+            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns((InputType inputType) =>
+            {
+                // Lookup the inputType in the list and return the corresponding CSharpType
+                var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
+                if (inputModelProperty != null)
+                {
+                    return GetCSharpType(inputModelProperty.Type);
+                }
+                else
+                {
+                    throw new ArgumentException("Unsupported input type.");
+                }
+            });
+
+            mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
+            _mockPlugin?.SetValue(null, mockPluginInstance.Object);
+
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false, modelAsStruct: true);
+
+            var modelTypeProvider = new ModelProvider(inputModel);
+            Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly, modelTypeProvider.DeclarationModifiers);
         }
     }
 }
