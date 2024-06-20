@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="./**/*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Local/**/*.cs" Exclude="../Local/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

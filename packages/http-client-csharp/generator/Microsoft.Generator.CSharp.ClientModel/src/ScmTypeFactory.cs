@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly IDictionary<InputModelType, ModelProvider> _models = new Dictionary<InputModelType, ModelProvider>();
         private readonly IDictionary<InputEnumType, EnumProvider> _enums = new Dictionary<InputEnumType, EnumProvider>();
         private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
+        private Dictionary<InputOperation, MethodProviderCollection?> _operations = new Dictionary<InputOperation, MethodProviderCollection?>();
 
         /// <summary>
         /// This method will attempt to retrieve the <see cref="CSharpType"/> of the input type.
@@ -107,33 +108,39 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         /// <summary>
-        /// Creates a <see cref="CSharpMethodCollection"/> for the given operation. If the operation is a <see cref="OperationKinds.DefaultValue"/> operation,
+        /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
         /// a method collection will be created consisting of a <see cref="CSharpMethodKinds.CreateMessage"/> method. Otherwise, <c>null</c> will be returned.
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override CSharpMethodCollection? CreateCSharpMethodCollection(InputOperation operation, TypeProvider enclosingType)
+        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
         {
-            switch (GetOperationKind(operation))
+            if (_operations.TryGetValue(operation, out var methods))
             {
-                case var value when value == OperationKinds.Default:
-                    return CSharpMethodCollection.DefaultCSharpMethodCollection(operation, enclosingType);
-                default:
-                    return null;
+                return methods;
             }
+
+            methods = GetOperationKind(operation).ToString() switch
+            {
+                "Default" => MethodProviderCollection.DefaultCSharpMethodCollection(operation, enclosingType),
+                _ => null,
+            };
+
+            _operations.Add(operation, methods);
+            return methods;
         }
 
         /// <summary>
-        /// Returns the <see cref="OperationKinds"/> of the given operation.
-        /// By default, the operation kind is <see cref="OperationKinds.Default"/>.
+        /// Returns the <see cref="InputOperationKinds"/> of the given operation.
+        /// By default, the operation kind is <see cref="InputOperationKinds.Default"/>.
         /// </summary>
-        private static OperationKinds GetOperationKind(InputOperation operation)
+        private static InputOperationKinds GetOperationKind(InputOperation operation)
         {
             return operation switch
             {
-                { LongRunning: { } } => OperationKinds.LongRunning,
-                { Paging: { } } => OperationKinds.Paging,
-                _ => OperationKinds.Default,
+                { LongRunning: { } } => InputOperationKinds.LongRunning,
+                { Paging: { } } => InputOperationKinds.Paging,
+                _ => InputOperationKinds.Default,
             };
         }
 

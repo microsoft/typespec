@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -14,6 +13,7 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
+        private const string GeneratedFolderName = "Generated";
 
         private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
 
@@ -24,12 +24,13 @@ namespace Microsoft.Generator.CSharp
         {
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelPlugin.Instance.Configuration.OutputDirectory;
-            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", "Generated");
+            var generatedSourceOutputPath = ParseGeneratedSourceOutputPath(outputPath);
+            var generatedTestOutputPath = Path.Combine(outputPath, "..", "..", "tests", GeneratedFolderName);
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
-            Directory.CreateDirectory(Path.Combine(outputPath, "src", "Generated", "Models"));
+            Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
             foreach (var outputType in output.Types)
@@ -43,7 +44,7 @@ namespace Microsoft.Generator.CSharp
 
             if (CodeModelPlugin.Instance.Configuration.ClearOutputFolder)
             {
-                DeleteDirectory(outputPath, _filesToKeep);
+                DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
                 DeleteDirectory(generatedTestOutputPath, _filesToKeep);
             }
 
@@ -66,12 +67,14 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="outputPath">The output path.</param>
         /// <returns>The parsed output path string.</returns>
-        internal static string ParseOutputPath(string outputPath)
+        internal static string ParseGeneratedSourceOutputPath(string outputPath)
         {
             if (!outputPath.EndsWith("src", StringComparison.Ordinal) && !outputPath.EndsWith("src/", StringComparison.Ordinal))
             {
                 outputPath = Path.Combine(outputPath, "src");
             }
+
+            outputPath = Path.Combine(outputPath, GeneratedFolderName);
 
             return outputPath;
         }
