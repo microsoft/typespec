@@ -54,7 +54,7 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: TypeSpecValue
 ) => {
-  if (entity.kind !== 'Namespace' && !isOpenAPIExtensionKey(extensionName)) {
+  if (entity.kind !== "Namespace" && !isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       format: { value: extensionName },
@@ -69,10 +69,9 @@ export const $extension: ExtensionDecorator = (
 
   if (entity.kind === "Namespace") {
     setNamespaceExtension(context.program, entity, extensionName, data);
-  }
-  else{
+  } else {
     setExtension(context.program, entity, extensionName as ExtensionKey, data);
-  }  
+  }
 };
 
 export function setExtension(
