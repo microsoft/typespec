@@ -75,7 +75,38 @@ namespace Microsoft.Generator.CSharp.Providers
         // TODO -- in the future this is potentially to be protected virtual when this type is un-sealed.
         private ModelDiscriminator? BuildDiscriminator()
         {
-            return null;
+            string? discriminatorPropertyName = _inputModel.DiscriminatorPropertyName;
+            var implemenations = new Dictionary<string, CSharpType>();
+
+            PropertyProvider discriminatorProperty;
+
+            if (discriminatorPropertyName == null)
+            {
+                // if this model does not have the discriminator, we find through the hierarchy to see if my direct parent has a discriminator
+                if (Inherits is not { IsFrameworkType: false, Implementation: ModelProvider parent } || parent.Discriminator == null)
+                {
+                    // if neither myself nor my parent has discriminator, we do not have a discriminator for this model
+                    return null;
+                }
+
+                discriminatorPropertyName = parent.Discriminator.DiscriminatorSerializedName;
+                discriminatorProperty = parent.Discriminator.DiscriminatorProperty;
+            }
+            else
+            {
+                // build the implementations
+                foreach (var derivedModel in _inputModel.DerivedModels)
+                {
+                    var model = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(derivedModel);
+                    implemenations.Add(derivedModel.DiscriminatorValue!, model);
+                }
+
+                // find the discriminator property from the property list
+                // TODO -- how do I find the discriminator property from the list???
+                discriminatorProperty = Properties[0];
+            }
+
+            return new(discriminatorProperty, discriminatorPropertyName, implemenations, _inputModel.DiscriminatorValue);
         }
 
         protected override PropertyProvider[] BuildProperties()
