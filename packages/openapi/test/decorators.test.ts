@@ -53,6 +53,36 @@ describe("openapi: decorators", () => {
       });
     });
 
+    it("apply extension on namespace", async () => {
+      const { Service } = (await runner.compile(`
+        alias suno = {
+          "contact": {
+            "email": "ionutro@microsoft.com",
+          },
+          "title": "Suno",
+          "x-ai-description": "Suno is a tool that can generate songs based on a description. The user provides a description of the song they want to create, and Suno generates the song lyrics. Suno is a fun and creative way to create songs for any occasion.",
+          "x-legal-info-url": "https://app.suno.ai/legal",
+          "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
+          "x-privacy-policy-url": "https://app.suno.ai/privacy",      
+        };        
+        @extension("infoExtension", suno)
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      const info = getInfo(runner.program, Service);
+      deepStrictEqual(info, {
+        contact: {
+          email: "ionutro@microsoft.com",
+        },
+        title: "Suno",
+        "x-ai-description":
+          "Suno is a tool that can generate songs based on a description. The user provides a description of the song they want to create, and Suno generates the song lyrics. Suno is a fun and creative way to create songs for any occasion.",
+        "x-legal-info-url": "https://app.suno.ai/legal",
+        "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
+        "x-privacy-policy-url": "https://app.suno.ai/privacy",
+      });
+    });
+
     it("apply extension with complex value", async () => {
       const { Foo } = await runner.compile(`
         @extension("x-custom", {foo: 123, bar: "string"})
