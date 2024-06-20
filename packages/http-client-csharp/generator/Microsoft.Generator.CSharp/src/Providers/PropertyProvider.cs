@@ -21,6 +21,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; }
+        public PropertySerializationProvider? SerializationInfo { get; }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -36,9 +37,17 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
+            SerializationInfo = new PropertySerializationProvider(inputProperty);
         }
 
-        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, CSharpType? explicitInterface = null)
+        public PropertyProvider(
+            FormattableString? description,
+            MethodSignatureModifiers modifiers,
+            CSharpType type,
+            string name,
+            PropertyBody body,
+            CSharpType? explicitInterface = null,
+            PropertySerializationProvider? propertySerializationProvider = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -48,6 +57,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Body = body;
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
+            SerializationInfo = propertySerializationProvider;
         }
 
         private XmlDocProvider GetXmlDocs()

@@ -6,6 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -49,6 +50,224 @@ namespace UnbrandedTypeSpec.Models
 
         void IJsonModel<RoundTripModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
+
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            var format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(RoundTripModel)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("requiredString"u8);
+            writer.WriteStringValue(RequiredString);
+            writer.WritePropertyName("requiredInt"u8);
+            writer.WriteNumberValue(RequiredInt);
+            writer.WritePropertyName("requiredCollection"u8);
+            writer.WriteStartArray();
+            foreach (var item in RequiredCollection)
+            {
+                writer.WriteStringValue(item.ToSerialString());
+            }
+            writer.WriteEndArray();
+            writer.WritePropertyName("requiredDictionary"u8);
+            writer.WriteStartObject();
+            foreach (var item in RequiredDictionary)
+            {
+                writer.WritePropertyName(item.Key);
+                writer.WriteStringValue(item.Value.ToString());
+            }
+            writer.WriteEndObject();
+            writer.WritePropertyName("requiredModel"u8);
+            writer.WriteObjectValue(RequiredModel, options);
+            writer.WritePropertyName("intExtensibleEnum"u8);
+            writer.WriteNumberValue(IntExtensibleEnum.ToSerialInt32());
+            if (Optional.IsCollectionDefined(IntExtensibleEnumCollection))
+            {
+                writer.WritePropertyName("intExtensibleEnumCollection"u8);
+                writer.WriteStartArray();
+                foreach (var item in IntExtensibleEnumCollection)
+                {
+                    writer.WriteNumberValue(item.ToSerialInt32());
+                }
+                writer.WriteEndArray();
+            }
+            writer.WritePropertyName("floatExtensibleEnum"u8);
+            writer.WriteNumberValue(FloatExtensibleEnum.ToSerialSingle());
+            writer.WritePropertyName("floatExtensibleEnumWithIntValue"u8);
+            writer.WriteNumberValue(FloatExtensibleEnumWithIntValue.ToSerialSingle());
+            if (Optional.IsCollectionDefined(FloatExtensibleEnumCollection))
+            {
+                writer.WritePropertyName("floatExtensibleEnumCollection"u8);
+                writer.WriteStartArray();
+                foreach (var item in FloatExtensibleEnumCollection)
+                {
+                    writer.WriteNumberValue(item.ToSerialSingle());
+                }
+                writer.WriteEndArray();
+            }
+            writer.WritePropertyName("floatFixedEnum"u8);
+            writer.WriteNumberValue(FloatFixedEnum.ToSerialSingle());
+            writer.WritePropertyName("floatFixedEnumWithIntValue"u8);
+            writer.WriteNumberValue((int)FloatFixedEnumWithIntValue);
+            if (Optional.IsCollectionDefined(FloatFixedEnumCollection))
+            {
+                writer.WritePropertyName("floatFixedEnumCollection"u8);
+                writer.WriteStartArray();
+                foreach (var item in FloatFixedEnumCollection)
+                {
+                    writer.WriteNumberValue(item.ToSerialSingle());
+                }
+                writer.WriteEndArray();
+            }
+            writer.WritePropertyName("intFixedEnum"u8);
+            writer.WriteNumberValue((int)IntFixedEnum);
+            if (Optional.IsCollectionDefined(IntFixedEnumCollection))
+            {
+                writer.WritePropertyName("intFixedEnumCollection"u8);
+                writer.WriteStartArray();
+                foreach (var item in IntFixedEnumCollection)
+                {
+                    writer.WriteNumberValue((int)item);
+                }
+                writer.WriteEndArray();
+            }
+            writer.WritePropertyName("stringFixedEnum"u8);
+            writer.WriteStringValue(StringFixedEnum.ToSerialString());
+            writer.WritePropertyName("requiredUnknown"u8);
+#if NET6_0_OR_GREATER
+            writer.WriteRawValue(RequiredUnknown);
+#else
+            using (JsonDocument document = JsonDocument.Parse(RequiredUnknown))
+            {
+                JsonSerializer.Serialize(writer, document.RootElement);
+            }
+#endif
+            if (Optional.IsDefined(OptionalUnknown))
+            {
+                writer.WritePropertyName("optionalUnknown"u8);
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(OptionalUnknown);
+#else
+                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
+                {
+                    JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
+            }
+            writer.WritePropertyName("requiredRecordUnknown"u8);
+            writer.WriteStartObject();
+            foreach (var item in RequiredRecordUnknown)
+            {
+                writer.WritePropertyName(item.Key);
+                if (item.Value == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(item.Value);
+#else
+                using (JsonDocument document = JsonDocument.Parse(item.Value))
+                {
+                    JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
+            }
+            writer.WriteEndObject();
+            if (Optional.IsCollectionDefined(OptionalRecordUnknown))
+            {
+                writer.WritePropertyName("optionalRecordUnknown"u8);
+                writer.WriteStartObject();
+                foreach (var item in OptionalRecordUnknown)
+                {
+                    writer.WritePropertyName(item.Key);
+                    if (item.Value == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+                writer.WriteEndObject();
+            }
+            if (options.Format != "W")
+            {
+                writer.WritePropertyName("readOnlyRequiredRecordUnknown"u8);
+                writer.WriteStartObject();
+                foreach (var item in ReadOnlyRequiredRecordUnknown)
+                {
+                    writer.WritePropertyName(item.Key);
+                    if (item.Value == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+                writer.WriteEndObject();
+            }
+            if (options.Format != "W" && Optional.IsCollectionDefined(ReadOnlyOptionalRecordUnknown))
+            {
+                writer.WritePropertyName("readOnlyOptionalRecordUnknown"u8);
+                writer.WriteStartObject();
+                foreach (var item in ReadOnlyOptionalRecordUnknown)
+                {
+                    writer.WritePropertyName(item.Key);
+                    if (item.Value == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+                writer.WriteEndObject();
+            }
+            writer.WritePropertyName("modelWithRequiredNullable"u8);
+            writer.WriteObjectValue(ModelWithRequiredNullable, options);
+            writer.WritePropertyName("requiredBytes"u8);
+            writer.WriteBase64StringValue(RequiredBytes.ToArray(), "D");
+            if (options.Format != "W" && _serializedAdditionalRawData != null)
+            {
+                foreach (var item in _serializedAdditionalRawData)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
         }
 
         RoundTripModel IJsonModel<RoundTripModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
