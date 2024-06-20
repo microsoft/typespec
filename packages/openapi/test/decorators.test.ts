@@ -55,17 +55,17 @@ describe("openapi: decorators", () => {
 
     it("apply extension on namespace", async () => {
       const { Service } = (await runner.compile(`
-        alias suno = {
+        alias sample = {
           "contact": {
             "email": "ionutro@microsoft.com",
           },
-          "title": "Suno",
-          "x-ai-description": "Suno is a tool that can generate songs based on a description. The user provides a description of the song they want to create, and Suno generates the song lyrics. Suno is a fun and creative way to create songs for any occasion.",
-          "x-legal-info-url": "https://app.suno.ai/legal",
+          "title": "Sample Title",
+          "x-ai-description": "Sample description.",
+          "x-legal-info-url": "https://app.sample.ai/legal",
           "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
-          "x-privacy-policy-url": "https://app.suno.ai/privacy",      
+          "x-privacy-policy-url": "https://app.sample.ai/privacy",      
         };        
-        @extension("infoExtension", suno)
+        @extension("infoExtension", sample)
         @test namespace Service {}
       `)) as { Service: Namespace };
 
@@ -74,12 +74,11 @@ describe("openapi: decorators", () => {
         contact: {
           email: "ionutro@microsoft.com",
         },
-        title: "Suno",
-        "x-ai-description":
-          "Suno is a tool that can generate songs based on a description. The user provides a description of the song they want to create, and Suno generates the song lyrics. Suno is a fun and creative way to create songs for any occasion.",
-        "x-legal-info-url": "https://app.suno.ai/legal",
+        title: "Sample Title",
+        "x-ai-description": "Sample description.",
+        "x-legal-info-url": "https://app.sample.ai/legal",
         "x-logo": "https://th.bing.com/th?id=OSK.935650835684F7E18AC3F31034DE6DF3",
-        "x-privacy-policy-url": "https://app.suno.ai/privacy",
+        "x-privacy-policy-url": "https://app.sample.ai/privacy",
       });
     });
 
