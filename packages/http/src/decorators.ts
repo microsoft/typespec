@@ -362,14 +362,9 @@ function rangeDescription(start: number, end: number) {
   return undefined;
 }
 
-export function setOperationVerb(
-  program: Program,
-  entity: Type,
-  verb: HttpVerb,
-  warnOnOverride: boolean = true
-): void {
+export function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
-    if (program.stateMap(HttpStateKeys.verbs).has(entity) && warnOnOverride) {
+    if (program.stateMap(HttpStateKeys.verbs).has(entity)) {
       reportDiagnostic(program, {
         code: "http-verb-duplicate",
         format: { entityName: entity.name },
