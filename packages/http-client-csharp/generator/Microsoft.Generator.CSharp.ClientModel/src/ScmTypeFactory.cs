@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 

@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (TypeProvider model in output.Models) // now is of type TypeProvider and not ModelProvider so this doesn't compile
+            foreach (TypeProvider model in output.Models)
             {
                 generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(model).Write()));
 
