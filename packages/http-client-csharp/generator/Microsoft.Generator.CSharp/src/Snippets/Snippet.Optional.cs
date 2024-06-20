@@ -10,16 +10,6 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public class Optional
         {
-            public static BoolSnippet IsCollectionDefined(TypedSnippet collection)
-            {
-                return OptionalProvider.Instance.IsCollectionDefined(collection);
-            }
-
-            public static BoolSnippet IsDefined(TypedSnippet value)
-            {
-                return OptionalProvider.Instance.IsDefined(value);
-            }
-
             public static ValueExpression FallBackToChangeTrackingCollection(TypedSnippet collection, CSharpType? paramType)
             {
                 if (!collection.Type.IsCollection || collection.Type.IsReadOnlyMemory)

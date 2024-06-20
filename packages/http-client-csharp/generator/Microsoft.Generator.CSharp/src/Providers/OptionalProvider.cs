@@ -12,7 +12,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class OptionalProvider : TypeProvider
+    public sealed class OptionalProvider : TypeProvider
     {
         private static readonly Lazy<OptionalProvider> _instance = new(() => new OptionalProvider());
         public static OptionalProvider Instance => _instance.Value;
@@ -164,12 +164,12 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        internal BoolSnippet IsDefined(TypedSnippet value)
+        public BoolSnippet IsDefined(TypedSnippet value)
         {
             return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsDefined", [ value ]));
         }
 
-        internal BoolSnippet IsCollectionDefined(TypedSnippet collection)
+        public BoolSnippet IsCollectionDefined(TypedSnippet collection)
         {
             return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsCollectionDefined", [ collection ]));
         }
