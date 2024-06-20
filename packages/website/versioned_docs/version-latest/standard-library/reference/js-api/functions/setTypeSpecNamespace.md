@@ -4,7 +4,7 @@ title: "[F] setTypeSpecNamespace"
 
 ---
 ```ts
-setTypeSpecNamespace(namespace, ...functions): void
+function setTypeSpecNamespace(namespace, ...functions): void
 ```
 
 Set the TypeSpec namespace for that function.

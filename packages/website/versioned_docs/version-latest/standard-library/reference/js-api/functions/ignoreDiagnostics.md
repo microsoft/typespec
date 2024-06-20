@@ -4,7 +4,7 @@ title: "[F] ignoreDiagnostics"
 
 ---
 ```ts
-ignoreDiagnostics<T>(result): T
+function ignoreDiagnostics<T>(result): T
 ```
 
 Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.

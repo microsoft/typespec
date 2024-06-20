@@ -4,7 +4,7 @@ title: "[F] getProjectedNames"
 
 ---
 ```ts
-getProjectedNames(program, target): ReadonlyMap<string, string> | undefined
+function getProjectedNames(program, target): ReadonlyMap<string, string> | undefined
 ```
 
 ## Parameters

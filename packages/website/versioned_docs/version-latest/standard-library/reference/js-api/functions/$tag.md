@@ -4,7 +4,7 @@ title: "[F] $tag"
 
 ---
 ```ts
-$tag(
+function $tag(
    context, 
    target, 
    tag): void

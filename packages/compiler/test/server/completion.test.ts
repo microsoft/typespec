@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import {
   CompletionItem,
@@ -55,6 +55,119 @@ describe("complete statement keywords", () => {
           },
         ]);
       });
+    });
+  });
+});
+
+describe("completes for keywords", () => {
+  describe.each([
+    [`scalar S ┆`, ["extends"]],
+    [`scalar S ┆ `, ["extends"]],
+    [`scalar S \n┆\n`, ["extends"]],
+    [`scalar S ┆;`, ["extends"]],
+    [`scalar S ┆ ;`, ["extends"]],
+    [`scalar S /*comment*/ ┆{}`, ["extends"]],
+    [`scalar S ┆ {}`, ["extends"]],
+    [`scalar S ┆ \nscalar S2`, ["extends"]],
+    [`scalar S1;\nscalar S2 ┆ S1`, ["extends"]],
+    [`scalar S1;\nscalar S2 e┆x S1`, ["extends"]],
+    [`scalar S1;\nscalar S2 ┆ex S1`, ["extends"]],
+    [`scalar S<T> ┆\n`, ["extends"]],
+    [`scalar S<T>┆ \n`, ["extends"]],
+    [`scalar S<T extends string> ┆ {}`, ["extends"]],
+    [`scalar S ex┆`, ["extends"]],
+    [`scalar S ex┆tends`, ["extends"]],
+    [`scalar S ex ┆ {}`, []],
+    [`scalar S ex ex┆`, []],
+    [`scalar S {┆}`, ["init"]],
+    [`scalar S<T, ┆>`, []],
+
+    [`model M ┆`, ["extends", "is"]],
+    [`model M ┆ `, ["extends", "is"]],
+    [`model M \n┆\n`, ["extends", "is"]],
+    [`model M ┆;`, ["extends", "is"]],
+    [`model M ┆ ;`, ["extends", "is"]],
+    [`model M ┆{}`, ["extends", "is"]],
+    [`model M ┆ {}`, ["extends", "is"]],
+    [`model M ┆ \nscalar S2`, ["extends", "is"]],
+    [`model M1{}; model M2 ┆ M1`, ["extends", "is"]],
+    [`model M1{}; model M2 e┆x M1`, ["extends", "is"]],
+    [`model M1{}; model M2 ┆ex M1`, ["extends", "is"]],
+    [`model M<T> ┆\n`, ["extends", "is"]],
+    [`model M<T>┆ \n`, ["extends", "is"]],
+    [`model M<T extends string> ┆ {}`, ["extends", "is"]],
+    [`model M ex┆`, ["extends", "is"]],
+    [`model M i┆s`, ["extends", "is"]],
+    [`model M {┆}`, []],
+    [`model M<T, ┆> {}`, []],
+
+    [`op o ┆`, ["is"]],
+    [`op o ┆ `, ["is"]],
+    [`op o \n┆\n`, ["is"]],
+    [`op o ┆;`, ["is"]],
+    [`op o ┆ ;`, ["is"]],
+    [`op o ┆{}`, ["is"]],
+    [`op o ┆ {}`, ["is"]],
+    [`op o ┆ ()`, ["is"]],
+    [`op o ┆()`, ["is"]],
+    [`op o ┆ \nscalar S2`, ["is"]],
+    [`op o1{}; op o2 \n//comment\n ┆ M1`, ["is"]],
+    [`op o1{}; op o2 i┆s M1`, ["is"]],
+    [`op o1{}; op o2 ┆is M1`, ["is"]],
+    [`op o<T> ┆\n`, ["is"]],
+    [`op o<T>┆ \n`, ["is"]],
+    [`op o<T extends string> ┆ {}`, ["is"]],
+    [`op o is┆`, ["is"]],
+    [`op o (┆)`, []],
+    [`op o<T, ┆> {}`, []],
+    [`interface I {o ┆}`, ["is"]],
+    [`interface I {o ┆ ()}`, ["is"]],
+    [`interface I {o (┆)}`, []],
+
+    [`interface I ┆`, ["extends"]],
+    [`interface I //comment\n ┆ `, ["extends"]],
+    [`interface I \n┆\n`, ["extends"]],
+    [`interface I ┆;`, ["extends"]],
+    [`interface I ┆ ;`, ["extends"]],
+    [`interface I ┆{}`, ["extends"]],
+    [`interface I ┆ {}`, ["extends"]],
+    [`interface I ┆ \nscalar S2`, ["extends"]],
+    [`interface I1;\ninterface I2 ┆ I1`, ["extends"]],
+    [`interface I1;\ninterface I2 e┆x I1`, ["extends"]],
+    [`interface I1;\ninterface I2 ┆ex I1`, ["extends"]],
+    [`interface I<T> ┆\n`, ["extends"]],
+    [`interface I<T>┆ \n`, ["extends"]],
+    [`interface I<T extends string> ┆ {}`, ["extends"]],
+    [`interface I ex┆`, ["extends"]],
+    [`interface I ex┆tends`, ["extends"]],
+    [`interface I ex ┆ {}`, []],
+    [`interface I ex ex┆`, []],
+    [`interface I {┆}`, []],
+    [`interface I<T, ┆>`, []],
+
+    [`scalar S<T ┆>`, ["extends"]],
+    [`scalar S<T ┆ = int16>`, ["extends"]],
+    [`model M<T e┆x>`, ["extends"]],
+    [`model M<T, P ┆ >`, ["extends"]],
+    [`model M<T, P e┆x >`, ["extends"]],
+    [`op o<T, P ┆ , Q>`, ["extends"]],
+    [`op o<T, P ex┆ , Q>`, ["extends"]],
+    [`interface I┆<T, Q>`, []],
+    [`interface I<┆, T, Q>`, []],
+    [`interface I<T ┆=string>`, ["extends"]],
+    [`model M<T>{};alias a = M<T ┆>`, []],
+    [`model M<T>{};model M2 extends M<T ┆ >`, []],
+  ] as const)("%s", (code, keywords) => {
+    it("completes extends keyword", async () => {
+      const completions = await complete(code);
+      if (keywords.length > 0) {
+        check(
+          completions,
+          keywords.map((w) => ({ label: w, kind: CompletionItemKind.Keyword }))
+        );
+      } else {
+        equal(completions.items.length, 0, "No completions expected");
+      }
     });
   });
 });

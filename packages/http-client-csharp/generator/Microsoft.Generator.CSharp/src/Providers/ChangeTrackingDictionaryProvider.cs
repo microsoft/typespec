@@ -99,7 +99,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     _innerDictionary.Add(pair)
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider ConstructorWithDictionary()
@@ -114,13 +115,14 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return()
                 },
                 Assign(_innerDictionary, New.Instance(_dictionary, dictionary))
-            });
+            },
+            this);
         }
 
         private MethodProvider DefaultConstructor()
         {
             var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
-            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>());
+            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -142,7 +144,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tValue), "Values", new ExpressionPropertyBody(
                 new MemberExpression(This, "Values")),
-                null,
                 _IReadOnlyDictionary);
         }
 
@@ -150,7 +151,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tKey), "Keys", new ExpressionPropertyBody(
                 new MemberExpression(This, "Keys")),
-                null,
                 _IReadOnlyDictionary);
         }
 
@@ -258,7 +258,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("TryGetValue", new ParameterReferenceSnippet(keyParam), new KeywordExpression("out", value)))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildRemoveKey()
@@ -272,7 +273,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Remove", new ParameterReferenceSnippet(keyParam)))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildContainsKey()
@@ -286,7 +288,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("ContainsKey", new ParameterReferenceSnippet(keyParam)))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAdd()
@@ -297,7 +300,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 EnsureDictionary.Invoke("Add", new ParameterReferenceSnippet(keyParam), new ParameterReferenceSnippet(valueParam)).ToStatement()
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildRemovePair()
@@ -312,7 +316,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Remove", item))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCopyTo()
@@ -330,7 +335,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return()
                 },
                 EnsureDictionary.Invoke("CopyTo", array, index).ToStatement()
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildContains()
@@ -345,7 +351,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Contains", item))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildClear()
@@ -354,7 +361,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 EnsureDictionary.Invoke("Clear").ToStatement()
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAddPair()
@@ -365,7 +373,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 EnsureDictionary.Invoke("Add", item).ToStatement()
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumerator()
@@ -374,7 +383,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(This.Invoke("GetEnumerator"))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumeratorGeneric()
@@ -388,7 +398,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureDictionary.Invoke("GetEnumerator"))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildEnsureDictionary()
@@ -396,7 +407,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(_ensureDictionarySignature, new MethodBodyStatement[]
             {
                 Return(new BinaryOperatorExpression("??=", _innerDictionary, New.Instance(_dictionary)))
-            });
+            },
+            this);
         }
     }
 }

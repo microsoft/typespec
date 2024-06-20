@@ -4,7 +4,7 @@ title: "[F] getBaseFileName"
 
 ---
 ```ts
-getBaseFileName(path): string
+function getBaseFileName(path): string
 ```
 
 Returns the path except for its containing directory name.

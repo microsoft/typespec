@@ -4,7 +4,7 @@ title: "[F] getVisibility"
 
 ---
 ```ts
-getVisibility(program, target): string[] | undefined
+function getVisibility(program, target): string[] | undefined
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] $withDefaultKeyVisibility"
 
 ---
 ```ts
-$withDefaultKeyVisibility(
+function $withDefaultKeyVisibility(
    context, 
    target, 
    visibility): void

@@ -4,7 +4,7 @@ title: "[F] getMaxContains"
 
 ---
 ```ts
-getMaxContains(program, target): any
+function getMaxContains(program, target): any
 ```
 
 ## Parameters

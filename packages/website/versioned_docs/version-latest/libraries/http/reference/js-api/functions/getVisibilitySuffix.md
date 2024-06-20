@@ -4,7 +4,7 @@ title: "[F] getVisibilitySuffix"
 
 ---
 ```ts
-getVisibilitySuffix(visibility, canonicalVisibility): string
+function getVisibilitySuffix(visibility, canonicalVisibility): string
 ```
 
 Provides a naming suffix to create a unique name for a type with this

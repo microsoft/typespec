@@ -15,5 +15,5 @@ Use TypeSpecLibraryDef
 
 | Type parameter | Value |
 | :------ | :------ |
-| `T` extends `Object` | - |
-| `E` extends `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |
+| `T` *extends* `object` | - |
+| `E` *extends* `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |

@@ -7,8 +7,19 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record TryCatchFinallyStatement(MethodBodyStatement Try, IReadOnlyList<CatchExpression> Catches, MethodBodyStatement? Finally) : MethodBodyStatement
+    public sealed class TryCatchFinallyStatement : MethodBodyStatement
     {
+        public MethodBodyStatement Try { get; }
+        public IReadOnlyList<CatchExpression> Catches { get; }
+        public MethodBodyStatement? Finally { get; }
+
+        public TryCatchFinallyStatement(MethodBodyStatement tryStatement, IReadOnlyList<CatchExpression> catches, MethodBodyStatement? finallyStatement)
+        {
+            Try = tryStatement;
+            Catches = catches;
+            Finally = finallyStatement;
+        }
+
         public TryCatchFinallyStatement(MethodBodyStatement Try) : this(Try, Array.Empty<CatchExpression>(), null)
         {
         }

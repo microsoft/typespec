@@ -4,7 +4,7 @@ title: "[F] getInfo"
 
 ---
 ```ts
-getInfo(program, entity): AdditionalInfo | undefined
+function getInfo(program, entity): AdditionalInfo | undefined
 ```
 
 ## Parameters

@@ -8,6 +8,7 @@ title: "[E] SymbolFlags"
 | Enumeration Member | Value | Description |
 | :------ | :------ | :------ |
 | `Alias` | `2048` | - |
+| `Const` | `16777216` | - |
 | `Declaration` | `4194304` | - |
 | `Decorator` | `16384` | - |
 | `DuplicateUsing` | `1048576` | - |
@@ -19,9 +20,9 @@ title: "[E] SymbolFlags"
 | `Implementation` | `8388608` | - |
 | `Interface` | `128` | - |
 | `InterfaceMember` | `256` | - |
-| `LateBound` | `16777216` | A symbol which was late-bound, in which case, the type referred to<br />by this symbol is stored directly in the symbol. |
-| `Member` | `1348` | - |
-| `MemberContainer` | `674` | Symbols whose members will be late bound (and stored on the type) |
+| `LateBound` | `67108864` | A symbol which was late-bound, in which case, the type referred to by this symbol is stored directly in the symbol. |
+| `Member` | `33555780` | - |
+| `MemberContainer` | `682` | Symbols whose members will be late bound (and stored on the type) |
 | `Model` | `2` | - |
 | `ModelProperty` | `4` | - |
 | `Namespace` | `4096` | - |
@@ -30,6 +31,7 @@ title: "[E] SymbolFlags"
 | `Projection` | `8192` | - |
 | `ProjectionParameter` | `65536` | - |
 | `Scalar` | `8` | - |
+| `ScalarMember` | `33554432` | - |
 | `SourceFile` | `2097152` | - |
 | `TemplateParameter` | `32768` | - |
 | `Union` | `512` | - |

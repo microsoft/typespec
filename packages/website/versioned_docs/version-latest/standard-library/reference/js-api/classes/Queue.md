@@ -11,7 +11,7 @@ title: "[C] Queue"
 
 ## Constructors
 
-### new Queue(elements)
+### new Queue()
 
 ```ts
 new Queue<T>(elements?): Queue<T>
@@ -29,10 +29,10 @@ new Queue<T>(elements?): Queue<T>
 
 ## Properties
 
-| Property | Modifier | Type |
-| :------ | :------ | :------ |
-| `#elements` | `private` | `T`[] |
-| `#headIndex` | `private` | `number` |
+| Property | Modifier | Type | Default value |
+| :------ | :------ | :------ | :------ |
+| `#elements` | `private` | `T`[] | `undefined` |
+| `#headIndex` | `private` | `number` | `0` |
 
 ## Methods
 

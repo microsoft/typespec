@@ -4,7 +4,7 @@ title: "[F] getDocData"
 
 ---
 ```ts
-getDocData(program, target): DocData | undefined
+function getDocData(program, target): DocData | undefined
 ```
 
 Get the documentation information for the given type. In most cases you probably just want to use [getDoc](getDoc.md)
@@ -18,6 +18,6 @@ Get the documentation information for the given type. In most cases you probably
 
 ## Returns
 
-[`DocData`](../interfaces/DocData.md) \| `undefined`
+`DocData` \| `undefined`
 
 Doc data with source information.

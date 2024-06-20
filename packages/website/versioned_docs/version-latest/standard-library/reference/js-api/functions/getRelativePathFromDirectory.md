@@ -6,7 +6,7 @@ title: "[F] getRelativePathFromDirectory"
 ## getRelativePathFromDirectory(from, to, ignoreCase)
 
 ```ts
-getRelativePathFromDirectory(
+function getRelativePathFromDirectory(
    from, 
    to, 
    ignoreCase): string
@@ -29,7 +29,7 @@ Gets a relative path that can be used to traverse between `from` and `to`.
 ## getRelativePathFromDirectory(fromDirectory, to, getCanonicalFileName)
 
 ```ts
-getRelativePathFromDirectory(
+function getRelativePathFromDirectory(
    fromDirectory, 
    to, 
    getCanonicalFileName): string

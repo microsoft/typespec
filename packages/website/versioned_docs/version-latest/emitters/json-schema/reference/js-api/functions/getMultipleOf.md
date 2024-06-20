@@ -4,7 +4,7 @@ title: "[F] getMultipleOf"
 
 ---
 ```ts
-getMultipleOf(program, target): any
+function getMultipleOf(program, target): number | undefined
 ```
 
 ## Parameters
@@ -16,4 +16,4 @@ getMultipleOf(program, target): any
 
 ## Returns
 
-`any`
+`number` \| `undefined`

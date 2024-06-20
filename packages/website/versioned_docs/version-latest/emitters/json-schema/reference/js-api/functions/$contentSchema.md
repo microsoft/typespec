@@ -4,7 +4,7 @@ title: "[F] $contentSchema"
 
 ---
 ```ts
-$contentSchema(
+function $contentSchema(
    context, 
    target, 
    value): void
@@ -15,7 +15,7 @@ $contentSchema(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` | `Scalar` \| `ModelProperty` |
+| `target` | `ModelProperty` \| `Scalar` |
 | `value` | `Type` |
 
 ## Returns

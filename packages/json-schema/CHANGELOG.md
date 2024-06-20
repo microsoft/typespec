@@ -1,5 +1,22 @@
 # Change Log - @typespec/json-schema
 
+## 0.57.0
+
+### Bug Fixes
+
+- [#3398](https://github.com/microsoft/typespec/pull/3398) Fix decorators application for union variants
+- [#3022](https://github.com/microsoft/typespec/pull/3022) Update to support new value types
+- [#3430](https://github.com/microsoft/typespec/pull/3430) The emitted JSON Schema now doesn't make root schemas for TypeSpec types which do not have the @jsonSchema decorator or are contained in a namespace with that decorator. Instead, such schemas are put into the $defs of any root schema which references them, and are referenced using JSON Pointers.
+
+### Bump dependencies
+
+- [#3401](https://github.com/microsoft/typespec/pull/3401) Update dependencies - May 2024
+
+### Features
+
+- [#3557](https://github.com/microsoft/typespec/pull/3557) Add support for @oneOf decorator.
+
+
 ## 0.56.0
 
 ### Bump dependencies

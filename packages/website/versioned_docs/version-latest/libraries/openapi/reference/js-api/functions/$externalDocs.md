@@ -4,7 +4,7 @@ title: "[F] $externalDocs"
 
 ---
 ```ts
-$externalDocs(
+function $externalDocs(
    context, 
    target, 
    url, 

@@ -4,7 +4,7 @@ title: "[F] $doc"
 
 ---
 ```ts
-$doc(
+function $doc(
    context, 
    target, 
    doc, 

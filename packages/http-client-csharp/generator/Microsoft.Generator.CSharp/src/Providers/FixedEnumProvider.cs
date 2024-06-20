@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     modifiers,
                     ValueType,
                     name,
-                    FormattableStringHelpers.FromString(inputValue.Description),
+                    inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
                     initializationValue);
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);

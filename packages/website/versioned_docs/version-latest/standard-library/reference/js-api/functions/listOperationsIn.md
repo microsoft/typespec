@@ -4,7 +4,7 @@ title: "[F] listOperationsIn"
 
 ---
 ```ts
-listOperationsIn(container, options): Operation[]
+function listOperationsIn(container, options): Operation[]
 ```
 
 List operations in the given container. Will list operation recursively by default(Check subnamespaces.)

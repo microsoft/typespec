@@ -4,16 +4,16 @@ title: "[F] createDecoratorDefinition"
 
 ---
 ```ts
-createDecoratorDefinition<T, P, S>(definition): DecoratorValidator<T, P, S>
+function createDecoratorDefinition<T, P, S>(definition): DecoratorValidator<T, P, S>
 ```
 
 ## Type parameters
 
 | Type parameter |
 | :------ |
-| `T` extends [`TypeKind`](../type-aliases/TypeKind.md) |
-| `P` extends readonly [`DecoratorParamDefinition`](../interfaces/DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] |
-| `S` extends `undefined` \| [`DecoratorParamDefinition`](../interfaces/DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> |
+| `T` *extends* [`TypeKind`](../type-aliases/TypeKind.md) |
+| `P` *extends* readonly [`DecoratorParamDefinition`](../interfaces/DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] |
+| `S` *extends* `undefined` \| [`DecoratorParamDefinition`](../interfaces/DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> |
 
 ## Parameters
 

@@ -4,7 +4,7 @@ title: "[F] getTypeChangedFrom"
 
 ---
 ```ts
-getTypeChangedFrom(p, t): Map<Version, Type> | undefined
+function getTypeChangedFrom(p, t): Map<Version, Type> | undefined
 ```
 
 Returns the mapping of versions to old type values, if applicable

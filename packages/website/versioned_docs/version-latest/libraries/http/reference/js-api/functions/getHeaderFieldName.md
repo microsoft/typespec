@@ -4,7 +4,7 @@ title: "[F] getHeaderFieldName"
 
 ---
 ```ts
-getHeaderFieldName(program, entity): string
+function getHeaderFieldName(program, entity): string
 ```
 
 ## Parameters

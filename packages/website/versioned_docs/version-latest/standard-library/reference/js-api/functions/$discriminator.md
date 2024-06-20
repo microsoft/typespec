@@ -4,7 +4,7 @@ title: "[F] $discriminator"
 
 ---
 ```ts
-$discriminator(
+function $discriminator(
    context, 
    target, 
    propertyName): void

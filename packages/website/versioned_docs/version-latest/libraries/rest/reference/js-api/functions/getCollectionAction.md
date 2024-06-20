@@ -4,7 +4,7 @@ title: "[F] getCollectionAction"
 
 ---
 ```ts
-getCollectionAction(program, operation): string | null | undefined
+function getCollectionAction(program, operation): string | null | undefined
 ```
 
 ## Parameters

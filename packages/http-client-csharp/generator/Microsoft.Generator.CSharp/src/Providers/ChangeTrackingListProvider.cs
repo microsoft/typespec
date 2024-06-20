@@ -84,9 +84,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return
             [
-                new MethodProvider(new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement),
-                new MethodProvider(iListSignature, iListBody),
-                new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody)
+                new MethodProvider(new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement, this),
+                new MethodProvider(iListSignature, iListBody, this),
+                new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
             ];
         }
 
@@ -185,7 +185,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(indexVariable)))
                 },
                 new InvokeInstanceMethodStatement(EnsureList, "RemoveAt", new ValueExpression[] { indexVariable }, false)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildInsert()
@@ -193,7 +194,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(new MethodSignature("Insert", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { _indexParam, _tParam }), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Insert", new ValueExpression[] { new ParameterReferenceSnippet(_indexParam), new ParameterReferenceSnippet(_tParam) }, false)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildIndexOf()
@@ -206,7 +208,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(Literal(-1))
                 },
                 Return(EnsureList.Invoke(signature))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildRemove()
@@ -219,7 +222,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureList.Invoke(signature))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCopyTo()
@@ -233,7 +237,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return()
                 },
                 new InvokeInstanceMethodStatement(EnsureList, "CopyTo", new ValueExpression[] { new ParameterReferenceSnippet(arrayParam), new ParameterReferenceSnippet(arrayIndexParam) }, false)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildContains()
@@ -246,7 +251,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureList.Invoke(signature))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildClear()
@@ -254,7 +260,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(new MethodSignature("Clear", null, null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Clear")
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAdd()
@@ -263,7 +270,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(new MethodSignature("Add", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { genericParameter }), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Add", new ParameterReferenceSnippet(genericParameter))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumerator()
@@ -271,7 +279,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(new MethodSignature("GetEnumerator", null, null, MethodSignatureModifiers.None, typeof(IEnumerator), null, Array.Empty<ParameterProvider>(), ExplicitInterface: typeof(IEnumerable)), new MethodBodyStatement[]
             {
                 Return(This.Invoke(_getEnumeratorSignature))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumeratorOfT()
@@ -284,7 +293,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureList.Invoke(_getEnumeratorSignature))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildReset()
@@ -292,7 +302,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(new MethodSignature("Reset", null, null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
                 Assign(_innerList, Null)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildEnsureList()
@@ -300,7 +311,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(_ensureListSignature, new MethodBodyStatement[]
             {
                 Return(new BinaryOperatorExpression("??=", _innerList, New.Instance(new CSharpType(typeof(List<>), _t))))
-            });
+            },
+            this);
         }
     }
 }

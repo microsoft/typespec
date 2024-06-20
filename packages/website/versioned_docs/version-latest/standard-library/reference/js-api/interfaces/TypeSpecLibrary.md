@@ -11,20 +11,20 @@ title: "[I] TypeSpecLibrary"
 
 | Type parameter | Value |
 | :------ | :------ |
-| `T` extends `Object` | - |
-| `E` extends `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |
-| `State` extends `string` | `never` |
+| `T` *extends* `object` | - |
+| `E` *extends* `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |
+| `State` *extends* `string` | `never` |
 
 ## Properties
 
 | Property | Modifier | Type | Description | Overrides | Inherited from |
 | :------ | :------ | :------ | :------ | :------ | :------ |
 | `diagnostics` | `readonly` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> | Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`diagnostics` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`diagnostics` |
-| `emitter?` | `readonly` | `Object` | Emitter configuration if library is an emitter. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` |
+| `emitter?` | `readonly` | `object` | Emitter configuration if library is an emitter. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` |
 | `emitter.options?` | `readonly` | [`JSONSchemaType`](../type-aliases/JSONSchemaType.md)<`E`\> | - | - | - |
-| ~~`linter?`~~ | `readonly` | [`LinterDefinition`](LinterDefinition.md) | Configuration if library is providing linting rules/rulesets.<br /><br />**Deprecated**<br />Use `export const $linter` instead. This will cause circular reference with linters. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` |
+| ~~`linter?`~~ | `readonly` | [`LinterDefinition`](LinterDefinition.md) | <p>Configuration if library is providing linting rules/rulesets.</p><p>**Deprecated**</p><p>Use `export const $linter` instead. This will cause circular reference with linters.</p> | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` |
 | `name` | `readonly` | `string` | Library name | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`name` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`name` |
-| `requireImports?` | `readonly` | readonly `string`[] | List of other library that should be imported when this is used as an emitter.<br />Compiler will emit an error if the libraries are not explicitly imported. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` |
+| `requireImports?` | `readonly` | readonly `string`[] | List of other library that should be imported when this is used as an emitter. Compiler will emit an error if the libraries are not explicitly imported. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` |
 | `state?` | `readonly` | `Record`<`State`, [`StateDef`](StateDef.md)\> | - | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`state` | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`state` |
 | `stateKeys` | `public` | `Record`<`State`, `symbol`\> | - | - | - |
 
@@ -40,8 +40,8 @@ createDiagnostic<C, M>(diag): Diagnostic
 
 | Type parameter |
 | :------ |
-| `C` extends `string` \| `number` \| `symbol` |
-| `M` extends `string` \| `number` \| `symbol` |
+| `C` *extends* `string` \| `number` \| `symbol` |
+| `M` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 
@@ -106,8 +106,8 @@ reportDiagnostic<C, M>(program, diag): void
 
 | Type parameter |
 | :------ |
-| `C` extends `string` \| `number` \| `symbol` |
-| `M` extends `string` \| `number` \| `symbol` |
+| `C` *extends* `string` \| `number` \| `symbol` |
+| `M` *extends* `string` \| `number` \| `symbol` |
 
 #### Parameters
 

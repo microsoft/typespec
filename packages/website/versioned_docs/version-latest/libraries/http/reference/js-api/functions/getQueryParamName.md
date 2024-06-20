@@ -4,7 +4,7 @@ title: "[F] getQueryParamName"
 
 ---
 ```ts
-getQueryParamName(program, entity): string
+function getQueryParamName(program, entity): string
 ```
 
 ## Parameters

@@ -4,7 +4,7 @@ title: "[F] isTemplateDeclarationOrInstance"
 
 ---
 ```ts
-isTemplateDeclarationOrInstance(type): boolean
+function isTemplateDeclarationOrInstance(type): boolean
 ```
 
 Resolve if the type was created from a template type or is a template type declaration.

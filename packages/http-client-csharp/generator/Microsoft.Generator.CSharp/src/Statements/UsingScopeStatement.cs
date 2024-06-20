@@ -8,8 +8,19 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record UsingScopeStatement(CSharpType? Type, CodeWriterDeclaration Variable, ValueExpression Value) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class UsingScopeStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public CSharpType? Type { get; }
+        public CodeWriterDeclaration Variable { get; }
+        public ValueExpression Value { get; }
+
+        public UsingScopeStatement(CSharpType? type, CodeWriterDeclaration variable, ValueExpression value)
+        {
+            Type = type;
+            Variable = variable;
+            Value = value;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 

@@ -81,7 +81,6 @@ namespace Microsoft.Generator.CSharp.Providers
             ];
         }
 
-
         private MethodProvider BuildAssertNull()
         {
             var valueParam = new ParameterProvider("value", $"The value.", _t);
@@ -95,7 +94,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCheckNotNullOrEmptyString()
@@ -107,7 +107,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 AssertNotNullOrEmpty(value, _nameParamRef),
                 Return(value)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCheckNotNull()
@@ -119,7 +120,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 AssertNotNull(value, _nameParamRef),
                 Return(value)
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertEnumDefined()
@@ -135,7 +137,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException(new FormattableStringExpression("Value not defined for {0}.", [new MemberExpression(enumType, "FullName")]))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertInRange()
@@ -156,7 +159,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Throw(New.ArgumentOutOfRangeException(_nameParamRef, "Value is greater than the maximum allowed.", false))
                 }
-            });
+            },
+            this);
         }
 
         private ValueExpression GetCompareToExpression(ValueExpression left, ValueExpression right)
@@ -177,7 +181,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException("Value cannot be empty.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrWhiteSpace()
@@ -192,7 +197,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException("Value cannot be empty or contain only white-space characters.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrEmptyString()
@@ -207,7 +213,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException("Value cannot be an empty string.")
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNullOrEmptyCollection()
@@ -231,7 +238,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     ThrowArgumentException(throwMessage)
                 }
-            });
+            },
+            this);
         }
 
         private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableReferenceSnippet collection)
@@ -257,7 +265,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Throw(New.ArgumentNullException(_nameParamRef, false))
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildAssertNotNull()
@@ -267,7 +276,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam)
-            });
+            },
+            this);
         }
 
         private IfStatement AssertNotNullSnippet(ParameterProvider valueParam)

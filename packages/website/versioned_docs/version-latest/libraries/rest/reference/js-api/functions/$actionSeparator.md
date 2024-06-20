@@ -4,7 +4,7 @@ title: "[F] $actionSeparator"
 
 ---
 ```ts
-$actionSeparator(
+function $actionSeparator(
    context, 
    entity, 
    separator): void
@@ -20,7 +20,7 @@ $actionSeparator(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `entity` | `ModelProperty` \| `Model` \| `Operation` |
+| `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `separator` | `"/"` \| `":"` \| `"/:"` |
 
 ## Returns

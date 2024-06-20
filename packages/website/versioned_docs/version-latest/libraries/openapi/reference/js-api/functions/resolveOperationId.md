@@ -4,7 +4,7 @@ title: "[F] resolveOperationId"
 
 ---
 ```ts
-resolveOperationId(program, operation): string
+function resolveOperationId(program, operation): string
 ```
 
 Resolve the OpenAPI operation ID for the given operation using the following logic:

@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp
         public static ParameterProvider CancellationTokenParameter => _cancellationTokenParameter ??= new("cancellationToken", $"The cancellation token to use", new CSharpType(typeof(CancellationToken)), Snippet.DefaultOf(typeof(CancellationToken)));
 
         private static ParameterProvider? _enumerationCancellationTokenParameter;
-        public static ParameterProvider EnumeratorCancellationTokenParameter => _enumerationCancellationTokenParameter ??= new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippet.DefaultOf(typeof(CancellationToken))) { Attributes = new[] { new AttributeStatement(typeof(EnumeratorCancellationAttribute)) } };
+        public static ParameterProvider EnumeratorCancellationTokenParameter => _enumerationCancellationTokenParameter ??= new("cancellationToken", $"Enumerator cancellation token", typeof(CancellationToken), Snippet.DefaultOf(typeof(CancellationToken)), attributes: [new AttributeStatement(typeof(EnumeratorCancellationAttribute))]);
 
         private static ParameterProvider? _response;
         public static ParameterProvider Response => _response ??= new("response", $"Response returned from backend service", CodeModelPlugin.Instance.Configuration.ApiTypes.ResponseType);

@@ -4,7 +4,7 @@ title: "[F] $prefixItems"
 
 ---
 ```ts
-$prefixItems(
+function $prefixItems(
    context, 
    target, 
    value): void

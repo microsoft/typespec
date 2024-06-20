@@ -4,7 +4,7 @@ title: "[F] $field"
 
 ---
 ```ts
-$field(
+function $field(
    context, 
    target, 
    index): void

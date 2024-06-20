@@ -4,7 +4,7 @@ title: "[F] $autoRoute"
 
 ---
 ```ts
-$autoRoute(context, target): void
+function $autoRoute(context, target): void
 ```
 
 `@autoRoute` enables automatic route generation for an operation or interface.

@@ -4,7 +4,7 @@ title: "[F] $service"
 
 ---
 ```ts
-$service(
+function $service(
    context, 
    target, 
    options?): void

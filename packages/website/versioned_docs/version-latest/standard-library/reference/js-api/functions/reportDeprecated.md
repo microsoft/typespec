@@ -4,7 +4,7 @@ title: "[F] reportDeprecated"
 
 ---
 ```ts
-reportDeprecated(
+function reportDeprecated(
    program, 
    message, 
    target): void

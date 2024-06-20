@@ -7,4 +7,4 @@ title: "[I] NamespaceNavigationOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `skipSubNamespaces?` | `boolean` | Recursively navigate sub namespaces.<br /><br />**Default**<br />` false ` |
+| `skipSubNamespaces?` | `boolean` | <p>Recursively navigate sub namespaces.</p><p>**Default**</p><code>false</code> |

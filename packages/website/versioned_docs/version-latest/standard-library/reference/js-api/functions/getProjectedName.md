@@ -4,7 +4,7 @@ title: "[F] getProjectedName"
 
 ---
 ```ts
-getProjectedName(
+function getProjectedName(
    program, 
    target, 
    projectionName): string | undefined

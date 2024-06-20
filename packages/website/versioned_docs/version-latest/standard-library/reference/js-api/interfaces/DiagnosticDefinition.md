@@ -7,7 +7,7 @@ title: "[I] DiagnosticDefinition"
 
 | Type parameter |
 | :------ |
-| `M` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
+| `M` *extends* [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 

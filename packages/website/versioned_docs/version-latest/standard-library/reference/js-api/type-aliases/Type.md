@@ -5,27 +5,28 @@ title: "[T] Type"
 ---
 ```ts
 type Type: 
-  | Model
-  | ModelProperty
-  | Scalar
-  | Interface
+  | BooleanLiteral
+  | Decorator
   | Enum
   | EnumMember
-  | TemplateParameter
+  | FunctionParameter
+  | FunctionType
+  | Interface
+  | IntrinsicType
+  | Model
+  | ModelProperty
   | Namespace
-  | Operation
-  | StringLiteral
   | NumericLiteral
-  | BooleanLiteral
+  | ObjectType
+  | Operation
+  | Projection
+  | Scalar
+  | ScalarConstructor
+  | StringLiteral
   | StringTemplate
   | StringTemplateSpan
+  | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant
-  | IntrinsicType
-  | FunctionType
-  | Decorator
-  | FunctionParameter
-  | ObjectType
-  | Projection;
+  | UnionVariant;
 ```

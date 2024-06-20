@@ -4,7 +4,7 @@ title: "[F] isAttribute"
 
 ---
 ```ts
-isAttribute(program, target): boolean
+function isAttribute(program, target): boolean
 ```
 
 Check if the given property should be serialized as an attribute instead of a node.

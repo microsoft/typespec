@@ -4,7 +4,7 @@ title: "[F] getDeprecated"
 
 ---
 ```ts
-getDeprecated(program, type): string | undefined
+function getDeprecated(program, type): string | undefined
 ```
 
 Return the deprecated message or undefined if not deprecated

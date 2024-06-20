@@ -4,7 +4,7 @@ title: "[F] $operationId"
 
 ---
 ```ts
-$operationId(
+function $operationId(
    context, 
    target, 
    operationId): void
