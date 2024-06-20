@@ -362,17 +362,21 @@ function rangeDescription(start: number, end: number) {
   return undefined;
 }
 
-function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
+export function setOperationVerb(
+  program: Program,
+  entity: Type,
+  verb: HttpVerb,
+  warnOnOverride: boolean = true
+): void {
   if (entity.kind === "Operation") {
-    if (!program.stateMap(HttpStateKeys.verbs).has(entity)) {
-      program.stateMap(HttpStateKeys.verbs).set(entity, verb);
-    } else {
+    if (program.stateMap(HttpStateKeys.verbs).has(entity) && warnOnOverride) {
       reportDiagnostic(program, {
         code: "http-verb-duplicate",
         format: { entityName: entity.name },
         target: entity,
       });
     }
+    program.stateMap(HttpStateKeys.verbs).set(entity, verb);
   } else {
     reportDiagnostic(program, {
       code: "http-verb-wrong-type",

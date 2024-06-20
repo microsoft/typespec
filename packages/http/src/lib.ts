@@ -4,7 +4,7 @@ export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
   diagnostics: {
     "http-verb-duplicate": {
-      severity: "error",
+      severity: "warning",
       messages: {
         default: paramMessage`HTTP verb already applied to ${"entityName"}`,
       },

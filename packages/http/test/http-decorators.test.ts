@@ -154,6 +154,23 @@ describe("http: decorators", () => {
       ]);
     });
 
+    describe("overrideHttpMethod", () => {
+      it("emit diagnostics when @post is added to operation with preexisting http method ", async () => {
+        const diagnostics = await runner.diagnose(`
+            @get op test<T>(): T;
+  
+            @post op test2 is test<string>;
+          `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "@typespec/http/http-verb-duplicate",
+            message: "HTTP verb already applied to test2",
+          },
+        ]);
+      });
+    });
+
     it("emit diagnostics when query name is not a string or of type QueryOptions", async () => {
       const diagnostics = await runner.diagnose(`
           op test(@query(123) MyQuery: string): string;

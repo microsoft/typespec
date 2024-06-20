@@ -293,6 +293,31 @@ describe("http: routes", () => {
     deepStrictEqual(routes, [{ verb: "get", path: "/", params: [] }]);
   });
 
+  it("produces the right http method", async () => {
+    const routes = await getRoutesFor(
+      `
+      #suppress "@typespec/http/http-verb-duplicate" "For testing"
+      @get @post op get(): {};
+      #suppress "@typespec/http/http-verb-duplicate" "For testing"
+      @post @get op post(): {};
+      #suppress "@typespec/http/http-verb-duplicate" "For testing"
+      @put @put @get op put(): {};
+      #suppress "@typespec/http/http-verb-duplicate" "For testing"
+      @patch @delete op patch(): {};
+      #suppress "@typespec/http/http-verb-duplicate" "For testing"
+      @delete @get @post op delete(): {};
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/", params: [] },
+      { verb: "post", path: "/", params: [] },
+      { verb: "put", path: "/", params: [] },
+      { verb: "patch", path: "/", params: [] },
+      { verb: "delete", path: "/", params: [] },
+    ]);
+  });
+
   it("always produces a route starting with /", async () => {
     const routes = await getRoutesFor(
       `
