@@ -43,10 +43,8 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.AppendRaw("default");
             }
 
-            using (writer.ScopeRaw(":", string.Empty, false))
-            {
-                Statement.Write(writer);
-            }
+            using var scope = writer.ScopeRaw(":", "", newLine: false);
+            Statement.Write(writer);
         }
     }
 }

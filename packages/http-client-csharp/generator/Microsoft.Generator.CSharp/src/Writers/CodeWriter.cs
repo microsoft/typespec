@@ -603,7 +603,7 @@ namespace Microsoft.Generator.CSharp
             return WriteLine();
         }
 
-        public CodeWriter AppendRaw(string str, bool addSpaces = true) => AppendRaw(str.AsSpan(), addSpaces);
+        public CodeWriter AppendRaw(string str) => AppendRaw(str.AsSpan());
 
         private CodeWriter AppendRawChar(char c)
         {
@@ -614,12 +614,15 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private CodeWriter AppendRaw(ReadOnlySpan<char> span, bool addSpaces = true)
+        private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
             if (span.Length == 0 )
                 return this;
-            if (addSpaces)
+            // pre-processor directives do not need indentation
+            if (span[0] != '#')
+            {
                 AddSpaces();
+            }
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);

@@ -18,18 +18,15 @@ namespace Microsoft.Generator.CSharp.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            writer.AppendRaw($"#if {Condition}", addSpaces: false);
-            writer.WriteLine();
+            writer.WriteLine($"#if {Condition}");
             If.Write(writer);
             if (Else is not null)
             {
-                writer.AppendRaw("#else", addSpaces: false);
-                writer.WriteLine();
+                writer.WriteRawLine("#else");
                 Else.Write(writer);
             }
 
-            writer.AppendRaw($"#endif", addSpaces: false);
-            writer.WriteLine();
+            writer.WriteRawLine($"#endif");
         }
     }
 }
