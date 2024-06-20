@@ -32,6 +32,22 @@ namespace Microsoft.Generator.CSharp.Tests
         public override CSharpType RequestConditionsType() => typeof(int);
 
         public override CSharpType TokenCredentialType() => typeof(int);
+
+        public override ModelProvider CreateModel(InputModelType inputModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EnumProvider CreateEnum(InputEnumType inputEnum)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ClientProvider CreateClient(InputClient inputClient)
+        {
+            throw new NotImplementedException();
+        }
+
         public override CSharpType ListInitializationType => new CSharpType(typeof(List<>), arguments: typeof(int));
         public override CSharpType DictionaryInitializationType => new CSharpType(typeof(Dictionary<,>), arguments: [typeof(string), typeof(int)]);
     }

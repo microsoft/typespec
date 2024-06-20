@@ -58,7 +58,6 @@ namespace Microsoft.Generator.CSharp.Tests
 
         internal class CustomTypeFactory : TypeFactory
         {
-
             public override CSharpType RequestConditionsType()
             {
                 throw new NotImplementedException();
@@ -102,6 +101,21 @@ namespace Microsoft.Generator.CSharp.Tests
                     default:
                         throw new NotImplementedException("Unknown input type");
                 }
+            }
+
+            public override ModelProvider CreateModel(InputModelType inputModel)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override EnumProvider CreateEnum(InputEnumType inputEnum)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override ClientProvider CreateClient(InputClient inputClient)
+            {
+                throw new NotImplementedException();
             }
         }
     }

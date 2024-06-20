@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp
             var inputModels = inputNamespace.Models;
             var inputClients = inputNamespace.Clients;
 
-            var outputTypes = new List<TypeProvider>(inputEnums.Count + inputModels.Count + inputClients.Count);
+            var outputTypes = new List<TypeProvider>(inputEnums.Count * 2 + inputModels.Count * 2 + inputClients.Count);
 
             foreach (var inputEnum in inputEnums)
             {
