@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestData\**">
+    <Compile Remove="TestData\**\*.cs" />
+    <None Include="TestData\**\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

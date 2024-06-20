@@ -618,11 +618,8 @@ namespace Microsoft.Generator.CSharp
         {
             if (span.Length == 0 )
                 return this;
-            // pre-processor directives do not need indentation
-            if (span[0] != '#')
-            {
-                AddSpaces();
-            }
+
+            AddSpaces(span);
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
@@ -632,8 +629,14 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private void AddSpaces()
+        private void AddSpaces(ReadOnlySpan<char> span)
         {
+            // pre-processor directives do not need indentation
+            if (span[0] == '#')
+            {
+                return;
+            }
+
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
                 return;
