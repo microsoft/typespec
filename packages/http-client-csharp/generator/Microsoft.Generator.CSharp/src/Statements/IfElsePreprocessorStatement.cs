@@ -26,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Statements
                 Else.Write(writer);
             }
 
-            writer.WriteRawLine($"#endif");
+            writer.WriteRawLine("#endif");
         }
     }
 }
