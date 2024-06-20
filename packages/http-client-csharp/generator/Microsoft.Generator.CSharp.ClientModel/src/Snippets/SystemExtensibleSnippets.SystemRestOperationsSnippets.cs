@@ -57,14 +57,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
             }
 
-            public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedSnippet content, out Utf8JsonWriterSnippet writer)
-            {
-                var contentVar = new VariableReferenceSnippet(typeof(BinaryContent), "content");
-                content = contentVar;
-                writer = new Utf8JsonWriterSnippet(content.Property("JsonWriter"));
-                return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));
-            }
-
             private static PipelineResponseSnippet GetRawResponse(TypedSnippet result)
                 => result.Type.Equals(typeof(PipelineResponse))
                     ? new PipelineResponseSnippet(result)

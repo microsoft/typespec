@@ -72,9 +72,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Var(string name, StringSnippet value, out StringSnippet variable)
             => Var(name, value, d => new StringSnippet(d), out variable);
 
-        public static MethodBodyStatement Var(string name, Utf8JsonWriterSnippet value, out Utf8JsonWriterSnippet variable)
-            => Var(name, value, d => new Utf8JsonWriterSnippet(d), out variable);
-
         public static MethodBodyStatement Var(string name, TypedSnippet value, out TypedSnippet variable)
         {
             var reference = new VariableReferenceSnippet(value.Type, name);
