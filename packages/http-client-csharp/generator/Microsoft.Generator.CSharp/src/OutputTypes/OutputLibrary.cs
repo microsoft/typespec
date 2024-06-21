@@ -22,23 +22,18 @@ namespace Microsoft.Generator.CSharp
             var inputModels = inputNamespace.Models;
             var inputClients = inputNamespace.Clients;
 
-            var outputTypes = new List<TypeProvider>(inputEnums.Count * 2 + inputModels.Count * 2 + inputClients.Count);
+            var outputTypes = new List<TypeProvider>(inputEnums.Count + inputModels.Count + inputClients.Count);
 
             foreach (var inputEnum in inputEnums)
             {
                 var enumType = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
                 outputTypes.Add(enumType);
-                if (enumType.Serialization is not null)
-                {
-                    outputTypes.Add(enumType.Serialization);
-                }
             }
 
             foreach (var inputModel in inputModels)
             {
                 var modelType = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
                 outputTypes.Add(modelType);
-                outputTypes.AddRange(modelType.SerializationProviders);
             }
 
             foreach (var inputClient in inputClients)

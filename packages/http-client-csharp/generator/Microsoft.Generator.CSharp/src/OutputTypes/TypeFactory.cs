@@ -18,25 +18,25 @@ namespace Microsoft.Generator.CSharp
         public abstract CSharpType CreateCSharpType(InputType input);
 
         /// <summary>
-        /// Factory method for creating a <see cref="ModelProvider"/> based on an input model <paramref name="inputModel"/>.
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an input model <paramref name="inputModel"/>.
         /// </summary>
         /// <param name="inputModel">The <see cref="InputModelType"/> to convert.</param>
-        /// <returns>An instance of <see cref="ModelProvider"/>.</returns>
-        public abstract ModelProvider CreateModel(InputModelType inputModel);
+        /// <returns>An instance of <see cref="TypeProvider"/> representing the model.</returns>
+        public abstract TypeProvider CreateModel(InputModelType inputModel);
 
         /// <summary>
-        /// Factory method for creating a <see cref="EnumProvider"/> based on an input enum <paramref name="inputEnum"/>.
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an input enum <paramref name="inputEnum"/>.
         /// </summary>
         /// <param name="inputEnum">The <see cref="InputEnumType"/> to convert.</param>
-        /// <returns>An instance of <see cref="EnumProvider"/>.</returns>
-        public abstract EnumProvider CreateEnum(InputEnumType inputEnum);
+        /// <returns>An instance of <see cref="TypeProvider"/> representing the enum.</returns>
+        public abstract TypeProvider CreateEnum(InputEnumType inputEnum);
 
         /// <summary>
-        /// Factory method for creating a <see cref="ClientProvider"/> based on an input client <paramref name="inputClient"/>.
+        /// Factory method for creating a <see cref="TypeProvider"/> based on an input client <paramref name="inputClient"/>.
         /// </summary>
         /// <param name="inputClient">The <see cref="InputClient"/> to convert.</param>
-        /// <returns>An instance of <see cref="ClientProvider"/>.</returns>
-        public abstract ClientProvider CreateClient(InputClient inputClient);
+        /// <returns>An instance of <see cref="TypeProvider"/> representing the client.</returns>
+        public abstract TypeProvider CreateClient(InputClient inputClient);
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.

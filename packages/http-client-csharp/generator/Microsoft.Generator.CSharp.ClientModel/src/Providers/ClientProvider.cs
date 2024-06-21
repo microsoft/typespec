@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Providers;
 
-namespace Microsoft.Generator.CSharp.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     public sealed class ClientProvider : TypeProvider
     {
@@ -28,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = CodeModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);
