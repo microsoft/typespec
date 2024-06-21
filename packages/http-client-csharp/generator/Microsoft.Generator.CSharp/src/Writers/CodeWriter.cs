@@ -180,6 +180,11 @@ namespace Microsoft.Generator.CSharp
                     case var _ when isLiteralFormat:
                         Literal(argument).Write(this);
                         break;
+                    case DateTimeOffset dto:
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        AppendRaw(dto.ToString("MM/dd/yyyy HH:mm:ss zzz"));
+                        break;
                     default:
                         string? s = argument?.ToString();
                         if (s == null)
