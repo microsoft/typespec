@@ -21,16 +21,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="TestData\**\*.cs" />
-    <None Include="TestData\**\*.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="TestData\Expressions\" />
-    <Folder Include="TestData\Statements\" />
-  </ItemGroup>
-
 </Project>
