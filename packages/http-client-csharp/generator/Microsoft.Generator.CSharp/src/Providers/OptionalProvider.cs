@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -12,23 +11,26 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class OptionalProvider : TypeProvider
+    public class OptionalProvider : TypeProvider
     {
-        private static readonly Lazy<OptionalProvider> _instance = new(() => new OptionalProvider());
-        public static OptionalProvider Instance => _instance.Value;
-
         private class ListTemplate<T> { }
 
+        private readonly ChangeTrackingListProvider _changeTrackingListProvider;
+        private readonly ChangeTrackingDictionaryProvider _changeTrackingDictionaryProvider;
         private readonly CSharpType _t = typeof(ListTemplate<>).GetGenericArguments()[0];
-        private readonly CSharpType _tKey = ChangeTrackingDictionaryProvider.Instance.Type.Arguments[0];
-        private readonly CSharpType _tValue = ChangeTrackingDictionaryProvider.Instance.Type.Arguments[1];
+        private readonly CSharpType _tKey;
+        private readonly CSharpType _tValue;
         private readonly CSharpType _genericChangeTrackingList;
         private readonly CSharpType _genericChangeTrackingDictionary;
 
-        private OptionalProvider()
+        public OptionalProvider()
         {
-            _genericChangeTrackingList = ChangeTrackingListProvider.Instance.Type;
-            _genericChangeTrackingDictionary = ChangeTrackingDictionaryProvider.Instance.Type;
+            _changeTrackingListProvider = new();
+            _changeTrackingDictionaryProvider = new();
+            _genericChangeTrackingList = _changeTrackingListProvider.Type;
+            _genericChangeTrackingDictionary = _changeTrackingDictionaryProvider.Type;
+            _tKey = _changeTrackingDictionaryProvider.Type.Arguments[0];
+            _tValue = _changeTrackingDictionaryProvider.Type.Arguments[1];
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()

@@ -12,10 +12,8 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class ArgumentProvider : TypeProvider
+    public class ArgumentProvider : TypeProvider
     {
-        private static readonly Lazy<ArgumentProvider> _instance = new(() => new ArgumentProvider());
-
         private class Template<T> { }
 
         private const string AssertNotNullMethodName = "AssertNotNull";
@@ -27,11 +25,9 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _nullableT;
         private readonly ParameterReferenceSnippet _nameParamRef;
 
-        public static ArgumentProvider Instance => _instance.Value;
-
         protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        private ArgumentProvider()
+        public ArgumentProvider()
         {
             _nameParamRef = new ParameterReferenceSnippet(_nameParam);
             _nullableT = _t.WithNullable(true);

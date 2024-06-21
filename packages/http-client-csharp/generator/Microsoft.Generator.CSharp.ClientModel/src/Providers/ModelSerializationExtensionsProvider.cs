@@ -20,14 +20,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ModelSerializationExtensionsProvider : TypeProvider
     {
-        private static readonly Lazy<ModelSerializationExtensionsProvider> _instance = new Lazy<ModelSerializationExtensionsProvider>(() => new ModelSerializationExtensionsProvider());
-        public static ModelSerializationExtensionsProvider Instance => _instance.Value;
         private class WriteObjectValueTemplate<T> { }
 
         private readonly CSharpType _t = typeof(WriteObjectValueTemplate<>).GetGenericArguments()[0];
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension;
-        private readonly TypeFormattersProvider _typeFormattersProvider;
         private readonly ParameterProvider _formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
         private readonly ParameterProvider _propertyParameter = new ParameterProvider("property", FormattableStringHelpers.Empty, typeof(JsonProperty));
 
@@ -35,8 +32,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public ModelSerializationExtensionsProvider()
         {
-            _typeFormattersProvider = TypeFormattersProvider.Instance;
-
             _wireOptionsField = new FieldProvider(
                 modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 type: typeof(ModelReaderWriterOptions),
@@ -73,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
                     Summary: null, Description: null, ReturnDescription: null),
-                writer.WriteStringValue(_typeFormattersProvider.ToString(dateTimeOffsetValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeOffsetValueParameter, _formatParameter)),
                 this);
 
             var dateTimeValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
@@ -84,7 +79,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeValueParameter, _formatParameter],
                     Summary: null, Description: null, ReturnDescription: null),
-                writer.WriteStringValue(_typeFormattersProvider.ToString(dateTimeValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeValueParameter, _formatParameter)),
                 this);
 
             var timeSpanValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
@@ -95,7 +90,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, timeSpanValueParameter, _formatParameter],
                     Summary: null, Description: null, ReturnDescription: null),
-                writer.WriteStringValue(_typeFormattersProvider.ToString(timeSpanValueParameter, _formatParameter)),
+                writer.WriteStringValue(TypeFormattersSnippet.ToString(timeSpanValueParameter, _formatParameter)),
                 this);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
@@ -212,7 +207,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 },
                 EmptyLineStatement,
                 Return(new SwitchExpression(format,
-                    new SwitchCaseExpression(Literal("U"), _typeFormattersProvider.FromBase64UrlString(GetRequiredString(element))),
+                    new SwitchCaseExpression(Literal("U"), TypeFormattersSnippet.FromBase64UrlString(GetRequiredString(element))),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),
                     SwitchCaseExpression.Default(ThrowExpression(New.ArgumentException(format, new FormattableStringExpression("Format is not supported: '{0}'", [format]))))
                     ))
@@ -237,7 +232,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new SwitchExpression(format,
                 SwitchCaseExpression.When(Literal("U"), Equal(element.ValueKind, JsonValueKindSnippet.Number), DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-                SwitchCaseExpression.Default(_typeFormattersProvider.ParseDateTimeOffset(element.GetString(), format))
+                SwitchCaseExpression.Default(TypeFormattersSnippet.ParseDateTimeOffset(element.GetString(), format))
                 );
 
             return new MethodProvider(signature, body, this);
@@ -256,7 +251,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Summary: null, Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
-            var body = _typeFormattersProvider.ParseTimeSpan(element.GetString(), _formatParameter);
+            var body = TypeFormattersSnippet.ParseTimeSpan(element.GetString(), _formatParameter);
 
             return new MethodProvider(signature, body, this);
         }
@@ -372,7 +367,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     new(Literal("U"), new MethodBodyStatement[]
                     {
-                        writer.WriteStringValue(_typeFormattersProvider.ToBase64UrlString(value)),
+                        writer.WriteStringValue(TypeFormattersSnippet.ToBase64UrlString(value)),
                         Break
                     }),
                     new(Literal("D"), new MethodBodyStatement[]
@@ -447,7 +442,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             cases.Add(
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel", jsonModel => new MethodBodyStatement[]
                 {
-                    new InvokeInstanceMethodStatement(jsonModel, nameof(IJsonModel<object>.Write), writer, NullCoalescing(options, ModelReaderWriterOptionsSnippet.Wire)),
+                    new InvokeInstanceMethodStatement(jsonModel, nameof(IJsonModel<object>.Write), writer, NullCoalescing(options, ModelSerializationExtensionsSnippet.Wire)),
                     Break
                 }));
             cases.AddRange(new[]

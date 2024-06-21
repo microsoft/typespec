@@ -16,8 +16,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class TypeFormattersProvider : TypeProvider
     {
-        private static readonly Lazy<TypeFormattersProvider> _instance = new(() => new TypeFormattersProvider());
-        public static TypeFormattersProvider Instance => _instance.Value;
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
         private const string _toStringMethodName = "ToString";
 

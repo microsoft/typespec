@@ -12,11 +12,8 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class ChangeTrackingDictionaryProvider : TypeProvider
+    public class ChangeTrackingDictionaryProvider : TypeProvider
     {
-        private static readonly Lazy<ChangeTrackingDictionaryProvider> _instance = new(() => new ChangeTrackingDictionaryProvider());
-        public static ChangeTrackingDictionaryProvider Instance => _instance.Value;
-
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
         private readonly CSharpType _tValue = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[1];
@@ -36,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        private ChangeTrackingDictionaryProvider()
+        public ChangeTrackingDictionaryProvider()
         {
             WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
