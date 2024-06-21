@@ -3,11 +3,10 @@
 
 using System;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.SourceInput;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Writers
 {
     internal class TypeProviderWriterTests
     {
