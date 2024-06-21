@@ -5,6 +5,14 @@ namespace Microsoft.Generator.CSharp
 {
     public class GeneratorContext
     {
+        /// <summary>
+        /// For mocking.
+        /// </summary>
+        protected GeneratorContext()
+        {
+            // should be mocked
+            Configuration = null!;
+        }
         internal GeneratorContext(Configuration configuration)
         {
             Configuration = configuration;

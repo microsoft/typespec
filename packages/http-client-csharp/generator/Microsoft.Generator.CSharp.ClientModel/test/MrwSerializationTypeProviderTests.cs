@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void Setup()
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            var mockTypeFactory = new Mock<TypeFactory>() { };
+            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
             mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(int)));
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);

@@ -12,15 +12,6 @@ namespace Microsoft.Generator.CSharp
 {
     public static partial class KnownParameters
     {
-        private static ParameterProvider? _tokenAuth;
-        public static ParameterProvider TokenAuth => _tokenAuth ??= new("tokenCredential", $"The token credential to copy", CodeModelPlugin.Instance.TypeFactory.TokenCredentialType());
-
-        private static ParameterProvider? _matchConditionsParameter;
-        public static ParameterProvider MatchConditionsParameter => _matchConditionsParameter ??= new("matchConditions", $"The content to send as the request conditions of the request.", CodeModelPlugin.Instance.TypeFactory.MatchConditionsType(), Snippet.DefaultOf(CodeModelPlugin.Instance.TypeFactory.RequestConditionsType()));
-
-        private static ParameterProvider? _requestConditionsParameter;
-        public static ParameterProvider RequestConditionsParameter => _requestConditionsParameter ??= new("requestConditions", $"The content to send as the request conditions of the request.", CodeModelPlugin.Instance.TypeFactory.RequestConditionsType(), Snippet.DefaultOf(CodeModelPlugin.Instance.TypeFactory.RequestConditionsType()));
-
         private static ParameterProvider? _pipeline;
         public static ParameterProvider Pipeline => _pipeline ??= new("pipeline", $"The HTTP pipeline for sending and receiving REST requests and responses", new CSharpType(CodeModelPlugin.Instance.Configuration.ApiTypes.HttpPipelineType));
 
