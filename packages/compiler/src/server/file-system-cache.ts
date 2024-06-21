@@ -48,9 +48,17 @@ export function createFileSystemCache({
       changes = [];
       const r = cache.get(path);
       if (!r) {
-        const target: any = {};
-        Error.captureStackTrace(target);
-        const callstack = target.stack.substring("Error\n".length);
+        let callstack: string | undefined;
+        try {
+          const target: any = {};
+          // some browser doesn't support Error.captureStackTrace (i.e. Firefox)
+          if (typeof Error.captureStackTrace === "function") {
+            Error.captureStackTrace(target);
+            callstack = target.stack.substring("Error\n".length);
+          }
+        } catch {
+          // just ignore the error, we don't want tracing error to impact normal functionality
+        }
         log({ level: "trace", message: `FileSystemCache miss for ${path}`, detail: callstack });
       }
       return r;

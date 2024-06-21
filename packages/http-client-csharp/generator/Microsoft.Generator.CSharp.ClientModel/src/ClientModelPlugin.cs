@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
-        public override TypeFactory TypeFactory { get; }
+        public override ScmTypeFactory TypeFactory { get; }
 
         public override ExtensibleSnippets ExtensibleSnippets { get; }
 
