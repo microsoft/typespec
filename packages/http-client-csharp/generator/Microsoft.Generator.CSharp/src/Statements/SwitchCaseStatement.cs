@@ -12,18 +12,16 @@ namespace Microsoft.Generator.CSharp.Statements
     {
         public IReadOnlyList<ValueExpression> Matches { get; }
         public MethodBodyStatement Statement { get; }
-        public bool AddBraces { get; }
 
-        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement, bool addBraces = false)
+        public SwitchCaseStatement(IReadOnlyList<ValueExpression> matches, MethodBodyStatement statement)
         {
             Matches = matches;
             Statement = statement;
-            AddBraces = addBraces;
         }
 
-        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement, bool addBraces = false) : this([match], statement, addBraces) { }
+        public SwitchCaseStatement(ValueExpression match, MethodBodyStatement statement) : this([match], statement) { }
 
-        public static SwitchCaseStatement Default(MethodBodyStatement statement, bool addBraces = false) => new(Array.Empty<ValueExpression>(), statement, addBraces);
+        public static SwitchCaseStatement Default(MethodBodyStatement statement) => new(Array.Empty<ValueExpression>(), statement);
 
         internal override void Write(CodeWriter writer)
         {
@@ -45,22 +43,8 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.AppendRaw("default");
             }
 
-            if (AddBraces)
-            {
-                writer.AppendRaw(": ");
-                writer.WriteLine();
-                using (writer.Scope())
-                {
-                    Statement.Write(writer);
-                }
-            }
-            else
-            {
-                using (writer.ScopeRaw(":", "", false))
-                {
-                    Statement.Write(writer);
-                }
-            }
+            using var scope = writer.ScopeRaw(":", "", newLine: false);
+            Statement.Write(writer);
         }
     }
 }

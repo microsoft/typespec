@@ -59,16 +59,14 @@ namespace UnbrandedTypeSpec.Models
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
             writer.WritePropertyName("requiredUnion"u8);
-            #if NET6_0_OR_GREATER
-
-                writer.WriteRawValue(RequiredUnion);
-            #else
-
-                using (JsonDocument document = JsonDocument.Parse(RequiredUnion))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-            #endif
+#if NET6_0_OR_GREATER
+            writer.WriteRawValue(RequiredUnion);
+#else
+            using (JsonDocument document = JsonDocument.Parse(RequiredUnion))
+            {
+                JsonSerializer.Serialize(writer, document.RootElement);
+            }
+#endif
             writer.WritePropertyName("requiredLiteralString"u8);
             writer.WriteStringValue(RequiredLiteralString.ToString());
             writer.WritePropertyName("requiredLiteralInt"u8);
@@ -123,16 +121,14 @@ namespace UnbrandedTypeSpec.Models
                 foreach (var item in _serializedAdditionalRawData)
                 {
                     writer.WritePropertyName(item.Key);
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
             }
             writer.WriteEndObject();
@@ -319,11 +315,11 @@ namespace UnbrandedTypeSpec.Models
             var format = options.Format == "W" ? ((IPersistableModel<Thing>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "J": 
-                {
-                    using JsonDocument document = JsonDocument.Parse(data);
-                    return DeserializeThing(document.RootElement, options);
-                }
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data))
+                    {
+                        return DeserializeThing(document.RootElement, options);
+                    }
                 default:
                     throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
             }

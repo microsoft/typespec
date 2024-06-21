@@ -146,7 +146,6 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         private async Task<Compilation?> LoadBaselineContract()
         {
-
             string fullPath;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.Namespace}.csproj"));
             if (!File.Exists(projectFilePath))

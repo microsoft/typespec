@@ -163,29 +163,25 @@ namespace UnbrandedTypeSpec.Models
                 }
             }
             writer.WritePropertyName("requiredUnknown"u8);
-            #if NET6_0_OR_GREATER
-
-                writer.WriteRawValue(RequiredUnknown);
-            #else
-
-                using (JsonDocument document = JsonDocument.Parse(RequiredUnknown))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-            #endif
+#if NET6_0_OR_GREATER
+            writer.WriteRawValue(RequiredUnknown);
+#else
+            using (JsonDocument document = JsonDocument.Parse(RequiredUnknown))
+            {
+                JsonSerializer.Serialize(writer, document.RootElement);
+            }
+#endif
             if (Optional.IsDefined(OptionalUnknown))
             {
                 writer.WritePropertyName("optionalUnknown"u8);
-                #if NET6_0_OR_GREATER
-
-                    writer.WriteRawValue(OptionalUnknown);
-                #else
-
-                    using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-                #endif
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(OptionalUnknown);
+#else
+                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
+                {
+                    JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
             }
             writer.WritePropertyName("requiredRecordUnknown"u8);
             writer.WriteStartObject();
@@ -197,16 +193,14 @@ namespace UnbrandedTypeSpec.Models
                     writer.WriteNullValue();
                     continue;
                 }
-                #if NET6_0_OR_GREATER
-
-                    writer.WriteRawValue(item.Value);
-                #else
-
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-                #endif
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(item.Value);
+#else
+                using (JsonDocument document = JsonDocument.Parse(item.Value))
+                {
+                    JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
             }
             writer.WriteEndObject();
             if (Optional.IsCollectionDefined(OptionalRecordUnknown))
@@ -221,16 +215,14 @@ namespace UnbrandedTypeSpec.Models
                         writer.WriteNullValue();
                         continue;
                     }
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
                 writer.WriteEndObject();
             }
@@ -246,16 +238,14 @@ namespace UnbrandedTypeSpec.Models
                         writer.WriteNullValue();
                         continue;
                     }
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
                 writer.WriteEndObject();
             }
@@ -271,16 +261,14 @@ namespace UnbrandedTypeSpec.Models
                         writer.WriteNullValue();
                         continue;
                     }
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
                 writer.WriteEndObject();
             }
@@ -293,16 +281,14 @@ namespace UnbrandedTypeSpec.Models
                 foreach (var item in _serializedAdditionalRawData)
                 {
                     writer.WritePropertyName(item.Key);
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
             }
             writer.WriteEndObject();
@@ -680,11 +666,11 @@ namespace UnbrandedTypeSpec.Models
             var format = options.Format == "W" ? ((IPersistableModel<RoundTripModel>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "J": 
-                {
-                    using JsonDocument document = JsonDocument.Parse(data);
-                    return DeserializeRoundTripModel(document.RootElement, options);
-                }
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data))
+                    {
+                        return DeserializeRoundTripModel(document.RootElement, options);
+                    }
                 default:
                     throw new FormatException($"The model {nameof(RoundTripModel)} does not support reading '{options.Format}' format.");
             }

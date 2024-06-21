@@ -78,16 +78,14 @@ namespace UnbrandedTypeSpec.Models
                 foreach (var item in _serializedAdditionalRawData)
                 {
                     writer.WritePropertyName(item.Key);
-                    #if NET6_0_OR_GREATER
-
-                        writer.WriteRawValue(item.Value);
-                    #else
-
-                        using (JsonDocument document = JsonDocument.Parse(item.Value))
-                        {
-                            JsonSerializer.Serialize(writer, document.RootElement);
-                        }
-                    #endif
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
                 }
             }
             writer.WriteEndObject();
@@ -180,11 +178,11 @@ namespace UnbrandedTypeSpec.Models
             var format = options.Format == "W" ? ((IPersistableModel<ModelWithRequiredNullableProperties>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
-                case "J": 
-                {
-                    using JsonDocument document = JsonDocument.Parse(data);
-                    return DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
-                }
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data))
+                    {
+                        return DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
+                    }
                 default:
                     throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support reading '{options.Format}' format.");
             }

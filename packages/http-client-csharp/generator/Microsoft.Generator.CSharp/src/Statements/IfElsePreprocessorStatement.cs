@@ -15,20 +15,15 @@ namespace Microsoft.Generator.CSharp.Statements
             If = ifStatement;
             Else = elseStatement;
         }
+
         internal override void Write(CodeWriter writer)
         {
             writer.WriteLine($"#if {Condition}");
-            using (writer.ScopeRaw(string.Empty, string.Empty, false))
-            {
-                If.Write(writer);
-            }
+            If.Write(writer);
             if (Else is not null)
             {
                 writer.WriteRawLine("#else");
-                using (writer.ScopeRaw(string.Empty, string.Empty, false))
-                {
-                    Else.Write(writer);
-                }
+                Else.Write(writer);
             }
 
             writer.WriteRawLine("#endif");

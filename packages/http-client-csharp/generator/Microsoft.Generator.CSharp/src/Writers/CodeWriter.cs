@@ -616,10 +616,10 @@ namespace Microsoft.Generator.CSharp
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
                 return this;
 
-            AddSpaces();
+            AddSpaces(span);
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
@@ -629,8 +629,14 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private void AddSpaces()
+        private void AddSpaces(ReadOnlySpan<char> span)
         {
+            // pre-processor directives do not need indentation
+            if (span[0] == '#')
+            {
+                return;
+            }
+
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
                 return;
@@ -638,14 +644,6 @@ namespace Microsoft.Generator.CSharp
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
             _builder.Advance(spaces);
-        }
-
-        private void AddSpaces(int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                AppendRawChar(_space);
-            }
         }
 
         internal CodeWriter WriteIdentifier(string identifier)
@@ -944,17 +942,18 @@ namespace Microsoft.Generator.CSharp
             }
             else
             {
-                WriteRawLine("(");
+                AppendRaw("(");
                 var iterator = arguments.GetEnumerator();
                 if (iterator.MoveNext())
                 {
-                    AddSpaces(4);
-                    iterator.Current.Write(this);
-                    while (iterator.MoveNext())
+                    using (ScopeRaw(string.Empty, string.Empty, false))
                     {
-                        WriteRawLine(",");
-                        AddSpaces(4);
                         iterator.Current.Write(this);
+                        while (iterator.MoveNext())
+                        {
+                            WriteRawLine(",");
+                            iterator.Current.Write(this);
+                        }
                     }
                 }
                 AppendRaw(")");

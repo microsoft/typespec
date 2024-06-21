@@ -50,7 +50,8 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.Append($"{Variable:D} = ");
                 Value.Write(writer);
                 writer.WriteRawLine(")");
-                using (writer.Scope())
+
+                using (writer.ScopeRaw())
                 {
                     foreach (var bodyStatement in Body)
                     {

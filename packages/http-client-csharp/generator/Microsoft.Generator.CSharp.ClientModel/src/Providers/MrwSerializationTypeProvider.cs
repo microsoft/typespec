@@ -963,12 +963,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ModelReaderWriterOptionsSnippet.JsonFormat,
                 new MethodBodyStatement[]
                 {
-                    /* using JsonDocument document = JsonDocument.Parse(data);
-                     * return DeserializeXXX(doc.RootElement, options);
-                     */
-                    UsingDeclare("document", JsonDocumentSnippet.Parse(data), out var docVariable),
-                    Return(TypeProviderSnippet.Deserialize(_model, docVariable.RootElement, options))
-                }, addBraces: true);
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(data), out var jsonDocumentVar)
+                    {
+                        Return(TypeProviderSnippet.Deserialize(_model, new JsonDocumentSnippet(jsonDocumentVar).RootElement, options))
+                    },
+                });
 
             // default case
             var defaultCase = SwitchCaseStatement.Default(
