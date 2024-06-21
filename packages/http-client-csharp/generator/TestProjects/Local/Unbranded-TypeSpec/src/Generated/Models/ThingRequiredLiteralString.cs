@@ -50,7 +50,7 @@ namespace UnbrandedTypeSpec.Models
         public bool Equals(ThingRequiredLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>
-        public override int GetHashCode() => StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value);
+        public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
         /// <inheritdoc/>
         public override string ToString() => _value;

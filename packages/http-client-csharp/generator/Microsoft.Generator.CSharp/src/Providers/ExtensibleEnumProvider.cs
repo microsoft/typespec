@@ -201,7 +201,10 @@ namespace Microsoft.Generator.CSharp.Providers
             // for others
             // public override int GetHashCode() => _value.GetHashCode();
             var getHashCodeExpressionBody = IsStringValueType
-                            ? new TypeReferenceExpression(typeof(StringComparer)).Property(nameof(StringComparer.InvariantCultureIgnoreCase)).Invoke(nameof(StringComparer.GetHashCode), valueField)
+                            ? new TernaryConditionalExpression(
+                                NotEqual(valueField, Null),
+                                new TypeReferenceExpression(typeof(StringComparer)).Property(nameof(StringComparer.InvariantCultureIgnoreCase)).Invoke(nameof(StringComparer.GetHashCode), valueField),
+                                Int(0))
                             : valueField.Untyped.InvokeGetHashCode();
             methods.Add(new(getHashCodeSignature, getHashCodeExpressionBody, this, XmlDocProvider.InheritDocs));
 
