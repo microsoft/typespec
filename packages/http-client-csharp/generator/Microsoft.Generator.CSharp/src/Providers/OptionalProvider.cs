@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -12,11 +10,8 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class OptionalProvider : TypeProvider
+    public class OptionalProvider : TypeProvider
     {
-        private static readonly Lazy<OptionalProvider> _instance = new(() => new OptionalProvider());
-        public static OptionalProvider Instance => _instance.Value;
-
         private class ListTemplate<T> { }
 
         private readonly CSharpType _t = typeof(ListTemplate<>).GetGenericArguments()[0];
@@ -25,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _genericChangeTrackingList;
         private readonly CSharpType _genericChangeTrackingDictionary;
 
-        private OptionalProvider()
+        public OptionalProvider()
         {
             _genericChangeTrackingList = ChangeTrackingListProvider.Instance.Type;
             _genericChangeTrackingDictionary = ChangeTrackingDictionaryProvider.Instance.Type;
@@ -49,7 +44,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 BuildIsReadOnlyDictionaryDefined(),
                 IsStructDefined(),
                 IsObjectDefined(),
-                IsJsonElementDefined(),
                 IsStringDefined(),
             ];
         }
@@ -82,17 +76,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(NotEqual(new ParameterReferenceSnippet(valueParam), Null))
-            },
-            this);
-        }
-
-        private MethodProvider IsJsonElementDefined()
-        {
-            var valueParam = new ParameterProvider("value", $"The value.", typeof(JsonElement));
-            var signature = GetIsDefinedSignature(valueParam);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                Return(new JsonElementSnippet(new ParameterReferenceSnippet(valueParam)).ValueKindNotEqualsUndefined())
             },
             this);
         }
@@ -162,16 +145,6 @@ namespace Microsoft.Generator.CSharp.Providers
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
             this);
-        }
-
-        public BoolSnippet IsDefined(TypedSnippet value)
-        {
-            return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsDefined", [ value ]));
-        }
-
-        public BoolSnippet IsCollectionDefined(TypedSnippet collection)
-        {
-            return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsCollectionDefined", [ collection ]));
         }
     }
 }

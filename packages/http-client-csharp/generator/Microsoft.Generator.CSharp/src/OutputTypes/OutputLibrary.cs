@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp
                 ChangeTrackingListProvider.Instance,
                 ChangeTrackingDictionaryProvider.Instance,
                 ArgumentProvider.Instance,
-                OptionalProvider.Instance
+                new OptionalProvider(),
             ];
         }
     }

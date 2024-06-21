@@ -2,13 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Snippets
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    public sealed record JsonElementSnippet(ValueExpression Untyped) : TypedSnippet<JsonElement>(Untyped)
+    internal sealed record JsonElementSnippet(ValueExpression Untyped) : TypedSnippet<JsonElement>(Untyped)
     {
         public JsonValueKindSnippet ValueKind => new(Property(nameof(JsonElement.ValueKind)));
         public EnumerableSnippet EnumerateArray() => new(typeof(JsonElement), Untyped.Invoke(nameof(JsonElement.EnumerateArray)));
@@ -43,6 +45,20 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.String)));
 
         public MethodBodyStatement WriteTo(ValueExpression writer) => new InvokeInstanceMethodStatement(Untyped, nameof(JsonElement.WriteTo), new[] { writer }, false);
+
+        public ValueExpression GetBytesFromBase64(string? format) =>
+           ModelSerializationExtensionsProvider.Instance.GetBytesFromBase64(this, format);
+
+        public ValueExpression GetObject()
+            => ModelSerializationExtensionsProvider.Instance.GetObject(this);
+
+        public ValueExpression GetChar()
+            => ModelSerializationExtensionsProvider.Instance.GetChar(this);
+        public ValueExpression GetDateTimeOffset(string? format)
+            => ModelSerializationExtensionsProvider.Instance.GetDateTimeOffset(this, format);
+
+        public ValueExpression GetTimeSpan(string? format)
+            => ModelSerializationExtensionsProvider.Instance.GetTimeSpan(this, format);
 
         public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {

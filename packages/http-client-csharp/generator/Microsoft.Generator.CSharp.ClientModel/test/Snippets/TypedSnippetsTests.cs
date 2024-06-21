@@ -73,5 +73,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             Assert.AreEqual(arg, untyped?.Arguments[0]);
         }
+
+        //[Test]
+        //public void OptionalSnippet_IsCollectionDefined()
+        //{
+        //    var member = new StringSnippet(new MemberExpression(null, "collection"));
+
+        //    var result = OptionalSnippet.IsCollectionDefined(member);
+
+        //    Assert.IsNotNull(result);
+        //    var untyped = result.Untyped;
+        //    Assert.IsNotNull(untyped);
+        //}
     }
 }

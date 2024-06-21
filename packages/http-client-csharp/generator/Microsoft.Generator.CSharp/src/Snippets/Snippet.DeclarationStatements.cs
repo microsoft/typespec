@@ -16,9 +16,6 @@ namespace Microsoft.Generator.CSharp.Snippets
             return new UsingDeclareVariableStatement(type, declaration, value);
         }
 
-        public static MethodBodyStatement UsingDeclare(string name, JsonDocumentSnippet value, out JsonDocumentSnippet variable)
-            => UsingDeclare(name, value, d => new JsonDocumentSnippet(d), out variable);
-
         public static MethodBodyStatement UsingDeclare(string name, StreamSnippet value, out StreamSnippet variable)
             => UsingDeclare(name, value, d => new StreamSnippet(d), out variable);
 
@@ -41,9 +38,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, EnumerableSnippet value, out EnumerableSnippet variable)
             => Declare(name, value, d => new EnumerableSnippet(value.ItemType, d), out variable);
 
-        public static MethodBodyStatement Declare(string name, JsonElementSnippet value, out JsonElementSnippet variable)
-            => Declare(name, value, d => new JsonElementSnippet(d), out variable);
-
         public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
             => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
 
@@ -59,9 +53,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement Declare(VariableReferenceSnippet variable, ValueExpression value)
             => new DeclareVariableStatement(variable.Type, variable.Declaration, value);
-
-        public static MethodBodyStatement UsingVar(string name, JsonDocumentSnippet value, out JsonDocumentSnippet variable)
-            => UsingVar(name, value, d => new JsonDocumentSnippet(d), out variable);
 
         public static MethodBodyStatement Var(string name, DictionarySnippet value, out DictionarySnippet variable)
             => Var(name, value, d => new DictionarySnippet(value.KeyType, value.ValueType, d), out variable);

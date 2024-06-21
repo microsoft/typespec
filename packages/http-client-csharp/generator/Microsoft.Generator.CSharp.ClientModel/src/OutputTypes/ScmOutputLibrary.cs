@@ -11,7 +11,16 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         protected override IReadOnlyList<TypeProvider> BuildTypes()
         {
-            return [.. base.BuildTypes(), ModelSerializationExtensionsProvider.Instance, TypeFormattersProvider.Instance];
+            var baseTypes = base.BuildTypes();
+            var updatedTypes = new TypeProvider[baseTypes.Count];
+
+            var systemOptionalProvider = new SystemOptionalProvider();
+            for (var i = 0; i < baseTypes.Count; i++)
+            {
+                updatedTypes[i] = baseTypes[i] is OptionalProvider ? systemOptionalProvider : baseTypes[i];
+            }
+
+            return [.. updatedTypes, ModelSerializationExtensionsProvider.Instance, TypeFormattersProvider.Instance];
         }
     }
 }

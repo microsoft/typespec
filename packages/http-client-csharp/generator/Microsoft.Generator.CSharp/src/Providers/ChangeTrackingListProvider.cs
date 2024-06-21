@@ -12,7 +12,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal sealed class ChangeTrackingListProvider : TypeProvider
+    public class ChangeTrackingListProvider : TypeProvider
     {
         private static readonly Lazy<ChangeTrackingListProvider> _instance = new(() => new ChangeTrackingListProvider());
 
