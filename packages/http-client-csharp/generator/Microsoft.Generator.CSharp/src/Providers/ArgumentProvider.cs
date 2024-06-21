@@ -215,16 +215,16 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(value),
-                new IfStatement(IsCollectionEmpty(value, new VariableReferenceSnippet(new CSharpType(typeof(ICollection<>), _t), new CodeWriterDeclaration("collectionOfT"))))
+                new IfStatement(IsCollectionEmpty(value, new VariableExpression(new CSharpType(typeof(ICollection<>), _t), new CodeWriterDeclaration("collectionOfT"))))
                 {
                     ThrowArgumentException(throwMessage)
                 },
-                new IfStatement(IsCollectionEmpty(value, new VariableReferenceSnippet(typeof(ICollection), new CodeWriterDeclaration("collection"))))
+                new IfStatement(IsCollectionEmpty(value, new VariableExpression(typeof(ICollection), new CodeWriterDeclaration("collection"))))
                 {
                     ThrowArgumentException(throwMessage)
                 },
                 UsingDeclare("e", new CSharpType(typeof(IEnumerator<>), _t), value.Invoke("GetEnumerator"), out var eVar),
-                new IfStatement(Not(new BoolSnippet(eVar.Untyped.Invoke("MoveNext"))))
+                new IfStatement(Not(new BoolSnippet(eVar.Invoke("MoveNext"))))
                 {
                     ThrowArgumentException(throwMessage)
                 }
@@ -232,7 +232,7 @@ namespace Microsoft.Generator.CSharp.Providers
             this);
         }
 
-        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableReferenceSnippet collection)
+        private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
             return BoolSnippet.Is(valueParam, new DeclarationExpression(collection.Type, collection.Declaration, false)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
         }

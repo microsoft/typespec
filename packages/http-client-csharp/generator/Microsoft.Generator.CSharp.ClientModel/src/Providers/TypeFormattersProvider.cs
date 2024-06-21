@@ -154,27 +154,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildToBase64UrlStringMethodProvider()
         {
-            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
+            var value = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
             var signature = new MethodSignature(
                 Name: _toBase64UrlStringMethodName,
-                Parameters: new[] { valueParameter },
+                Parameters: [value],
                 ReturnType: typeof(string),
                 Modifiers: _methodModifiers,
                 Summary: null, Description: null, ReturnDescription: null);
 
-            var value = (ValueExpression)valueParameter;
             var valueLength = new IntSnippet(value.Property("Length"));
             var body = new List<MethodBodyStatement>
             {
                 Declare("numWholeOrPartialInputBlocks", new IntSnippet(new BinaryOperatorExpression("/", new KeywordExpression("checked", new BinaryOperatorExpression("+", valueLength, Int(2))), Int(3))), out var numWholeOrPartialInputBlocks),
                 Declare("size", new IntSnippet(new KeywordExpression("checked", new BinaryOperatorExpression("*", numWholeOrPartialInputBlocks, Int(4)))), out var size),
             };
-            var output = new VariableReferenceSnippet(typeof(char[]), "output");
+            var output = new VariableExpression(typeof(char[]), "output");
             body.Add(new MethodBodyStatement[]
             {
                 Declare(output, New.Array(typeof(char), size)),
                 EmptyLineStatement,
-                Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), new[] { value, Int(0), valueLength, output, Int(0) })), out var numBase64Chars),
+                Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), [value, Int(0), valueLength, output, Int(0)])), out var numBase64Chars),
                 EmptyLineStatement,
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, LessThan(i, numBase64Chars), new UnaryOperatorExpression("++", i, true))
@@ -224,7 +223,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     SwitchCaseExpression.Default(ThrowExpression(New.InvalidOperationException(Literal("Malformed input"))))
                 })), out var paddingCharsToAdd)
             };
-            var output = new VariableReferenceSnippet(typeof(char[]), "output");
+            var output = new VariableExpression(typeof(char[]), "output");
             var outputLength = output.Property("Length");
             body.Add(new MethodBodyStatement[]
             {
@@ -338,7 +337,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), NotEqual(format, Null), ToString(dateTime, format)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), NotEqual(format, Null), ToString(timeSpan, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanNoFormat])),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Untyped.Invoke("ToString")),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(new BinaryDataSnippet(binaryData).ToArray(), format)),
                 SwitchCaseExpression.Default(value.InvokeToString())
             });

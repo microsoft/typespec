@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _tArray;
         private readonly ParameterProvider _tParam;
         private readonly ParameterProvider _indexParam = new ParameterProvider("index", $"The index.", typeof(int));
-        private VariableReferenceSnippet _innerList;
+        private VariableExpression _innerList;
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
 
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _ensureListSignature = new MethodSignature("EnsureList", null, null, MethodSignatureModifiers.Public, _iListOfT, null, Array.Empty<ParameterProvider>());
             _getEnumeratorSignature = new MethodSignature("GetEnumerator", null, null, MethodSignatureModifiers.Public, new CSharpType(typeof(IEnumerator<>), _t), null, Array.Empty<ParameterProvider>());
             _innerListField = new FieldProvider(FieldModifiers.Private, _iListOfT, "_innerList");
-            _innerList = new VariableReferenceSnippet(_iListOfT, _innerListField.Declaration);
+            _innerList = new VariableExpression(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new ParameterProvider("item", $"The item.", _t);
             EnsureList = This.Invoke(_ensureListSignature);

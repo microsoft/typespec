@@ -123,7 +123,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var collectionParam = new ParameterProvider("collection", $"The value.", new CSharpType(typeof(IReadOnlyDictionary<,>), _tKey, _tValue));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _tKey, _tValue);
-            VariableReferenceSnippet changeTrackingReference = new VariableReferenceSnippet(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
+            VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
             DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
 
             return new MethodProvider(signature, new MethodBodyStatement[]
@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var collectionParam = new ParameterProvider("collection", $"The collection.", new CSharpType(typeof(IDictionary<,>), _tKey, _tValue));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _tKey, _tValue);
-            VariableReferenceSnippet changeTrackingReference = new VariableReferenceSnippet(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
+            VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
             DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
 
             return new MethodProvider(signature, new MethodBodyStatement[]
@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var collectionParam = new ParameterProvider("collection", $"The collection.", new CSharpType(typeof(IEnumerable<>), _t));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _t);
-            VariableReferenceSnippet changeTrackingReference = new VariableReferenceSnippet(_genericChangeTrackingList, new CodeWriterDeclaration("changeTrackingList"));
+            VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingList, new CodeWriterDeclaration("changeTrackingList"));
             DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
 
             return new MethodProvider(signature, new MethodBodyStatement[]

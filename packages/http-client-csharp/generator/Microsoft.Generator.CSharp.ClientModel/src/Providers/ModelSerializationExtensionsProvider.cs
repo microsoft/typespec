@@ -568,7 +568,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return new MethodProvider(signature, new SwitchStatement(value, cases), this);
 
-            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableReferenceSnippet, MethodBodyStatement> bodyFunc)
+            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableExpression, MethodBodyStatement> bodyFunc)
             {
                 var declaration = new DeclarationExpression(type, varName, out var variable);
                 var body = bodyFunc(variable);

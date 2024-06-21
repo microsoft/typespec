@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
@@ -75,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             // declare the instance method
             var mockTypeProvider = new Mock<TypeProvider>();
             var newInstanceExpression = new NewInstanceExpression(new CSharpType(typeof(object)), []);
-            var variableX = new VariableReferenceSnippet(typeof(object), "x");
+            var variableX = new VariableExpression(typeof(object), "x");
             var xDeclaration = Declare(variableX, newInstanceExpression);
             var fooMethod = new MethodProvider(
                 new MethodSignature(

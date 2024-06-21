@@ -133,5 +133,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public InvokeInstanceMethodExpression Invoke(string methodName)
             => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, false);
+
+        public ValueExpression Property(string propertyName, bool nullConditional = false)
+            => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
     }
 }

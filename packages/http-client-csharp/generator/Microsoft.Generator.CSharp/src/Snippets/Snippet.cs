@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
             => new InvokeInstanceMethodStatement(null, methodName, stringBuilder);
 
-        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableReferenceSnippet variable)
+        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableExpression variable)
             => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new KeywordExpression("ref", variable) });
 
         public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            var variableRef = new VariableReferenceSnippet(value.Type, declaration);
+            var variableRef = new VariableExpression(value.Type, declaration);
             variable = factory(variableRef);
             return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
         }
