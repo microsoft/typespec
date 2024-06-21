@@ -14,19 +14,16 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// </summary>
     public record ValueExpression
     {
-        private record DeclaredVariableExpression(string Name) : ValueExpression()
-        {
-            internal override void Write(CodeWriter writer)
-            {
-                writer.Append($"{Name:I}");
-            }
-        }
-
         internal virtual void Write(CodeWriter writer) { }
 
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
-        public static implicit operator ValueExpression(ParameterProvider parameter) => new DeclaredVariableExpression(parameter.Name);
+        public static implicit operator ValueExpression(ParameterProvider parameter)
+        {
+            var decl = new CodeWriterDeclaration(parameter.Name);
+            decl.SetActualName(parameter.Name);
+            return new VariableExpression(parameter.Type, decl);
+        }
         public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
         public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
 
