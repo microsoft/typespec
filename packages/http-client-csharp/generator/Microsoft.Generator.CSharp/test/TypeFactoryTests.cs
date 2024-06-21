@@ -58,26 +58,6 @@ namespace Microsoft.Generator.CSharp.Tests
 
         internal class CustomTypeFactory : TypeFactory
         {
-            public override CSharpType RequestConditionsType()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override CSharpType TokenCredentialType()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override CSharpType MatchConditionsType()
-            {
-                throw new NotImplementedException();
-            }
-
-            public override CSharpType PageResponseType()
-            {
-                throw new NotImplementedException();
-            }
-
             public override ParameterProvider CreateCSharpParam(InputParameter parameter)
             {
                 throw new NotImplementedException();
@@ -103,17 +83,17 @@ namespace Microsoft.Generator.CSharp.Tests
                 }
             }
 
-            public override ModelProvider CreateModel(InputModelType inputModel)
+            public override TypeProvider CreateModel(InputModelType inputModel)
             {
                 throw new NotImplementedException();
             }
 
-            public override EnumProvider CreateEnum(InputEnumType inputEnum)
+            public override TypeProvider CreateEnum(InputEnumType inputEnum)
             {
                 throw new NotImplementedException();
             }
 
-            public override ClientProvider CreateClient(InputClient inputClient)
+            public override TypeProvider CreateClient(InputClient inputClient)
             {
                 throw new NotImplementedException();
             }
