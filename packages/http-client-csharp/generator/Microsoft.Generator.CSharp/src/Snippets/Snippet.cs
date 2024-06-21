@@ -109,6 +109,12 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);
 
+        public static ValueExpression InvokeToDouble(ValueExpression expression)
+            => new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToDouble), expression);
+
+        public static ValueExpression InvokeToInt32(ValueExpression expression)
+            => new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToInt32), expression);
+
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
@@ -116,5 +122,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             variable = factory(variableRef);
             return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
         }
+
+        public static UnaryOperatorStatement Increment(ValueExpression value) => new UnaryOperatorStatement(new UnaryOperatorExpression("++", value, true));
     }
 }

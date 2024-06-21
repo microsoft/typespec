@@ -15,5 +15,11 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public static MethodBodyStatement WriteStringValue(this Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
             => ModelSerializationExtensionsProvider.Instance.WriteStringValue(snippet, value, format);
+
+        public static MethodBodyStatement WriteBase64StringValue(this Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
+            => ModelSerializationExtensionsProvider.Instance.WriteBase64StringValue(snippet, value, format);
+
+        public static MethodBodyStatement WriteNumberValue(this Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
+            => ModelSerializationExtensionsProvider.Instance.WriteNumberValue(snippet, value, format);
     }
 }

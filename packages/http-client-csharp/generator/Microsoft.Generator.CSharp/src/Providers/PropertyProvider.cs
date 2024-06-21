@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
+        public bool IsRequired { get; }
         public string Name { get; }
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
@@ -33,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Modifiers = MethodSignatureModifiers.Public;
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
+            IsRequired = inputProperty.IsRequired;
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();

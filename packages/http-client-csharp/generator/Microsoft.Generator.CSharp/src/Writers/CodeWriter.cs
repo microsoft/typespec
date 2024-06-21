@@ -616,7 +616,7 @@ namespace Microsoft.Generator.CSharp
 
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
-            if (span.Length == 0 )
+            if (span.Length == 0)
                 return this;
 
             AddSpaces(span);
