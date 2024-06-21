@@ -32,6 +32,7 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Deprecated { get; internal set; }
         public string? Description { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
+        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
         public InputModelType? BaseModel { get; internal set; }
         public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
         public string? DiscriminatorValue { get; internal set; }
@@ -39,7 +40,6 @@ namespace Microsoft.Generator.CSharp.Input
         public InputDictionaryType? InheritedDictionaryType { get; internal set; }
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
-        public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);
 
