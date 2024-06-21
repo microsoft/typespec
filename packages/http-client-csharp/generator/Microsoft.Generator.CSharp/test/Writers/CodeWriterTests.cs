@@ -502,5 +502,28 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
             Assert.AreEqual(expected, result);
         }
+
+        [Test]
+        public void TestWriteArguments()
+        {
+            var arg1 = Literal("arg1");
+            var arg2 = Literal("arg2");
+            var arg3 = Literal("arg3");
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteArguments(new List<ValueExpression> { arg1, arg2, arg3 }, false);
+
+            var expected = new StringBuilder()
+                .Append("(")
+                .Append(NewLine)
+                .Append("    \"arg1\",")
+                .Append(NewLine)
+                .Append("    \"arg2\",")
+                .Append(NewLine)
+                .Append("    \"arg3\")")
+                .ToString();
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual(expected, result);
+        }
     }
 }
