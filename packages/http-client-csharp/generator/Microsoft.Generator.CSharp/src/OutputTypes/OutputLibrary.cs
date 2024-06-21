@@ -10,15 +10,10 @@ namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
-        private IReadOnlyList<TypeProvider>? _enums;
-        private IReadOnlyList<TypeProvider>? _models;
         private IReadOnlyList<ClientProvider>? _clients;
 
         public OutputLibrary()
         {
-            EnumMappings = new Dictionary<InputEnumType, TypeProvider>();
-            ModelMappings = new Dictionary<InputModelType, TypeProvider>();
-
             _allModels = new(InitializeAllModels);
         }
 
@@ -33,7 +28,6 @@ namespace Microsoft.Generator.CSharp
                 var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
                 TypeProvider enumType = cSharpEnum.Implementation;
                 enums[i] = enumType;
-                EnumMappings.Add(inputEnum, enumType);
             }
 
             var models = new TypeProvider[input.Models.Count];
@@ -43,18 +37,14 @@ namespace Microsoft.Generator.CSharp
                 var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
                 TypeProvider modelType = cSharpModel.Implementation;
                 models[i] = modelType;
-                ModelMappings.Add(inputModel, modelType);
             }
 
             return (enums, models);
         }
 
-        public IReadOnlyList<TypeProvider> Enums => _enums ??= BuildEnums();
-        public IReadOnlyList<TypeProvider> Models => _models ??= BuildModels();
+        public IReadOnlyList<TypeProvider> Enums => BuildEnums();
+        public IReadOnlyList<TypeProvider> Models => BuildModels();
         public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
-
-        private IDictionary<InputEnumType, TypeProvider> EnumMappings { get; }
-        private IDictionary<InputModelType, TypeProvider> ModelMappings { get; }
 
         private readonly Lazy<(TypeProvider[] Enums, TypeProvider[] Models)> _allModels;
 

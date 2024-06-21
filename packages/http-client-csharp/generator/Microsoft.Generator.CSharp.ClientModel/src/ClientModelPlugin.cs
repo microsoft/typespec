@@ -42,10 +42,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             {
                 case InputModelType inputModel:
                     return [new MrwSerializationTypeProvider(provider, inputModel)];
-                case InputEnumType inputEnum:
-                    return [EnumProvider.Create(inputEnum)];
                 default:
-                    return Array.Empty<TypeProvider>();
+                    return base.GetSerializationTypeProviders(provider, inputType);
             }
         }
 
