@@ -28,4 +28,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestData\Expressions\" />
+    <Folder Include="TestData\Statements\" />
+  </ItemGroup>
+
 </Project>
