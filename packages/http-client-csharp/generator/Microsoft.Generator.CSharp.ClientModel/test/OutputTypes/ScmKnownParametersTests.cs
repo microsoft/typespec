@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using Microsoft.Generator.CSharp.ClientModel;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
 {
     internal class ScmKnownParametersTests
     {

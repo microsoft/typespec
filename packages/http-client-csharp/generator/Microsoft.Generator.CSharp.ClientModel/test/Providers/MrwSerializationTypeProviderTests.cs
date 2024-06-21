@@ -14,7 +14,7 @@ using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     internal class MrwSerializationTypeProviderTests
     {

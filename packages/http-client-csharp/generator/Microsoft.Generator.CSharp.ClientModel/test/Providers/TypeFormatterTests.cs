@@ -6,10 +6,10 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using UnbrandedTypeSpec;
 using NUnit.Framework;
+using UnbrandedTypeSpec;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Tests
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
     public class TypeFormatterTests
     {
