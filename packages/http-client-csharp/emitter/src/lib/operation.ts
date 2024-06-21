@@ -14,6 +14,7 @@ import {
   ModelProperty,
   Namespace,
   Operation,
+  Type,
   getDeprecated,
   getDoc,
   getSummary,
@@ -78,9 +79,9 @@ export function loadOperation(
     parameters.push(loadOperationParameter(sdkContext, p));
   }
 
-  if (typespecParameters.body?.parameter) {
+  if (typespecParameters.body?.parameter && !isVoidType(typespecParameters.body.type)) {
     parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.parameter));
-  } else if (typespecParameters.body?.type) {
+  } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
     const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
     if (effectiveBodyType.kind === "Model") {
       const bodyParameter = loadBodyParameter(sdkContext, effectiveBodyType);
@@ -198,6 +199,10 @@ export function loadOperation(
     GenerateProtocolMethod: generateProtocol,
     GenerateConvenienceMethod: generateConvenience,
   } as InputOperation;
+
+  function isVoidType(type: Type): boolean {
+    return type.kind === "Intrinsic" && type.name === "void";
+  }
 
   function loadOperationParameter(
     context: SdkContext<NetEmitterOptions>,

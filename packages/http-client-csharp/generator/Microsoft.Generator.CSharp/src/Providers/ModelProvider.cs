@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly InputModelType _inputModel;
         public override string Name { get; }
         public override string Namespace { get; }
-        public override FormattableString Description { get; }
+        protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _inputModel = inputModel;
             Name = inputModel.Name.ToCleanName();
             Namespace = GetDefaultModelNamespace(CodeModelPlugin.Instance.Configuration.Namespace);
-            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : FormattableStringHelpers.Empty;
+            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             // TODO -- support generating models as structs. Tracking issue: https://github.com/microsoft/typespec/issues/3453
             _declarationModifiers = TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
             if (inputModel.Accessibility == "internal")
@@ -49,10 +49,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
-            {
-                SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
-            }
+            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
 
             _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
         }
@@ -98,7 +95,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 bodyStatements: new MethodBodyStatement[]
                 {
                     GetPropertyInitializers(constructorParameters)
-                });
+                },
+                this);
 
             return [constructor];
         }

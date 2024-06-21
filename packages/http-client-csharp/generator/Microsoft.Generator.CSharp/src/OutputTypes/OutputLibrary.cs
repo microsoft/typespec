@@ -80,5 +80,20 @@ namespace Microsoft.Generator.CSharp
 
             return clientProviders;
         }
+
+        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
+        //https://github.com/microsoft/typespec/issues/3589
+        private IReadOnlyList<TypeProvider>? _types;
+        public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
+        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
+        {
+            return
+            [
+                ChangeTrackingListProvider.Instance,
+                ChangeTrackingDictionaryProvider.Instance,
+                ArgumentProvider.Instance,
+                OptionalProvider.Instance
+            ];
+        }
     }
 }

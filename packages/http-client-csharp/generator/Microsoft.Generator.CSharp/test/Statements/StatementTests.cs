@@ -3,16 +3,37 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Moq;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Statements
 {
     public class StatementTests
     {
+        private readonly string _mocksFolder = "Mocks";
+        private string _testDataPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "Statements");
+
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            Mock<ApiTypes> apiTypes = new Mock<ApiTypes>();
+            Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
+            apiTypes.SetupGet(x => x.ResponseParameterName).Returns("result");
+
+            string outputFolder = "./outputFolder";
+            string projectPath = outputFolder;
+            var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
+            // initialize the singleton instance of the plugin
+            _ = new MockCodeModelPlugin(new GeneratorContext(Configuration.Load(configFilePath)));
+        }
+
         [Test]
         public void AssignValueIfNullStatement()
         {
@@ -242,6 +263,91 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         [Test]
+        public void TestSwitchStatementWithMultipleCasesWrite()
+        {
+            var variableFoo = new VariableReferenceSnippet(typeof(bool), "foo");
+            var fooDeclaration = Declare(variableFoo, Bool(true));
+            var switchStatement = new SwitchStatement(variableFoo);
+
+            var caseStatements = new List<SwitchCaseStatement>
+            {
+                new SwitchCaseStatement(Bool(true), Return(variableFoo)),
+                SwitchCaseStatement.Default(Return(False))
+            };
+
+            foreach (var switchCase in caseStatements)
+            {
+                switchStatement.Add(switchCase);
+            }
+
+            var mockTypeProvider = new Mock<TypeProvider>();
+
+            // Create a method declaration statement
+            var method = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: new CSharpType(typeof(bool)),
+                    Parameters: [],
+                    Summary: null, Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { fooDeclaration, switchStatement },
+                mockTypeProvider.Object);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "SwitchCaseStatement.cs"));
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
+        }
+
+        [Test]
+        public void TestSwitchStatementWithUsingStatementWrite()
+        {
+            var variableFoo = new VariableReferenceSnippet(typeof(bool), "foo");
+            var fooDeclaration = Declare(variableFoo, Bool(true));
+            var switchStatement = new SwitchStatement(variableFoo);
+            var usingStatement = new UsingScopeStatement(null, new CodeWriterDeclaration("x"), New.Instance(typeof(MemoryStream)))
+            {
+                Return(variableFoo)
+            };
+
+            var caseStatements = new List<SwitchCaseStatement>
+            {
+                new SwitchCaseStatement(Bool(true), usingStatement),
+                SwitchCaseStatement.Default(Return(False))
+            };
+
+            foreach (var switchCase in caseStatements)
+            {
+                switchStatement.Add(switchCase);
+            }
+
+            var mockTypeProvider = new Mock<TypeProvider>();
+
+            // Create a method declaration statement
+            var method = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: new CSharpType(typeof(bool)),
+                    Parameters: [],
+                    Summary: null, Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { fooDeclaration, switchStatement },
+                mockTypeProvider.Object);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "SwitchCaseStatementWithUsing.cs"));
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
+        }
+
+
+        [Test]
         public void TryCatchFinallyStatementWithTryOnly()
         {
             var tryStatement = new MethodBodyStatement();
@@ -303,6 +409,40 @@ namespace Microsoft.Generator.CSharp.Tests
             var unaryOperatorStatement = new UnaryOperatorStatement(operatorExpression);
 
             Assert.AreEqual(operatorExpression, unaryOperatorStatement.Expression);
+        }
+
+        [Test]
+        public void TestIfElsePreprocessorStatement()
+        {
+            // Set up test conditions and variables
+            var condition = "MOCKCONDITION";
+            var variableX = new VariableReferenceSnippet(typeof(int), "x");
+            var variableFoo = new VariableReferenceSnippet(typeof(int), "foo");
+            var variableBar = new VariableReferenceSnippet(typeof(int), "bar");
+            var xDeclaration = Declare(variableX, Int(1));
+            var ifStatementBody = Declare(variableFoo, Int(2));
+            var elseStatementBody = Declare(variableBar, Int(2));
+            var ifElsePreprocessor = new IfElsePreprocessorStatement(condition, ifStatementBody, elseStatementBody);
+            var mockTypeProvider = new Mock<TypeProvider>();
+
+            // Create a method declaration statement
+            var method = new MethodProvider(
+                new MethodSignature(
+                    Name: "Foo",
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: null,
+                    Parameters: [],
+                    Summary: null, Description: null, ReturnDescription: null),
+                new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
+                mockTypeProvider.Object);
+
+            // Verify the expected behavior
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "IfElsePreprocessorStatement.cs"));
+            var test = writer.ToString(false);
+            Assert.AreEqual(expectedResult, test);
         }
     }
 }

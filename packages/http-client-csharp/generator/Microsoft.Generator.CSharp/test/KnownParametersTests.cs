@@ -3,6 +3,9 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests
@@ -21,30 +24,22 @@ namespace Microsoft.Generator.CSharp.Tests
 
 
         [Test]
-        public void TestTokenAuth()
+        public void TestCancellationToken()
         {
-            var result = KnownParameters.TokenAuth;
+            var result = KnownParameters.CancellationTokenParameter;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
+            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(CancellationToken))));
         }
 
         [TestCase]
-        public void TestMatchConditionsParameter()
+        public void TestCancellationTokenEnumerator()
         {
-            var result = KnownParameters.MatchConditionsParameter;
+            var result = KnownParameters.EnumeratorCancellationTokenParameter;
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-        }
-
-        [TestCase]
-        public void TestRequestConditionsParameter()
-        {
-            var result = KnownParameters.RequestConditionsParameter;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
+            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(CancellationToken))));
+            Assert.IsTrue(result.Attributes.Any(statement => statement.Type.FrameworkType == typeof(EnumeratorCancellationAttribute)));
         }
     }
 }

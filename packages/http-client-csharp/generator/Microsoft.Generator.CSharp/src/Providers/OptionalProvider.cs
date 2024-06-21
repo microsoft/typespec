@@ -82,7 +82,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(NotEqual(new ParameterReferenceSnippet(valueParam), Null))
-            });
+            },
+            this);
         }
 
         private MethodProvider IsJsonElementDefined()
@@ -92,7 +93,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(new JsonElementSnippet(new ParameterReferenceSnippet(valueParam)).ValueKindNotEqualsUndefined())
-            });
+            },
+            this);
         }
 
         private MethodProvider IsObjectDefined()
@@ -102,7 +104,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(NotEqual(new ParameterReferenceSnippet(valueParam), Null))
-            });
+            },
+            this);
         }
 
         private MethodProvider IsStructDefined()
@@ -112,7 +115,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(new MemberExpression(new ParameterReferenceSnippet(valueParam), "HasValue"))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildIsReadOnlyDictionaryDefined()
@@ -126,7 +130,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Return(Not(BoolSnippet.Is(new ParameterReferenceSnippet(collectionParam), changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildIsDictionaryDefined()
@@ -140,7 +145,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Return(Not(BoolSnippet.Is(new ParameterReferenceSnippet(collectionParam), changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildIsListDefined()
@@ -154,7 +160,8 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Return(Not(BoolSnippet.Is(new ParameterReferenceSnippet(collectionParam), changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
-            });
+            },
+            this);
         }
 
         internal BoolSnippet IsDefined(TypedSnippet value)
