@@ -9,6 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
+        // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
         public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionaryType? inheritedDictionaryType, bool isNullable, bool modelAsStruct)
             : base(name, isNullable)
         {
