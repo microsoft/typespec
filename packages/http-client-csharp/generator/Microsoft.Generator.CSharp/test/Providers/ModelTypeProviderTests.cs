@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         }
 
         [Test]
-        public void GenerateModelAsStruct()
+        public void BuildModelAsStruct()
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
             var mockTypeFactory = new Mock<TypeFactory>() { };
