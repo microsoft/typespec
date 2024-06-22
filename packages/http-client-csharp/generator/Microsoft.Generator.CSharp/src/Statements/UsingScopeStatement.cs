@@ -51,12 +51,13 @@ namespace Microsoft.Generator.CSharp.Statements
                 Value.Write(writer);
                 writer.WriteRawLine(")");
 
-                writer.WriteRawLine("{");
-                foreach (var bodyStatement in Body)
+                using (writer.ScopeRaw())
                 {
-                    bodyStatement.Write(writer);
+                    foreach (var bodyStatement in Body)
+                    {
+                        bodyStatement.Write(writer);
+                    }
                 }
-                writer.WriteRawLine("}");
             }
         }
     }
