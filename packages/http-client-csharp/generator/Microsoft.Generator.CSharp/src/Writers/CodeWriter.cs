@@ -36,56 +36,18 @@ namespace Microsoft.Generator.CSharp
             _atBeginningOfLine = true;
         }
 
-        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
+        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
-            ValidateDeclarations(scopeDeclarations);
             CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
             _scopes.Push(codeWriterScope);
             WriteLine(line);
             WriteRawLine(start);
-            AddDeclarationsToScope(scopeDeclarations);
             return codeWriterScope;
         }
 
         public CodeScope Scope()
         {
             return ScopeRaw();
-        }
-
-        private void ValidateDeclarations(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                if (!IsAvailable(declarationName))
-                {
-                    throw new InvalidOperationException($"Variable with name '{declarationName}' is declared already.");
-                }
-            }
-        }
-
-        private void AddDeclarationsToScope(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            var currentScope = _scopes.Peek();
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                foreach (var scope in _scopes)
-                {
-                    scope.AllDefinedIdentifiers.Add(declarationName);
-                }
-
-                currentScope.Identifiers.Add(declarationName);
-            }
         }
 
         internal CodeScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
@@ -883,7 +845,14 @@ namespace Microsoft.Generator.CSharp
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            WriteIdentifier(declaration.ActualName);
+            if (declaration.HasBeenDeclared)
+            {
+                WriteIdentifier(declaration.ActualName);
+            }
+            else
+            {
+                WriteDeclaration(declaration);
+            }
         }
 
         internal void WriteTypeModifiers(TypeSignatureModifiers modifiers)
