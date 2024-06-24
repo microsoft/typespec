@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
     public class StatementTests
     {
         private readonly string _mocksFolder = "Mocks";
-        private string _testDataPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "Statements");
 
         [OneTimeSetUp]
         public void Setup()
@@ -297,7 +296,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
 
-            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "SwitchCaseStatement.cs"));
+            var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
@@ -341,7 +340,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
 
-            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "SwitchCaseStatementWithUsing.cs"));
+            var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
@@ -440,7 +439,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
 
-            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "IfElsePreprocessorStatement.cs"));
+            var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
