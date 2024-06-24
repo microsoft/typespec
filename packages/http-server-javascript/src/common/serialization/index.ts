@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Model, NoTarget, Scalar, Union } from "@typespec/compiler";
+import { Model, NoTarget, Scalar, Type, Union } from "@typespec/compiler";
 import { JsContext, Module, completePendingDeclarations } from "../../ctx.js";
+import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
 import { createOrGetModuleForNamespace } from "../namespace.js";
 import { emitTypeReference } from "../reference.js";
@@ -10,15 +11,23 @@ import { emitJsonSerialization, requiresJsonSerialization } from "./json.js";
 
 export type SerializableType = Model | Scalar | Union;
 
+export function isSerializableType(t: Type): t is SerializableType {
+  return t.kind === "Model" || t.kind === "Scalar" || t.kind === "Union";
+}
+
 export type SerializationContentType = "application/json";
 
 const _SERIALIZATIONS_MAP = new WeakMap<SerializableType, Set<SerializationContentType>>();
 
 export function requireSerialization(
   ctx: JsContext,
-  type: SerializableType,
+  type: Type,
   contentType: SerializationContentType
 ): void {
+  if (!isSerializableType(type)) {
+    throw new UnimplementedError(`no implementation of JSON serialization for type '${type.kind}'`);
+  }
+
   let serializationsForType = _SERIALIZATIONS_MAP.get(type);
 
   if (!serializationsForType) {
@@ -57,9 +66,9 @@ export function emitSerialization(ctx: JsContext): void {
   }
 }
 
-function isSerializationRequired(
+export function isSerializationRequired(
   ctx: JsContext,
-  type: SerializableType,
+  type: Type,
   serialization: SerializationContentType
 ): boolean {
   switch (serialization) {

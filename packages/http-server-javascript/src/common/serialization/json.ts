@@ -3,6 +3,7 @@
 
 import {
   BooleanLiteral,
+  IntrinsicType,
   ModelProperty,
   NoTarget,
   NumericLiteral,
@@ -14,19 +15,18 @@ import {
   isRecordModelType,
   resolveEncodedName,
 } from "@typespec/compiler";
+import { getHeaderFieldOptions, getPathParamOptions, getQueryParamOptions } from "@typespec/http";
 import { JsContext, Module } from "../../ctx.js";
 import { parseCase } from "../../util/case.js";
-import {
-  PreciseType,
-  differentiateTypes,
-  isPreciseType,
-  writeCodeTree,
-} from "../../util/differentiate.js";
+import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { UnimplementedError } from "../../util/error.js";
 import { indent } from "../../util/iter.js";
 import { emitTypeReference } from "../reference.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
+/**
+ * Memoization cache for requiresJsonSerialization.
+ */
 const _REQUIRES_JSON_SERIALIZATION = new WeakMap<SerializableType | ModelProperty, boolean>();
 
 export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
@@ -46,7 +46,7 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
   switch (type.kind) {
     case "Model": {
       requiresSerialization = [...type.properties.values()].some((property) =>
-        propertyRequiresSerialization(ctx, property)
+        propertyRequiresJsonSerialization(ctx, property)
       );
       break;
     }
@@ -70,12 +70,21 @@ export function requiresJsonSerialization(ctx: JsContext, type: Type): boolean {
   return requiresSerialization;
 }
 
-function propertyRequiresSerialization(ctx: JsContext, property: ModelProperty): boolean {
+function propertyRequiresJsonSerialization(ctx: JsContext, property: ModelProperty): boolean {
   return !!(
+    isHttpMetadata(ctx, property) ||
     getEncode(ctx.program, property) ||
-    resolveEncodedName(ctx.program, property, "application/json") ||
+    resolveEncodedName(ctx.program, property, "application/json") !== property.name ||
     getProjectedName(ctx.program, property, "json") ||
     (isSerializable(property.type) && requiresJsonSerialization(ctx, property.type))
+  );
+}
+
+function isHttpMetadata(ctx: JsContext, property: ModelProperty): boolean {
+  return (
+    getQueryParamOptions(ctx.program, property) !== undefined ||
+    getHeaderFieldOptions(ctx.program, property) !== undefined ||
+    getPathParamOptions(ctx.program, property) !== undefined
   );
 }
 
@@ -137,18 +146,7 @@ function* emitToJson(
       return;
     }
     case "Union": {
-      for (const variant of type.variants.values()) {
-        if (!isPreciseType(variant.type)) {
-          throw new UnimplementedError(
-            `imprecise type '${variant.type.kind}' as union variant in JSON serialization`
-          );
-        }
-      }
-
-      const codeTree = differentiateTypes(
-        ctx,
-        new Set([...type.variants.values()].map((variant) => variant.type as PreciseType))
-      );
+      const codeTree = differentiateUnion(ctx, type);
 
       yield* writeCodeTree(ctx, codeTree, {
         subject: "input",
@@ -221,6 +219,22 @@ function transposeExpressionToJson(
       // TODO/witemple - pretty sure this isn't right. If the model property has additional encode/decode parameters we
       // should have some way to prioritize them lower than the top level property that this originated from.
       return transposeExpressionToJson(ctx, type.type, expr, module);
+    case "Intrinsic":
+      switch (type.name) {
+        case "ErrorType":
+          throw new Error("UNREACHABLE: ErrorType in JSON deserialization");
+        case "void":
+          return "undefined";
+        case "null":
+          return "null";
+        case "never":
+        case "unknown":
+          return expr;
+        default:
+          throw new Error(
+            `Unreachable: intrinsic type ${(type satisfies never as IntrinsicType).name}`
+          );
+      }
     case "String":
     case "Number":
     case "Boolean":
@@ -235,7 +249,6 @@ function transposeExpressionToJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Intrinsic":
     case "Function":
     case "Decorator":
     case "FunctionParameter":
@@ -291,18 +304,7 @@ function* emitFromJson(
       return;
     }
     case "Union": {
-      for (const variant of type.variants.values()) {
-        if (!isPreciseType(variant.type)) {
-          throw new UnimplementedError(
-            `imprecise type '${variant.type.kind}' as union variant in JSON deserialization`
-          );
-        }
-      }
-
-      const codeTree = differentiateTypes(
-        ctx,
-        new Set([...type.variants.values()].map((variant) => variant.type as PreciseType))
-      );
+      const codeTree = differentiateUnion(ctx, type);
 
       yield* writeCodeTree(ctx, codeTree, {
         subject: "input",
@@ -379,6 +381,22 @@ function transposeExpressionFromJson(
       // TODO/witemple - pretty sure this isn't right. If the model property has additional encode/decode parameters we
       // should have some way to prioritize them lower than the top level property that this originated from.
       return transposeExpressionFromJson(ctx, type.type, expr, module);
+    case "Intrinsic":
+      switch (type.name) {
+        case "ErrorType":
+          throw new Error("UNREACHABLE: ErrorType in JSON deserialization");
+        case "void":
+          return "undefined";
+        case "null":
+          return "null";
+        case "never":
+        case "unknown":
+          return expr;
+        default:
+          throw new Error(
+            `Unreachable: intrinsic type ${(type satisfies never as IntrinsicType).name}`
+          );
+      }
     case "String":
     case "Number":
     case "Boolean":
@@ -393,7 +411,6 @@ function transposeExpressionFromJson(
     case "StringTemplateSpan":
     case "Tuple":
     case "UnionVariant":
-    case "Intrinsic":
     case "Function":
     case "Decorator":
     case "FunctionParameter":

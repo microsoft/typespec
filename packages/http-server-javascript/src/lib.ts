@@ -83,6 +83,19 @@ export const $lib = createTypeSpecLibrary({
         default: "JavaScript cannot accurately represent this numeric constant.",
       },
     },
+    "undifferentiable-union-variant": {
+      severity: "error",
+      messages: {
+        default:
+          "Union variant cannot be differentiated from other variants of the union an an ambiguous context.",
+      },
+    },
+    "name-conflict": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Name ${"name"} conflicts with a prior declaration and must be unique.`,
+      },
+    },
   },
 });
 

@@ -1,18 +1,30 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { LiteralType, Model, ModelProperty, Scalar, Type } from "@typespec/compiler";
+import {
+  EnumMember,
+  LiteralType,
+  Model,
+  ModelProperty,
+  Scalar,
+  Type,
+  Union,
+  getDiscriminator,
+  getMaxValue,
+  getMinValue,
+} from "@typespec/compiler";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { parseCase } from "./case.js";
-import { UnimplementedError } from "./error.js";
+import { UnimplementedError, UnreachableError } from "./error.js";
+import { getAllProperties } from "./extends.js";
 import { categorize, indent } from "./iter.js";
 
 /**
  * A tree structure representing a body of TypeScript code.
  */
-export type CodeTree = Result | IfChain;
+export type CodeTree = Result | IfChain | Switch | Verbatim;
 
 /**
  * A TypeSpec type that is precise, i.e. the type of a single value.
@@ -67,6 +79,47 @@ export interface Result {
 }
 
 /**
+ * A switch structure in the CodeTree DSL.
+ */
+export interface Switch {
+  kind: "switch";
+  /**
+   * The expression to switch on.
+   */
+  condition: Expression;
+  /**
+   * The cases to test for.
+   */
+  cases: SwitchCase[];
+  /**
+   * The default case, if any.
+   */
+  default?: CodeTree;
+}
+
+/**
+ * A verbatim code block.
+ */
+export interface Verbatim {
+  kind: "verbatim";
+  body: Iterable<string>;
+}
+
+/**
+ * A case in a switch statement.
+ */
+export interface SwitchCase {
+  /**
+   * The value to test for in this case.
+   */
+  value: Expression;
+  /**
+   * The body of this case.
+   */
+  body: CodeTree;
+}
+
+/**
  * An expression in the CodeTree DSL.
  */
 export type Expression =
@@ -76,7 +129,8 @@ export type Expression =
   | Literal
   | VerbatimExpression
   | SubjectReference
-  | ModelPropertyReference;
+  | ModelPropertyReference
+  | InRange;
 
 /**
  * A binary operation.
@@ -179,9 +233,97 @@ export interface ModelPropertyReference {
 }
 
 /**
+ * A check to see if a value is in an integer range.
+ */
+export interface InRange {
+  kind: "in-range";
+  /**
+   * The expression to check.
+   */
+  expr: Expression;
+  /**
+   * The range to check against.
+   */
+  range: IntegerRange;
+}
+
+/**
  * A literal value that can be used in a JavaScript expression.
  */
 export type LiteralValue = string | number | boolean | bigint;
+
+function isLiteralValueType(type: Type): type is LiteralType {
+  return (
+    type.kind === "Boolean" ||
+    type.kind === "Number" ||
+    type.kind === "String" ||
+    type.kind == "EnumMember"
+  );
+}
+
+const PROPERTY_ID = (prop: ModelProperty) => parseCase(prop.name).camelCase;
+
+/**
+ * Differentiates the variants of a union type. This function returns a CodeTree that will test an input "subject" and
+ * determine which of the cases it matches.
+ *
+ * Compared to `differentiateTypes`, this function is specialized for union types, and will consider union
+ * discriminators first, then delegate to `differentiateTypes` for the remaining cases.
+ *
+ * @param ctx
+ * @param type
+ */
+export function differentiateUnion(
+  ctx: JsContext,
+  union: Union,
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+): CodeTree {
+  const discriminator = getDiscriminator(ctx.program, union)?.propertyName;
+  const variants = [...union.variants.values()];
+
+  if (!discriminator) {
+    const cases = new Set<PreciseType>();
+
+    for (const variant of variants) {
+      if (!isPreciseType(variant.type)) {
+        reportDiagnostic(ctx.program, {
+          code: "undifferentiable-union-variant",
+          target: variant,
+        });
+      } else {
+        cases.add(variant.type);
+      }
+    }
+
+    return differentiateTypes(ctx, cases, PROPERTY_ID);
+  } else {
+    const property = (variants[0].type as Model).properties.get(discriminator)!;
+
+    return {
+      kind: "switch",
+      condition: {
+        kind: "model-property",
+        property,
+      },
+      cases: variants.map((v) => {
+        const discriminatorPropertyType = (v.type as Model).properties.get(discriminator)!.type as
+          | LiteralType
+          | EnumMember;
+
+        return {
+          value: { kind: "literal", value: getJsValue(ctx, discriminatorPropertyType) },
+          body: { kind: "result", type: v.type },
+        } as SwitchCase;
+      }),
+      default: {
+        kind: "verbatim",
+        body: [
+          'throw new Error("Unreachable: discriminator did not match any known value or was not present.");',
+        ],
+      },
+    };
+  }
+}
 
 /**
  * Differentiates a set of input types. This function returns a CodeTree that will test an input "subject" and determine
@@ -191,7 +333,20 @@ export type LiteralValue = string | number | boolean | bigint;
  * @param cases - A map of cases to differentiate to their respective code blocks.
  * @returns a CodeTree to use with `writeCodeTree`
  */
-export function differentiateTypes(ctx: JsContext, cases: Set<PreciseType>): CodeTree {
+export function differentiateTypes(
+  ctx: JsContext,
+  cases: Set<PreciseType>,
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+): CodeTree {
+  if (cases.size === 0) {
+    return {
+      kind: "verbatim",
+      body: [
+        'throw new Error("Unreachable: encountered a value in differentiation where no variants exist.");',
+      ],
+    };
+  }
+
   const categories = categorize(cases.keys(), (type) => type.kind);
 
   const literals = [
@@ -289,7 +444,9 @@ export function differentiateTypes(ctx: JsContext, cases: Set<PreciseType>): Cod
           };
           break;
         default:
-          throw new UnimplementedError("scalar differentiation for type " + jsScalar);
+          throw new UnimplementedError(
+            `scalar differentiation for unknown JS Scalar '${jsScalar}'.`
+          );
       }
 
       branches.push({
@@ -327,7 +484,7 @@ export function differentiateTypes(ctx: JsContext, cases: Set<PreciseType>): Cod
 /**
  * Gets a JavaScript literal value for a given LiteralType.
  */
-function getJsValue(ctx: JsContext, literal: LiteralType): LiteralValue {
+function getJsValue(ctx: JsContext, literal: LiteralType | EnumMember): LiteralValue {
   switch (literal.kind) {
     case "Boolean":
       return literal.value;
@@ -348,7 +505,39 @@ function getJsValue(ctx: JsContext, literal: LiteralType): LiteralValue {
     }
     case "String":
       return literal.value;
+    case "EnumMember":
+      return literal.value ?? literal.name;
+    default:
+      throw new UnreachableError(
+        "getJsValue for " + (literal satisfies never as LiteralType).kind,
+        { literal }
+      );
   }
+}
+
+/**
+ * An integer range, inclusive.
+ */
+type IntegerRange = [number, number];
+
+function getIntegerRange(ctx: JsContext, property: ModelProperty): IntegerRange | false {
+  if (
+    property.type.kind === "Scalar" &&
+    getJsScalar(ctx.program, property.type, property) === "number"
+  ) {
+    const minValue = getMinValue(ctx.program, property);
+    const maxValue = getMaxValue(ctx.program, property);
+
+    if (minValue !== undefined && maxValue !== undefined) {
+      return [minValue, maxValue];
+    }
+  }
+
+  return false;
+}
+
+function overlaps(range: IntegerRange, other: IntegerRange): boolean {
+  return range[0] <= other[1] && range[1] >= other[0];
 }
 
 /**
@@ -357,34 +546,112 @@ function getJsValue(ctx: JsContext, literal: LiteralType): LiteralValue {
  *
  * @param ctx - The emitter context.
  * @param models - A map of models to differentiate to their respective code blocks.
+ * @param renderPropertyName - A function that converts a model property reference over the subject to a string.
  * @returns a CodeTree to use with `writeCodeTree`
  */
-export function differentiateModelTypes(ctx: JsContext, models: Set<Model>): CodeTree {
+export function differentiateModelTypes(
+  ctx: JsContext,
+  models: Set<Model>,
+  renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID
+): CodeTree {
   // Horrible n^2 operation to get the unique properties of all models in the map, but hopefully n is small, so it should
   // be okay until you have a lot of models to differentiate.
 
-  const allProps = new Set<string>();
-  const uniqueProps = new Map<Model, Set<string>>();
+  type PropertyName = string;
+  type RenderedPropertyName = string & { __brand: "RenderedPropertyName" };
+
+  const uniqueProps = new Map<Model, Set<PropertyName>>();
+
+  // Map of property names to maps of literal values that identify a model.
+  const propertyLiterals = new Map<RenderedPropertyName, Map<LiteralValue, Model>>();
+  // Map of models to properties with values that can uniquely identify it
+  const uniqueLiterals = new Map<Model, Set<RenderedPropertyName>>();
+
+  const propertyRanges = new Map<RenderedPropertyName, Map<IntegerRange, Model>>();
+  const uniqueRanges = new Map<Model, Set<RenderedPropertyName>>();
 
   for (const model of models) {
     const props = new Set<string>();
 
-    for (const [, prop] of model.properties) {
+    for (const prop of getAllProperties(model)) {
       // Don't consider optional properties for differentiation.
       if (prop.optional) continue;
 
-      const propName = parseCase(prop.name).camelCase;
+      const renderedPropName = renderPropertyName(prop) as RenderedPropertyName;
+
+      // CASE - literal value
+
+      if (isLiteralValueType(prop.type)) {
+        let literals = propertyLiterals.get(renderedPropName);
+        if (!literals) {
+          literals = new Map();
+          propertyLiterals.set(renderedPropName, literals);
+        }
+
+        const value = getJsValue(ctx, prop.type);
+
+        const other = literals.get(value);
+
+        if (other) {
+          // Literal already used. Leave the literal in the propertyLiterals map to prevent future collisions,
+          // but remove the model from the uniqueLiterals map.
+          uniqueLiterals.get(other)?.delete(renderedPropName);
+        } else {
+          // Literal is available. Add the model to the uniqueLiterals map and set this value.
+          literals.set(value, model);
+          let modelsUniqueLiterals = uniqueLiterals.get(model);
+          if (!modelsUniqueLiterals) {
+            modelsUniqueLiterals = new Set();
+            uniqueLiterals.set(model, modelsUniqueLiterals);
+          }
+          modelsUniqueLiterals.add(renderedPropName);
+        }
+      }
+
+      // CASE - unique range
+
+      const range = getIntegerRange(ctx, prop);
+      if (range) {
+        let ranges = propertyRanges.get(renderedPropName);
+        if (!ranges) {
+          ranges = new Map();
+          propertyRanges.set(renderedPropName, ranges);
+        }
+
+        const overlappingRanges = [...ranges.entries()].filter(([r]) => overlaps(r, range));
+
+        if (overlappingRanges.length > 0) {
+          // Overlapping range found. Remove the model from the uniqueRanges map.
+          for (const [, other] of overlappingRanges) {
+            uniqueRanges.get(other)?.delete(renderedPropName);
+          }
+        } else {
+          // No overlapping range found. Add the model to the uniqueRanges map and set this range.
+          ranges.set(range, model);
+          let modelsUniqueRanges = uniqueRanges.get(model);
+          if (!modelsUniqueRanges) {
+            modelsUniqueRanges = new Set();
+            uniqueRanges.set(model, modelsUniqueRanges);
+          }
+          modelsUniqueRanges.add(renderedPropName);
+        }
+      }
+
+      // CASE - unique property
 
       let valid = true;
       for (const [, other] of uniqueProps) {
-        if (other.has(prop.name)) {
+        if (
+          other.has(prop.name) ||
+          (isLiteralValueType(prop.type) &&
+            propertyLiterals.get(renderedPropName)?.has(getJsValue(ctx, prop.type as LiteralType)))
+        ) {
           valid = false;
           other.delete(prop.name);
         }
       }
 
       if (valid) {
-        allProps.add(propName);
         props.add(prop.name);
       }
     }
@@ -397,7 +664,9 @@ export function differentiateModelTypes(ctx: JsContext, models: Set<Model>): Cod
   let defaultCase: Model | undefined = undefined;
 
   for (const [model, unique] of uniqueProps) {
-    if (unique.size === 0) {
+    const literals = uniqueLiterals.get(model);
+    const ranges = uniqueRanges.get(model);
+    if (unique.size === 0 && (!literals || literals.size === 0) && (!ranges || ranges.size === 0)) {
       if (defaultCase) {
         reportDiagnostic(ctx.program, {
           code: "undifferentiable-model",
@@ -415,17 +684,59 @@ export function differentiateModelTypes(ctx: JsContext, models: Set<Model>): Cod
       }
     }
 
-    const firstUniqueProp = unique.values().next().value as string;
+    if (literals && literals.size > 0) {
+      // A literal property value exists that can differentiate this model.
+      const firstUniqueLiteral = literals.values().next().value as RenderedPropertyName;
 
-    branches.push({
-      condition: {
-        kind: "binary-op",
-        left: { kind: "literal", value: firstUniqueProp },
-        operator: "in",
-        right: { kind: "subject" },
-      },
-      body: { kind: "result", type: model },
-    });
+      const property = [...model.properties.values()].find(
+        (p) => (renderPropertyName(p) as RenderedPropertyName) === firstUniqueLiteral
+      )!;
+
+      branches.push({
+        condition: {
+          kind: "binary-op",
+          left: { kind: "model-property", property },
+          operator: "===",
+          right: {
+            kind: "literal",
+            value: getJsValue(ctx, property.type as LiteralType),
+          },
+        },
+        body: { kind: "result", type: model },
+      });
+    } else if (ranges && ranges.size > 0) {
+      // A range property value exists that can differentiate this model.
+      const firstUniqueRange = ranges.values().next().value as RenderedPropertyName;
+
+      const property = [...model.properties.values()].find(
+        (p) => renderPropertyName(p) === firstUniqueRange
+      )!;
+
+      const range = [...propertyRanges.get(firstUniqueRange)!.entries()].find(
+        ([range, candidate]) => candidate === model
+      )![0];
+
+      branches.push({
+        condition: {
+          kind: "in-range",
+          expr: { kind: "model-property", property },
+          range,
+        },
+        body: { kind: "result", type: model },
+      });
+    } else {
+      const firstUniqueProp = unique.values().next().value as PropertyName;
+
+      branches.push({
+        condition: {
+          kind: "binary-op",
+          left: { kind: "literal", value: firstUniqueProp },
+          operator: "in",
+          right: { kind: "subject" },
+        },
+        body: { kind: "result", type: model },
+      });
+    }
   }
 
   return {
@@ -501,6 +812,28 @@ export function* writeCodeTree(
       yield "}";
       break;
     }
+    case "switch": {
+      yield `switch (${writeExpression(ctx, tree.condition, options)}) {`;
+      for (const _case of tree.cases) {
+        yield `  case ${writeExpression(ctx, _case.value, options)}: {`;
+        yield* indent(indent(writeCodeTree(ctx, _case.body, options)));
+        yield "  }";
+      }
+      if (tree.default) {
+        yield "  default: {";
+        yield* indent(indent(writeCodeTree(ctx, tree.default, options)));
+        yield "  }";
+      }
+      yield "}";
+      break;
+    }
+    case "verbatim":
+      yield* tree.body;
+      break;
+    default:
+      throw new UnreachableError("writeCodeTree for " + (tree satisfies never as CodeTree).kind, {
+        tree,
+      });
   }
 }
 
@@ -521,21 +854,36 @@ function writeExpression(ctx: JsContext, expression: Expression, options: CodeTr
         case "string":
           return JSON.stringify(expression.value);
         case "number":
-          return String(expression.value);
         case "bigint":
-          return expression.value + "n";
+          return String(expression.value);
         case "boolean":
           return expression.value ? "true" : "false";
         default:
-          throw new Error(
-            "UNREACHABLE: literal type not handled in writeExpression: " + typeof expression.value
+          throw new UnreachableError(
+            `writeExpression for literal value type '${typeof expression.value}'`
           );
       }
+    case "in-range": {
+      const {
+        expr,
+        range: [min, max],
+      } = expression;
+      const exprText = writeExpression(ctx, expr, options);
+
+      return `(${exprText} >= ${min} && ${exprText} <= ${max})`;
+    }
     case "verbatim":
       return expression.text;
     case "subject":
       return options.subject;
     case "model-property":
       return options.referenceModelProperty(expression.property);
+    default:
+      throw new UnreachableError(
+        "writeExpression for " + (expression satisfies never as Expression).kind,
+        {
+          expression,
+        }
+      );
   }
 }

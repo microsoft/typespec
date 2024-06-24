@@ -102,14 +102,21 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
   // Emit serialization code for all required types.
   emitSerialization(jsCtx);
 
-  try {
-    const stat = await context.program.host.stat(context.emitterOutputDir);
-    if (stat.isDirectory()) {
-      await context.program.host.rm(context.emitterOutputDir, {
-        recursive: true,
-      });
-    }
-  } catch {}
+  if (!context.program.compilerOptions.noEmit) {
+    try {
+      const stat = await context.program.host.stat(context.emitterOutputDir);
+      if (stat.isDirectory()) {
+        await context.program.host.rm(context.emitterOutputDir, {
+          recursive: true,
+        });
+      }
+    } catch {}
 
-  await writeModuleTree(jsCtx, context.emitterOutputDir, rootModule, !context.options["no-format"]);
+    await writeModuleTree(
+      jsCtx,
+      context.emitterOutputDir,
+      rootModule,
+      !context.options["no-format"]
+    );
+  }
 }
