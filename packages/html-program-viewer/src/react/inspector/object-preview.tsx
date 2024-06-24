@@ -1,12 +1,11 @@
-import React, { type FC, type ReactChild } from "react";
+import React, { type FC, type ReactNode } from "react";
 
-import { ObjectName } from "../object/object-name.js";
-import { ObjectValue } from "../object/object-value.js";
+import { ObjectName } from "./object-name.js";
+import { ObjectValue } from "./object-value.js";
 
-import { useStyles } from "../styles/index.js";
-
-import { hasOwnProperty } from "../utils/object-prototype.js";
-import { getPropertyValue } from "../utils/property-utils.js";
+import style from "./object-inspector.module.css";
+import { hasOwnProperty } from "./utils/object-prototype.js";
+import { getPropertyValue } from "./utils/property-utils.js";
 
 /* intersperse arr with separator */
 function intersperse(arr: any[], sep: string) {
@@ -17,11 +16,13 @@ function intersperse(arr: any[], sep: string) {
   return arr.slice(1).reduce((xs, x) => xs.concat([sep, x]), [arr[0]]);
 }
 
+const ARRAY_MAX_PROPERTIES = 10;
+const OBJECT_MAX_PROPERTIES = 5;
+
 /**
  * A preview of the object
  */
 export const ObjectPreview: FC<any> = ({ data }) => {
-  const styles = useStyles("ObjectPreview");
   const object = data;
 
   if (
@@ -34,7 +35,7 @@ export const ObjectPreview: FC<any> = ({ data }) => {
   }
 
   if (Array.isArray(object)) {
-    const maxProperties = styles.arrayMaxProperties;
+    const maxProperties = ARRAY_MAX_PROPERTIES;
     const previewArray = object
       .slice(0, maxProperties)
       .map((element, index) => <ObjectValue key={index} object={element} />);
@@ -44,15 +45,15 @@ export const ObjectPreview: FC<any> = ({ data }) => {
     const arrayLength = object.length;
     return (
       <React.Fragment>
-        <span style={styles.objectDescription}>
+        <span className={style["object-description"]}>
           {arrayLength === 0 ? `` : `(${arrayLength})\xa0`}
         </span>
-        <span style={styles.preview}>[{intersperse(previewArray, ", ")}]</span>
+        <span className={style["preview"]}>[{intersperse(previewArray, ", ")}]</span>
       </React.Fragment>
     );
   } else {
-    const maxProperties = styles.objectMaxProperties;
-    const propertyNodes: ReactChild[] = [];
+    const maxProperties = OBJECT_MAX_PROPERTIES;
+    const propertyNodes: ReactNode[] = [];
     for (const propertyName in object) {
       if (hasOwnProperty.call(object, propertyName)) {
         let ellipsis;
@@ -80,10 +81,10 @@ export const ObjectPreview: FC<any> = ({ data }) => {
 
     return (
       <React.Fragment>
-        <span style={styles.objectDescription}>
+        <span className={style["object-description"]}>
           {objectConstructorName === "Object" ? "" : `${objectConstructorName} `}
         </span>
-        <span style={styles.preview}>
+        <span className={style["preview"]}>
           {"{"}
           {intersperse(propertyNodes, ", ")}
           {"}"}

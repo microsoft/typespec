@@ -1,12 +1,11 @@
 import type { FC } from "react";
 import { memo, useState } from "react";
-import { Tree } from "../../tree/tree.js";
-import type { TreeNode } from "../../tree/types.js";
-import { themeAcceptor } from "../styles/index.js";
-import { propertyIsEnumerable } from "../utils/object-prototype.js";
-import { getPropertyValue } from "../utils/property-utils.js";
+import { Tree } from "../tree/tree.js";
+import type { TreeNode } from "../tree/types.js";
 import { ObjectLabel } from "./object-label.js";
 import { ObjectRootLabel } from "./object-root-label.js";
+import { propertyIsEnumerable } from "./utils/object-prototype.js";
+import { getPropertyValue } from "./utils/property-utils.js";
 
 const createIterator = (showNonenumerable: any, sortObjectKeys: any) => {
   const objectIterator = function* (data: any) {
@@ -99,7 +98,7 @@ export interface ObjectInspectorProps {
   readonly nodeRenderer?: (props: NodeRendererProps) => any;
 }
 
-const ObjectInspector: FC<ObjectInspectorProps> = ({
+export const ObjectInspector: FC<ObjectInspectorProps> = ({
   data,
   showNonenumerable = false,
   sortObjectKeys,
@@ -110,10 +109,6 @@ const ObjectInspector: FC<ObjectInspectorProps> = ({
 
   return <TreeView nodeRenderer={renderer} dataIterator={dataIterator} data={data} />;
 };
-
-const themedObjectInspector = themeAcceptor(ObjectInspector);
-
-export { themedObjectInspector as ObjectInspector };
 
 export const DEFAULT_ROOT_PATH = "$";
 

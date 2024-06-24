@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { ObjectName } from "../object/object-name.js";
+import { ObjectName } from "./object-name.js";
 import { ObjectPreview } from "./object-preview.js";
 
 export const ObjectRootLabel: FC<any> = ({ name, data }) => {

@@ -1,12 +1,17 @@
 import type { FC } from "react";
-import { ObjectName } from "../object/object-name.js";
-import { ObjectValue } from "../object/object-value.js";
+import { ObjectName } from "./object-name.js";
 import { ObjectPreview } from "./object-preview.js";
+import { ObjectValue } from "./object-value.js";
 
+export interface ObjectLabelProps {
+  readonly name: any;
+  readonly data: any;
+  readonly isNonenumerable?: boolean;
+}
 /**
  * if isNonenumerable is specified, render the name dimmed
  */
-export const ObjectLabel: FC<any> = ({ name, data, isNonenumerable = false }) => {
+export const ObjectLabel: FC<ObjectLabelProps> = ({ name, data, isNonenumerable = false }) => {
   const object = data;
 
   return (
@@ -21,8 +26,3 @@ export const ObjectLabel: FC<any> = ({ name, data, isNonenumerable = false }) =>
     </span>
   );
 };
-
-// ObjectLabel.propTypes = {
-//   /** Non enumerable object property will be dimmed */
-//   isNonenumerable: PropTypes.bool,
-// };
