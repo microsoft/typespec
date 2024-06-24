@@ -1,6 +1,6 @@
 import type { Type } from "@typespec/compiler";
 import type { FC } from "react";
-import { ObjectInspector } from "../inspector/index.js";
+import { ObjectInspector } from "../js-inspector/index.js";
 import { useProgram } from "../program-context.js";
 import style from "./type-data-table.module.css";
 

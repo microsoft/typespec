@@ -34,7 +34,7 @@ export function Tree<T extends TreeNode>({
   onSelect,
   onSetExpanded,
   nodeIcon,
-  selectionMode,
+  selectionMode = "none",
 }: TreeViewProps<T>) {
   const id = useId();
   const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
@@ -60,7 +60,7 @@ export function Tree<T extends TreeNode>({
   const activateRow = useCallback(
     (row: TreeRow<TreeNode>) => {
       setFocusedIndex(row.index);
-      if (selectedKey === row.id) {
+      if (selectionMode === "none" || selectedKey === row.id) {
         toggleExpand(row.id);
       } else {
         expand(row.id);

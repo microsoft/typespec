@@ -3,7 +3,7 @@ import { getTypeName } from "@typespec/compiler";
 import { useCallback, type FunctionComponent, type ReactElement, type ReactNode } from "react";
 import { isNamedUnion } from "../../utils.js";
 import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
-import { JsValue } from "../inspector/js-value/js-value.js";
+import { JsValue } from "../js-inspector/js-value/js-value.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
 import { useTreeNavigator } from "../use-tree-navigation.js";
 import style from "./inspect-type.module.css";
