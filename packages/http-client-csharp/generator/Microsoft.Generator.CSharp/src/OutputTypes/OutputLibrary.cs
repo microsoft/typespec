@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp
         public IReadOnlyList<TypeProvider> Models => BuildModels();
         public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
 
-        public virtual TypeProvider[] BuildEnums()
+        protected virtual TypeProvider[] BuildEnums()
         {
             var enums = new TypeProvider[_input.Enums.Count];
             for (int i = 0; i < enums.Length; i++)
@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp
             return enums;
         }
 
-        public virtual TypeProvider[] BuildModels()
+        protected virtual TypeProvider[] BuildModels()
         {
             var models = new TypeProvider[_input.Models.Count];
             for (int i = 0; i < models.Length; i++)
@@ -52,7 +52,6 @@ namespace Microsoft.Generator.CSharp
             {
                 clientProviders[i] = new ClientProvider(_input.Clients[i]);
             }
-
             return clientProviders;
         }
 
