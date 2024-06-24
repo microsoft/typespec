@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { memo, useState } from "react";
+import { useState } from "react";
 import { Tree } from "../tree/tree.js";
 import type { TreeNode } from "../tree/types.js";
 import { ObjectLabel } from "./object-label.js";
@@ -7,7 +7,7 @@ import { ObjectRootLabel } from "./object-root-label.js";
 import { propertyIsEnumerable } from "./utils/object-prototype.js";
 import { getPropertyValue } from "./utils/property-utils.js";
 
-const createIterator = (showNonenumerable: any, sortObjectKeys: any) => {
+const createIterator = (showNonenumerable?: boolean, sortObjectKeys?: boolean) => {
   const objectIterator = function* (data: any) {
     const shouldIterate = (typeof data === "object" && data !== null) || typeof data === "function";
     if (!shouldIterate) return;
@@ -84,8 +84,8 @@ const createIterator = (showNonenumerable: any, sortObjectKeys: any) => {
   return objectIterator;
 };
 
-const defaultNodeRenderer = ({ path, name, data, isNonenumerable }: NodeRendererProps) =>
-  path === "$" ? (
+export const DefaultNodeRenderer = ({ path, name, data, isNonenumerable }: NodeRendererProps) =>
+  path === DEFAULT_ROOT_PATH ? (
     <ObjectRootLabel name={name} data={data} />
   ) : (
     <ObjectLabel name={name} data={data} isNonenumerable={isNonenumerable} />
@@ -94,7 +94,7 @@ const defaultNodeRenderer = ({ path, name, data, isNonenumerable }: NodeRenderer
 export interface ObjectInspectorProps {
   readonly data: any;
   readonly showNonenumerable?: boolean;
-  readonly sortObjectKeys?: boolean | ((a: string, b: string) => number);
+  readonly sortObjectKeys?: boolean;
   readonly nodeRenderer?: (props: NodeRendererProps) => any;
 }
 
@@ -104,15 +104,30 @@ export const ObjectInspector: FC<ObjectInspectorProps> = ({
   sortObjectKeys,
   nodeRenderer,
 }) => {
+  const [expandedPaths, setExpandedPaths] = useState(new Set<string>());
   const dataIterator = createIterator(showNonenumerable, sortObjectKeys);
-  const renderer = nodeRenderer ?? defaultNodeRenderer;
+  const renderer = nodeRenderer ?? DefaultNodeRenderer;
 
-  return <TreeView nodeRenderer={renderer} dataIterator={dataIterator} data={data} />;
+  const tree = computeNode({
+    path: DEFAULT_ROOT_PATH,
+    name: "root",
+    data,
+    dataIterator,
+    nodeRenderer: renderer,
+    expandedPaths,
+  });
+
+  return (
+    <Tree
+      tree={{ id: "", name: "", children: [tree] }}
+      onSetExpanded={(x) => setExpandedPaths(new Set(x))}
+    />
+  );
 };
 
 export const DEFAULT_ROOT_PATH = "$";
 
-export function hasChildNodes(data: any, dataIterator: any) {
+function hasChildNodes(data: any, dataIterator: any) {
   return !dataIterator(data).next().done;
 }
 
@@ -122,30 +137,6 @@ export interface NodeRendererProps {
   readonly data: any;
   readonly isNonenumerable?: boolean;
 }
-
-interface TreeViewProps {
-  data: any;
-  dataIterator: (...args: any[]) => any;
-  nodeRenderer: (props: NodeRendererProps) => any;
-}
-const TreeView = memo(({ data, nodeRenderer, dataIterator }: TreeViewProps) => {
-  const [expandedPaths, setExpandedPaths] = useState(new Set<string>());
-
-  const tree = computeNode({
-    path: DEFAULT_ROOT_PATH,
-    name: "root",
-    data,
-    dataIterator,
-    nodeRenderer,
-    expandedPaths,
-  });
-  return (
-    <Tree
-      tree={{ id: "", name: "", children: [tree] }}
-      onSetExpanded={(x) => setExpandedPaths(new Set(x))}
-    />
-  );
-});
 
 interface ComputeNodeOptions {
   expandedPaths: Set<string>;
