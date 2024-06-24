@@ -10,6 +10,7 @@ export const TreeNavigation = (_: TreeNavigationProps) => {
 
   return (
     <Tree<TypeGraphNode>
+      selectionMode="single"
       tree={nav.tree}
       nodeIcon={NodeIcon}
       selected={nav.selectedPath}

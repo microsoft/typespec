@@ -7,8 +7,11 @@ export interface TreeControls {
   collapse(key: string): void;
   toggleExpand(key: string): void;
 }
+export interface TreeControlsOptions {
+  readonly onSetExpanded?: (expanded: Set<string>) => void;
+}
 
-export function useTreeControls(): TreeControls {
+export function useTreeControls({ onSetExpanded }: TreeControlsOptions): TreeControls {
   const expanded = useRef(new Set<string>()).current;
   const [rerender, setRerender] = useState(0);
 
@@ -19,6 +22,7 @@ export function useTreeControls(): TreeControls {
       } else {
         expanded.add(key);
       }
+      onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
     [expanded]
@@ -27,6 +31,7 @@ export function useTreeControls(): TreeControls {
   const expand = useCallback(
     (key: string) => {
       expanded.add(key);
+      onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
     [expanded]
@@ -34,6 +39,7 @@ export function useTreeControls(): TreeControls {
   const collapse = useCallback(
     (key: string) => {
       expanded.delete(key);
+      onSetExpanded?.(expanded);
       setRerender((x) => x + 1);
     },
     [expanded]

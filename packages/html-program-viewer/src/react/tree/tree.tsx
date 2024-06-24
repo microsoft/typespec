@@ -15,15 +15,31 @@ import type { TreeNode, TreeRow } from "./types.js";
 import style from "./tree.module.css";
 
 export interface TreeViewProps<T extends TreeNode> {
+  /**
+   * If tree allows keeping a current selection.
+   * @default no selection.
+   */
+  readonly selectionMode?: "none" | "single";
   readonly tree: T;
   readonly nodeIcon?: FC<{ node: T }>;
   readonly selected?: string;
   readonly onSelect?: (id: string) => void;
+  readonly expanded?: Set<string>;
+  readonly onSetExpanded?: (id: Set<string>) => void;
 }
 
-export function Tree<T extends TreeNode>({ tree, selected, onSelect, nodeIcon }: TreeViewProps<T>) {
+export function Tree<T extends TreeNode>({
+  tree,
+  selected,
+  onSelect,
+  onSetExpanded,
+  nodeIcon,
+  selectionMode,
+}: TreeViewProps<T>) {
   const id = useId();
-  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls();
+  const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
+    onSetExpanded,
+  });
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [selectedKey, setSelectedKey] = useControllableValue(selected, undefined, onSelect);
 
@@ -48,10 +64,12 @@ export function Tree<T extends TreeNode>({ tree, selected, onSelect, nodeIcon }:
         toggleExpand(row.id);
       } else {
         expand(row.id);
-        setSelectedKey(row.id);
+        if (selectionMode === "single") {
+          setSelectedKey(row.id);
+        }
       }
     },
-    [selectedKey, toggleExpand]
+    [selectedKey, toggleExpand, selectionMode]
   );
 
   const handleKeyDown = useCallback(
@@ -104,7 +122,7 @@ export function Tree<T extends TreeNode>({ tree, selected, onSelect, nodeIcon }:
             focussed={focusedIndex === row.index}
             key={row.id}
             row={row}
-            active={row.id === selectedKey}
+            active={selectionMode === "single" && row.id === selectedKey}
             activate={activateRow}
           />
         );
@@ -124,7 +142,7 @@ function getTreeRowsForNode<T extends TreeNode>(
     return [];
   }
   for (const [index, child] of node.children.entries()) {
-    const hasChildren = Boolean(child.children && child.children.length > 0);
+    const hasChildren = child.hasMore || Boolean(child.children && child.children.length > 0);
     const id = child.id;
 
     const expanded = expandedItems.has(id);
