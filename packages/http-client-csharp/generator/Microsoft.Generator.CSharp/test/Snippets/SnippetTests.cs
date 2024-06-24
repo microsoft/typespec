@@ -4,7 +4,7 @@
 using Microsoft.Generator.CSharp.Snippets;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests
+namespace Microsoft.Generator.CSharp.Tests.Snippets
 {
     public class SnippetTests
     {

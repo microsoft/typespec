@@ -180,6 +180,11 @@ namespace Microsoft.Generator.CSharp
                     case var _ when isLiteralFormat:
                         Literal(argument).Write(this);
                         break;
+                    case DateTimeOffset dto:
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        AppendRaw(dto.ToString("MM/dd/yyyy HH:mm:ss zzz"));
+                        break;
                     default:
                         string? s = argument?.ToString();
                         if (s == null)
@@ -619,7 +624,7 @@ namespace Microsoft.Generator.CSharp
             if (span.Length == 0 )
                 return this;
 
-            AddSpaces();
+            AddSpaces(span);
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
@@ -629,8 +634,14 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private void AddSpaces()
+        private void AddSpaces(ReadOnlySpan<char> span)
         {
+            // pre-processor directives do not need indentation
+            if (span[0] == '#')
+            {
+                return;
+            }
+
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
                 return;
@@ -936,19 +947,18 @@ namespace Microsoft.Generator.CSharp
             }
             else
             {
-                WriteRawLine("(");
+                AppendRaw("(");
                 var iterator = arguments.GetEnumerator();
                 if (iterator.MoveNext())
                 {
-                    AppendRaw("\t");
-                    iterator.Current.Write(this);
-                    WriteRawLine(",");
-                    while (iterator.MoveNext())
+                    using (ScopeRaw(string.Empty, string.Empty, false))
                     {
-                        AppendRaw(", ");
-                        AppendRaw("\t");
                         iterator.Current.Write(this);
-                        WriteRawLine(",");
+                        while (iterator.MoveNext())
+                        {
+                            WriteRawLine(",");
+                            iterator.Current.Write(this);
+                        }
                     }
                 }
                 AppendRaw(")");
