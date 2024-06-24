@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false);
+            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false, false);
             resolver.AddReference(id, model);
 
             bool isNullable = false;
@@ -47,6 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
             InputDictionaryType? inheritedDictionaryType = null;
             InputModelType? baseModel = null;
             IReadOnlyList<InputModelProperty>? properties = null;
+            bool modelAsStruct = false;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -62,7 +63,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString(nameof(InputModelType.DiscriminatorValue), ref discriminatorValue)
                     || reader.TryReadWithConverter(nameof(InputModelType.InheritedDictionaryType), options, ref inheritedDictionaryType)
                     || reader.TryReadWithConverter(nameof(InputModelType.BaseModel), options, ref baseModel)
-                    || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties);
+                    || reader.TryReadWithConverter(nameof(InputModelType.Properties), options, ref properties)
+                    || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct);
 
                 if (!isKnownProperty)
                 {
@@ -85,6 +87,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.IsNullable = isNullable;
             model.BaseModel = baseModel;
             model.Properties = properties ?? Array.Empty<InputModelProperty>();
+            model.ModelAsStruct = modelAsStruct;
 
             return model;
         }
