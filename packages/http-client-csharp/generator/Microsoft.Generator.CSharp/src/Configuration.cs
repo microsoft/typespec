@@ -15,11 +15,6 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
 
-        // TO-DO: decouple and refactor apitypes from configuration https://github.com/Azure/autorest.csharp/issues/4226
-#pragma warning disable CS0649 // Field 'Configuration._apiTypes' & 'Configuration.__extensibleSnippets' is never assigned to, and will always have its default value null
-        private ApiTypes? _apiTypes;
-#pragma warning restore CS0649 // Field 'Configuration._apiTypes' & 'Configuration.__extensibleSnippets' is never assigned to, and will always have its default value null
-
         private Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,
@@ -55,8 +50,6 @@ namespace Microsoft.Generator.CSharp
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
         }
-
-        public ApiTypes ApiTypes => _apiTypes ?? throw new InvalidOperationException("Configuration has not been initialized");
 
         /// Returns the singleton instance of the configuration.
         public string Namespace { get; }

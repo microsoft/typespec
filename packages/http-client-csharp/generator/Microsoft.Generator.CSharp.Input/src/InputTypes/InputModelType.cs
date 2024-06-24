@@ -9,7 +9,8 @@ namespace Microsoft.Generator.CSharp.Input
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
-        public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionaryType? inheritedDictionaryType, bool isNullable)
+        // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
+        public InputModelType(string name, string? modelNamespace, string? accessibility, string? deprecated, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, string? discriminatorPropertyName, InputDictionaryType? inheritedDictionaryType, bool isNullable, bool modelAsStruct)
             : base(name, isNullable)
         {
             Namespace = modelNamespace;
@@ -25,6 +26,7 @@ namespace Microsoft.Generator.CSharp.Input
             InheritedDictionaryType = inheritedDictionaryType;
             IsUnknownDiscriminatorModel = false;
             IsPropertyBag = false;
+            ModelAsStruct = modelAsStruct;
         }
 
         public string? Namespace { get; internal set; }
@@ -33,6 +35,7 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Description { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
         public IReadOnlyList<InputModelProperty> Properties { get; internal set; }
+        public bool ModelAsStruct { get; internal set; }
         public InputModelType? BaseModel { get; internal set; }
         public IReadOnlyList<InputModelType> DerivedModels { get; internal set; }
         public string? DiscriminatorValue { get; internal set; }

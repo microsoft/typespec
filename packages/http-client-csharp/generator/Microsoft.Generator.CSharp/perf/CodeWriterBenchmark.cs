@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Perf
             {
                 new InputModelProperty("MyProperty", "myProperty", "The property of mine", new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), true, false, false)
             };
-            var inputModel = new InputModelType("MyModel", null, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false);
+            var inputModel = new InputModelType("MyModel", null, null, null, "Test model", InputModelTypeUsage.RoundTrip, properties, null, Array.Empty<InputModelType>(), null, null, null, false, false);
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
         }
