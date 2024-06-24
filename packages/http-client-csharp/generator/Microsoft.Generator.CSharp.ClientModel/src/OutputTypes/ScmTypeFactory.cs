@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
         private readonly Dictionary<InputOperation, MethodProviderCollection?> _operations = new Dictionary<InputOperation, MethodProviderCollection?>();
 
-        public override ModelProvider CreateModel(InputModelType inputModel)
+        public override TypeProvider CreateModel(InputModelType inputModel)
         {
             if (_models.TryGetValue(inputModel, out var modelProvider))
             {
@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return modelProvider;
         }
 
-        public override EnumProvider CreateEnum(InputEnumType inputEnum)
+        public override TypeProvider CreateEnum(InputEnumType inputEnum)
         {
             if (_enums.TryGetValue(inputEnum, out var enumProvider))
             {
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return enumProvider;
         }
 
-        public override ClientProvider CreateClient(InputClient inputClient)
+        public override TypeProvider CreateClient(InputClient inputClient)
         {
             if (_clients.TryGetValue(inputClient, out var clientProvider))
             {
