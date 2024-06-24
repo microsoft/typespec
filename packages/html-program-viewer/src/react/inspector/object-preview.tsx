@@ -1,7 +1,7 @@
 import React, { type FC, type ReactNode } from "react";
 
+import { JsValue } from "./js-value/js-value.js";
 import { ObjectName } from "./object-name.js";
-import { ObjectValue } from "./object-value.js";
 
 import style from "./object-inspector.module.css";
 import { hasOwnProperty } from "./utils/object-prototype.js";
@@ -31,14 +31,14 @@ export const ObjectPreview: FC<any> = ({ data }) => {
     object instanceof Date ||
     object instanceof RegExp
   ) {
-    return <ObjectValue object={object} />;
+    return <JsValue value={object} />;
   }
 
   if (Array.isArray(object)) {
     const maxProperties = ARRAY_MAX_PROPERTIES;
     const previewArray = object
       .slice(0, maxProperties)
-      .map((element, index) => <ObjectValue key={index} object={element} />);
+      .map((element, index) => <JsValue key={index} value={element} />);
     if (object.length > maxProperties) {
       previewArray.push(<span key="ellipsis">…</span>);
     }
@@ -69,7 +69,7 @@ export const ObjectPreview: FC<any> = ({ data }) => {
           <span key={propertyName}>
             <ObjectName name={propertyName || `""`} />
             :&nbsp;
-            <ObjectValue object={propertyValue} />
+            <JsValue value={propertyValue} />
             {ellipsis}
           </span>
         );

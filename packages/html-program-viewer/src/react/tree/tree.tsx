@@ -40,7 +40,7 @@ export function Tree<T extends TreeNode>({
   const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
     onSetExpanded,
   });
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const [selectedKey, setSelectedKey] = useControllableValue(selected, undefined, onSelect);
 
   const rows = useMemo(

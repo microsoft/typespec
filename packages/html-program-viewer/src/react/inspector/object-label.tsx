@@ -1,7 +1,7 @@
 import type { FC } from "react";
+import { JsValue } from "./js-value/js-value.js";
 import { ObjectName } from "./object-name.js";
 import { ObjectPreview } from "./object-preview.js";
-import { ObjectValue } from "./object-value.js";
 
 export interface ObjectLabelProps {
   readonly name: any;
@@ -22,7 +22,7 @@ export const ObjectLabel: FC<ObjectLabelProps> = ({ name, data, isNonenumerable 
         <ObjectPreview data={name} />
       )}
       <span>: </span>
-      <ObjectValue object={object} />
+      <JsValue value={object} />
     </span>
   );
 };
