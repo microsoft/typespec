@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions
 {
-    internal class ExpressionsTest
+    internal class ExpressionsTests
     {
         private readonly string _mocksFolder = "Mocks";
 
