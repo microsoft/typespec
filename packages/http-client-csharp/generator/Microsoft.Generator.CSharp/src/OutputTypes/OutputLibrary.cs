@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
@@ -43,7 +42,7 @@ namespace Microsoft.Generator.CSharp
             return models;
         }
 
-        public virtual ClientProvider[] BuildClients()
+        protected virtual ClientProvider[] BuildClients()
         {
             var clientsCount = _input.Clients.Count;
             ClientProvider[] clientProviders = new ClientProvider[clientsCount];
