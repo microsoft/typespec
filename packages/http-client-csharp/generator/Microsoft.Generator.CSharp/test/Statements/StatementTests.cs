@@ -22,9 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [OneTimeSetUp]
         public void Setup()
         {
-            Mock<ApiTypes> apiTypes = new Mock<ApiTypes>();
             Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-            apiTypes.SetupGet(x => x.ResponseParameterName).Returns("result");
 
             string outputFolder = "./outputFolder";
             string projectPath = outputFolder;
