@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp
                 {
                     if (!inputEnumType.IsExtensible)
                     {
-                        return new List<TypeProvider> { new FixedEnumSerializationProvider(EnumProvider.Create(inputEnumType)) };
+                        return [new FixedEnumSerializationProvider(EnumProvider.Create(inputEnumType))];
                     }
                 }
             }
