@@ -54,8 +54,7 @@
     "@fluentui/react-icons": "^2.0.240",
     "@fluentui/react-list-preview": "^0.2.8",
     "react": "~18.3.1",
-    "react-dom": "~18.3.1",
-    "react-inspector": "^6.0.2"
+    "react-dom": "~18.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
