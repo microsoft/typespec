@@ -39,9 +39,9 @@ namespace Microsoft.Generator.CSharp
         public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
             CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
-            _scopes.Push(codeWriterScope);
             WriteLine(line);
             WriteRawLine(start);
+            _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
@@ -642,7 +642,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
-            _scopes.Peek().Declarations.Add(declaration);
             return WriteDeclaration(declaration.ActualName);
         }
 

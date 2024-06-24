@@ -18,8 +18,6 @@ namespace Microsoft.Generator.CSharp
 
             internal HashSet<string> AllDefinedIdentifiers { get; } = new();
 
-            internal List<CodeWriterDeclaration> Declarations { get; } = new();
-
             internal int Depth { get; }
 
             internal CodeScope(CodeWriter writer, string? end, bool newLine, int depth)
@@ -35,12 +33,6 @@ namespace Microsoft.Generator.CSharp
                 if (_writer != null)
                 {
                     _writer.PopScope(this);
-                    foreach (var declaration in Declarations)
-                    {
-                        declaration.SetActualName(null);
-                    }
-
-                    Declarations.Clear();
 
                     if (_end != null)
                     {

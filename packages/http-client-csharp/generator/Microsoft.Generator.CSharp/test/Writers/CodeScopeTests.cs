@@ -24,22 +24,24 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         }
 
         [Test]
-        public void ScopeLineIsInsideScope()
+        public void SiblingScopeLinesUseSameName()
         {
             var cwd1 = new CodeWriterDeclaration("a");
             var cwd2 = new CodeWriterDeclaration("a");
             using CodeWriter writer = new CodeWriter();
-            using (writer.Scope($"{cwd1:D}"))
+            using (writer.AmbientScope())
             {
+                using (writer.Scope($"{cwd1:D}"))
+                {
+                }
             }
 
-            using (writer.Scope($"{cwd2:D}"))
+            using (writer.AmbientScope())
             {
+                using (writer.Scope($"{cwd2:D}"))
+                {
+                }
             }
-
-            //TODO strange behavior for scope that we might want to fix.
-            // if you want the "a" and "{" lines to be the same indent level as "}"
-            // you must write A then use an empty `Scope()` method call.
             var expected = Helpers.GetExpectedFromFile();
             Assert.AreEqual(expected, writer.ToString(false));
         }
