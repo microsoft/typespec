@@ -15,10 +15,10 @@ namespace Microsoft.Generator.CSharp.Statements
             If = ifStatement;
             Else = elseStatement;
         }
+
         internal override void Write(CodeWriter writer)
         {
             writer.WriteLine($"#if {Condition}");
-            writer.AppendRaw("\t\t\t\t");
             If.Write(writer);
             if (Else is not null)
             {
