@@ -49,18 +49,9 @@ namespace Microsoft.Generator.CSharp
         /// <param name="inputModel">The input model.</param>
         public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel)
         {
-            try
+            if (inputModel is InputEnumType inputEnumType && !inputEnumType.IsExtensible)
             {
-                if (inputModel is InputEnumType inputEnumType)
-                {
-                    if (!inputEnumType.IsExtensible)
-                    {
-                        return [new FixedEnumSerializationProvider(EnumProvider.Create(inputEnumType))];
-                    }
-                }
-            }
-            catch (InvalidCastException)
-            {
+                return [new FixedEnumSerializationProvider(EnumProvider.Create(inputEnumType))];
             }
             return Array.Empty<TypeProvider>();
         }
