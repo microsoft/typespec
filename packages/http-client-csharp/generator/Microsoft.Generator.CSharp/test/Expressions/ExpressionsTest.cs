@@ -16,7 +16,6 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
     internal class ExpressionsTest
     {
         private readonly string _mocksFolder = "Mocks";
-        private string _testDataPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "Expressions");
 
         [OneTimeSetUp]
         public void Setup()
@@ -67,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             writer.WriteMethod(barMethod);
             writer.WriteMethod(fooMethod);
 
-            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "InvokeInstanceMethodExpression.cs"));
+            var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
@@ -94,7 +93,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             using var writer = new CodeWriter();
             writer.WriteMethod(fooMethod);
 
-            var expectedResult = File.ReadAllText(Path.Combine(_testDataPath, "NewInstanceExpression.cs"));
+            var expectedResult = Helpers.GetExpectedFromFile();
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }

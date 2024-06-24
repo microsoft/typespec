@@ -6,14 +6,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Mocks\Configuration.json">
+    <Compile Remove="**\TestData\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="**\TestData\**\*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="TestData\**\*.cs" />
-    <None Include="TestData\**\*.cs">
+    <None Update="Mocks\Configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
