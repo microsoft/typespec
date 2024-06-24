@@ -16,6 +16,9 @@
   "keywords": [
     "typespec"
   ],
+  "bin": {
+    "openapi3-to-tsp": "cmd/openapi3-to-tsp.js"
+  },
   "type": "module",
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
@@ -44,7 +47,8 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference",
+    "generate-tsp": "node --experimental-specifier-resolution=node --loader ts-node/esm ./test/openapi-to-typespec/utils/generate-typespec.ts"
   },
   "files": [
     "lib/*.tsp",
@@ -52,7 +56,11 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "yaml": "~2.4.2"
+    "@readme/openapi-parser": "~2.6.0",
+    "@typespec/prettier-plugin-typespec": "workspace:~",
+    "prettier": "~3.3.2",
+    "yaml": "~2.4.2",
+    "yargs": "~17.7.2"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",
@@ -62,6 +70,7 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
+    "@types/yargs": "~17.0.32",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
@@ -73,6 +82,7 @@
     "@vitest/ui": "^1.6.0",
     "c8": "^9.1.0",
     "rimraf": "~5.0.7",
+    "ts-node": "~10.9.2",
     "typescript": "~5.4.5",
     "vitest": "^1.6.0"
   }

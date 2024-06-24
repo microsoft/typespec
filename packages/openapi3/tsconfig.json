@@ -11,5 +11,8 @@
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "lib": ["DOM", "ESNext"]
   },
+  "ts-node": {
+    "esm": true
+  },
   "include": ["src/**/*.ts", "generated-defs/**/*.ts", "test/**/*.ts"]
 }

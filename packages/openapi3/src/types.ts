@@ -668,6 +668,8 @@ export type OpenAPI3Operation = Extensions & {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Ref<T> {
   $ref: string;
+  description?: string;
+  summary?: string;
 }
 
 export type Refable<T> = Ref<T> | T;
