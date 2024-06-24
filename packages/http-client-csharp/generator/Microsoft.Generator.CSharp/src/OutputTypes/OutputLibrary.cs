@@ -45,14 +45,12 @@ namespace Microsoft.Generator.CSharp
 
         public virtual ClientProvider[] BuildClients()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var clientsCount = input.Clients.Count;
+            var clientsCount = _input.Clients.Count;
             ClientProvider[] clientProviders = new ClientProvider[clientsCount];
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientProvider(input.Clients[i]);
+                clientProviders[i] = new ClientProvider(_input.Clients[i]);
             }
 
             return clientProviders;
