@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
@@ -48,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -63,13 +64,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.AreEqual(2, value2?.Literal);
 
             // int based fixed enum does not have serialization method therefore we only have one method
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(1, serialization?.Methods.Count);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -93,7 +94,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -105,13 +106,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(2, serialization?.Methods.Count);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -135,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], false);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
 
@@ -147,13 +148,13 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(2, serialization?.Methods.Count);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);
@@ -177,7 +178,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Int32), [new InputEnumTypeValue("One", 1, null), new InputEnumTypeValue("Two", 2, null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -209,12 +210,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1)).Write(writer);
@@ -238,7 +239,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.Float32), [new InputEnumTypeValue("One", 1f, null), new InputEnumTypeValue("Two", 2f, null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -270,12 +271,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
@@ -299,7 +300,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
-            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true, false);
+            var input = new InputEnumType("mockInputEnum", "mockNamespace", "public", null, "The mock enum", InputModelTypeUsage.RoundTrip, new InputPrimitiveType(InputPrimitiveTypeKind.String), [new InputEnumTypeValue("One", "1", null), new InputEnumTypeValue("Two", "2", null)], true);
             var enumType = EnumProvider.Create(input);
             var fields = enumType.Fields;
             var properties = enumType.Properties;
@@ -331,12 +332,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.Serialization;
+            var serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
-            var enumVar = new VariableReferenceSnippet(enumType.Type, new MockCodeWriterDeclaration("e"));
+            var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
             enumType.ToSerial(enumVar).Write(writer);
             writer.WriteLine();
             enumType.ToEnum(Snippet.Literal("1")).Write(writer);

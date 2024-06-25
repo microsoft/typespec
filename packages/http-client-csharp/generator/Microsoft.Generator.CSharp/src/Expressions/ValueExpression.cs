@@ -18,7 +18,12 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
-        public static implicit operator ValueExpression(ParameterProvider parameter) => new ParameterReferenceSnippet(parameter);
+        public static implicit operator ValueExpression(ParameterProvider parameter)
+        {
+            var decl = new CodeWriterDeclaration(parameter.Name);
+            decl.SetActualName(parameter.Name);
+            return new VariableExpression(parameter.Type, decl);
+        }
         public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
         public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
 

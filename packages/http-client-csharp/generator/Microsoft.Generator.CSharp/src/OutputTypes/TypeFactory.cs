@@ -13,6 +13,10 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
+        private ChangeTrackingListProvider? _changeTrackingListProvider;
+        private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
+        private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>
@@ -21,48 +25,45 @@ namespace Microsoft.Generator.CSharp
         public virtual CSharpType CreateCSharpType(InputType inputType) => inputType switch
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray(), unionType.IsNullable),
-            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
-            InputListType listType => new CSharpType(typeof(IList<>), listType.IsNullable, CreateCSharpType(listType.ElementType)),
-            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), inputType.IsNullable, typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => CodeModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            InputModelType model => CodeModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-                ? provider.Type.WithNullable(inputType.IsNullable)
-                : new CSharpType(typeof(object), model.IsNullable).WithNullable(inputType.IsNullable),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
+            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
+            InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
+            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
+            InputEnumType enumType => EnumProvider.Create(enumType).Type,
+            InputModelType model => new ModelProvider(model).Type,
+            InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
-                InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool), inputType.IsNullable),
-                InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData), inputType.IsNullable),
-                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string), inputType.IsNullable),
-                InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-                InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal), inputType.IsNullable),
-                InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal), inputType.IsNullable),
-                InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-                InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float), inputType.IsNullable),
-                InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double), inputType.IsNullable),
-                InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal), inputType.IsNullable),
-                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid), inputType.IsNullable),
-                InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte), inputType.IsNullable),
-                InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte), inputType.IsNullable),
-                InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int), inputType.IsNullable),
-                InputPrimitiveTypeKind.Int64 => new CSharpType(typeof(long), inputType.IsNullable),
-                InputPrimitiveTypeKind.SafeInt => new CSharpType(typeof(long), inputType.IsNullable),
-                InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long), inputType.IsNullable), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.Float => new CSharpType(typeof(double), inputType.IsNullable), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double), inputType.IsNullable), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
-                InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress), inputType.IsNullable),
-                InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream), inputType.IsNullable),
-                InputPrimitiveTypeKind.String => new CSharpType(typeof(string), inputType.IsNullable),
-                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri), inputType.IsNullable),
-                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char), inputType.IsNullable),
-                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData), inputType.IsNullable),
-                _ => new CSharpType(typeof(object), inputType.IsNullable),
+                InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),
+                InputPrimitiveTypeKind.Bytes => new CSharpType(typeof(BinaryData)),
+                InputPrimitiveTypeKind.ContentType => new CSharpType(typeof(string)),
+                InputPrimitiveTypeKind.PlainDate => new CSharpType(typeof(DateTimeOffset)),
+                InputPrimitiveTypeKind.Decimal => new CSharpType(typeof(decimal)),
+                InputPrimitiveTypeKind.Decimal128 => new CSharpType(typeof(decimal)),
+                InputPrimitiveTypeKind.PlainTime => new CSharpType(typeof(TimeSpan)),
+                InputPrimitiveTypeKind.Float32 => new CSharpType(typeof(float)),
+                InputPrimitiveTypeKind.Float64 => new CSharpType(typeof(double)),
+                InputPrimitiveTypeKind.Float128 => new CSharpType(typeof(decimal)),
+                InputPrimitiveTypeKind.Guid or InputPrimitiveTypeKind.Uuid => new CSharpType(typeof(Guid)),
+                InputPrimitiveTypeKind.Int8 => new CSharpType(typeof(sbyte)),
+                InputPrimitiveTypeKind.UInt8 => new CSharpType(typeof(byte)),
+                InputPrimitiveTypeKind.Int32 => new CSharpType(typeof(int)),
+                InputPrimitiveTypeKind.Int64 => new CSharpType(typeof(long)),
+                InputPrimitiveTypeKind.SafeInt => new CSharpType(typeof(long)),
+                InputPrimitiveTypeKind.Integer => new CSharpType(typeof(long)), // in typespec, integer is the base type of int related types, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Float => new CSharpType(typeof(double)), // in typespec, float is the base type of float32 and float64, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.Numeric => new CSharpType(typeof(double)), // in typespec, numeric is the base type of number types, see type relation: https://typespec.io/docs/language-basics/type-relations
+                InputPrimitiveTypeKind.IPAddress => new CSharpType(typeof(IPAddress)),
+                InputPrimitiveTypeKind.Stream => new CSharpType(typeof(Stream)),
+                InputPrimitiveTypeKind.String => new CSharpType(typeof(string)),
+                InputPrimitiveTypeKind.Uri or InputPrimitiveTypeKind.Url => new CSharpType(typeof(Uri)),
+                InputPrimitiveTypeKind.Char => new CSharpType(typeof(char)),
+                InputPrimitiveTypeKind.Any => new CSharpType(typeof(BinaryData)),
+                _ => new CSharpType(typeof(object)),
             },
-            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset), inputType.IsNullable),
-            InputDurationType durationType => new CSharpType(typeof(TimeSpan), inputType.IsNullable),
-            _ => throw new Exception("Unknown type")
+            InputDateTimeType dateTimeType => new CSharpType(typeof(DateTimeOffset)),
+            InputDurationType durationType => new CSharpType(typeof(TimeSpan)),
+            _ => throw new InvalidOperationException($"Unknown type: {inputType}")
         };
 
         /// <summary>
@@ -130,11 +131,11 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.
         /// </summary>
-        public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Instance.Type;
+        public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Type;
 
         /// <summary>
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
-        public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Instance.Type;
+        public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
     }
 }

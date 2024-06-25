@@ -198,7 +198,7 @@ namespace Microsoft.Generator.CSharp
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
-        internal TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
+        public TypeProvider Implementation => _implementation ?? throw new InvalidOperationException($"Not implemented type: '{Namespace}.{Name}'");
         public IReadOnlyList<CSharpType> Arguments { get { return _arguments; } }
 
         /// <summary>
@@ -589,7 +589,7 @@ namespace Microsoft.Generator.CSharp
         /// <param name="unionItemTypes">The list of union item types.</param>
         /// <param name="isNullable">Flag used to determine if a type is nullable.</param>
         /// <returns>A <see cref="CSharpType"/> instance representing those unioned types.</returns>
-        public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable)
+        public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable = false)
         {
             var type = new CSharpType(typeof(BinaryData), isNullable);
             type._unionItemTypes = unionItemTypes;

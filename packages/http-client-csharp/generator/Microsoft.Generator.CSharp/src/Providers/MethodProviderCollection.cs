@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
-            var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
+            var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
             var methodBody = Snippet.EmptyStatement;
 
             return new MethodProvider(methodSignature, methodBody, enclosingType);
