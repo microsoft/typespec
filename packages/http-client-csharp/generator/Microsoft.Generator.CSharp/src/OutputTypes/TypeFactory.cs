@@ -25,8 +25,8 @@ namespace Microsoft.Generator.CSharp
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => EnumProvider.Create(enumType).Type.WithNullable(enumType.IsNullable),
-            InputModelType model => new ModelProvider(model).Type.WithNullable(model.IsNullable),
+            InputEnumType enumType => EnumProvider.Create(enumType).Type,
+            InputModelType model => new ModelProvider(model).Type,
             InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {

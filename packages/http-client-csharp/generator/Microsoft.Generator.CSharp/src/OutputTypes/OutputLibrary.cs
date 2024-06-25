@@ -16,8 +16,8 @@ namespace Microsoft.Generator.CSharp
         private IReadOnlyList<TypeProvider>? _enums;
         private IReadOnlyList<TypeProvider>? _models;
 
-        public IReadOnlyList<TypeProvider> Enums => BuildEnums();
-        public IReadOnlyList<TypeProvider> Models => BuildModels();
+        public IReadOnlyList<TypeProvider> Enums => _enums ??= BuildEnums();
+        public IReadOnlyList<TypeProvider> Models => _models ??= BuildModels();
         public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
         public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
 
