@@ -22,6 +22,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static readonly MethodBodyStatement EmptyStatement = new();
         public static readonly MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
 
+        public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static ExtensibleSnippets Extensible => CodeModelPlugin.Instance.ExtensibleSnippets;
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
