@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         [Test]
         public void ValidateInstanceCtor()
         {
-            var ctor = new ConstructorSignature(typeof(TestClass), null, null, MethodSignatureModifiers.Public, []);
+            var ctor = new ConstructorSignature(typeof(TestClass), null, MethodSignatureModifiers.Public, []);
             using CodeWriter writer = new CodeWriter();
             New.Instance(ctor, new Dictionary<ValueExpression, ValueExpression>
             {
@@ -92,7 +92,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateInstanceCtorWithArguments()
         {
             var xParam = new ParameterProvider("x", FormattableStringHelpers.Empty, typeof(int));
-            var ctor = new ConstructorSignature(typeof(TestClass), null, null, MethodSignatureModifiers.Public, []);
+            var ctor = new ConstructorSignature(typeof(TestClass), null, MethodSignatureModifiers.Public, []);
             using CodeWriter writer = new CodeWriter();
             New.Instance(ctor, [Literal(20)], new Dictionary<ValueExpression, ValueExpression>
             {
