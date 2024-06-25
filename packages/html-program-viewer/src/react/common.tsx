@@ -1,6 +1,6 @@
 import { mergeClasses } from "@fluentui/react-components";
 import type { Type } from "@typespec/compiler";
-import type { FunctionComponent, ReactElement } from "react";
+import type { FunctionComponent } from "react";
 import style from "./common.module.css";
 
 export const Mono = ({ children, className }: { children: any; className?: string }) => (
@@ -21,9 +21,4 @@ export const TypeKindTag = ({ type, size = "auto" }: { type: Type; size?: "small
       {type.kind}
     </Mono>
   );
-};
-export const KeyValueSection: FunctionComponent<{ children: ReactElement | ReactElement[] }> = ({
-  children,
-}) => {
-  return <ul>{children}</ul>;
 };

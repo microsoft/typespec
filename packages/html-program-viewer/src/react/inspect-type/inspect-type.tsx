@@ -2,7 +2,7 @@ import type { Entity, Type } from "@typespec/compiler";
 import { getTypeName } from "@typespec/compiler";
 import { useCallback, type FunctionComponent, type ReactElement, type ReactNode } from "react";
 import { isNamedUnion } from "../../utils.js";
-import { KeyValueSection, Literal, Mono, TypeKind } from "../common.js";
+import { Literal, Mono, TypeKind } from "../common.js";
 import { JsValue } from "../js-inspector/js-value/js-value.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
 import { useTreeNavigator } from "../use-tree-navigation.js";
@@ -103,9 +103,9 @@ export const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
     case "Model":
       if (type.name === "") {
         return (
-          <KeyValueSection>
+          <ul>
             <EntityUI entity={type} />
-          </KeyValueSection>
+          </ul>
         );
       } else {
         return <NamedTypeRef type={type} />;
@@ -163,7 +163,7 @@ const EntityProperties = ({ entity: type }: { entity: Entity }) => {
     })
     .filter((x): x is any => Boolean(x));
 
-  return <KeyValueSection>{props}</KeyValueSection>;
+  return <ul>{props}</ul>;
 };
 
 interface EntityPropertyProps {
@@ -222,10 +222,10 @@ const ItemList = <T extends object>(props: ItemListProps<T>) => {
     }
   }
   return (
-    <KeyValueSection>
+    <ul>
       {[...props.items.entries()].map(([k, v], i) => (
         <li key={typeof k === "symbol" ? i : k}>{props.render(v)}</li>
       ))}
-    </KeyValueSection>
+    </ul>
   );
 };
