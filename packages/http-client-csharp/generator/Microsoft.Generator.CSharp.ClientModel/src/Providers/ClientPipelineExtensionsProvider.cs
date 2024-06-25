@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +12,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ClientPipelineExtensionsProvider : TypeProvider
     {
-        private static readonly Lazy<ClientPipelineExtensionsProvider> _instance = new(() => new ClientPipelineExtensionsProvider());
-        public static ClientPipelineExtensionsProvider Instance => _instance.Value;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
         public override string Name { get; }
 
@@ -28,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider _requestContextParam;
         private MemberExpression _messageResponse;
 
-        private ClientPipelineExtensionsProvider()
+        internal ClientPipelineExtensionsProvider()
         {
             Name = "ClientPipelineExtensions";
             _pipelineParam = new ParameterProvider("pipeline", $"The pipeline.", typeof(ClientPipeline));

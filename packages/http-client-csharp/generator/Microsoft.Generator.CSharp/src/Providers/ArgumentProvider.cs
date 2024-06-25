@@ -9,13 +9,12 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     internal class ArgumentProvider : TypeProvider
     {
-        private static readonly Lazy<ArgumentProvider> _instance = new(() => new ArgumentProvider());
-
         private class Template<T> { }
 
         private const string AssertNotNullMethodName = "AssertNotNull";
@@ -26,9 +25,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
         private readonly CSharpType _nullableT;
 
-        public static ArgumentProvider Instance => _instance.Value;
-
-        private ArgumentProvider()
+        public ArgumentProvider()
         {
             _nullableT = _t.WithNullable(true);
         }
@@ -274,21 +271,6 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Throw(New.ArgumentNullException(_nameParam, false))
             };
-        }
-
-        internal MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrEmptyMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrWhiteSpaceMethodName, variable, name ?? Nameof(variable));
         }
     }
 }

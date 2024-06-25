@@ -14,8 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class ChangeTrackingListProvider : TypeProvider
     {
-        private static readonly Lazy<ChangeTrackingListProvider> _instance = new(() => new ChangeTrackingListProvider());
-
         private class ChangeTrackingListTemplate<T> { }
 
         private readonly MethodSignature _ensureListSignature;
@@ -32,9 +30,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
         private InvokeInstanceMethodExpression EnsureList { get; init; }
 
-        public static ChangeTrackingListProvider Instance => _instance.Value;
-
-        private ChangeTrackingListProvider()
+        public ChangeTrackingListProvider()
         {
             _t = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0];
             _iListOfT = new CSharpType(typeof(IList<>), _t);

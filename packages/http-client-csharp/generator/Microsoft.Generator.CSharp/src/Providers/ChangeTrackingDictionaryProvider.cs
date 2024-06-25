@@ -14,9 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class ChangeTrackingDictionaryProvider : TypeProvider
     {
-        private static readonly Lazy<ChangeTrackingDictionaryProvider> _instance = new(() => new ChangeTrackingDictionaryProvider());
-        public static ChangeTrackingDictionaryProvider Instance => _instance.Value;
-
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
         private readonly CSharpType _tValue = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[1];
@@ -34,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private InvokeInstanceMethodExpression EnsureDictionary { get; init; }
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
 
-        private ChangeTrackingDictionaryProvider()
+        public ChangeTrackingDictionaryProvider()
         {
             WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);

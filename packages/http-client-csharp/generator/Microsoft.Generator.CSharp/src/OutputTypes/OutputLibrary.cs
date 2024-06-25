@@ -89,10 +89,10 @@ namespace Microsoft.Generator.CSharp
         {
             return
             [
-                ChangeTrackingListProvider.Instance,
-                ChangeTrackingDictionaryProvider.Instance,
-                ArgumentProvider.Instance,
-                OptionalProvider.Instance
+                new ChangeTrackingListProvider(),
+                new ChangeTrackingDictionaryProvider(),
+                new ArgumentProvider(),
+                new OptionalProvider(),
             ];
         }
     }

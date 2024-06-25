@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -14,21 +13,20 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal class OptionalProvider : TypeProvider
     {
-        private static readonly Lazy<OptionalProvider> _instance = new(() => new OptionalProvider());
-        public static OptionalProvider Instance => _instance.Value;
-
         private class ListTemplate<T> { }
 
         private readonly CSharpType _t = typeof(ListTemplate<>).GetGenericArguments()[0];
-        private readonly CSharpType _tKey = ChangeTrackingDictionaryProvider.Instance.Type.Arguments[0];
-        private readonly CSharpType _tValue = ChangeTrackingDictionaryProvider.Instance.Type.Arguments[1];
+        private readonly CSharpType _tKey;
+        private readonly CSharpType _tValue;
         private readonly CSharpType _genericChangeTrackingList;
         private readonly CSharpType _genericChangeTrackingDictionary;
 
-        private OptionalProvider()
+        public OptionalProvider()
         {
-            _genericChangeTrackingList = ChangeTrackingListProvider.Instance.Type;
-            _genericChangeTrackingDictionary = ChangeTrackingDictionaryProvider.Instance.Type;
+            _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
+            _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
+            _tKey = _genericChangeTrackingDictionary.Arguments[0];
+            _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()

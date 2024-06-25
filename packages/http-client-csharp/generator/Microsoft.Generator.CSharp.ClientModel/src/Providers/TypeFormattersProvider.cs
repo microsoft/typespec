@@ -6,20 +6,25 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class TypeFormattersProvider : TypeProvider
     {
-        private static readonly Lazy<TypeFormattersProvider> _instance = new(() => new TypeFormattersProvider());
-        public static TypeFormattersProvider Instance => _instance.Value;
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
-        private const string _toStringMethodName = "ToString";
+        private const string ToStringMethodName = "ToString";
+        private const string ToBase64UrlStringMethodName = "ToBase64UrlString";
+        private const string FromBase64UrlStringMethodName = "FromBase64UrlString";
+        private const string ParseDateTimeOffsetMethodName = "ParseDateTimeOffset";
+        private const string ParseTimeSpanMethodName = "ParseTimeSpan";
+        private const string ConvertToStringMethodName = "ConvertToString";
 
         internal TypeFormattersProvider()
         {
@@ -48,7 +53,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var boolValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(bool));
             var boolSignature = new MethodSignature(
-                Name: _toStringMethodName,
+                Name: ToStringMethodName,
                 Parameters: [boolValueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(string),
@@ -73,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 dateTimeSignature,
                 new SwitchExpression(dateTimeValueKind, new SwitchCaseExpression[]
                 {
-                    new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), format)),
+                    new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), TypeFormattersSnippet.ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), format)),
                     SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(new FormattableStringExpression($"DateTime {{0}} has a Kind of {{1}}. {sdkName} it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.", [dateTimeValue, dateTimeValueKind]))))
                 }),
                 this);
@@ -144,19 +149,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        public StringSnippet ToString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Type, _toStringMethodName, new[] { value }));
-
-        public StringSnippet ToString(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Type, _toStringMethodName, new[] { value, format }));
-
-        private const string _toBase64UrlStringMethodName = "ToBase64UrlString";
-
         private MethodProvider BuildToBase64UrlStringMethodProvider()
         {
             var value = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
             var signature = new MethodSignature(
-                Name: _toBase64UrlStringMethodName,
+                Name: ToBase64UrlStringMethodName,
                 Parameters: [value],
                 ReturnType: typeof(string),
                 Modifiers: _methodModifiers,
@@ -197,16 +194,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider(signature, body, this);
         }
 
-        public StringSnippet ToBase64UrlString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Type, _toBase64UrlStringMethodName, new[] { value }));
-
-        private const string _fromBase64UrlStringMethodName = "FromBase64UrlString";
-
         private MethodProvider BuildFromBase64UrlString()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(string));
             var signature = new MethodSignature(
-                Name: _fromBase64UrlStringMethodName,
+                Name: FromBase64UrlStringMethodName,
                 Parameters: [valueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(byte[]),
@@ -252,16 +244,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider(signature, body, this);
         }
 
-        public ValueExpression FromBase64UrlString(ValueExpression value)
-            => new InvokeStaticMethodExpression(Type, _fromBase64UrlStringMethodName, new[] { value });
-
-        private const string _parseDateTimeOffsetMethodName = "ParseDateTimeOffset";
         private MethodProvider BuildParseDateTimeOffsetMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(string));
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string), null);
             var signature = new MethodSignature(
-                Name: _parseDateTimeOffsetMethodName,
+                Name: ParseDateTimeOffsetMethodName,
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(DateTimeOffset),
@@ -280,16 +268,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
         }
 
-        public DateTimeOffsetSnippet ParseDateTimeOffset(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Type, _parseDateTimeOffsetMethodName, new[] { value, format }));
-
-        private const string _parseTimeSpanMethodName = "ParseTimeSpan";
         private MethodProvider BuildParseTimeSpanMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(string));
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
             var signature = new MethodSignature(
-                Name: _parseTimeSpanMethodName,
+                Name: ParseTimeSpanMethodName,
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(TimeSpan),
@@ -307,17 +291,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
         }
 
-        public TimeSpanSnippet ParseTimeSpan(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Type, _parseTimeSpanMethodName, new[] { value, format }));
-
-        private const string _convertToStringMethodName = "ConvertToString";
         private MethodProvider BuildConvertToStringMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(object));
             var nullableStringType = new CSharpType(typeof(string), true);
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, nullableStringType, DefaultOf(nullableStringType));
             var signature = new MethodSignature(
-                Name: _convertToStringMethodName,
+                Name: ConvertToStringMethodName,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(string),
@@ -329,13 +309,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 new SwitchCaseExpression(Null, Literal("null")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(string), "s", out var s), s),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), ToString(b)),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), TypeFormattersSnippet.ToString(b)),
                 new SwitchCaseExpression(GetTypePattern(new CSharpType[] {typeof(int),typeof(float), typeof(double), typeof(long), typeof(decimal)}), value.CastTo(typeof(IFormattable)).Invoke(nameof(IFormattable.ToString), _defaultNumberFormatField, _invariantCultureExpression)),
                 // TODO -- figure out how to write this line
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), NotEqual(format, Null), ToString(bytes, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(byte[]), "b", out var bytes), NotEqual(format, Null), TypeFormattersSnippet.ToString(bytes, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(IEnumerable<string>), "s", out var enumerable), StringSnippet.Join(Literal(","), enumerable)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), NotEqual(format, Null), ToString(dateTime, format)),
-                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), NotEqual(format, Null), ToString(timeSpan, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), NotEqual(format, Null), TypeFormattersSnippet.ToString(dateTime, format)),
+                SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), NotEqual(format, Null), TypeFormattersSnippet.ToString(timeSpan, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanNoFormat])),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(new BinaryDataSnippet(binaryData).ToArray(), format)),
@@ -355,14 +335,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return result;
-        }
-
-        public StringSnippet ConvertToString(ValueExpression value, ValueExpression? format = null)
-        {
-            var arguments = format != null
-                ? new[] { value, format }
-                : new[] { value };
-            return new(new InvokeStaticMethodExpression(Type, _convertToStringMethodName, arguments));
         }
     }
 }
