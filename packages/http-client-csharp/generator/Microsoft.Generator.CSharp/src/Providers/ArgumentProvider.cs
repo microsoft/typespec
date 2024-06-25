@@ -29,8 +29,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public static ArgumentProvider Instance => _instance.Value;
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         private ArgumentProvider()
         {
             _nameParamRef = new ParameterReferenceSnippet(_nameParam);
@@ -41,6 +39,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
+
+        public override string FileName => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "Argument";
 

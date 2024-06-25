@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
@@ -15,6 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private static readonly Lazy<ClientPipelineExtensionsProvider> _instance = new(() => new ClientPipelineExtensionsProvider());
         public static ClientPipelineExtensionsProvider Instance => _instance.Value;
+        public override string FileName => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
         public override string Name { get; }
 
         private const string _processMessageAsync = "ProcessMessageAsync";

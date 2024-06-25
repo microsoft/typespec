@@ -52,10 +52,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Namespace = model.Namespace;
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 
+        public override string FileName => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
         public override string Name { get; }
         public override string Namespace { get; }
 

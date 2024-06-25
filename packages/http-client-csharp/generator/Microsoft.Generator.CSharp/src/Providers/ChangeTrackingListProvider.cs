@@ -49,12 +49,12 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureList = This.Invoke(_ensureListSignature);
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }
+
+        public override string FileName => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "ChangeTrackingList";
 
