@@ -445,6 +445,26 @@ describe("compiler: models", () => {
       ]);
     });
 
+    it("disallows subtype overriding required parent property with optional property", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { x: int32; }
+        model B extends A { x?: int32; }
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property-mismatch",
+          severity: "error",
+          message:
+            "Model has a required inherited property named x which cannot be overridden as optional",
+        },
+      ]);
+    });
+
     it("allow multiple overrides", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
