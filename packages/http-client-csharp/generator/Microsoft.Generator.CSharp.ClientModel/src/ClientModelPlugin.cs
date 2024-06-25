@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         private static ClientModelPlugin? _instance;
         internal static ClientModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-        public override ApiTypes ApiTypes { get; }
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
@@ -53,7 +52,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             TypeFactory = new ScmTypeFactory();
             ExtensibleSnippets = new SystemExtensibleSnippets();
-            ApiTypes = new SystemApiTypes();
             _instance = this;
         }
     }

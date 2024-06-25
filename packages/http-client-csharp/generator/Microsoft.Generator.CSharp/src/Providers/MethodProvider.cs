@@ -115,8 +115,8 @@ namespace Microsoft.Generator.CSharp.Providers
         private XmlDocProvider? BuildXmlDocs(Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
             var docs = new XmlDocProvider();
-            if (Signature.SummaryText is not null)
-                docs.Summary = new XmlDocSummaryStatement([Signature.SummaryText]);
+            if (Signature.Description is not null)
+                docs.Summary = new XmlDocSummaryStatement([Signature.Description]);
 
             foreach (var parameter in Signature.Parameters)
             {

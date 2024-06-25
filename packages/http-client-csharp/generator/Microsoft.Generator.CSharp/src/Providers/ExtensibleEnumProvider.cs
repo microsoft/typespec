@@ -99,7 +99,6 @@ namespace Microsoft.Generator.CSharp.Providers
             };
             var signature = new ConstructorSignature(
                 Type: Type,
-                Summary: null,
                 Description: $"Initializes a new instance of {Type:C}.",
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [valueParameter]);
@@ -123,7 +122,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var right = (ValueExpression)rightParameter;
             var equalitySignature = new MethodSignature(
                 Name: "==",
-                Summary: null,
                 Description: $"Determines if two {Type:C} values are the same.",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator,
                 ReturnType: typeof(bool),
@@ -143,7 +141,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueParameter = new ParameterProvider("value", $"The value.", ValueType);
             var castSignature = new MethodSignature(
                 Name: string.Empty,
-                Summary: null,
                 Description: $"Converts a string to a {Type:C}",
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator,
                 ReturnType: Type,
@@ -155,7 +152,6 @@ namespace Microsoft.Generator.CSharp.Providers
             var objParameter = new ParameterProvider("obj", $"The object to compare.", typeof(object));
             var equalsSignature = new MethodSignature(
                 Name: nameof(object.Equals),
-                Summary: null,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(bool),
@@ -188,7 +184,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
             var getHashCodeSignature = new MethodSignature(
                 Name: nameof(object.GetHashCode),
-                Summary: null,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(int),
@@ -207,7 +202,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
             var toStringSignature = new MethodSignature(
                 Name: nameof(object.ToString),
-                Summary: null,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                 ReturnType: typeof(string),
@@ -233,7 +227,6 @@ namespace Microsoft.Generator.CSharp.Providers
                     Modifiers: MethodSignatureModifiers.Internal,
                     ReturnType: ValueType,
                     Parameters: Array.Empty<ParameterProvider>(),
-                    Summary: null,
                     Description: null,
                     ReturnDescription: null);
 

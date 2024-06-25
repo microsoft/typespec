@@ -7,7 +7,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputUnionType : InputType
     {
-        public InputUnionType(string name, IReadOnlyList<InputType> variantTypes, bool isNullable) : base(name, isNullable)
+        public InputUnionType(string name, IReadOnlyList<InputType> variantTypes) : base(name)
         {
             VariantTypes = variantTypes;
         }

@@ -52,7 +52,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodSignature(
                 name,
                 null,
-                null,
                 MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                 returnType,
                 null,

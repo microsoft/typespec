@@ -22,9 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [OneTimeSetUp]
         public void Setup()
         {
-            Mock<ApiTypes> apiTypes = new Mock<ApiTypes>();
             Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-            apiTypes.SetupGet(x => x.ResponseParameterName).Returns("result");
 
             string outputFolder = "./outputFolder";
             string projectPath = outputFolder;
@@ -288,7 +286,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -332,7 +330,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -431,7 +429,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: null,
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
                 mockTypeProvider.Object);
 

@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [boolValueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(string),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var boolValue = new BoolSnippet(boolValueParameter);
             var toStringBool = new MethodProvider(
                 boolSignature,
@@ -160,7 +160,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [value],
                 ReturnType: typeof(string),
                 Modifiers: _methodModifiers,
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var valueLength = new IntSnippet(value.Property("Length"));
             var body = new List<MethodBodyStatement>
@@ -210,7 +210,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [valueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(byte[]),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var value = new StringSnippet(valueParameter);
 
             var body = new List<MethodBodyStatement>
@@ -265,7 +265,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(DateTimeOffset),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = new StringSnippet(valueParameter);
             var format = new StringSnippet(formatParameter);
@@ -293,7 +293,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(TimeSpan),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = new StringSnippet(valueParameter);
             var format = new StringSnippet(formatParameter);
@@ -321,7 +321,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(string),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)valueParameter;
             var format = new StringSnippet(formatParameter);

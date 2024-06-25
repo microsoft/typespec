@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
             _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
             _innerDictionary = new DictionarySnippet(_tKey, _tValue, new VariableExpression(_IDictionary, _innerDictionaryField.Declaration));
-            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
+            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
             EnsureDictionary = This.Invoke(_ensureDictionarySignature);
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
             var dictionary = new DictionarySnippet(_tKey, _tValue, dictionaryParam);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider ConstructorWithDictionary()
         {
             var dictionary = new ParameterProvider("dictionary", $"The inner dictionary.", _IDictionary);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, [dictionary]);
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
@@ -120,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider DefaultConstructor()
         {
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
             return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
@@ -221,7 +221,7 @@ namespace Microsoft.Generator.CSharp.Providers
             IReadOnlyList<ParameterProvider>? parameters = null,
             CSharpType? explicitImpl = null)
         {
-            return new MethodSignature(name, null, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
+            return new MethodSignature(name, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
         }
 
         protected override MethodProvider[] BuildMethods()

@@ -43,7 +43,6 @@ describe("Test string format", () => {
     deepStrictEqual(
       {
         Kind: "url",
-        IsNullable: false,
         Encode: undefined,
       } as InputPrimitiveType,
       operation.Parameters[0].Type
@@ -72,7 +71,6 @@ describe("Test string format", () => {
     deepStrictEqual(
       {
         Kind: "url",
-        IsNullable: false,
         Encode: undefined,
       } as InputPrimitiveType,
       foo.Properties[0].Type
