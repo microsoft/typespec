@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 
 import {
+  BooleanLiteral,
   EnumMember,
-  LiteralType,
   Model,
   ModelProperty,
+  NumericLiteral,
   Scalar,
+  StringLiteral,
   Type,
   Union,
   getDiscriminator,
@@ -26,10 +28,12 @@ import { categorize, indent } from "./iter.js";
  */
 export type CodeTree = Result | IfChain | Switch | Verbatim;
 
+export type JsLiteralType = StringLiteral | BooleanLiteral | NumericLiteral | EnumMember;
+
 /**
  * A TypeSpec type that is precise, i.e. the type of a single value.
  */
-export type PreciseType = Scalar | Model | LiteralType;
+export type PreciseType = Scalar | Model | JsLiteralType;
 
 /**
  * Determines if `t` is a precise type.
@@ -252,7 +256,7 @@ export interface InRange {
  */
 export type LiteralValue = string | number | boolean | bigint;
 
-function isLiteralValueType(type: Type): type is LiteralType {
+function isLiteralValueType(type: Type): type is JsLiteralType {
   return (
     type.kind === "Boolean" ||
     type.kind === "Number" ||
@@ -307,7 +311,7 @@ export function differentiateUnion(
       },
       cases: variants.map((v) => {
         const discriminatorPropertyType = (v.type as Model).properties.get(discriminator)!.type as
-          | LiteralType
+          | JsLiteralType
           | EnumMember;
 
         return {
@@ -353,7 +357,7 @@ export function differentiateTypes(
     ...(categories.Boolean ?? []),
     ...(categories.Number ?? []),
     ...(categories.String ?? []),
-  ] as LiteralType[];
+  ] as JsLiteralType[];
   const models = (categories.Model as Model[]) ?? [];
   const scalars = (categories.Scalar as Scalar[]) ?? [];
 
@@ -484,7 +488,7 @@ export function differentiateTypes(
 /**
  * Gets a JavaScript literal value for a given LiteralType.
  */
-function getJsValue(ctx: JsContext, literal: LiteralType | EnumMember): LiteralValue {
+function getJsValue(ctx: JsContext, literal: JsLiteralType | EnumMember): LiteralValue {
   switch (literal.kind) {
     case "Boolean":
       return literal.value;
@@ -509,7 +513,7 @@ function getJsValue(ctx: JsContext, literal: LiteralType | EnumMember): LiteralV
       return literal.value ?? literal.name;
     default:
       throw new UnreachableError(
-        "getJsValue for " + (literal satisfies never as LiteralType).kind,
+        "getJsValue for " + (literal satisfies never as JsLiteralType).kind,
         { literal }
       );
   }
@@ -644,7 +648,9 @@ export function differentiateModelTypes(
         if (
           other.has(prop.name) ||
           (isLiteralValueType(prop.type) &&
-            propertyLiterals.get(renderedPropName)?.has(getJsValue(ctx, prop.type as LiteralType)))
+            propertyLiterals
+              .get(renderedPropName)
+              ?.has(getJsValue(ctx, prop.type as JsLiteralType)))
         ) {
           valid = false;
           other.delete(prop.name);
@@ -699,7 +705,7 @@ export function differentiateModelTypes(
           operator: "===",
           right: {
             kind: "literal",
-            value: getJsValue(ctx, property.type as LiteralType),
+            value: getJsValue(ctx, property.type as JsLiteralType),
           },
         },
         body: { kind: "result", type: model },
