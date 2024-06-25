@@ -17,20 +17,19 @@ namespace Microsoft.Generator.CSharp.Input
         }
 
         public override InputDictionaryType? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.ReadReferenceAndResolve<InputDictionaryType>(_referenceHandler.CurrentResolver) ?? CreateDictionaryType(ref reader, null, null, options, _referenceHandler.CurrentResolver);
+            => reader.ReadReferenceAndResolve<InputDictionaryType>(_referenceHandler.CurrentResolver) ?? CreateDictionaryType(ref reader, null, options, _referenceHandler.CurrentResolver);
 
         public override void Write(Utf8JsonWriter writer, InputDictionaryType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputDictionaryType CreateDictionaryType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputDictionaryType CreateDictionaryType(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
-            var isFirstProperty = id == null && name == null;
+            var isFirstProperty = id == null;
             InputType? keyType = null;
             InputType? valueType = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadString(nameof(InputDictionaryType.Name), ref name)
                     || reader.TryReadWithConverter(nameof(InputDictionaryType.KeyType), options, ref keyType)
                     || reader.TryReadWithConverter(nameof(InputDictionaryType.ValueType), options, ref valueType);
 
@@ -40,11 +39,10 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            name = name ?? throw new JsonException("Dictionary must have name");
             keyType = keyType ?? throw new JsonException("Dictionary must have key type");
             valueType = valueType ?? throw new JsonException("Dictionary must have value type");
 
-            var dictType = new InputDictionaryType(name, keyType, valueType);
+            var dictType = new InputDictionaryType("Dictionary", keyType, valueType);
             if (id != null)
             {
                 resolver.AddReference(id, dictType);

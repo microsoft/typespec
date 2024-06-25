@@ -65,11 +65,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
                     new CSharpType(typeof(IList<string>)));
                 // list of binary data property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<BinaryData>)));
                 // dictionary property with binary data value
                 yield return new TestCaseData(

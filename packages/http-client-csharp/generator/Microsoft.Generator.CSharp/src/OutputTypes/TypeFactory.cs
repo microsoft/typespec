@@ -22,8 +22,8 @@ namespace Microsoft.Generator.CSharp
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
-            InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
+            InputArrayType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ValueType)),
+            InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => CodeModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
                 ? provider.Type
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp
         public SerializationFormat GetSerializationFormat(InputType input) => input switch
         {
             InputLiteralType literalType => GetSerializationFormat(literalType.ValueType),
-            InputListType listType => GetSerializationFormat(listType.ElementType),
+            InputArrayType listType => GetSerializationFormat(listType.ValueType),
             InputDictionaryType dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
