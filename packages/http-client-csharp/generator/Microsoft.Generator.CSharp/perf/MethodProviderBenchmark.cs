@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 new ParameterProvider("param1", $"param1", typeof(int)) { Validation = ParameterValidationType.None },
                 new ParameterProvider("param2", $"param2", typeof(string)) { Validation = ParameterValidationType.AssertNotNull }
             };
-            Signature = new MethodSignature("name", null, null, MethodSignatureModifiers.Public, null, null, parameters);
+            Signature = new MethodSignature("name", null, MethodSignatureModifiers.Public, null, null, parameters);
             ParamHash = GetParamhash(false);
         }
 

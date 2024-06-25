@@ -91,7 +91,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
-                    null,
                     accessibility,
                     constructorParameters),
                 bodyStatements: new MethodBodyStatement[]
