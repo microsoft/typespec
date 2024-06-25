@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using AutoRest.CSharp.Common.Input.InputTypes;
+
 namespace Microsoft.Generator.CSharp.Input
 {
     /// <summary>
@@ -12,15 +14,12 @@ namespace Microsoft.Generator.CSharp.Input
         /// Construct a new <see cref="InputType"/> instance
         /// </summary>
         /// <param name="name">The name of the input type.</param>
-        /// <param name="isNullable">Flag to determine if the type is nullable.</param>
-        protected InputType(string name, bool isNullable)
+        protected InputType(string name)
         {
             Name = name;
-            IsNullable = isNullable;
         }
 
         public string Name { get; internal set; }
-        public bool IsNullable { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {
@@ -30,17 +29,26 @@ namespace Microsoft.Generator.CSharp.Input
                     return new InputListType(
                         listType.Name,
                         listType.ElementType.GetCollectionEquivalent(inputType),
-                        listType.IsEmbeddingsVector,
-                        listType.IsNullable);
+                        listType.IsEmbeddingsVector);
                 case InputDictionaryType dictionaryType:
                     return new InputDictionaryType(
                         dictionaryType.Name,
                         dictionaryType.KeyType,
-                        dictionaryType.ValueType.GetCollectionEquivalent(inputType),
-                        dictionaryType.IsNullable);
+                        dictionaryType.ValueType.GetCollectionEquivalent(inputType));
                 default:
                     return inputType;
             }
         }
+        public InputType WithNullable(bool isNullable)
+        {
+            if (isNullable)
+                return new InputNullableType(this);
+            return this;
+        }
+        public InputType GetImplementType() => this switch
+        {
+            InputNullableType nullableType => nullableType.Type,
+            _ => this
+        };
     }
 }

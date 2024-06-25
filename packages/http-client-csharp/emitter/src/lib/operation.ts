@@ -79,8 +79,8 @@ export function loadOperation(
     parameters.push(loadOperationParameter(sdkContext, p));
   }
 
-  if (typespecParameters.body?.parameter && !isVoidType(typespecParameters.body.type)) {
-    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.parameter));
+  if (typespecParameters.body?.property && !isVoidType(typespecParameters.body.type)) {
+    parameters.push(loadBodyParameter(sdkContext, typespecParameters.body?.property));
   } else if (typespecParameters.body?.type && !isVoidType(typespecParameters.body.type)) {
     const effectiveBodyType = getEffectiveSchemaType(sdkContext, typespecParameters.body.type);
     if (effectiveBodyType.kind === "Model") {

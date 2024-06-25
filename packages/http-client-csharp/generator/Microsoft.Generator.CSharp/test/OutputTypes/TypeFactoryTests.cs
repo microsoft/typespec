@@ -49,10 +49,10 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
         {
             get
             {
-                yield return new TestCaseData(new InputListType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, false), false, false), new CSharpType(typeof(InputListType), isNullable: false), false);
-                yield return new TestCaseData(new InputDictionaryType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Int32, false), false), new CSharpType(typeof(InputDictionaryType), isNullable: false), false);
-                yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
-                yield return new TestCaseData(new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String, false), "literal", false), null, true);
+                yield return new TestCaseData(new InputListType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), false), new CSharpType(typeof(InputListType), isNullable: false), false);
+                yield return new TestCaseData(new InputDictionaryType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32)), new CSharpType(typeof(InputDictionaryType), isNullable: false), false);
+                yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
+                yield return new TestCaseData(new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String), "literal"), null, true);
             }
         }
 

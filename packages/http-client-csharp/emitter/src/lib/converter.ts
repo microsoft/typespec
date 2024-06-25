@@ -18,6 +18,7 @@ import {
   SdkType,
   SdkUnionType,
   UsageFlags,
+  getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
@@ -32,6 +33,7 @@ import {
   InputListType,
   InputLiteralType,
   InputModelType,
+  InputNullableType,
   InputPrimitiveType,
   InputType,
   InputUnionType,
@@ -47,6 +49,13 @@ export function fromSdkType(
   enums: Map<string, InputEnumType>,
   literalTypeContext?: LiteralTypeContext
 ): InputType {
+  if (sdkType.kind === "nullable") {
+    const inputType = fromSdkType(sdkType.type, context, models, enums);
+    return {
+      Kind: "nullable",
+      Type: inputType,
+    } as InputNullableType;
+  }
   if (sdkType.kind === "model") return fromSdkModelType(sdkType, context, models, enums);
   if (sdkType.kind === "enum") return fromSdkEnumType(sdkType, context, enums);
   if (sdkType.kind === "enumvalue")
@@ -82,10 +91,12 @@ export function fromSdkModelType(
       Kind: InputTypeKind.Model,
       Name: modelTypeName,
       Namespace: getFullNamespaceString((modelType.__raw as Model).namespace),
-      Accessibility: modelType.access,
+      Accessibility: getAccessOverride(
+        context,
+        modelType.__raw as Model
+      ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
       Deprecated: modelType.deprecation,
       Description: modelType.description,
-      IsNullable: modelType.nullable,
       DiscriminatorPropertyName: baseModelHasDiscriminator
         ? undefined
         : getDiscriminatorPropertyNameFromCurrentModel(modelType),
@@ -105,10 +116,8 @@ export function fromSdkModelType(
           Name: InputTypeKind.Dictionary,
           KeyType: {
             Kind: "string",
-            IsNullable: false,
           },
           ValueType: fromSdkType(modelType.additionalProperties, context, models, enums),
-          IsNullable: false,
         }
       : undefined;
     inputModelType.Properties = modelType.properties
@@ -219,24 +228,24 @@ export function fromSdkEnumType(
         // Enum and Union have optional namespace property
         (enumType.__raw! as any).namespace
       ),
-      Accessibility: enumType.access,
+      Accessibility: getAccessOverride(
+        context,
+        enumType.__raw as any
+      ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
       Deprecated: enumType.deprecation,
       Description: enumType.description,
       IsExtensible: enumType.isFixed ? false : true,
-      IsNullable: enumType.nullable,
       Usage: fromUsageFlags(enumType.usage),
     };
     if (addToCollection) enums.set(enumName, newInputEnumType);
     inputEnumType = newInputEnumType;
   }
-  inputEnumType.IsNullable = enumType.nullable; // TO-DO: https://github.com/Azure/autorest.csharp/issues/4314
   return inputEnumType;
 }
 
 function fromSdkDateTimeType(dateTimeType: SdkDatetimeType): InputDateTimeType {
   return {
     Kind: dateTimeType.kind,
-    IsNullable: dateTimeType.nullable,
     Encode: dateTimeType.encode,
     WireType: fromSdkBuiltInType(dateTimeType.wireType),
   };
@@ -245,7 +254,6 @@ function fromSdkDateTimeType(dateTimeType: SdkDatetimeType): InputDateTimeType {
 function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
   return {
     Kind: durationType.kind,
-    IsNullable: durationType.nullable,
     Encode: durationType.encode,
     WireType: fromSdkBuiltInType(durationType.wireType),
   };
@@ -255,14 +263,12 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
 function fromTupleType(tupleType: SdkTupleType): InputPrimitiveType {
   return {
     Kind: "any",
-    IsNullable: tupleType.nullable,
   };
 }
 
 function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
     Kind: builtInType.kind,
-    IsNullable: builtInType.nullable,
     Encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
   };
 }
@@ -283,7 +289,6 @@ function fromUnionType(
     Kind: "union",
     Name: union.name,
     VariantTypes: variantTypes,
-    IsNullable: false,
   };
 }
 
@@ -303,7 +308,6 @@ function fromSdkConstantType(
           // we might keep constant as-is, instead of creating an enum for it.
           convertConstantToEnum(constantType, enums, literalTypeContext),
     Value: constantType.value,
-    IsNullable: false,
   };
 
   function convertConstantToEnum(
@@ -332,7 +336,6 @@ function fromSdkConstantType(
       Deprecated: undefined,
       Description: `The ${enumName}`, // TODO -- what should we put here?
       IsExtensible: true,
-      IsNullable: false,
       Usage: "None", // will be updated later
     };
     enums.set(enumName, enumType);
@@ -353,7 +356,6 @@ function fromSdkEnumValueTypeToConstantType(
         ? fromSdkBuiltInType(enumValueType.valueType as SdkBuiltInType) // TODO: TCGC fix
         : fromSdkEnumType(enumValueType.enumType, context, enums),
     Value: enumValueType.value,
-    IsNullable: false,
   };
 }
 
@@ -376,7 +378,6 @@ function fromSdkDictionaryType(
     Name: InputTypeKind.Dictionary,
     KeyType: fromSdkType(dictionaryType.keyType, context, models, enums),
     ValueType: fromSdkType(dictionaryType.valueType, context, models, enums),
-    IsNullable: dictionaryType.nullable,
   };
 }
 
@@ -390,7 +391,6 @@ function fromSdkArrayType(
     Kind: InputTypeKind.Array,
     Name: InputTypeKind.Array,
     ElementType: fromSdkType(arrayType.valueType, context, models, enums),
-    IsNullable: arrayType.nullable,
   };
 }
 

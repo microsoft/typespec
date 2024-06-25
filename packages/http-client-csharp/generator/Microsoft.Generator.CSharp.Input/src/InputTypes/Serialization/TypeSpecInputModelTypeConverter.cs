@@ -33,10 +33,9 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false, false);
+            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, new List<InputModelType>(), null, null, null, false);
             resolver.AddReference(id, model);
 
-            bool isNullable = false;
             string? ns = null;
             string? accessibility = null;
             string? deprecated = null;
@@ -53,7 +52,6 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputModelType.Name), ref name)
-                    || reader.TryReadBoolean(nameof(InputModelType.IsNullable), ref isNullable)
                     || reader.TryReadString(nameof(InputModelType.Namespace), ref ns)
                     || reader.TryReadString(nameof(InputModelType.Accessibility), ref accessibility)
                     || reader.TryReadString(nameof(InputModelType.Deprecated), ref deprecated)
@@ -84,7 +82,6 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorPropertyName = discriminatorPropertyName;
             model.InheritedDictionaryType = inheritedDictionaryType;
-            model.IsNullable = isNullable;
             model.BaseModel = baseModel;
             model.Properties = properties ?? Array.Empty<InputModelProperty>();
             model.ModelAsStruct = modelAsStruct;

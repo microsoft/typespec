@@ -32,16 +32,14 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var union = new InputUnionType(null!, null!, false);
+            var union = new InputUnionType(null!, null!);
             resolver.AddReference(id, union);
 
-            bool isNullable = false;
             IReadOnlyList<InputType>? variantTypes = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputUnionType.Name), ref name)
-                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes)
-                    || reader.TryReadBoolean(nameof(InputUnionType.IsNullable), ref isNullable);
+                    || reader.TryReadWithConverter(nameof(InputUnionType.VariantTypes), options, ref variantTypes);
 
                 if (!isKnownProperty)
                 {
@@ -55,7 +53,6 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("Union must have a least one union type");
             }
             union.VariantTypes = variantTypes;
-            union.IsNullable = isNullable;
             return union;
         }
     }
