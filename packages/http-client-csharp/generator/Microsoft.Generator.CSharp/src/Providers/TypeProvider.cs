@@ -97,6 +97,9 @@ namespace Microsoft.Generator.CSharp.Providers
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypes();
 
+        private IReadOnlyList<TypeProvider>? _serializationProviders;
+        public virtual IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
         protected virtual CSharpType[] BuildTypeArguments() => Array.Empty<CSharpType>();
 
         protected virtual PropertyProvider[] BuildProperties() => Array.Empty<PropertyProvider>();
@@ -110,6 +113,8 @@ namespace Microsoft.Generator.CSharp.Providers
         protected virtual MethodProvider[] BuildConstructors() => Array.Empty<MethodProvider>();
 
         protected virtual TypeProvider[] BuildNestedTypes() => Array.Empty<TypeProvider>();
+
+        protected virtual TypeProvider[] BuildSerializationProviders() => Array.Empty<TypeProvider>();
 
         protected virtual XmlDocProvider BuildXmlDocs()
         {

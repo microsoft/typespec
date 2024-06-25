@@ -24,11 +24,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
 
-        /// <summary>
-        /// The serializations providers for the model provider.
-        /// </summary>
-        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
-
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
@@ -48,9 +43,16 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
+            _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
+        }
 
-            _isStruct = inputModel.ModelAsStruct;
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
+            }
+            return Array.Empty<TypeProvider>();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;

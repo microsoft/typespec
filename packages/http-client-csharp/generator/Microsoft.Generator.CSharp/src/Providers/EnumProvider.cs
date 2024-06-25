@@ -43,11 +43,6 @@ namespace Microsoft.Generator.CSharp.Providers
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
-        /// <summary>
-        /// The serialization provider for this enum.
-        /// </summary>
-        public TypeProvider? Serialization { get; protected init; }
-
         private IReadOnlyList<EnumTypeMember>? _members;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
 
