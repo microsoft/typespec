@@ -1,4 +1,5 @@
 .table {
+  table-layout: auto;
   border-collapse: collapse;
 }
 
@@ -12,6 +13,7 @@
 }
 
 .key {
+  vertical-align: top;
   color: var(--colorNeutralForeground2);
 }
 

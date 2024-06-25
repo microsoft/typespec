@@ -12,6 +12,7 @@ import {
 import { DatabaseRegular } from "@fluentui/react-icons";
 import { getDoc } from "@typespec/compiler";
 import { useCallback, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment } from "react/jsx-runtime";
 import { useProgram } from "../program-context.js";
 import { NodeIcon } from "../tree-navigation.js";
@@ -22,8 +23,11 @@ const rootIcon = <DatabaseRegular />;
 export const CurrentPath = () => {
   const nav = useTreeNavigator();
   const segments = nav.selectedPath.split(".");
-
   const [showInput, setShowInput] = useState(false);
+
+  useHotkeys("ctrl+shift+f, meta+shift+f", () => {
+    setShowInput(true);
+  });
 
   return (
     <div
