@@ -465,6 +465,53 @@ describe("compiler: models", () => {
       ]);
     });
 
+    it("disallows subtype overriding required parent property with optional through multiple levels of inheritance", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { x: int32; }
+        model B extends A { }
+        model C extends B { x?: int16; }
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property-mismatch",
+          severity: "error",
+          message:
+            "Model has a required inherited property named x which cannot be overridden as optional",
+        },
+      ]);
+    });
+
+    it("shows both errors when an override is optional and not assignable", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { x: int32; }
+        model B extends A { x?: string; }
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, [
+        {
+          code: "override-property-mismatch",
+          severity: "error",
+          message:
+            "Model has an inherited property named x of type string which cannot override type int32",
+        },
+        {
+          code: "override-property-mismatch",
+          severity: "error",
+          message:
+            "Model has a required inherited property named x which cannot be overridden as optional",
+        },
+      ]);
+    });
+
     it("allow multiple overrides", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
