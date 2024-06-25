@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 updatedTypes[i] = baseTypes[i] is OptionalProvider ? systemOptionalProvider : baseTypes[i];
             }
 
-            return [.. updatedTypes, ModelSerializationExtensionsProvider.Instance, TypeFormattersProvider.Instance];
+            return [.. updatedTypes, new ModelSerializationExtensionsProvider(), new TypeFormattersProvider()];
         }
     }
 }

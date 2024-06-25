@@ -13,6 +13,10 @@ namespace Microsoft.Generator.CSharp
 {
     public abstract class TypeFactory
     {
+        private ChangeTrackingListProvider? _changeTrackingListProvider;
+        private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
+        private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
+        private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>
@@ -25,12 +29,8 @@ namespace Microsoft.Generator.CSharp
             InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
             InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
-            InputEnumType enumType => CodeModelPlugin.Instance.OutputLibrary.EnumMappings.TryGetValue(enumType, out var provider)
-                ? provider.Type
-                : throw new InvalidOperationException($"No {nameof(EnumProvider)} has been created for `{enumType.Name}` {nameof(InputEnumType)}."),
-            InputModelType model => CodeModelPlugin.Instance.OutputLibrary.ModelMappings.TryGetValue(model, out var provider)
-                ? provider.Type
-                : new CSharpType(typeof(object)),
+            InputEnumType enumType => EnumProvider.Create(enumType).Type,
+            InputModelType model => new ModelProvider(model).Type,
             InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
@@ -131,11 +131,11 @@ namespace Microsoft.Generator.CSharp
         /// <summary>
         /// The initialization type of list properties. This type should implement both <see cref="IList{T}"/> and <see cref="IReadOnlyList{T}"/>.
         /// </summary>
-        public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Instance.Type;
+        public virtual CSharpType ListInitializationType => ChangeTrackingListProvider.Type;
 
         /// <summary>
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
-        public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Instance.Type;
+        public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
     }
 }

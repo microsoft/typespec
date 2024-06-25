@@ -16,19 +16,13 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
-
-        /// <summary>
-        /// The serializations providers for the model provider.
-        /// </summary>
-        public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public ModelProvider(InputModelType inputModel)
         {
@@ -49,9 +43,16 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            SerializationProviders = CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel);
+            _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
+        }
 
-            _isStruct = inputModel.ModelAsStruct;
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            {
+                return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
+            }
+            return Array.Empty<TypeProvider>();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
@@ -89,7 +90,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
-                    null,
                     accessibility,
                     constructorParameters),
                 bodyStatements: new MethodBodyStatement[]
@@ -139,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (parameter != null)
                     {
-                        initializationValue = new ParameterReferenceSnippet(parameter);
+                        initializationValue = parameter;
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {

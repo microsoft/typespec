@@ -14,8 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public class ChangeTrackingListProvider : TypeProvider
     {
-        private static readonly Lazy<ChangeTrackingListProvider> _instance = new(() => new ChangeTrackingListProvider());
-
         private class ChangeTrackingListTemplate<T> { }
 
         private readonly MethodSignature _ensureListSignature;
@@ -25,66 +23,62 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _tArray;
         private readonly ParameterProvider _tParam;
         private readonly ParameterProvider _indexParam = new ParameterProvider("index", $"The index.", typeof(int));
-        private VariableReferenceSnippet _innerList;
+        private VariableExpression _innerList;
         private readonly CSharpType _iListOfT;
         private readonly CSharpType _iReadOnlyListOfT;
 
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
         private InvokeInstanceMethodExpression EnsureList { get; init; }
 
-        public static ChangeTrackingListProvider Instance => _instance.Value;
-
-        private ChangeTrackingListProvider()
+        public ChangeTrackingListProvider()
         {
             _t = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0];
             _iListOfT = new CSharpType(typeof(IList<>), _t);
             _iReadOnlyListOfT = new CSharpType(typeof(IReadOnlyList<>), _t);
 
-            _ensureListSignature = new MethodSignature("EnsureList", null, null, MethodSignatureModifiers.Public, _iListOfT, null, Array.Empty<ParameterProvider>());
-            _getEnumeratorSignature = new MethodSignature("GetEnumerator", null, null, MethodSignatureModifiers.Public, new CSharpType(typeof(IEnumerator<>), _t), null, Array.Empty<ParameterProvider>());
+            _ensureListSignature = new MethodSignature("EnsureList", null, MethodSignatureModifiers.Public, _iListOfT, null, Array.Empty<ParameterProvider>());
+            _getEnumeratorSignature = new MethodSignature("GetEnumerator", null, MethodSignatureModifiers.Public, new CSharpType(typeof(IEnumerator<>), _t), null, Array.Empty<ParameterProvider>());
             _innerListField = new FieldProvider(FieldModifiers.Private, _iListOfT, "_innerList");
-            _innerList = new VariableReferenceSnippet(_iListOfT, _innerListField.Declaration);
+            _innerList = new VariableExpression(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new ParameterProvider("item", $"The item.", _t);
             EnsureList = This.Invoke(_ensureListSignature);
         }
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }
 
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
         public override string Name => "ChangeTrackingList";
 
         protected override MethodProvider[] BuildConstructors()
         {
-            var iListParam = new ParameterProvider("innerList", $"The inner list.", _iListOfT);
-            var iListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new ParameterProvider[] { iListParam });
-            var iListVariable = new ParameterReferenceSnippet(iListParam);
+            var iList = new ParameterProvider("innerList", $"The inner list.", _iListOfT);
+            var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
             var iListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iListVariable, Null))
+                new IfStatement(NotEqual(iList, Null))
                 {
-                    new AssignValueStatement(_innerList, iListVariable)
+                    new AssignValueStatement(_innerList, iList)
                 }
             };
 
-            var iReadOnlyListParam = new ParameterProvider("innerList", $"The inner list.", _iReadOnlyListOfT);
-            var iReadOnlyListSignature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new ParameterProvider[] { iReadOnlyListParam });
-            var iReadOnlyListVariable = new ParameterReferenceSnippet(iReadOnlyListParam);
+            var iReadOnlyList = new ParameterProvider("innerList", $"The inner list.", _iReadOnlyListOfT);
+            var iReadOnlyListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iReadOnlyList]);
             var iReadOnlyListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iReadOnlyListVariable, Null))
+                new IfStatement(NotEqual(iReadOnlyList, Null))
                 {
-                    new AssignValueStatement(_innerList, Linq.ToList(iReadOnlyListVariable))
+                    new AssignValueStatement(_innerList, Linq.ToList(iReadOnlyList))
                 }
             };
 
             return
             [
-                new MethodProvider(new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement, this),
+                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement, this),
                 new MethodProvider(iListSignature, iListBody, this),
                 new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
             ];
@@ -140,18 +134,18 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     new IfStatement(IsUndefined)
                     {
-                        Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(new ParameterReferenceSnippet(_indexParam))))
+                        Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    Return(new ArrayElementExpression(EnsureList, new ParameterReferenceSnippet(_indexParam))),
+                    Return(new ArrayElementExpression(EnsureList, _indexParam)),
                 },
                 new MethodBodyStatement[]
                 {
                     new IfStatement(IsUndefined)
                     {
-                        Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(new ParameterReferenceSnippet(_indexParam))))
+                        Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
                     new AssignValueStatement(
-                            new ArrayElementExpression(EnsureList, new ParameterReferenceSnippet(_indexParam)),
+                            new ArrayElementExpression(EnsureList, _indexParam),
                             new KeywordExpression("value", null))
                 }));
         }
@@ -177,30 +171,29 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildRemoveAt()
         {
-            var indexVariable = new ParameterReferenceSnippet(_indexParam);
-            return new MethodProvider(new MethodSignature("RemoveAt", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { _indexParam }), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("RemoveAt", null, MethodSignatureModifiers.Public, null, null, [_indexParam]), new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
-                    Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(indexVariable)))
+                    Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "RemoveAt", new ValueExpression[] { indexVariable }, false)
+                new InvokeInstanceMethodStatement(EnsureList, "RemoveAt", [_indexParam], false)
             },
             this);
         }
 
         private MethodProvider BuildInsert()
         {
-            return new MethodProvider(new MethodSignature("Insert", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { _indexParam, _tParam }), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("Insert", null, MethodSignatureModifiers.Public, null, null, [_indexParam, _tParam]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Insert", new ValueExpression[] { new ParameterReferenceSnippet(_indexParam), new ParameterReferenceSnippet(_tParam) }, false)
+                new InvokeInstanceMethodStatement(EnsureList, "Insert", [_indexParam, _tParam], false)
             },
             this);
         }
 
         private MethodProvider BuildIndexOf()
         {
-            var signature = new MethodSignature("IndexOf", null, null, MethodSignatureModifiers.Public, typeof(int), null, new ParameterProvider[] { _tParam });
+            var signature = new MethodSignature("IndexOf", null, MethodSignatureModifiers.Public, typeof(int), null, [_tParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -214,7 +207,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildRemove()
         {
-            var signature = new MethodSignature("Remove", null, null, MethodSignatureModifiers.Public, typeof(bool), null, new ParameterProvider[] { _tParam });
+            var signature = new MethodSignature("Remove", null, MethodSignatureModifiers.Public, typeof(bool), null, [_tParam]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -230,20 +223,20 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var arrayParam = new ParameterProvider("array", $"The array to copy to.", _tArray);
             var arrayIndexParam = new ParameterProvider("arrayIndex", $"The array index.", typeof(int));
-            return new MethodProvider(new MethodSignature("CopyTo", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { arrayParam, arrayIndexParam }), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("CopyTo", null, MethodSignatureModifiers.Public, null, null, [arrayParam, arrayIndexParam]), new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
                     Return()
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "CopyTo", new ValueExpression[] { new ParameterReferenceSnippet(arrayParam), new ParameterReferenceSnippet(arrayIndexParam) }, false)
+                new InvokeInstanceMethodStatement(EnsureList, "CopyTo", [arrayParam, arrayIndexParam], false)
             },
             this);
         }
 
         private MethodProvider BuildContains()
         {
-            var signature = new MethodSignature("Contains", null, null, MethodSignatureModifiers.Public, typeof(bool), null, new ParameterProvider[] { _tParam });
+            var signature = new MethodSignature("Contains", null, MethodSignatureModifiers.Public, typeof(bool), null, new ParameterProvider[] { _tParam });
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -257,7 +250,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildClear()
         {
-            return new MethodProvider(new MethodSignature("Clear", null, null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("Clear", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
                 new InvokeInstanceMethodStatement(EnsureList, "Clear")
             },
@@ -267,16 +260,16 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider BuildAdd()
         {
             var genericParameter = new ParameterProvider("item", $"The item to add.", _t);
-            return new MethodProvider(new MethodSignature("Add", null, null, MethodSignatureModifiers.Public, null, null, new ParameterProvider[] { genericParameter }), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("Add", null, MethodSignatureModifiers.Public, null, null, [genericParameter]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Add", new ParameterReferenceSnippet(genericParameter))
+                new InvokeInstanceMethodStatement(EnsureList, "Add", genericParameter)
             },
             this);
         }
 
         private MethodProvider BuildGetEnumerator()
         {
-            return new MethodProvider(new MethodSignature("GetEnumerator", null, null, MethodSignatureModifiers.None, typeof(IEnumerator), null, Array.Empty<ParameterProvider>(), ExplicitInterface: typeof(IEnumerable)), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("GetEnumerator", null, MethodSignatureModifiers.None, typeof(IEnumerator), null, Array.Empty<ParameterProvider>(), ExplicitInterface: typeof(IEnumerable)), new MethodBodyStatement[]
             {
                 Return(This.Invoke(_getEnumeratorSignature))
             },
@@ -299,7 +292,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildReset()
         {
-            return new MethodProvider(new MethodSignature("Reset", null, null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
+            return new MethodProvider(new MethodSignature("Reset", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
                 Assign(_innerList, Null)
             },

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
@@ -51,9 +50,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     : ClientResultSnippet.FromValue(rawResponse.Content.ToObjectFromJson(responseType), rawResponse);
             }
 
-            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message)
+            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out VariableExpression message)
             {
-                var messageVar = new VariableReferenceSnippet(typeof(PipelineMessage), "message");
+                var messageVar = new VariableExpression(typeof(PipelineMessage), "message");
                 message = messageVar;
                 return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
             }

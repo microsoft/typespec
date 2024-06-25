@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            var variableRef = new VariableReferenceSnippet(value.Type, declaration);
+            var variableRef = new VariableExpression(value.Type, declaration);
             variable = factory(variableRef);
             return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
         }

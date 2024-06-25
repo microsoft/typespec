@@ -13,6 +13,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class SystemOptionalProvider : OptionalProvider
     {
+        private const string IsDefinedMethodName = "IsDefined";
         protected override MethodProvider[] BuildMethods()
         {
             return [.. base.BuildMethods(), IsJsonElementDefined()];
@@ -22,22 +23,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var valueParam = new ParameterProvider("value", $"The value.", typeof(JsonElement));
             var signature = GetIsDefinedSignature(valueParam);
+
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Snippet.Return(new JsonElementSnippet(new ParameterReferenceSnippet(valueParam)).ValueKindNotEqualsUndefined())
-            },
-            this);
+                Snippet.Return(new JsonElementSnippet(valueParam).ValueKindNotEqualsUndefined())
+            }, this);
         }
 
-        private MethodSignature GetIsDefinedSignature(ParameterProvider valueParam, IReadOnlyList<CSharpType>? genericArguments = null, IReadOnlyList<WhereExpression>? genericParameterConstraints = null) => new(
-            "IsDefined",
-            null,
-            null,
-            MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-            typeof(bool),
-            null,
-            [valueParam],
-            GenericArguments: genericArguments,
-            GenericParameterConstraints: genericParameterConstraints);
+        private MethodSignature GetIsDefinedSignature(ParameterProvider valueParam, IReadOnlyList<CSharpType>? genericArguments = null, IReadOnlyList<WhereExpression>? genericParameterConstraints = null)
+            => new(
+                IsDefinedMethodName,
+                null,
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                typeof(bool),
+                null,
+                [valueParam],
+                GenericArguments: genericArguments,
+                GenericParameterConstraints: genericParameterConstraints);
     }
 }

@@ -46,23 +46,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public MethodBodyStatement WriteTo(ValueExpression writer) => new InvokeInstanceMethodStatement(Untyped, nameof(JsonElement.WriteTo), new[] { writer }, false);
 
-        public ValueExpression GetBytesFromBase64(string? format) =>
-           ModelSerializationExtensionsProvider.Instance.GetBytesFromBase64(this, format);
+        public ValueExpression GetBytesFromBase64(string? format)
+            => ModelSerializationExtensionsSnippet.GetBytesFromBase64(this, format);
 
         public ValueExpression GetObject()
-            => ModelSerializationExtensionsProvider.Instance.GetObject(this);
+            => ModelSerializationExtensionsSnippet.GetObject(this);
 
         public ValueExpression GetChar()
-            => ModelSerializationExtensionsProvider.Instance.GetChar(this);
+            => ModelSerializationExtensionsSnippet.GetChar(this);
         public ValueExpression GetDateTimeOffset(string? format)
-            => ModelSerializationExtensionsProvider.Instance.GetDateTimeOffset(this, format);
+            => ModelSerializationExtensionsSnippet.GetDateTimeOffset(this, format);
 
         public ValueExpression GetTimeSpan(string? format)
-            => ModelSerializationExtensionsProvider.Instance.GetTimeSpan(this, format);
+            => ModelSerializationExtensionsSnippet.GetTimeSpan(this, format);
 
         public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {
-            var discriminatorDeclaration = new VariableReferenceSnippet(typeof(JsonElement), "discriminator");
+            var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = new JsonElementSnippet(discriminatorDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration.Type, discriminatorDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public BoolSnippet TryGetInt32(out IntSnippet intValue)
         {
-            var intValueDeclaration = new VariableReferenceSnippet(typeof(int), "intValue");
+            var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
             intValue = new IntSnippet(intValueDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration.Type, intValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public BoolSnippet TryGetInt64(out LongSnippet longValue)
         {
-            var longValueDeclaration = new VariableReferenceSnippet(typeof(long), "longValue");
+            var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = new LongSnippet(longValueDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration.Type, longValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
