@@ -31,8 +31,8 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import {
-  InputEnumType,
   InputArrayType,
+  InputEnumType,
   InputModelType,
   InputType,
   isInputEnumType,

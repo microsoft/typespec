@@ -2,7 +2,6 @@ import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputTypeKind } from "../../src/type/input-type-kind.js";
 import { InputEnumType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
