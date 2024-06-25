@@ -9,33 +9,40 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal sealed record TypeFormattersSnippet(ValueExpression Untyped) : TypedSnippet<TypeFormattersProvider>(Untyped)
     {
+        private const string ToStringMethodName = "ToString";
+        private const string ToBase64UrlStringMethodName = "ToBase64UrlString";
+        private const string FromBase64UrlStringMethodName = "FromBase64UrlString";
+        private const string ParseDateTimeOffsetMethodName = "ParseDateTimeOffset";
+        private const string ParseTimeSpanMethodName = "ParseTimeSpan";
+        private const string ConvertToStringMethodName = "ConvertToString";
+
         private static TypeFormattersProvider? _provider;
         private static TypeFormattersProvider Provider => _provider ??= new();
 
         public static StringSnippet ToString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToStringMethodName, new[] { value }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, new[] { value }));
 
         public static StringSnippet ToString(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToStringMethodName, new[] { value, format }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToStringMethodName, new[] { value, format }));
 
         public static StringSnippet ToBase64UrlString(ValueExpression value)
-            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToBase64UrlStringMethodName, new[] { value }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ToBase64UrlStringMethodName, new[] { value }));
 
         public static ValueExpression FromBase64UrlString(ValueExpression value)
-            => new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.FromBase64UrlStringMethodName, new[] { value });
+            => new InvokeStaticMethodExpression(Provider.Type, FromBase64UrlStringMethodName, new[] { value });
 
         public static DateTimeOffsetSnippet ParseDateTimeOffset(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ParseDateTimeOffsetMethodName, new[] { value, format }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ParseDateTimeOffsetMethodName, new[] { value, format }));
 
         public static TimeSpanSnippet ParseTimeSpan(ValueExpression value, ValueExpression format)
-            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ParseTimeSpanMethodName, new[] { value, format }));
+            => new(new InvokeStaticMethodExpression(Provider.Type, ParseTimeSpanMethodName, new[] { value, format }));
 
         public static StringSnippet ConvertToString(ValueExpression value, ValueExpression? format = null)
         {
             var arguments = format != null
                 ? new[] { value, format }
                 : new[] { value };
-            return new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ConvertToStringMethodName, arguments));
+            return new(new InvokeStaticMethodExpression(Provider.Type, ConvertToStringMethodName, arguments));
         }
     }
 }

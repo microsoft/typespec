@@ -6,6 +6,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 if (parameter.Validation != ParameterValidationType.None)
                 {
-                    statements[index] = ArgumentSnippet.ValidateParameter(parameter);
+                    statements[index] = ValidateParameter(parameter);
                     index++;
                 }
             }

@@ -9,16 +9,17 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class ArgumentProvider : TypeProvider
+    internal class ArgumentProvider : TypeProvider
     {
         private class Template<T> { }
 
-        internal const string AssertNotNullMethodName = "AssertNotNull";
-        internal const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
-        internal const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
+        private const string AssertNotNullMethodName = "AssertNotNull";
+        private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
+        private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
 
         private readonly CSharpType _t = typeof(Template<>).GetGenericArguments()[0];
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var value = new ParameterReferenceSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                ArgumentSnippet.AssertNotNullOrEmpty(value, _nameParamRef),
+                AssertNotNullOrEmpty(value, _nameParamRef),
                 Return(value)
             },
             this);
@@ -114,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var value = new ParameterReferenceSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                ArgumentSnippet.AssertNotNull(value, _nameParamRef),
+                AssertNotNull(value, _nameParamRef),
                 Return(value)
             },
             this);
