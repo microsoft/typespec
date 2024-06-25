@@ -71,7 +71,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 yield return new TestCaseData(new InputOperation(
                     name: "CreateMessage",
                     resourceName: null,
-                    summary: null,
                     deprecated: null,
                     description: string.Empty,
                     accessibility: null,

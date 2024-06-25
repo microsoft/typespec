@@ -34,8 +34,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
         private readonly ParameterProvider _propertyParameter = new ParameterProvider("property", FormattableStringHelpers.Empty, typeof(JsonProperty));
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         public ModelSerializationExtensionsProvider()
         {
             _wireOptionsField = new FieldProvider(
@@ -56,6 +54,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ModelReaderWriterOptionsSnippet? _wireOptions;
         public ModelReaderWriterOptionsSnippet WireOptions => _wireOptions ??= new ModelReaderWriterOptionsSnippet(new MemberExpression(Type, _wireOptionsName));
 
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
         public override string Name => "ModelSerializationExtensions";
 
         protected override FieldProvider[] BuildFields()
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeOffsetValueParameter, _formatParameter)),
                 this);
 
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeValueParameter, _formatParameter],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippet.ToString(dateTimeValueParameter, _formatParameter)),
                 this);
 
@@ -95,7 +95,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, timeSpanValueParameter, _formatParameter],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 writer.WriteStringValue(TypeFormattersSnippet.ToString(timeSpanValueParameter, _formatParameter)),
                 this);
 
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, charValueParameter],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 writer.WriteStringValue(value.InvokeToString(new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture)))),
                 this);
 
@@ -144,7 +144,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var signature = new MethodSignature(
                 Name: _getObjectMethodName,
-                Summary: null,
                 Description: null,
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(object),
@@ -199,7 +198,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(byte[]),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
@@ -226,7 +225,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.JsonElement, _formatParameter },
                 ReturnType: typeof(DateTimeOffset),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var format = new StringSnippet(_formatParameter);
             var body = new SwitchExpression(format,
@@ -245,7 +244,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.JsonElement, _formatParameter },
                 ReturnType: typeof(TimeSpan),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
             var body = ParseTimeSpan(element.GetString(), _formatParameter);
@@ -260,7 +259,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.JsonElement },
                 ReturnType: typeof(char),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new IfElseStatement(
                 element.ValueKindEqualsString(),
@@ -284,13 +283,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _throwNonNullablePropertyIsNullMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { _propertyParameter },
+                Parameters: [_propertyParameter],
                 ReturnType: null,
-                Attributes: new[]
-                {
+                Attributes:
+                [
                     new AttributeStatement(typeof(ConditionalAttribute), Literal("DEBUG"))
-                },
-                Summary: null, Description: null, ReturnDescription: null);
+                ],
+                Description: null, ReturnDescription: null);
             var property = new JsonPropertySnippet(_propertyParameter);
             var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name])));
 
@@ -304,7 +303,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.JsonElement },
                 ReturnType: typeof(string),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new MethodBodyStatement[]
             {
@@ -331,7 +330,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
                 ReturnType: null,
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
             var value = (ValueExpression)valueParameter;
             var format = new StringSnippet(_formatParameter);
@@ -369,7 +368,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
                 ReturnType: null,
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
             var value = new DateTimeOffsetSnippet(valueParameter);
             var format = new StringSnippet(_formatParameter);
@@ -389,7 +388,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ValueExpression value;
             Utf8JsonWriterSnippet writer;
-            ParameterReferenceSnippet options;
+            ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -402,7 +401,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ValueExpression value;
             Utf8JsonWriterSnippet writer;
-            ParameterReferenceSnippet options;
+            ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(_t, out value, out writer, out options);
             List<SwitchCaseStatement> cases = new List<SwitchCaseStatement>
             {
@@ -536,7 +535,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return new MethodProvider(signature, new SwitchStatement(value, cases), this);
 
-            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableReferenceSnippet, MethodBodyStatement> bodyFunc)
+            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableExpression, MethodBodyStatement> bodyFunc)
             {
                 var declaration = new DeclarationExpression(type, varName, out var variable);
                 var body = bodyFunc(variable);
@@ -545,14 +544,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out Utf8JsonWriterSnippet writer, out ParameterReferenceSnippet options)
+        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out Utf8JsonWriterSnippet writer, out ValueExpression options)
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, genericArgument ?? typeof(object));
             var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
             var parameters = new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, optionsParameter };
             var signature = new MethodSignature(
                 Name: WriteObjectValueMethodName,
-                Summary: null,
                 Description: null,
                 Modifiers: _methodModifiers,
                 ReturnType: null,
@@ -561,7 +559,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GenericArguments: genericArgument != null ? new[] { genericArgument } : null);
             value = (ValueExpression)valueParameter;
             writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
-            options = new ParameterReferenceSnippet(optionsParameter);
+            options = optionsParameter;
             return signature;
         }
         #endregion

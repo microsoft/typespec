@@ -3,15 +3,16 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ClientPipelineExtensionsProvider : TypeProvider
     {
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
         public override string Name { get; }
 
         private const string _processMessageAsync = "ProcessMessageAsync";
@@ -22,9 +23,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
         private ParameterProvider _requestContextParam;
-        private ParameterReferenceSnippet _pipeline;
-        private ParameterReferenceSnippet _message;
-        private ParameterReferenceSnippet _requestContext;
         private MemberExpression _messageResponse;
 
         internal ClientPipelineExtensionsProvider()
@@ -33,10 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _pipelineParam = new ParameterProvider("pipeline", $"The pipeline.", typeof(ClientPipeline));
             _messageParam = new ParameterProvider("message", $"The message.", typeof(PipelineMessage));
             _requestContextParam = new ParameterProvider("requestContext", $"The request context.", typeof(RequestOptions));
-            _pipeline = new ParameterReferenceSnippet(_pipelineParam);
-            _message = new ParameterReferenceSnippet(_messageParam);
-            _requestContext = new ParameterReferenceSnippet(_requestContextParam);
-            _messageResponse = new MemberExpression(_message, "Response");
+            _messageResponse = new MemberExpression(_messageParam, "Response");
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()

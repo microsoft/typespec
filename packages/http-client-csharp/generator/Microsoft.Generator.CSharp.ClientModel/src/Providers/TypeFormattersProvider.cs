@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "TypeFormatters";
 
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [boolValueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(string),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var boolValue = new BoolSnippet(boolValueParameter);
             var toStringBool = new MethodProvider(
                 boolSignature,
@@ -151,27 +151,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodProvider BuildToBase64UrlStringMethodProvider()
         {
-            var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
+            var value = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
             var signature = new MethodSignature(
                 Name: ToBase64UrlStringMethodName,
-                Parameters: new[] { valueParameter },
+                Parameters: [value],
                 ReturnType: typeof(string),
                 Modifiers: _methodModifiers,
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
-            var value = (ValueExpression)valueParameter;
             var valueLength = new IntSnippet(value.Property("Length"));
             var body = new List<MethodBodyStatement>
             {
                 Declare("numWholeOrPartialInputBlocks", new IntSnippet(new BinaryOperatorExpression("/", new KeywordExpression("checked", new BinaryOperatorExpression("+", valueLength, Int(2))), Int(3))), out var numWholeOrPartialInputBlocks),
                 Declare("size", new IntSnippet(new KeywordExpression("checked", new BinaryOperatorExpression("*", numWholeOrPartialInputBlocks, Int(4)))), out var size),
             };
-            var output = new VariableReferenceSnippet(typeof(char[]), "output");
+            var output = new VariableExpression(typeof(char[]), "output");
             body.Add(new MethodBodyStatement[]
             {
                 Declare(output, New.Array(typeof(char), size)),
                 EmptyLineStatement,
-                Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), new[] { value, Int(0), valueLength, output, Int(0) })), out var numBase64Chars),
+                Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), [value, Int(0), valueLength, output, Int(0)])), out var numBase64Chars),
                 EmptyLineStatement,
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, LessThan(i, numBase64Chars), new UnaryOperatorExpression("++", i, true))
@@ -203,7 +202,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Parameters: [valueParameter],
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(byte[]),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
             var value = new StringSnippet(valueParameter);
 
             var body = new List<MethodBodyStatement>
@@ -216,7 +215,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     SwitchCaseExpression.Default(ThrowExpression(New.InvalidOperationException(Literal("Malformed input"))))
                 })), out var paddingCharsToAdd)
             };
-            var output = new VariableReferenceSnippet(typeof(char[]), "output");
+            var output = new VariableExpression(typeof(char[]), "output");
             var outputLength = output.Property("Length");
             body.Add(new MethodBodyStatement[]
             {
@@ -254,7 +253,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(DateTimeOffset),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = new StringSnippet(valueParameter);
             var format = new StringSnippet(formatParameter);
@@ -278,7 +277,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(TimeSpan),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = new StringSnippet(valueParameter);
             var format = new StringSnippet(formatParameter);
@@ -302,7 +301,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                 Parameters: new[] { valueParameter, formatParameter },
                 ReturnType: typeof(string),
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)valueParameter;
             var format = new StringSnippet(formatParameter);
@@ -318,7 +317,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(DateTimeOffset), "dateTime", out var dateTime), NotEqual(format, Null), TypeFormattersSnippet.ToString(dateTime, format)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), NotEqual(format, Null), TypeFormattersSnippet.ToString(timeSpan, format)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToString), [timeSpanNoFormat])),
-                new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Untyped.Invoke("ToString")),
+                new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), ConvertToString(new BinaryDataSnippet(binaryData).ToArray(), format)),
                 SwitchCaseExpression.Default(value.InvokeToString())
             });
