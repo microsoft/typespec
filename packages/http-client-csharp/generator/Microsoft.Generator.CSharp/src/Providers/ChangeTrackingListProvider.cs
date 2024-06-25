@@ -12,7 +12,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class ChangeTrackingListProvider : TypeProvider
+    internal sealed class ChangeTrackingListProvider : TypeProvider
     {
         private class ChangeTrackingListTemplate<T> { }
 

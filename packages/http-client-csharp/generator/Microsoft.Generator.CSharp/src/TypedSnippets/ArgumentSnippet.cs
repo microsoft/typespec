@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Xml.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
@@ -12,19 +13,19 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static ArgumentProvider? _provider;
         private static ArgumentProvider Provider => _provider ??= new();
 
-        public static MethodBodyStatement AssertNotNull(ValueExpression variable)
+        public static MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
         {
-            return Provider.AssertNotNull(variable);
+            return new InvokeStaticMethodStatement(Provider.Type, ArgumentProvider.AssertNotNullMethodName, variable, name ?? Snippet.Nameof(variable));
         }
 
-        public static MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable)
+        public static MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
         {
-            return Provider.AssertNotNullOrEmpty(variable);
+            return new InvokeStaticMethodStatement(Provider.Type, ArgumentProvider.AssertNotNullOrEmptyMethodName, variable, name ?? Snippet.Nameof(variable));
         }
 
-        public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable)
+        public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
         {
-            return Provider.AssertNotNullOrWhiteSpace(variable);
+            return new InvokeStaticMethodStatement(Provider.Type, ArgumentProvider.AssertNotNullOrEmptyMethodName, variable, name ?? Snippet.Nameof(variable));
         }
 
         public static MethodBodyStatement ValidateParameter(ParameterProvider parameter) => parameter.Validation switch

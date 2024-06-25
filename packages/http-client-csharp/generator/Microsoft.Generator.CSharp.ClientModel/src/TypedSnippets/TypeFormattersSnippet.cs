@@ -13,24 +13,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         private static TypeFormattersProvider Provider => _provider ??= new();
 
         public static StringSnippet ToString(ValueExpression value)
-            => Provider.ToString(value);
+            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToStringMethodName, new[] { value }));
 
         public static StringSnippet ToString(ValueExpression value, ValueExpression format)
-            => Provider.ToString(value, format);
+            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToStringMethodName, new[] { value, format }));
 
         public static StringSnippet ToBase64UrlString(ValueExpression value)
-            => Provider.ToBase64UrlString(value);
+            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ToBase64UrlStringMethodName, new[] { value }));
 
         public static ValueExpression FromBase64UrlString(ValueExpression value)
-            => Provider.FromBase64UrlString(value);
+            => new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.FromBase64UrlStringMethodName, new[] { value });
 
         public static DateTimeOffsetSnippet ParseDateTimeOffset(ValueExpression value, ValueExpression format)
-            => Provider.ParseDateTimeOffset(value, format);
+            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ParseDateTimeOffsetMethodName, new[] { value, format }));
 
         public static TimeSpanSnippet ParseTimeSpan(ValueExpression value, ValueExpression format)
-            => Provider.ParseTimeSpan(value, format);
+            => new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ParseTimeSpanMethodName, new[] { value, format }));
 
         public static StringSnippet ConvertToString(ValueExpression value, ValueExpression? format = null)
-            => Provider.ConvertToString(value, format);
+        {
+            var arguments = format != null
+                ? new[] { value, format }
+                : new[] { value };
+            return new(new InvokeStaticMethodExpression(Provider.Type, TypeFormattersProvider.ConvertToStringMethodName, arguments));
+        }
     }
 }

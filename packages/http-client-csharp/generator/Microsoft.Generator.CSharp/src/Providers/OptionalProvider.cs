@@ -11,12 +11,10 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class OptionalProvider : TypeProvider
+    internal class OptionalProvider : TypeProvider
     {
         private class ListTemplate<T> { }
 
-        private readonly ChangeTrackingListProvider _changeTrackingListProvider;
-        private readonly ChangeTrackingDictionaryProvider _changeTrackingDictionaryProvider;
         private readonly CSharpType _t = typeof(ListTemplate<>).GetGenericArguments()[0];
         private readonly CSharpType _tKey;
         private readonly CSharpType _tValue;
@@ -25,12 +23,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public OptionalProvider()
         {
-            _changeTrackingListProvider = new();
-            _changeTrackingDictionaryProvider = new();
-            _genericChangeTrackingList = _changeTrackingListProvider.Type;
-            _genericChangeTrackingDictionary = _changeTrackingDictionaryProvider.Type;
-            _tKey = _changeTrackingDictionaryProvider.Type.Arguments[0];
-            _tValue = _changeTrackingDictionaryProvider.Type.Arguments[1];
+            _genericChangeTrackingList = CodeModelPlugin.Instance.TypeFactory.ListInitializationType;
+            _genericChangeTrackingDictionary = CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType;
+            _tKey = _genericChangeTrackingDictionary.Arguments[0];
+            _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()

@@ -16,9 +16,9 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private class Template<T> { }
 
-        private const string AssertNotNullMethodName = "AssertNotNull";
-        private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
-        private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
+        internal const string AssertNotNullMethodName = "AssertNotNull";
+        internal const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
+        internal const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
 
         private readonly CSharpType _t = typeof(Template<>).GetGenericArguments()[0];
         private readonly ParameterProvider _nameParam = new ParameterProvider("name", $"The name.", typeof(string));
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var value = new ParameterReferenceSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                AssertNotNullOrEmpty(value, _nameParamRef),
+                ArgumentSnippet.AssertNotNullOrEmpty(value, _nameParamRef),
                 Return(value)
             },
             this);
@@ -114,7 +114,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var value = new ParameterReferenceSnippet(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                AssertNotNull(value, _nameParamRef),
+                ArgumentSnippet.AssertNotNull(value, _nameParamRef),
                 Return(value)
             },
             this);
@@ -282,21 +282,6 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 Throw(New.ArgumentNullException(_nameParamRef, false))
             };
-        }
-
-        internal MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrEmptyMethodName, variable, name ?? Nameof(variable));
-        }
-
-        internal MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
-        {
-            return new InvokeStaticMethodStatement(Type, AssertNotNullOrWhiteSpaceMethodName, variable, name ?? Nameof(variable));
         }
     }
 }

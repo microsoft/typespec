@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var dateTimeOffsetValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
             var writeStringDateTimeOffset = new MethodProvider(
                 new MethodSignature(
-                    Name: _writeStringValueMethodName,
+                    Name: WriteStringValueMethodName,
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeOffsetValueParameter, _formatParameter],
@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var dateTimeValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTime));
             var writeStringDateTime = new MethodProvider(
                 new MethodSignature(
-                    Name: _writeStringValueMethodName,
+                    Name: WriteStringValueMethodName,
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, dateTimeValueParameter, _formatParameter],
@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var timeSpanValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(TimeSpan));
             var writeStringTimeSpan = new MethodProvider(
                 new MethodSignature(
-                    Name: _writeStringValueMethodName,
+                    Name: WriteStringValueMethodName,
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, timeSpanValueParameter, _formatParameter],
@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var value = new CharSnippet(charValueParameter);
             var writeStringChar = new MethodProvider(
                 new MethodSignature(
-                    Name: _writeStringValueMethodName,
+                    Name: WriteStringValueMethodName,
                     Modifiers: _methodModifiers,
                     ReturnType: null,
                     Parameters: [ScmKnownParameters.Utf8JsonWriter, charValueParameter],
@@ -336,19 +336,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         #endregion
 
         #region Utf8JsonWriterExtensions MethodProvider builders
-        private const string _writeStringValueMethodName = "WriteStringValue";
-        private const string _writeBase64StringValueMethodName = "WriteBase64StringValue";
-        private const string _writeNumberValueMethodName = "WriteNumberValue";
-        private const string _writeObjectValueMethodName = "WriteObjectValue";
-
-        public MethodBodyStatement WriteStringValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeStringValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
+        internal const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
+        internal const string WriteNumberValueMethodName = "WriteNumberValue";
+        internal const string WriteStringValueMethodName = "WriteStringValue";
+        internal const string WriteObjectValueMethodName = "WriteObjectValue";
 
         private MethodProvider BuildWriteBase64StringValueMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(byte[]));
             var signature = new MethodSignature(
-                Name: _writeBase64StringValueMethodName,
+                Name: WriteBase64StringValueMethodName,
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
                 ReturnType: null,
@@ -382,14 +379,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider(signature, body, this);
         }
 
-        public MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeBase64StringValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
-
         private MethodProvider BuildWriteNumberValueMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
             var signature = new MethodSignature(
-                Name: _writeNumberValueMethodName,
+                Name: WriteNumberValueMethodName,
                 Modifiers: _methodModifiers,
                 Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
                 ReturnType: null,
@@ -408,9 +402,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return new MethodProvider(signature, body, this);
         }
-
-        public MethodBodyStatement WriteNumberValue(Utf8JsonWriterSnippet writer, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Type, _writeNumberValueMethodName, new[] { writer, value, Literal(format) }, callAsExtension: true);
 
         private MethodProvider BuildWriteObjectValueMethodProvider()
         {
@@ -578,7 +569,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
             var parameters = new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, optionsParameter };
             var signature = new MethodSignature(
-                Name: _writeObjectValueMethodName,
+                Name: WriteObjectValueMethodName,
                 Summary: null,
                 Description: null,
                 Modifiers: _methodModifiers,
@@ -590,14 +581,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
             options = new ParameterReferenceSnippet(optionsParameter);
             return signature;
-        }
-
-        public MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet writer, TypedSnippet value, ValueExpression? options = null)
-        {
-            var parameters = options is null
-                ? new ValueExpression[] { writer, value }
-                : new ValueExpression[] { writer, value, options };
-            return new InvokeStaticMethodStatement(Type, _writeObjectValueMethodName, parameters, callAsExtension: true, typeArguments: [value.Type]);
         }
         #endregion
     }
