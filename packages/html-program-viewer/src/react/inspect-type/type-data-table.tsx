@@ -1,7 +1,14 @@
-import type { Type } from "@typespec/compiler";
+import { type Type } from "@typespec/compiler";
 import type { FC } from "react";
-import { ObjectInspector } from "../js-inspector/index.js";
+import { TypeKindTag } from "../common.js";
+import { ObjectLabel } from "../js-inspector/index.js";
+import {
+  DefaultNodeRenderer,
+  ObjectInspector,
+  type NodeRendererProps,
+} from "../js-inspector/object-inspector.js";
 import { useProgram } from "../program-context.js";
+import { TypeReference } from "./inspect-type.js";
 import style from "./type-data-table.module.css";
 
 export const TypeDataTable: FC<{ type: Type }> = ({ type }) => {
@@ -25,7 +32,7 @@ export const TypeDataTable: FC<{ type: Type }> = ({ type }) => {
           <tr key={k.toString()}>
             <td className={style["key"]}>{k.toString()}</td>
             <td className={style["data"]}>
-              <ObjectInspector data={v} />
+              <ObjectInspectorWithTspTypes data={v} />
             </td>
           </tr>
         ))}
@@ -33,3 +40,35 @@ export const TypeDataTable: FC<{ type: Type }> = ({ type }) => {
     </table>
   );
 };
+
+export interface ObjectInspectorProps {
+  readonly data: any;
+}
+const ObjectInspectorWithTspTypes = (props: ObjectInspectorProps) => {
+  return <ObjectInspector {...props} nodeRenderer={NodeWithTspType} />;
+};
+
+const NodeWithTspType = (props: NodeRendererProps) => {
+  const { data } = props;
+  if (isTypeSpecType(data)) {
+    return (
+      <ObjectLabel name={props.name}>
+        <span className={style["tsp-type-ref"]}>
+          <TypeKindTag type={data} size="small" />
+          <TypeReference type={data} />
+        </span>
+      </ObjectLabel>
+    );
+  }
+  return <DefaultNodeRenderer {...props} />;
+};
+
+function isTypeSpecType(data: unknown): data is Type {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "entityKind" in data &&
+    data.entityKind === "Type" &&
+    "kind" in data
+  );
+}

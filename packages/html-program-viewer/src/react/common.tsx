@@ -15,8 +15,12 @@ export const TypeKind = ({ type }: { type: Type }) => {
   return <span className={style["type-kind"]}>{type.kind}</span>;
 };
 
-export const TypeKindTag = ({ type }: { type: Type }) => {
-  return <Mono className={style["type-kind-tag"]}>{type.kind}</Mono>;
+export const TypeKindTag = ({ type, size = "auto" }: { type: Type; size?: "small" | "auto" }) => {
+  return (
+    <Mono className={mergeClasses(style["type-kind-tag"], style[`type-kind-tag-${size}`])}>
+      {type.kind}
+    </Mono>
+  );
 };
 export const KeyValueSection: FunctionComponent<{ children: ReactElement | ReactElement[] }> = ({
   children,

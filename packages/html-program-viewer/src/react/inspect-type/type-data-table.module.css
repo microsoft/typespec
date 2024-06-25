@@ -17,3 +17,19 @@
 
 .data {
 }
+
+.tsp-type-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tsp-type-logo {
+  display: inline-block;
+  font-size: 7px;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  background-color: var(--colorPaletteBerryForeground2);
+  color: white;
+}

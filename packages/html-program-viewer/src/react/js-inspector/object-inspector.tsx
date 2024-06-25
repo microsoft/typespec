@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useState } from "react";
 import { Tree } from "../tree/tree.js";
 import type { TreeNode } from "../tree/types.js";
+import { JsValue } from "./js-value/js-value.js";
 import { ObjectLabel } from "./object-label.js";
 import { ObjectRootLabel } from "./object-root-label.js";
 import { propertyIsEnumerable } from "./utils/object-prototype.js";
@@ -88,7 +89,9 @@ export const DefaultNodeRenderer = ({ path, name, data, isNonenumerable }: NodeR
   path === DEFAULT_ROOT_PATH ? (
     <ObjectRootLabel name={name} data={data} />
   ) : (
-    <ObjectLabel name={name} data={data} isNonenumerable={isNonenumerable} />
+    <ObjectLabel name={name} isNonenumerable={isNonenumerable}>
+      <JsValue value={data} />
+    </ObjectLabel>
   );
 
 export interface ObjectInspectorProps {

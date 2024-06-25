@@ -91,7 +91,7 @@ const ParentReference = ({ type }: { type: Type }) => {
   }
 };
 
-const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
+export const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
   switch (type.kind) {
     case "Namespace":
     case "Operation":
