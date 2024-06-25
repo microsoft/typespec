@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Snippets
 {
-    internal class TypedSnippetsTests
+    public class TypedSnippetsTests
     {
         private readonly string _mocksFolder = "Mocks";
 

@@ -3,7 +3,6 @@
 
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -13,12 +12,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
     {
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";
+
         private static SystemOptionalProvider? _optionalProvider;
-        private static ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
-        private static ChangeTrackingListProvider? _changeTrackingListProvider;
+
         private static SystemOptionalProvider OptionalProvider => _optionalProvider ??= new();
-        private static ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
-        private static ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
 
         public static BoolSnippet IsCollectionDefined(TypedSnippet collection)
         {
@@ -38,8 +35,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             }
 
             var changeTrackingType = collection.Type.Arguments.Count == 1
-                ? ChangeTrackingListProvider.Type.MakeGenericType(collection.Type.Arguments)
-                : ChangeTrackingDictionaryProvider.Type.MakeGenericType(collection.Type.Arguments);
+                ? ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
+                : ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);
             return NullCoalescing(collection, New.Instance(changeTrackingType));
         }
     }

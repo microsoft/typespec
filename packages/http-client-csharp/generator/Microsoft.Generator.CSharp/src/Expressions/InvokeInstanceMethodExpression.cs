@@ -15,7 +15,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public InvokeInstanceMethodExpression(ValueExpression? instanceReference, MethodSignature signature, bool addConfigureAwaitFalse = true) : this(instanceReference, signature, signature.Parameters.Select(p => (ValueExpression)p).ToArray(), addConfigureAwaitFalse) { }
 
-        public MethodBodyStatement ToStatement()
+        internal MethodBodyStatement ToStatement()
             => new InvokeInstanceMethodStatement(InstanceReference, MethodName, Arguments, CallAsAsync);
 
         internal override void Write(CodeWriter writer)

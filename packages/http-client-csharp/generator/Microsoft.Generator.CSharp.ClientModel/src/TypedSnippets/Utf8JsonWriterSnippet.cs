@@ -3,7 +3,6 @@
 
 using System;
 using System.Text.Json;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -40,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteRawValue), value);
 
         public MethodBodyStatement WriteBase64StringValue(ValueExpression value)
-            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteBase64StringValue), value).ToStatement();
+            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteBase64StringValue), value);
 
         public MethodBodyStatement WriteBinaryData(ValueExpression value)
             => new IfElsePreprocessorStatement

@@ -12,7 +12,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public class ChangeTrackingDictionaryProvider : TypeProvider
+    internal sealed class ChangeTrackingDictionaryProvider : TypeProvider
     {
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
