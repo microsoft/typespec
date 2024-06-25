@@ -297,12 +297,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _throwNonNullablePropertyIsNullMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { _propertyParameter },
+                Parameters: [_propertyParameter],
                 ReturnType: null,
-                Attributes: new[]
-                {
+                Attributes:
+                [
                     new AttributeStatement(typeof(ConditionalAttribute), Literal("DEBUG"))
-                },
+                ],
                 Description: null, ReturnDescription: null);
             var property = new JsonPropertySnippet(_propertyParameter);
             var body = Throw(New.JsonException(new FormattableStringExpression("A property '{0}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build", [property.Name])));
@@ -420,7 +420,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ValueExpression value;
             Utf8JsonWriterSnippet writer;
-            ParameterReferenceSnippet options;
+            ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(null, out value, out writer, out options);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -433,7 +433,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             ValueExpression value;
             Utf8JsonWriterSnippet writer;
-            ParameterReferenceSnippet options;
+            ValueExpression options;
             MethodSignature signature = GetWriteObjectValueMethodSignature(_t, out value, out writer, out options);
             List<SwitchCaseStatement> cases = new List<SwitchCaseStatement>
             {
@@ -567,7 +567,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             return new MethodProvider(signature, new SwitchStatement(value, cases), this);
 
-            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableReferenceSnippet, MethodBodyStatement> bodyFunc)
+            static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type, string varName, Func<VariableExpression, MethodBodyStatement> bodyFunc)
             {
                 var declaration = new DeclarationExpression(type, varName, out var variable);
                 var body = bodyFunc(variable);
@@ -576,7 +576,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out Utf8JsonWriterSnippet writer, out ParameterReferenceSnippet options)
+        private MethodSignature GetWriteObjectValueMethodSignature(CSharpType? genericArgument, out ValueExpression value, out Utf8JsonWriterSnippet writer, out ValueExpression options)
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, genericArgument ?? typeof(object));
             var optionsParameter = new ParameterProvider("options", FormattableStringHelpers.Empty, typeof(ModelReaderWriterOptions), DefaultOf(new CSharpType(typeof(ModelReaderWriterOptions)).WithNullable(true)));
@@ -591,7 +591,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 GenericArguments: genericArgument != null ? new[] { genericArgument } : null);
             value = (ValueExpression)valueParameter;
             writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
-            options = new ParameterReferenceSnippet(optionsParameter);
+            options = optionsParameter;
             return signature;
         }
 

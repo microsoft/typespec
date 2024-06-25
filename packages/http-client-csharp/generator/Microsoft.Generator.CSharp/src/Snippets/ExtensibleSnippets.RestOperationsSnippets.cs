@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -16,8 +17,8 @@ namespace Microsoft.Generator.CSharp.Snippets
             public abstract TypedSnippet GetTypedResponseFromEnum(EnumProvider enumType, TypedSnippet response);
             public abstract TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet response, string? contentType = null);
 
-            public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message);
-            public abstract MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedSnippet content, out Utf8JsonWriterSnippet writer);
+            public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out VariableExpression message);
+            public abstract MethodBodyStatement DeclareContentWithUtf8JsonWriter(out VariableExpression content, out Utf8JsonWriterSnippet writer);
             public abstract StreamSnippet GetContentStream(TypedSnippet response);
         }
     }

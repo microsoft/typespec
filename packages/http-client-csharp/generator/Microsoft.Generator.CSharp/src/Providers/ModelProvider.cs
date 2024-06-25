@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (parameter != null)
                     {
-                        initializationValue = new ParameterReferenceSnippet(parameter);
+                        initializationValue = parameter;
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {
