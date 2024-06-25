@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                         new ParameterProvider("p2", $"p2", new CSharpType(typeof(bool))),
                         new ParameterProvider("p3", $"p3", new CSharpType(typeof(bool)))
                     ],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { Return(True) },
                 mockTypeProvider.Object);
             var returnInstanceMethod = Return(new InvokeInstanceMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: typeof(bool),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { returnInstanceMethod },
                 mockTypeProvider.Object);
 
@@ -85,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: null,
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration },
                 mockTypeProvider.Object);
 

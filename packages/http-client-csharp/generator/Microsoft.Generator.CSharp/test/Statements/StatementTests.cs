@@ -288,7 +288,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -332,7 +332,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -431,7 +431,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: null,
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
                 mockTypeProvider.Object);
 

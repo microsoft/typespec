@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
                     ReturnType: _enumType.ValueType,
                     Parameters: [serializationValueParameter],
-                    Summary: null, Description: null, ReturnDescription: null);
+                    Description: null, ReturnDescription: null);
 
                 // the fields of an enum type are the values of the enum type
                 var knownCases = new SwitchCaseExpression[_enumType.Members.Count];
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
                 ReturnType: _enumType.Type,
                 Parameters: [deserializationValueParameter],
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)deserializationValueParameter;
             var stringComparer = new MemberExpression(typeof(StringComparer), nameof(StringComparer.OrdinalIgnoreCase));

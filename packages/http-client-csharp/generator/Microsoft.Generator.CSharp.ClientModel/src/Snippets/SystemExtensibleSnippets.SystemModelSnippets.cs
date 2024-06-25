@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             {
                 var result = new ParameterProvider("response", $"The result to deserialize the model from.", typeof(PipelineResponse));
                 return new MethodProvider(
-                    new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, null, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
+                    new MethodSignature(ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]
                     {
                         Snippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),

@@ -223,7 +223,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         public void TestWriteMethodDeclarationNoScope_ConstructorSignature()
         {
             var baseInitializerStatement = new ConstructorInitializer(true, new List<ValueExpression> { Literal("test") });
-            var constructorSignature = new ConstructorSignature(new CSharpType(typeof(string)), $"Test constructor summary", $"Test description",
+            var constructorSignature = new ConstructorSignature(new CSharpType(typeof(string)), $"Test description",
                 MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>(), null, baseInitializerStatement);
             using var codeWriter = new CodeWriter();
             codeWriter.WriteMethodDeclarationNoScope(constructorSignature);
