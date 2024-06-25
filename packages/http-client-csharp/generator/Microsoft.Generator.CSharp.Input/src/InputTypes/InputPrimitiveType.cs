@@ -5,12 +5,12 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputPrimitiveType : InputType
     {
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, bool isNullable = false) : base(kind.ToString(), isNullable)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind) : base(kind.ToString())
         {
             Kind = kind;
         }
 
-        public InputPrimitiveType(InputPrimitiveTypeKind kind, string? encode, bool isNullable = false) : this(kind, isNullable)
+        public InputPrimitiveType(InputPrimitiveTypeKind kind, string? encode, bool isNullable = false) : this(kind)
         {
             Encode = encode;
         }
@@ -19,8 +19,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string? Encode { get; }
 
         public static InputPrimitiveType Boolean { get; } = new(InputPrimitiveTypeKind.Boolean);
-        public static InputPrimitiveType Base64 { get; } = new(InputPrimitiveTypeKind.Bytes, BytesKnownEncoding.Base64, false);
-        public static InputPrimitiveType Base64Url { get; } = new(InputPrimitiveTypeKind.Bytes, BytesKnownEncoding.Base64Url, false);
+        public static InputPrimitiveType Base64 { get; } = new(InputPrimitiveTypeKind.Bytes, BytesKnownEncoding.Base64);
+        public static InputPrimitiveType Base64Url { get; } = new(InputPrimitiveTypeKind.Bytes, BytesKnownEncoding.Base64Url);
         public static InputPrimitiveType Char { get; } = new(InputPrimitiveTypeKind.Char);
         public static InputPrimitiveType ContentType { get; } = new(InputPrimitiveTypeKind.ContentType);
         public static InputPrimitiveType PlainDate { get; } = new(InputPrimitiveTypeKind.PlainDate);

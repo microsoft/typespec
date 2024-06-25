@@ -9,8 +9,8 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string? enumNamespace, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible, bool isNullable)
-            : base(name, isNullable)
+        public InputEnumType(string name, string? enumNamespace, string? accessibility, string? deprecated, string description, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
+            : base(name)
         {
             Namespace = enumNamespace;
             Accessibility = accessibility;

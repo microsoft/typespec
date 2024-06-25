@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp.Input
         /// <param name="ElementType">The element's <see cref="InputType"/>.</param>
         /// <param name="IsEmbeddingsVector">Flag used to determine if the input list type is embedding vector.</param>
         /// <param name="IsNullable">Flag used to determine if the input list type is nullable.</param>
-        public InputListType(string name, InputType elementType, bool isEmbeddingsVector, bool isNullable) : base(name, isNullable)
+        public InputListType(string name, InputType elementType, bool isEmbeddingsVector) : base(name)
         {
             ElementType = elementType;
             IsEmbeddingsVector = isEmbeddingsVector;
