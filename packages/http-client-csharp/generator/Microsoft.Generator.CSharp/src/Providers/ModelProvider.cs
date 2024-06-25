@@ -24,8 +24,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly bool _isStruct;
         private readonly TypeSignatureModifiers _declarationModifiers;
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-
         public ModelProvider(InputModelType inputModel)
         {
             _inputModel = inputModel;
