@@ -10,7 +10,6 @@ namespace Microsoft.Generator.CSharp
     public class OutputLibrary
     {
         private IReadOnlyList<ClientProvider>? _clients;
-        private InputNamespace _input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
 
         public IReadOnlyList<TypeProvider> Enums => BuildEnums();
         public IReadOnlyList<TypeProvider> Models => BuildModels();
@@ -18,10 +17,11 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual TypeProvider[] BuildEnums()
         {
-            var enums = new TypeProvider[_input.Enums.Count];
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var enums = new TypeProvider[input.Enums.Count];
             for (int i = 0; i < enums.Length; i++)
             {
-                var inputEnum = _input.Enums[i];
+                var inputEnum = input.Enums[i];
                 var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
                 TypeProvider enumType = cSharpEnum.Implementation;
                 enums[i] = enumType;
@@ -31,10 +31,11 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual TypeProvider[] BuildModels()
         {
-            var models = new TypeProvider[_input.Models.Count];
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var models = new TypeProvider[input.Models.Count];
             for (int i = 0; i < models.Length; i++)
             {
-                var inputModel = _input.Models[i];
+                var inputModel = input.Models[i];
                 var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
                 TypeProvider modelType = cSharpModel.Implementation;
                 models[i] = modelType;
@@ -44,12 +45,13 @@ namespace Microsoft.Generator.CSharp
 
         protected virtual ClientProvider[] BuildClients()
         {
-            var clientsCount = _input.Clients.Count;
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var clientsCount = input.Clients.Count;
             ClientProvider[] clientProviders = new ClientProvider[clientsCount];
 
             for (int i = 0; i < clientsCount; i++)
             {
-                clientProviders[i] = new ClientProvider(_input.Clients[i]);
+                clientProviders[i] = new ClientProvider(input.Clients[i]);
             }
             return clientProviders;
         }
