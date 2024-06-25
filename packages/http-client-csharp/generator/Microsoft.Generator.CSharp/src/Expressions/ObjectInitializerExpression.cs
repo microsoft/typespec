@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <summary>
     /// Represents an object initializer expression.
     /// </summary>
-    /// <param name="Parameters">The parameters to initialize the object to.</param>
+    /// <param name="Values">The set of property values to initialize the object to.</param>
     /// <param name="UseSingleLine">Flag to determine if the object should be initialized inline.</param>
     public record ObjectInitializerExpression(IReadOnlyDictionary<ValueExpression, ValueExpression> Values, bool UseSingleLine = false) : ValueExpression
     {
