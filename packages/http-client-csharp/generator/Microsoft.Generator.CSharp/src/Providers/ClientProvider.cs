@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Providers
     {
         private readonly InputClient _inputClient;
 
-        public override string FileName => Path.Combine("src", "Generated", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", $"{Name}.cs");
 
         public override string Name { get; }
 

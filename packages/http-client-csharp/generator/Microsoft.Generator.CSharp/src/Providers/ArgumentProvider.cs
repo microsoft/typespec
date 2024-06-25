@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        public override string FileName => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "Argument";
 

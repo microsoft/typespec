@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
 
-        public override string FileName => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public override string Namespace { get; }
 

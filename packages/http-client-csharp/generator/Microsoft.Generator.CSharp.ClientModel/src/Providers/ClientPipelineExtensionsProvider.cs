@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private static readonly Lazy<ClientPipelineExtensionsProvider> _instance = new(() => new ClientPipelineExtensionsProvider());
         public static ClientPipelineExtensionsProvider Instance => _instance.Value;
-        public override string FileName => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
         public override string Name { get; }
 
         private const string _processMessageAsync = "ProcessMessageAsync";

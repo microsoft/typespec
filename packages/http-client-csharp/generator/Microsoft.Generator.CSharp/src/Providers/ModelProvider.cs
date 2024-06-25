@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
-        public override string FileName => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
