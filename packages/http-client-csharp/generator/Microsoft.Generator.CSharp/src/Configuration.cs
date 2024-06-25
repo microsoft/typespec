@@ -99,7 +99,7 @@ namespace Microsoft.Generator.CSharp
             var configFile = Path.Combine(outputPath, ConfigurationFileName);
             if (!File.Exists(configFile) && json is null)
             {
-                throw new InvalidOperationException($"Configuration file {outputPath} does not exist.");
+                throw new InvalidOperationException($"Configuration file {configFile} does not exist.");
             }
 
             var root = json is null
