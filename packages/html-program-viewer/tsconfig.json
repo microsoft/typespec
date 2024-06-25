@@ -18,7 +18,7 @@
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "lib": ["DOM", "ES2022"],
-    "types": ["vite/client"]
+    "types": ["vite/client", "@testing-library/jest-dom"]
   },
   "include": ["src", "test/**/*.ts"]
 }

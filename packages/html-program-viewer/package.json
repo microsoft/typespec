@@ -60,6 +60,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@testing-library/dom": "^10.2.0",
+    "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@types/node": "~18.11.19",
     "@types/react": "~18.3.2",
