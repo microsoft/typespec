@@ -15,6 +15,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal partial class SystemExtensibleSnippets
     {
+        internal const string FromResponseName = "FromResponse";
         private class SystemRestOperationsSnippets : RestOperationsSnippets
         {
             public override StreamSnippet GetContentStream(TypedSnippet result)
@@ -28,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             public override TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
-                var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, [response]);
+                var model = new InvokeStaticMethodExpression(typeProvider.Type, FromResponseName, [response]);
                 return ClientResultSnippet.FromValue(model, response);
             }
 
