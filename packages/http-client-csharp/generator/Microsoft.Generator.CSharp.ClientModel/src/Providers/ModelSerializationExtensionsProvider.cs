@@ -31,8 +31,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, typeof(string));
         private readonly ParameterProvider _propertyParameter = new ParameterProvider("property", FormattableStringHelpers.Empty, typeof(JsonProperty));
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         public ModelSerializationExtensionsProvider()
         {
             _typeFormattersProvider = TypeFormattersProvider.Instance;
@@ -54,6 +52,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private ModelReaderWriterOptionsSnippet? _wireOptions;
         public ModelReaderWriterOptionsSnippet WireOptions => _wireOptions ??= new ModelReaderWriterOptionsSnippet(new MemberExpression(Type, _wireOptionsName));
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "ModelSerializationExtensions";
 

@@ -34,8 +34,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private InvokeInstanceMethodExpression EnsureDictionary { get; init; }
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
         private ChangeTrackingDictionaryProvider()
         {
             WhereClause = Where.NotNull(_tKey);
@@ -55,6 +53,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return TypeSignatureModifiers.Internal;
         }
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "ChangeTrackingDictionary";
 

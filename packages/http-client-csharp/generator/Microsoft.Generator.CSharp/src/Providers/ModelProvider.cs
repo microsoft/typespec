@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
@@ -27,8 +28,6 @@ namespace Microsoft.Generator.CSharp.Providers
         /// The serializations providers for the model provider.
         /// </summary>
         public IReadOnlyList<TypeProvider> SerializationProviders { get; } = Array.Empty<TypeProvider>();
-
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public ModelProvider(InputModelType inputModel)
         {
