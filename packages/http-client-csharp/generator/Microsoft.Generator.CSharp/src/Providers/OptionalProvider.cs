@@ -57,7 +57,6 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodSignature GetIsDefinedSignature(ParameterProvider valueParam, IReadOnlyList<CSharpType>? genericArguments = null, IReadOnlyList<WhereExpression>? genericParameterConstraints = null) => new(
             "IsDefined",
             null,
-            null,
             MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
             typeof(bool),
             null,
@@ -67,7 +66,6 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodSignature GetIsCollectionDefinedSignature(ParameterProvider collectionParam, params CSharpType[] cSharpTypes) => new(
             "IsCollectionDefined",
-            null,
             null,
             MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
             typeof(bool),
