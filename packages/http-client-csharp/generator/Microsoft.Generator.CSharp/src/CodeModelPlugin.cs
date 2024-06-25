@@ -33,7 +33,6 @@ namespace Microsoft.Generator.CSharp
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract ApiTypes ApiTypes { get; }
         public abstract TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
         public abstract ExtensibleSnippets ExtensibleSnippets { get; }
