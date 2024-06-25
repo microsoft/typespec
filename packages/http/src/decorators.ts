@@ -333,7 +333,7 @@ export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCo
     case 401:
       return "Access is unauthorized.";
     case 403:
-      return "Access is forbidden";
+      return "Access is forbidden.";
     case 404:
       return "The server cannot find the requested resource.";
     case 409:

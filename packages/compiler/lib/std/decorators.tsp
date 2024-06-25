@@ -31,7 +31,7 @@ extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
  * Attach a documentation string to describe the successful return types of an operation.
- * If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+ * If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
  * @param doc Documentation string
  *
  * @example
@@ -44,12 +44,12 @@ extern dec returnsDoc(target: Operation, doc: valueof string);
 
 /**
  * Attach a documentation string to describe the error return types of an operation.
- * If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+ * If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
  * @param doc Documentation string
  *
  * @example
  * ```typespec
- * @errorsDoc("Returns doc")
+ * @errorsDoc("Errors doc")
  * op get(): Pet | NotFound;
  * ```
  */

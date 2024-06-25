@@ -192,7 +192,7 @@ model PetStoreError {
 ### `@errorsDoc` {#@errorsDoc}
 
 Attach a documentation string to describe the error return types of an operation.
-If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+If an operation returns a union of success and errors it only describes the errors. See `@returnsDoc` for success documentation.
 ```typespec
 @errorsDoc(doc: valueof string)
 ```
@@ -209,7 +209,7 @@ If an operation returns a union of success and errors it only describe the error
 #### Examples
 
 ```typespec
-@errorsDoc("Returns doc")
+@errorsDoc("Errors doc")
 op get(): Pet | NotFound;
 ```
 
@@ -679,7 +679,7 @@ model Certificate {
 ### `@returnsDoc` {#@returnsDoc}
 
 Attach a documentation string to describe the successful return types of an operation.
-If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+If an operation returns a union of success and errors it only describes the success. See `@errorsDoc` for error documentation.
 ```typespec
 @returnsDoc(doc: valueof string)
 ```
