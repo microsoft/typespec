@@ -10,10 +10,16 @@ namespace Microsoft.Generator.CSharp
     public class OutputLibrary
     {
         private IReadOnlyList<ClientProvider>? _clients;
+        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
+        //https://github.com/microsoft/typespec/issues/3589
+        private IReadOnlyList<TypeProvider>? _types;
+        private IReadOnlyList<TypeProvider>? _enums;
+        private IReadOnlyList<TypeProvider>? _models;
 
         public IReadOnlyList<TypeProvider> Enums => BuildEnums();
         public IReadOnlyList<TypeProvider> Models => BuildModels();
         public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
+        public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
 
         protected virtual TypeProvider[] BuildEnums()
         {
@@ -56,10 +62,6 @@ namespace Microsoft.Generator.CSharp
             return clientProviders;
         }
 
-        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
-        //https://github.com/microsoft/typespec/issues/3589
-        private IReadOnlyList<TypeProvider>? _types;
-        public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
         protected virtual IReadOnlyList<TypeProvider> BuildTypes()
         {
             return
