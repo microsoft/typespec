@@ -3,7 +3,7 @@ import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { InputTypeKind } from "../../src/type/input-type-kind.js";
-import { InputEnumType, InputListType } from "../../src/type/input-type.js";
+import { InputEnumType } from "../../src/type/input-type.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
@@ -29,16 +29,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Parameters[0].Type.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
+        Kind: "array",
+        ValueType: {
           Kind: "string",
           Encode: undefined,
         },
-      } as InputListType,
+      },
       root.Clients[0].Operations[0].Parameters[0].Type
     );
   });
@@ -53,16 +52,15 @@ describe("Test GetInputType for array", () => {
     const context = createEmitterContext(program);
     const sdkContext = createNetSdkContext(context);
     const root = createModel(sdkContext);
-    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, InputTypeKind.Array);
+    deepStrictEqual(root.Clients[0].Operations[0].Responses[0].BodyType?.Kind, "array");
     deepStrictEqual(
       {
-        Kind: InputTypeKind.Array,
-        Name: InputTypeKind.Array,
-        ElementType: {
+        Kind: "array",
+        ValueType: {
           Kind: "string",
           Encode: undefined,
         },
-      } as InputListType,
+      },
       root.Clients[0].Operations[0].Responses[0].BodyType
     );
   });

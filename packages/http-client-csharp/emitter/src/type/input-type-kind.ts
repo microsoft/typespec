@@ -2,8 +2,5 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 export enum InputTypeKind {
-  Model = "Model",
-  Array = "Array",
-  Dictionary = "Dictionary",
-  Intrinsic = "Intrinsic",
+  Model = "Model"
 }
