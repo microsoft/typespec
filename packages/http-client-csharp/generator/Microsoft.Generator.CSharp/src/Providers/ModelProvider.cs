@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
         public override string Name { get; }
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
@@ -140,7 +141,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     if (parameter != null)
                     {
-                        initializationValue = new ParameterReferenceSnippet(parameter);
+                        initializationValue = parameter;
 
                         if (CSharpType.RequiresToList(parameter.Type, property.Type))
                         {

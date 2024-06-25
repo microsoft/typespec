@@ -128,5 +128,13 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
+        public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg)
+            => new InvokeInstanceMethodExpression(this, methodName, [arg], null, false);
+
+        public InvokeInstanceMethodExpression Invoke(string methodName)
+            => new InvokeInstanceMethodExpression(this, methodName, Array.Empty<ValueExpression>(), null, false);
+
+        public ValueExpression Property(string propertyName, bool nullConditional = false)
+            => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
     }
 }

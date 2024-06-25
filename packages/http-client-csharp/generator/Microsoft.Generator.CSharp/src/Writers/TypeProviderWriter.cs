@@ -27,7 +27,7 @@ namespace Microsoft.Generator.CSharp
             {
                 WriteType(writer);
             }
-            return new CodeFile(writer.ToString(), _provider.FileName);
+            return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
 
         private void WriteType(CodeWriter writer)

@@ -52,10 +52,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             Namespace = model.Namespace;
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
 
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
         public override string Name { get; }
         public override string Namespace { get; }
 
@@ -277,11 +276,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), new ParameterReferenceSnippet(param)));
+                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), param));
                     continue;
                 }
 
-                ValueExpression initializationValue = new ParameterReferenceSnippet(param);
+                ValueExpression initializationValue = param;
                 var initializationStatement = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
                 if (initializationStatement != null)
                 {

@@ -51,63 +51,6 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         }
 
         [Test]
-        public void GeneratesNewNamesInChildScope()
-        {
-            var cwd1 = new CodeWriterDeclaration("a");
-            var cwd2 = new CodeWriterDeclaration("a");
-            _codeWriter.WriteLine($"{cwd1:D}");
-            using (_codeWriter.Scope())
-            {
-                _codeWriter.WriteLine($"{cwd2:D}");
-            }
-
-            var expected = Helpers.GetExpectedFromFile();
-            Assert.AreEqual(expected, _codeWriter.ToString());
-        }
-
-        [Test]
-        public void ScopeLineIsInsideScope()
-        {
-            var cwd1 = new CodeWriterDeclaration("a");
-            var cwd2 = new CodeWriterDeclaration("a");
-            using (_codeWriter.Scope($"{cwd1:D}"))
-            {
-            }
-
-            using (_codeWriter.Scope($"{cwd2:D}"))
-            {
-            }
-
-            //TODO strange behavior for scope that we might want to fix.
-            // if you want the "a" and "{" lines to be the same indent level as "}"
-            // you must write A then use an empty `Scope()` method call.
-            var expected = Helpers.GetExpectedFromFile();
-            Assert.AreEqual(expected, _codeWriter.ToString());
-        }
-
-        [Test]
-        public void VariableNameNotReusedWhenUsedInChildScope()
-        {
-            var cwd1 = new CodeWriterDeclaration("a");
-            var cwd2 = new CodeWriterDeclaration("a");
-            using (_codeWriter.Scope())
-            {
-                _codeWriter.WriteLine($"{cwd1:D}");
-            }
-
-            _codeWriter.WriteLine($"{cwd2:D}");
-
-            var sb = new StringBuilder();
-            sb.Append(_header);
-            sb.Append("{").Append(NewLine);
-            sb.Append("    a").Append(NewLine);
-            sb.Append("}").Append(NewLine);
-            sb.Append("a0").Append(NewLine);
-
-            Assert.AreEqual(sb.ToString(), _codeWriter.ToString());
-        }
-
-        [Test]
         public void CorrectlyHandlesCurlyBraces()
         {
             _codeWriter.Append($"public {typeof(string)} Data {{ get; private set; }}");

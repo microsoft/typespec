@@ -29,9 +29,9 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = $"{_enumType.Name}Extensions";
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public override string Namespace { get; }
 
