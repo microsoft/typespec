@@ -1,7 +1,13 @@
-import { emitFile, resolvePath, type EmitContext } from "@typespec/compiler";
+import {
+  createTypeSpecLibrary,
+  emitFile,
+  getDirectoryPath,
+  resolvePath,
+  type EmitContext,
+  type JSONSchemaType,
+} from "@typespec/compiler";
+import { fileURLToPath } from "url";
 import { renderProgram } from "./react/type-graph.js";
-
-import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
 
 export interface HtmlProgramViewerOptions {
   /**
@@ -36,5 +42,12 @@ export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
   await emitFile(context.program, {
     path: htmlPath,
     content: `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`,
+  });
+  const css = await context.program.host.readFile(
+    resolvePath(getDirectoryPath(fileURLToPath(import.meta.url)), "style.css")
+  );
+  await emitFile(context.program, {
+    path: resolvePath(outputDir, "style.css"),
+    content: css.text,
   });
 }

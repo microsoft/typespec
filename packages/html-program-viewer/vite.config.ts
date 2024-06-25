@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json")).toString());
 const dependencies = Object.keys(packageJson.dependencies);
-const externals = [...dependencies.filter((x) => !x.startsWith("@fluentui/"))];
+const externals = ["url", ...dependencies];
 
 export default defineConfig({
   build: {
