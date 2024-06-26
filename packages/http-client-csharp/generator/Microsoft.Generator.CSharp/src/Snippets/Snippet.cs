@@ -105,8 +105,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => new InvokeStaticMethodExpression(typeof(Console), nameof(Console.WriteLine), expression).Terminate();
 
-        public static UnaryOperatorStatement Increment(ValueExpression value)
-            => new(new UnaryOperatorExpression("++", value, true));
+        public static MethodBodyStatement Increment(ValueExpression value)
+            => new UnaryOperatorExpression("++", value, true).Terminate();
 
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {

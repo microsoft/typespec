@@ -374,15 +374,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         }
 
         [Test]
-        public void UnaryOperatorStatementWithValidExpression()
-        {
-            var operatorExpression = new UnaryOperatorExpression("-", new ValueExpression(), true);
-            var unaryOperatorStatement = new UnaryOperatorStatement(operatorExpression);
-
-            Assert.AreEqual(operatorExpression, unaryOperatorStatement.Expression);
-        }
-
-        [Test]
         public void TestIfElsePreprocessorStatement()
         {
             // Set up test conditions and variables
