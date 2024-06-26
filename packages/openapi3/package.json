@@ -37,7 +37,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
+    "build": "npm run gen-version && npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -48,7 +48,8 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/openapi3/reference",
-    "generate-tsp": "node --experimental-specifier-resolution=node --loader ts-node/esm ./test/openapi-to-typespec/utils/generate-typespec.ts"
+    "generate-tsp": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./test/openapi-to-typespec/utils/generate-typespec.ts",
+    "gen-version": "node scripts/generate-version.js"
   },
   "files": [
     "lib/*.tsp",

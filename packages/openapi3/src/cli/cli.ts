@@ -1,4 +1,5 @@
 import yargs from "yargs";
+import { packageVersion } from "../version.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { withCliHost } from "./utils.js";
 
@@ -25,6 +26,6 @@ export async function main() {
       },
       withCliHost((host, args) => compileAction(host, args))
     )
-    .version("1")
+    .version(packageVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }

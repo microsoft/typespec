@@ -1,6 +1,6 @@
 # @typespec/openapi3
 
-TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding
+TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec
 
 ## Install
 
@@ -137,3 +137,22 @@ Specify an external reference that should be used inside of emitting this type.
 | Name | Type             | Description                                                          |
 | ---- | ---------------- | -------------------------------------------------------------------- |
 | ref  | `valueof string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
+
+## OpenAPI3 to TypeSpec
+
+### Usage
+
+1. via the command line
+
+```bash
+openapi3-to-tsp compile ./openapi3spec.yml --output-dir ./tsp-output
+```
+
+### openapi3-to-tsp compile options
+
+#### `output-dir`
+
+**Type:** `"string"`
+
+Path to the directory that will contain the generated TypeSpec files.
+If the directory does not exist, it will be created.
