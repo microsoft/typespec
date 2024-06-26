@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -41,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
             var mockTypeFactory = new Mock<TypeFactory>() { };
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(type);
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(type);
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -141,7 +142,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };
 
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns((InputType inputType) =>
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
@@ -182,7 +183,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
              };
 
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns((InputType inputType) =>
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();

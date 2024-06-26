@@ -11,6 +11,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -45,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(int));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(int));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -90,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>() { };
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(float));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(float));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -132,7 +133,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(string));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(string));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -174,7 +175,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(int));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(int));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -235,7 +236,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(float));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(float));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -296,7 +297,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext);
             var mockTypeFactory = new Mock<TypeFactory>();
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(typeof(string));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(typeof(string));
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
