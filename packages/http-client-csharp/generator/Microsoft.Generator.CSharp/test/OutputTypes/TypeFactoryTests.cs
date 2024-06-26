@@ -49,7 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
         {
             get
             {
-                yield return new TestCaseData(new InputListType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), false), new CSharpType(typeof(InputListType), isNullable: false), false);
+                yield return new TestCaseData(new InputArrayType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.Boolean), false), new CSharpType(typeof(InputArrayType), isNullable: false), false);
                 yield return new TestCaseData(new InputDictionaryType("sampleType", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Int32)), new CSharpType(typeof(InputDictionaryType), isNullable: false), false);
                 yield return new TestCaseData(new InputPrimitiveType(InputPrimitiveTypeKind.String), new CSharpType(typeof(InputPrimitiveType), isNullable: false), false);
                 yield return new TestCaseData(new InputLiteralType(new InputPrimitiveType(InputPrimitiveTypeKind.String), "literal"), null, true);
@@ -72,8 +72,8 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
             {
                 switch (input)
                 {
-                    case InputListType:
-                        return new CSharpType(typeof(InputListType), isNullable: false);
+                    case InputArrayType:
+                        return new CSharpType(typeof(InputArrayType), isNullable: false);
                     case InputDictionaryType:
                         return new CSharpType(typeof(InputDictionaryType), isNullable: false);
                     case InputPrimitiveType:

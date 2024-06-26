@@ -72,17 +72,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
                     new CSharpType(typeof(IList<string>)),
                     false);
                 // read only list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<string>)),
                     false);
                 // nullable list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
                     new CSharpType(typeof(IList<string>), true),
                     true);
                 // dictionary property
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     false);
                 // readonlymemory property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), true), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), true), false, false, false),
                     new CSharpType(typeof(ReadOnlyMemory<>)),
                     true);
             }
@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                 InputPrimitiveTypeKind.Any => typeof(BinaryData),
                 _ => throw new ArgumentException("Unsupported input type.")
             },
-            InputListType => typeof(IList<string>),
+            InputArrayType => typeof(IList<string>),
             InputDictionaryType => typeof(IDictionary<string, string>),
             _ => throw new ArgumentException("Unsupported input type.")
         };
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var properties = new List<InputModelProperty>{
                     new InputModelProperty("requiredString", "requiredString", "", InputPrimitiveType.String, true, false, false),
                     new InputModelProperty("OptionalInt", "optionalInt", "", InputPrimitiveType.Int32, false, false, false),
-                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputListType("List", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), true, false, false),
+                    new InputModelProperty("requiredCollection", "requiredCollection", "", new InputArrayType("List", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), true, false, false),
                     new InputModelProperty("requiredDictionary", "requiredDictionary", "", new InputDictionaryType("Dictionary", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), true, false, false),
                     new InputModelProperty("optionalUnknown", "optional unknown", "", InputPrimitiveType.Any, false, false, false),
              };

@@ -407,9 +407,8 @@
        },
        {
         "$id": "66",
-        "Kind": "Array",
-        "Name": "Array",
-        "ElementType": {
+        "Kind": "array",
+        "ValueType": {
          "$id": "67",
          "Kind": "string"
         }
@@ -575,9 +574,8 @@
       "Kind": "nullable",
       "Type": {
        "$id": "91",
-       "Kind": "Array",
-       "Name": "Array",
-       "ElementType": {
+       "Kind": "array",
+       "ValueType": {
         "$id": "92",
         "Kind": "int32"
        }
@@ -596,9 +594,8 @@
       "Kind": "nullable",
       "Type": {
        "$id": "95",
-       "Kind": "Array",
-       "Name": "Array",
-       "ElementType": {
+       "Kind": "array",
+       "ValueType": {
         "$id": "96",
         "Kind": "int32"
        }
@@ -648,9 +645,8 @@
      "Description": "Required collection of enums",
      "Type": {
       "$id": "103",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "ValueType": {
        "$ref": "20"
       }
      },
@@ -664,8 +660,7 @@
      "Description": "Required dictionary of enums",
      "Type": {
       "$id": "105",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "106",
        "Kind": "string"
@@ -706,9 +701,8 @@
      "Description": "this is a collection of int based extensible enum",
      "Type": {
       "$id": "110",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "ValueType": {
        "$ref": "30"
       }
      },
@@ -744,9 +738,8 @@
      "Description": "this is a collection of float based extensible enum",
      "Type": {
       "$id": "114",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "ValueType": {
        "$ref": "35"
       }
      },
@@ -782,9 +775,8 @@
      "Description": "this is a collection of float based fixed enum",
      "Type": {
       "$id": "118",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "ValueType": {
        "$ref": "45"
       }
      },
@@ -809,9 +801,8 @@
      "Description": "this is a collection of int based fixed enum",
      "Type": {
       "$id": "121",
-      "Kind": "Array",
-      "Name": "Array",
-      "ElementType": {
+      "Kind": "array",
+      "ValueType": {
        "$ref": "55"
       }
      },
@@ -860,8 +851,7 @@
      "Description": "required record of unknown",
      "Type": {
       "$id": "128",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "129",
        "Kind": "string"
@@ -881,8 +871,7 @@
      "Description": "optional record of unknown",
      "Type": {
       "$id": "132",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "133",
        "Kind": "string"
@@ -902,8 +891,7 @@
      "Description": "required readonly record of unknown",
      "Type": {
       "$id": "136",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "137",
        "Kind": "string"
@@ -923,8 +911,7 @@
      "Description": "optional readonly record of unknown",
      "Type": {
       "$id": "140",
-      "Kind": "Dictionary",
-      "Name": "Dictionary",
+      "Kind": "dict",
       "KeyType": {
        "$id": "141",
        "Kind": "string"
