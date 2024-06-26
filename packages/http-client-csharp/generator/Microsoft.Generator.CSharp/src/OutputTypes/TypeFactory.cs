@@ -17,17 +17,30 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
         private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
         private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+
+        private readonly IDictionary<InputType, CSharpType> _typeCache = new Dictionary<InputType, CSharpType>();
+
+        public CSharpType CreateCSharpType(InputType inputType)
+        {
+            if (_typeCache.TryGetValue(inputType, out var type))
+                return type;
+
+            type = CreateCSharpTypeCore(inputType);
+            _typeCache.Add(inputType, type);
+            return type;
+        }
+
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>
         /// <param name="input">The <see cref="InputType"/> to convert.</param>
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
-        public virtual CSharpType CreateCSharpType(InputType inputType) => inputType switch
+        protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
             InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
             InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
-            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
-            InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
+            InputArrayType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ValueType)),
+            InputArrayType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ValueType)),
             InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => EnumProvider.Create(enumType).Type,
             InputModelType model => new ModelProvider(model).Type,
@@ -91,7 +104,7 @@ namespace Microsoft.Generator.CSharp
         public SerializationFormat GetSerializationFormat(InputType input) => input switch
         {
             InputLiteralType literalType => GetSerializationFormat(literalType.ValueType),
-            InputListType listType => GetSerializationFormat(listType.ElementType),
+            InputArrayType listType => GetSerializationFormat(listType.ValueType),
             InputDictionaryType dictionaryType => GetSerializationFormat(dictionaryType.ValueType),
             InputDateTimeType dateTimeType => dateTimeType.Encode switch
             {
