@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public MethodBodyStatement WriteEndArray() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteEndArray)).Terminate();
         public MethodBodyStatement WritePropertyName(string propertyName) => WritePropertyName(LiteralU8(propertyName));
         public MethodBodyStatement WritePropertyName(ValueExpression propertyName) => Untyped.Invoke(nameof(Utf8JsonWriter.WritePropertyName), propertyName).Terminate();
-        public MethodBodyStatement WriteNull(string propertyName) => WriteNull(Literal(propertyName));
+        public MethodBodyStatement WriteNull(string propertyName) => WriteNull(LiteralU8(propertyName));
         public MethodBodyStatement WriteNull(ValueExpression propertyName) => Untyped.Invoke(nameof(Utf8JsonWriter.WriteNull), propertyName).Terminate();
         public MethodBodyStatement WriteNullValue() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteNullValue)).Terminate();
 
