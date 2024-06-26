@@ -109,7 +109,10 @@ export function Tree<T extends TreeNode>({
       tabIndex={0}
       role="tree"
       onKeyDown={handleKeyDown}
-      onFocus={() => setFocusedIndex(rows.findIndex((row) => row.id === selectedKey))}
+      onFocus={() => {
+        const row = rows.findIndex((row) => row.id === selectedKey);
+        setFocusedIndex(row === -1 ? 0 : row);
+      }}
       onBlur={() => setFocusedIndex(-1)}
       aria-activedescendant={`${id}-${focusedIndex}`}
     >
