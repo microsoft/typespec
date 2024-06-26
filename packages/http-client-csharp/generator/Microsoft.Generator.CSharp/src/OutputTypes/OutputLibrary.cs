@@ -12,8 +12,8 @@ namespace Microsoft.Generator.CSharp
         {
         }
 
-        private IReadOnlyList<TypeProvider>? _types;
-        public IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
+        private IReadOnlyList<TypeProvider>? _typeProviders;
+        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
 
         private static TypeProvider[] BuildEnums()
         {
@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp
             return enums;
         }
 
-        private TypeProvider[] BuildModels()
+        private static TypeProvider[] BuildModels()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
             var models = new TypeProvider[input.Models.Count];
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp
             return models;
         }
 
-        protected virtual TypeProvider[] BuildTypes()
+        protected virtual TypeProvider[] BuildTypeProviders()
         {
             return
             [

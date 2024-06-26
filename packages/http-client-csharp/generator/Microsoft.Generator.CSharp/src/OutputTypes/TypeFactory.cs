@@ -37,14 +37,14 @@ namespace Microsoft.Generator.CSharp
         /// <returns>An instance of <see cref="CSharpType"/>.</returns>
         protected virtual CSharpType CreateCSharpTypeCore(InputType inputType) => inputType switch
         {
-            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpTypeCore(literalType.ValueType), literalType.Value),
-            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpTypeCore).ToArray()),
-            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpTypeCore(listType.ElementType)),
-            InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpTypeCore(listType.ElementType)),
-            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpTypeCore(dictionaryType.ValueType)),
+            InputLiteralType literalType => CSharpType.FromLiteral(CreateCSharpType(literalType.ValueType), literalType.Value),
+            InputUnionType unionType => CSharpType.FromUnion(unionType.VariantTypes.Select(CreateCSharpType).ToArray()),
+            InputListType { IsEmbeddingsVector: true } listType => new CSharpType(typeof(ReadOnlyMemory<>), CreateCSharpType(listType.ElementType)),
+            InputListType listType => new CSharpType(typeof(IList<>), CreateCSharpType(listType.ElementType)),
+            InputDictionaryType dictionaryType => new CSharpType(typeof(IDictionary<,>), typeof(string), CreateCSharpType(dictionaryType.ValueType)),
             InputEnumType enumType => EnumProvider.Create(enumType).Type,
             InputModelType model => new ModelProvider(model).Type,
-            InputNullableType nullableType => CreateCSharpTypeCore(nullableType.Type).WithNullable(true),
+            InputNullableType nullableType => CreateCSharpType(nullableType.Type).WithNullable(true),
             InputPrimitiveType primitiveType => primitiveType.Kind switch
             {
                 InputPrimitiveTypeKind.Boolean => new CSharpType(typeof(bool)),

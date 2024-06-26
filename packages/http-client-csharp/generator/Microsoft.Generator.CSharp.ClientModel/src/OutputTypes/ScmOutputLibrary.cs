@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmOutputLibrary : OutputLibrary
     {
-        private TypeProvider[] BuildClients()
+        private static TypeProvider[] BuildClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
             var clients = new TypeProvider[inputClients.Count];
@@ -20,9 +20,9 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return clients;
         }
 
-        protected override TypeProvider[] BuildTypes()
+        protected override TypeProvider[] BuildTypeProviders()
         {
-            var baseTypes = base.BuildTypes();
+            var baseTypes = base.BuildTypeProviders();
             var systemOptionalProvider = new SystemOptionalProvider();
 
             for (var i = 0; i < baseTypes.Length; i++)
@@ -33,7 +33,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 }
             }
 
-            return [.. baseTypes, .. BuildClients(), new ModelSerializationExtensionsProvider(), new TypeFormattersProvider()];
+            return [
+                ..baseTypes,
+                ..BuildClients(),
+                new ModelSerializationExtensionsProvider(),
+                new TypeFormattersProvider()
+            ];
         }
     }
 }

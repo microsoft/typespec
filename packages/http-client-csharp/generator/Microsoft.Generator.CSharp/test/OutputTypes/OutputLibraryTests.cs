@@ -19,18 +19,18 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
             _outputLibrary = new MockOutputLibrary();
         }
 
-        // Tests that the BuildTypes method is successfully overridden.
+        // Tests that the BuildTypeProviders method is successfully overridden.
         [Test]
-        public void BuildTypes_Override()
+        public void BuildTypeProviders_Override()
         {
-            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.Types; });
+            Assert.Throws<NotImplementedException>(() => { object shouldFail = _outputLibrary.TypeProviders; });
         }
 
         internal class MockOutputLibrary : OutputLibrary
         {
             public MockOutputLibrary() : base() { }
 
-            protected override TypeProvider[] BuildTypes()
+            protected override TypeProvider[] BuildTypeProviders()
             {
                 throw new NotImplementedException();
             }
