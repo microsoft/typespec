@@ -79,11 +79,11 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static BoolSnippet And(BoolSnippet left, BoolSnippet right) => new(new BinaryOperatorExpression("&&", left.Untyped, right.Untyped));
         public static BoolSnippet Not(BoolSnippet operand) => new(new UnaryOperatorExpression("!", operand, false));
 
-        public static KeywordStatement Continue => new("continue", null);
-        public static KeywordStatement Break => new("break", null);
-        public static KeywordStatement Return(ValueExpression expression) => new("return", expression);
-        public static KeywordStatement Return() => new("return", null);
-        public static KeywordStatement Throw(ValueExpression expression) => new("throw", expression);
+        public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
+        public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
+        public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
+        public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
+        public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
 
         public static EnumerableSnippet InvokeArrayEmpty(CSharpType arrayItemType)
             => new(arrayItemType, new InvokeStaticMethodExpression(typeof(Array), nameof(Array.Empty), Array.Empty<ValueExpression>(), new[] { arrayItemType }));

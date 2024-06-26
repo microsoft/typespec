@@ -25,6 +25,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             writer.AppendRawIf(".ConfigureAwait(false)", CallAsAsync && AddConfigureAwaitFalse);
         }
 
-        public MethodBodyStatement Terminate() => new ExpressionStatement(this);
+        private MethodBodyStatement? _terminated;
+        public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
     }
 }

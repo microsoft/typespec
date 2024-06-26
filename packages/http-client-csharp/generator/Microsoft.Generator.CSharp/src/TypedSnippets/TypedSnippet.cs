@@ -34,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static implicit operator ValueExpression(TypedSnippet typed) => typed.Untyped;
 
-        public MethodBodyStatement Terminate() => new ExpressionStatement(this);
+        private MethodBodyStatement? _terminated;
+        public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
     }
 }

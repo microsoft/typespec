@@ -382,7 +382,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordStatement("yield", new KeywordExpression("break", null))),
+                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordExpression("yield", new KeywordExpression("break", null)).Terminate()),
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureDictionary.Invoke("GetEnumerator"))
