@@ -41,9 +41,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         private string GetDebuggerDisplay()
         {
-            using CodeWriter wrter = new CodeWriter();
-            Untyped.Write(wrter);
-            return wrter.ToString(false);
+            using CodeWriter writer = new CodeWriter();
+            Untyped.Write(writer);
+            return writer.ToString(false);
         }
     }
 }

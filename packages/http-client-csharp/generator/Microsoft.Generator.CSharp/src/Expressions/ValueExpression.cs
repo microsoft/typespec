@@ -61,9 +61,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         private string GetDebuggerDisplay()
         {
-            using CodeWriter wrter = new CodeWriter();
-            Write(wrter);
-            return wrter.ToString(false);
+            using CodeWriter writer = new CodeWriter();
+            Write(writer);
+            return writer.ToString(false);
         }
     }
 }
