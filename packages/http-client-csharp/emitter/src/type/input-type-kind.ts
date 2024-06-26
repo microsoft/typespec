@@ -3,7 +3,4 @@
 
 export enum InputTypeKind {
   Model = "Model",
-  Array = "Array",
-  Dictionary = "Dictionary",
-  Intrinsic = "Intrinsic",
 }

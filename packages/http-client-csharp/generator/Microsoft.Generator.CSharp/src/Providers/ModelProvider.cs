@@ -48,11 +48,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
-            {
-                return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
-            }
-            return Array.Empty<TypeProvider>();
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
