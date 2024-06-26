@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {
-            var discriminatorDeclaration = new VariableReferenceSnippet(typeof(JsonElement), "discriminator");
+            var discriminatorDeclaration = new VariableExpression(typeof(JsonElement), "discriminator");
             discriminator = new JsonElementSnippet(discriminatorDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetProperty), [Literal(propertyName), new DeclarationExpression(discriminatorDeclaration.Type, discriminatorDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet TryGetInt32(out IntSnippet intValue)
         {
-            var intValueDeclaration = new VariableReferenceSnippet(typeof(int), "intValue");
+            var intValueDeclaration = new VariableExpression(typeof(int), "intValue");
             intValue = new IntSnippet(intValueDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt32), [new DeclarationExpression(intValueDeclaration.Type, intValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);
@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet TryGetInt64(out LongSnippet longValue)
         {
-            var longValueDeclaration = new VariableReferenceSnippet(typeof(long), "longValue");
+            var longValueDeclaration = new VariableExpression(typeof(long), "longValue");
             longValue = new LongSnippet(longValueDeclaration);
             var invocation = new InvokeInstanceMethodExpression(this, nameof(JsonElement.TryGetInt64), [new DeclarationExpression(longValueDeclaration.Type, longValueDeclaration.Declaration, true)], null, false);
             return new BoolSnippet(invocation);

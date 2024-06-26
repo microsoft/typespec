@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions
 {
-    internal class ExpressionsTest
+    internal class ExpressionsTests
     {
         private readonly string _mocksFolder = "Mocks";
 
@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                         new ParameterProvider("p2", $"p2", new CSharpType(typeof(bool))),
                         new ParameterProvider("p3", $"p3", new CSharpType(typeof(bool)))
                     ],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { Return(True) },
                 mockTypeProvider.Object);
             var returnInstanceMethod = Return(new InvokeInstanceMethodExpression(null, barMethod.Signature.Name, [Bool(true), Bool(false), Bool(false)]));
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: typeof(bool),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { returnInstanceMethod },
                 mockTypeProvider.Object);
 
@@ -74,7 +74,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             // declare the instance method
             var mockTypeProvider = new Mock<TypeProvider>();
             var newInstanceExpression = new NewInstanceExpression(new CSharpType(typeof(object)), []);
-            var variableX = new VariableReferenceSnippet(typeof(object), "x");
+            var variableX = new VariableExpression(typeof(object), "x");
             var xDeclaration = Declare(variableX, newInstanceExpression);
             var fooMethod = new MethodProvider(
                 new MethodSignature(
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: null,
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration },
                 mockTypeProvider.Object);
 

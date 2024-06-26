@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -33,7 +34,7 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (var model in output.Models)
+            foreach (TypeProvider model in output.Models)
             {
                 generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(model).Write()));
 
@@ -43,11 +44,11 @@ namespace Microsoft.Generator.CSharp
                 }
             }
 
-            foreach (var enumType in output.Enums)
+            foreach (TypeProvider enumType in output.Enums)
             {
                 generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(enumType).Write()));
 
-                if (enumType.Serialization is { } serialization)
+                foreach (var serialization in enumType.SerializationProviders)
                 {
                     generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(serialization).Write()));
                 }
