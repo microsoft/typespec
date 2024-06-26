@@ -12,15 +12,33 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void AssignmentExpression()
         {
-            var toValue = new ValueExpression();
-            var fromValue = new ValueExpression();
+            var toValue = new VariableExpression(typeof(int), "foo");
+            var fromValue = Literal(1);
 
-            var assignStatement = toValue.Assign(fromValue);
+            using CodeWriter writer = new();
+            var assignExpression = toValue.Assign(fromValue);
+            assignExpression.Write(writer);
 
-            Assert.NotNull(assignStatement);
-            Assert.AreEqual(toValue, assignStatement.Variable);
-            Assert.AreEqual(fromValue, assignStatement.Value);
+            Assert.NotNull(assignExpression);
+            Assert.AreEqual(toValue, assignExpression.Variable);
+            Assert.AreEqual(fromValue, assignExpression.Value);
+            Assert.AreEqual("foo = 1", writer.ToString(false));
         }
 
+        [Test]
+        public void AssignValueIfNullStatement()
+        {
+            var toValue = new VariableExpression(typeof(int), "foo");
+            var fromValue = Literal(1);
+
+            using CodeWriter writer = new();
+            var assignExpression = toValue.Assign(fromValue, true);
+            assignExpression.Write(writer);
+
+            Assert.NotNull(assignExpression);
+            Assert.AreEqual(toValue, assignExpression.Variable);
+            Assert.AreEqual(fromValue, assignExpression.Value);
+            Assert.AreEqual("foo ??= 1", writer.ToString(false));
+        }
     }
 }

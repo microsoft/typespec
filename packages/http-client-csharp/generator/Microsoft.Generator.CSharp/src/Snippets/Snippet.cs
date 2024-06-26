@@ -93,12 +93,11 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StreamSnippet InvokeFileOpenWrite(string filePath)
             => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
 
-        public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
-        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value) => new AssignmentExpression(to, value);
-        public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value) => new AssignmentExpression(to, value);
-        public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value) => new AssignmentExpression(to, value);
-        public static AssignmentExpression Assign(this TypedSnippet to, ValueExpression value) => new AssignmentExpression(to, value);
-        public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value) => new AssignmentExpression(to, value);
+        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this TypedSnippet to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
         public static MethodBodyStatement AssignOrReturn(ValueExpression? variable, ValueExpression expression)
             => variable != null ? variable.Assign(expression).Terminate() : Return(expression);
