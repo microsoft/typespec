@@ -148,7 +148,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Modifiers: _methodModifiers,
                 ReturnType: typeof(object),
                 ReturnDescription: null,
-                Parameters: new[] { ScmKnownParameters.JsonElement });
+                Parameters: [ScmKnownParameters.JsonElement]);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new SwitchStatement(element.ValueKind)
             {
@@ -170,7 +170,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new([JsonValueKindSnippet.Undefined, JsonValueKindSnippet.Null], Return(Null)),
                 new(JsonValueKindSnippet.Object, new MethodBodyStatement[]
                 {
-                    Var("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
+                    Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
                     new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
                         dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Untyped.Invoke("GetObject"))
@@ -179,7 +179,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }),
                 new(JsonValueKindSnippet.Array, new MethodBodyStatement[]
                 {
-                    Var("list", New.List(typeof(object)), out var list),
+                    Declare("list", New.List(typeof(object)), out var list),
                     new ForeachStatement("item", element.EnumerateArray(), out var item)
                     {
                         list.Add(new JsonElementSnippet(item).Untyped.Invoke("GetObject"))
@@ -223,7 +223,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _getDateTimeOffsetMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.JsonElement, _formatParameter },
+                Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(DateTimeOffset),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
@@ -242,7 +242,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _getTimeSpanMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.JsonElement, _formatParameter },
+                Parameters: [ScmKnownParameters.JsonElement, _formatParameter],
                 ReturnType: typeof(TimeSpan),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
@@ -257,7 +257,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _getCharMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.JsonElement },
+                Parameters: [ScmKnownParameters.JsonElement],
                 ReturnType: typeof(char),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
@@ -265,7 +265,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 element.ValueKindEqualsString(),
                 new MethodBodyStatement[]
                 {
-                    Var("text", element.GetString(), out var text),
+                    Declare("text", element.GetString(), out var text),
                     new IfStatement(Equal(text, Null).Or(NotEqual(text.Length, Literal(1))))
                     {
                         Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
@@ -301,13 +301,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: _getRequiredStringMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.JsonElement },
+                Parameters: [ScmKnownParameters.JsonElement],
                 ReturnType: typeof(string),
                 Description: null, ReturnDescription: null);
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var body = new MethodBodyStatement[]
             {
-                Var("value", element.GetString(), out var value),
+                Declare("value", element.GetString(), out var value),
                 new IfStatement(Equal(value, Null))
                 {
                     Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind])))
@@ -328,7 +328,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: WriteBase64StringValueMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);
@@ -366,7 +366,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var signature = new MethodSignature(
                 Name: WriteNumberValueMethodName,
                 Modifiers: _methodModifiers,
-                Parameters: new[] { ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter },
+                Parameters: [ScmKnownParameters.Utf8JsonWriter, valueParameter, _formatParameter],
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var writer = new Utf8JsonWriterSnippet(ScmKnownParameters.Utf8JsonWriter);

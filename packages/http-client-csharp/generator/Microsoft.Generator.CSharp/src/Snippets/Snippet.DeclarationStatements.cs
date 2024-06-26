@@ -41,6 +41,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Declare(string name, ListSnippet value, out ListSnippet variable)
             => Declare(name, value, d => new ListSnippet(value.ItemType, d), out variable);
 
+        public static MethodBodyStatement Declare(string name, StringSnippet value, out StringSnippet variable)
+            => Declare(name, value, d => new StringSnippet(d), out variable);
+
         public static MethodBodyStatement Declare(string name, StreamReaderSnippet value, out StreamReaderSnippet variable)
             => Declare(name, value, d => new StreamReaderSnippet(d), out variable);
 
@@ -52,26 +55,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         }
 
         public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value)
-            => new DeclareVariableStatement(variable.Type, variable.Declaration, value);
-
-        public static MethodBodyStatement Var(string name, DictionarySnippet value, out DictionarySnippet variable)
-            => Var(name, value, d => new DictionarySnippet(value.KeyType, value.ValueType, d), out variable);
-
-        public static MethodBodyStatement Var(string name, ListSnippet value, out ListSnippet variable)
-            => Var(name, value, d => new ListSnippet(value.ItemType, d), out variable);
-
-        public static MethodBodyStatement Var(string name, StringSnippet value, out StringSnippet variable)
-            => Var(name, value, d => new StringSnippet(d), out variable);
-
-        public static MethodBodyStatement Var(string name, TypedSnippet value, out VariableExpression variable)
-        {
-            var reference = new VariableExpression(value.Type, name);
-            variable = reference;
-            return Var(reference, value);
-        }
-
-        public static MethodBodyStatement Var(VariableExpression variable, ValueExpression value)
-            => new DeclareVariableStatement(null, variable.Declaration, value);
+            => new DeclarationExpression(variable).Assign(value).Terminate();
 
         private static MethodBodyStatement UsingDeclare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
@@ -90,15 +74,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         private static MethodBodyStatement Declare<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableExpression(value.Type, declaration));
-            return new DeclareVariableStatement(value.Type, declaration, value);
-        }
-
-        private static MethodBodyStatement Var<T>(string name, T value, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
-        {
-            var declaration = new CodeWriterDeclaration(name);
-            variable = factory(new VariableExpression(value.Type, declaration));
-            return new DeclareVariableStatement(null, declaration, value);
+            var variableExpression = new VariableExpression(value.Type, declaration);
+            variable = factory(variableExpression);
+            return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
     }
 }

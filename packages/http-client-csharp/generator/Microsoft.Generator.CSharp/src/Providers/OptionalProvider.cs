@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var collectionParam = new ParameterProvider("collection", $"The value.", new CSharpType(typeof(IReadOnlyDictionary<,>), _tKey, _tValue));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _tKey, _tValue);
             VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
-            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
+            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference);
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -122,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var collectionParam = new ParameterProvider("collection", $"The collection.", new CSharpType(typeof(IDictionary<,>), _tKey, _tValue));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _tKey, _tValue);
             VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingDictionary, new CodeWriterDeclaration("changeTrackingDictionary"));
-            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
+            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference);
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var collectionParam = new ParameterProvider("collection", $"The collection.", new CSharpType(typeof(IEnumerable<>), _t));
             var signature = GetIsCollectionDefinedSignature(collectionParam, _t);
             VariableExpression changeTrackingReference = new VariableExpression(_genericChangeTrackingList, new CodeWriterDeclaration("changeTrackingList"));
-            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference.Type, changeTrackingReference.Declaration, false);
+            DeclarationExpression changeTrackingDeclarationExpression = new(changeTrackingReference);
 
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
