@@ -67,27 +67,6 @@ namespace Microsoft.Generator.CSharp
         };
 
         /// <summary>
-        /// Factory method for creating a <see cref="TypeProvider"/> based on an input model <paramref name="inputModel"/>.
-        /// </summary>
-        /// <param name="inputModel">The <see cref="InputModelType"/> to convert.</param>
-        /// <returns>An instance of <see cref="TypeProvider"/> representing the model.</returns>
-        public abstract TypeProvider CreateModel(InputModelType inputModel);
-
-        /// <summary>
-        /// Factory method for creating a <see cref="TypeProvider"/> based on an input enum <paramref name="inputEnum"/>.
-        /// </summary>
-        /// <param name="inputEnum">The <see cref="InputEnumType"/> to convert.</param>
-        /// <returns>An instance of <see cref="TypeProvider"/> representing the enum.</returns>
-        public abstract TypeProvider CreateEnum(InputEnumType inputEnum);
-
-        /// <summary>
-        /// Factory method for creating a <see cref="TypeProvider"/> based on an input client <paramref name="inputClient"/>.
-        /// </summary>
-        /// <param name="inputClient">The <see cref="InputClient"/> to convert.</param>
-        /// <returns>An instance of <see cref="TypeProvider"/> representing the client.</returns>
-        public abstract TypeProvider CreateClient(InputClient inputClient);
-
-        /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>

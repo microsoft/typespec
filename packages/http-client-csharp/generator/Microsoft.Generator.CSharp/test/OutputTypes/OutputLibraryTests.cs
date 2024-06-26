@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Providers;
 using NUnit.Framework;
 
@@ -31,16 +30,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
         {
             public MockOutputLibrary() : base() { }
 
-<<<<<<< HEAD
-            protected override IReadOnlyList<TypeProvider> BuildTypes()
-=======
-            protected override ModelProvider[] BuildModels()
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override ClientProvider[] BuildClients()
->>>>>>> origin/main
+            protected override TypeProvider[] BuildTypes()
             {
                 throw new NotImplementedException();
             }

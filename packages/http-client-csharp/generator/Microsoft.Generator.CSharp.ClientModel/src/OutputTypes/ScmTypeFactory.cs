@@ -3,10 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -14,46 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
-        private readonly IDictionary<InputModelType, ModelProvider> _models = new Dictionary<InputModelType, ModelProvider>();
-        private readonly IDictionary<InputEnumType, EnumProvider> _enums = new Dictionary<InputEnumType, EnumProvider>();
-        private readonly IDictionary<InputClient, ClientProvider> _clients = new Dictionary<InputClient, ClientProvider>();
         private readonly Dictionary<InputOperation, MethodProviderCollection?> _operations = new Dictionary<InputOperation, MethodProviderCollection?>();
-
-        public override TypeProvider CreateModel(InputModelType inputModel)
-        {
-            if (_models.TryGetValue(inputModel, out var modelProvider))
-            {
-                return modelProvider;
-            }
-
-            modelProvider = new ModelProvider(inputModel);
-            _models.Add(inputModel, modelProvider);
-            return modelProvider;
-        }
-
-        public override TypeProvider CreateEnum(InputEnumType inputEnum)
-        {
-            if (_enums.TryGetValue(inputEnum, out var enumProvider))
-            {
-                return enumProvider;
-            }
-
-            enumProvider = EnumProvider.Create(inputEnum);
-            _enums.Add(inputEnum, enumProvider);
-            return enumProvider;
-        }
-
-        public override TypeProvider CreateClient(InputClient inputClient)
-        {
-            if (_clients.TryGetValue(inputClient, out var clientProvider))
-            {
-                return clientProvider;
-            }
-
-            clientProvider = new ClientProvider(inputClient);
-            _clients.Add(inputClient, clientProvider);
-            return clientProvider;
-        }
 
         public override ParameterProvider CreateCSharpParam(InputParameter inputParameter)
         {
@@ -62,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         /// <summary>
         /// Creates a <see cref="MethodProviderCollection"/> for the given operation. If the operation is a <see cref="InputOperationKinds.DefaultValue"/> operation,
-        /// a method collection will be created consisting of a <see cref="CSharpMethodKinds.CreateMessage"/> method. Otherwise, <c>null</c> will be returned.
+        /// a method collection will be created. Otherwise, <c>null</c> will be returned.
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>

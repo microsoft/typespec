@@ -82,21 +82,6 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
                         throw new NotImplementedException("Unknown input type");
                 }
             }
-
-            public override TypeProvider CreateModel(InputModelType inputModel)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override TypeProvider CreateEnum(InputEnumType inputEnum)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override TypeProvider CreateClient(InputClient inputClient)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }
