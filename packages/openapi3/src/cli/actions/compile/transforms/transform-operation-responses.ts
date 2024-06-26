@@ -221,7 +221,7 @@ export function generateResponseModelName(
 
 function convertContentType(contentType: string): string {
   return contentType
-    .replace("*", "Star")
+    .replaceAll("*", "Star")
     .split("/")
     .map((s) => s.substring(0, 1).toUpperCase() + s.substring(1))
     .join("");
