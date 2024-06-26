@@ -26,11 +26,11 @@ import { InputEnumTypeValue } from "../type/input-enum-type-value.js";
 import { InputModelProperty } from "../type/input-model-property.js";
 import { InputTypeKind } from "../type/input-type-kind.js";
 import {
+  InputArrayType,
   InputDateTimeType,
   InputDictionaryType,
   InputDurationType,
   InputEnumType,
-  InputListType,
   InputLiteralType,
   InputModelType,
   InputNullableType,
@@ -112,8 +112,7 @@ export function fromSdkModelType(
 
     inputModelType.InheritedDictionaryType = modelType.additionalProperties
       ? {
-          Kind: InputTypeKind.Dictionary,
-          Name: InputTypeKind.Dictionary,
+          Kind: "dict",
           KeyType: {
             Kind: "string",
           },
@@ -374,8 +373,7 @@ function fromSdkDictionaryType(
   enums: Map<string, InputEnumType>
 ): InputDictionaryType {
   return {
-    Kind: InputTypeKind.Dictionary,
-    Name: InputTypeKind.Dictionary,
+    Kind: "dict",
     KeyType: fromSdkType(dictionaryType.keyType, context, models, enums),
     ValueType: fromSdkType(dictionaryType.valueType, context, models, enums),
   };
@@ -386,11 +384,10 @@ function fromSdkArrayType(
   context: SdkContext,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>
-): InputListType {
+): InputArrayType {
   return {
-    Kind: InputTypeKind.Array,
-    Name: InputTypeKind.Array,
-    ElementType: fromSdkType(arrayType.valueType, context, models, enums),
+    Kind: "array",
+    ValueType: fromSdkType(arrayType.valueType, context, models, enums),
   };
 }
 

@@ -3,12 +3,13 @@
 
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Snippets
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    public sealed record JsonElementSnippet(ValueExpression Untyped) : TypedSnippet<JsonElement>(Untyped)
+    internal sealed record JsonElementSnippet(ValueExpression Untyped) : TypedSnippet<JsonElement>(Untyped)
     {
         public JsonValueKindSnippet ValueKind => new(Property(nameof(JsonElement.ValueKind)));
         public EnumerableSnippet EnumerateArray() => new(typeof(JsonElement), Untyped.Invoke(nameof(JsonElement.EnumerateArray)));
@@ -43,6 +44,20 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.String)));
 
         public MethodBodyStatement WriteTo(ValueExpression writer) => Untyped.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
+
+        public ValueExpression GetBytesFromBase64(string? format)
+            => ModelSerializationExtensionsSnippet.GetBytesFromBase64(this, format);
+
+        public ValueExpression GetObject()
+            => ModelSerializationExtensionsSnippet.GetObject(this);
+
+        public ValueExpression GetChar()
+            => ModelSerializationExtensionsSnippet.GetChar(this);
+        public ValueExpression GetDateTimeOffset(string? format)
+            => ModelSerializationExtensionsSnippet.GetDateTimeOffset(this, format);
+
+        public ValueExpression GetTimeSpan(string? format)
+            => ModelSerializationExtensionsSnippet.GetTimeSpan(this, format);
 
         public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {

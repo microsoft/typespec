@@ -4,12 +4,13 @@
 using System;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Snippets
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    public sealed record Utf8JsonWriterSnippet(ValueExpression Untyped) : TypedSnippet<Utf8JsonWriter>(Untyped)
+    internal sealed record Utf8JsonWriterSnippet(ValueExpression Untyped) : TypedSnippet<Utf8JsonWriter>(Untyped)
     {
         public LongSnippet BytesCommitted => new(Property(nameof(Utf8JsonWriter.BytesCommitted)));
         public LongSnippet BytesPending => new(Property(nameof(Utf8JsonWriter.BytesPending)));
@@ -47,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Snippets
                     WriteRawValue(value),
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(value), out var jsonDocumentVar)
                     {
-                        Snippet.JsonSerializer.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).ToStatement()
+                        JsonSerializerSnippet.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).ToStatement()
                     }
                 );
 
@@ -61,5 +62,17 @@ namespace Microsoft.Generator.CSharp.Snippets
                 : [cancellationToken];
             return Untyped.Invoke(nameof(Utf8JsonWriter.FlushAsync), arguments, true);
         }
+
+        internal MethodBodyStatement WriteObjectValue(TypedSnippet value, ValueExpression? options = null)
+             => ModelSerializationExtensionsSnippet.WriteObjectValue(this, value, options: options);
+
+        internal MethodBodyStatement WriteStringValue(ValueExpression value, string? format)
+            => ModelSerializationExtensionsSnippet.WriteStringValue(this, value, format);
+
+        internal MethodBodyStatement WriteBase64StringValue(ValueExpression value, string? format)
+            => ModelSerializationExtensionsSnippet.WriteBase64StringValue(this, value, format);
+
+        internal MethodBodyStatement WriteNumberValue(ValueExpression value, string? format)
+            => ModelSerializationExtensionsSnippet.WriteNumberValue(this, value, format);
     }
 }

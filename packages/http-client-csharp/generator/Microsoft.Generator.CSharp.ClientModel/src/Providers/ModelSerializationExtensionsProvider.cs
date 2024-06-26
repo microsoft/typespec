@@ -20,7 +20,7 @@ using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationE
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class ModelSerializationExtensionsProvider : TypeProvider
+    internal sealed class ModelSerializationExtensionsProvider : TypeProvider
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";

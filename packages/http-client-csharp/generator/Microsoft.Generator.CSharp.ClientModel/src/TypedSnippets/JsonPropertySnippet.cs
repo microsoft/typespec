@@ -3,11 +3,12 @@
 
 using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
-namespace Microsoft.Generator.CSharp.Snippets
+namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    public sealed record JsonPropertySnippet(ValueExpression Untyped) : TypedSnippet<JsonProperty>(Untyped)
+    internal sealed record JsonPropertySnippet(ValueExpression Untyped) : TypedSnippet<JsonProperty>(Untyped)
     {
         public StringSnippet Name => new(Property(nameof(JsonProperty.Name)));
         public JsonElementSnippet Value => new(Property(nameof(JsonProperty.Value)));

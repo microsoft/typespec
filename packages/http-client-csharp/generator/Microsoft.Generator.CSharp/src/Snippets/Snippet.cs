@@ -92,15 +92,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StreamSnippet InvokeFileOpenWrite(string filePath)
             => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
 
-        public static InvokeInstanceMethodExpression InvokeCustomSerializationMethod(string methodName, Utf8JsonWriterSnippet utf8JsonWriter)
-            => new InvokeInstanceMethodExpression(null, methodName, utf8JsonWriter);
-
-        public static InvokeInstanceMethodExpression InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
-            => new InvokeInstanceMethodExpression(null, methodName, stringBuilder);
-
-        public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableExpression variable)
-            => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new KeywordExpression("ref", variable) });
-
         public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
         public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
 
@@ -109,6 +100,9 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);
+
+        public static UnaryOperatorStatement Increment(ValueExpression value)
+            => new(new UnaryOperatorExpression("++", value, true));
 
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {

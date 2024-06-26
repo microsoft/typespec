@@ -19,7 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     new MethodSignature(FromResponseName, $"Deserializes the model from a raw response.", modifiers, typeProvider.Type, null, new[] { result }),
                     new MethodBodyStatement[]
                     {
-                        Snippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),
+                        SystemSnippet.UsingVar("document", JsonDocumentSnippet.Parse(new PipelineResponseSnippet(result).Content), out var document),
                         Snippet.Return(TypeProviderSnippet.Deserialize(typeProvider, document.RootElement))
                     },
                     typeProvider);
