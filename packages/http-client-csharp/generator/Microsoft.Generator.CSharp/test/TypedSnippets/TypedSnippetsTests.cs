@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.IO;
 using System;
+using System.IO;
+using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
-using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Tests.Snippets
 {
@@ -27,7 +28,29 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         }
 
         [Test]
-        public void AssertNotNull()
+        public void ConvertSnippet_InvokeToDouble()
+        {
+            var arg = Snippet.Literal("2.0");
+            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToDouble(arg);
+
+            Assert.IsNotNull(result.MethodType);
+            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
+            Assert.AreEqual(nameof(Convert.ToDouble), result.MethodName);
+        }
+
+        [Test]
+        public void ConvertSnippet_InvokeToInt32()
+        {
+            var arg = Snippet.Literal("2");
+            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToInt32(arg);
+
+            Assert.IsNotNull(result.MethodType);
+            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
+            Assert.AreEqual(nameof(Convert.ToInt32), result.MethodName);
+        }
+
+        [Test]
+        public void ArgumentSnippet_AssertNotNull()
         {
             using CodeWriter writer = new CodeWriter();
             var p = new ParameterProvider("p1", $"p1", new CSharpType(typeof(bool)));

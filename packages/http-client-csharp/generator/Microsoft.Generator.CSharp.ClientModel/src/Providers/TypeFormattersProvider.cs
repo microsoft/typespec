@@ -16,7 +16,7 @@ using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnipp
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    internal class TypeFormattersProvider : TypeProvider
+    internal sealed class TypeFormattersProvider : TypeProvider
     {
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
         private const string ToStringMethodName = "ToString";

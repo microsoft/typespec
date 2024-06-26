@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -62,7 +61,7 @@ namespace Microsoft.Generator.CSharp
             return clientProviders;
         }
 
-        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
+        protected virtual TypeProvider[] BuildTypes()
         {
             return
             [

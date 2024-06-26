@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
@@ -56,14 +55,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 var messageVar = new VariableExpression(typeof(PipelineMessage), "message");
                 message = messageVar;
                 return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
-            }
-
-            public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out VariableExpression content, out Utf8JsonWriterSnippet writer)
-            {
-                var contentVar = new VariableExpression(typeof(BinaryContent), "content");
-                content = contentVar;
-                writer = new Utf8JsonWriterSnippet(content.Property("JsonWriter"));
-                return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));
             }
 
             private static PipelineResponseSnippet GetRawResponse(TypedSnippet result)

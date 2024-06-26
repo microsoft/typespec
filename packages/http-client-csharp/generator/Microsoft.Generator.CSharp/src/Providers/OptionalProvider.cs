@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
@@ -11,7 +10,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class OptionalProvider : TypeProvider
+    public class OptionalProvider : TypeProvider
     {
         private class ListTemplate<T> { }
 
@@ -47,7 +46,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 BuildIsReadOnlyDictionaryDefined(),
                 IsStructDefined(),
                 IsObjectDefined(),
-                IsJsonElementDefined(),
                 IsStringDefined(),
             ];
         }
@@ -78,17 +76,6 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(NotEqual(valueParam, Null))
-            },
-            this);
-        }
-
-        private MethodProvider IsJsonElementDefined()
-        {
-            var valueParam = new ParameterProvider("value", $"The value.", typeof(JsonElement));
-            var signature = GetIsDefinedSignature(valueParam);
-            return new MethodProvider(signature, new MethodBodyStatement[]
-            {
-                Return(new JsonElementSnippet(valueParam).ValueKindNotEqualsUndefined())
             },
             this);
         }
@@ -158,16 +145,6 @@ namespace Microsoft.Generator.CSharp.Providers
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
             this);
-        }
-
-        internal BoolSnippet IsDefined(TypedSnippet value)
-        {
-            return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsDefined", [ value ]));
-        }
-
-        internal BoolSnippet IsCollectionDefined(TypedSnippet collection)
-        {
-            return new BoolSnippet(new InvokeStaticMethodExpression(Type, "IsCollectionDefined", [ collection ]));
         }
     }
 }
