@@ -5,4 +5,5 @@ title: Getting Started
 
 # Getting started with TypeSpec
 
-- [Get started with HTTP in TypeSpec](./getting-started-http.md)
+- [Get started with HTTP in TypeSpec](./getting-started-http/getting-started-http-00
+  .md)
