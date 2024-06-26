@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp.Snippets
             public abstract TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet response, string? contentType = null);
 
             public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out VariableExpression message);
-            public abstract MethodBodyStatement DeclareContentWithUtf8JsonWriter(out VariableExpression content, out Utf8JsonWriterSnippet writer);
             public abstract StreamSnippet GetContentStream(TypedSnippet response);
         }
     }

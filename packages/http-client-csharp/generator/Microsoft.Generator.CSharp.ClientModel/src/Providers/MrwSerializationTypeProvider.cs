@@ -237,7 +237,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         /// </summary>
         internal MethodProvider BuildIModelGetFormatFromOptionsMethod()
         {
-            ValueExpression jsonWireFormat = SystemSnippets.JsonFormatSerialization;
+            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
             // ModelReaderWriterFormat IPersistableModel<T>.GetFormatFromOptions(ModelReaderWriterOptions options)
             return new MethodProvider
             (
