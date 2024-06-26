@@ -103,7 +103,7 @@ namespace Microsoft.Generator.CSharp.Snippets
             => variable != null ? variable.Assign(expression).Terminate() : Return(expression);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
-            => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);
+            => new InvokeStaticMethodExpression(typeof(Console), nameof(Console.WriteLine), expression).Terminate();
 
         public static UnaryOperatorStatement Increment(ValueExpression value)
             => new(new UnaryOperatorExpression("++", value, true));

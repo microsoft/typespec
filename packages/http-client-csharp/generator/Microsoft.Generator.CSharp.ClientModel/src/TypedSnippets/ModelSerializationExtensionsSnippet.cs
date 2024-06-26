@@ -31,37 +31,37 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public static MethodBodyStatement WriteObjectValue(Utf8JsonWriterSnippet snippet, TypedSnippet value, ValueExpression? options = null)
         {
             var parameters = options is null
-                ? new ValueExpression[] { snippet, value }
-                : new ValueExpression[] { snippet, value, options };
-            return new InvokeStaticMethodStatement(Provider.Type, WriteObjectValueMethodName, parameters, callAsExtension: true, typeArguments: [value.Type]);
+                ? new ValueExpression[] { value }
+                : new ValueExpression[] { value, options };
+            return snippet.Untyped.Invoke(WriteObjectValueMethodName, parameters, [value.Type], false).Terminate();
         }
 
         public static MethodBodyStatement WriteStringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Provider.Type, WriteStringValueMethodName, new[] { snippet, value, Literal(format) }, callAsExtension: true);
+            => snippet.Untyped.Invoke(WriteStringValueMethodName, [value, Literal(format)]).Terminate();
 
         public static MethodBodyStatement WriteNumberValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Provider.Type, WriteNumberValueMethodName, new[] { snippet, value, Literal(format) }, callAsExtension: true);
+            => snippet.Untyped.Invoke(WriteNumberValueMethodName, [value, Literal(format)]).Terminate();
 
         public static MethodBodyStatement WriteBase64StringValue(Utf8JsonWriterSnippet snippet, ValueExpression value, string? format)
-            => new InvokeStaticMethodStatement(Provider.Type, WriteBase64StringValueMethodName, new[] { snippet, value, Literal(format) }, callAsExtension: true);
+            => snippet.Untyped.Invoke(WriteBase64StringValueMethodName, [value, Literal(format)]).Terminate();
 
         public static ValueExpression GetObject(JsonElementSnippet element)
-            => new InvokeStaticMethodExpression(Provider.Type, GetObjectMethodName, new ValueExpression[] { element }, CallAsExtension: true);
+            => new InvokeStaticMethodExpression(Provider.Type, GetObjectMethodName, [element], CallAsExtension: true);
 
         public static ValueExpression GetBytesFromBase64(JsonElementSnippet element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetBytesFromBase64MethodName, new ValueExpression[] { element, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodExpression(Provider.Type, GetBytesFromBase64MethodName, [element, Literal(format)], CallAsExtension: true);
 
         public static ValueExpression GetDateTimeOffset(JsonElementSnippet element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetDateTimeOffsetMethodName, new ValueExpression[] { element, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodExpression(Provider.Type, GetDateTimeOffsetMethodName, [element, Literal(format)], CallAsExtension: true);
 
         public static ValueExpression GetTimeSpan(JsonElementSnippet element, string? format)
-            => new InvokeStaticMethodExpression(Provider.Type, GetTimeSpanMethodName, new ValueExpression[] { element, Literal(format) }, CallAsExtension: true);
+            => new InvokeStaticMethodExpression(Provider.Type, GetTimeSpanMethodName, [element, Literal(format)], CallAsExtension: true);
 
         public static ValueExpression GetChar(JsonElementSnippet element)
-            => new InvokeStaticMethodExpression(Provider.Type, GetCharMethodName, new ValueExpression[] { element }, CallAsExtension: true);
+            => new InvokeStaticMethodExpression(Provider.Type, GetCharMethodName, [element], CallAsExtension: true);
 
         public static MethodBodyStatement ThrowNonNullablePropertyIsNull(JsonPropertySnippet property)
-            => new InvokeStaticMethodStatement(Provider.Type, ThrowNonNullablePropertyIsNullMethodName, [property], callAsExtension: true);
+            => property.Untyped.Invoke(ThrowNonNullablePropertyIsNullMethodName).Terminate();
 
         public static ValueExpression GetRequiredString(JsonElementSnippet element)
             => new InvokeStaticMethodExpression(Provider.Type, GetRequiredStringMethodName, [element], CallAsExtension: true);
