@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.Expressions
@@ -18,14 +17,6 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
-        public static implicit operator ValueExpression(ParameterProvider parameter)
-        {
-            var decl = new CodeWriterDeclaration(parameter.Name);
-            decl.SetActualName(parameter.Name);
-            return new VariableExpression(parameter.Type, decl);
-        }
-        public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
-        public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));
@@ -60,6 +51,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, bool async)
             => new InvokeInstanceMethodExpression(this, methodName, arguments, null, async);
+
+        public InvokeInstanceMethodExpression Invoke(string methodName, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<CSharpType>? typeArguments, bool callAsAsync, bool addConfigureAwaitFalse = true)
+            => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse);
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
     }
