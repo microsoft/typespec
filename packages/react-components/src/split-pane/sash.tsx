@@ -39,6 +39,7 @@ export const Sash = ({
       role="separator"
       className={mergeClasses(style["sash"], className)}
       onMouseDown={(e) => {
+        console.log("Mouse down", e.pageX);
         setDrag(true);
         onDragStart(e);
 
