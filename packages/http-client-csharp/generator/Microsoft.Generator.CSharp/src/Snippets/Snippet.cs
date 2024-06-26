@@ -33,6 +33,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Default { get; } = new KeywordExpression("default", null);
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
+        public static ValueExpression Base { get; } = new KeywordExpression("base", null);
         public static BoolSnippet True { get; } = new(new KeywordExpression("true", null));
         public static BoolSnippet False { get; } = new(new KeywordExpression("false", null));
 
