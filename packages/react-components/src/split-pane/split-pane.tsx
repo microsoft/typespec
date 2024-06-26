@@ -161,7 +161,6 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   const onDragging = useCallback(
     (e: MouseEvent<HTMLDivElement>, i: number) => {
       const curAxis = { x: e.pageX, y: e.pageY };
-      console.log("On dragging", curAxis);
       let distanceX = curAxis[splitAxis] - axis.current[splitAxis];
 
       const leftBorder = -Math.min(
