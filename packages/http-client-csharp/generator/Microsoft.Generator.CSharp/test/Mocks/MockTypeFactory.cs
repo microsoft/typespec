@@ -20,7 +20,7 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override CSharpType CreateCSharpType(InputType input)
+        protected override CSharpType CreateCSharpTypeCore(InputType input)
         {
             throw new NotImplementedException();
         }

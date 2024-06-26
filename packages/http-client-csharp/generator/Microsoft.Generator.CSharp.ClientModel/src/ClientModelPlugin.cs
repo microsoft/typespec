@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             switch (inputType)
             {
-                case InputModelType inputModel:
+                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeProvider(provider, inputModel)];
                 default:
                     return base.GetSerializationTypeProviders(provider, inputType);

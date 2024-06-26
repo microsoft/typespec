@@ -8,19 +8,14 @@ namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
-        private IReadOnlyList<ClientProvider>? _clients;
-        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
-        //https://github.com/microsoft/typespec/issues/3589
-        private IReadOnlyList<TypeProvider>? _types;
-        private IReadOnlyList<TypeProvider>? _enums;
-        private IReadOnlyList<TypeProvider>? _models;
+        public OutputLibrary()
+        {
+        }
 
-        public IReadOnlyList<TypeProvider> Enums => _enums ??= BuildEnums();
-        public IReadOnlyList<TypeProvider> Models => _models ??= BuildModels();
-        public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
-        public IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
+        private IReadOnlyList<TypeProvider>? _typeProviders;
+        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
 
-        protected virtual TypeProvider[] BuildEnums()
+        private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
             var enums = new TypeProvider[input.Enums.Count];
@@ -34,7 +29,7 @@ namespace Microsoft.Generator.CSharp
             return enums;
         }
 
-        protected virtual TypeProvider[] BuildModels()
+        private static TypeProvider[] BuildModels()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
             var models = new TypeProvider[input.Models.Count];
@@ -48,23 +43,12 @@ namespace Microsoft.Generator.CSharp
             return models;
         }
 
-        protected virtual ClientProvider[] BuildClients()
-        {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-            var clientsCount = input.Clients.Count;
-            ClientProvider[] clientProviders = new ClientProvider[clientsCount];
-
-            for (int i = 0; i < clientsCount; i++)
-            {
-                clientProviders[i] = new ClientProvider(input.Clients[i]);
-            }
-            return clientProviders;
-        }
-
-        protected virtual TypeProvider[] BuildTypes()
+        protected virtual TypeProvider[] BuildTypeProviders()
         {
             return
             [
+                ..BuildEnums(),
+                ..BuildModels(),
                 new ChangeTrackingListProvider(),
                 new ChangeTrackingDictionaryProvider(),
                 new ArgumentProvider(),
