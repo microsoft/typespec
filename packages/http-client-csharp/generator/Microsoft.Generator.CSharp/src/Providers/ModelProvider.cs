@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
 
-            _isStruct = false; // this is only a temporary placeholder because we do not support to generate structs yet.
+            _isStruct = inputModel.ModelAsStruct;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
