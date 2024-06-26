@@ -5,7 +5,6 @@ import { withCliHost } from "./utils.js";
 
 export async function main() {
   await yargs(process.argv.slice(2))
-    //.scriptName("o2t")
     .help()
     .strict()
     .parserConfiguration({ "boolean-negation": false, "greedy-arrays": true })
@@ -21,7 +20,9 @@ export async function main() {
           })
           .option("output-dir", {
             type: "string",
-            describe: "The output path for generated artifacts.",
+            description:
+              "The output directory for generated TypeSpec files. Will be created if it does not exist.",
+            demandOption: true,
           });
       },
       withCliHost((host, args) => compileAction(host, args))

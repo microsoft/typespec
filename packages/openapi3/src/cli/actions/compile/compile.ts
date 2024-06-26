@@ -22,8 +22,6 @@ export async function compileAction(host: CliHost, args: CompileCliArgs & { path
   if (args["output-dir"]) {
     await host.mkdirp(args["output-dir"]);
     await host.writeFile(resolve(args["output-dir"], "main.tsp"), mainTsp);
-  } else if (args["output-path"]) {
-    await host.writeFile(resolve(args["output-path"], "main.tsp"), mainTsp);
   }
 }
 
