@@ -22,9 +22,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [OneTimeSetUp]
         public void Setup()
         {
-            Mock<ApiTypes> apiTypes = new Mock<ApiTypes>();
             Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-            apiTypes.SetupGet(x => x.ResponseParameterName).Returns("result");
 
             string outputFolder = "./outputFolder";
             string projectPath = outputFolder;
@@ -264,7 +262,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void TestSwitchStatementWithMultipleCasesWrite()
         {
-            var variableFoo = new VariableReferenceSnippet(typeof(bool), "foo");
+            var variableFoo = new VariableExpression(typeof(bool), "foo");
             var fooDeclaration = Declare(variableFoo, Bool(true));
             var switchStatement = new SwitchStatement(variableFoo);
 
@@ -288,7 +286,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -304,7 +302,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void TestSwitchStatementWithUsingStatementWrite()
         {
-            var variableFoo = new VariableReferenceSnippet(typeof(bool), "foo");
+            var variableFoo = new VariableExpression(typeof(bool), "foo");
             var fooDeclaration = Declare(variableFoo, Bool(true));
             var switchStatement = new SwitchStatement(variableFoo);
             var usingStatement = new UsingScopeStatement(null, new CodeWriterDeclaration("x"), New.Instance(typeof(MemoryStream)))
@@ -332,7 +330,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: new CSharpType(typeof(bool)),
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { fooDeclaration, switchStatement },
                 mockTypeProvider.Object);
 
@@ -415,9 +413,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         {
             // Set up test conditions and variables
             var condition = "MOCKCONDITION";
-            var variableX = new VariableReferenceSnippet(typeof(int), "x");
-            var variableFoo = new VariableReferenceSnippet(typeof(int), "foo");
-            var variableBar = new VariableReferenceSnippet(typeof(int), "bar");
+            var variableX = new VariableExpression(typeof(int), "x");
+            var variableFoo = new VariableExpression(typeof(int), "foo");
+            var variableBar = new VariableExpression(typeof(int), "bar");
             var xDeclaration = Declare(variableX, Int(1));
             var ifStatementBody = Declare(variableFoo, Int(2));
             var elseStatementBody = Declare(variableBar, Int(2));
@@ -431,7 +429,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: null,
                     Parameters: [],
-                    Summary: null, Description: null, ReturnDescription: null),
+                    Description: null, ReturnDescription: null),
                 new MethodBodyStatement[] { xDeclaration, ifElsePreprocessor },
                 mockTypeProvider.Object);
 

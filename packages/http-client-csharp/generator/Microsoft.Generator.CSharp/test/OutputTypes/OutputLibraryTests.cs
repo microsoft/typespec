@@ -31,7 +31,16 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
         {
             public MockOutputLibrary() : base() { }
 
+<<<<<<< HEAD
             protected override IReadOnlyList<TypeProvider> BuildTypes()
+=======
+            protected override ModelProvider[] BuildModels()
+            {
+                throw new NotImplementedException();
+            }
+
+            protected override ClientProvider[] BuildClients()
+>>>>>>> origin/main
             {
                 throw new NotImplementedException();
             }

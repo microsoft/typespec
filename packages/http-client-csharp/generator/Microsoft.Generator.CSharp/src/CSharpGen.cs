@@ -37,6 +37,12 @@ namespace Microsoft.Generator.CSharp
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+
+                foreach (var serialization in outputType.SerializationProviders)
+                {
+                    writer = CodeModelPlugin.Instance.GetWriter(serialization);
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+                }
             }
 
             // Add all the generated files to the workspace

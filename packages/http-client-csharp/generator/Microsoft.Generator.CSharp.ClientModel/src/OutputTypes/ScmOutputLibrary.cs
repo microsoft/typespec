@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Providers;
 
@@ -9,25 +8,32 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmOutputLibrary : OutputLibrary
     {
-        protected override IReadOnlyList<TypeProvider> BuildTypes()
+        private TypeProvider[] BuildClients()
         {
-            var types = base.BuildTypes();
-            var newTypes = new List<TypeProvider>(types.Count);
-            foreach (var type in types)
+            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var clients = new TypeProvider[inputClients.Count];
+            for (int i = 0; i < clients.Length; i++)
             {
-                if (type is EnumProvider enumType && enumType.Serialization != null)
-                {
-                    newTypes.Add(enumType.Serialization);
-                    continue;
-                }
+                clients[i] = new ClientProvider(inputClients[i]);
+            }
 
-                if (type is ModelProvider modelType)
+            return clients;
+        }
+
+        protected override TypeProvider[] BuildTypes()
+        {
+            var baseTypes = base.BuildTypes();
+            var systemOptionalProvider = new SystemOptionalProvider();
+
+            for (var i = 0; i < baseTypes.Length; i++)
+            {
+                if (baseTypes[i] is OptionalProvider)
                 {
-                    newTypes.AddRange(modelType.SerializationProviders);
-                    continue;
+                    baseTypes[i] = systemOptionalProvider;
                 }
             }
-            return [.. base.BuildTypes(), .. newTypes, ModelSerializationExtensionsProvider.Instance, TypeFormattersProvider.Instance];
+
+            return [.. baseTypes, .. BuildClients(), new ModelSerializationExtensionsProvider(), new TypeFormattersProvider()];
         }
     }
 }

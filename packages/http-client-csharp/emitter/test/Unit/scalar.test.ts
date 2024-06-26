@@ -32,7 +32,6 @@ describe("Test GetInputType for scalar", () => {
     deepStrictEqual(
       {
         Kind: "azureLocation",
-        IsNullable: false,
         Encode: "string",
       },
       root.Clients[0].Operations[0].Parameters[0].Type

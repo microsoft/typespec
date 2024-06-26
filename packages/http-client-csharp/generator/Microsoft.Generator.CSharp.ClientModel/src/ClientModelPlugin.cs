@@ -18,7 +18,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         private static ClientModelPlugin? _instance;
         internal static ClientModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-        public override ApiTypes ApiTypes { get; }
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
@@ -36,15 +35,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel)
+        public override IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputType)
         {
-            if (inputModel.Usage.HasFlag(InputModelTypeUsage.Json))
+            switch (inputType)
             {
-                // Add MRW serialization type provider
-                return [new MrwSerializationTypeProvider(provider, inputModel)];
+                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
+                    return [new MrwSerializationTypeProvider(provider, inputModel)];
+                default:
+                    return base.GetSerializationTypeProviders(provider, inputType);
             }
-
-            return Array.Empty<TypeProvider>();
         }
 
         [ImportingConstructor]
@@ -53,7 +52,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             TypeFactory = new ScmTypeFactory();
             ExtensibleSnippets = new SystemExtensibleSnippets();
-            ApiTypes = new SystemApiTypes();
             _instance = this;
         }
     }

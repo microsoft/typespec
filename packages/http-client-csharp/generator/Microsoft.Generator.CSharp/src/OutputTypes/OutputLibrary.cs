@@ -15,39 +15,45 @@ namespace Microsoft.Generator.CSharp
         private IReadOnlyList<TypeProvider>? _types;
         public IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
 
-        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
+        private static TypeProvider[] BuildEnums()
         {
-            var inputNamespace = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-            var inputEnums = inputNamespace.Enums;
-            var inputModels = inputNamespace.Models;
-            var inputClients = inputNamespace.Clients;
-
-            var outputTypes = new List<TypeProvider>(inputEnums.Count + inputModels.Count + inputClients.Count);
-
-            foreach (var inputEnum in inputEnums)
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var enums = new TypeProvider[input.Enums.Count];
+            for (int i = 0; i < enums.Length; i++)
             {
-                var enumType = CodeModelPlugin.Instance.TypeFactory.CreateEnum(inputEnum);
-                outputTypes.Add(enumType);
+                var inputEnum = input.Enums[i];
+                var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
+                TypeProvider enumType = cSharpEnum.Implementation;
+                enums[i] = enumType;
             }
+            return enums;
+        }
 
-            foreach (var inputModel in inputModels)
+        private TypeProvider[] BuildModels()
+        {
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var models = new TypeProvider[input.Models.Count];
+            for (int i = 0; i < models.Length; i++)
             {
-                var modelType = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
-                outputTypes.Add(modelType);
+                var inputModel = input.Models[i];
+                var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
+                TypeProvider modelType = cSharpModel.Implementation;
+                models[i] = modelType;
             }
+            return models;
+        }
 
-            foreach (var inputClient in inputClients)
-            {
-                var clientType = CodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-                outputTypes.Add(clientType);
-            }
-
-            outputTypes.Add(ChangeTrackingListProvider.Instance);
-            outputTypes.Add(ChangeTrackingDictionaryProvider.Instance);
-            outputTypes.Add(ArgumentProvider.Instance);
-            outputTypes.Add(OptionalProvider.Instance);
-
-            return outputTypes;
+        protected virtual TypeProvider[] BuildTypes()
+        {
+            return
+            [
+                ..BuildEnums(),
+                ..BuildModels(),
+                new ChangeTrackingListProvider(),
+                new ChangeTrackingDictionaryProvider(),
+                new ArgumentProvider(),
+                new OptionalProvider(),
+            ];
         }
     }
 }

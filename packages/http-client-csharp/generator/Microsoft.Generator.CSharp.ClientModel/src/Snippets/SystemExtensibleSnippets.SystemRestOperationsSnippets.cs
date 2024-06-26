@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
@@ -15,6 +14,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
     internal partial class SystemExtensibleSnippets
     {
+        internal const string FromResponseName = "FromResponse";
         private class SystemRestOperationsSnippets : RestOperationsSnippets
         {
             public override StreamSnippet GetContentStream(TypedSnippet result)
@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             public override TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet result)
             {
                 var response = GetRawResponse(result);
-                var model = new InvokeStaticMethodExpression(typeProvider.Type, ClientModelPlugin.Instance.Configuration.ApiTypes.FromResponseName, [response]);
+                var model = new InvokeStaticMethodExpression(typeProvider.Type, FromResponseName, [response]);
                 return ClientResultSnippet.FromValue(model, response);
             }
 
@@ -50,19 +50,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     : ClientResultSnippet.FromValue(rawResponse.Content.ToObjectFromJson(responseType), rawResponse);
             }
 
-            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out TypedSnippet message)
+            public override MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out VariableExpression message)
             {
-                var messageVar = new VariableReferenceSnippet(typeof(PipelineMessage), "message");
+                var messageVar = new VariableExpression(typeof(PipelineMessage), "message");
                 message = messageVar;
                 return Snippet.UsingDeclare(messageVar, new InvokeInstanceMethodExpression(null, createRequestMethodSignature.Name, createRequestMethodSignature.Parameters.Select(p => (ValueExpression)p).ToList(), null, false));
-            }
-
-            public override MethodBodyStatement DeclareContentWithUtf8JsonWriter(out TypedSnippet content, out Utf8JsonWriterSnippet writer)
-            {
-                var contentVar = new VariableReferenceSnippet(typeof(BinaryContent), "content");
-                content = contentVar;
-                writer = new Utf8JsonWriterSnippet(content.Property("JsonWriter"));
-                return Snippet.Var(contentVar, Snippet.New.Instance(typeof(BinaryContent)));
             }
 
             private static PipelineResponseSnippet GetRawResponse(TypedSnippet result)
