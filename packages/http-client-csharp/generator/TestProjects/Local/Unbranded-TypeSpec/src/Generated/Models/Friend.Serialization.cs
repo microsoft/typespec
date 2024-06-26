@@ -61,17 +61,17 @@ namespace UnbrandedTypeSpec.Models
 
         Friend IJsonModel<Friend>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new Friend();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new Friend();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

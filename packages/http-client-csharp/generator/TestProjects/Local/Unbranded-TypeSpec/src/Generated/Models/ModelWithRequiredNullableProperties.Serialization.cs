@@ -49,7 +49,7 @@ namespace UnbrandedTypeSpec.Models
             }
             else
             {
-                writer.WriteNull("requiredNullablePrimitive");
+                writer.WriteNull("requiredNullablePrimitive"u8);
             }
             if (RequiredExtensibleEnum != null)
             {
@@ -58,7 +58,7 @@ namespace UnbrandedTypeSpec.Models
             }
             else
             {
-                writer.WriteNull("requiredExtensibleEnum");
+                writer.WriteNull("requiredExtensibleEnum"u8);
             }
             if (RequiredFixedEnum != null)
             {
@@ -67,7 +67,7 @@ namespace UnbrandedTypeSpec.Models
             }
             else
             {
-                writer.WriteNull("requiredFixedEnum");
+                writer.WriteNull("requiredFixedEnum"u8);
             }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
@@ -88,17 +88,17 @@ namespace UnbrandedTypeSpec.Models
 
         ModelWithRequiredNullableProperties IJsonModel<ModelWithRequiredNullableProperties>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new ModelWithRequiredNullableProperties();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<ModelWithRequiredNullableProperties>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         ModelWithRequiredNullableProperties IPersistableModel<ModelWithRequiredNullableProperties>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new ModelWithRequiredNullableProperties();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

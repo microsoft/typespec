@@ -61,17 +61,17 @@ namespace UnbrandedTypeSpec.Models
 
         ProjectedModel IJsonModel<ProjectedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new ProjectedModel();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         ProjectedModel IPersistableModel<ProjectedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new ProjectedModel();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

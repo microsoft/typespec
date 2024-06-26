@@ -272,17 +272,17 @@ namespace UnbrandedTypeSpec.Models
 
         RoundTripModel IJsonModel<RoundTripModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new RoundTripModel();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         RoundTripModel IPersistableModel<RoundTripModel>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new RoundTripModel();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

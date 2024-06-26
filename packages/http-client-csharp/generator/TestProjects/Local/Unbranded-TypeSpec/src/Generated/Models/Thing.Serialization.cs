@@ -96,7 +96,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 else
                 {
-                    writer.WriteNull("optionalNullableList");
+                    writer.WriteNull("optionalNullableList"u8);
                 }
             }
             if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
@@ -111,7 +111,7 @@ namespace UnbrandedTypeSpec.Models
             }
             else
             {
-                writer.WriteNull("requiredNullableList");
+                writer.WriteNull("requiredNullableList"u8);
             }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {
@@ -132,17 +132,17 @@ namespace UnbrandedTypeSpec.Models
 
         Thing IJsonModel<Thing>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new Thing();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         Thing IPersistableModel<Thing>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new Thing();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<Thing>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

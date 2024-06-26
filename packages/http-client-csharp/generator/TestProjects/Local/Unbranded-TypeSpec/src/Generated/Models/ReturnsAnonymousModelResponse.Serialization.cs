@@ -54,17 +54,17 @@ namespace UnbrandedTypeSpec.Models
 
         ReturnsAnonymousModelResponse IJsonModel<ReturnsAnonymousModelResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            return new ReturnsAnonymousModelResponse();
+            throw new NotImplementedException("Not implemented");
         }
 
         BinaryData IPersistableModel<ReturnsAnonymousModelResponse>.Write(ModelReaderWriterOptions options)
         {
-            return new BinaryData("IPersistableModel");
+            throw new NotImplementedException("Not implemented");
         }
 
         ReturnsAnonymousModelResponse IPersistableModel<ReturnsAnonymousModelResponse>.Create(BinaryData data, ModelReaderWriterOptions options)
         {
-            return new ReturnsAnonymousModelResponse();
+            throw new NotImplementedException("Not implemented");
         }
 
         string IPersistableModel<ReturnsAnonymousModelResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";

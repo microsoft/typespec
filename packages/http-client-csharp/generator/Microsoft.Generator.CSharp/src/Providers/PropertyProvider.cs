@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.OutputTypes;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -21,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; }
-        public PropertySerializationProvider? SerializationInfo { get; }
+        public PropertyWireInformation? WireInfo { get; }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -37,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
-            SerializationInfo = new PropertySerializationProvider(inputProperty);
+            WireInfo = new PropertyWireInformation(inputProperty);
         }
 
         public PropertyProvider(
@@ -47,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Providers
             string name,
             PropertyBody body,
             CSharpType? explicitInterface = null,
-            PropertySerializationProvider? propertySerializationProvider = null)
+            PropertyWireInformation? wireInfo = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -57,7 +58,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Body = body;
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
-            SerializationInfo = propertySerializationProvider;
+            WireInfo = wireInfo;
         }
 
         private XmlDocProvider GetXmlDocs()
