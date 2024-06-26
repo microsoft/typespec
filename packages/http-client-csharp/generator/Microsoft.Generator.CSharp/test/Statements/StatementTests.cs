@@ -45,19 +45,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         }
 
         [Test]
-        public void AssignValueStatement()
-        {
-            var toValue = new ValueExpression();
-            var fromValue = new ValueExpression();
-
-            var assignStatement = new AssignValueStatement(toValue, fromValue);
-
-            Assert.NotNull(assignStatement);
-            Assert.AreEqual(toValue, assignStatement.To);
-            Assert.AreEqual(fromValue, assignStatement.From);
-        }
-
-        [Test]
         public void CreateForStatement()
         {
             var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());

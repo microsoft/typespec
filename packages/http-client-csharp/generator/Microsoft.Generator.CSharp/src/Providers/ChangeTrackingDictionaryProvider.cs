@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary)),
+                _innerDictionary.Assign(New.Instance(_dictionary)).Terminate(),
                 new ForeachStatement("pair", dictionary, out var pair)
                 {
                     _innerDictionary.Add(pair)
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary, dictionary))
+                _innerDictionary.Assign(New.Instance(_dictionary, dictionary)).Terminate()
             },
             this);
         }
@@ -164,9 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 },
                 new MethodBodyStatement[]
                 {
-                    Assign(
-                        new ArrayElementExpression(EnsureDictionary, _indexParam),
-                        new KeywordExpression("value", null))
+                    new ArrayElementExpression(EnsureDictionary, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
                 }));
         }
 
@@ -249,7 +247,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    Assign(value, Default),
+                    value.Assign(Default).Terminate(),
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))

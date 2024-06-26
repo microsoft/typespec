@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -19,16 +18,6 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
         public static implicit operator ValueExpression(CSharpType type) => new TypeReferenceExpression(type);
-        public static implicit operator ValueExpression(ParameterProvider parameter)
-        {
-            var decl = new CodeWriterDeclaration(parameter.Name);
-            decl.SetActualName(parameter.Name);
-            return new VariableExpression(parameter.Type, decl);
-        }
-        public static implicit operator ValueExpression(FieldProvider field) => new MemberExpression(null, field.Name);
-        public static implicit operator ValueExpression(PropertyProvider property) => new MemberExpression(null, property.Name);
-
-        public MethodBodyStatement Terminate() => new ExpressionStatement(this);
 
         public ValueExpression NullableStructValue(CSharpType candidateType) => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public StringSnippet InvokeToString() => new(Invoke(nameof(ToString)));

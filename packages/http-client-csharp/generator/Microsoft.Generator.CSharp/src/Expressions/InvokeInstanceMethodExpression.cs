@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -23,5 +24,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             writer.WriteArguments(Arguments);
             writer.AppendRawIf(".ConfigureAwait(false)", CallAsAsync && AddConfigureAwaitFalse);
         }
+
+        public MethodBodyStatement Terminate() => new ExpressionStatement(this);
     }
 }

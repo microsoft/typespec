@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]
             {
-                Assign(valueField, valueParameter)
+                valueField.Assign(valueParameter).Terminate()
             };
 
             return [new MethodProvider(signature, body, this)];

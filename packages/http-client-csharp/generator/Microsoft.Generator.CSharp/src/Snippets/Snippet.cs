@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -93,10 +94,14 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
 
         public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
-        public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
+        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value) => new AssignmentExpression(to, value);
+        public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value) => new AssignmentExpression(to, value);
+        public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value) => new AssignmentExpression(to, value);
+        public static AssignmentExpression Assign(this TypedSnippet to, ValueExpression value) => new AssignmentExpression(to, value);
+        public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value) => new AssignmentExpression(to, value);
 
         public static MethodBodyStatement AssignOrReturn(ValueExpression? variable, ValueExpression expression)
-            => variable != null ? Assign(variable, expression) : Return(expression);
+            => variable != null ? variable.Assign(expression).Terminate() : Return(expression);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);

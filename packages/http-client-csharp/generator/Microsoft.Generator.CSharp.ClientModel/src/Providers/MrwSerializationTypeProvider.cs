@@ -276,12 +276,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (param.Name == _rawDataField?.Name.ToVariableName())
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, _rawDataField.Name), param));
+                    methodBodyStatements.Add(_rawDataField.Assign(param).Terminate());
                     continue;
                 }
 
                 ValueExpression initializationValue = param;
-                var initializationStatement = Assign(new MemberExpression(null, param.Name.FirstCharToUpperCase()), initializationValue);
+                var initializationStatement = param.AsPropertyExpression.Assign(initializationValue).Terminate();
                 if (initializationStatement != null)
                 {
                     methodBodyStatements.Add(initializationStatement);

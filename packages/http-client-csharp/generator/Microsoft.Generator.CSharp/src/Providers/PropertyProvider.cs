@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -112,6 +113,19 @@ namespace Microsoft.Generator.CSharp.Providers
         private string GetDebuggerDisplay()
         {
             return $"Name: {Name}, Type: {Type}";
+        }
+
+        private static readonly Dictionary<PropertyProvider, MemberExpression> _cache = new();
+
+        public static implicit operator MemberExpression(PropertyProvider property)
+        {
+            if (!_cache.TryGetValue(property, out var member))
+            {
+                member = new MemberExpression(null, property.Name);
+                _cache[property] = member;
+            }
+
+            return member;
         }
     }
 }

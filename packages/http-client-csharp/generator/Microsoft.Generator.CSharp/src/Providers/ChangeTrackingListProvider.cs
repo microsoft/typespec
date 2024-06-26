@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(NotEqual(iList, Null))
                 {
-                    new AssignValueStatement(_innerList, iList)
+                    _innerList.Assign(iList).Terminate()
                 }
             };
 
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(NotEqual(iReadOnlyList, Null))
                 {
-                    new AssignValueStatement(_innerList, Linq.ToList(iReadOnlyList))
+                    _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }
             };
 
@@ -144,16 +144,14 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    new AssignValueStatement(
-                            new ArrayElementExpression(EnsureList, _indexParam),
-                            new KeywordExpression("value", null))
+                    new ArrayElementExpression(EnsureList, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
                 }));
         }
 
         protected override MethodProvider[] BuildMethods()
         {
-            return new MethodProvider[]
-            {
+            return
+            [
                 BuildReset(),
                 BuildGetEnumeratorOfT(),
                 BuildGetEnumerator(),
@@ -166,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 BuildInsert(),
                 BuildRemoveAt(),
                 BuildEnsureList()
-            };
+            ];
         }
 
         private MethodProvider BuildRemoveAt()
@@ -294,7 +292,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Reset", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
-                Assign(_innerList, Null)
+                _innerList.Assign(Null).Terminate()
             },
             this);
         }

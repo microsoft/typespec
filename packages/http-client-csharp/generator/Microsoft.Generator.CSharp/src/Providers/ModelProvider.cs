@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 if (initializationValue != null)
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
+                    methodBodyStatements.Add(property.Assign(initializationValue).Terminate());
                 }
             }
 

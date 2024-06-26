@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.Generator.CSharp.Statements;
+
 namespace Microsoft.Generator.CSharp.Expressions
 {
     /// <summary>
@@ -16,5 +18,7 @@ namespace Microsoft.Generator.CSharp.Expressions
             writer.Append($" = ");
             Value.Write(writer);
         }
+
+        public MethodBodyStatement Terminate() => new ExpressionStatement(this);
     }
 }
