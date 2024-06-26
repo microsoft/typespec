@@ -2,7 +2,7 @@ import yargs from "yargs";
 import { compileAction } from "./actions/compile/compile.js";
 import { withCliHost } from "./utils.js";
 
-async function main() {
+export async function main() {
   await yargs(process.argv.slice(2))
     //.scriptName("o2t")
     .help()
@@ -28,10 +28,3 @@ async function main() {
     .version("1")
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
-
-main().catch((error: unknown) => {
-  // eslint-disable-next-line no-console
-  console.error(error);
-
-  process.exit(1);
-});
