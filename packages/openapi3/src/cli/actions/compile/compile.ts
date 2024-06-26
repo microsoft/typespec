@@ -2,6 +2,7 @@ import oaParser from "@readme/openapi-parser";
 import { resolve } from "path";
 import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";
+import { handleInternalCompilerError } from "../../utils.js";
 import { CompileCliArgs } from "./args.js";
 import { emitMain } from "./emitters/emit-main.js";
 import { transform } from "./transforms/transforms.js";
@@ -11,7 +12,12 @@ export async function compileAction(host: CliHost, args: CompileCliArgs & { path
   const fullPath = resolve(process.cwd(), args.path);
   const model = (await parseOpenApiFile(fullPath)) as OpenAPI3Document;
   const program = transform(model);
-  const mainTsp = await emitMain(program);
+  let mainTsp: string;
+  try {
+    mainTsp = await emitMain(program);
+  } catch (err) {
+    handleInternalCompilerError(err);
+  }
 
   if (args["output-dir"]) {
     await host.mkdirp(args["output-dir"]);

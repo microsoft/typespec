@@ -27,3 +27,24 @@ export function createConsoleLogger(): Logger {
     error: (message) => log({ level: "error", message }),
   };
 }
+
+/**
+ * Handle an internal compiler error.
+ *
+ * NOTE: An expected error, like one thrown for bad input, shouldn't reach
+ * here, but be handled somewhere else. If we reach here, it should be
+ * considered a bug and therefore we should not suppress the stack trace as
+ * that risks losing it in the case of a bug that does not repro easily.
+ *
+ * @param error error thrown
+ */
+export function handleInternalCompilerError(error: unknown): never {
+  /* eslint-disable no-console */
+  console.error("Internal compiler error!");
+  console.error("File issue at https://github.com/microsoft/typespec");
+  console.error();
+  console.error(error);
+  /* eslint-enable no-console */
+
+  process.exit(1);
+}
