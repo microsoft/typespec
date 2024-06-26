@@ -329,7 +329,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 _utf8JsonWriterSnippet.WriteStartObject(),
-                new InvokeInstanceMethodStatement(This, coreMethodSignature.Name, [.. coreMethodSignature.Parameters]),
+                This.Invoke(coreMethodSignature.Name, [.. coreMethodSignature.Parameters]).Terminate(),
                 _utf8JsonWriterSnippet.WriteEndObject(),
             ];
         }
@@ -349,7 +349,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             // base.<JsonModelWriteCore>()
             return _shouldOverrideMethods ?
-                new InvokeInstanceMethodStatement(Base, JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter])
+                Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
                 : EmptyStatement;
         }
 
@@ -450,12 +450,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Equal(options.Format, ModelReaderWriterOptionsSnippet.WireFormat),
                 invokeGetFormatFromOptions,
                 options.Format);
-            var reference = new VariableExpression(cast.Type, "format");
+            var reference = new VariableExpression(typeof(string), "format");
             format = reference;
-            return Var(reference, condition);
+            return Declare(reference, condition);
         }
 
-        private static KeywordStatement ThrowValidationFailException(ValueExpression format, CSharpType modelType, string action)
+        private static MethodBodyStatement ThrowValidationFailException(ValueExpression format, CSharpType modelType, string action)
             => Throw(New.Instance(
                 typeof(FormatException),
                 new FormattableStringExpression($"The model {{{0}}} does not support {action} '{{{1}}}' format.",
