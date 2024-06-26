@@ -1,4 +1,3 @@
-import { useControllableValue } from "@typespec/react-components";
 import {
   useCallback,
   useEffect,
@@ -8,13 +7,13 @@ import {
   type FC,
   type KeyboardEvent,
 } from "react";
+import { useControllableValue } from "../hooks.js";
 import { useTreeControls } from "./tree-control.js";
 import { TreeViewRow } from "./tree-row.js";
+import style from "./tree.module.css";
 import type { TreeNode, TreeRow } from "./types.js";
 
-import style from "./tree.module.css";
-
-export interface TreeViewProps<T extends TreeNode> {
+export interface TreeProps<T extends TreeNode> {
   /**
    * If tree allows keeping a current selection.
    * @default no selection.
@@ -35,7 +34,7 @@ export function Tree<T extends TreeNode>({
   onSetExpanded,
   nodeIcon,
   selectionMode = "none",
-}: TreeViewProps<T>) {
+}: TreeProps<T>) {
   const id = useId();
   const { expanded, toggleExpand, expand, collapse, renderSignal } = useTreeControls({
     onSetExpanded,

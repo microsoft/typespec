@@ -1,7 +1,6 @@
+import { Tree, type TreeNode } from "@typespec/react-components";
 import type { FC } from "react";
 import { useState } from "react";
-import { Tree } from "../tree/tree.js";
-import type { TreeNode } from "../tree/types.js";
 import { JsValue } from "./js-value/js-value.js";
 import { ObjectLabel } from "./object-label.js";
 import { ObjectRootLabel } from "./object-root-label.js";

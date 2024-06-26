@@ -1,6 +1,6 @@
 import { AppsListRegular } from "@fluentui/react-icons";
+import { Tree } from "@typespec/react-components";
 import style from "./tree-navigation.module.css";
-import { Tree } from "./tree/tree.js";
 import { useTreeNavigator, type TypeGraphNode } from "./use-tree-navigation.js";
 
 export interface TreeNavigationProps {}
