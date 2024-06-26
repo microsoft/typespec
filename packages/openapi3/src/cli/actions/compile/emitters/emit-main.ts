@@ -19,5 +19,8 @@ export async function emitMain(program: TypeSpecProgram): Promise<string> {
   ${program.operations.map(generateOperation).join("\n\n")}
   `;
 
-  return formatTypeSpec(content);
+  return formatTypeSpec(content, {
+    printWidth: 100,
+    tabWidth: 2,
+  });
 }

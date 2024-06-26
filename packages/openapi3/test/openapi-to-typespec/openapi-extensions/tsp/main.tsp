@@ -55,6 +55,4 @@ model foo200ApplicationJsonResponse {
   @bodyRoot body: Foo;
 }
 
-@route("/")
-@get
-op foo(): foo200ApplicationJsonResponse;
+@route("/") @get op foo(): foo200ApplicationJsonResponse;

@@ -46,7 +46,5 @@ model extensive5XXResponse {
   statusCode: int32;
 }
 
-@route("/")
-@get
-op extensive(
+@route("/") @get op extensive(
 ): extensive200ApplicationJsonResponse | extensive4XXResponse | extensive5XXResponse;

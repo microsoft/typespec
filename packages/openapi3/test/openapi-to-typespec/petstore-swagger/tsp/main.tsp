@@ -510,8 +510,7 @@ model updateUserDefaultResponse {}
 @route("/pet")
 @post
 op addPet(
-  @header
-  contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
+  @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Pet,
 ): addPet200ApplicationXmlResponse | addPet200ApplicationJsonResponse | addPet405Response;
 
@@ -522,8 +521,7 @@ op addPet(
 @route("/pet")
 @put
 op updatePet(
-  @header
-  contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
+  @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Pet,
 ):
   | updatePet200ApplicationXmlResponse
@@ -649,8 +647,7 @@ op getInventory(): getInventory200ApplicationJsonResponse;
 @route("/store/order")
 @post
 op placeOrder(
-  @header
-  contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
+  @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: Order,
 ): placeOrder200ApplicationJsonResponse | placeOrder405Response;
 
@@ -695,8 +692,7 @@ op getOrderById(
 @route("/user")
 @post
 op createUser(
-  @header
-  contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
+  @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: User,
 ): createUserDefaultApplicationJsonResponse | createUserDefaultApplicationXmlResponse;
 
@@ -771,7 +767,6 @@ op updateUser(
    */
   @path username: string,
 
-  @header
-  contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
+  @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @bodyRoot body: User,
 ): updateUserDefaultResponse;

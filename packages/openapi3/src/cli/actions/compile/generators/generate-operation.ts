@@ -30,7 +30,7 @@ export function generateOperation(operation: TypeSpecOperation): string {
 
   definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responseTypes.join(" | ")};`);
 
-  return definitions.join("\n");
+  return definitions.join(" ");
 }
 
 function generateOperationParameter(parameter: Refable<TypeSpecOperationParameter>) {

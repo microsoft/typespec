@@ -43,9 +43,7 @@ model Operations_putThing200ApplicationJsonResponse {
   @bodyRoot body: Thing;
 }
 
-@route("/thing/{name}")
-@get
-op Operations_getThing(
+@route("/thing/{name}") @get op Operations_getThing(
   @pattern("^[a-zA-Z0-9-]{3,24}$")
   @format("UUID")
   @path
@@ -57,9 +55,7 @@ op Operations_getThing(
   count: int32,
 ): Operations_getThing200ApplicationJsonResponse;
 
-@route("/thing/{name}")
-@put
-op Operations_putThing(
+@route("/thing/{name}") @put op Operations_putThing(
   ...NameParameter,
   @bodyRoot body: Thing,
 ): Operations_putThing200ApplicationJsonResponse;

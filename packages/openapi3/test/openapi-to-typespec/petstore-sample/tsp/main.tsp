@@ -93,8 +93,7 @@ op listPets(
 @tag("pets")
 @route("/pets")
 @post
-op createPets(
-): createPets201Response | createPetsDefaultApplicationJsonResponse;
+op createPets(): createPets201Response | createPetsDefaultApplicationJsonResponse;
 
 @tag("pets")
 @route("/pets/{petId}")

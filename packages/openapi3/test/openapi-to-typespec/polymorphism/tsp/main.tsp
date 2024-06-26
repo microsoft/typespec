@@ -41,6 +41,4 @@ model root_read200ApplicationJsonResponse {
   @bodyRoot body: Pet;
 }
 
-@route("/Pets")
-@get
-op root_read(): root_read200ApplicationJsonResponse;
+@route("/Pets") @get op root_read(): root_read200ApplicationJsonResponse;
