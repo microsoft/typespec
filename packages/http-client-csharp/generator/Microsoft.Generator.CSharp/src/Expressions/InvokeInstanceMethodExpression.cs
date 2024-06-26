@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -15,8 +15,9 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public InvokeInstanceMethodExpression(ValueExpression? instanceReference, MethodSignature signature, bool addConfigureAwaitFalse = true) : this(instanceReference, signature, signature.Parameters.Select(p => (ValueExpression)p).ToArray(), addConfigureAwaitFalse) { }
 
-        internal MethodBodyStatement ToStatement()
-            => new InvokeInstanceMethodStatement(InstanceReference, MethodName, Arguments, CallAsAsync);
+        public InvokeInstanceMethodExpression(ValueExpression? instance, string methodName) : this(instance, methodName, Array.Empty<ValueExpression>(), null, false) { }
+
+        public InvokeInstanceMethodExpression(ValueExpression? instance, string methodName, ValueExpression arg) : this(instance, methodName, [arg], null, false) { }
 
         internal override void Write(CodeWriter writer)
         {

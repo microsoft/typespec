@@ -177,7 +177,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "RemoveAt", [_indexParam], false)
+                EnsureList.Invoke("RemoveAt", [_indexParam], false).Terminate()
             },
             this);
         }
@@ -186,7 +186,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Insert", null, MethodSignatureModifiers.Public, null, null, [_indexParam, _tParam]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Insert", [_indexParam, _tParam], false)
+                EnsureList.Invoke("Insert", [_indexParam, _tParam], false).Terminate()
             },
             this);
         }
@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "CopyTo", [arrayParam, arrayIndexParam], false)
+                EnsureList.Invoke("CopyTo", [arrayParam, arrayIndexParam], false).Terminate()
             },
             this);
         }
@@ -252,7 +252,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Clear", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Clear")
+                EnsureList.Invoke("Clear").Terminate()
             },
             this);
         }
@@ -262,7 +262,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var genericParameter = new ParameterProvider("item", $"The item to add.", _t);
             return new MethodProvider(new MethodSignature("Add", null, MethodSignatureModifiers.Public, null, null, [genericParameter]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Add", genericParameter)
+                EnsureList.Invoke("Add", genericParameter).Terminate()
             },
             this);
         }

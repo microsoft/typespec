@@ -294,7 +294,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Add", null, parameters: [key, value]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", key, value).ToStatement()
+                EnsureDictionary.Invoke("Add", key, value).Terminate()
             },
             this);
         }
@@ -326,7 +326,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                EnsureDictionary.Invoke("CopyTo", array, index).ToStatement()
+                EnsureDictionary.Invoke("CopyTo", array, index).Terminate()
             },
             this);
         }
@@ -351,7 +351,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Clear", null);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Clear").ToStatement()
+                EnsureDictionary.Invoke("Clear").Terminate()
             },
             this);
         }
@@ -362,7 +362,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Add", null, parameters: [item]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", item).ToStatement()
+                EnsureDictionary.Invoke("Add", item).Terminate()
             },
             this);
         }

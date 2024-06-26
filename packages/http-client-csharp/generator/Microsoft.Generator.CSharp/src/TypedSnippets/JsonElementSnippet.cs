@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public BoolSnippet ValueKindEqualsString()
             => new(new BinaryOperatorExpression("==", Property(nameof(JsonElement.ValueKind)), FrameworkEnumValue(JsonValueKind.String)));
 
-        public MethodBodyStatement WriteTo(ValueExpression writer) => new InvokeInstanceMethodStatement(Untyped, nameof(JsonElement.WriteTo), new[] { writer }, false);
+        public MethodBodyStatement WriteTo(ValueExpression writer) => Untyped.Invoke(nameof(JsonElement.WriteTo), [writer], false).Terminate();
 
         public BoolSnippet TryGetProperty(string propertyName, out JsonElementSnippet discriminator)
         {

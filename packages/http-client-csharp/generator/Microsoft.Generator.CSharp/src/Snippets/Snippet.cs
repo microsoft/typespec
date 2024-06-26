@@ -92,11 +92,11 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StreamSnippet InvokeFileOpenWrite(string filePath)
             => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
 
-        public static MethodBodyStatement InvokeCustomSerializationMethod(string methodName, Utf8JsonWriterSnippet utf8JsonWriter)
-            => new InvokeInstanceMethodStatement(null, methodName, utf8JsonWriter);
+        public static InvokeInstanceMethodExpression InvokeCustomSerializationMethod(string methodName, Utf8JsonWriterSnippet utf8JsonWriter)
+            => new InvokeInstanceMethodExpression(null, methodName, utf8JsonWriter);
 
-        public static MethodBodyStatement InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
-            => new InvokeInstanceMethodStatement(null, methodName, stringBuilder);
+        public static InvokeInstanceMethodExpression InvokeCustomBicepSerializationMethod(string methodName, StringBuilderSnippet stringBuilder)
+            => new InvokeInstanceMethodExpression(null, methodName, stringBuilder);
 
         public static MethodBodyStatement InvokeCustomDeserializationMethod(string methodName, JsonPropertySnippet jsonProperty, VariableExpression variable)
             => new InvokeStaticMethodStatement(null, methodName, new ValueExpression[] { jsonProperty, new KeywordExpression("ref", variable) });

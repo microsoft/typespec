@@ -17,6 +17,7 @@ namespace Microsoft.Generator.CSharp
         private ChangeTrackingDictionaryProvider? _changeTrackingDictionaryProvider;
         private ChangeTrackingListProvider ChangeTrackingListProvider => _changeTrackingListProvider ??= new();
         private ChangeTrackingDictionaryProvider ChangeTrackingDictionaryProvider => _changeTrackingDictionaryProvider ??= new();
+
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on an input type <paramref name="input"/>.
         /// </summary>

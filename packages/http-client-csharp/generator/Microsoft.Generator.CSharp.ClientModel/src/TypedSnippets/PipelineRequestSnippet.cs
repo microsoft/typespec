@@ -15,6 +15,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public TypedSnippet Uri => new FrameworkTypeSnippet(typeof(Uri), Property(nameof(PipelineRequest.Uri)));
         public MethodBodyStatement SetMethod(string method) => Assign(Untyped.Property("Method"), Literal(method));
         public MethodBodyStatement SetHeaderValue(string name, StringSnippet value)
-            => new InvokeInstanceMethodStatement(Untyped.Property(nameof(PipelineRequest.Headers)), nameof(PipelineRequestHeaders.Set), Literal(name), value);
+            => Untyped.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), Literal(name), value).Terminate();
     }
 }
