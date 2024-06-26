@@ -39,14 +39,14 @@ namespace UnbrandedTypeSpec
                 case JsonValueKind.Null:
                     return null;
                 case JsonValueKind.Object:
-                    var dictionary = new Dictionary<string, object>();
+                    Dictionary<string, object> dictionary = new Dictionary<string, object>();
                     foreach (var jsonProperty in element.EnumerateObject())
                     {
                         dictionary.Add(jsonProperty.Name, jsonProperty.Value.GetObject());
                     }
                     return dictionary;
                 case JsonValueKind.Array:
-                    var list = new List<object>();
+                    List<object> list = new List<object>();
                     foreach (var item in element.EnumerateArray())
                     {
                         list.Add(item.GetObject());
@@ -84,7 +84,7 @@ namespace UnbrandedTypeSpec
         {
             if (element.ValueKind == JsonValueKind.String)
             {
-                var text = element.GetString();
+                string text = element.GetString();
                 if (text == null || text.Length != 1)
                 {
                     throw new NotSupportedException($"Cannot convert \"{text}\" to a char");
@@ -105,7 +105,7 @@ namespace UnbrandedTypeSpec
 
         public static string GetRequiredString(this JsonElement element)
         {
-            var value = element.GetString();
+            string value = element.GetString();
             if (value == null)
             {
                 throw new InvalidOperationException($"The requested operation requires an element of type 'String', but the target element has type '{element.ValueKind}'.");

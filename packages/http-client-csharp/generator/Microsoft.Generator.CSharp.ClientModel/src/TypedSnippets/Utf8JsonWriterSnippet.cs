@@ -15,31 +15,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public LongSnippet BytesCommitted => new(Property(nameof(Utf8JsonWriter.BytesCommitted)));
         public LongSnippet BytesPending => new(Property(nameof(Utf8JsonWriter.BytesPending)));
 
-        public MethodBodyStatement WriteStartObject() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteStartObject));
-        public MethodBodyStatement WriteEndObject() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteEndObject));
-        public MethodBodyStatement WriteStartArray(ValueExpression name) => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteStartArray), name);
-        public MethodBodyStatement WriteStartArray() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteStartArray));
-        public MethodBodyStatement WriteEndArray() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteEndArray));
+        public MethodBodyStatement WriteStartObject() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteStartObject)).Terminate();
+        public MethodBodyStatement WriteEndObject() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteEndObject)).Terminate();
+        public MethodBodyStatement WriteStartArray(ValueExpression name) => Untyped.Invoke(nameof(Utf8JsonWriter.WriteStartArray), name).Terminate();
+        public MethodBodyStatement WriteStartArray() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteStartArray)).Terminate();
+        public MethodBodyStatement WriteEndArray() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteEndArray)).Terminate();
         public MethodBodyStatement WritePropertyName(string propertyName) => WritePropertyName(LiteralU8(propertyName));
-        public MethodBodyStatement WritePropertyName(ValueExpression propertyName) => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WritePropertyName), propertyName);
+        public MethodBodyStatement WritePropertyName(ValueExpression propertyName) => Untyped.Invoke(nameof(Utf8JsonWriter.WritePropertyName), propertyName).Terminate();
         public MethodBodyStatement WriteNull(string propertyName) => WriteNull(LiteralU8(propertyName));
-        public MethodBodyStatement WriteNull(ValueExpression propertyName) => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNull), propertyName);
-        public MethodBodyStatement WriteNullValue() => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNullValue));
+        public MethodBodyStatement WriteNull(ValueExpression propertyName) => Untyped.Invoke(nameof(Utf8JsonWriter.WriteNull), propertyName).Terminate();
+        public MethodBodyStatement WriteNullValue() => Untyped.Invoke(nameof(Utf8JsonWriter.WriteNullValue)).Terminate();
 
         public MethodBodyStatement WriteNumberValue(ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteNumberValue), value);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteNumberValue), value).Terminate();
 
         public MethodBodyStatement WriteStringValue(ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteStringValue), value);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteStringValue), value).Terminate();
 
         public MethodBodyStatement WriteBooleanValue(ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteBooleanValue), value);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteBooleanValue), value).Terminate();
 
         public MethodBodyStatement WriteRawValue(ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteRawValue), value);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteRawValue), value).Terminate();
 
         public MethodBodyStatement WriteBase64StringValue(ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Utf8JsonWriter.WriteBase64StringValue), value);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.WriteBase64StringValue), value).Terminate();
 
         public MethodBodyStatement WriteBinaryData(ValueExpression value)
             => new IfElsePreprocessorStatement
@@ -48,19 +48,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                     WriteRawValue(value),
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippet.Parse(value), out var jsonDocumentVar)
                     {
-                        JsonSerializerSnippet.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).ToStatement()
+                        JsonSerializerSnippet.Serialize(this, new JsonDocumentSnippet(jsonDocumentVar).RootElement).Terminate()
                     }
                 );
 
         public MethodBodyStatement Flush()
-            => new InvokeInstanceMethodStatement(this, nameof(Utf8JsonWriter.Flush), Array.Empty<ValueExpression>(), false);
+            => Untyped.Invoke(nameof(Utf8JsonWriter.Flush), Array.Empty<ValueExpression>(), false).Terminate();
 
-        public MethodBodyStatement FlushAsync(ValueExpression? cancellationToken = null)
+        public ValueExpression FlushAsync(ValueExpression? cancellationToken = null)
         {
             var arguments = cancellationToken is null
                 ? Array.Empty<ValueExpression>()
-                : new[] { cancellationToken };
-            return new InvokeInstanceMethodStatement(this, nameof(Utf8JsonWriter.FlushAsync), arguments, true);
+                : [cancellationToken];
+            return Untyped.Invoke(nameof(Utf8JsonWriter.FlushAsync), arguments, true);
         }
 
         internal MethodBodyStatement WriteObjectValue(TypedSnippet value, ValueExpression? options = null)

@@ -69,7 +69,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = listExpression.Add(item);
 
-            var expectedStatement = new InvokeInstanceMethodStatement(listExpression.Untyped, "Add", item);
+            var expectedStatement = listExpression.Untyped.Invoke("Add", item).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var value = new ValueExpression();
             var result = dictionaryExpression.Add(key, value);
 
-            var expectedStatement = new InvokeInstanceMethodStatement(dictionaryExpression.Untyped, nameof(Dictionary<object, object>.Add), key, value);
+            var expectedStatement = dictionaryExpression.Untyped.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
