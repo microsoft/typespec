@@ -31,12 +31,12 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
-            if (inputModel.Accessibility == "internal")
+            if (inputModel.Access == "internal")
             {
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorPropertyName is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;

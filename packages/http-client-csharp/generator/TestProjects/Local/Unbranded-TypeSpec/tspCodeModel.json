@@ -373,11 +373,11 @@
  "Models": [
   {
    "$id": "60",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "Thing",
    "Namespace": "UnbrandedTypeSpec",
-   "Description": "A model with a few properties of literal types",
    "Usage": "RoundTrip",
+   "Description": "A model with a few properties of literal types",
    "Properties": [
     {
      "$id": "61",
@@ -608,11 +608,11 @@
   },
   {
    "$id": "97",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "RoundTripModel",
    "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is a roundtrip model",
    "Usage": "RoundTrip",
+   "Description": "this is a roundtrip model",
    "Properties": [
     {
      "$id": "98",
@@ -931,11 +931,11 @@
      "Description": "this is a model with required nullable properties",
      "Type": {
       "$id": "144",
-      "Kind": "Model",
+      "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
       "Namespace": "UnbrandedTypeSpec",
-      "Description": "A model with a few required nullable properties",
       "Usage": "RoundTrip",
+      "Description": "A model with a few required nullable properties",
       "Properties": [
        {
         "$id": "145",
@@ -1008,11 +1008,11 @@
   },
   {
    "$id": "154",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "Friend",
    "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is not a friendly model but with a friendly name",
    "Usage": "RoundTrip",
+   "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
     {
      "$id": "155",
@@ -1030,11 +1030,11 @@
   },
   {
    "$id": "157",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "ProjectedModel",
    "Namespace": "UnbrandedTypeSpec",
-   "Description": "this is a model with a projected name",
    "Usage": "RoundTrip",
+   "Description": "this is a model with a projected name",
    "Properties": [
     {
      "$id": "158",
@@ -1052,7 +1052,7 @@
   },
   {
    "$id": "160",
-   "Kind": "Model",
+   "Kind": "model",
    "Name": "ReturnsAnonymousModelResponse",
    "Namespace": "UnbrandedTypeSpec",
    "Usage": "Output",

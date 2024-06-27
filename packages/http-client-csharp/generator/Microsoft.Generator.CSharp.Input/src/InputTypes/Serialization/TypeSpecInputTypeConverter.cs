@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Input
 
         private const string LiteralKind = "constant";
         private const string UnionKind = "union";
-        private const string ModelKind = "Model";
+        private const string ModelKind = "model";
         private const string EnumKind = "enum";
         private const string ArrayKind = "array";
         private const string DictionaryKind = "dict";
