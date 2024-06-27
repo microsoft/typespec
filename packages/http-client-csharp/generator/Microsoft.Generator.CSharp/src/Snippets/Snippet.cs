@@ -30,6 +30,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression DefaultOf(CSharpType type) => type is { IsValueType: true, IsNullable: false } ? Default.CastTo(type) : Null.CastTo(type);
 
+        public static ValueExpression Value { get; } = new KeywordExpression("value", null);
         public static ValueExpression Default { get; } = new KeywordExpression("default", null);
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
