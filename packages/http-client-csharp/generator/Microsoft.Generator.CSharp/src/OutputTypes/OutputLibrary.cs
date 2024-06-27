@@ -1,98 +1,58 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
     public class OutputLibrary
     {
-        private IReadOnlyList<EnumProvider>? _enums;
-        private IReadOnlyList<ModelProvider>? _models;
-        private IReadOnlyList<ClientProvider>? _clients;
-
         public OutputLibrary()
         {
-            EnumMappings = new Dictionary<InputEnumType, EnumProvider>();
-            ModelMappings = new Dictionary<InputModelType, ModelProvider>();
-
-            _allModels = new(InitializeAllModels);
         }
 
-        private readonly Lazy<(EnumProvider[] Enums, ModelProvider[] Models)> _allModels;
+        private IReadOnlyList<TypeProvider>? _typeProviders;
+        public IReadOnlyList<TypeProvider> TypeProviders => _typeProviders ??= BuildTypeProviders();
 
-        private (EnumProvider[] Enums, ModelProvider[] Models) InitializeAllModels()
+        private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var enums = new EnumProvider[input.Enums.Count];
+            var enums = new TypeProvider[input.Enums.Count];
             for (int i = 0; i < enums.Length; i++)
             {
                 var inputEnum = input.Enums[i];
-                var enumType = EnumProvider.Create(inputEnum);
+                var cSharpEnum = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputEnum);
+                TypeProvider enumType = cSharpEnum.Implementation;
                 enums[i] = enumType;
-                EnumMappings.Add(inputEnum, enumType);
             }
+            return enums;
+        }
 
-            var models = new ModelProvider[input.Models.Count];
+        private static TypeProvider[] BuildModels()
+        {
+            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var models = new TypeProvider[input.Models.Count];
             for (int i = 0; i < models.Length; i++)
             {
                 var inputModel = input.Models[i];
-                var model = new ModelProvider(inputModel);
-                models[i] = model;
-                ModelMappings.Add(inputModel, model);
+                var cSharpModel = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputModel);
+                TypeProvider modelType = cSharpModel.Implementation;
+                models[i] = modelType;
             }
-
-            return (enums, models);
+            return models;
         }
 
-        public IReadOnlyList<EnumProvider> Enums => _enums ??= BuildEnums();
-        public IReadOnlyList<ModelProvider> Models => _models ??= BuildModels();
-        public IReadOnlyList<ClientProvider> Clients => _clients ??= BuildClients();
-
-        public IDictionary<InputEnumType, EnumProvider> EnumMappings { get; }
-        public IDictionary<InputModelType, ModelProvider> ModelMappings { get; }
-
-        public virtual EnumProvider[] BuildEnums()
-        {
-            return _allModels.Value.Enums;
-        }
-
-        public virtual ModelProvider[] BuildModels()
-        {
-            return _allModels.Value.Models;
-        }
-
-        public virtual ClientProvider[] BuildClients()
-        {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
-
-            var clientsCount = input.Clients.Count;
-            ClientProvider[] clientProviders = new ClientProvider[clientsCount];
-
-            for (int i = 0; i < clientsCount; i++)
-            {
-                clientProviders[i] = new ClientProvider(input.Clients[i]);
-            }
-
-            return clientProviders;
-        }
-
-        //TODO should combine all typeproviders into one list vs models + enums + clients since they are all the same
-        //https://github.com/microsoft/typespec/issues/3589
-        private IReadOnlyList<TypeProvider>? _types;
-        public virtual IReadOnlyList<TypeProvider> Types => _types ??= BuildTypes();
-        protected virtual IReadOnlyList<TypeProvider> BuildTypes()
+        protected virtual TypeProvider[] BuildTypeProviders()
         {
             return
             [
-                ChangeTrackingListProvider.Instance,
-                ChangeTrackingDictionaryProvider.Instance,
-                ArgumentProvider.Instance,
-                OptionalProvider.Instance
+                ..BuildEnums(),
+                ..BuildModels(),
+                new ChangeTrackingListProvider(),
+                new ChangeTrackingDictionaryProvider(),
+                new ArgumentProvider(),
+                new OptionalProvider(),
             ];
         }
     }

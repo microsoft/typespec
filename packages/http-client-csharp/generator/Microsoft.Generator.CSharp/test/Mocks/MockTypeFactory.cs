@@ -20,18 +20,11 @@ namespace Microsoft.Generator.CSharp.Tests
             throw new NotImplementedException();
         }
 
-        public override CSharpType CreateCSharpType(InputType input)
+        protected override CSharpType CreateCSharpTypeCore(InputType input)
         {
             throw new NotImplementedException();
         }
 
-        public override CSharpType MatchConditionsType() => typeof(int);
-
-        public override CSharpType PageResponseType() => typeof(int);
-
-        public override CSharpType RequestConditionsType() => typeof(int);
-
-        public override CSharpType TokenCredentialType() => typeof(int);
         public override CSharpType ListInitializationType => new CSharpType(typeof(List<>), arguments: typeof(int));
         public override CSharpType DictionaryInitializationType => new CSharpType(typeof(Dictionary<,>), arguments: [typeof(string), typeof(int)]);
     }

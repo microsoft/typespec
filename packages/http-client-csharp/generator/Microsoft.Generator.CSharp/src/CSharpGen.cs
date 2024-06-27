@@ -33,35 +33,16 @@ namespace Microsoft.Generator.CSharp
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
-            foreach (var model in output.Models)
+            foreach (var outputType in output.TypeProviders)
             {
-                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(model).Write()));
+                var writer = CodeModelPlugin.Instance.GetWriter(outputType);
+                generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
 
-                foreach (var serialization in model.SerializationProviders)
+                foreach (var serialization in outputType.SerializationProviders)
                 {
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(serialization).Write()));
+                    writer = CodeModelPlugin.Instance.GetWriter(serialization);
+                    generateFilesTasks.Add(workspace.AddGeneratedFile(writer.Write()));
                 }
-            }
-
-            foreach (var enumType in output.Enums)
-            {
-                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(enumType).Write()));
-
-                if (enumType.Serialization is { } serialization)
-                {
-                    generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(serialization).Write()));
-                }
-            }
-
-            foreach (var client in output.Clients)
-            {
-                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(client).Write()));
-            }
-
-            Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Internal"));
-            foreach (var type in output.Types)
-            {
-                generateFilesTasks.Add(workspace.AddGeneratedFile(CodeModelPlugin.Instance.GetWriter(type).Write()));
             }
 
             // Add all the generated files to the workspace

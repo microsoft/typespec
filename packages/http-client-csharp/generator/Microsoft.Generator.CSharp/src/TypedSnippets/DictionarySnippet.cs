@@ -10,9 +10,9 @@ namespace Microsoft.Generator.CSharp.Snippets
     public sealed record DictionarySnippet(CSharpType KeyType, CSharpType ValueType, ValueExpression Untyped) : TypedSnippet(new CSharpType(typeof(Dictionary<,>), false, KeyType, ValueType), Untyped)
     {
         public MethodBodyStatement Add(ValueExpression key, ValueExpression value)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Dictionary<object, object>.Add), key, value);
+            => Untyped.Invoke(nameof(Dictionary<object, object>.Add), [key, value]).Terminate();
 
         public MethodBodyStatement Add(KeyValuePairSnippet pair)
-            => new InvokeInstanceMethodStatement(Untyped, nameof(Dictionary<object, object>.Add), pair);
+            => Untyped.Invoke(nameof(Dictionary<object, object>.Add), pair).Terminate();
     }
 }

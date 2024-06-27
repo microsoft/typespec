@@ -5,7 +5,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputLiteralType : InputType
     {
-        public InputLiteralType(InputType valueType, object value, bool isNullable) : base("Literal", isNullable)
+        public InputLiteralType(InputType valueType, object value) : base("Literal")
         {
             ValueType = valueType;
             Value = value;

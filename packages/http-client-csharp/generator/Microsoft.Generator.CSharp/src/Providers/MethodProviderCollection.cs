@@ -56,8 +56,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
-            var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Summary), FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
-            var methodBody = Snippet.EmptyStatement;
+            var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
+            var methodBody = Snippet.Throw(Snippet.New.NotImplementedException(Snippet.Literal("Method not implemented.")));
 
             return new MethodProvider(methodSignature, methodBody, enclosingType);
         }

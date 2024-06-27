@@ -24,14 +24,12 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputDateTimeType CreateDateTimeType(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null;
-            bool isNullable = false;
             string? encode = null;
             InputType? type = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
-                    || reader.TryReadBoolean(nameof(InputDateTimeType.IsNullable), ref isNullable)
                     || reader.TryReadString(nameof(InputDateTimeType.Encode), ref encode)
                     || reader.TryReadWithConverter(nameof(InputDateTimeType.WireType), options, ref type);
 
@@ -49,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
             encode = encode ?? throw new JsonException("DateTime type must have encoding");
 
             var dateTimeType = Enum.TryParse<DateTimeKnownEncoding>(encode, ignoreCase: true, out var encodeKind)
-                ? new InputDateTimeType(encodeKind, wireType, isNullable)
+                ? new InputDateTimeType(encodeKind, wireType)
                 : throw new JsonException($"Encoding of DateTime type {encode} is unknown.");
 
             if (id != null)

@@ -35,14 +35,14 @@ namespace UnbrandedTypeSpec
             return value != null;
         }
 
-        public static bool IsDefined(JsonElement value)
-        {
-            return value.ValueKind != JsonValueKind.Undefined;
-        }
-
         public static bool IsDefined(string value)
         {
             return value != null;
+        }
+
+        public static bool IsDefined(JsonElement value)
+        {
+            return value.ValueKind != JsonValueKind.Undefined;
         }
     }
 }

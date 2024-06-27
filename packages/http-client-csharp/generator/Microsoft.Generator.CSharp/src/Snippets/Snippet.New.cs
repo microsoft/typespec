@@ -47,9 +47,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static EnumerableSnippet Array(CSharpType? elementType, ValueExpression size) => new(elementType ?? typeof(object), new NewArrayExpression(elementType, Size: size));
 
             public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType)
-                => new(keyType, valueType, new NewDictionaryExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType)));
-            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType, params (ValueExpression Key, ValueExpression Value)[] values)
-                => new(keyType, valueType, new NewDictionaryExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), new DictionaryInitializerExpression(values)));
+                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));
+            public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
+                => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
 
             public static TypedSnippet JsonSerializerOptions() => new FrameworkTypeSnippet(typeof(JsonSerializerOptions), new ValueExpression());
 
@@ -60,15 +60,15 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static TimeSpanSnippet TimeSpan(int hours, int minutes, int seconds) => new(Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)));
             public static TypedSnippet Uri(string uri) => Instance(typeof(Uri), Literal(uri));
 
-            public static ValueExpression Anonymous(string key, ValueExpression value) => Anonymous(new Dictionary<string, ValueExpression> { [key] = value });
-            public static ValueExpression Anonymous(IReadOnlyDictionary<string, ValueExpression>? properties) => new KeywordExpression("new", new ObjectInitializerExpression(properties, UseSingleLine: false));
-            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyList<ValueExpression> arguments, IReadOnlyDictionary<string, ValueExpression>? properties = null) => new NewInstanceExpression(ctorSignature.Type, arguments, properties != null ? new ObjectInitializerExpression(properties) : null);
-            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyDictionary<string, ValueExpression>? properties = null) => Instance(ctorSignature, ctorSignature.Parameters.Select(p => (ValueExpression)p).ToArray(), properties);
+            public static ValueExpression Anonymous(ValueExpression key, ValueExpression value) => Anonymous(new Dictionary<ValueExpression, ValueExpression> { [key] = value });
+            public static ValueExpression Anonymous(IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(null, [], new ObjectInitializerExpression(properties));
+            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyList<ValueExpression> arguments, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => new NewInstanceExpression(ctorSignature.Type, arguments, properties != null ? new ObjectInitializerExpression(properties) : null);
+            public static ValueExpression Instance(ConstructorSignature ctorSignature, IReadOnlyDictionary<ValueExpression, ValueExpression>? properties = null) => Instance(ctorSignature, ctorSignature.Parameters.Select(p => (ValueExpression)p).ToArray(), properties);
             public static ValueExpression Instance(CSharpType type, IReadOnlyList<ValueExpression> arguments) => new NewInstanceExpression(type, arguments);
             public static ValueExpression Instance(CSharpType type, params ValueExpression[] arguments) => new NewInstanceExpression(type, arguments);
-            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<string, ValueExpression> properties) => new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties));
+            public static ValueExpression Instance(CSharpType type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties));
             public static TypedSnippet Instance(Type type, params ValueExpression[] arguments) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, arguments));
-            public static TypedSnippet Instance(Type type, IReadOnlyDictionary<string, ValueExpression> properties) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties)));
+            public static TypedSnippet Instance(Type type, IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new FrameworkTypeSnippet(type, new NewInstanceExpression(type, System.Array.Empty<ValueExpression>(), new ObjectInitializerExpression(properties)));
         }
     }
 }
