@@ -5,18 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 
-namespace Microsoft.Generator.CSharp.Tests.Providers
+namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 {
-    internal class MethodProviderCollectionTests
+    internal class ScmMethodProviderCollectionTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        private TypeFactory _typeFactory;
+        private ScmTypeFactory _typeFactory;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private readonly string _mocksFolder = "Mocks";
         private FieldInfo? _mockPlugin;
@@ -25,16 +26,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void Setup()
         {
             var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
-            var mockTypeFactory = new Mock<TypeFactory>() { };
+            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
             mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(bool)));
             mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
             _typeFactory = mockTypeFactory.Object;
 
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
             // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var mockGeneratorContext = new Mock<GeneratorContext>(Configuration.Load(configFilePath));
-            var mockPluginInstance = new Mock<CodeModelPlugin>(mockGeneratorContext.Object) { };
+            _mockPlugin = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var mockConfiguration = new Mock<Configuration>() { };
+            var mockGeneratorContext = new Mock<GeneratorContext>(mockConfiguration.Object);
+            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(_typeFactory);
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
@@ -50,9 +52,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-            var methodCollection = MethodProviderCollection.DefaultCSharpMethodCollection(inputOperation, new MockTypeProvider());
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockTypeProvider());
             Assert.IsNotNull(methodCollection);
-            Assert.AreEqual(1, methodCollection?.Count);
+            Assert.AreEqual(3, methodCollection.Count);
 
             var method = methodCollection![0];
             var signature = method.Signature;
@@ -93,5 +95,4 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             }
         }
     }
-
 }

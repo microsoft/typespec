@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 {
     internal class MockTypeFactory : ScmTypeFactory
     {
-        public override MethodProviderCollection? CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
+        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType)
         {
             throw new NotImplementedException();
         }
