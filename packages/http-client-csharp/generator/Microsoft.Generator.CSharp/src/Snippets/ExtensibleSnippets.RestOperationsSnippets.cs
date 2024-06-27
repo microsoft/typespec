@@ -14,9 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             public abstract TypedSnippet GetTypedResponseFromValue(TypedSnippet value, TypedSnippet response);
             public abstract TypedSnippet GetTypedResponseFromModel(TypeProvider typeProvider, TypedSnippet response);
-            public abstract TypedSnippet GetTypedResponseFromEnum(EnumProvider enumType, TypedSnippet response);
             public abstract TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet response, string? contentType = null);
-
             public abstract MethodBodyStatement DeclareHttpMessage(MethodSignatureBase createRequestMethodSignature, out VariableExpression message);
             public abstract StreamSnippet GetContentStream(TypedSnippet response);
         }

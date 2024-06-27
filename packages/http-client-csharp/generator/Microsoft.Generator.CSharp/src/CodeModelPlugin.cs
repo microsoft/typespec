@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
@@ -46,11 +47,15 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel)
+        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputMoedl)
         {
-            if (provider is EnumProvider { IsExtensible: false } enumProvider)
+            if (provider is EnumProvider { IsExtensible: true } fixedProvider)
             {
-                return [new FixedEnumSerializationProvider(enumProvider)];
+                return [new ExtensibleEnumSerializationProvider(fixedProvider)];
+            }
+            else if (provider is EnumProvider { IsExtensible: false } extensibleProvider)
+            {
+                return [new FixedEnumSerializationProvider(extensibleProvider)];
             }
             return Array.Empty<TypeProvider>();
         }

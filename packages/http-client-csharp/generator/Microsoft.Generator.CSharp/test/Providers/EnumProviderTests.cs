@@ -72,9 +72,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal(1)).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -107,16 +118,27 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
 
             // int float fixed enum has serialization method and deserialization method therefore we only have two methods
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
+            TypeProvider? serialization = enumType.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             Assert.AreEqual(2, serialization?.Methods.Count);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -156,14 +178,25 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal("1")).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
             builder.Append($"e.ToSerialString()").Append(NewLine)
-                .Append($"\"1\".ToMockInputEnum()");
+                .Append($"\"1\".ToMockInputEnumExtensions()");
             var expected = builder.ToString();
 
             Assert.AreEqual(expected, result);
@@ -217,9 +250,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal(1)).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -272,15 +316,26 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             Assert.IsNotNull(propertyValue2);
 
             // extensible enums do not have serialization
-            var serialization = enumType.SerializationProviders.FirstOrDefault();
+            var serialization = enumType.SerializationProviders?.FirstOrDefault();
             Assert.IsNull(serialization);
 
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal(1f)).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();
@@ -339,9 +394,20 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             // validate the expression is working fine
             using var writer = new CodeWriter();
             var enumVar = new VariableExpression(enumType.Type, new MockCodeWriterDeclaration("e"));
-            enumType.ToSerial(enumVar).Write(writer);
-            writer.WriteLine();
-            enumType.ToEnum(Snippet.Literal("1")).Write(writer);
+            if (enumType.IsExtensible)
+            {
+                var extensibleProvider = serialization as ExtensibleEnumSerializationProvider;
+                extensibleProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                extensibleProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
+            else
+            {
+                var fixedProvider = serialization as FixedEnumSerializationProvider;
+                fixedProvider?.ToSerial(enumVar).Write(writer);
+                writer.WriteLine();
+                fixedProvider?.ToEnum(Snippet.Literal(1f)).Write(writer);
+            }
 
             var result = writer.ToString(false);
             var builder = new StringBuilder();

@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return new TypeProvider[] { new FixedEnumSerializationProvider(this) };
+            return [new FixedEnumSerializationProvider(this) ];
         }
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
 
@@ -59,21 +59,5 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override FieldProvider[] BuildFields()
             => Members.Select(v => v.Field).ToArray();
-
-        public override ValueExpression ToSerial(ValueExpression enumExpression)
-        {
-            if (IsIntValueType)
-            {
-                // when the fixed enum is implemented as int, we cast to the value
-                return enumExpression.CastTo(ValueType);
-            }
-
-            // otherwise we call the corresponding extension method to convert the value
-            CSharpType? serializationType = SerializationProviders.FirstOrDefault()?.Type;
-            return new InvokeStaticMethodExpression(serializationType, $"ToSerial{ValueType.Name}", [enumExpression], CallAsExtension: true);
-        }
-
-        public override ValueExpression ToEnum(ValueExpression valueExpression)
-            => new InvokeStaticMethodExpression(SerializationProviders.FirstOrDefault()?.Type, $"To{Type.Name}", [valueExpression], CallAsExtension: true);
     }
 }

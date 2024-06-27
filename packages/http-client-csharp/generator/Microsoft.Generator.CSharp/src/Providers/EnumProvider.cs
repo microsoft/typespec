@@ -4,13 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Expressions;
+using System.Linq;
 using Microsoft.Generator.CSharp.Input;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class EnumProvider : TypeProvider
     {
+        private IReadOnlyList<EnumTypeMember>? _members;
+        private readonly InputEnumType _inputType;
+
         public static EnumProvider Create(InputEnumType input)
             => input.IsExtensible
             ? new ExtensibleEnumProvider(input)
@@ -18,6 +21,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected EnumProvider(InputEnumType input)
         {
+            _inputType = input;
             _deprecated = input.Deprecated;
 
             IsExtensible = input.IsExtensible;
@@ -43,13 +47,13 @@ namespace Microsoft.Generator.CSharp.Providers
         public override string Namespace { get; }
         protected override FormattableString Description { get; }
 
-        private IReadOnlyList<EnumTypeMember>? _members;
         public IReadOnlyList<EnumTypeMember> Members => _members ??= BuildMembers();
 
         protected abstract IReadOnlyList<EnumTypeMember> BuildMembers();
 
-        public abstract ValueExpression ToSerial(ValueExpression enumExpression);
-
-        public abstract ValueExpression ToEnum(ValueExpression valueExpression);
+        protected override TypeProvider[] BuildSerializationProviders()
+        {
+            return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputType).ToArray();
+        }
     }
 }

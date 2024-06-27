@@ -32,12 +32,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
                 return ClientResultSnippet.FromValue(model, response);
             }
 
-            public override TypedSnippet GetTypedResponseFromEnum(EnumProvider enumType, TypedSnippet result)
-            {
-                var response = GetRawResponse(result);
-                return ClientResultSnippet.FromValue(enumType.ToEnum(response.Content.ToObjectFromJson(typeof(string))), response);
-            }
-
             public override TypedSnippet GetTypedResponseFromBinaryData(Type responseType, TypedSnippet result, string? contentType = null)
             {
                 var rawResponse = GetRawResponse(result);
