@@ -19,7 +19,7 @@
      "Description": "accept"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralString",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -40,7 +40,7 @@
      "Description": "123"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralInt",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -61,7 +61,7 @@
      "Description": "1.23"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_requiredLiteralFloat",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -82,7 +82,7 @@
      "Description": "reject"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralString",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -103,7 +103,7 @@
      "Description": "456"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralInt",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -124,7 +124,7 @@
      "Description": "4.56"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "",
    "Description": "The Thing_optionalLiteralFloat",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -154,7 +154,7 @@
      "Value": "4"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringFixedEnum",
    "Description": "Simple enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -184,7 +184,7 @@
      "Value": "4"
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.StringExtensibleEnum",
    "Description": "Extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -214,7 +214,7 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntExtensibleEnum",
    "Description": "Int based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -244,7 +244,7 @@
      "Value": 4.4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnum",
    "Description": "Float based extensible enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -274,7 +274,7 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatExtensibleEnumWithIntValue",
    "Description": "float fixed enum",
    "IsExtensible": true,
    "Usage": "RoundTrip"
@@ -304,7 +304,7 @@
      "Value": 4.4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnum",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -334,7 +334,7 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.FloatFixedEnumWithIntValue",
    "Description": "float fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -364,7 +364,7 @@
      "Value": 4
     }
    ],
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.IntFixedEnum",
    "Description": "int fixed enum",
    "IsExtensible": false,
    "Usage": "RoundTrip"
@@ -375,7 +375,7 @@
    "$id": "60",
    "Kind": "model",
    "Name": "Thing",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.Thing",
    "Usage": "RoundTrip",
    "Description": "A model with a few properties of literal types",
    "Properties": [
@@ -610,7 +610,7 @@
    "$id": "97",
    "Kind": "model",
    "Name": "RoundTripModel",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.RoundTripModel",
    "Usage": "RoundTrip",
    "Description": "this is a roundtrip model",
    "Properties": [
@@ -933,7 +933,7 @@
       "$id": "144",
       "Kind": "model",
       "Name": "ModelWithRequiredNullableProperties",
-      "Namespace": "UnbrandedTypeSpec",
+      "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithRequiredNullableProperties",
       "Usage": "RoundTrip",
       "Description": "A model with a few required nullable properties",
       "Properties": [
@@ -1010,7 +1010,7 @@
    "$id": "154",
    "Kind": "model",
    "Name": "Friend",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.NotFriend",
    "Usage": "RoundTrip",
    "Description": "this is not a friendly model but with a friendly name",
    "Properties": [
@@ -1032,7 +1032,7 @@
    "$id": "157",
    "Kind": "model",
    "Name": "ProjectedModel",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.ModelWithProjectedName",
    "Usage": "RoundTrip",
    "Description": "this is a model with a projected name",
    "Properties": [
@@ -1054,7 +1054,7 @@
    "$id": "160",
    "Kind": "model",
    "Name": "ReturnsAnonymousModelResponse",
-   "Namespace": "UnbrandedTypeSpec",
+   "CrossLanguageDefinitionId": "UnbrandedTypeSpec.returnsAnonymousModel.Response.anonymous",
    "Usage": "Output",
    "Properties": []
   }
