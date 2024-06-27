@@ -105,7 +105,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [Test]
         public void BuildJsonModelWriteMethodObjectDeclaration()
         {
-            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, null, true);
+            var inputModel = new InputModelType("mockInputModel", "mockNamespace", "public", null, null, InputModelTypeUsage.RoundTrip, Array.Empty<InputModelProperty>(), null, new List<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, true);
             var mockModelTypeProvider = new ModelProvider(inputModel);
             var jsonMrwSerializationTypeProvider = new MrwSerializationTypeProvider(mockModelTypeProvider, inputModel);
             var method = jsonMrwSerializationTypeProvider.BuildJsonModelWriteMethodObjectDeclaration();
