@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
-            Type = propertyType;
+            Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = MethodSignatureModifiers.Public;
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));

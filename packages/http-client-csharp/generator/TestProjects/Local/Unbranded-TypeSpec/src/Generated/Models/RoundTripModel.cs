@@ -239,7 +239,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyRequiredRecordUnknown { get; }
 
         /// <summary>
         /// optional readonly record of unknown
@@ -267,7 +267,7 @@ namespace UnbrandedTypeSpec.Models
         /// </list>
         /// </para>
         /// </summary>
-        public IDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
+        public IReadOnlyDictionary<string, BinaryData> ReadOnlyOptionalRecordUnknown { get; }
 
         /// <summary> this is a model with required nullable properties. </summary>
         public ModelWithRequiredNullableProperties ModelWithRequiredNullable { get; set; }
