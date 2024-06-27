@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(NotEqual(iList, Null))
                 {
-                    new AssignValueStatement(_innerList, iList)
+                    _innerList.Assign(iList).Terminate()
                 }
             };
 
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(NotEqual(iReadOnlyList, Null))
                 {
-                    new AssignValueStatement(_innerList, Linq.ToList(iReadOnlyList))
+                    _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }
             };
 
@@ -144,16 +144,14 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    new AssignValueStatement(
-                            new ArrayElementExpression(EnsureList, _indexParam),
-                            new KeywordExpression("value", null))
+                    new ArrayElementExpression(EnsureList, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
                 }));
         }
 
         protected override MethodProvider[] BuildMethods()
         {
-            return new MethodProvider[]
-            {
+            return
+            [
                 BuildReset(),
                 BuildGetEnumeratorOfT(),
                 BuildGetEnumerator(),
@@ -166,7 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 BuildInsert(),
                 BuildRemoveAt(),
                 BuildEnsureList()
-            };
+            ];
         }
 
         private MethodProvider BuildRemoveAt()
@@ -177,7 +175,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "RemoveAt", [_indexParam], false)
+                EnsureList.Invoke("RemoveAt", [_indexParam], false).Terminate()
             },
             this);
         }
@@ -186,7 +184,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Insert", null, MethodSignatureModifiers.Public, null, null, [_indexParam, _tParam]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Insert", [_indexParam, _tParam], false)
+                EnsureList.Invoke("Insert", [_indexParam, _tParam], false).Terminate()
             },
             this);
         }
@@ -229,7 +227,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                new InvokeInstanceMethodStatement(EnsureList, "CopyTo", [arrayParam, arrayIndexParam], false)
+                EnsureList.Invoke("CopyTo", [arrayParam, arrayIndexParam], false).Terminate()
             },
             this);
         }
@@ -252,7 +250,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Clear", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Clear")
+                EnsureList.Invoke("Clear").Terminate()
             },
             this);
         }
@@ -262,7 +260,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var genericParameter = new ParameterProvider("item", $"The item to add.", _t);
             return new MethodProvider(new MethodSignature("Add", null, MethodSignatureModifiers.Public, null, null, [genericParameter]), new MethodBodyStatement[]
             {
-                new InvokeInstanceMethodStatement(EnsureList, "Add", genericParameter)
+                EnsureList.Invoke("Add", genericParameter).Terminate()
             },
             this);
         }
@@ -282,7 +280,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), new CSharpType(typeof(IEnumerator<>), _t), new KeywordStatement("yield", new KeywordExpression("break", null))),
+                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), new CSharpType(typeof(IEnumerator<>), _t), new KeywordExpression("yield", new KeywordExpression("break", null)).Terminate()),
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureList.Invoke(_getEnumeratorSignature))
@@ -294,7 +292,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new MethodProvider(new MethodSignature("Reset", null, MethodSignatureModifiers.Public, null, null, Array.Empty<ParameterProvider>()), new MethodBodyStatement[]
             {
-                Assign(_innerList, Null)
+                _innerList.Assign(Null).Terminate()
             },
             this);
         }

@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary)),
+                _innerDictionary.Assign(New.Instance(_dictionary)).Terminate(),
                 new ForeachStatement("pair", dictionary, out var pair)
                 {
                     _innerDictionary.Add(pair)
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary, dictionary))
+                _innerDictionary.Assign(New.Instance(_dictionary, dictionary)).Terminate()
             },
             this);
         }
@@ -164,9 +164,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 },
                 new MethodBodyStatement[]
                 {
-                    Assign(
-                        new ArrayElementExpression(EnsureDictionary, _indexParam),
-                        new KeywordExpression("value", null))
+                    new ArrayElementExpression(EnsureDictionary, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
                 }));
         }
 
@@ -249,7 +247,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    Assign(value, Default),
+                    value.Assign(Default).Terminate(),
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))
@@ -294,7 +292,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Add", null, parameters: [key, value]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", key, value).ToStatement()
+                EnsureDictionary.Invoke("Add", key, value).Terminate()
             },
             this);
         }
@@ -326,7 +324,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     Return()
                 },
-                EnsureDictionary.Invoke("CopyTo", array, index).ToStatement()
+                EnsureDictionary.Invoke("CopyTo", array, index).Terminate()
             },
             this);
         }
@@ -351,7 +349,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Clear", null);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Clear").ToStatement()
+                EnsureDictionary.Invoke("Clear").Terminate()
             },
             this);
         }
@@ -362,7 +360,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Add", null, parameters: [item]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", item).ToStatement()
+                EnsureDictionary.Invoke("Add", item).Terminate()
             },
             this);
         }
@@ -384,7 +382,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordStatement("yield", new KeywordExpression("break", null))),
+                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordExpression("yield", new KeywordExpression("break", null)).Terminate()),
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureDictionary.Invoke("GetEnumerator"))

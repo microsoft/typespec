@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
@@ -32,5 +33,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         }
 
         public static implicit operator ValueExpression(TypedSnippet typed) => typed.Untyped;
+
+        private MethodBodyStatement? _terminated;
+        public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
     }
 }
