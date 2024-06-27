@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Snippets;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -59,22 +58,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 CallBase = true
             };
 
-            // mock api types
-            var mockApiTypes = new Mock<ApiTypes>()
-            {
-                CallBase = true
-            };
-
-            // mock extensible snippets
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            mockTypeFactory.Setup(p => p.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(IList<>)));
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(new Mock<ModelSnippets>().Object);
-            mockPlugin.SetupGet(p => p.ApiTypes).Returns(mockApiTypes.Object);
-            mockPlugin.SetupGet(p => p.ExtensibleSnippets).Returns(mockExtensibleSnippets.Object);
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(IList<>)));
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             var configFilePath = Path.Combine(_mocksFolder, "Configuration.json");

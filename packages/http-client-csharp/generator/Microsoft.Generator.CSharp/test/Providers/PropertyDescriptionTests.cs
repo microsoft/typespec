@@ -34,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         public void TestGetUnionTypesDescriptions()
         {
             var dateTime = new DateTimeOffset(1, 2, 3, 4, 5, 6, TimeSpan.Zero);
+            var expected = Helpers.GetExpectedFromFile();
 
             var unionItems = new List<CSharpType>
             {
@@ -55,17 +56,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             xmlDoc.Write(codeWriter);
             var actual = codeWriter.ToString(false);
 
-            var expected = string.Join("\n",
-                "/// <test>",
-                "/// <description> <see cref=\"bool\"/>. </description>",
-                "/// <description> <see cref=\"int\"/>. </description>",
-                "/// <description> <see cref=\"global::System.Collections.Generic.IDictionary{TKey,TValue}\"/> where <c>TKey</c> is of type <see cref=\"string\"/>, where <c>TValue</c> is of type <see cref=\"int\"/>. </description>",
-                "/// <description> 21. </description>",
-                "/// <description> \"test\". </description>",
-                "/// <description> True. </description>",
-                $"/// <description> {dateTime}. </description>",
-                "/// </test>") + "\n";
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -75,27 +65,27 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
                 // list property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), false), false, false, false),
                     new CSharpType(typeof(IList<string>)));
                 // list of binary data property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputListType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.Any, false), false, false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputArrayType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false), false, true, false),
                     new CSharpType(typeof(IReadOnlyList<BinaryData>)));
                 // dictionary property with binary data value
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.Any, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.Any)), false, false, false),
                     new CSharpType(typeof(IDictionary<string, BinaryData>)));
                 // nullable dictionary property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputDictionaryType("mockProp", new InputPrimitiveType(InputPrimitiveTypeKind.String), new InputPrimitiveType(InputPrimitiveTypeKind.String)), false, false, false),
                     new CSharpType(typeof(IDictionary<string, string>), true));
                 // primitive type property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String, false), false, false, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.String), false, false, false),
                     new CSharpType(typeof(string)));
                 // binary data property
                 yield return new TestCaseData(
-                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.Any, false), false, true, false),
+                    new InputModelProperty("prop1", "prop1", "public", new InputPrimitiveType(InputPrimitiveTypeKind.Any), false, true, false),
                     new CSharpType(typeof(BinaryData)));
             }
         }

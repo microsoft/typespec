@@ -33,11 +33,9 @@ namespace Microsoft.Generator.CSharp
         private Lazy<InputLibrary> _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
-        public abstract ApiTypes ApiTypes { get; }
         public abstract TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
-        public abstract ExtensibleSnippets ExtensibleSnippets { get; }
-        public abstract OutputLibrary OutputLibrary { get; }
+        public virtual OutputLibrary OutputLibrary { get; } = new();
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();
@@ -47,6 +45,13 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="provider">The model type provider.</param>
         /// <param name="inputModel">The input model.</param>
-        public abstract IReadOnlyList<TypeProvider> GetSerializationTypeProviders(ModelProvider provider, InputModelType inputModel);
+        public virtual IReadOnlyList<TypeProvider> GetSerializationTypeProviders(TypeProvider provider, InputType inputModel)
+        {
+            if (provider is EnumProvider { IsExtensible: false } enumProvider)
+            {
+                return [new FixedEnumSerializationProvider(enumProvider)];
+            }
+            return Array.Empty<TypeProvider>();
+        }
     }
 }

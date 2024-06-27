@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -21,6 +22,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public PropertyBody Body { get; }
         public CSharpType? ExplicitInterface { get; }
         public XmlDocProvider XmlDocs { get; }
+        public PropertyWireInformation? WireInfo { get; }
 
         public PropertyProvider(InputModelProperty inputProperty)
         {
@@ -36,9 +38,17 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
+            WireInfo = new PropertyWireInformation(inputProperty);
         }
 
-        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, CSharpType? explicitInterface = null)
+        public PropertyProvider(
+            FormattableString? description,
+            MethodSignatureModifiers modifiers,
+            CSharpType type,
+            string name,
+            PropertyBody body,
+            CSharpType? explicitInterface = null,
+            PropertyWireInformation? wireInfo = null)
         {
             Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
             XmlDocSummary = new XmlDocSummaryStatement([Description]);
@@ -48,6 +58,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Body = body;
             ExplicitInterface = explicitInterface;
             XmlDocs = GetXmlDocs();
+            WireInfo = wireInfo;
         }
 
         private XmlDocProvider GetXmlDocs()
@@ -112,6 +123,19 @@ namespace Microsoft.Generator.CSharp.Providers
         private string GetDebuggerDisplay()
         {
             return $"Name: {Name}, Type: {Type}";
+        }
+
+        private static readonly Dictionary<PropertyProvider, MemberExpression> _cache = new();
+
+        public static implicit operator MemberExpression(PropertyProvider property)
+        {
+            if (!_cache.TryGetValue(property, out var member))
+            {
+                member = new MemberExpression(null, property.Name);
+                _cache[property] = member;
+            }
+
+            return member;
         }
     }
 }
