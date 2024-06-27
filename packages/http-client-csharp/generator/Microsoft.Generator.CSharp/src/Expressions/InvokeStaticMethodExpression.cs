@@ -17,9 +17,6 @@ namespace Microsoft.Generator.CSharp.Expressions
         public static InvokeStaticMethodExpression Extension(CSharpType? methodType, string methodName, ValueExpression instanceReference, IReadOnlyList<ValueExpression> arguments)
             => new(methodType, methodName, arguments.Prepend(instanceReference).ToArray(), CallAsExtension: true);
 
-        public MethodBodyStatement ToStatement()
-            => new InvokeStaticMethodStatement(MethodType, MethodName, Arguments, TypeArguments, CallAsExtension, CallAsAsync);
-
         internal override void Write(CodeWriter writer)
         {
             if (CallAsExtension)
@@ -51,5 +48,8 @@ namespace Microsoft.Generator.CSharp.Expressions
                 writer.AppendRawIf(".ConfigureAwait(false)", CallAsAsync);
             }
         }
+
+        private MethodBodyStatement? _terminated;
+        public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
     }
 }

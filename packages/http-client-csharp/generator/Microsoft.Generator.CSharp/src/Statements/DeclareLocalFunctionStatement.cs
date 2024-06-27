@@ -8,13 +8,28 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression? BodyExpression, MethodBodyStatement? BodyStatement) : MethodBodyStatement
+    public sealed class DeclareLocalFunctionStatement : MethodBodyStatement
     {
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, MethodBodyStatement BodyStatement)
-            : this(Name, Parameters, ReturnType, null, BodyStatement) { }
+        public CodeWriterDeclaration Name { get; }
+        public IReadOnlyList<ParameterProvider> Parameters { get; }
+        public CSharpType ReturnType { get; }
+        public ValueExpression? BodyExpression { get; }
+        public MethodBodyStatement? BodyStatement { get; }
 
-        internal DeclareLocalFunctionStatement(CodeWriterDeclaration Name, IReadOnlyList<ParameterProvider> Parameters, CSharpType ReturnType, ValueExpression BodyExpression)
-            : this(Name, Parameters, ReturnType, BodyExpression, null) { }
+        private DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, ValueExpression? bodyExpression, MethodBodyStatement? bodyStatement)
+        {
+            Name = name;
+            Parameters = parameters;
+            ReturnType = returnType;
+            BodyExpression = bodyExpression;
+            BodyStatement = bodyStatement;
+        }
+
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, MethodBodyStatement bodyStatement)
+            : this(name, parameters, returnType, null, bodyStatement) { }
+
+        internal DeclareLocalFunctionStatement(CodeWriterDeclaration name, IReadOnlyList<ParameterProvider> parameters, CSharpType returnType, ValueExpression bodyExpression)
+            : this(name, parameters, returnType, bodyExpression, null) { }
 
         internal override void Write(CodeWriter writer)
         {

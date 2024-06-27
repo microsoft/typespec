@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp
             Project generatedCodeProject = workspace.AddProject(GeneratedCodeProjectName, LanguageNames.CSharp);
 
             generatedCodeProject = generatedCodeProject
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
             return generatedCodeProject;

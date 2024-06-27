@@ -10,7 +10,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record StreamSnippet(ValueExpression Untyped) : TypedSnippet<Stream>(Untyped)
     {
-        public MethodBodyStatement CopyTo(StreamSnippet destination) => new InvokeInstanceMethodStatement(Untyped, nameof(Stream.CopyTo), destination);
+        public MethodBodyStatement CopyTo(StreamSnippet destination) => Untyped.Invoke(nameof(Stream.CopyTo), destination).Terminate();
 
         public ValueExpression Position => new MemberExpression(this, nameof(Stream.Position));
         public ValueExpression GetBuffer => new InvokeInstanceMethodExpression(this, nameof(MemoryStream.GetBuffer), Array.Empty<ValueExpression>(), null, false);

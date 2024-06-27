@@ -14,9 +14,6 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal sealed class ChangeTrackingDictionaryProvider : TypeProvider
     {
-        private static readonly Lazy<ChangeTrackingDictionaryProvider> _instance = new(() => new ChangeTrackingDictionaryProvider());
-        public static ChangeTrackingDictionaryProvider Instance => _instance.Value;
-
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
         private readonly CSharpType _tValue = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[1];
@@ -34,9 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private InvokeInstanceMethodExpression EnsureDictionary { get; init; }
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
-
-        private ChangeTrackingDictionaryProvider()
+        public ChangeTrackingDictionaryProvider()
         {
             WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
@@ -46,8 +41,8 @@ namespace Microsoft.Generator.CSharp.Providers
             _IEnumerator = new CSharpType(typeof(IEnumerator<>), new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue));
             _keyValuePair = new CSharpType(typeof(KeyValuePair<,>), _tKey, _tValue);
             _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
-            _innerDictionary = new DictionarySnippet(_tKey, _tValue, new VariableReferenceSnippet(_IDictionary, _innerDictionaryField.Declaration));
-            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
+            _innerDictionary = new DictionarySnippet(_tKey, _tValue, new VariableExpression(_IDictionary, _innerDictionaryField.Declaration));
+            _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
             EnsureDictionary = This.Invoke(_ensureDictionarySignature);
         }
 
@@ -55,6 +50,8 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return TypeSignatureModifiers.Internal;
         }
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         public override string Name => "ChangeTrackingDictionary";
 
@@ -87,40 +84,41 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
             var dictionary = new DictionarySnippet(_tKey, _tValue, dictionaryParam);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary)),
+                _innerDictionary.Assign(New.Instance(_dictionary)).Terminate(),
                 new ForeachStatement("pair", dictionary, out var pair)
                 {
                     _innerDictionary.Add(pair)
                 }
-            });
+            },
+            this);
         }
 
         private MethodProvider ConstructorWithDictionary()
         {
-            var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IDictionary);
-            var dictionary = new ParameterReferenceSnippet(dictionaryParam);
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
+            var dictionary = new ParameterProvider("dictionary", $"The inner dictionary.", _IDictionary);
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(Equal(dictionary, Null))
                 {
                     Return()
                 },
-                Assign(_innerDictionary, New.Instance(_dictionary, dictionary))
-            });
+                _innerDictionary.Assign(New.Instance(_dictionary, dictionary)).Terminate()
+            },
+            this);
         }
 
         private MethodProvider DefaultConstructor()
         {
-            var signature = new ConstructorSignature(Type, null, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
-            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>());
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>());
+            return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
         protected override PropertyProvider[] BuildProperties()
@@ -142,7 +140,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tValue), "Values", new ExpressionPropertyBody(
                 new MemberExpression(This, "Values")),
-                null,
                 _IReadOnlyDictionary);
         }
 
@@ -150,7 +147,6 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return new PropertyProvider(null, MethodSignatureModifiers.None, new CSharpType(typeof(IEnumerable<>), _tKey), "Keys", new ExpressionPropertyBody(
                 new MemberExpression(This, "Keys")),
-                null,
                 _IReadOnlyDictionary);
         }
 
@@ -162,15 +158,13 @@ namespace Microsoft.Generator.CSharp.Providers
                 {
                     new IfStatement(IsUndefined)
                     {
-                        Throw(New.Instance(typeof(KeyNotFoundException), Nameof(new ParameterReferenceSnippet(_indexParam))))
+                        Throw(New.Instance(typeof(KeyNotFoundException), Nameof(_indexParam)))
                     },
-                    Return(new ArrayElementExpression(EnsureDictionary, new ParameterReferenceSnippet(_indexParam))),
+                    Return(new ArrayElementExpression(EnsureDictionary, _indexParam)),
                 },
                 new MethodBodyStatement[]
                 {
-                    Assign(
-                        new ArrayElementExpression(EnsureDictionary, new ParameterReferenceSnippet(_indexParam)),
-                        new KeywordExpression("value", null))
+                    new ArrayElementExpression(EnsureDictionary, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
                 }));
         }
 
@@ -222,7 +216,7 @@ namespace Microsoft.Generator.CSharp.Providers
             IReadOnlyList<ParameterProvider>? parameters = null,
             CSharpType? explicitImpl = null)
         {
-            return new MethodSignature(name, null, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
+            return new MethodSignature(name, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -246,65 +240,67 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private MethodProvider BuildTryGetValue()
         {
-            var keyParam = new ParameterProvider("key", $"The key to search for.", _tKey);
-            var valueParam = new ParameterProvider("value", $"The value.", _tValue, isOut: true);
-            var value = new ParameterReferenceSnippet(valueParam);
-            var signature = GetSignature("TryGetValue", typeof(bool), parameters: new[] { keyParam, valueParam });
+            var key = new ParameterProvider("key", $"The key to search for.", _tKey);
+            var value = new ParameterProvider("value", $"The value.", _tValue, isOut: true);
+            var signature = GetSignature("TryGetValue", typeof(bool), parameters: [key, value]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
-                    Assign(value, Default),
+                    value.Assign(Default).Terminate(),
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("TryGetValue", new ParameterReferenceSnippet(keyParam), new KeywordExpression("out", value)))
-            });
+                Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))
+            },
+            this);
         }
 
         private MethodProvider BuildRemoveKey()
         {
-            var keyParam = new ParameterProvider("key", $"The key.", _tKey);
-            var signature = GetSignature("Remove", typeof(bool), parameters: new[] { keyParam });
+            var key = new ParameterProvider("key", $"The key.", _tKey);
+            var signature = GetSignature("Remove", typeof(bool), parameters: [key]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("Remove", new ParameterReferenceSnippet(keyParam)))
-            });
+                Return(EnsureDictionary.Invoke("Remove", key))
+            },
+            this);
         }
 
         private MethodProvider BuildContainsKey()
         {
-            var keyParam = new ParameterProvider("key", $"The key to search for.", _tKey);
-            var signature = GetSignature("ContainsKey", typeof(bool), parameters: new[] { keyParam });
+            var key = new ParameterProvider("key", $"The key to search for.", _tKey);
+            var signature = GetSignature("ContainsKey", typeof(bool), parameters: [key]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("ContainsKey", new ParameterReferenceSnippet(keyParam)))
-            });
+                Return(EnsureDictionary.Invoke("ContainsKey", key))
+            },
+            this);
         }
 
         private MethodProvider BuildAdd()
         {
-            var keyParam = new ParameterProvider("key", $"The key.", _tKey);
-            var valueParam = new ParameterProvider("value", $"The value to add.", _tValue);
-            var signature = GetSignature("Add", null, parameters: new[] { keyParam, valueParam });
+            var key = new ParameterProvider("key", $"The key.", _tKey);
+            var value = new ParameterProvider("value", $"The value to add.", _tValue);
+            var signature = GetSignature("Add", null, parameters: [key, value]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", new ParameterReferenceSnippet(keyParam), new ParameterReferenceSnippet(valueParam)).ToStatement()
-            });
+                EnsureDictionary.Invoke("Add", key, value).Terminate()
+            },
+            this);
         }
 
         private MethodProvider BuildRemovePair()
         {
-            var itemParam = new ParameterProvider("item", $"The item to remove.", _keyValuePair);
-            var item = new ParameterReferenceSnippet(itemParam);
-            var signature = GetSignature("Remove", typeof(bool), parameters: new[] { itemParam });
+            var item = new ParameterProvider("item", $"The item to remove.", _keyValuePair);
+            var signature = GetSignature("Remove", typeof(bool), parameters: [item]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -312,32 +308,31 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Remove", item))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildCopyTo()
         {
             //TODO: This line will not honor the generic type of the array
-            var arrayParam = new ParameterProvider("array", $"The array to copy.", typeof(KeyValuePair<,>).MakeArrayType());
-            var array = new ParameterReferenceSnippet(arrayParam);
-            var indexParam = new ParameterProvider("index", $"The index.", typeof(int));
-            var index = new ParameterReferenceSnippet(indexParam);
-            var signature = GetSignature("CopyTo", null, parameters: new[] { arrayParam, indexParam });
+            var array = new ParameterProvider("array", $"The array to copy.", typeof(KeyValuePair<,>).MakeArrayType());
+            var index = new ParameterProvider("index", $"The index.", typeof(int));
+            var signature = GetSignature("CopyTo", null, parameters: [array, index]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
                 {
                     Return()
                 },
-                EnsureDictionary.Invoke("CopyTo", array, index).ToStatement()
-            });
+                EnsureDictionary.Invoke("CopyTo", array, index).Terminate()
+            },
+            this);
         }
 
         private MethodProvider BuildContains()
         {
-            var itemParam = new ParameterProvider("item", $"The item to search for.", _keyValuePair);
-            var item = new ParameterReferenceSnippet(itemParam);
-            var signature = GetSignature("Contains", typeof(bool), parameters: new[] { itemParam });
+            var item = new ParameterProvider("item", $"The item to search for.", _keyValuePair);
+            var signature = GetSignature("Contains", typeof(bool), parameters: [item]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 new IfStatement(IsUndefined)
@@ -345,7 +340,8 @@ namespace Microsoft.Generator.CSharp.Providers
                     Return(False)
                 },
                 Return(EnsureDictionary.Invoke("Contains", item))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildClear()
@@ -353,19 +349,20 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("Clear", null);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Clear").ToStatement()
-            });
+                EnsureDictionary.Invoke("Clear").Terminate()
+            },
+            this);
         }
 
         private MethodProvider BuildAddPair()
         {
-            var itemParam = new ParameterProvider("item", $"The item to add.", _keyValuePair);
-            var item = new ParameterReferenceSnippet(itemParam);
-            var signature = GetSignature("Add", null, parameters: new[] { itemParam });
+            var item = new ParameterProvider("item", $"The item to add.", _keyValuePair);
+            var signature = GetSignature("Add", null, parameters: [item]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                EnsureDictionary.Invoke("Add", item).ToStatement()
-            });
+                EnsureDictionary.Invoke("Add", item).Terminate()
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumerator()
@@ -374,7 +371,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(This.Invoke("GetEnumerator"))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildGetEnumeratorGeneric()
@@ -384,11 +382,12 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 new IfStatement(IsUndefined)
                 {
-                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordStatement("yield", new KeywordExpression("break", null))),
+                    new DeclareLocalFunctionStatement(new CodeWriterDeclaration("enumerateEmpty"), Array.Empty<ParameterProvider>(), _IEnumerator, new KeywordExpression("yield", new KeywordExpression("break", null)).Terminate()),
                     Return(new InvokeStaticMethodExpression(null, "enumerateEmpty", Array.Empty<ValueExpression>()))
                 },
                 Return(EnsureDictionary.Invoke("GetEnumerator"))
-            });
+            },
+            this);
         }
 
         private MethodProvider BuildEnsureDictionary()
@@ -396,7 +395,8 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(_ensureDictionarySignature, new MethodBodyStatement[]
             {
                 Return(new BinaryOperatorExpression("??=", _innerDictionary, New.Instance(_dictionary)))
-            });
+            },
+            this);
         }
     }
 }

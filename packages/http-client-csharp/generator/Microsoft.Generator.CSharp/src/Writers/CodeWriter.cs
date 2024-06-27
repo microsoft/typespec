@@ -24,8 +24,8 @@ namespace Microsoft.Generator.CSharp
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
-        private bool _writingXmlDocumentation;
         private bool _atBeginningOfLine;
+        private bool _writingXmlDocumentation;
 
         internal CodeWriter()
         {
@@ -36,56 +36,18 @@ namespace Microsoft.Generator.CSharp
             _atBeginningOfLine = true;
         }
 
-        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true, CodeWriterScopeDeclarations? scopeDeclarations = null)
+        public CodeScope Scope(FormattableString line, string start = "{", string end = "}", bool newLine = true)
         {
-            ValidateDeclarations(scopeDeclarations);
             CodeScope codeWriterScope = new CodeScope(this, end, newLine, _scopes.Peek().Depth + 1);
-            _scopes.Push(codeWriterScope);
             WriteLine(line);
             WriteRawLine(start);
-            AddDeclarationsToScope(scopeDeclarations);
+            _scopes.Push(codeWriterScope);
             return codeWriterScope;
         }
 
         public CodeScope Scope()
         {
             return ScopeRaw();
-        }
-
-        private void ValidateDeclarations(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                if (!IsAvailable(declarationName))
-                {
-                    throw new InvalidOperationException($"Variable with name '{declarationName}' is declared already.");
-                }
-            }
-        }
-
-        private void AddDeclarationsToScope(CodeWriterScopeDeclarations? scopeDeclarations)
-        {
-            if (scopeDeclarations == null)
-            {
-                return;
-            }
-
-            var currentScope = _scopes.Peek();
-
-            foreach (var declarationName in scopeDeclarations.Names)
-            {
-                foreach (var scope in _scopes)
-                {
-                    scope.AllDefinedIdentifiers.Add(declarationName);
-                }
-
-                currentScope.Identifiers.Add(declarationName);
-            }
         }
 
         internal CodeScope ScopeRaw(string start = "{", string end = "}", bool newLine = true)
@@ -180,6 +142,11 @@ namespace Microsoft.Generator.CSharp
                     case var _ when isLiteralFormat:
                         Literal(argument).Write(this);
                         break;
+                    case DateTimeOffset dto:
+                        //windows and linux us different default dto ToString so we need to be explicit here
+                        //using 02/03/0001 04:05:06 +00:00
+                        AppendRaw(dto.ToString("MM/dd/yyyy HH:mm:ss zzz"));
+                        break;
                     default:
                         string? s = argument?.ToString();
                         if (s == null)
@@ -210,7 +177,7 @@ namespace Microsoft.Generator.CSharp
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
-            WriteMethodDocumentation(method.Signature);
+            WriteXmlDocs(method.XmlDocs);
 
             if (method.BodyStatements is { } body)
             {
@@ -230,22 +197,41 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
+        internal void WriteXmlDocs(XmlDocProvider? docs)
+        {
+            if (docs is null)
+                return;
+
+            if (docs.Inherit is not null)
+            {
+                docs.Inherit.Write(this);
+                return; //skip all other docs
+            }
+
+            if (docs.Summary is not null)
+            {
+                docs.Summary.Write(this);
+            }
+
+            foreach (var param in docs.Params)
+            {
+                param.Write(this);
+            }
+
+            foreach (var exception in docs.Exceptions)
+            {
+                exception.Write(this);
+            }
+
+            if (docs.Returns is not null)
+            {
+                docs.Returns.Write(this);
+            }
+        }
+
         public void WriteProperty(PropertyProvider property)
         {
-            if (property.Description is not null)
-            {
-                WriteXmlDocumentationSummary(property.Description);
-            }
-
-            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-
-            if (property.Exceptions is not null)
-            {
-                foreach (var (exceptionType, description) in property.Exceptions)
-                {
-                    WriteXmlDocumentationException(exceptionType, [description]);
-                }
-            }
+            WriteXmlDocs(property.XmlDocs);
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -359,42 +345,32 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteParameter(ParameterProvider clientParameter)
+        public void WriteParameter(ParameterProvider parameter)
         {
-            if (clientParameter.Attributes.Any())
+            if (parameter.Attributes.Count > 0)
             {
-                AppendRaw("[");
-                for (int i = 0; i < clientParameter.Attributes.Length; i++)
+                parameter.Attributes[0].Write(this);
+                for (int i = 1; i < parameter.Attributes.Count; i++)
                 {
-                    if (i == 0)
-                    {
-                        Append($"{clientParameter.Attributes[i].Type}");
-                    }
-                    else
-                    {
-                        Append($", {clientParameter.Attributes[i].Type}");
-                    }
+                    AppendRaw(" ");
+                    parameter.Attributes[i].Write(this);
                 }
-                AppendRaw("]");
             }
 
-            AppendRawIf("out ", clientParameter.IsOut);
-            AppendRawIf("ref ", clientParameter.IsRef);
+            AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{clientParameter.Type} {clientParameter.Name:D}");
-            if (clientParameter.DefaultValue != null)
+            Append($"{parameter.Type} {parameter.Name:D}");
+            if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
-                clientParameter.DefaultValue.Write(this);
+                parameter.DefaultValue.Write(this);
             }
         }
 
         public CodeWriter WriteField(FieldProvider field)
         {
-            if (field.Description != null)
-            {
-                WriteXmlDocumentationSummary([field.Description]);
-            }
+            WriteXmlDocs(field.XmlDocs);
 
             var modifiers = field.Modifiers;
 
@@ -420,22 +396,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return WriteLine($";");
-        }
-
-        public CodeWriter WriteParametersValidation(IEnumerable<ParameterProvider> parameters)
-        {
-            bool wroteValidation = false;
-            foreach (ParameterProvider parameter in parameters)
-            {
-                MethodBodyStatement validationStatement = Argument.ValidateParameter(parameter);
-                wroteValidation |= !validationStatement.Equals(EmptyStatement);
-                validationStatement.Write(this);
-            }
-            if (wroteValidation)
-            {
-                WriteLine();
-            }
-            return this;
         }
 
         internal string GetTemporaryVariable(string s)
@@ -626,7 +586,7 @@ namespace Microsoft.Generator.CSharp
             if (span.Length == 0 )
                 return this;
 
-            AddSpaces();
+            AddSpaces(span);
 
             var destination = _builder.GetSpan(span.Length);
             span.CopyTo(destination);
@@ -636,8 +596,14 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        private void AddSpaces()
+        private void AddSpaces(ReadOnlySpan<char> span)
         {
+            // pre-processor directives do not need indentation
+            if (span[0] == '#')
+            {
+                return;
+            }
+
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
                 return;
@@ -676,7 +642,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             declaration.SetActualName(GetTemporaryVariable(declaration.RequestedName));
-            _scopes.Peek().Declarations.Add(declaration);
             return WriteDeclaration(declaration.ActualName);
         }
 
@@ -884,7 +849,14 @@ namespace Microsoft.Generator.CSharp
 
         internal void Append(CodeWriterDeclaration declaration)
         {
-            WriteIdentifier(declaration.ActualName);
+            if (declaration.HasBeenDeclared)
+            {
+                WriteIdentifier(declaration.ActualName);
+            }
+            else
+            {
+                WriteDeclaration(declaration);
+            }
         }
 
         internal void WriteTypeModifiers(TypeSignatureModifiers modifiers)
@@ -905,7 +877,7 @@ namespace Microsoft.Generator.CSharp
 
         public void WriteTypeArguments(IEnumerable<CSharpType>? typeArguments)
         {
-            if (typeArguments is null)
+            if (typeArguments is null || !typeArguments.Any())
             {
                 return;
             }
@@ -943,19 +915,18 @@ namespace Microsoft.Generator.CSharp
             }
             else
             {
-                WriteRawLine("(");
+                AppendRaw("(");
                 var iterator = arguments.GetEnumerator();
                 if (iterator.MoveNext())
                 {
-                    AppendRaw("\t");
-                    iterator.Current.Write(this);
-                    WriteRawLine(",");
-                    while (iterator.MoveNext())
+                    using (ScopeRaw(string.Empty, string.Empty, false))
                     {
-                        AppendRaw(", ");
-                        AppendRaw("\t");
                         iterator.Current.Write(this);
-                        WriteRawLine(",");
+                        while (iterator.MoveNext())
+                        {
+                            WriteRawLine(",");
+                            iterator.Current.Write(this);
+                        }
                     }
                 }
                 AppendRaw(")");
