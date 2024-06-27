@@ -87,6 +87,13 @@ export function setExtension(
   openApiExtensions.set(entity, typeExtensions);
 }
 
+/**
+ * sets an extension for a namespace.
+ * @param program the global program
+ * @param entity the namespace
+ * @param extensionName the name of the extension
+ * @param data the data to set
+ */
 export function setNamespaceExtension(
   program: Program,
   entity: Namespace,
@@ -104,6 +111,12 @@ export function getExtensions(program: Program, entity: Type): ReadonlyMap<Exten
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
+/**
+ * Gets the extensions for a namespace.
+ * @param program global program
+ * @param entity the namespace
+ * @returns the extensions for the entity
+ */
 export function getNamespaceExtensions(
   program: Program,
   entity: Namespace
