@@ -14,6 +14,7 @@ import {
 import { SpawnOptions, spawn } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
+import * as path from "path";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
@@ -65,7 +66,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
     // await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
     if (root) {
-      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
+      const isSrcFolder = path.basename(outputFolder) === "src";
+      const generatedFolder = isSrcFolder
+        ? resolvePath(outputFolder, "Generated")
+        : resolvePath(outputFolder, "src", "Generated");
 
       if (!fs.existsSync(generatedFolder)) {
         fs.mkdirSync(generatedFolder, { recursive: true });
@@ -123,11 +127,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       );
 
       if (options.skipSDKGeneration !== true) {
-        const csProjFile = resolvePath(
-          outputFolder,
-          "src",
-          `${configurations["library-name"]}.csproj`
-        );
+        const csProjFile = isSrcFolder
+          ? resolvePath(outputFolder, `${configurations["library-name"]}.csproj`)
+          : resolvePath(outputFolder, "src", `${configurations["library-name"]}.csproj`);
         Logger.getInstance().info(`Checking if ${csProjFile} exists`);
         const newProjectOption = "";
         // TODO uncomment when https://github.com/Azure/autorest.csharp/issues/4463 is resolved
