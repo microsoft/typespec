@@ -3,6 +3,8 @@
 #nullable disable
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UnbrandedTypeSpec.Models;
 
 namespace UnbrandedTypeSpec
@@ -15,9 +17,65 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> Return hi. </summary>
+        /// <param name="headParameter"></param>
+        /// <param name="queryParameter"></param>
+        /// <param name="optionalQuery"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        public virtual void SayHi(string headParameter, string queryParameter, string optionalQuery, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+        }
+
+        /// <summary> Return hi. </summary>
+        /// <param name="headParameter"></param>
+        /// <param name="queryParameter"></param>
+        /// <param name="optionalQuery"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        public virtual async void SayHiAsync(string headParameter, string queryParameter, string optionalQuery, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(headParameter, nameof(headParameter));
+            Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateHelloAgainRequest(Uri unbrandedTypeSpecUrl, string p1, string contentType, string p2, RoundTripModel action, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        public virtual void HelloAgain(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        public virtual async void HelloAgainAsync(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateNoContentTypeRequest(Uri unbrandedTypeSpecUrl, string p1, string p2, RoundTripModel action, string accept, string contentType)
@@ -25,9 +83,51 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        public virtual void NoContentType(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+        }
+
+        /// <summary> Return hi again. </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        public virtual async void NoContentTypeAsync(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            Argument.AssertNotNull(p2, nameof(p2));
+            Argument.AssertNotNull(action, nameof(action));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateHelloDemo2Request(Uri unbrandedTypeSpecUrl, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> Return hi in demo2. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void HelloDemo2(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> Return hi in demo2. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void HelloDemo2Async(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateCreateLiteralRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
@@ -35,9 +135,43 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> Create with literal value. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual void CreateLiteral(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+        }
+
+        /// <summary> Create with literal value. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual async void CreateLiteralAsync(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateHelloLiteralRequest(Uri unbrandedTypeSpecUrl, string p1, int p2, bool p3, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> Send literal parameters. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void HelloLiteral(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> Send literal parameters. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void HelloLiteralAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateTopActionRequest(Uri unbrandedTypeSpecUrl, DateTimeOffset action, string accept)
@@ -45,9 +179,43 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> top level method. </summary>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        public virtual void TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(action, nameof(action));
+
+        }
+
+        /// <summary> top level method. </summary>
+        /// <param name="action"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        public virtual async void TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(action, nameof(action));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateTopAction2Request(Uri unbrandedTypeSpecUrl, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> top level method2. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void TopAction2(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> top level method2. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void TopAction2Async(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreatePatchActionRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
@@ -55,9 +223,51 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> top level patch. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual void PatchAction(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+        }
+
+        /// <summary> top level patch. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual async void PatchActionAsync(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateAnonymousBodyRequest(Uri unbrandedTypeSpecUrl, Thing Thing, string accept, string contentType)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> body parameter without body decorator. </summary>
+        /// <param name="Thing"> A model with a few properties of literal types. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        public virtual void AnonymousBody(Thing Thing, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(Thing, nameof(Thing));
+
+        }
+
+        /// <summary> body parameter without body decorator. </summary>
+        /// <param name="Thing"> A model with a few properties of literal types. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        public virtual async void AnonymousBodyAsync(Thing Thing, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(Thing, nameof(Thing));
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateFriendlyModelRequest(Uri unbrandedTypeSpecUrl, Friend Friend, string accept, string contentType)
@@ -65,9 +275,45 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> Model can have its friendly name. </summary>
+        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
+        public virtual void FriendlyModel(Friend Friend, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(Friend, nameof(Friend));
+
+        }
+
+        /// <summary> Model can have its friendly name. </summary>
+        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
+        public virtual async void FriendlyModelAsync(Friend Friend, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(Friend, nameof(Friend));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateAddTimeHeaderRequest(Uri unbrandedTypeSpecUrl, DateTimeOffset repeatabilityFirstSent, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> addTimeHeader. </summary>
+        /// <param name="repeatabilityFirstSent"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void AddTimeHeader(DateTimeOffset repeatabilityFirstSent, CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> addTimeHeader. </summary>
+        /// <param name="repeatabilityFirstSent"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateProjectedNameModelRequest(Uri unbrandedTypeSpecUrl, ProjectedModel ProjectedModel, string accept, string contentType)
@@ -75,9 +321,43 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> Model can have its projected name. </summary>
+        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        public virtual void ProjectedNameModel(ProjectedModel ProjectedModel, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
+        }
+
+        /// <summary> Model can have its projected name. </summary>
+        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        public virtual async void ProjectedNameModelAsync(ProjectedModel ProjectedModel, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateReturnsAnonymousModelRequest(Uri unbrandedTypeSpecUrl, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> return anonymous model. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void ReturnsAnonymousModel(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> return anonymous model. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateGetUnknownValueRequest(Uri unbrandedTypeSpecUrl, string accept)
@@ -85,9 +365,43 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> get extensible enum. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void GetUnknownValue(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> get extensible enum. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void GetUnknownValueAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateInternalProtocolRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual void InternalProtocol(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+        }
+
+        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        public virtual async void InternalProtocolAsync(Thing body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         internal void CreateStillConvenientRequest(Uri unbrandedTypeSpecUrl, string accept)
@@ -95,9 +409,43 @@ namespace UnbrandedTypeSpec
             throw new NotImplementedException("Method not implemented.");
         }
 
+        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual void StillConvenient(CancellationToken cancellationToken = default)
+        {
+        }
+
+        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        public virtual async void StillConvenientAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
         internal void CreateHeadAsBooleanRequest(Uri unbrandedTypeSpecUrl, string id, string accept)
         {
             throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary> head as boolean. </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        public virtual void HeadAsBoolean(string id, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+
+        }
+
+        /// <summary> head as boolean. </summary>
+        /// <param name="id"></param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        public virtual async void HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(id, nameof(id));
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

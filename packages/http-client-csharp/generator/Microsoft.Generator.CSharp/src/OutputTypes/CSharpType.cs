@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -607,6 +608,16 @@ namespace Microsoft.Generator.CSharp
             {
                 return new CSharpType(Implementation, arguments, IsNullable);
             }
+        }
+
+        public CSharpType WrapInTask()
+        {
+            if (IsFrameworkType && FrameworkType == typeof(Task<>))
+            {
+                return this;
+            }
+
+            return new CSharpType(typeof(Task<>), this);
         }
     }
 }
