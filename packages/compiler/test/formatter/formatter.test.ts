@@ -852,6 +852,59 @@ scalar Foo {
       });
     });
   });
+
+  describe("scalar constructor call", () => {
+    it("simple call", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromISO(
+  "abc"  );
+`,
+        expected: `
+const foo = utcDateTime.fromISO("abc");
+`,
+      });
+    });
+
+    it("hug object literal", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromFoo(#{ name: "abc",
+        multiline1: "abc",
+  multiline2: "abc",
+    multiline3: "abc",  });
+`,
+        expected: `
+const foo = utcDateTime.fromFoo(#{
+  name: "abc",
+  multiline1: "abc",
+  multiline2: "abc",
+  multiline3: "abc",
+});
+`,
+      });
+    });
+
+    it("hug array literal", async () => {
+      await assertFormat({
+        code: `
+const foo     = utcDateTime.   fromFoo(#[
+        "very very long array",
+    "very very long array",
+  "very very long array"
+]);
+`,
+        expected: `
+const foo = utcDateTime.fromFoo(#[
+  "very very long array",
+  "very very long array",
+  "very very long array"
+]);
+`,
+      });
+    });
+  });
+
   describe("comments", () => {
     it("format comment at position 0", async () => {
       await assertFormat({

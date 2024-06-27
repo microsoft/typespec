@@ -4,7 +4,7 @@ title: "[F] setRoute"
 
 ---
 ```ts
-setRoute(
+function setRoute(
    context, 
    entity, 
    details): void

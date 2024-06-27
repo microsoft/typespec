@@ -4,7 +4,7 @@ title: "[F] shouldInline"
 
 ---
 ```ts
-shouldInline(program, type): boolean
+function shouldInline(program, type): boolean
 ```
 
 Determines whether a type will be inlined in OpenAPI rather than defined

@@ -4,7 +4,7 @@ title: "[F] getSourceFileKindFromExt"
 
 ---
 ```ts
-getSourceFileKindFromExt(path): SourceFileKind | undefined
+function getSourceFileKindFromExt(path): SourceFileKind | undefined
 ```
 
 ## Parameters

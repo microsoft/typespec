@@ -4,7 +4,7 @@ title: "[F] typespecTypeToJson"
 
 ---
 ```ts
-typespecTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
+function typespecTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 ```
 
 Convert a TypeSpec type to a serializable Json object.

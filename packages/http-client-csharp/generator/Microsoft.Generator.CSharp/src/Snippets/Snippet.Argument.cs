@@ -26,15 +26,12 @@ namespace Microsoft.Generator.CSharp.Snippets
                 return ArgumentProvider.Instance.AssertNotNullOrWhiteSpace(variable);
             }
 
-            public static MethodBodyStatement ValidateParameter(ParameterProvider parameter)
+            public static MethodBodyStatement ValidateParameter(ParameterProvider parameter) => parameter.Validation switch
             {
-                return parameter.Validation switch
-                {
-                    ParameterValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
-                    ParameterValidationType.AssertNotNull => AssertNotNull(parameter),
-                    _ => EmptyStatement
-                };
-            }
+                ParameterValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
+                ParameterValidationType.AssertNotNull => AssertNotNull(parameter),
+                _ => EmptyStatement
+            };
         }
     }
 }

@@ -4,7 +4,7 @@ title: "[F] hasParseError"
 
 ---
 ```ts
-hasParseError(node): number | true
+function hasParseError(node): number | true
 ```
 
 ## Parameters

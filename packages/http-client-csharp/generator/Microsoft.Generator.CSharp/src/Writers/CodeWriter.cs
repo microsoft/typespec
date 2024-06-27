@@ -24,8 +24,8 @@ namespace Microsoft.Generator.CSharp
         private readonly Stack<CodeScope> _scopes;
         private string? _currentNamespace;
         private UnsafeBufferSequence _builder;
-        private bool _writingXmlDocumentation;
         private bool _atBeginningOfLine;
+        private bool _writingXmlDocumentation;
 
         internal CodeWriter()
         {
@@ -210,7 +210,7 @@ namespace Microsoft.Generator.CSharp
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
-            WriteMethodDocumentation(method.Signature);
+            WriteXmlDocs(method.XmlDocs);
 
             if (method.BodyStatements is { } body)
             {
@@ -230,22 +230,41 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
+        internal void WriteXmlDocs(XmlDocProvider? docs)
+        {
+            if (docs is null)
+                return;
+
+            if (docs.Inherit is not null)
+            {
+                docs.Inherit.Write(this);
+                return; //skip all other docs
+            }
+
+            if (docs.Summary is not null)
+            {
+                docs.Summary.Write(this);
+            }
+
+            foreach (var param in docs.Params)
+            {
+                param.Write(this);
+            }
+
+            foreach (var exception in docs.Exceptions)
+            {
+                exception.Write(this);
+            }
+
+            if (docs.Returns is not null)
+            {
+                docs.Returns.Write(this);
+            }
+        }
+
         public void WriteProperty(PropertyProvider property)
         {
-            if (property.Description is not null)
-            {
-                WriteXmlDocumentationSummary(property.Description);
-            }
-
-            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-
-            if (property.Exceptions is not null)
-            {
-                foreach (var (exceptionType, description) in property.Exceptions)
-                {
-                    WriteXmlDocumentationException(exceptionType, [description]);
-                }
-            }
+            WriteXmlDocs(property.XmlDocs);
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
@@ -359,42 +378,32 @@ namespace Microsoft.Generator.CSharp
             return this;
         }
 
-        public void WriteParameter(ParameterProvider clientParameter)
+        public void WriteParameter(ParameterProvider parameter)
         {
-            if (clientParameter.Attributes.Any())
+            if (parameter.Attributes.Count > 0)
             {
-                AppendRaw("[");
-                for (int i = 0; i < clientParameter.Attributes.Length; i++)
+                parameter.Attributes[0].Write(this);
+                for (int i = 1; i < parameter.Attributes.Count; i++)
                 {
-                    if (i == 0)
-                    {
-                        Append($"{clientParameter.Attributes[i].Type}");
-                    }
-                    else
-                    {
-                        Append($", {clientParameter.Attributes[i].Type}");
-                    }
+                    AppendRaw(" ");
+                    parameter.Attributes[i].Write(this);
                 }
-                AppendRaw("]");
             }
 
-            AppendRawIf("out ", clientParameter.IsOut);
-            AppendRawIf("ref ", clientParameter.IsRef);
+            AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("ref ", parameter.IsRef);
 
-            Append($"{clientParameter.Type} {clientParameter.Name:D}");
-            if (clientParameter.DefaultValue != null)
+            Append($"{parameter.Type} {parameter.Name:D}");
+            if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");
-                clientParameter.DefaultValue.Write(this);
+                parameter.DefaultValue.Write(this);
             }
         }
 
         public CodeWriter WriteField(FieldProvider field)
         {
-            if (field.Description != null)
-            {
-                WriteXmlDocumentationSummary([field.Description]);
-            }
+            WriteXmlDocs(field.XmlDocs);
 
             var modifiers = field.Modifiers;
 
@@ -420,22 +429,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             return WriteLine($";");
-        }
-
-        public CodeWriter WriteParametersValidation(IEnumerable<ParameterProvider> parameters)
-        {
-            bool wroteValidation = false;
-            foreach (ParameterProvider parameter in parameters)
-            {
-                MethodBodyStatement validationStatement = Argument.ValidateParameter(parameter);
-                wroteValidation |= !validationStatement.Equals(EmptyStatement);
-                validationStatement.Write(this);
-            }
-            if (wroteValidation)
-            {
-                WriteLine();
-            }
-            return this;
         }
 
         internal string GetTemporaryVariable(string s)
@@ -905,7 +898,7 @@ namespace Microsoft.Generator.CSharp
 
         public void WriteTypeArguments(IEnumerable<CSharpType>? typeArguments)
         {
-            if (typeArguments is null)
+            if (typeArguments is null || !typeArguments.Any())
             {
                 return;
             }

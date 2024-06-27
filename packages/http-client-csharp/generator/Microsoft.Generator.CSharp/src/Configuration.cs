@@ -133,7 +133,7 @@ namespace Microsoft.Generator.CSharp
             { Options.UseModelNamespace, true },
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
-            { Options.ClearOutputFolder, false },
+            { Options.ClearOutputFolder, true },
             { Options.GenerateTestProject, false }
         };
 
@@ -167,7 +167,6 @@ namespace Microsoft.Generator.CSharp
         {
             return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
         }
-
 
         private static string? ReadStringOption(JsonElement root, string option)
         {

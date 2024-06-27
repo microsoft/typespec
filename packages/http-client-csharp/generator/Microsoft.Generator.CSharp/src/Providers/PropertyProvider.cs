@@ -2,24 +2,26 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class PropertyProvider
     {
-        public IReadOnlyList<FormattableString> Description { get; }
+        public FormattableString Description { get; }
+        public XmlDocSummaryStatement XmlDocSummary { get; }
         public MethodSignatureModifiers Modifiers { get; }
         public CSharpType Type { get; }
         public string Name { get; }
         public PropertyBody Body { get; }
-        public IReadOnlyDictionary<CSharpType, FormattableString>? Exceptions { get; }
         public CSharpType? ExplicitInterface { get; }
+        public XmlDocProvider XmlDocs { get; }
+
         public PropertyProvider(InputModelProperty inputProperty)
         {
             var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
@@ -29,20 +31,33 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = propertyType;
             Modifiers = MethodSignatureModifiers.Public;
-            Description = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, !propHasSetter);
             Name = inputProperty.Name.FirstCharToUpperCase();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
+            Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
+            XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
+            XmlDocs = GetXmlDocs();
         }
 
-        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
+        public PropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType type, string name, PropertyBody body, CSharpType? explicitInterface = null)
         {
-            Description = [description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter)];
+            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
+            XmlDocSummary = new XmlDocSummaryStatement([Description]);
             Modifiers = modifiers;
             Type = type;
             Name = name;
             Body = body;
-            Exceptions = exceptions;
             ExplicitInterface = explicitInterface;
+            XmlDocs = GetXmlDocs();
+        }
+
+        private XmlDocProvider GetXmlDocs()
+        {
+            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
+
+            return new XmlDocProvider()
+            {
+                Summary = XmlDocSummary,
+            };
         }
 
         /// <summary>

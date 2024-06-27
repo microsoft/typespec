@@ -14,6 +14,7 @@ title: "[I] DeclarationNode"
 - [`UnionStatementNode`](UnionStatementNode.md)
 - [`EnumStatementNode`](EnumStatementNode.md)
 - [`AliasStatementNode`](AliasStatementNode.md)
+- [`ConstStatementNode`](ConstStatementNode.md)
 - [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)
 - [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md)
 - [`FunctionDeclarationStatementNode`](FunctionDeclarationStatementNode.md)

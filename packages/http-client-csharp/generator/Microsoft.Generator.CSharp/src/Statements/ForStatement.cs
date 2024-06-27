@@ -7,8 +7,19 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record ForStatement(AssignmentExpression? IndexerAssignment, ValueExpression? Condition, ValueExpression? IncrementExpression) : MethodBodyStatement, IEnumerable<MethodBodyStatement>
+    public sealed class ForStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
+        public ValueExpression? IndexExpression { get; set; }
+        public ValueExpression? Condition { get; set; }
+        public ValueExpression? IncrementExpression { get; set; }
+
+        public ForStatement(ValueExpression? indexExpression, ValueExpression? condition, ValueExpression? incrementExpression)
+        {
+            IndexExpression = indexExpression;
+            Condition = condition;
+            IncrementExpression = incrementExpression;
+        }
+
         private readonly List<MethodBodyStatement> _body = new();
         public IReadOnlyList<MethodBodyStatement> Body => _body;
 
@@ -21,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Statements
             using (writer.AmbientScope())
             {
                 writer.AppendRaw("for (");
-                IndexerAssignment?.Write(writer);
+                IndexExpression?.Write(writer);
                 writer.AppendRaw("; ");
                 Condition?.Write(writer);
                 writer.AppendRaw("; ");

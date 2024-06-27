@@ -4,7 +4,7 @@ title: "[F] getExternalDocs"
 
 ---
 ```ts
-getExternalDocs(program, entity): ExternalDocs | undefined
+function getExternalDocs(program, entity): ExternalDocs | undefined
 ```
 
 ## Parameters

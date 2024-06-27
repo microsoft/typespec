@@ -4,7 +4,7 @@ title: "[F] isNumericType"
 
 ---
 ```ts
-isNumericType(program, target): target is Scalar
+function isNumericType(program, target): target is Scalar
 ```
 
 ## Parameters

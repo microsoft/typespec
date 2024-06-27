@@ -4,7 +4,7 @@ title: "[F] getActionSeparator"
 
 ---
 ```ts
-getActionSeparator(program, entity): string | undefined
+function getActionSeparator(program, entity): string | undefined
 ```
 
 ## Parameters

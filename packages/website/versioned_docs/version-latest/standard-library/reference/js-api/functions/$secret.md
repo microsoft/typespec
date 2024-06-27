@@ -4,7 +4,7 @@ title: "[F] $secret"
 
 ---
 ```ts
-$secret(context, target): void
+function $secret(context, target): void
 ```
 
 Mark a string as a secret value that should be treated carefully to avoid exposure
@@ -14,7 +14,7 @@ Mark a string as a secret value that should be treated carefully to avoid exposu
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | Decorator context |
-| `target` | [`Scalar`](../interfaces/Scalar.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) | Decorator target, either a string model or a property with type string. |
+| `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) | Decorator target, either a string model or a property with type string. |
 
 ## Returns
 

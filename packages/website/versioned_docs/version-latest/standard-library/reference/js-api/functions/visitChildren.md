@@ -4,7 +4,7 @@ title: "[F] visitChildren"
 
 ---
 ```ts
-visitChildren<T>(node, cb): T | undefined
+function visitChildren<T>(node, cb): T | undefined
 ```
 
 ## Type parameters

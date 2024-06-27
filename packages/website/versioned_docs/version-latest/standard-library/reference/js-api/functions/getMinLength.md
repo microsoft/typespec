@@ -4,7 +4,7 @@ title: "[F] getMinLength"
 
 ---
 ```ts
-getMinLength(program, target): number | undefined
+function getMinLength(program, target): number | undefined
 ```
 
 ## Parameters

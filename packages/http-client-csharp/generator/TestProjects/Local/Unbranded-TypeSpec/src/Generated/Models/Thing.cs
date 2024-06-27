@@ -5,19 +5,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredBadDescription"> description with xml <|endoftext|>. </param>
+        /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string name, System.BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        public Thing(string name, BinaryData requiredUnion, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
@@ -35,49 +37,47 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary>
         /// required Union
-        /// <para>
-        /// To assign an object to this property use <see cref="System.BinaryData.FromObjectAsJson{T}(T, Text.Json.JsonSerializerOptions?)"/>.
-        /// </para>
-        /// <para>
-        /// To assign an already formatted json string to this property use <see cref="System.BinaryData.FromString(string)"/>.
-        /// </para>
+        /// <para> To assign an object to this property use <see cref="BinaryData.FromObjectAsJson{T}(T, JsonSerializerOptions?)"/>. </para>
+        /// <para> To assign an already formatted json string to this property use <see cref="BinaryData.FromString(string)"/>. </para>
         /// <para>
         /// <remarks>
         /// Supported types:
         /// <list type="bullet">
         /// <item>
-        /// <description><see cref="string"/></description>
+        /// <description> <see cref="string"/>. </description>
         /// </item>
         /// <item>
-        /// <description><see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/></description>
+        /// <description> <see cref="IList{T}"/> where <c>T</c> is of type <see cref="string"/>. </description>
         /// </item>
         /// <item>
-        /// <description><see cref="int"/></description>
+        /// <description> <see cref="int"/>. </description>
         /// </item>
         /// </list>
         /// </remarks>
+        /// </para>
+        /// <para>
         /// Examples:
         /// <list type="bullet">
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson("foo")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromObjectAsJson("foo"). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("\"foo\"")</term>
-        /// <description>Creates a payload of "foo".</description>
+        /// <term> BinaryData.FromString("\"foo\""). </term>
+        /// <description> Creates a payload of "foo". </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromObjectAsJson(new { key = "value" })</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromObjectAsJson(new { key = "value" }). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// <item>
-        /// <term>BinaryData.FromString("{\"key\": \"value\"}")</term>
-        /// <description>Creates a payload of { "key": "value" }.</description>
+        /// <term> BinaryData.FromString("{\"key\": \"value\"}"). </term>
+        /// <description> Creates a payload of { "key": "value" }. </description>
         /// </item>
         /// </list>
         /// </para>
         /// </summary>
-        public System.BinaryData RequiredUnion { get; set; }
+        public BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
         public ThingRequiredLiteralString RequiredLiteralString { get; } = "accept";
@@ -103,7 +103,7 @@ namespace UnbrandedTypeSpec.Models
         /// <summary> optional literal bool. </summary>
         public bool OptionalLiteralBool { get; set; }
 
-        /// <summary> description with xml <|endoftext|>. </summary>
+        /// <summary> description with xml &lt;|endoftext|&gt;. </summary>
         public string RequiredBadDescription { get; set; }
 
         /// <summary> optional nullable collection. </summary>

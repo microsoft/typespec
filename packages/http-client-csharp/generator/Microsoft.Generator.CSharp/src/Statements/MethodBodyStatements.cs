@@ -5,8 +5,15 @@ using System.Collections.Generic;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public record MethodBodyStatements(IReadOnlyList<MethodBodyStatement> Statements) : MethodBodyStatement
+    public class MethodBodyStatements : MethodBodyStatement
     {
+        public IReadOnlyList<MethodBodyStatement> Statements { get; }
+
+        public MethodBodyStatements(IReadOnlyList<MethodBodyStatement> statements)
+        {
+            Statements = statements;
+        }
+
         internal override void Write(CodeWriter writer)
         {
             foreach (var statement in Statements)

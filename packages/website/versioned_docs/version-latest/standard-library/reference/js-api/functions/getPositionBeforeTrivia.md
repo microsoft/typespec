@@ -4,7 +4,7 @@ title: "[F] getPositionBeforeTrivia"
 
 ---
 ```ts
-getPositionBeforeTrivia(script, pos): number
+function getPositionBeforeTrivia(script, pos): number
 ```
 
 Adjust the given postion backwards before any trivia.

@@ -4,7 +4,7 @@ title: "[F] $parameterVisibility"
 
 ---
 ```ts
-$parameterVisibility(
+function $parameterVisibility(
    context, 
    target, ...
    visibilities): void

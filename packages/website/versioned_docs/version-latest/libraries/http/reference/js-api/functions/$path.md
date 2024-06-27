@@ -4,7 +4,7 @@ title: "[F] $path"
 
 ---
 ```ts
-$path(
+function $path(
    context, 
    target, 
    paramName?): void

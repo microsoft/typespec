@@ -4,7 +4,7 @@ title: "[F] $visibility"
 
 ---
 ```ts
-$visibility(
+function $visibility(
    context, 
    target, ...
    visibilities): void

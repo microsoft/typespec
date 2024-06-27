@@ -4,7 +4,7 @@ title: "[F] $minContains"
 
 ---
 ```ts
-$minContains(
+function $minContains(
    context, 
    target, 
    value): void

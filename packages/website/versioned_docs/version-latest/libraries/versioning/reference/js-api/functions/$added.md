@@ -4,7 +4,7 @@ title: "[F] $added"
 
 ---
 ```ts
-$added(
+function $added(
    context, 
    target, 
    version): void
@@ -15,7 +15,7 @@ $added(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `target` |  \| `Scalar` \| `ModelProperty` \| `Model` \| `Interface` \| `Enum` \| `EnumMember` \| `Operation` \| `Union` \| `UnionVariant` |
+| `target` |  \| `Enum` \| `EnumMember` \| `Interface` \| `Model` \| `ModelProperty` \| `Operation` \| `Scalar` \| `Union` \| `UnionVariant` |
 | `version` | `EnumMember` |
 
 ## Returns

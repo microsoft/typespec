@@ -5,13 +5,14 @@ title: "[I] Checker"
 ---
 ## Properties
 
-| Property | Type |
-| :------ | :------ |
-| `anyType` | [`UnknownType`](UnknownType.md) |
-| `errorType` | [`ErrorType`](ErrorType.md) |
-| `neverType` | [`NeverType`](NeverType.md) |
-| `typePrototype` | `TypePrototype` |
-| `voidType` | [`VoidType`](VoidType.md) |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `anyType` | `readonly` | [`UnknownType`](UnknownType.md) |
+| `errorType` | `readonly` | [`ErrorType`](ErrorType.md) |
+| `neverType` | `readonly` | [`NeverType`](NeverType.md) |
+| `nullType` | `readonly` | [`NullType`](NullType.md) |
+| `typePrototype` | `public` | `TypePrototype` |
+| `voidType` | `readonly` | [`VoidType`](VoidType.md) |
 
 ## Methods
 
@@ -55,14 +56,14 @@ cloneType<T>(type, additionalProps?): T
 
 | Type parameter |
 | :------ |
-| `T` extends [`Type`](../type-aliases/Type.md) |
+| `T` *extends* [`Type`](../type-aliases/Type.md) |
 
 #### Parameters
 
 | Parameter | Type |
 | :------ | :------ |
 | `type` | `T` |
-| `additionalProps`? | `{ [P in string | number | symbol]?: T[P] }` |
+| `additionalProps`? | \{ \[P in string \| number \| symbol\]?: T\[P\] \} |
 
 #### Returns
 
@@ -80,7 +81,7 @@ createAndFinishType<T>(typeDef): T & TypePrototype
 
 | Type parameter |
 | :------ |
-| `T` extends [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
+| `T` *extends* [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
 
 #### Parameters
 
@@ -168,7 +169,7 @@ createLiteralType(value, node?): BooleanLiteral
 #### createLiteralType(value, node)
 
 ```ts
-createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
+createLiteralType(value, node?): BooleanLiteral | NumericLiteral | StringLiteral
 ```
 
 ##### Parameters
@@ -180,12 +181,12 @@ createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
 
 ##### Returns
 
-[`StringLiteral`](StringLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`BooleanLiteral`](BooleanLiteral.md)
+[`BooleanLiteral`](BooleanLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`StringLiteral`](StringLiteral.md)
 
 #### createLiteralType(value, node)
 
 ```ts
-createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
+createLiteralType(value, node?): BooleanLiteral | NumericLiteral | StringLiteral
 ```
 
 ##### Parameters
@@ -197,21 +198,21 @@ createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
 
 ##### Returns
 
-[`StringLiteral`](StringLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`BooleanLiteral`](BooleanLiteral.md)
+[`BooleanLiteral`](BooleanLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`StringLiteral`](StringLiteral.md)
 
 ***
 
 ### createType()
 
 ```ts
-createType<T>(typeDef): T & TypePrototype & Object
+createType<T>(typeDef): T & TypePrototype & object
 ```
 
 #### Type parameters
 
 | Type parameter |
 | :------ |
-| `T` extends [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
+| `T` *extends* [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
 
 #### Parameters
 
@@ -221,7 +222,7 @@ createType<T>(typeDef): T & TypePrototype & Object
 
 #### Returns
 
-`T` & `TypePrototype` & `Object`
+`T` & `TypePrototype` & `object`
 
 ***
 
@@ -258,7 +259,7 @@ finishType<T>(typeDef): T
 
 | Type parameter |
 | :------ |
-| `T` extends [`Type`](../type-aliases/Type.md) |
+| `T` *extends* [`Type`](../type-aliases/Type.md) |
 
 #### Parameters
 
@@ -417,7 +418,7 @@ Std type
 
 | Type parameter |
 | :------ |
-| `T` extends [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Array"` \| `"Record"` |
+| `T` *extends* `"Array"` \| [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Record"` |
 
 #### Parameters
 
@@ -504,7 +505,7 @@ isStdType(type, stdType?): type is Type & Object
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
-| `stdType`? | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Array"` \| `"Record"` |
+| `stdType`? | `"Array"` \| [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Record"` |
 
 ##### Returns
 
@@ -527,8 +528,8 @@ Check if the source type can be assigned to the target type.
 
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
-| `source` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | Source type, should be assignable to the target. |
-| `target` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | Target type |
+| `source` | [`Entity`](../type-aliases/Entity.md) | Source type, should be assignable to the target. |
+| `target` | [`Entity`](../type-aliases/Entity.md) | Target type |
 | `diagnosticTarget` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | Target for the diagnostic, unless something better can be inferred. |
 
 #### Returns

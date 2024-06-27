@@ -72,6 +72,35 @@ model Foo {
 }
 ```
 
+### `@madeRequired` {#@TypeSpec.Versioning.madeRequired}
+
+Identifies when a target was made required.
+
+```typespec
+@TypeSpec.Versioning.madeRequired(version: EnumMember)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+
+| Name    | Type         | Description                                       |
+| ------- | ------------ | ------------------------------------------------- |
+| version | `EnumMember` | The version that the target was made required in. |
+
+#### Examples
+
+```tsp
+model Foo {
+  name: string;
+
+  @madeRequired(Versions.v2)
+  nickname: string;
+}
+```
+
 ### `@removed` {#@TypeSpec.Versioning.removed}
 
 Identifies when the target was removed.

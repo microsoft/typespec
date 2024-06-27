@@ -4,7 +4,7 @@ title: "[F] getAvailabilityMapInTimeline"
 
 ---
 ```ts
-getAvailabilityMapInTimeline(
+function getAvailabilityMapInTimeline(
    program, 
    type, 
    timeline): Map<TimelineMoment, Availability> | undefined

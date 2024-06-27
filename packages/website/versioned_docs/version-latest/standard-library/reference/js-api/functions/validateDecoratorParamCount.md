@@ -4,7 +4,7 @@ title: "[F] validateDecoratorParamCount"
 
 ---
 ```ts
-validateDecoratorParamCount(
+function validateDecoratorParamCount(
    context, 
    min, 
    max, 

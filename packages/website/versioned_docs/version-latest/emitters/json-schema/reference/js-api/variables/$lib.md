@@ -4,16 +4,16 @@ title: "[V] $lib"
 
 ---
 ```ts
-const $lib: TypeSpecLibrary<Object, JSONSchemaEmitterOptions, never>;
+const $lib: TypeSpecLibrary<object, JSONSchemaEmitterOptions, never>;
 ```
 
 ## Type declaration
 
 | Member | Type | Value |
 | :------ | :------ | :------ |
-| `duplicate-id` | `Object` | - |
-| `duplicate-id.default` | `CallableMessage`<[`"id"`]\> | - |
-| `invalid-default` | `Object` | - |
-| `invalid-default.default` | `CallableMessage`<[`"type"`]\> | - |
-| `unknown-scalar` | `Object` | - |
-| `unknown-scalar.default` | `CallableMessage`<[`"name"`]\> | - |
+| `duplicate-id` | `object` | ... |
+| `duplicate-id.default` | `CallableMessage`<[`string`]\> | ... |
+| `invalid-default` | `object` | ... |
+| `invalid-default.default` | `CallableMessage`<[`string`]\> | ... |
+| `unknown-scalar` | `object` | ... |
+| `unknown-scalar.default` | `CallableMessage`<[`string`]\> | ... |

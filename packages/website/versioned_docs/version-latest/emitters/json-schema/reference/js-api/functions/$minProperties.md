@@ -4,7 +4,7 @@ title: "[F] $minProperties"
 
 ---
 ```ts
-$minProperties(
+function $minProperties(
    context, 
    target, 
    value): void

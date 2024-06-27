@@ -4,7 +4,7 @@ title: "[F] $withoutOmittedProperties"
 
 ---
 ```ts
-$withoutOmittedProperties(
+function $withoutOmittedProperties(
    context, 
    target, 
    omit): void

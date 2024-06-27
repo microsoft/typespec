@@ -4,7 +4,7 @@ title: "[F] getAvailabilityMap"
 
 ---
 ```ts
-getAvailabilityMap(program, type): Map<string, Availability> | undefined
+function getAvailabilityMap(program, type): Map<string, Availability> | undefined
 ```
 
 ## Parameters

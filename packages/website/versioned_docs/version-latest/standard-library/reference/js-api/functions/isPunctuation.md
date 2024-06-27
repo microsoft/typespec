@@ -4,7 +4,7 @@ title: "[F] isPunctuation"
 
 ---
 ```ts
-isPunctuation(token): boolean
+function isPunctuation(token): boolean
 ```
 
 ## Parameters

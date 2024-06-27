@@ -4,7 +4,7 @@ title: "[F] $externRef"
 
 ---
 ```ts
-$externRef(
+function $externRef(
    ctx, 
    target, 
    path, 

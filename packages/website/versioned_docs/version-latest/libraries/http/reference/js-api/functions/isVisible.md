@@ -4,7 +4,7 @@ title: "[F] isVisible"
 
 ---
 ```ts
-isVisible(
+function isVisible(
    program, 
    property, 
    visibility): boolean

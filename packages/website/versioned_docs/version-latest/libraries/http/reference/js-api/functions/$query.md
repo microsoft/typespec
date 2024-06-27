@@ -4,7 +4,7 @@ title: "[F] $query"
 
 ---
 ```ts
-$query(
+function $query(
    context, 
    target, 
    queryNameOrOptions?): void

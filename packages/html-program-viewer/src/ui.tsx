@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 import {
+  Entity,
   Enum,
   EnumMember,
   getNamespaceFullName,
@@ -132,12 +133,12 @@ const NamedTypeUI = <T extends NamedType>({ type, name, properties }: NamedTypeU
         return undefined;
       }
 
-      const render = (x: any) =>
-        action === "ref" ? <TypeReference type={value} /> : <TypeUI type={x} />;
+      const render = (x: Entity) =>
+        action === "ref" ? <TypeReference type={value} /> : <EntityUI entity={x} />;
       let valueUI;
       if (value === undefined) {
         valueUI = value;
-      } else if (value.kind) {
+      } else if (value.entityKind) {
         valueUI = render(value);
       } else if (
         typeof value === "object" &&
@@ -160,10 +161,19 @@ const NamedTypeUI = <T extends NamedType>({ type, name, properties }: NamedTypeU
 };
 
 interface TypeUIProps {
-  type: Type;
+  readonly entity: Entity;
 }
 
-const TypeUI: FunctionComponent<TypeUIProps> = ({ type }) => {
+const EntityUI: FunctionComponent<TypeUIProps> = ({ entity }) => {
+  switch (entity.entityKind) {
+    case "Type":
+      return <TypeUI type={entity} />;
+    default:
+      return null;
+  }
+};
+
+const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
   switch (type.kind) {
     case "Namespace":
       return <NamespaceUI type={type} />;
@@ -379,7 +389,7 @@ const TypeReference: FunctionComponent<{ type: Type }> = ({ type }) => {
       if (type.name === "") {
         return (
           <KeyValueSection>
-            <TypeUI type={type} />
+            <EntityUI entity={type} />
           </KeyValueSection>
         );
       } else {

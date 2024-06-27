@@ -10,6 +10,7 @@ import { getDeprecationDetails } from "../core/deprecation.js";
 import {
   CompilerHost,
   IdentifierNode,
+  Node,
   NodeFlags,
   NodePackage,
   PositionDetail,
@@ -19,6 +20,9 @@ import {
   SyntaxKind,
   Type,
   TypeSpecScriptNode,
+  compilerAssert,
+  getFirstAncestor,
+  positionInRange,
 } from "../core/index.js";
 import {
   getAnyExtensionFromPath,
@@ -40,11 +44,116 @@ export type CompletionContext = {
 
 export async function resolveCompletion(
   context: CompletionContext,
-  posDetail: PositionDetail | undefined
+  posDetail: PositionDetail
 ): Promise<CompletionList> {
-  const node = posDetail?.node;
+  let node: Node | undefined = posDetail.node;
+
+  if (!node) {
+    if (
+      posDetail.triviaStartPosition === 0 ||
+      !addCompletionByLookingBackward(posDetail, context)
+    ) {
+      addKeywordCompletion("root", context.completions);
+    }
+  } else {
+    // look back first to see whether we can get some completion from the previous statement, e.g. `model Foo |`
+    if (!addCompletionByLookingBackward(posDetail, context)) {
+      if (posDetail.inTrivia) {
+        // If we're not immediately after an identifier character, then advance
+        // the position past any trivia. This is done because a zero-width
+        // inserted missing identifier that the user is now trying to complete
+        // starts after the trivia following the cursor.
+        node = posDetail.getPositionDetailAfterTrivia().node;
+      }
+      await AddCompletionNonTrivia(node, context, posDetail);
+    } else {
+      if (!posDetail.inTrivia) {
+        await AddCompletionNonTrivia(node, context, posDetail);
+      }
+    }
+  }
+
+  return context.completions;
+}
+
+function addCompletionByLookingBackward(
+  posDetail: PositionDetail,
+  context: CompletionContext
+): boolean {
+  if (posDetail.triviaStartPosition === 0) {
+    return false;
+  }
+  const preDetail = posDetail.getPositionDetailBeforeTrivia();
+  if (!preDetail.node) {
+    return false;
+  }
+
+  const node = getFirstAncestor(
+    preDetail.node,
+    (n) =>
+      n.kind === SyntaxKind.ModelStatement ||
+      n.kind === SyntaxKind.ScalarStatement ||
+      n.kind === SyntaxKind.OperationStatement ||
+      n.kind === SyntaxKind.InterfaceStatement ||
+      n.kind === SyntaxKind.TemplateParameterDeclaration,
+    true /*includeSelf*/
+  );
+
+  return node !== undefined && addCompletionByLookingBackwardNode(node, posDetail, context);
+}
+
+function addCompletionByLookingBackwardNode(
+  preNode: Node,
+  posDetail: PositionDetail,
+  context: CompletionContext
+): boolean {
+  const getIdentifierEndPos = (n: IdentifierNode) => {
+    // n.pos === n.end, it means it's a missing identifier, just return -1;
+    return n.pos === n.end ? -1 : n.end;
+  };
+  const map: { [key in SyntaxKind]?: keyof KeywordArea } = {
+    [SyntaxKind.ModelStatement]: "modelHeader",
+    [SyntaxKind.ScalarStatement]: "scalarHeader",
+    [SyntaxKind.OperationStatement]: "operationHeader",
+    [SyntaxKind.InterfaceStatement]: "interfaceHeader",
+  };
+  switch (preNode?.kind) {
+    case SyntaxKind.ModelStatement:
+    case SyntaxKind.ScalarStatement:
+    case SyntaxKind.OperationStatement:
+    case SyntaxKind.InterfaceStatement:
+      const idEndPos =
+        preNode.templateParametersRange.end >= 0
+          ? preNode.templateParametersRange.end
+          : getIdentifierEndPos(preNode.id);
+      if (posDetail.triviaStartPosition === idEndPos) {
+        const key = map[preNode.kind];
+        if (!key) {
+          compilerAssert(false, "KeywordArea missing in keyarea map.");
+        }
+        addKeywordCompletion(key, context.completions);
+        return true;
+      }
+      break;
+    case SyntaxKind.TemplateParameterDeclaration:
+      if (posDetail.triviaStartPosition === getIdentifierEndPos(preNode.id)) {
+        addKeywordCompletion("templateParameter", context.completions);
+        return true;
+      } else if (preNode.parent?.templateParametersRange.end === posDetail.triviaStartPosition) {
+        return addCompletionByLookingBackwardNode(preNode.parent, posDetail, context);
+      }
+      break;
+  }
+  return false;
+}
+
+async function AddCompletionNonTrivia(
+  node: Node | undefined,
+  context: CompletionContext,
+  posDetail: PositionDetail,
+  lookBackward: boolean = true
+) {
   if (
-    posDetail === undefined ||
     node === undefined ||
     node.kind === SyntaxKind.InvalidStatement ||
     (node.kind === SyntaxKind.Identifier &&
@@ -58,7 +167,9 @@ export async function resolveCompletion(
         addKeywordCompletion("namespace", context.completions);
         break;
       case SyntaxKind.ScalarStatement:
-        addKeywordCompletion("scalar", context.completions);
+        if (positionInRange(posDetail.position, node.bodyRange)) {
+          addKeywordCompletion("scalarBody", context.completions);
+        }
         break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
@@ -76,16 +187,18 @@ export async function resolveCompletion(
         break;
     }
   }
-
-  return context.completions;
 }
 
 interface KeywordArea {
   root?: boolean;
   namespace?: boolean;
-  model?: boolean;
+  modelHeader?: boolean;
   identifier?: boolean;
-  scalar?: boolean;
+  scalarHeader?: boolean;
+  scalarBody?: boolean;
+  templateParameter?: boolean;
+  operationHeader?: boolean;
+  interfaceHeader?: boolean;
 }
 
 const keywords = [
@@ -107,8 +220,11 @@ const keywords = [
   ["const", { root: true, namespace: true }],
 
   // On model `model Foo <keyword> ...`
-  ["extends", { model: true }],
-  ["is", { model: true }],
+  [
+    "extends",
+    { modelHeader: true, scalarHeader: true, templateParameter: true, interfaceHeader: true },
+  ],
+  ["is", { modelHeader: true, operationHeader: true }],
 
   // On identifier
   ["true", { identifier: true }],
@@ -121,7 +237,7 @@ const keywords = [
   ["extern", { root: true, namespace: true }],
 
   // Scalars
-  ["init", { scalar: true }],
+  ["init", { scalarBody: true }],
 ] as const;
 
 function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionList) {
@@ -247,34 +363,37 @@ async function addRelativePathCompletion(
 function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
   const node = posDetail.node;
   if (
-    node.kind !== SyntaxKind.ModelStatement &&
-    node.kind !== SyntaxKind.ModelExpression &&
-    node.kind !== SyntaxKind.ObjectLiteral
+    !node ||
+    (node.kind !== SyntaxKind.ModelStatement &&
+      node.kind !== SyntaxKind.ModelExpression &&
+      node.kind !== SyntaxKind.ObjectLiteral)
   ) {
     return;
   }
-  // skip the scenario like `{ ... }|`
-  if (node.end === posDetail.position) {
+
+  if (posDetail.position === node.bodyRange.end) {
+    // skip the scenario like `{ ... }|`
     return;
+  } else {
+    // create a fake identifier node to further resolve the completions for the model/object
+    // it's a little tricky but can help to keep things clean and simple while the cons. is limited
+    // TODO: consider adding support in resolveCompletions for non-identifier-node directly when we find more scenario and worth the cost
+    const fakeProp = {
+      kind:
+        node.kind === SyntaxKind.ObjectLiteral
+          ? SyntaxKind.ObjectLiteralProperty
+          : SyntaxKind.ModelProperty,
+      flags: NodeFlags.None,
+      parent: node,
+    };
+    const fakeId = {
+      kind: SyntaxKind.Identifier,
+      sv: "",
+      flags: NodeFlags.None,
+      parent: fakeProp,
+    };
+    addIdentifierCompletion(context, fakeId as IdentifierNode);
   }
-  // create a fake identifier node to further resolve the completions for the model/object
-  // it's a little tricky but can help to keep things clean and simple while the cons. is limited
-  // TODO: consider adding support in resolveCompletions for non-identifier-node directly when we find more scenario and worth the cost
-  const fakeProp = {
-    kind:
-      node.kind === SyntaxKind.ObjectLiteral
-        ? SyntaxKind.ObjectLiteralProperty
-        : SyntaxKind.ModelProperty,
-    flags: NodeFlags.None,
-    parent: node,
-  };
-  const fakeId = {
-    kind: SyntaxKind.Identifier,
-    sv: "",
-    flags: NodeFlags.None,
-    parent: fakeProp,
-  };
-  addIdentifierCompletion(context, fakeId as IdentifierNode);
 }
 
 /**
