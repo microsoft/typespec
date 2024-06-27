@@ -33,10 +33,10 @@ namespace Microsoft.Generator.CSharp.Input
             id = id ?? throw new JsonException();
 
             // create an empty model to resolve circular references
-            var model = new InputModelType(name!, null, null, null, null, InputModelTypeUsage.None, null!, null, null!, null, null, null!, null, false);
+            var model = new InputModelType(name!, null!, null, null, null, InputModelTypeUsage.None, null!, null, null!, null, null, null!, null, false);
             resolver.AddReference(id, model);
 
-            string? ns = null;
+            string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecated = null;
             string? description = null;
@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputModelType.Name), ref name)
-                    || reader.TryReadString(nameof(InputModelType.Namespace), ref ns)
+                    || reader.TryReadString(nameof(InputModelType.CrossLanguageDefinitionId), ref crossLanguageDefinitionId)
                     || reader.TryReadString(nameof(InputModelType.Access), ref accessibility)
                     || reader.TryReadString(nameof(InputModelType.Deprecation), ref deprecated)
                     || reader.TryReadString(nameof(InputModelType.Description), ref description)
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             model.Name = name ?? throw new JsonException("InputModelType must have name");
-            model.Namespace = ns;
+            model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             model.Access = accessibility;
             model.Deprecation = deprecated;
             model.Description = description;
