@@ -13,7 +13,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using Microsoft.Generator.CSharp.TypedSnippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationExtensionsSnippet;
@@ -270,7 +269,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     {
                         Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
                     },
-                    Return(text.Index(0))
+                    Return(text[0])
                 },
                 Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert {0} to a char", [element.ValueKind])))
                 );

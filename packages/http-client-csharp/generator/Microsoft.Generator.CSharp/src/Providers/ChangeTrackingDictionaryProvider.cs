@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly DictionarySnippet _innerDictionary;
         private readonly MethodSignature _ensureDictionarySignature;
 
-        private InvokeInstanceMethodExpression EnsureDictionary { get; init; }
+        private IndexableExpression EnsureDictionary { get; init; }
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
 
         public ChangeTrackingDictionaryProvider()
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _innerDictionaryField = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(IDictionary<,>), _tKey, _tValue), "_innerDictionary");
             _innerDictionary = new DictionarySnippet(_tKey, _tValue, new VariableExpression(_IDictionary, _innerDictionaryField.Declaration));
             _ensureDictionarySignature = new MethodSignature("EnsureDictionary", null, MethodSignatureModifiers.Public, _IDictionary, null, Array.Empty<ParameterProvider>());
-            EnsureDictionary = This.Invoke(_ensureDictionarySignature);
+            EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
@@ -160,11 +160,11 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(KeyNotFoundException), Nameof(_indexParam)))
                     },
-                    Return(new ArrayElementExpression(EnsureDictionary, _indexParam)),
+                    Return(EnsureDictionary[_indexParam]),
                 },
                 new MethodBodyStatement[]
                 {
-                    new ArrayElementExpression(EnsureDictionary, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
+                    EnsureDictionary[_indexParam].Assign(Value).Terminate()
                 }));
         }
 

@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly CSharpType _iReadOnlyListOfT;
 
         private BoolSnippet IsUndefined { get; } = new BoolSnippet(new MemberExpression(This, "IsUndefined"));
-        private InvokeInstanceMethodExpression EnsureList { get; init; }
+        private IndexableExpression EnsureList { get; init; }
 
         public ChangeTrackingListProvider()
         {
@@ -42,7 +42,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _innerList = new VariableExpression(_iListOfT, _innerListField.Declaration);
             _tArray = typeof(ChangeTrackingListTemplate<>).GetGenericArguments()[0].MakeArrayType();
             _tParam = new ParameterProvider("item", $"The item.", _t);
-            EnsureList = This.Invoke(_ensureListSignature);
+            EnsureList = new(This.Invoke(_ensureListSignature));
         }
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    Return(new ArrayElementExpression(EnsureList, _indexParam)),
+                    Return(EnsureList[_indexParam]),
                 },
                 new MethodBodyStatement[]
                 {
@@ -144,7 +144,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     {
                         Throw(New.Instance(typeof(ArgumentOutOfRangeException), Nameof(_indexParam)))
                     },
-                    new ArrayElementExpression(EnsureList, _indexParam).Assign(new KeywordExpression("value", null)).Terminate()
+                    EnsureList[_indexParam].Assign(Value).Terminate()
                 }));
         }
 

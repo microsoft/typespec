@@ -165,23 +165,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Declare("numWholeOrPartialInputBlocks", new IntSnippet(new BinaryOperatorExpression("/", new KeywordExpression("checked", new BinaryOperatorExpression("+", valueLength, Int(2))), Int(3))), out var numWholeOrPartialInputBlocks),
                 Declare("size", new IntSnippet(new KeywordExpression("checked", new BinaryOperatorExpression("*", numWholeOrPartialInputBlocks, Int(4)))), out var size),
             };
-            var output = new VariableExpression(typeof(char[]), "output");
+            var outputVar = new VariableExpression(typeof(char[]), "output");
+            var output = new IndexableExpression(outputVar);
             body.Add(new MethodBodyStatement[]
             {
-                Declare(output, New.Array(typeof(char), size)),
+                Declare(outputVar, New.Array(typeof(char), size)),
                 EmptyLineStatement,
                 Declare("numBase64Chars", new IntSnippet(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.ToBase64CharArray), [value, Int(0), valueLength, output, Int(0)])), out var numBase64Chars),
                 EmptyLineStatement,
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, LessThan(i, numBase64Chars), new UnaryOperatorExpression("++", i, true))
                 {
-                    Declare("ch", new CharSnippet(new IndexerExpression(output, i)), out var ch),
+                    Declare("ch", new CharSnippet(output[i]), out var ch),
                     new IfElseStatement(new IfStatement(Equal(ch, Literal('+')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('-')).Terminate()
+                        output[i].Assign(Literal('-')).Terminate()
                     }, new IfElseStatement(new IfStatement(Equal(ch, Literal('/')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('_')).Terminate()
+                        output[i].Assign(Literal('_')).Terminate()
                     }, new IfStatement(Equal(ch, Literal('=')))
                     {
                         Break
@@ -215,27 +216,28 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     SwitchCaseExpression.Default(ThrowExpression(New.InvalidOperationException(Literal("Malformed input"))))
                 })), out var paddingCharsToAdd)
             };
-            var output = new VariableExpression(typeof(char[]), "output");
+            var outputVar = new VariableExpression(typeof(char[]), "output");
+            var output = new IndexableExpression(outputVar);
             var outputLength = output.Property("Length");
             body.Add(new MethodBodyStatement[]
             {
-                Declare(output, New.Array(typeof(char), new BinaryOperatorExpression("+", value.Length, paddingCharsToAdd))),
+                Declare(outputVar, New.Array(typeof(char), new BinaryOperatorExpression("+", value.Length, paddingCharsToAdd))),
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, LessThan(i, value.Length), new UnaryOperatorExpression("++", i, true))
                 {
-                    Declare("ch", value.Index(i), out var ch),
+                    Declare("ch", value[i], out var ch),
                     new IfElseStatement(new IfStatement(Equal(ch, Literal('-')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('+')).Terminate()
+                        output[i].Assign(Literal('+')).Terminate()
                     }, new IfElseStatement(new IfStatement(Equal(ch, Literal('_')))
                     {
-                        new IndexerExpression(output, i).Assign(Literal('/')).Terminate()
-                    }, new IndexerExpression(output, i).Assign(ch).Terminate()))
+                        output[i].Assign(Literal('/')).Terminate()
+                    }, output[i].Assign(ch).Terminate()))
                 },
                 EmptyLineStatement,
                 new ForStatement(null, LessThan(i, outputLength), new UnaryOperatorExpression("++", i, true))
                 {
-                    new IndexerExpression(output, i).Assign(Literal('=')).Terminate()
+                    output[i].Assign(Literal('=')).Terminate()
                 },
                 EmptyLineStatement,
                 Return(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.FromBase64CharArray), new[] { output, Int(0), outputLength }))
