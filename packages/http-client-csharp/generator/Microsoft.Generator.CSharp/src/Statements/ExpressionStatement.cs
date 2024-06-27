@@ -5,18 +5,18 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed class ThrowStatement : MethodBodyStatement
+    internal class ExpressionStatement : MethodBodyStatement
     {
-        public ValueExpression ThrowExpression { get; }
-
-        public ThrowStatement(ValueExpression throwExpression)
+        public ExpressionStatement(ValueExpression expression)
         {
-            ThrowExpression = throwExpression;
+            Expression = expression;
         }
+
+        public ValueExpression Expression { get; }
 
         internal override void Write(CodeWriter writer)
         {
-            ThrowExpression.Write(writer);
+            Expression.Write(writer);
             writer.WriteRawLine(";");
         }
     }

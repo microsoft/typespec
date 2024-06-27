@@ -186,9 +186,9 @@ namespace Microsoft.Generator.CSharp.Input
             var result = InputExampleValue.Object(model, dict);
             visitedModels.Add(model);
             // if this model has a discriminator, we should return a derived type
-            if (model.DiscriminatorPropertyName != null)
+            if (model.DiscriminatorProperty != null)
             {
-                var derived = model.DerivedModels.FirstOrDefault();
+                var derived = model.DiscriminatedSubtypes.Values.FirstOrDefault();
                 if (derived is null)
                 {
                     return InputExampleValue.Null(model);

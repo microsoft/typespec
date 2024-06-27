@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
@@ -12,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
     /// </summary>
     /// <param name="Type">Type expected to be returned by value expression.</param>
     /// <param name="Untyped"></param>
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public abstract record TypedSnippet(CSharpType Type, ValueExpression Untyped)
     {
         public virtual ValueExpression Property(string propertyName, bool nullConditional = false)
@@ -32,5 +35,15 @@ namespace Microsoft.Generator.CSharp.Snippets
         }
 
         public static implicit operator ValueExpression(TypedSnippet typed) => typed.Untyped;
+
+        private MethodBodyStatement? _terminated;
+        public MethodBodyStatement Terminate() => _terminated ??= new ExpressionStatement(this);
+
+        private string GetDebuggerDisplay()
+        {
+            using CodeWriter writer = new CodeWriter();
+            Untyped.Write(writer);
+            return writer.ToString(false);
+        }
     }
 }

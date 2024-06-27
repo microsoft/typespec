@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Generator.CSharp.Snippets;
 using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using static Microsoft.Generator.CSharp.Snippets.ExtensibleSnippets;
 
 namespace Microsoft.Generator.CSharp.Tests
 {
@@ -22,14 +19,6 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            var mockExtensibleSnippets = new Mock<ExtensibleSnippets>()
-            {
-                CallBase = true
-            };
-
-            var modelSnippets = new Mock<ModelSnippets>().Object;
-            mockExtensibleSnippets.SetupGet(p => p.Model).Returns(modelSnippets);
-
             string ns = "sample.namespace";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;

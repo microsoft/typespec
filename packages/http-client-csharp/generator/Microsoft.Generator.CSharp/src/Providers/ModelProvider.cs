@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
-using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -32,12 +31,12 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
             _declarationModifiers = TypeSignatureModifiers.Partial |
                 (inputModel.ModelAsStruct ? TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
-            if (inputModel.Accessibility == "internal")
+            if (inputModel.Access == "internal")
             {
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorPropertyName is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
@@ -153,7 +152,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
                 if (initializationValue != null)
                 {
-                    methodBodyStatements.Add(Assign(new MemberExpression(null, property.Name), initializationValue));
+                    methodBodyStatements.Add(property.Assign(initializationValue).Terminate());
                 }
             }
 

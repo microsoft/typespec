@@ -136,5 +136,22 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public ValueExpression Property(string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(this) : this, propertyName);
+
+        private static readonly Dictionary<ParameterProvider, VariableExpression> _cache = new();
+        public static implicit operator VariableExpression(ParameterProvider parameter)
+        {
+            if (!_cache.TryGetValue(parameter, out var variable))
+            {
+                var decl = new CodeWriterDeclaration(parameter.Name);
+                decl.SetActualName(parameter.Name);
+                variable = new VariableExpression(parameter.Type, decl);
+                _cache.Add(parameter, variable);
+            }
+
+            return variable;
+        }
+
+        private MemberExpression? _asProperty;
+        public MemberExpression AsPropertyExpression => _asProperty ??= new MemberExpression(null, Name.FirstCharToUpperCase());
     }
 }

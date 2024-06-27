@@ -230,7 +230,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
-            return BoolSnippet.Is(valueParam, new DeclarationExpression(collection.Type, collection.Declaration, false)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
+            return BoolSnippet.Is(valueParam, new DeclarationExpression(collection)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
         }
 
         private MethodBodyStatement ThrowArgumentException(ValueExpression expression)

@@ -18,17 +18,17 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodStatement(Provider.Type, AssertNotNullMethodName, variable, name ?? Snippet.Nameof(variable));
+            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodStatement(Provider.Type, AssertNotNullOrEmptyMethodName, variable, name ?? Snippet.Nameof(variable));
+            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullOrEmptyMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodStatement(Provider.Type, AssertNotNullOrWhiteSpaceMethodName, variable, name ?? Snippet.Nameof(variable));
+            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullOrWhiteSpaceMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement ValidateParameter(ParameterProvider parameter) => parameter.Validation switch

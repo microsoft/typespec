@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
@@ -23,7 +24,6 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static readonly MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
-        public static ExtensibleSnippets Extensible => CodeModelPlugin.Instance.ExtensibleSnippets;
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
         public static ValueExpression Dash { get; } = new KeywordExpression("_", null);
@@ -33,6 +33,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Default { get; } = new KeywordExpression("default", null);
         public static ValueExpression Null { get; } = new KeywordExpression("null", null);
         public static ValueExpression This { get; } = new KeywordExpression("this", null);
+        public static ValueExpression Base { get; } = new KeywordExpression("base", null);
         public static BoolSnippet True { get; } = new(new KeywordExpression("true", null));
         public static BoolSnippet False { get; } = new(new KeywordExpression("false", null));
 
@@ -78,11 +79,11 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static BoolSnippet And(BoolSnippet left, BoolSnippet right) => new(new BinaryOperatorExpression("&&", left.Untyped, right.Untyped));
         public static BoolSnippet Not(BoolSnippet operand) => new(new UnaryOperatorExpression("!", operand, false));
 
-        public static KeywordStatement Continue => new("continue", null);
-        public static KeywordStatement Break => new("break", null);
-        public static KeywordStatement Return(ValueExpression expression) => new("return", expression);
-        public static KeywordStatement Return() => new("return", null);
-        public static KeywordStatement Throw(ValueExpression expression) => new("throw", expression);
+        public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
+        public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
+        public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
+        public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
+        public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
 
         public static EnumerableSnippet InvokeArrayEmpty(CSharpType arrayItemType)
             => new(arrayItemType, new InvokeStaticMethodExpression(typeof(Array), nameof(Array.Empty), Array.Empty<ValueExpression>(), new[] { arrayItemType }));
@@ -92,24 +93,27 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static StreamSnippet InvokeFileOpenWrite(string filePath)
             => new(new InvokeStaticMethodExpression(typeof(System.IO.File), nameof(System.IO.File.OpenWrite), [Literal(filePath)]));
 
-        public static AssignValueIfNullStatement AssignIfNull(ValueExpression variable, ValueExpression expression) => new(variable, expression);
-        public static AssignValueStatement Assign(ValueExpression variable, ValueExpression expression) => new(variable, expression);
+        public static AssignmentExpression Assign(this ValueExpression to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this ParameterProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this TypedSnippet to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
+        public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
         public static MethodBodyStatement AssignOrReturn(ValueExpression? variable, ValueExpression expression)
-            => variable != null ? Assign(variable, expression) : Return(expression);
+            => variable != null ? variable.Assign(expression).Terminate() : Return(expression);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
-            => new InvokeStaticMethodStatement(typeof(Console), nameof(Console.WriteLine), expression);
+            => new InvokeStaticMethodExpression(typeof(Console), nameof(Console.WriteLine), expression).Terminate();
 
-        public static UnaryOperatorStatement Increment(ValueExpression value)
-            => new(new UnaryOperatorExpression("++", value, true));
+        public static MethodBodyStatement Increment(ValueExpression value)
+            => new UnaryOperatorExpression("++", value, true).Terminate();
 
         private static BoolSnippet Is<T>(T value, string name, Func<ValueExpression, T> factory, out T variable) where T : TypedSnippet
         {
             var declaration = new CodeWriterDeclaration(name);
             var variableRef = new VariableExpression(value.Type, declaration);
             variable = factory(variableRef);
-            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef.Type, variableRef.Declaration, false)));
+            return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef)));
         }
     }
 }
