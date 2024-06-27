@@ -89,6 +89,12 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatedSubtypes = discriminatedSubtypes ?? new Dictionary<string, InputModelType>();
             model.ModelAsStruct = modelAsStruct;
 
+            // if this model has a base, it means this model is a derived model of the base model, add it into the list.
+            if (baseModel != null)
+            {
+                ((List<InputModelType>)baseModel.DerivedModels).Add(model);
+            }
+
             return model;
         }
     }
