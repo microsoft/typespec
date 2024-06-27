@@ -22,8 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [OneTimeSetUp]
         public void Setup()
         {
-            Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-
             string outputFolder = "./outputFolder";
             string projectPath = outputFolder;
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);

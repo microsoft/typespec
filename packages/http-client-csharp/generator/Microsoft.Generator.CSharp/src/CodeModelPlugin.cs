@@ -35,8 +35,7 @@ namespace Microsoft.Generator.CSharp
         // Extensibility points to be implemented by a plugin
         public abstract TypeFactory TypeFactory { get; }
         public virtual string LicenseString => string.Empty;
-        public abstract ExtensibleSnippets ExtensibleSnippets { get; }
-        public abstract OutputLibrary OutputLibrary { get; }
+        public virtual OutputLibrary OutputLibrary { get; } = new();
         public InputLibrary InputLibrary => _inputLibrary.Value;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public virtual IReadOnlyList<MetadataReference> AdditionalMetadataReferences => Array.Empty<MetadataReference>();

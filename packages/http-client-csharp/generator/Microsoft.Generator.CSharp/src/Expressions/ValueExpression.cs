@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Generator.CSharp.Snippets;
 
@@ -11,6 +12,7 @@ namespace Microsoft.Generator.CSharp.Expressions
     /// <summary>
     /// Represents a single operator or operand, or a sequence of operators or operands.
     /// </summary>
+    [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public record ValueExpression
     {
         internal virtual void Write(CodeWriter writer) { }
@@ -56,5 +58,12 @@ namespace Microsoft.Generator.CSharp.Expressions
             => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse);
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
+
+        private string GetDebuggerDisplay()
+        {
+            using CodeWriter writer = new CodeWriter();
+            Write(writer);
+            return writer.ToString(false);
+        }
     }
 }
