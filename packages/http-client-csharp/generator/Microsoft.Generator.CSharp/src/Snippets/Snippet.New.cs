@@ -41,10 +41,10 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static ValueExpression JsonException(ValueExpression message)
                 => Instance(typeof(JsonException), message);
 
-            public static EnumerableSnippet Array(CSharpType? elementType) => new(elementType ?? typeof(object), new NewArrayExpression(elementType));
-            public static EnumerableSnippet Array(CSharpType? elementType, params ValueExpression[] items) => new(elementType ?? typeof(object), new NewArrayExpression(elementType, new ArrayInitializerExpression(items)));
-            public static EnumerableSnippet Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(elementType ?? typeof(object), new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
-            public static EnumerableSnippet Array(CSharpType? elementType, ValueExpression size) => new(elementType ?? typeof(object), new NewArrayExpression(elementType, Size: size));
+            public static IndexableExpression Array(CSharpType? elementType) => new(new NewArrayExpression(elementType));
+            public static IndexableExpression Array(CSharpType? elementType, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items)));
+            public static IndexableExpression Array(CSharpType? elementType, bool isInline, params ValueExpression[] items) => new(new NewArrayExpression(elementType, new ArrayInitializerExpression(items, isInline)));
+            public static IndexableExpression Array(CSharpType? elementType, ValueExpression size) => new(new NewArrayExpression(elementType, Size: size));
 
             public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType)
                 => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), []));

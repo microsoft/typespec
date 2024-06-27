@@ -14,5 +14,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public MethodBodyStatement Add(KeyValuePairSnippet pair)
             => Untyped.Invoke(nameof(Dictionary<object, object>.Add), pair).Terminate();
+
+        public ValueExpression this[ValueExpression key] => new IndexerExpression(Untyped, key);
     }
 }

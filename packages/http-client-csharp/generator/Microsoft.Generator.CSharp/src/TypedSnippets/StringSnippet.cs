@@ -9,8 +9,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public sealed record StringSnippet(ValueExpression Untyped) : TypedSnippet<string>(Untyped)
     {
-        public CharSnippet Index(ValueExpression index) => new(new IndexerExpression(this, index));
-        public CharSnippet Index(int index) => Index(Snippet.Literal(index));
         public ValueExpression Length => Property(nameof(string.Length));
 
         public static BoolSnippet Equals(StringSnippet left, StringSnippet right, StringComparison comparisonType)
@@ -29,5 +27,9 @@ namespace Microsoft.Generator.CSharp.Snippets
             => new(new InvokeInstanceMethodExpression(this, nameof(string.Substring), new[] { startIndex }, null, false));
         public ValueExpression ToCharArray()
             => new InvokeInstanceMethodExpression(this, nameof(string.ToCharArray), Array.Empty<ValueExpression>(), null, false);
+
+        public CharSnippet this[ValueExpression index] => new(new IndexerExpression(this, index));
+
+        public CharSnippet this[int index] => this[Snippet.Literal(index)];
     }
 }

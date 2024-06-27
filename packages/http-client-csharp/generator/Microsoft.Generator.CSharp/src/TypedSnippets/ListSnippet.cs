@@ -11,6 +11,8 @@ namespace Microsoft.Generator.CSharp.Snippets
     {
         public MethodBodyStatement Add(ValueExpression item) => Untyped.Invoke(nameof(List<object>.Add), item).Terminate();
 
-        public ValueExpression ToArray() => Untyped.Invoke(nameof(List<object>.ToArray));
+        public IndexableExpression ToArray() => new(Untyped.Invoke(nameof(List<object>.ToArray)));
+
+        public ValueExpression this[ValueExpression index] => new IndexerExpression(Untyped, index);
     }
 }
