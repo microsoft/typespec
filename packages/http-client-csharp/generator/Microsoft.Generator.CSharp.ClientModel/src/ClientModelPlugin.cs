@@ -26,8 +26,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        public override ExtensibleSnippets ExtensibleSnippets { get; }
-
         public override IReadOnlyList<MetadataReference> AdditionalMetadataReferences => [MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location)];
 
         /// <summary>
@@ -39,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         {
             switch (inputType)
             {
-                case InputModelType inputModel:
+                case InputModelType inputModel when inputModel.Usage.HasFlag(InputModelTypeUsage.Json):
                     return [new MrwSerializationTypeProvider(provider, inputModel)];
                 default:
                     return base.GetSerializationTypeProviders(provider, inputType);
@@ -51,7 +49,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();
-            ExtensibleSnippets = new SystemExtensibleSnippets();
             _instance = this;
         }
     }

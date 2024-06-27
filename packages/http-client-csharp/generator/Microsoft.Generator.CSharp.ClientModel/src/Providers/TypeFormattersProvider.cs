@@ -178,10 +178,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("ch", new CharSnippet(new IndexerExpression(output, i)), out var ch),
                     new IfElseStatement(new IfStatement(Equal(ch, Literal('+')))
                     {
-                        Assign(new IndexerExpression(output, i), Literal('-'))
+                        new IndexerExpression(output, i).Assign(Literal('-')).Terminate()
                     }, new IfElseStatement(new IfStatement(Equal(ch, Literal('/')))
                     {
-                        Assign(new IndexerExpression(output, i), Literal('_'))
+                        new IndexerExpression(output, i).Assign(Literal('_')).Terminate()
                     }, new IfStatement(Equal(ch, Literal('=')))
                     {
                         Break
@@ -226,16 +226,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("ch", value.Index(i), out var ch),
                     new IfElseStatement(new IfStatement(Equal(ch, Literal('-')))
                     {
-                        Assign(new IndexerExpression(output, i), Literal('+'))
+                        new IndexerExpression(output, i).Assign(Literal('+')).Terminate()
                     }, new IfElseStatement(new IfStatement(Equal(ch, Literal('_')))
                     {
-                        Assign(new IndexerExpression(output, i), Literal('/'))
-                    }, Assign(new IndexerExpression(output, i), ch)))
+                        new IndexerExpression(output, i).Assign(Literal('/')).Terminate()
+                    }, new IndexerExpression(output, i).Assign(ch).Terminate()))
                 },
                 EmptyLineStatement,
                 new ForStatement(null, LessThan(i, outputLength), new UnaryOperatorExpression("++", i, true))
                 {
-                    Assign(new IndexerExpression(output, i), Literal('='))
+                    new IndexerExpression(output, i).Assign(Literal('=')).Terminate()
                 },
                 EmptyLineStatement,
                 Return(new InvokeStaticMethodExpression(typeof(Convert), nameof(Convert.FromBase64CharArray), new[] { output, Int(0), outputLength }))
@@ -260,11 +260,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
             return new MethodProvider(
                 signature,
-                new SwitchExpression(format, new SwitchCaseExpression[]
-                {
+                new SwitchExpression(format,
+                [
                     new(Literal("U"), DateTimeOffsetSnippet.FromUnixTimeSeconds(LongSnippet.Parse(value, invariantCulture))),
                     SwitchCaseExpression.Default(DateTimeOffsetSnippet.Parse(value, invariantCulture, new MemberExpression(typeof(DateTimeStyles), nameof(DateTimeStyles.AssumeUniversal))))
-                }),
+                ]),
                 this);
         }
 
@@ -283,11 +283,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var format = new StringSnippet(formatParameter);
             return new MethodProvider(
                 signature,
-                new SwitchExpression(format, new SwitchCaseExpression[]
-                {
+                new SwitchExpression(format,
+                [
                     new(Literal("P"), new InvokeStaticMethodExpression(typeof(XmlConvert), nameof(XmlConvert.ToTimeSpan), [value])),
                     SwitchCaseExpression.Default(TimeSpanSnippet.ParseExact(value, format, new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture))))
-                }),
+                ]),
                 this);
         }
 

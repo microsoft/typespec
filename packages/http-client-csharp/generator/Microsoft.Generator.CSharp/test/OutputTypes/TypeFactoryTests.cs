@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.Tests.OutputTypes
                 throw new NotImplementedException();
             }
 
-            public override CSharpType CreateCSharpType(InputType input)
+            protected override CSharpType CreateCSharpTypeCore(InputType input)
             {
                 switch (input)
                 {

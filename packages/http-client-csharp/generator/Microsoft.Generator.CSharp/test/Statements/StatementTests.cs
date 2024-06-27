@@ -22,8 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [OneTimeSetUp]
         public void Setup()
         {
-            Mock<ExtensibleSnippets> extensibleSnippets = new Mock<ExtensibleSnippets>();
-
             string outputFolder = "./outputFolder";
             string projectPath = outputFolder;
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
@@ -32,35 +30,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         }
 
         [Test]
-        public void AssignValueIfNullStatement()
-        {
-            var toValue = new ValueExpression();
-            var fromValue = new ValueExpression();
-
-            var assignStatement = new AssignValueIfNullStatement(toValue, fromValue);
-
-            Assert.NotNull(assignStatement);
-            Assert.AreEqual(toValue, assignStatement.To);
-            Assert.AreEqual(fromValue, assignStatement.From);
-        }
-
-        [Test]
-        public void AssignValueStatement()
-        {
-            var toValue = new ValueExpression();
-            var fromValue = new ValueExpression();
-
-            var assignStatement = new AssignValueStatement(toValue, fromValue);
-
-            Assert.NotNull(assignStatement);
-            Assert.AreEqual(toValue, assignStatement.To);
-            Assert.AreEqual(fromValue, assignStatement.From);
-        }
-
-        [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -72,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), new CodeWriterDeclaration("responseParamName")), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
             var condition = new BoolSnippet(BoolSnippet.True);
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
@@ -397,15 +369,6 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             Assert.AreEqual(tryStatement, tryCatchFinally.Try);
             CollectionAssert.AreEqual(catchStatements, tryCatchFinally.Catches);
             Assert.AreEqual(finallyStatement, tryCatchFinally.Finally);
-        }
-
-        [Test]
-        public void UnaryOperatorStatementWithValidExpression()
-        {
-            var operatorExpression = new UnaryOperatorExpression("-", new ValueExpression(), true);
-            var unaryOperatorStatement = new UnaryOperatorStatement(operatorExpression);
-
-            Assert.AreEqual(operatorExpression, unaryOperatorStatement.Expression);
         }
 
         [Test]

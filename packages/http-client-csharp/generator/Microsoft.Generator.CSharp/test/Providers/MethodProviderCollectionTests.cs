@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Providers
@@ -25,7 +26,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             var mockParameter = new ParameterProvider("mockParam", $"mock description", typeof(bool), null);
             var mockTypeFactory = new Mock<TypeFactory>() { };
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns(new CSharpType(typeof(bool)));
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(bool)));
             mockTypeFactory.Setup(t => t.CreateCSharpParam(It.IsAny<InputParameter>())).Returns(mockParameter);
             _typeFactory = mockTypeFactory.Object;
 
@@ -49,7 +50,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-
             var methodCollection = MethodProviderCollection.DefaultCSharpMethodCollection(inputOperation, new MockTypeProvider());
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(1, methodCollection?.Count);

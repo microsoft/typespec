@@ -10,6 +10,7 @@ using NUnit.Framework;
 using System.Reflection;
 using System.IO;
 using System.Linq;
+using Moq.Protected;
 
 namespace Microsoft.Generator.CSharp.Tests.Writers
 {
@@ -110,7 +111,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
             var mockTypeFactory = new Mock<TypeFactory>() { };
 
-            mockTypeFactory.Setup(t => t.CreateCSharpType(It.IsAny<InputType>())).Returns((InputType inputType) =>
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) =>
             {
                 // Lookup the inputType in the list and return the corresponding CSharpType
                 var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
