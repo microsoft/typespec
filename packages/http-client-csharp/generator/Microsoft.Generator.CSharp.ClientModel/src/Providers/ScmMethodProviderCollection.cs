@@ -9,6 +9,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
+using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -87,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
             var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
-            var methodBody = EmptyStatement;
+            var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
 
             return new MethodProvider(methodSignature, methodBody, enclosingType);
         }
