@@ -100,10 +100,7 @@ export function setNamespaceExtension(
   openApiExtensions.set(entity, typeExtensions);
 }
 
-export function getExtensions(
-  program: Program,
-  entity: Type
-): ReadonlyMap<ExtensionKey, any> {
+export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
   return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
 }
 
