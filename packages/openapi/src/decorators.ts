@@ -103,14 +103,15 @@ export function setNamespaceExtension(
 export function getExtensions(
   program: Program,
   entity: Type
-): ReadonlyMap<ExtensionKey, any> | ReadonlyMap<string, any> {
-  let newMap = undefined;
-  if (entity.kind === "Namespace") {
-    newMap = new Map<string, any>();
-  } else {
-    newMap = new Map<ExtensionKey, any>();
-  }
-  return program.stateMap(openApiExtensionKey).get(entity) ?? newMap;
+): ReadonlyMap<ExtensionKey, any> {
+  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
+}
+
+export function getNamespaceExtensions(
+  program: Program,
+  entity: Namespace
+): ReadonlyMap<string, any> {
+  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<string, any>();
 }
 
 function isOpenAPIExtensionKey(key: string): key is ExtensionKey {
@@ -190,7 +191,7 @@ export const $info: InfoDecorator = (
 export const infoExtensionName = "infoExtension";
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   const info = program.stateMap(infoKey).get(entity);
-  const extensionsMap = getExtensions(program, entity) as ReadonlyMap<string, any>;
+  const extensionsMap = getNamespaceExtensions(program, entity);
   const extensions = extensionsMap.get(infoExtensionName);
 
   /* The following info properties can be provided via extensions and should be overridden */
