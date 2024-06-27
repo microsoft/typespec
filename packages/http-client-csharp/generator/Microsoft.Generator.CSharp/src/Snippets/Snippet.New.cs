@@ -51,14 +51,11 @@ namespace Microsoft.Generator.CSharp.Snippets
             public static DictionarySnippet Dictionary(CSharpType keyType, CSharpType valueType, IReadOnlyDictionary<ValueExpression, ValueExpression> values)
                 => new(keyType, valueType, new NewInstanceExpression(new CSharpType(typeof(Dictionary<,>), keyType, valueType), [], new DictionaryInitializerExpression(values)));
 
-            public static TypedSnippet JsonSerializerOptions() => new FrameworkTypeSnippet(typeof(JsonSerializerOptions), new ValueExpression());
-
             public static ListSnippet List(CSharpType elementType) => new(elementType, Instance(new CSharpType(typeof(List<>), elementType)));
 
             public static StreamReaderSnippet StreamReader(ValueExpression stream) => new(Instance(typeof(StreamReader), stream));
 
             public static TimeSpanSnippet TimeSpan(int hours, int minutes, int seconds) => new(Instance(typeof(TimeSpan), Int(hours), Int(minutes), Int(seconds)));
-            public static TypedSnippet Uri(string uri) => Instance(typeof(Uri), Literal(uri));
 
             public static ValueExpression Anonymous(ValueExpression key, ValueExpression value) => Anonymous(new Dictionary<ValueExpression, ValueExpression> { [key] = value });
             public static ValueExpression Anonymous(IReadOnlyDictionary<ValueExpression, ValueExpression> properties) => new NewInstanceExpression(null, [], new ObjectInitializerExpression(properties));

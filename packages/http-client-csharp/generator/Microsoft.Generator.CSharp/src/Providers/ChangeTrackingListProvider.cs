@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
             var iListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iList, Null))
+                new IfStatement(iList.AsExpression.NotEqual(Null))
                 {
                     _innerList.Assign(iList).Terminate()
                 }
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var iReadOnlyListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iReadOnlyList]);
             var iReadOnlyListBody = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(iReadOnlyList, Null))
+                new IfStatement(iReadOnlyList.AsExpression.NotEqual(Null))
                 {
                     _innerList.Assign(Linq.ToList(iReadOnlyList)).Terminate()
                 }
@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override PropertyProvider[] BuildProperties() =>
             new[]
             {
-                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(Equal(_innerList, Null))),
+                new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null))),
                 BuildCount(),
                 BuildIsReadOnly(),
                 BuildIndexer()

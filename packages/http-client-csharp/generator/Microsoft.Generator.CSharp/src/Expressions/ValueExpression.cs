@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -58,6 +59,18 @@ namespace Microsoft.Generator.CSharp.Expressions
             => new InvokeInstanceMethodExpression(this, methodName, arguments, typeArguments, callAsAsync, addConfigureAwaitFalse);
 
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
+
+        public BoolSnippet GreaterThan(ValueExpression other) => new(new BinaryOperatorExpression(">", this, other));
+
+        public BoolSnippet LessThan(ValueExpression other) => new(new BinaryOperatorExpression("<", this, other));
+
+        public BoolSnippet Equal(ValueExpression other) => new(new BinaryOperatorExpression("==", this, other));
+
+        public BoolSnippet NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
+
+        public BoolSnippet Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
+
+        public  MethodBodyStatement Increment() => new UnaryOperatorExpression("++", this, true).Terminate();
 
         private string GetDebuggerDisplay()
         {

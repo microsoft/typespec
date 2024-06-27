@@ -161,7 +161,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
             // writes the method:
             // public override bool Equals(object obj) => obj is EnumType other && Equals(other);
-            methods.Add(new(equalsSignature, And(Is(objParameter, new DeclarationExpression(Type, "other", out var other)), new BoolSnippet(new InvokeInstanceMethodExpression(null, nameof(object.Equals), [other]))), this));
+            methods.Add(new(
+                equalsSignature,
+                objParameter.AsExpression
+                    .Is(new DeclarationExpression(Type, "other", out var other))
+                    .And(This.Invoke(nameof(Equals), [other])),
+                this));
 
             var otherParameter = new ParameterProvider("other", $"The instance to compare.", Type);
             equalsSignature = equalsSignature with

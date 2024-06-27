@@ -11,10 +11,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet And(ValueExpression other) => new(new BinaryOperatorExpression("&&", this, other));
 
-        public static BoolSnippet True { get; } = Snippet.True;
-
-        public static BoolSnippet False { get; } = Snippet.False;
-
         public static BoolSnippet Is(ValueExpression untyped, CSharpType comparisonType) => new(new BinaryOperatorExpression("is", untyped, comparisonType));
 
         public static BoolSnippet Is(ValueExpression untyped, DeclarationExpression declaration) => new(new BinaryOperatorExpression("is", untyped, declaration));

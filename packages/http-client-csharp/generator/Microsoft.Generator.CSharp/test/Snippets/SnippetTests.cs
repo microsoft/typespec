@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateDictionary()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Dictionary(typeof(string), typeof(int)).Untyped.Write(writer);
+            New.Dictionary(typeof(string), typeof(int)).Expression.Write(writer);
             Assert.AreEqual("new global::System.Collections.Generic.Dictionary<string, int>()", writer.ToString(false));
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Literal("x"), Literal(1) },
                 { Literal("y"), Literal(2) }
-            }).Untyped.Write(writer);
+            }).Expression.Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             {
                 { Identifier("X"), Literal(100) },
                 { Identifier("Y"), Literal(200) }
-            }).Untyped.Write(writer);
+            }).Expression.Write(writer);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
@@ -137,7 +137,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ValidateFrameworkInstanceWithArguments()
         {
             using CodeWriter writer = new CodeWriter();
-            New.Instance(typeof(TestClass), [Literal(20)]).Untyped.Write(writer);
+            New.Instance(typeof(TestClass), [Literal(20)]).Expression.Write(writer);
             Assert.AreEqual("new global::Microsoft.Generator.CSharp.Tests.Snippets.TestClass(20)", writer.ToString(false));
         }
 

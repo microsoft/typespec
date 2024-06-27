@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(NotEqual(valueParam, Null))
+                Return(valueParam.AsExpression.NotEqual(Null))
             },
             this);
         }
@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetIsDefinedSignature(valueParam);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                Return(NotEqual(valueParam, Null))
+                Return(valueParam.AsExpression.NotEqual(Null))
             },
             this);
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider IsStructDefined()
         {
             var valueParam = new ParameterProvider("value", $"The value.", _t.WithNullable(true));
-            var signature = GetIsDefinedSignature(valueParam, new[] { _t }, new[] { Where.Struct(_t) });
+            var signature = GetIsDefinedSignature(valueParam, [_t], [Where.Struct(_t)]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 Return(new MemberExpression(valueParam, "HasValue"))

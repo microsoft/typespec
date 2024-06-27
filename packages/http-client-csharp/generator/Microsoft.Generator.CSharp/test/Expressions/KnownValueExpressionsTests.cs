@@ -113,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var value = new ValueExpression();
             var result = dictionaryExpression.Add(key, value);
 
-            var expectedStatement = dictionaryExpression.Untyped.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
+            var expectedStatement = dictionaryExpression.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }

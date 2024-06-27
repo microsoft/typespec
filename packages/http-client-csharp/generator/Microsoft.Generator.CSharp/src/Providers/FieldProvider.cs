@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Statements;
 
@@ -36,16 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
             XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
         }
 
-        private static readonly Dictionary<FieldProvider, MemberExpression> _cache = new();
-        public static implicit operator MemberExpression(FieldProvider field)
-        {
-            if (!_cache.TryGetValue(field, out var member))
-            {
-                member = new MemberExpression(null, field.Name);
-                _cache[field] = member;
-            }
-
-            return member;
-        }
+        private MemberExpression? _asMember;
+        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name);
     }
 }
