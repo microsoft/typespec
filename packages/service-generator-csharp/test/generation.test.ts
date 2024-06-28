@@ -1,6 +1,8 @@
+import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import assert from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { getPropertySource, getSourceModel } from "../src/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
@@ -42,6 +44,15 @@ async function compileAndValidateSingleModel(
   await compileAndValidateMultiple(runner, code, [[fileToCheck, expectedContent]]);
 }
 
+async function compile(
+  runner: BasicTestRunner,
+  code: string
+): Promise<{ program: Program; types: Record<string, Type> }> {
+  const spec = getStandardService(code);
+  const [types, _] = await runner.compileAndDiagnose(spec);
+  return { program: runner.program, types: types };
+}
+
 async function compileAndValidateMultiple(
   runner: BasicTestRunner,
   code: string,
@@ -63,6 +74,63 @@ describe("service-generator-csharp: core service generation", () => {
 
   beforeEach(async () => {
     runner = await createCSharpServiceEmitterTestRunner();
+  });
+
+  it("can source properties", async () => {
+    const result = await compile(
+      runner,
+      `
+      model Foo {
+        @visibility("update");
+        prop1: string;
+        prop2: string;
+        prop3: string;
+      }
+
+      model Bar is OptionalProperties<UpdateableProperties<OmitProperties<Foo, "prop3">>>;
+      `
+    );
+    assert.ok(result);
+    assert.ok(result.types);
+    assert.ok(result.program);
+    navigateProgram(result.program, {
+      modelProperty: (prop) => {
+        if (prop.name === "prop2") {
+          const sourceModel = getPropertySource(result.program, prop);
+          assert.ok(sourceModel);
+          assert.deepStrictEqual(sourceModel.kind, "Model");
+          assert.deepStrictEqual(sourceModel.name, "Foo");
+        }
+      },
+    });
+  });
+
+  it("can source models", async () => {
+    const result = await compile(
+      runner,
+      `
+      model Foo {
+        @visibility("update");
+        prop1: string;
+        prop2: string;
+      }
+
+      model Bar is OptionalProperties<OmitProperties<Foo, "prop1">>;
+      `
+    );
+    assert.ok(result);
+    assert.ok(result.types);
+    assert.ok(result.program);
+    navigateProgram(result.program, {
+      model: (model) => {
+        if (model.name === "Bar") {
+          const sourceModel = getSourceModel(result.program, model);
+          assert.ok(sourceModel);
+          assert.deepStrictEqual(sourceModel.kind, "Model");
+          assert.deepStrictEqual(sourceModel.name, "Foo");
+        }
+      },
+    });
   });
 
   it("generates standard scalar properties", async () => {

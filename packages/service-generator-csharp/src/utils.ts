@@ -602,6 +602,29 @@ export class ModelInfo {
   }
 }
 
+export function getPropertySource(program: Program, property: ModelProperty): Model | undefined {
+  let result: Model | undefined = property.model;
+  while (property.sourceProperty !== undefined) {
+    const current = property.sourceProperty;
+    result = current.model;
+    property = property.sourceProperty;
+  }
+
+  return result;
+}
+
+export function getSourceModel(program: Program, model: Model): Model | undefined {
+  const modelTracker: Set<Model> = new Set<Model>();
+  for (const prop of model.properties.values()) {
+    const source = getPropertySource(program, prop);
+    if (source === undefined) return undefined;
+    modelTracker.add(source);
+  }
+
+  if (modelTracker.size === 1) return [...modelTracker.values()][0];
+
+  return undefined;
+}
 export class HttpMetadata {
   resolveLogicalResponseType(program: Program, response: HttpOperationResponse): Type {
     const responseType: Type = response.type;
