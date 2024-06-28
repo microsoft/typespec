@@ -135,10 +135,8 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options = null)
+        internal static Thing JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
         {
-            options ??= ModelSerializationExtensions.WireOptions;
-
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -281,6 +279,13 @@ namespace UnbrandedTypeSpec.Models
                 optionalNullableList ?? new ChangeTrackingList<int>(),
                 requiredNullableList,
                 serializedAdditionalRawData);
+        }
+
+        internal static Thing JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+            return JsonModelCreateCore(element, options);
         }
 
         BinaryData IPersistableModel<Thing>.Write(ModelReaderWriterOptions options)

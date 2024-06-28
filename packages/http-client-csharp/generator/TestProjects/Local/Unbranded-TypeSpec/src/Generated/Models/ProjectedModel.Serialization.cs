@@ -6,7 +6,6 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
-using UnbrandedTypeSpec;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -65,10 +64,8 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static ProjectedModel DeserializeProjectedModel(JsonElement element, ModelReaderWriterOptions options = null)
+        internal static ProjectedModel JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
         {
-            options ??= ModelSerializationExtensions.WireOptions;
-
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -90,6 +87,13 @@ namespace UnbrandedTypeSpec.Models
             }
             serializedAdditionalRawData = rawDataDictionary;
             return new ProjectedModel(name, serializedAdditionalRawData);
+        }
+
+        internal static ProjectedModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+            return JsonModelCreateCore(element, options);
         }
 
         BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)

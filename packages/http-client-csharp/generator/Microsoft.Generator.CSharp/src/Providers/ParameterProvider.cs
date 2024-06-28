@@ -144,7 +144,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var decl = new CodeWriterDeclaration(parameter.Name);
                 decl.SetActualName(parameter.Name);
-                variable = new VariableExpression(parameter.Type, decl);
+                variable = new VariableExpression(parameter.Type, decl, parameter.IsRef);
                 _cache.Add(parameter, variable);
             }
 

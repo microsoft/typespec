@@ -275,10 +275,8 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static RoundTripModel DeserializeRoundTripModel(JsonElement element, ModelReaderWriterOptions options = null)
+        internal static RoundTripModel JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
         {
-            options ??= ModelSerializationExtensions.WireOptions;
-
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -343,7 +341,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredModel"u8))
                 {
-                    requiredModel = Thing.DeserializeThing(prop.Value, options);
+                    requiredModel = Thing.JsonModelCreateCore(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -557,7 +555,7 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
-                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.DeserializeModelWithRequiredNullableProperties(prop.Value, options);
+                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.JsonModelCreateCore(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))
@@ -597,6 +595,13 @@ namespace UnbrandedTypeSpec.Models
                 modelWithRequiredNullable,
                 requiredBytes,
                 serializedAdditionalRawData);
+        }
+
+        internal static RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+            return JsonModelCreateCore(element, options);
         }
 
         BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options)
