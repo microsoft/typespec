@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Expressions;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -32,6 +34,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
         private static MethodProvider BuildProtocolMethod(InputOperation operation, TypeProvider enclosingType, bool isAsync)
         {
+            ClientProvider? client = enclosingType as ClientProvider;
+            if (client is null)
+            {
+                throw new InvalidOperationException("Protocol methods can only be built for client types.");
+            }
+
             List<ParameterProvider> methodParameters = new();
             foreach (InputParameter inputParam in operation.Parameters)
             {
@@ -51,27 +59,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 FormattableStringHelpers.FromString(operation.Description),
                 methodModifier,
                 GetResponseType(operation.Responses, isAsync),
-                null,
-                Parameters: [.. methodParameters, KnownParameters.CancellationTokenParameter]);
+                $"The response returned from the service.",
+                Parameters: [.. methodParameters, ScmKnownParameters.RequestOptions]);
+            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
             MethodBodyStatement[] methodBody =
             [
-                //UsingDeclare("message", typeof(RequestMess)
-                //using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-                isAsync ? new InvokeStaticPropertyExpression(typeof(Task), nameof(Task.CompletedTask), true).Terminate() : EmptyStatement
+                UsingDeclare("message", typeof(PipelineMessage), This.Invoke("Create" + opName + "Request", [..methodParameters, ScmKnownParameters.RequestOptions]), out var message),
+                Return(new InvokeStaticMethodExpression(
+                    typeof(ClientResult),
+                    nameof(ClientResult.FromResponse),
+                    client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
-            return new MethodProvider(methodSignature, methodBody, enclosingType);
+            var protocolMethod = new MethodProvider(methodSignature, methodBody, enclosingType);
+            protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
+            return protocolMethod;
         }
 
         private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isAsync)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response is null || response.BodyType is null)
-                return null;
-            var returnType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            var returnType = response is null || response.BodyType is null
+                ? typeof(ClientResult)
+                : new CSharpType(typeof(ClientResult<>), ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType));
             if (isAsync)
             {
-                returnType = returnType.WrapInTask();
+                returnType = new CSharpType(typeof(Task<>), returnType);
             }
             return returnType;
         }
@@ -82,12 +95,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> methodParameters = new();
             foreach (var inputParam in operation.Parameters)
             {
+                if (inputParam.Kind != InputOperationParameterKind.Method)
+                    continue;
                 methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
             }
 
             var methodModifier = MethodSignatureModifiers.Internal;
             var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
-            var methodSignature = new MethodSignature(methodSignatureName, FormattableStringHelpers.FromString(operation.Description), methodModifier, null, null, Parameters: methodParameters);
+            var methodSignature = new MethodSignature(
+                methodSignatureName,
+                FormattableStringHelpers.FromString(operation.Description),
+                methodModifier,
+                typeof(PipelineMessage),
+                null,
+                Parameters: [..methodParameters, ScmKnownParameters.RequestOptions]);
             var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
 
             return new MethodProvider(methodSignature, methodBody, enclosingType);

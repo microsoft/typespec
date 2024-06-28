@@ -116,5 +116,8 @@ namespace Microsoft.Generator.CSharp.Snippets
             variable = factory(variableRef);
             return new(new BinaryOperatorExpression("is", value, new DeclarationExpression(variableRef)));
         }
+
+        public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
+            => new InvokeInstanceMethodExpression(field, methodName, [..parameters], null, isAsync, configureAwait);
     }
 }

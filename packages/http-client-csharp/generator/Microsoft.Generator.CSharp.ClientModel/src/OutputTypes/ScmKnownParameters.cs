@@ -16,6 +16,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         private static readonly CSharpType modelReaderWriterOptionsType = typeof(ModelReaderWriterOptions);
         private static readonly CSharpType nullableModelReaderWriterOptionsType = new CSharpType(typeof(ModelReaderWriterOptions), isNullable: true);
+        private static readonly FormattableString RequestOptionsDescription = $"The request options, which can override default behaviors of the client pipeline on a per-call basis.";
 
         public static readonly ParameterProvider XmlWriter = new ParameterProvider("writer", FormattableStringHelpers.Empty, typeof(XmlWriter));
         public static readonly ParameterProvider NameHint = new ParameterProvider("nameHint", FormattableStringHelpers.Empty, typeof(string));
@@ -37,5 +38,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         private static ParameterProvider? _requestConditionsParameter;
         public static ParameterProvider RequestConditionsParameter => _requestConditionsParameter ??= new("requestConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.RequestConditionsType(), Snippet.DefaultOf(ClientModelPlugin.Instance.TypeFactory.RequestConditionsType()));
+
+        public static readonly ParameterProvider RequestOptions = new("options", RequestOptionsDescription, typeof(RequestOptions));
     }
 }

@@ -12,5 +12,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         public BinaryDataSnippet Content => new(Property(nameof(PipelineResponse.Content)));
 
         public StreamSnippet ContentStream => new(Property(nameof(PipelineResponse.ContentStream)));
+
+        public BoolSnippet IsError => new(Property(nameof(PipelineResponse.IsError)));
     }
 }
