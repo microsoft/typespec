@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record BinaryContentSnippet(ValueExpression Untyped) : TypedSnippet<BinaryContent>(Untyped)
+    internal sealed record BinaryContentSnippet(ValueExpression Expression) : TypedSnippet<BinaryContent>(Expression)
     {
         public static BinaryContentSnippet Create(ValueExpression serializable)
             => new(InvokeStatic(nameof(BinaryContent.Create), serializable));

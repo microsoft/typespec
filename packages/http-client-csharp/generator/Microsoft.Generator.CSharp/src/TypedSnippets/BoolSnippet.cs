@@ -5,14 +5,10 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record BoolSnippet(ValueExpression Untyped) : TypedSnippet<bool>(Untyped)
+    public sealed record BoolSnippet(ValueExpression Expression) : TypedSnippet<bool>(Expression)
     {
         public BoolSnippet Or(ValueExpression other) => new(new BinaryOperatorExpression("||", this, other));
 
         public BoolSnippet And(ValueExpression other) => new(new BinaryOperatorExpression("&&", this, other));
-
-        public static BoolSnippet Is(ValueExpression untyped, CSharpType comparisonType) => new(new BinaryOperatorExpression("is", untyped, comparisonType));
-
-        public static BoolSnippet Is(ValueExpression untyped, DeclarationExpression declaration) => new(new BinaryOperatorExpression("is", untyped, declaration));
     }
 }

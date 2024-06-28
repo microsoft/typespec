@@ -43,8 +43,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public BoolSnippet NotEqual(ValueExpression other) => new(new BinaryOperatorExpression("!=", this, other));
 
-        public InvokeInstanceMethodExpression Invoke(string methodName, ValueExpression arg1, ValueExpression arg2)
-            => new InvokeInstanceMethodExpression(this, methodName, [arg1, arg2], null, false);
+        public InvokeInstanceMethodExpression Invoke(string methodName, params ValueExpression[] args)
+            => new InvokeInstanceMethodExpression(this, methodName, [..args], null, false);
 
         private string GetDebuggerDisplay()
         {

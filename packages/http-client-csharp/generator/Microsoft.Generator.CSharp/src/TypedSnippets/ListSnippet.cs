@@ -7,12 +7,12 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ListSnippet(CSharpType ItemType, ValueExpression Untyped) : TypedSnippet(new CSharpType(typeof(List<>), ItemType), Untyped)
+    public sealed record ListSnippet(CSharpType ItemType, ValueExpression Expression) : TypedSnippet(new CSharpType(typeof(List<>), ItemType), Expression)
     {
-        public MethodBodyStatement Add(ValueExpression item) => Untyped.Invoke(nameof(List<object>.Add), item).Terminate();
+        public MethodBodyStatement Add(ValueExpression item) => Expression.Invoke(nameof(List<object>.Add), item).Terminate();
 
-        public IndexableExpression ToArray() => new(Untyped.Invoke(nameof(List<object>.ToArray)));
+        public IndexableExpression ToArray() => new(Expression.Invoke(nameof(List<object>.ToArray)));
 
-        public ValueExpression this[ValueExpression index] => new IndexerExpression(Untyped, index);
+        public ValueExpression this[ValueExpression index] => new IndexerExpression(Expression, index);
     }
 }

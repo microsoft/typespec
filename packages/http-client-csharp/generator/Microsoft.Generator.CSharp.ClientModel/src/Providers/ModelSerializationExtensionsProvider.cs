@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
                     new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
-                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Untyped.Invoke("GetObject"))
+                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Invoke("GetObject"))
                     },
                     Return(dictionary)
                 }),
@@ -181,7 +181,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("list", New.List(typeof(object)), out var list),
                     new ForeachStatement("item", element.EnumerateArray(), out var item)
                     {
-                        list.Add(new JsonElementSnippet(item).Untyped.Invoke("GetObject"))
+                        list.Add(item.Invoke("GetObject"))
                     },
                     Return(list.ToArray())
                 }),

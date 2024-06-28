@@ -94,9 +94,10 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             var condition = True;
             var ifStatement = new IfStatement(condition);
 
-            Assert.NotNull(ifStatement);
-            Assert.AreEqual(condition.Untyped, ifStatement.Condition);
-            Assert.NotNull(ifStatement.Body);
+            using var writer = new CodeWriter();
+            ifStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
@@ -148,10 +149,10 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
@@ -163,10 +164,10 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
 
             var ifElseStatement = new IfElseStatement(condition, ifStatement, elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]

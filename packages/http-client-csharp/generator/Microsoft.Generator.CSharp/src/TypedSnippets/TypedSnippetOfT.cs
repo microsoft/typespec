@@ -53,9 +53,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         protected InvokeStaticMethodExpression InvokeExtension(CSharpType extensionType, string methodName, IEnumerable<ValueExpression> arguments, bool async)
             => new(extensionType, methodName, arguments.Prepend(Expression).ToArray(), CallAsAsync: async, CallAsExtension: true);
 
-        private static ValueExpression ValidateType(ValueExpression untyped, Type type)
+        private static ValueExpression ValidateType(ValueExpression expression, Type type)
         {
-            return untyped;
+            return expression;
         }
     }
 }

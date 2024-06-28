@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record StringSnippet(ValueExpression Untyped) : TypedSnippet<string>(Untyped)
+    public sealed record StringSnippet(ValueExpression Expression) : TypedSnippet<string>(Expression)
     {
         public ValueExpression Length => Property(nameof(string.Length));
 
