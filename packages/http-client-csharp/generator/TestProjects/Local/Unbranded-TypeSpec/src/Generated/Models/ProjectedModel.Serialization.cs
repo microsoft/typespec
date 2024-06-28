@@ -64,8 +64,13 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static ProjectedModel JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual ProjectedModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -89,13 +94,6 @@ namespace UnbrandedTypeSpec.Models
             return new ProjectedModel(name, serializedAdditionalRawData);
         }
 
-        internal static ProjectedModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            JsonElement element = document.RootElement;
-            return JsonModelCreateCore(element, options);
-        }
-
         BinaryData IPersistableModel<ProjectedModel>.Write(ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
@@ -107,5 +105,23 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<ProjectedModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        private static object GetObjectInstance(Type returnType)
+        {
+            PersistableModelProxyAttribute attribute = Attribute.GetCustomAttribute(returnType, typeof(PersistableModelProxyAttribute), false) as PersistableModelProxyAttribute;
+            Type typeToActivate = attribute is null ? returnType : attribute.ProxyType;
+
+            if (returnType.IsAbstract && attribute is null)
+            {
+                throw new InvalidOperationException($"{returnType.Name} must be decorated with {nameof(PersistableModelProxyAttribute)} to be used with {nameof(ModelReaderWriter)}.");
+            }
+
+            object obj = Activator.CreateInstance(typeToActivate, true);
+            if (obj is null)
+            {
+                throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
+            }
+            return obj;
+        }
     }
 }

@@ -275,8 +275,13 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
-        internal static RoundTripModel JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            JsonElement element = document.RootElement;
+
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
@@ -341,7 +346,8 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("requiredModel"u8))
                 {
-                    requiredModel = Thing.JsonModelCreateCore(prop.Value, options);
+                    IJsonModel<Thing> instance = (IJsonModel<Thing>)GetObjectInstance(typeof(Thing));
+                    requiredModel = instance.Create(ref reader, options);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -555,7 +561,8 @@ namespace UnbrandedTypeSpec.Models
                 }
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
-                    modelWithRequiredNullable = ModelWithRequiredNullableProperties.JsonModelCreateCore(prop.Value, options);
+                    IJsonModel<ModelWithRequiredNullableProperties> instance = (IJsonModel<ModelWithRequiredNullableProperties>)GetObjectInstance(typeof(ModelWithRequiredNullableProperties));
+                    modelWithRequiredNullable = instance.Create(ref reader, options);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))
@@ -597,13 +604,6 @@ namespace UnbrandedTypeSpec.Models
                 serializedAdditionalRawData);
         }
 
-        internal static RoundTripModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            JsonElement element = document.RootElement;
-            return JsonModelCreateCore(element, options);
-        }
-
         BinaryData IPersistableModel<RoundTripModel>.Write(ModelReaderWriterOptions options)
         {
             throw new NotImplementedException("Not implemented");
@@ -615,5 +615,23 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<RoundTripModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        private static object GetObjectInstance(Type returnType)
+        {
+            PersistableModelProxyAttribute attribute = Attribute.GetCustomAttribute(returnType, typeof(PersistableModelProxyAttribute), false) as PersistableModelProxyAttribute;
+            Type typeToActivate = attribute is null ? returnType : attribute.ProxyType;
+
+            if (returnType.IsAbstract && attribute is null)
+            {
+                throw new InvalidOperationException($"{returnType.Name} must be decorated with {nameof(PersistableModelProxyAttribute)} to be used with {nameof(ModelReaderWriter)}.");
+            }
+
+            object obj = Activator.CreateInstance(typeToActivate, true);
+            if (obj is null)
+            {
+                throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
+            }
+            return obj;
+        }
     }
 }

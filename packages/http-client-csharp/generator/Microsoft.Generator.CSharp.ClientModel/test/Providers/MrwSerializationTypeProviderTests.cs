@@ -305,10 +305,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(signature);
             Assert.AreEqual("JsonModelCreateCore", signature?.Name);
             Assert.AreEqual(2, signature?.Parameters.Count);
-            Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
+            Assert.AreEqual(new CSharpType(typeof(Utf8JsonReader)), signature?.Parameters[0].Type);
             Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
             Assert.AreEqual(model.Type, signature?.ReturnType);
-            Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
+            Assert.AreEqual(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual, signature?.Modifiers);
 
             var methodBody = deserializationMethod?.BodyStatements;
             Assert.IsNotNull(methodBody);

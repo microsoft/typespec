@@ -28,6 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string JsonModelCreateMethodName = "JsonModelCreateCore";
+        private const string GetObjectInstanceMethodName = "GetObjectInstance";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
         private const string AdditionalRawDataVarName = "serializedAdditionalRawData";
@@ -35,12 +36,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
             new("options", $"The client options for reading and writing models.", typeof(ModelReaderWriterOptions));
-        private readonly ParameterProvider _jsonElementDeserializationParam =
-            new("element", $"The JSON element to deserialize", typeof(JsonElement));
         private readonly Utf8JsonWriterSnippet _utf8JsonWriterSnippet;
         private readonly ModelReaderWriterOptionsSnippet _mrwOptionsParameterSnippet;
         private readonly BoolSnippet _isNotEqualToWireConditionSnippet;
-        private readonly JsonElementSnippet _jsonElementParameterSnippet;
         private readonly CSharpType _privateAdditionalRawDataPropertyType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _jsonModelTInterface;
         private readonly CSharpType? _jsonModelObjectInterface;
@@ -68,7 +66,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
             _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
-            _jsonElementParameterSnippet = new JsonElementSnippet(_jsonElementDeserializationParam);
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
 
             Name = provider.Name;
@@ -163,14 +160,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // Add JsonModel serialization methods
                 BuildJsonModelWriteMethod(jsonModelWriteCoreMethod),
                 jsonModelWriteCoreMethod,
-                BuildJsonModelCreateMethod(),
                 // Add JsonModel deserialization methods
+                BuildJsonModelCreateMethod(),
                 BuildJsonModelCreateCoreMethod(),
-                BuildJsonModelCreateCoreOverloadMethod(),
                 // Add PersistableModel serialization methods
                 BuildPersistableModelWriteMethod(),
                 BuildPersistableModelCreateMethod(),
-                BuildPersistableModelGetFormatFromOptionsMethod()
+                BuildPersistableModelGetFormatFromOptionsMethod(),
+                // Add helper methods
+                BuildGetObjectInstanceMethod(),
             };
 
             if (_isStruct)
@@ -264,41 +262,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             );
         }
 
-        private MethodProvider BuildJsonModelCreateCoreOverloadMethod()
-        {
-            var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
-
-            // using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            var jsonDocumentDeclaration = SystemSnippet.UsingDeclare("document", JsonDocumentSnippet.ParseValue(_utf8JsonReaderParameter), out var docVariable);
-            // var element = document.RootElement;
-            var jsonDocElementDeclaration = Declare("element", docVariable.RootElement, out var element);
-            var methodBody = new MethodBodyStatement[]
-            {
-                jsonDocumentDeclaration,
-                jsonDocElementDeclaration,
-                Return(new InvokeStaticMethodExpression(Type, JsonModelCreateMethodName, [element, _serializationOptionsParameter])),
-            };
-
-            // T JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-            return new MethodProvider
-            (
-              new MethodSignature(JsonModelCreateMethodName, null, signatureModifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
-              methodBody,
-              this
-            );
-        }
-
         /// <summary>
         /// Builds the deserialization method for the model.
         /// </summary>
         internal MethodProvider BuildJsonModelCreateCoreMethod()
         {
-            var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
+            var signatureModifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
             // T JsonModelCreateCore(JsonElement element, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateMethodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateMethodName, null, signatureModifiers, _model.Type, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               BuildJsonModelCreateCoreMethodBody(),
               this
             );
@@ -348,6 +322,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             (
                 new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, new[] { _serializationOptionsParameter }, ExplicitInterface: _persistableModelTInterface),
                 jsonWireFormat,
+                this
+            );
+        }
+
+        /// <summary>
+        /// Builds the GetObjectInstance helper method.
+        /// </summary>
+        internal MethodProvider BuildGetObjectInstanceMethod()
+        {
+            var modifiers = MethodSignatureModifiers.Private | MethodSignatureModifiers.Static;
+            ValueExpression jsonWireFormat = SystemSnippet.JsonFormatSerialization;
+            var returnTypeParam = new ParameterProvider("returnType", $"The type of the object to create.", typeof(Type));
+            // private static object GetObjectInstance(Type returnType)
+            return new MethodProvider
+            (
+                new MethodSignature(GetObjectInstanceMethodName, null, modifiers, typeof(object), null, [returnTypeParam]),
+                BuildGetObjectInstanceMethodBody(returnTypeParam),
                 this
             );
         }
@@ -424,17 +415,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             var propertyDeclarationStatements = GetPropertyVariableDeclarations();
-            IfStatement valueKindEqualsNullCheck = new(_jsonElementParameterSnippet.ValueKindEqualsNull())
+            // using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            var jsonDocumentDeclaration = SystemSnippet.UsingDeclare("document", JsonDocumentSnippet.ParseValue(_utf8JsonReaderParameter), out var docVariable);
+            // var element = document.RootElement;
+            var jsonDocElementDeclaration = Declare("element", docVariable.RootElement, out var element);
+            var jsonDocElementSnippet = new JsonElementSnippet(element);
+            IfStatement valueKindEqualsNullCheck = new(jsonDocElementSnippet.ValueKindEqualsNull())
             {
                 Return(Null)
             };
-            ForeachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
+            ForeachStatement deserializePropertiesForEachStatement = new("prop", jsonDocElementSnippet.EnumerateObject(), out var prop)
             {
                 BuildDeserializePropertiesStatements(new JsonPropertySnippet(prop), rawDataDictionary)
             };
 
             return
             [
+                jsonDocumentDeclaration,
+                jsonDocElementDeclaration,
+                EmptyLineStatement,
                 valueKindEqualsNullCheck,
                 propertyDeclarationStatements,
                 additionalRawDataDictionaryDeclaration,
@@ -668,8 +667,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             else
             {
-                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement);
-                return EmptyStatement;
+                return CreateDeserializeValueStatement(valueType, serializationFormat, jsonElement, out value);
             }
         }
 
@@ -740,28 +738,53 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return deserializeDictionaryStatement;
         }
 
-        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, JsonElementSnippet jsonElement) =>
-            valueType switch
+        private MethodBodyStatement CreateDeserializeValueStatement(
+            CSharpType valueType,
+            SerializationFormat serializationFormat,
+            JsonElementSnippet jsonElement,
+            out ValueExpression value)
+        {
+            switch (valueType)
             {
-                { SerializeAs: { } serializeAs } =>
-                    new CastExpression(GetValueTypeDeserializationExpression(serializeAs, jsonElement, serializationFormat), valueType),
-                { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
-                { IsFrameworkType: true } =>
-                    GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
-                _ =>
-                    CreateDeserializeValueExpressionForProvider(valueType.Implementation, jsonElement) ?? throw new InvalidOperationException($"Unable to deserialize type {valueType}")
-            };
+                case { SerializeAs: { } serializeAs }:
+                    value = GetValueTypeDeserializationExpression(serializeAs, jsonElement, serializationFormat);
+                    break;
+                case { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>):
+                    value = GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat);
+                    break;
+                case { IsFrameworkType: true }:
+                    value = GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat);
+                    break;
+                default:
+                    {
+                        if (valueType.Implementation is EnumProvider enumProvider)
+                        {
+                            value = enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
+                            return EmptyStatement;
+                        }
+                        else if (valueType.Implementation is ModelProvider modelProvider)
+                        {
+                            // var instance = (IJsonModel<T>)GetObjectInstance(typeof(T));
+                            var modelProviderJsonType = new CSharpType(typeof(IJsonModel<>), modelProvider.Type);
+                            var instance = new VariableExpression(modelProviderJsonType, "instance");
+                            var getObjectInstance = new InvokeInstanceMethodExpression(
+                                null,
+                                GetObjectInstanceMethodName,
+                                [TypeOf(modelProvider.Type)]
+                                ).CastTo(modelProviderJsonType);
+                            // instance.Create(ref reader, options);
+                            value = instance.Invoke(nameof(IJsonModel<object>.Create), _utf8JsonReaderParameter, _mrwOptionsParameterSnippet);
+                            return Declare(instance, getObjectInstance);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unable to deserialize type {valueType}");
+                        }
+                    }
+            }
 
-        private ValueExpression? CreateDeserializeValueExpressionForProvider(TypeProvider implementation, JsonElementSnippet jsonElement) =>
-            implementation switch
-            {
-                EnumProvider enumProvider =>
-                    enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, SerializationFormat.Default)),
-                ModelProvider modelProvider =>
-                    new InvokeStaticMethodExpression(modelProvider.Type, JsonModelCreateMethodName, [jsonElement, _mrwOptionsParameterSnippet]),
-                _ => null
-            };
+            return EmptyStatement;
+        }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
@@ -1261,6 +1284,75 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new IfStatement(_isNotEqualToWireConditionSnippet.And(rawDataDictionaryExp.NotEqual(Null)))
             {
                 forEachStatement,
+            };
+        }
+
+        private MethodBodyStatement BuildGetObjectInstanceMethodBody(ParameterProvider returnTypeParam)
+        {
+            // PersistableModelProxyAttribute? attribute = Attribute.GetCustomAttribute(returnType, typeof(PersistableModelProxyAttribute), false) as PersistableModelProxyAttribute;
+            var persistableModelProxyAttributeType = typeof(PersistableModelProxyAttribute);
+            var attributeType = new CSharpType(persistableModelProxyAttributeType);
+            var getCustomAttribute = new InvokeStaticMethodExpression(
+                attributeType,
+                nameof(Attribute.GetCustomAttribute),
+                [returnTypeParam, TypeOf(attributeType), Bool(false)]
+            );
+            var castGetCustomAttribute = new AsExpression(getCustomAttribute, attributeType);
+            var attributeVar = new VariableExpression(attributeType, "attribute");
+            var attributeDeclaration = Declare(attributeVar, castGetCustomAttribute);
+
+            // Type typeToActivate = attribute is null ? returnType : attribute.ProxyType;
+            var typeToActivate = new VariableExpression(typeof(Type), "typeToActivate");
+            var typeToActivateAssignment = new TernaryConditionalExpression(
+                attributeVar.Is(Null),
+                returnTypeParam,
+                new MemberExpression(attributeVar, nameof(PersistableModelProxyAttribute.ProxyType))
+            );
+            var typeToActivateDeclaration = Declare(typeToActivate, typeToActivateAssignment);
+
+            // if (returnType.IsAbstract && attribute is null)
+            var returnTypeIsAbstract = new BoolSnippet(new InvokeInstancePropertyExpression(returnTypeParam, nameof(System.Type.IsAbstract)));
+            var checkReturnType = new IfStatement(
+                returnTypeIsAbstract.And(attributeVar.Is(Null)))
+                {
+                    // throw new InvalidOperationException($"{returnType.Name} must be decorated with {nameof(PersistableModelProxyAttribute)} to be used with {nameof(ModelReaderWriter)}.");
+                    Throw(New.Instance(
+                        typeof(InvalidOperationException),
+                        new FormattableStringExpression($"{{{0}}} must be decorated with {{{1}}} to be used with {{{2}}}.",
+                        [
+                            new InvokeInstancePropertyExpression(returnTypeParam, nameof(returnTypeParam.Type.FrameworkType.Name)),
+                            Nameof(persistableModelProxyAttributeType),
+                            Nameof(typeof(ModelReaderWriter))
+                        ])))
+                };
+            // var obj = Activator.CreateInstance(typeToActivate, true);
+            var obj = new VariableExpression(typeof(object), "obj");
+            var createInstance = new InvokeStaticMethodExpression(
+                typeof(Activator),
+                nameof(Activator.CreateInstance),
+                [typeToActivate, Bool(true)]
+            );
+
+            // if (obj is null)
+            var checkIfObjIsNull = new IfStatement(obj.Is(Null))
+            {
+                // throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
+                Throw(New.Instance(
+                    typeof(InvalidOperationException),
+                    new FormattableStringExpression($"Unable to create instance of {{{0}}}.",
+                    [new InvokeInstancePropertyExpression(typeToActivate, nameof(typeToActivate.Type.FrameworkType.Name))])))
+            };
+
+            return new MethodBodyStatement[]
+            {
+                attributeDeclaration,
+                typeToActivateDeclaration,
+                EmptyLineStatement,
+                checkReturnType,
+                EmptyLineStatement,
+                Declare(obj, createInstance),
+                checkIfObjIsNull,
+                Return(obj)
             };
         }
 
