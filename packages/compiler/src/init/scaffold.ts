@@ -98,9 +98,10 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     return;
   }
   const dependencies: Record<string, string> = {};
+  const peerDependencies: Record<string, string> = {};
 
   if (!config.template.skipCompilerPackage) {
-    dependencies["@typespec/compiler"] = "latest";
+    peerDependencies["@typespec/compiler"] = "latest";
   }
 
   for (const library of config.libraries) {
@@ -112,6 +113,7 @@ async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
     version: "0.1.0",
     type: "module",
     dependencies,
+    peerDependencies,
     private: true,
   };
 

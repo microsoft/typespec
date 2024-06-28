@@ -37,9 +37,12 @@ describe("compiler: init: templates", () => {
       });
 
       deepStrictEqual(JSON.parse(getOutputFile("package.json")!).dependencies, {
-        "@typespec/compiler": "latest",
         foo: "~1.2.3",
         bar: "latest",
+      });
+
+      deepStrictEqual(JSON.parse(getOutputFile("package.json")!).peerDependencies, {
+        "@typespec/compiler": "latest",
       });
 
       strictEqual(getOutputFile("main.tsp")!, 'import "foo";\nimport "bar";\n');
