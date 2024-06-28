@@ -701,7 +701,7 @@ namespace Microsoft.Generator.CSharp
 
                 if (isImplicitOrExplicit)
                 {
-                    Append($"{method.ReturnType}");
+                    AppendIf($"{method.ReturnType}", method.ReturnType is not null);
                 }
 
                 if (method.ExplicitInterface is not null)

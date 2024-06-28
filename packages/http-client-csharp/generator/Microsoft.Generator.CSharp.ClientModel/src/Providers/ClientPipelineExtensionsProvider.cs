@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Throw(New.Instance(typeof(ClientResultException), _message.Response))
                 },
                 EmptyLineStatement,
-                Declare(typeof(PipelineResponse), "response", new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
+                Declare("response", typeof(PipelineResponse), new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
                 Return(response)
             }, this);
         }
@@ -173,7 +173,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Throw(new InvokeStaticMethodExpression(typeof(ClientResultException), nameof(ClientResultException.CreateAsync), [_message.Response], CallAsAsync: true))
                 },
                 EmptyLineStatement,
-                Declare(typeof(PipelineResponse), "response", new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
+                Declare("response", typeof(PipelineResponse), new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
                 Return(response)
             }, this);
         }
