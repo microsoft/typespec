@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.ClientModel.Plugin\src\Microsoft.Generator.CSharp.ClientModel.Plugin.csproj" />
     <ProjectReference Include="..\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
   </ItemGroup>
 

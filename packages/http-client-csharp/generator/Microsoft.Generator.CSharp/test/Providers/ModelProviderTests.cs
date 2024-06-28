@@ -43,6 +43,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var mockPluginInstance = new Mock<CodeModelPlugin>(_generatorContext) { };
             var mockTypeFactory = new Mock<TypeFactory>() { };
             mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(type);
+
+            PropertyProvider? result = null;
+            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
+                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
+                .Returns(() => result!);
+
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
 
@@ -155,6 +161,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
                     throw new ArgumentException("Unsupported input type.");
                 }
             });
+
+            PropertyProvider? result = null;
+            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
+                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
+                .Returns(() => result!);
 
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

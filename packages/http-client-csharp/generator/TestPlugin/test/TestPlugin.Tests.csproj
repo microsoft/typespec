@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\TestPlugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../TestProjects/Plugin/Unbranded-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

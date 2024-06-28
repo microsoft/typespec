@@ -3,4 +3,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Microsoft.Generator.CSharp.ClientModel.Plugin.Tests")]
+[assembly: InternalsVisibleTo("TestPlugin.Tests")]

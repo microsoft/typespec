@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             object[] parameters = new object[] { configFilePath, null! };
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
+            var mockPluginInstance = new Mock<CodeModelPlugin>(mockGeneratorContext.Object) { };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

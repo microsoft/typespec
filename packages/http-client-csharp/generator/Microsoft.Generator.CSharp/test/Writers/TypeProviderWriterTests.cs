@@ -125,6 +125,11 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
                 }
             });
 
+            PropertyProvider? result = null;
+            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
+                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
+                .Returns(() => result!);
+
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);
         }

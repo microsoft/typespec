@@ -27,16 +27,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         public void Setup()
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, _mocksFolder);
-            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
-            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(int)));
             // initialize the mock singleton instance of the plugin
             _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+
+            var mockTypeFactory = new Mock<ScmTypeFactory>() { };
+            mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(new CSharpType(typeof(int)));
+
+            PropertyProvider? result = null;
+            mockTypeFactory.Setup(f => f.CreatePropertyProvider(It.IsAny<InputModelProperty>()))
+                .Callback<InputModelProperty>(p => result = new PropertyProvider(p))
+                .Returns(() => result!);
+
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object?[] parameters = [configFilePath, null];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
+            var mockPluginInstance = new Mock<CodeModelPlugin>(mockGeneratorContext.Object) { };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

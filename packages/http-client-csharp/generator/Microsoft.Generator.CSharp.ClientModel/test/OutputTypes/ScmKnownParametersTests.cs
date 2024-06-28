@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            var mockPlugin = new Mock<ClientModelPlugin>(new Mock<GeneratorContext>().Object);
+            var mockPlugin = new Mock<CodeModelPlugin>(new Mock<GeneratorContext>().Object);
             mockPlugin.Setup(p => p.TypeFactory).Returns(new MockTypeFactory());
             // initialize the singleton instance of the plugin
             _ = mockPlugin.Object;
