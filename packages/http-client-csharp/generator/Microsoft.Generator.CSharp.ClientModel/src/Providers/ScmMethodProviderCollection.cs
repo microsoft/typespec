@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(_operation.Description),
                 methodModifier,
-                GetResponseType(_operation.Responses, isAsync),
+                GetResponseType(_operation.Responses, false, isAsync),
                 $"The response returned from the service.",
                 Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
@@ -96,17 +96,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return protocolMethod;
         }
 
-        private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isAsync)
+        private static CSharpType? GetResponseType(IReadOnlyList<OperationResponse> responses, bool isConvenience, bool isAsync)
+        {
+            var returnType = isConvenience ? GetConvenienceReturnType(responses) : typeof(ClientResult);
+            return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
+        }
+
+        private static CSharpType GetConvenienceReturnType(IReadOnlyList<OperationResponse> responses)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            var returnType = response is null || response.BodyType is null
+            return response is null || response.BodyType is null
                 ? typeof(ClientResult)
                 : new CSharpType(typeof(ClientResult<>), ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType));
-            if (isAsync)
-            {
-                returnType = new CSharpType(typeof(Task<>), returnType);
-            }
-            return returnType;
         }
 
         private MethodProvider BuildCreateMessageMethod()
