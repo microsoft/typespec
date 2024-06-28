@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Expressions
 
         public BoolSnippet Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
 
-        public  MethodBodyStatement Increment() => new UnaryOperatorExpression("++", this, true).Terminate();
+        public  ValueExpression Increment() => new UnaryOperatorExpression("++", this, true);
 
         private string GetDebuggerDisplay()
         {
