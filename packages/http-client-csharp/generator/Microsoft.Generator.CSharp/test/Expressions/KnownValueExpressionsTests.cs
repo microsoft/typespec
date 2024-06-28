@@ -21,8 +21,10 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.Or(right);
+            using var writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            Assert.AreEqual(new BinaryOperatorExpression("||", boolExpression, right), result.Untyped);
+            Assert.AreEqual("( || )", writer.ToString(false));
         }
 
         [Test]
@@ -33,8 +35,10 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.And(right);
+            using var writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            Assert.AreEqual(new BinaryOperatorExpression("&&", boolExpression, right), result.Untyped);
+            Assert.AreEqual("( && )", writer.ToString(false));
         }
 
         [TestCase(typeof(int))]
@@ -57,8 +61,11 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var listExpression = new ListSnippet(itemType, untypedValue);
 
+            using var writer = new CodeWriter();
+            listExpression.Expression.Write(writer);
+
             Assert.AreEqual(itemType, listExpression.ItemType);
-            Assert.AreEqual(untypedValue, listExpression.Untyped);
+            Assert.AreEqual("", writer.ToString(false));
         }
 
         [Test]
@@ -69,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
 
             var result = listExpression.Add(item);
 
-            var expectedStatement = listExpression.Untyped.Invoke("Add", item).Terminate();
+            var expectedStatement = listExpression.Invoke("Add", item).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
@@ -113,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var value = new ValueExpression();
             var result = dictionaryExpression.Add(key, value);
 
-            var expectedStatement = dictionaryExpression.Untyped.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
+            var expectedStatement = dictionaryExpression.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
 
             Assert.AreEqual(expectedStatement.ToString(), result.ToString());
         }
@@ -140,8 +147,8 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var untypedValue = new ValueExpression();
 
             var keyValuePairExpression = new KeyValuePairSnippet(keyType, valueType, untypedValue);
-            var expectedKey = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Key));
-            var expectedValue = new MemberExpression(keyValuePairExpression.Untyped, nameof(KeyValuePair<string, string>.Value));
+            var expectedKey = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Key));
+            var expectedValue = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Value));
 
             Assert.AreEqual(expectedKey, keyValuePairExpression.Key);
             Assert.AreEqual(expectedValue, keyValuePairExpression.Value);
@@ -157,17 +164,10 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
             var enumerableExpression = new EnumerableSnippet(itemType, untypedValue);
 
             var result = enumerableExpression.Any();
+            using CodeWriter writer = new CodeWriter();
+            result.Expression.Write(writer);
 
-            var expectedExpression = new BoolSnippet(
-                new InvokeStaticMethodExpression(
-                    typeof(Enumerable),
-                    nameof(Enumerable.Any),
-                    new[] { untypedValue },
-                    CallAsExtension: true
-                )
-            );
-
-            Assert.AreEqual(expectedExpression.Untyped.ToString(), result.Untyped.ToString());
+            Assert.AreEqual(".Any()", writer.ToString(false));
         }
     }
 }

@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertNull", [value, _nameParam, message], [_t]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(value, Null))
+                new IfStatement(value.AsExpression.NotEqual(Null))
                 {
                     ThrowArgumentException(NullCoalescing(message, Literal("Value must be null.")))
                 }
@@ -138,11 +138,11 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = GetSignature("AssertInRange", new[] { value, min, max, _nameParam }, new[] { _t }, whereExpressions);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(GreaterThan(GetCompareToExpression(min, value), Literal(0)))
+                new IfStatement(GetCompareToExpression(min, value).GreaterThan(Literal(0)))
                 {
                     Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is less than the minimum allowed.", false))
                 },
-                new IfStatement(LessThan(GetCompareToExpression(max, value), Literal(0)))
+                new IfStatement(GetCompareToExpression(max, value).LessThan(Literal(0)))
                 {
                     Throw(New.ArgumentOutOfRangeException(_nameParam, "Value is greater than the maximum allowed.", false))
                 }
@@ -195,7 +195,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 AssertNotNullSnippet(valueParam),
-                new IfStatement(Equal(value.Length, Literal(0)))
+                new IfStatement(value.Length.Equal(Literal(0)))
                 {
                     ThrowArgumentException("Value cannot be an empty string.")
                 }
@@ -230,7 +230,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static BoolSnippet IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
-            return BoolSnippet.Is(valueParam, new DeclarationExpression(collection)).And(Equal(new MemberExpression(collection, "Count"), Literal(0)));
+            return valueParam.AsExpression.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
         }
 
         private MethodBodyStatement ThrowArgumentException(ValueExpression expression)
@@ -267,7 +267,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IfStatement AssertNotNullSnippet(ParameterProvider value)
         {
-            return new IfStatement(Is(value, Null))
+            return new IfStatement(value.AsExpression.Is(Null))
             {
                 Throw(New.ArgumentNullException(_nameParam, false))
             };
