@@ -22,6 +22,13 @@ namespace Microsoft.Generator.CSharp.Statements
             _reason = GetText(validationType);
         }
 
+        public XmlDocExceptionStatement(Type exceptionType, string reason, IReadOnlyList<ParameterProvider> parameters)
+        {
+            ExceptionType = exceptionType;
+            Parameters = parameters;
+            _reason = reason;
+        }
+
         private static Type GetExceptionType(ParameterValidationType validationType) => validationType switch
         {
             ParameterValidationType.AssertNotNull => typeof(ArgumentNullException),
@@ -42,13 +49,16 @@ namespace Microsoft.Generator.CSharp.Statements
 
             writer.Append($"/// <exception cref=\"{ExceptionType}\">");
 
-            writer.Append($" <paramref name=\"{Parameters[0].Name}\"/>");
-            for (int i = 1; i < Parameters.Count - 1; i++)
+            if (Parameters.Count > 0)
             {
-                writer.Append($", <paramref name=\"{Parameters[i].Name}\"/>");
+                writer.Append($" <paramref name=\"{Parameters[0].Name}\"/>");
+                for (int i = 1; i < Parameters.Count - 1; i++)
+                {
+                    writer.Append($", <paramref name=\"{Parameters[i].Name}\"/>");
+                }
+                if (Parameters.Count > 1)
+                    writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].Name}\"/>");
             }
-            if (Parameters.Count > 1)
-                writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].Name}\"/>");
 
             writer.WriteLine($" {_reason} </exception>");
         }

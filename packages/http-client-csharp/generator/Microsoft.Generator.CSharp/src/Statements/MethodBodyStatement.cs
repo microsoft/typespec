@@ -13,6 +13,17 @@ namespace Microsoft.Generator.CSharp.Statements
         public static implicit operator MethodBodyStatement(MethodBodyStatement[] statements) => new MethodBodyStatements(statements);
         public static implicit operator MethodBodyStatement(List<MethodBodyStatement> statements) => new MethodBodyStatements(statements);
 
+        private class PrivateEmptyLineStatement : MethodBodyStatement
+        {
+            internal override void Write(CodeWriter writer)
+            {
+                writer.WriteLine();
+            }
+        }
+
+        public static readonly MethodBodyStatement Empty = new();
+        public static readonly MethodBodyStatement EmptyLine = new PrivateEmptyLineStatement();
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();

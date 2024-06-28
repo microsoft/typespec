@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
             return
             [
-                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), EmptyStatement, this),
+                new MethodProvider(new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, Array.Empty<ParameterProvider>()), MethodBodyStatement.Empty, this),
                 new MethodProvider(iListSignature, iListBody, this),
                 new MethodProvider(iReadOnlyListSignature, iReadOnlyListBody, this)
             ];

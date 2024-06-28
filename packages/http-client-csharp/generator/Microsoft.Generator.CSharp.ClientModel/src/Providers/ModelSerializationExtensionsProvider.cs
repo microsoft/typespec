@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     Return(Null)
                 },
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Return(new SwitchExpression(format,
                     new SwitchCaseExpression(Literal("U"), FromBase64UrlString(GetRequiredString(element))),
                     new SwitchCaseExpression(Literal("D"), element.GetBytesFromBase64()),

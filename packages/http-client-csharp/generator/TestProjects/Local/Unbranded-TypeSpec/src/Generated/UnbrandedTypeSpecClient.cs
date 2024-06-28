@@ -3,449 +3,795 @@
 #nullable disable
 
 using System;
-using System.Threading;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using UnbrandedTypeSpec.Models;
 
 namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
     public partial class UnbrandedTypeSpecClient
     {
-        internal void CreateSayHiRequest(Uri unbrandedTypeSpecUrl, string headParameter, string queryParameter, string optionalQuery, string accept)
+        private ClientPipeline _pipeline;
+
+        /// <summary> This is a sample typespec project. </summary>
+        public UnbrandedTypeSpecClient()
+        {
+            _pipeline = ClientPipeline.Create();
+        }
+
+        internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        public virtual void SayHi(string headParameter, string queryParameter, string optionalQuery, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
+            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> Return hi. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        public virtual async void SayHiAsync(string headParameter, string queryParameter, string optionalQuery, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateHelloAgainRequest(Uri unbrandedTypeSpecUrl, string p1, string contentType, string p2, RoundTripModel action, string accept)
+        internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        public virtual void HelloAgain(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HelloAgain(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
 
+            using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        public virtual async void HelloAgainAsync(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
 
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateNoContentTypeRequest(Uri unbrandedTypeSpecUrl, string p1, string p2, RoundTripModel action, string accept, string contentType)
+        internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        public virtual void NoContentType(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult NoContentType(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
 
+            using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> Return hi again. </summary>
+        /// <summary>
+        /// [Protocol Method] Return hi again
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
-        /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        public virtual async void NoContentTypeAsync(string p1, string p2, RoundTripModel action, CancellationToken cancellationToken = default)
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
-            Argument.AssertNotNull(action, nameof(action));
 
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateHelloDemo2Request(Uri unbrandedTypeSpecUrl, string accept)
+        internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Return hi in demo2. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void HelloDemo2(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Return hi in demo2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HelloDemo2(RequestOptions options)
         {
+            using PipelineMessage message = CreateHelloDemo2Request(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> Return hi in demo2. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void HelloDemo2Async(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Return hi in demo2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateHelloDemo2Request(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateCreateLiteralRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> Create with literal value. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual void CreateLiteral(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-        }
-
-        /// <summary> Create with literal value. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual async void CreateLiteralAsync(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateHelloLiteralRequest(Uri unbrandedTypeSpecUrl, string p1, int p2, bool p3, string accept)
+        internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> Send literal parameters. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void HelloLiteral(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Create with literal value
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options)
         {
+            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> Send literal parameters. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void HelloLiteralAsync(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Create with literal value
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateTopActionRequest(Uri unbrandedTypeSpecUrl, DateTimeOffset action, string accept)
+        internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> top level method. </summary>
+        /// <summary>
+        /// [Protocol Method] Send literal parameters
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HelloLiteral(RequestOptions options)
+        {
+            using PipelineMessage message = CreateHelloLiteralRequest(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send literal parameters
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateHelloLiteralRequest(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] top level method
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        public virtual void TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
         {
             Argument.AssertNotNull(action, nameof(action));
 
+            using PipelineMessage message = CreateTopActionRequest(action, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> top level method. </summary>
+        /// <summary>
+        /// [Protocol Method] top level method
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="action"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        public virtual async void TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateTopActionRequest(action, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateTopAction2Request(Uri unbrandedTypeSpecUrl, string accept)
+        internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> top level method2. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void TopAction2(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] top level method2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult TopAction2(RequestOptions options)
         {
+            using PipelineMessage message = CreateTopAction2Request(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> top level method2. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void TopAction2Async(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] top level method2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateTopAction2Request(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreatePatchActionRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> top level patch. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual void PatchAction(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-        }
-
-        /// <summary> top level patch. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual async void PatchActionAsync(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateAnonymousBodyRequest(Uri unbrandedTypeSpecUrl, Thing Thing, string accept, string contentType)
+        internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> body parameter without body decorator. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
-        public virtual void AnonymousBody(Thing Thing, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] top level patch
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
+            using PipelineMessage message = CreatePatchActionRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> body parameter without body decorator. </summary>
-        /// <param name="Thing"> A model with a few properties of literal types. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
-        public virtual async void AnonymousBodyAsync(Thing Thing, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] top level patch
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options)
         {
-            Argument.AssertNotNull(Thing, nameof(Thing));
-
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreatePatchActionRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateFriendlyModelRequest(Uri unbrandedTypeSpecUrl, Friend Friend, string accept, string contentType)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> Model can have its friendly name. </summary>
-        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
-        public virtual void FriendlyModel(Friend Friend, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
-        }
-
-        /// <summary> Model can have its friendly name. </summary>
-        /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
-        public virtual async void FriendlyModelAsync(Friend Friend, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(Friend, nameof(Friend));
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateAddTimeHeaderRequest(Uri unbrandedTypeSpecUrl, DateTimeOffset repeatabilityFirstSent, string accept)
+        internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> addTimeHeader. </summary>
+        /// <summary>
+        /// [Protocol Method] body parameter without body decorator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] body parameter without body decorator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] Model can have its friendly name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Model can have its friendly name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] addTimeHeader
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="repeatabilityFirstSent"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void AddTimeHeader(DateTimeOffset repeatabilityFirstSent, CancellationToken cancellationToken = default)
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
+            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> addTimeHeader. </summary>
+        /// <summary>
+        /// [Protocol Method] addTimeHeader
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="repeatabilityFirstSent"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, CancellationToken cancellationToken = default)
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateProjectedNameModelRequest(Uri unbrandedTypeSpecUrl, ProjectedModel ProjectedModel, string accept, string contentType)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
-        public virtual void ProjectedNameModel(ProjectedModel ProjectedModel, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-        }
-
-        /// <summary> Model can have its projected name. </summary>
-        /// <param name="ProjectedModel"> this is a model with a projected name. </param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
-        public virtual async void ProjectedNameModelAsync(ProjectedModel ProjectedModel, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateReturnsAnonymousModelRequest(Uri unbrandedTypeSpecUrl, string accept)
+        internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> return anonymous model. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void ReturnsAnonymousModel(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Model can have its projected name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
         {
+            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> return anonymous model. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] Model can have its projected name
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateGetUnknownValueRequest(Uri unbrandedTypeSpecUrl, string accept)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> get extensible enum. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void GetUnknownValue(CancellationToken cancellationToken = default)
-        {
-        }
-
-        /// <summary> get extensible enum. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void GetUnknownValueAsync(CancellationToken cancellationToken = default)
-        {
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateInternalProtocolRequest(Uri unbrandedTypeSpecUrl, Thing body, string accept, string contentType)
-        {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual void InternalProtocol(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-        }
-
-        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        public virtual async void InternalProtocolAsync(Thing body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        internal void CreateStillConvenientRequest(Uri unbrandedTypeSpecUrl, string accept)
+        internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual void StillConvenient(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] return anonymous model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
         {
+            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        public virtual async void StillConvenientAsync(CancellationToken cancellationToken = default)
+        /// <summary>
+        /// [Protocol Method] return anonymous model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
         {
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
 
-        internal void CreateHeadAsBooleanRequest(Uri unbrandedTypeSpecUrl, string id, string accept)
+        internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
         {
             throw new NotImplementedException("Method not implemented.");
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary>
+        /// [Protocol Method] get extensible enum
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetUnknownValue(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetUnknownValueRequest(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] get extensible enum
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetUnknownValueRequest(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options)
+        {
+            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult StillConvenient(RequestOptions options)
+        {
+            using PipelineMessage message = CreateStillConvenientRequest(options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateStillConvenientRequest(options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
+        {
+            throw new NotImplementedException("Method not implemented.");
+        }
+
+        /// <summary>
+        /// [Protocol Method] head as boolean.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="id"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        public virtual void HeadAsBoolean(string id, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
         {
             Argument.AssertNotNull(id, nameof(id));
 
+            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
         }
 
-        /// <summary> head as boolean. </summary>
+        /// <summary>
+        /// [Protocol Method] head as boolean.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
         /// <param name="id"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        public virtual async void HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            await Task.CompletedTask.ConfigureAwait(false);
+            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
     }
 }
