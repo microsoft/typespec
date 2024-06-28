@@ -22,7 +22,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement UsingDeclare(VariableExpression variable, ValueExpression value)
             => new DeclarationExpression(variable, false, true).Assign(value).Terminate();
 
-        public static MethodBodyStatement Declare(CSharpType variableType, string name, ValueExpression value, out VariableExpression variable)
+        public static MethodBodyStatement Declare(string name, CSharpType variableType, ValueExpression value, out VariableExpression variable)
         {
             var variableRef = new VariableExpression(variableType, name);
             variable = variableRef;

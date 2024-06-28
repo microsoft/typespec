@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -102,5 +103,17 @@ namespace UnbrandedTypeSpec.Models
         }
 
         string IPersistableModel<ModelWithRequiredNullableProperties>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+
+        /// <param name="modelWithRequiredNullableProperties"> The <see cref="ModelWithRequiredNullableProperties"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ModelWithRequiredNullableProperties modelWithRequiredNullableProperties)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ModelWithRequiredNullableProperties"/> from. </param>
+        public static explicit operator ModelWithRequiredNullableProperties(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }
