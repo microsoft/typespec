@@ -12,7 +12,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
-    public sealed class ClientProvider : TypeProvider
+    public class ClientProvider : TypeProvider
     {
         private readonly InputClient _inputClient;
 

@@ -131,9 +131,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Untyped.Invoke(nameof(ClientPipeline.Send), [_message], false).Terminate(),
+                _pipeline.Invoke(nameof(ClientPipeline.Send), [_message]).Terminate(),
                 EmptyLineStatement,
-                new IfStatement(And(_message.Response.IsError, NotEqual(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow), clientErrorNoThrow)))
+                new IfStatement(_message.Response.IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(New.Instance(typeof(ClientResultException), _message.Response))
                 },
@@ -166,9 +166,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var clientErrorNoThrow = FrameworkEnumValue(ClientErrorBehaviors.NoThrow);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                _pipeline.Untyped.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
+                _pipeline.Expression.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
                 EmptyLineStatement,
-                new IfStatement(And(_message.Response.IsError, NotEqual(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow), clientErrorNoThrow)))
+                new IfStatement(_message.Response.IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(new InvokeStaticMethodExpression(typeof(ClientResultException), nameof(ClientResultException.CreateAsync), [_message.Response], CallAsAsync: true))
                 },

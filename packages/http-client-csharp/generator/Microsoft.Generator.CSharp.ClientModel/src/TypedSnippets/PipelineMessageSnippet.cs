@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
@@ -16,6 +15,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 
         public BoolSnippet BufferResponse => new(Property(nameof(PipelineMessage.BufferResponse)));
 
-        public PipelineResponseSnippet ExtractResponse() => new(Untyped.Invoke(nameof(PipelineMessage.ExtractResponse), Array.Empty<ValueExpression>(), false));
+        public PipelineResponseSnippet ExtractResponse() => new(Invoke(nameof(PipelineMessage.ExtractResponse), []));
     }
 }

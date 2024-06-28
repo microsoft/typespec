@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestDefaultCSharpMethodCollection(InputOperation inputOperation)
         {
-            var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockTypeProvider());
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockClientTypeProvider());
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(3, methodCollection.Count);
 
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
-            Assert.AreEqual(inputOperation.Parameters.Count, parameters.Count);
+            Assert.AreEqual(inputOperation.Parameters.Count + 1, parameters.Count);
         }
 
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases

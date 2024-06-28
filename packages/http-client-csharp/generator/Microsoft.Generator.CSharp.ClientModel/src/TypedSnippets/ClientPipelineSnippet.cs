@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var arguments = new List<ValueExpression>
             {
-                Untyped,
+                Expression,
                 message,
                 requestOptions ?? Null
             };
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
         {
             var arguments = new List<ValueExpression>
             {
-                Untyped,
+                Expression,
                 message,
                 requestContext ?? Null
             };
