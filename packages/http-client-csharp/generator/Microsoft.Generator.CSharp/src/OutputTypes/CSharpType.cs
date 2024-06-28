@@ -609,15 +609,5 @@ namespace Microsoft.Generator.CSharp
                 return new CSharpType(Implementation, arguments, IsNullable);
             }
         }
-
-        public CSharpType WrapInTask()
-        {
-            if (IsFrameworkType && FrameworkType == typeof(Task<>))
-            {
-                return this;
-            }
-
-            return new CSharpType(typeof(Task<>), this);
-        }
     }
 }

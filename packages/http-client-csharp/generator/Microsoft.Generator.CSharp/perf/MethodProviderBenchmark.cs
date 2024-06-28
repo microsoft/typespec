@@ -111,7 +111,7 @@ namespace Microsoft.Generator.CSharp.Perf
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;
@@ -132,7 +132,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
 
             statements.Add(original);
             return statements;
@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                yield return EmptyLineStatement;
+                yield return MethodBodyStatement.EmptyLine;
         }
 
         private IReadOnlyList<MethodBodyStatement> GetValidationStatements()
@@ -166,7 +166,7 @@ namespace Microsoft.Generator.CSharp.Perf
                 }
             }
             if (wroteValidation)
-                statements.Add(EmptyLineStatement);
+                statements.Add(MethodBodyStatement.EmptyLine);
             return statements;
         }
     }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Expressions
 {
@@ -16,6 +15,10 @@ namespace Microsoft.Generator.CSharp.Expressions
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public record ValueExpression
     {
+        public static readonly ValueExpression Empty = new();
+
+        protected ValueExpression() { }
+
         internal virtual void Write(CodeWriter writer) { }
 
         public static implicit operator ValueExpression(Type type) => new TypeReferenceExpression(type);
@@ -61,6 +64,7 @@ namespace Microsoft.Generator.CSharp.Expressions
         public CastExpression CastTo(CSharpType to) => new CastExpression(this, to);
 
         public BoolSnippet GreaterThan(ValueExpression other) => new(new BinaryOperatorExpression(">", this, other));
+        public BoolSnippet GreaterThanOrEqual(ValueExpression other) => new(new BinaryOperatorExpression(">=", this, other));
 
         public BoolSnippet LessThan(ValueExpression other) => new(new BinaryOperatorExpression("<", this, other));
 
@@ -71,6 +75,8 @@ namespace Microsoft.Generator.CSharp.Expressions
         public BoolSnippet Is(ValueExpression other) => new(new BinaryOperatorExpression("is", this, other));
 
         public UnaryOperatorExpression Increment() => new UnaryOperatorExpression("++", this, true);
+
+        public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 
         private string GetDebuggerDisplay()
         {

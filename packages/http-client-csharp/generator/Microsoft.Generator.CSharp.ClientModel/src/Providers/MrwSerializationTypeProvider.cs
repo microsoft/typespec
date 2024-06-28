@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -169,6 +170,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildPersistableModelGetFormatFromOptionsMethod(),
                 // Add helper methods
                 BuildGetObjectInstanceMethod(),
+                //cast operators
+                BuildImplicitToBinaryContent(),
+                BuildExplicitFromClientResult()
             };
 
             if (_isStruct)
@@ -177,6 +181,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return [.. methods];
+        }
+
+        private MethodProvider BuildExplicitFromClientResult()
+        {
+            var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            return new MethodProvider(
+                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                this);
+        }
+
+        private MethodProvider BuildImplicitToBinaryContent()
+        {
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            return new MethodProvider(
+                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
+                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                this);
         }
 
         /// <summary>
@@ -391,17 +415,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             VariableExpression? additionalRawDataDictionary = null;
             DictionarySnippet? rawDataDictionary = null;
-            MethodBodyStatement additionalRawDataDictionaryDeclaration = EmptyStatement;
-            MethodBodyStatement rawDataDictionaryDeclaration = EmptyStatement;
-            MethodBodyStatement assignRawData = EmptyStatement;
+            MethodBodyStatement additionalRawDataDictionaryDeclaration = MethodBodyStatement.Empty;
+            MethodBodyStatement rawDataDictionaryDeclaration = MethodBodyStatement.Empty;
+            MethodBodyStatement assignRawData = MethodBodyStatement.Empty;
 
             if (_rawDataField != null)
             {
                 var rawDataType = new CSharpType(typeof(Dictionary<string, BinaryData>));
                 // IDictionary<string, BinaryData> serializedAdditionalRawData = default;
                 additionalRawDataDictionaryDeclaration = Declare(
-                    _privateAdditionalRawDataPropertyType,
                     AdditionalRawDataVarName,
+                    _privateAdditionalRawDataPropertyType,
                     new DictionarySnippet(_privateAdditionalRawDataPropertyType.Arguments[0], _privateAdditionalRawDataPropertyType.Arguments[1], Default),
                     out additionalRawDataDictionary);
                 // Dictionary<string, BinaryData> rawDataDictionary = new Dictionary<string, BinaryData>();
@@ -433,7 +457,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 jsonDocumentDeclaration,
                 jsonDocElementDeclaration,
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 valueKindEqualsNullCheck,
                 propertyDeclarationStatements,
                 additionalRawDataDictionaryDeclaration,
@@ -464,7 +488,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // base.<JsonModelWriteCore>()
             return _shouldOverrideMethods ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
-                : EmptyStatement;
+                : MethodBodyStatement.Empty;
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
@@ -640,7 +664,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 || serializedType.Equals(typeof(JsonElement))
                 || serializedType.Equals(typeof(string)))
             {
-                return EmptyStatement;
+                return MethodBodyStatement.Empty;
             }
 
             return new IfStatement(checkEmptyProperty) { Continue };
@@ -760,7 +784,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         if (valueType.Implementation is EnumProvider enumProvider)
                         {
                             value = enumProvider.ToEnum(GetValueTypeDeserializationExpression(enumProvider.ValueType.FrameworkType, jsonElement, serializationFormat));
-                            return EmptyStatement;
+                            return MethodBodyStatement.Empty;
                         }
                         else if (valueType.Implementation is ModelProvider modelProvider)
                         {
@@ -783,7 +807,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
             }
 
-            return EmptyStatement;
+            return MethodBodyStatement.Empty;
         }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
@@ -1045,7 +1069,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
-                    new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: EmptyStatement,
+                    new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: MethodBodyStatement.Empty,
                     CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndObject()
@@ -1062,7 +1086,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new ForeachStatement("item", array, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
-                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : EmptyStatement,
+                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
                     CreateSerializationStatement(item.Type, item, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndArray()
@@ -1270,7 +1294,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (_rawDataField == null)
             {
-                return EmptyStatement;
+                return MethodBodyStatement.Empty;
             }
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);
@@ -1347,9 +1371,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 attributeDeclaration,
                 typeToActivateDeclaration,
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 checkReturnType,
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Declare(obj, createInstance),
                 checkIfObjIsNull,
                 Return(obj)

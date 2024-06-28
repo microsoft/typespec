@@ -12,17 +12,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        private class PrivateEmptyLineStatement : MethodBodyStatement
-        {
-            internal override void Write(CodeWriter writer)
-            {
-                writer.WriteLine();
-            }
-        }
-
-        public static readonly MethodBodyStatement EmptyStatement = new();
-        public static readonly MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
-
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 
@@ -98,5 +87,8 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
+
+        public static ValueExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, bool isAsync, bool configureAwait)
+            => new InvokeInstanceMethodExpression(field, methodName, [.. parameters], null, isAsync, configureAwait);
     }
 }

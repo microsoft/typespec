@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -122,6 +123,18 @@ namespace UnbrandedTypeSpec.Models
                 throw new InvalidOperationException($"Unable to create instance of {typeToActivate.Name}.");
             }
             return obj;
+        }
+
+        /// <param name="projectedModel"> The <see cref="ProjectedModel"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(ProjectedModel projectedModel)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ProjectedModel"/> from. </param>
+        public static explicit operator ProjectedModel(ClientResult result)
+        {
+            throw new NotImplementedException("Not implemented");
         }
     }
 }
