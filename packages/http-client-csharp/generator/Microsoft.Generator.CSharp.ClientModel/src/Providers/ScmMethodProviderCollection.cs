@@ -17,9 +17,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal class ScmMethodProviderCollection : MethodProviderCollection
     {
+        private string _cleanOperationName;
+        private string _createRequestMethodName;
+
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
+            _cleanOperationName = operation.Name.ToCleanName();
+            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
@@ -27,25 +32,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return
             [
                 // TO-DO: Add Protocol and Convenience methods https://github.com/Azure/autorest.csharp/issues/4585, https://github.com/Azure/autorest.csharp/issues/4586
-                BuildCreateMessageMethod(_operation, _enclosingType),
-                BuildProtocolMethod(_operation, _enclosingType, false),
-                BuildProtocolMethod(_operation, _enclosingType, true)
+                BuildCreateMessageMethod(),
+                BuildProtocolMethod(false),
+                BuildProtocolMethod(true)
             ];
         }
-        private static MethodProvider BuildProtocolMethod(InputOperation operation, TypeProvider enclosingType, bool isAsync)
-        {
-            ClientProvider? client = enclosingType as ClientProvider;
-            if (client is null)
-            {
-                throw new InvalidOperationException("Protocol methods can only be built for client types.");
-            }
 
+        private List<ParameterProvider>? _methodParameters;
+        private List<ParameterProvider> MethodParameters => _methodParameters ??= GetMethodParameters(_operation);
+
+        private static List<ParameterProvider> GetMethodParameters(InputOperation operation)
+        {
             List<ParameterProvider> methodParameters = new();
             foreach (InputParameter inputParam in operation.Parameters)
             {
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
-                methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+                if (inputParam.Location == RequestLocation.Body)
+                {
+                    // TODO: add concrete body with https://github.com/Azure/autorest.csharp/issues/4586
+                    methodParameters.Add(ScmKnownParameters.BinaryContent);
+                }
+                else
+                {
+                    methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+                }
+            }
+            return methodParameters;
+        }
+
+        private MethodProvider BuildProtocolMethod(bool isAsync)
+        {
+            ClientProvider? client = _enclosingType as ClientProvider;
+            if (client is null)
+            {
+                throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
@@ -53,25 +74,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
-            var opName = operation.Name.ToCleanName();
             var methodSignature = new MethodSignature(
-                isAsync ? opName + "Async" : opName,
-                FormattableStringHelpers.FromString(operation.Description),
+                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                FormattableStringHelpers.FromString(_operation.Description),
                 methodModifier,
-                GetResponseType(operation.Responses, isAsync),
+                GetResponseType(_operation.Responses, isAsync),
                 $"The response returned from the service.",
-                Parameters: [.. methodParameters, ScmKnownParameters.RequestOptions]);
+                Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", typeof(PipelineMessage), This.Invoke("Create" + opName + "Request", [..methodParameters, ScmKnownParameters.RequestOptions]), out var message),
+                UsingDeclare("message", typeof(PipelineMessage), This.Invoke(_createRequestMethodName, [.. MethodParameters, ScmKnownParameters.RequestOptions]), out var message),
                 Return(new InvokeStaticMethodExpression(
                     typeof(ClientResult),
                     nameof(ClientResult.FromResponse),
                     client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
-            var protocolMethod = new MethodProvider(methodSignature, methodBody, enclosingType);
+            var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             return protocolMethod;
         }
@@ -89,29 +109,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return returnType;
         }
 
-        private static MethodProvider BuildCreateMessageMethod(InputOperation operation, TypeProvider enclosingType)
+        private MethodProvider BuildCreateMessageMethod()
         {
             // TO-DO: properly build method https://github.com/Azure/autorest.csharp/issues/4583
-            List<ParameterProvider> methodParameters = new();
-            foreach (var inputParam in operation.Parameters)
-            {
-                if (inputParam.Kind != InputOperationParameterKind.Method)
-                    continue;
-                methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
-            }
 
             var methodModifier = MethodSignatureModifiers.Internal;
-            var methodSignatureName = $"Create{operation.Name.ToCleanName()}Request";
             var methodSignature = new MethodSignature(
-                methodSignatureName,
-                FormattableStringHelpers.FromString(operation.Description),
+                _createRequestMethodName,
+                FormattableStringHelpers.FromString(_operation.Description),
                 methodModifier,
                 typeof(PipelineMessage),
                 null,
-                Parameters: [..methodParameters, ScmKnownParameters.RequestOptions]);
+                Parameters: [.. MethodParameters, ScmKnownParameters.RequestOptions]);
             var methodBody = Throw(New.NotImplementedException(Literal("Method not implemented.")));
 
-            return new MethodProvider(methodSignature, methodBody, enclosingType);
+            return new MethodProvider(methodSignature, methodBody, _enclosingType);
         }
     }
 }

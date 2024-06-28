@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Input;
@@ -21,28 +22,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
         /// <param name="enclosingType">The enclosing type of the operation.</param>
         public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new ScmMethodProviderCollection(operation, enclosingType);
 
-        public virtual CSharpType MatchConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for MatchConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
+        public virtual CSharpType MatchConditionsType() => typeof(PipelineMessageClassifier);
 
-        public virtual CSharpType RequestConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for RequestConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType TokenCredentialType()
-        {
-            // TO-DO: Determine what the correct type is for TokenCredential: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType PageResponseType()
-        {
-            // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
+        public virtual CSharpType TokenCredentialType() => typeof(ApiKeyCredential);
     }
 }
