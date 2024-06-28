@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="./**/*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Plugin/**/*.cs" Exclude="../Plugin/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>
