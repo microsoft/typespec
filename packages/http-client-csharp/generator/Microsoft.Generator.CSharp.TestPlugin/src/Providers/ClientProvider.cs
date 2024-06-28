@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.TestPlugin;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -29,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = ClientModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+                var methodCollection = TestCodeModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);

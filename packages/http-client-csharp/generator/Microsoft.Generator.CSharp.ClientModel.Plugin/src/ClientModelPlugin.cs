@@ -12,11 +12,8 @@ using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
-    public class ClientModelPlugin : CodeModelPlugin
+    public sealed class ClientModelPlugin : CodeModelPlugin
     {
-        private static ClientModelPlugin? _instance;
-        internal static ClientModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
@@ -47,7 +44,6 @@ namespace Microsoft.Generator.CSharp.ClientModel
             : base(context)
         {
             TypeFactory = new ScmTypeFactory();
-            _instance = this;
         }
     }
 }

@@ -4,6 +4,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe",
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Unbranded-TypeSpec"
-    }
+    },
+      "Plugin-Test-TypeSpec": {
+          "commandName": "Executable",
+          "executablePath": "$(SolutionDir)/../dist-test/generator/Microsoft.Generator.CSharp.exe",
+          "commandLineArgs": "$(SolutionDir)/TestProjects/Plugin/Unbranded-TypeSpec"
+      }
   }
 }

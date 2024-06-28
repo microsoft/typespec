@@ -30,12 +30,12 @@ namespace Microsoft.Generator.CSharp.ClientModel
         public static readonly ParameterProvider Data = new ParameterProvider("data", FormattableStringHelpers.Empty, typeof(BinaryData));
 
         private static ParameterProvider? _tokenAuth;
-        public static ParameterProvider TokenAuth => _tokenAuth ??= new("tokenCredential", $"The token credential to copy", ClientModelPlugin.Instance.TypeFactory.TokenCredentialType());
+        public static ParameterProvider TokenAuth => _tokenAuth ??= new("tokenCredential", $"The token credential to copy", ((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).TokenCredentialType());
 
         private static ParameterProvider? _matchConditionsParameter;
-        public static ParameterProvider MatchConditionsParameter => _matchConditionsParameter ??= new("matchConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.MatchConditionsType(), Snippet.DefaultOf(ClientModelPlugin.Instance.TypeFactory.RequestConditionsType()));
+        public static ParameterProvider MatchConditionsParameter => _matchConditionsParameter ??= new("matchConditions", $"The content to send as the request conditions of the request.", ((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).MatchConditionsType(), Snippet.DefaultOf(((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).RequestConditionsType()));
 
         private static ParameterProvider? _requestConditionsParameter;
-        public static ParameterProvider RequestConditionsParameter => _requestConditionsParameter ??= new("requestConditions", $"The content to send as the request conditions of the request.", ClientModelPlugin.Instance.TypeFactory.RequestConditionsType(), Snippet.DefaultOf(ClientModelPlugin.Instance.TypeFactory.RequestConditionsType()));
+        public static ParameterProvider RequestConditionsParameter => _requestConditionsParameter ??= new("requestConditions", $"The content to send as the request conditions of the request.", ((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).RequestConditionsType(), Snippet.DefaultOf(((ScmTypeFactory)CodeModelPlugin.Instance.TypeFactory).RequestConditionsType()));
     }
 }

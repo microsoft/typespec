@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
     public sealed class MethodProvider
     {
         public MethodSignatureBase Signature { get; }
-        public MethodBodyStatement? BodyStatements { get; }
+        public MethodBodyStatement?  BodyStatements { get; }
         public ValueExpression? BodyExpression { get; }
         public XmlDocProvider? XmlDocs { get; }
 

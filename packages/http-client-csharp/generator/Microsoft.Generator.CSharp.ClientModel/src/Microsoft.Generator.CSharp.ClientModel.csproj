@@ -4,6 +4,7 @@
     <PackageId>Microsoft.Generator.CSharp.ClientModel</PackageId>
     <OutputType>Exe</OutputType>
     <Version>1.0.0-beta.1</Version>
+    <RootNamespace>Microsoft.Generator.CSharp.ClientModel.Abstractions</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +18,10 @@
 
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\**\*.cs" LinkBase="Shared" />
+    <Compile Remove="..\..\Microsoft.Generator.CSharp\src\Shared\**" />
+    <Compile Include="..\..\Microsoft.Generator.CSharp\src\Shared\StringExtensions.cs">
+      <Link>Shared\StringExtensions.cs</Link>
+    </Compile>
   </ItemGroup>
 
   <!-- Copy output to package dist path for local execution and  -->

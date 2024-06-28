@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
-                methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+                methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
             }
 
             var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
             if (response is null || response.BodyType is null)
                 return null;
-            var returnType = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
+            var returnType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(response.BodyType);
             if (isAsync)
             {
                 returnType = returnType.WrapInTask();
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             List<ParameterProvider> methodParameters = new();
             foreach (var inputParam in operation.Parameters)
             {
-                methodParameters.Add(ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
+                methodParameters.Add(CodeModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam));
             }
 
             var methodModifier = MethodSignatureModifiers.Internal;
