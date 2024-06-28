@@ -68,8 +68,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _shouldOverrideMethods = _model.Inherits != null && _model.Inherits is { IsFrameworkType: false, Implementation: TypeProvider };
             _utf8JsonWriterSnippet = new Utf8JsonWriterSnippet(_utf8JsonWriterParameter);
             _mrwOptionsParameterSnippet = new ModelReaderWriterOptionsSnippet(_serializationOptionsParameter);
-            _isNotEqualToWireConditionSnippet = NotEqual(_mrwOptionsParameterSnippet.Format, ModelReaderWriterOptionsSnippet.WireFormat);
             _jsonElementParameterSnippet = new JsonElementSnippet(_jsonElementDeserializationParam);
+            _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format.NotEqual(ModelReaderWriterOptionsSnippet.WireFormat);
 
             Name = provider.Name;
             Namespace = provider.Namespace;
@@ -693,7 +693,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             DeserializeValue(valueType.ElementType, new JsonElementSnippet(item), serializationFormat, out ValueExpression value),
                             new JsonElementSnippet(item).Assign(value).Terminate(),
                         }),
-                    Increment(index)
+                    index.Increment().Terminate()
                 }
             };
             arrayInstance = New.Instance(valueType.ElementType, array);
@@ -854,7 +854,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] statements =
             [
                 GetConcreteFormat(_mrwOptionsParameterSnippet, modelInterface, out VariableExpression format),
-                new IfStatement(NotEqual(format, ModelReaderWriterOptionsSnippet.JsonFormat))
+                new IfStatement(format.NotEqual(ModelReaderWriterOptionsSnippet.JsonFormat))
                 {
                     ThrowValidationFailException(format, modelInterface.Arguments[0], action)
                 },
@@ -868,7 +868,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var cast = This.CastTo(iModelTInterface);
             var invokeGetFormatFromOptions = cast.Invoke(nameof(IPersistableModel<object>.GetFormatFromOptions), options);
             var condition = new TernaryConditionalExpression(
-                Equal(options.Format, ModelReaderWriterOptionsSnippet.WireFormat),
+                options.Format.Equal(ModelReaderWriterOptionsSnippet.WireFormat),
                 invokeGetFormatFromOptions,
                 options.Format);
             var reference = new VariableExpression(typeof(string), "format");
@@ -973,12 +973,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (propertyType.IsCollection && !propertyType.IsReadOnlyMemory && isPropRequired)
             {
-                propertyIsInitialized = And(NotEqual(propertyMemberExpression, Null),
-                    OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression)));
+                propertyIsInitialized = propertyMemberExpression.NotEqual(Null)
+                    .And(OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression)));
             }
             else
             {
-                propertyIsInitialized = NotEqual(propertyMemberExpression, Null);
+                propertyIsInitialized = propertyMemberExpression.NotEqual(Null);
             }
 
             return new IfElseStatement(
@@ -1022,7 +1022,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
-                    new IfStatement(Equal(keyValuePair.Value, Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: EmptyStatement,
+                    new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: EmptyStatement,
                     CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndObject()
@@ -1039,7 +1039,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new ForeachStatement("item", array, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
-                    new IfStatement(Equal(item, Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : EmptyStatement,
+                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : EmptyStatement,
                     CreateSerializationStatement(item.Type, item, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndArray()
@@ -1234,7 +1234,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var isDefinedCondition = propertyType.IsCollection && !propertyType.IsReadOnlyMemory
                 ? OptionalSnippet.IsCollectionDefined(new StringSnippet(propertyMemberExpression))
                 : OptionalSnippet.IsDefined(new StringSnippet(propertyMemberExpression));
-            var condition = isReadOnly ? And(_isNotEqualToWireConditionSnippet, isDefinedCondition) : isDefinedCondition;
+            var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
 
             return new IfStatement(condition) { writePropertySerializationStatement };
         }
@@ -1258,7 +1258,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default),
             };
 
-            return new IfStatement(And(_isNotEqualToWireConditionSnippet, NotEqual(rawDataDictionaryExp, Null)))
+            return new IfStatement(_isNotEqualToWireConditionSnippet.And(rawDataDictionaryExp.NotEqual(Null)))
             {
                 forEachStatement,
             };

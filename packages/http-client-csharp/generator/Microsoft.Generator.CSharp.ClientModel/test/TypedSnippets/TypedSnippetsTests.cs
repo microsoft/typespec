@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             result = options != null ? BinaryContentSnippet.Create(arg, options) : BinaryContentSnippet.Create(arg);
 
             Assert.IsNotNull(result);
-            var untyped = result.Untyped as InvokeStaticMethodExpression;
+            var untyped = result.Expression as InvokeStaticMethodExpression;
             Assert.IsNotNull(untyped);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), untyped?.MethodType);
             Assert.AreEqual(nameof(BinaryContent.Create), untyped?.MethodName);
@@ -116,9 +116,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var result = OptionalSnippet.IsCollectionDefined(member);
 
             Assert.IsNotNull(result);
-            var untyped = result.Untyped;
-            Assert.IsNotNull(untyped);
-            var invoke = untyped as InvokeStaticMethodExpression;
+            var expression = result.Expression;
+            Assert.IsNotNull(expression);
+            var invoke = expression as InvokeStaticMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsCollectionDefined", invoke?.MethodName);
         }
@@ -131,9 +131,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var result = OptionalSnippet.IsDefined(member);
 
             Assert.IsNotNull(result);
-            var untyped = result.Untyped;
-            Assert.IsNotNull(untyped);
-            var invoke = untyped as InvokeStaticMethodExpression;
+            var expression = result.Expression;
+            Assert.IsNotNull(expression);
+            var invoke = expression as InvokeStaticMethodExpression;
             Assert.IsNotNull(invoke);
             Assert.AreEqual("IsDefined", invoke?.MethodName);
         }

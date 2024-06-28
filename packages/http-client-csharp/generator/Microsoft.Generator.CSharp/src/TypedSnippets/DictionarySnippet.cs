@@ -7,12 +7,14 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record DictionarySnippet(CSharpType KeyType, CSharpType ValueType, ValueExpression Untyped) : TypedSnippet(new CSharpType(typeof(Dictionary<,>), false, KeyType, ValueType), Untyped)
+    public sealed record DictionarySnippet(CSharpType KeyType, CSharpType ValueType, ValueExpression Expression) : TypedSnippet(new CSharpType(typeof(Dictionary<,>), false, KeyType, ValueType), Expression)
     {
         public MethodBodyStatement Add(ValueExpression key, ValueExpression value)
-            => Untyped.Invoke(nameof(Dictionary<object, object>.Add), [key, value]).Terminate();
+            => Expression.Invoke(nameof(Dictionary<object, object>.Add), [key, value]).Terminate();
 
         public MethodBodyStatement Add(KeyValuePairSnippet pair)
-            => Untyped.Invoke(nameof(Dictionary<object, object>.Add), pair).Terminate();
+            => Expression.Invoke(nameof(Dictionary<object, object>.Add), pair).Terminate();
+
+        public ValueExpression this[ValueExpression key] => new IndexerExpression(Expression, key);
     }
 }

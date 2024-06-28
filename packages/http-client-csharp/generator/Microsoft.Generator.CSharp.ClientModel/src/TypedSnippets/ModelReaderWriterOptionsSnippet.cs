@@ -9,7 +9,7 @@ using static Microsoft.Generator.CSharp.ClientModel.Snippets.ModelSerializationE
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record ModelReaderWriterOptionsSnippet(ValueExpression Untyped) : TypedSnippet<ModelReaderWriterOptions>(Untyped)
+    internal sealed record ModelReaderWriterOptionsSnippet(ValueExpression Expression) : TypedSnippet<ModelReaderWriterOptions>(Expression)
     {
         public ValueExpression Format => new MemberExpression(this, nameof(ModelReaderWriterOptions.Format));
         internal static StringSnippet WireFormat => Literal("W");

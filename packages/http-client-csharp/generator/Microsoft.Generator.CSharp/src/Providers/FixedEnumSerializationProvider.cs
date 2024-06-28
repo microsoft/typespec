@@ -112,7 +112,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 else
                 {
                     // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
-                    condition = Equal(value, Literal(enumValue.Value));
+                    condition = value.Equal(Literal(enumValue.Value));
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {

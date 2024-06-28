@@ -15,6 +15,15 @@ namespace Microsoft.Generator.CSharp
     {
         private const string ConfigurationFileName = "Configuration.json";
 
+        // for mocking
+        protected Configuration()
+        {
+            OutputDirectory = null!;
+            AdditionalConfigOptions = null!;
+            LibraryName = null!;
+            Namespace = null!;
+        }
+
         private Configuration(
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,

@@ -279,8 +279,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         public void CodeWriter_WriteProperty_MethodPropertyBody()
         {
             var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(string), "Property1", new MethodPropertyBody(Return(Literal("abc"))));
-            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new MethodPropertyBody(Return(Literal("abc")), This.Property("Property2").Assign(new KeywordExpression("value", null)).Terminate()));
-            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), This.Property("Property3").Assign(new KeywordExpression("value", null)).Terminate(), MethodSignatureModifiers.Internal));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(string), "Property2", new MethodPropertyBody(Return(Literal("abc")), This.Property("Property2").Assign(Value).Terminate()));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(string), "Property3", new MethodPropertyBody(Return(Literal("abc")), This.Property("Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal));
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -299,8 +299,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         public void CodeWriter_WriteProperty_MethodPropertyBody_WithExplicitInterface()
         {
             var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new MethodPropertyBody(Return(Literal(299792458))), explicitInterface: typeof(IList<string>));
-            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new MethodPropertyBody(Return(True), This.Property($"{nameof(IList<string>.IsReadOnly)}").Assign(new KeywordExpression("value", null)).Terminate()), explicitInterface: typeof(IList<string>));
-            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), This.Property($"{nameof(IReadOnlyList<string>.Count)}").Assign(new KeywordExpression("value", null)).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
+            var property2 = new PropertyProvider($"To test an auto property with a setter", MethodSignatureModifiers.Public, typeof(bool), nameof(IList<string>.IsReadOnly), new MethodPropertyBody(Return(True), This.Property($"{nameof(IList<string>.IsReadOnly)}").Assign(Value).Terminate()), explicitInterface: typeof(IList<string>));
+            var property3 = new PropertyProvider($"To test an auto property with an internal setter", MethodSignatureModifiers.Public, typeof(int), nameof(IReadOnlyList<string>.Count), new MethodPropertyBody(Return(Literal(299792458)), This.Property($"{nameof(IReadOnlyList<string>.Count)}").Assign(Value).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyList<string>));
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(property1);
@@ -408,9 +408,9 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var p1 = new ParameterProvider("p1", $"p1", typeof(int), null);
             var indexer1 = new IndexerProvider($"To test a method property without a setter", MethodSignatureModifiers.Public, typeof(string), p1, new MethodPropertyBody(Return(Literal("abc"))));
             var p2 = new ParameterProvider("p2", $"p2", typeof(int), null);
-            var indexer2 = new IndexerProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), p2, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(new KeywordExpression("value", null)).Terminate()));
+            var indexer2 = new IndexerProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), p2, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(Value).Terminate()));
             var p3 = new ParameterProvider("p3", $"p3", typeof(int), null);
-            var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), p3, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(new KeywordExpression("value", null)).Terminate(), MethodSignatureModifiers.Internal));
+            var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), p3, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal));
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);
@@ -430,8 +430,8 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
         {
             var index = new ParameterProvider("index", $"index", typeof(int), null);
             var indexer1 = new IndexerProvider($"To test a method property without a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc"))), explicitInterface: typeof(IReadOnlyList<string>));
-            var indexer2 = new IndexerProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(new KeywordExpression("value", null)).Terminate()), explicitInterface: typeof(IList<string>));
-            var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(new KeywordExpression("value", null)).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyDictionary<int, string>));
+            var indexer2 = new IndexerProvider($"To test a method property with a setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property2").Assign(Value).Terminate()), explicitInterface: typeof(IList<string>));
+            var indexer3 = new IndexerProvider($"To test a method property with an internal setter", MethodSignatureModifiers.Public, typeof(string), index, new MethodPropertyBody(Return(Literal("abc")), This.Property($"Property3").Assign(Value).Terminate(), MethodSignatureModifiers.Internal), explicitInterface: typeof(IReadOnlyDictionary<int, string>));
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteProperty(indexer1);

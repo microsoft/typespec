@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record TypeFormattersSnippet(ValueExpression Untyped) : TypedSnippet<TypeFormattersProvider>(Untyped)
+    internal sealed record TypeFormattersSnippet(ValueExpression Expression) : TypedSnippet<TypeFormattersProvider>(Expression)
     {
         private const string ToStringMethodName = "ToString";
         private const string ToBase64UrlStringMethodName = "ToBase64UrlString";
