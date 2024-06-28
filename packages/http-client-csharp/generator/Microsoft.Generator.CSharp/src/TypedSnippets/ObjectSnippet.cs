@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record ObjectSnippet(ValueExpression Untyped) : TypedSnippet<object>(Untyped)
+    public sealed record ObjectSnippet(ValueExpression Expression) : TypedSnippet<object>(Expression)
     {
     }
 }

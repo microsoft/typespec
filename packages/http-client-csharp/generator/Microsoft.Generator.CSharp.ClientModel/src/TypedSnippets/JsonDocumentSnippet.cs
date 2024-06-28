@@ -7,7 +7,7 @@ using Microsoft.Generator.CSharp.Snippets;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal sealed record JsonDocumentSnippet(ValueExpression Untyped) : TypedSnippet<JsonDocument>(Untyped)
+    internal sealed record JsonDocumentSnippet(ValueExpression Expression) : TypedSnippet<JsonDocument>(Expression)
     {
         public JsonElementSnippet RootElement => new(Property(nameof(JsonDocument.RootElement)));
 

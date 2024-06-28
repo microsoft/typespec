@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Moq;
 using NUnit.Framework;
@@ -33,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void CreateForStatement()
         {
             var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
 
@@ -45,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         public void ForStatementWithAddMethod()
         {
             var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var increment = new ValueExpression();
             var forStatement = new ForStatement(assignment, condition, increment);
             var statementToAdd = new MethodBodyStatement();
@@ -92,18 +91,19 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementWithBoolExpression()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition);
 
-            Assert.NotNull(ifStatement);
-            Assert.AreEqual(condition.Untyped, ifStatement.Condition);
-            Assert.NotNull(ifStatement.Body);
+            using var writer = new CodeWriter();
+            ifStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void IfStatementWithAddMethod()
         {
-            var ifStatement = new IfStatement(BoolSnippet.True);
+            var ifStatement = new IfStatement(True);
             var statementToAdd = new MethodBodyStatement();
 
             ifStatement.Add(statementToAdd);
@@ -116,7 +116,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementWithDefaultOptions()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition);
 
             Assert.IsFalse(ifStatement.Inline);
@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementInlineOptionTrue()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition, inline: true);
 
             Assert.IsTrue(ifStatement.Inline);
@@ -135,7 +135,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfStatementAddBracesOptionFalse()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new IfStatement(condition, addBraces: false);
 
             Assert.IsFalse(ifStatement.AddBraces);
@@ -144,30 +144,30 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void IfElseStatementWithIfAndElse()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(new IfStatement(condition), elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
         public void IfElseStatementWithConditionAndStatements()
         {
-            var condition = new BoolSnippet(BoolSnippet.True);
+            var condition = True;
             var ifStatement = new MethodBodyStatement();
             var elseStatement = new MethodBodyStatement();
 
             var ifElseStatement = new IfElseStatement(condition, ifStatement, elseStatement);
 
-            Assert.NotNull(ifElseStatement);
-            Assert.NotNull(ifElseStatement.If);
-            Assert.AreEqual(condition.Untyped, ifElseStatement.If.Condition);
-            Assert.AreEqual(elseStatement, ifElseStatement.Else);
+            using var writer = new CodeWriter();
+            ifElseStatement.Write(writer);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]

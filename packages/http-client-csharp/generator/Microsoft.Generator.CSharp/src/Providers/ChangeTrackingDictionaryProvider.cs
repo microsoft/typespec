@@ -83,11 +83,11 @@ namespace Microsoft.Generator.CSharp.Providers
         private MethodProvider ConstructorWithReadOnlyDictionary()
         {
             var dictionaryParam = new ParameterProvider("dictionary", $"The inner dictionary.", _IReadOnlyDictionary);
-            var dictionary = new DictionarySnippet(_tKey, _tValue, dictionaryParam);
+            DictionarySnippet dictionary = new DictionarySnippet(_tKey, _tValue, dictionaryParam);
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, new[] { dictionaryParam });
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Equal(dictionary, Null))
+                new IfStatement(dictionary.Equal(Null))
                 {
                     Return()
                 },
@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(Equal(dictionary, Null))
+                new IfStatement(dictionary.AsExpression.Equal(Null))
                 {
                     Return()
                 },
@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private PropertyProvider BuildIsUndefined()
         {
-            return new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(Equal(_innerDictionary, Null)));
+            return new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerDictionary.Equal(Null)));
         }
 
         private MethodSignature GetSignature(

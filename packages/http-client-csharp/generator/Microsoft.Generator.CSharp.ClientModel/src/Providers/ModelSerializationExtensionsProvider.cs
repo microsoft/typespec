@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("dictionary", New.Dictionary(typeof(string), typeof(object)), out var dictionary),
                     new ForeachStatement("jsonProperty", element.EnumerateObject(), out var jsonProperty)
                     {
-                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Untyped.Invoke("GetObject"))
+                        dictionary.Add(jsonProperty.Property(nameof(JsonProperty.Name)), new JsonElementSnippet(jsonProperty.Property(nameof(JsonProperty.Value))).Invoke("GetObject"))
                     },
                     Return(dictionary)
                 }),
@@ -181,7 +181,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     Declare("list", New.List(typeof(object)), out var list),
                     new ForeachStatement("item", element.EnumerateArray(), out var item)
                     {
-                        list.Add(new JsonElementSnippet(item).Untyped.Invoke("GetObject"))
+                        list.Add(item.Invoke("GetObject"))
                     },
                     Return(list.ToArray())
                 }),
@@ -228,7 +228,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var element = new JsonElementSnippet(ScmKnownParameters.JsonElement);
             var format = new StringSnippet(_formatParameter);
             var body = new SwitchExpression(format,
-                SwitchCaseExpression.When(Literal("U"), Equal(element.ValueKind, JsonValueKindSnippet.Number), DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())),
+                SwitchCaseExpression.When(Literal("U"), element.ValueKind.Equal(JsonValueKindSnippet.Number), DateTimeOffsetSnippet.FromUnixTimeSeconds(element.GetInt64())),
                 // relying on the param check of the inner call to throw ArgumentNullException if GetString() returns null
                 SwitchCaseExpression.Default(ParseDateTimeOffset(element.GetString(), format))
                 );
@@ -265,7 +265,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new MethodBodyStatement[]
                 {
                     Declare("text", element.GetString(), out var text),
-                    new IfStatement(Equal(text, Null).Or(NotEqual(text.Length, Literal(1))))
+                    new IfStatement(text.Equal(Null).Or(text.Length.NotEqual(Literal(1))))
                     {
                         Throw(New.NotSupportedException(new FormattableStringExpression("Cannot convert \\\"{0}\\\" to a char", [text])))
                     },
@@ -307,7 +307,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var body = new MethodBodyStatement[]
             {
                 Declare("value", element.GetString(), out var value),
-                new IfStatement(Equal(value, Null))
+                new IfStatement(value.Equal(Null))
                 {
                     Throw(New.InvalidOperationException(new FormattableStringExpression("The requested operation requires an element of type 'String', but the target element has type '{0}'.", [element.ValueKind])))
                 },
@@ -335,7 +335,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
             {
-                new IfStatement(Equal(value, Null))
+                new IfStatement(value.Equal(Null))
                 {
                     writer.WriteNullValue(),
                     Return()
@@ -373,7 +373,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var format = new StringSnippet(_formatParameter);
             var body = new MethodBodyStatement[]
             {
-                new IfStatement(NotEqual(format, Literal("U")))
+                new IfStatement(format.NotEqual(Literal("U")))
                 {
                     Throw(New.ArgumentOutOfRangeException(format, "Only 'U' format is supported when writing a DateTimeOffset as a Number.")),
                 },
