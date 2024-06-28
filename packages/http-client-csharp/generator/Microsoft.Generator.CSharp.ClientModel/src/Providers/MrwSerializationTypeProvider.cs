@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -159,7 +160,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // Add PersistableModel serialization methods
                 BuildPersistableModelWriteMethod(),
                 BuildPersistableModelCreateMethod(),
-                BuildPersistableModelGetFormatFromOptionsMethod()
+                BuildPersistableModelGetFormatFromOptionsMethod(),
+                //cast operators
+                BuildImplicitToBinaryContent(),
+                BuildExplicitFromClientResult()
             };
 
             if (_isStruct)
@@ -168,6 +172,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return [.. methods];
+        }
+
+        private MethodProvider BuildExplicitFromClientResult()
+        {
+            var result = new ParameterProvider("result", $"The {typeof(ClientResult):C} to deserialize the {Type:C} from.", typeof(ClientResult));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            return new MethodProvider(
+                new MethodSignature(Type.Name, null, modifiers, null, null, [result]),
+                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                this);
+        }
+
+        private MethodProvider BuildImplicitToBinaryContent()
+        {
+            var model = new ParameterProvider(Type.Name.ToVariableName(), $"The {Type:C} to serialize into {typeof(BinaryContent):C}", Type);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+            return new MethodProvider(
+                new MethodSignature(nameof(BinaryContent), null, modifiers, null, null, [model]),
+                Throw(New.NotImplementedException(Literal("Not implemented"))), //TODO https://github.com/microsoft/typespec/issues/3696
+                this);
         }
 
         /// <summary>

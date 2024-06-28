@@ -19,6 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private string _cleanOperationName;
         private string _createRequestMethodName;
+        private ParameterProvider? _bodyParameter;
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
@@ -34,24 +35,66 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // TO-DO: Add Protocol and Convenience methods https://github.com/Azure/autorest.csharp/issues/4585, https://github.com/Azure/autorest.csharp/issues/4586
                 BuildCreateMessageMethod(),
                 BuildProtocolMethod(false),
-                BuildProtocolMethod(true)
+                BuildProtocolMethod(true),
+                BuildConvenienceMethod(false),
+                BuildConvenienceMethod(true),
             ];
         }
 
-        private List<ParameterProvider>? _methodParameters;
-        private List<ParameterProvider> MethodParameters => _methodParameters ??= GetMethodParameters(_operation);
+        private MethodProvider BuildConvenienceMethod(bool isAsync)
+        {
+            ClientProvider? client = _enclosingType as ClientProvider;
+            if (client is null)
+            {
+                throw new InvalidOperationException("Protocol methods can only be built for client types.");
+            }
 
-        private static List<ParameterProvider> GetMethodParameters(InputOperation operation)
+            var methodModifier = MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual;
+            if (isAsync)
+            {
+                methodModifier |= MethodSignatureModifiers.Async;
+            }
+            var methodSignature = new MethodSignature(
+                isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
+                FormattableStringHelpers.FromString(_operation.Description),
+                methodModifier,
+                GetResponseType(_operation.Responses, true, isAsync),
+                null,
+                Parameters: ConvenienceMethodParameters);
+            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+            MethodBodyStatement[] methodBody = _bodyParameter is null
+                ? [Return(This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync))]
+                : [
+                    Declare("result", typeof(ClientResult), This.Invoke(methodSignature.Name, [.. ConvenienceMethodParameters, Null], null, isAsync, isAsync), out var result),
+                    Return(new InvokeStaticMethodExpression(
+                        typeof(ClientResult),
+                        nameof(ClientResult.FromValue),
+                        [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
+                ];
+
+            var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
+            convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
+            return convenienceMethod;
+        }
+
+        private List<ParameterProvider>? _methodParameters;
+        private List<ParameterProvider> MethodParameters => _methodParameters ??= GetMethodParameters(false);
+
+        private List<ParameterProvider>? _convenienceMethodParameters;
+        private List<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= GetMethodParameters(true);
+
+        private List<ParameterProvider> GetMethodParameters(bool isConvenience)
         {
             List<ParameterProvider> methodParameters = new();
-            foreach (InputParameter inputParam in operation.Parameters)
+            foreach (InputParameter inputParam in _operation.Parameters)
             {
                 if (inputParam.Kind != InputOperationParameterKind.Method)
                     continue;
                 if (inputParam.Location == RequestLocation.Body)
                 {
-                    // TODO: add concrete body with https://github.com/Azure/autorest.csharp/issues/4586
-                    methodParameters.Add(ScmKnownParameters.BinaryContent);
+                    var parameter = isConvenience ? ClientModelPlugin.Instance.TypeFactory.CreateCSharpParam(inputParam) : ScmKnownParameters.BinaryContent;
+                    _bodyParameter = parameter;
+                    methodParameters.Add(parameter);
                 }
                 else
                 {

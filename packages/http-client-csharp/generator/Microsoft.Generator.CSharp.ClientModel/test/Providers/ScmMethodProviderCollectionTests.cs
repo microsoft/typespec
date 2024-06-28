@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
         {
             var methodCollection = new ScmMethodProviderCollection(inputOperation, new MockClientTypeProvider());
             Assert.IsNotNull(methodCollection);
-            Assert.AreEqual(3, methodCollection.Count);
+            Assert.AreEqual(5, methodCollection.Count);
 
             var method = methodCollection![0];
             var signature = method.Signature;
