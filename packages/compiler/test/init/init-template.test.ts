@@ -2,11 +2,11 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { InitTemplate } from "../../src/init/init-template.js";
 import {
-  makeScaffoldingConfig,
   ScaffoldingConfig,
+  makeScaffoldingConfig,
   scaffoldNewProject,
 } from "../../src/init/scaffold.js";
-import { createTestHost, resolveVirtualPath, TestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
 describe("compiler: init: templates", () => {
   let testHost: TestHost;
@@ -44,7 +44,13 @@ describe("compiler: init: templates", () => {
         libraries: [{ name: "foo", version: "~1.2.3" }, { name: "bar" }],
       });
 
-      deepStrictEqual(JSON.parse(getOutputFile("package.json")!).dependencies, {
+      deepStrictEqual(JSON.parse(getOutputFile("package.json")!).peerDependencies, {
+        "@typespec/compiler": "latest",
+        foo: "~1.2.3",
+        bar: "latest",
+      });
+
+      deepStrictEqual(JSON.parse(getOutputFile("package.json")!).devDependencies, {
         "@typespec/compiler": "latest",
         foo: "~1.2.3",
         bar: "latest",

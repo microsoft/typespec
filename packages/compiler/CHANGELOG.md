@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.58.0
+
+### Bump dependencies
+
+- [#3699](https://github.com/microsoft/typespec/pull/3699) Updated dependencies to peer and dev.
+
+
 ## 0.57.0
 
 
