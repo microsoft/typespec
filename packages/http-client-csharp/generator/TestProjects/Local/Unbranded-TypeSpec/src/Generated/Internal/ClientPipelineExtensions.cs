@@ -41,9 +41,9 @@ namespace UnbrandedTypeSpec
             PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
             switch (response.Status)
             {
-                case >=200and < 300:
+                case >= 200 and < 300:
                     return ClientResult.FromValue(true, response);
-                case >=400and < 500:
+                case >= 400 and < 500:
                     return ClientResult.FromValue(false, response);
                 default:
                     return new ErrorResult<bool>(response, new ClientResultException(response));
@@ -55,9 +55,9 @@ namespace UnbrandedTypeSpec
             PipelineResponse response = pipeline.ProcessMessage(message, options);
             switch (response.Status)
             {
-                case >=200and < 300:
+                case >= 200 and < 300:
                     return ClientResult.FromValue(true, response);
-                case >=400and < 500:
+                case >= 400 and < 500:
                     return ClientResult.FromValue(false, response);
                 default:
                     return new ErrorResult<bool>(response, new ClientResultException(response));

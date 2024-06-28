@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Snippets;
-using Microsoft.Generator.CSharp.Statements;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Expressions
@@ -16,29 +14,29 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void BinaryOperatorExpressionWithOrOperator()
         {
-            var left = new ValueExpression();
-            var right = new ValueExpression();
+            var left = ValueExpression.Empty;
+            var right = ValueExpression.Empty;
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.Or(right);
             using var writer = new CodeWriter();
             result.Expression.Write(writer);
 
-            Assert.AreEqual("( || )", writer.ToString(false));
+            Assert.AreEqual("(||)", writer.ToString(false));
         }
 
         [Test]
         public void BinaryOperatorExpressionWithAndOperator()
         {
-            var left = new ValueExpression();
-            var right = new ValueExpression();
+            var left = ValueExpression.Empty;
+            var right = ValueExpression.Empty;
             var boolExpression = new BoolSnippet(left);
 
             var result = boolExpression.And(right);
             using var writer = new CodeWriter();
             result.Expression.Write(writer);
 
-            Assert.AreEqual("( && )", writer.ToString(false));
+            Assert.AreEqual("(&&)", writer.ToString(false));
         }
 
         [TestCase(typeof(int))]
@@ -57,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void ListExpression(Type T)
         {
             var itemType = new CSharpType(T);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var listExpression = new ListSnippet(itemType, untypedValue);
 
@@ -71,8 +69,8 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void ListExpressionAddItem()
         {
-            var item = new ValueExpression();
-            var listExpression = new ListSnippet(new CSharpType(typeof(int)), new ValueExpression());
+            var item = ValueExpression.Empty;
+            var listExpression = new ListSnippet(new CSharpType(typeof(int)), ValueExpression.Empty);
 
             var result = listExpression.Add(item);
 
@@ -100,7 +98,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(t1);
             var valueType = new CSharpType(t2);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var dictionaryExpression = new DictionarySnippet(t1, t2, untypedValue);
 
@@ -114,10 +112,10 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(typeof(int));
             var valueType = new CSharpType(typeof(string));
-            var dictionaryExpression = new DictionarySnippet(keyType, valueType, new ValueExpression());
+            var dictionaryExpression = new DictionarySnippet(keyType, valueType, ValueExpression.Empty);
 
-            var key = new ValueExpression();
-            var value = new ValueExpression();
+            var key = ValueExpression.Empty;
+            var value = ValueExpression.Empty;
             var result = dictionaryExpression.Add(key, value);
 
             var expectedStatement = dictionaryExpression.Invoke(nameof(Dictionary<object, object>.Add), key, value).Terminate();
@@ -144,7 +142,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         {
             var keyType = new CSharpType(t1);
             var valueType = new CSharpType(t2);
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
 
             var keyValuePairExpression = new KeyValuePairSnippet(keyType, valueType, untypedValue);
             var expectedKey = new MemberExpression(keyValuePairExpression, nameof(KeyValuePair<string, string>.Key));
@@ -160,7 +158,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         public void EnumerableExpressionWithAnyMethodCall()
         {
             var itemType = new CSharpType(typeof(int));
-            var untypedValue = new ValueExpression();
+            var untypedValue = ValueExpression.Empty;
             var enumerableExpression = new EnumerableSnippet(itemType, untypedValue);
 
             var result = enumerableExpression.Any();

@@ -46,6 +46,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public InvokeInstanceMethodExpression Invoke(string methodName, params ValueExpression[] args)
             => new InvokeInstanceMethodExpression(this, methodName, [..args], null, false);
 
+        public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();

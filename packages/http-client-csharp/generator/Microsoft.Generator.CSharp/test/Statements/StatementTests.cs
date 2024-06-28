@@ -31,9 +31,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void CreateForStatement()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), ValueExpression.Empty);
             var condition = True;
-            var increment = new ValueExpression();
+            var increment = ValueExpression.Empty;
             var forStatement = new ForStatement(assignment, condition, increment);
 
             Assert.NotNull(forStatement);
@@ -43,9 +43,9 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void ForStatementWithAddMethod()
         {
-            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), new ValueExpression());
+            var assignment = new AssignmentExpression(new DeclarationExpression(new CSharpType(typeof(BinaryData)), "responseParamName"), ValueExpression.Empty);
             var condition = True;
-            var increment = new ValueExpression();
+            var increment = ValueExpression.Empty;
             var forStatement = new ForStatement(assignment, condition, increment);
             var statementToAdd = new MethodBodyStatement();
 
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         {
             var itemType = new CSharpType(typeof(int));
             var itemName = "item";
-            var enumerable = new ValueExpression();
+            var enumerable = ValueExpression.Empty;
 
             var foreachStatement = new ForeachStatement(itemType, itemName, enumerable, isAsync: false, out var itemReference);
 
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void ForeachStatementWithAddMethod()
         {
-            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", new ValueExpression(), isAsync: false, out var itemReference);
+            var foreachStatement = new ForeachStatement(new CSharpType(typeof(int)), "item", ValueExpression.Empty, isAsync: false, out var itemReference);
             var statementToAdd = new MethodBodyStatement();
 
             foreachStatement.Add(statementToAdd);
@@ -173,11 +173,11 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void SwitchStatementWithSingleCase()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatement = new MethodBodyStatement();
-            var switchCase = new SwitchCaseStatement(new ValueExpression(), caseStatement);
+            var switchCase = new SwitchCaseStatement(ValueExpression.Empty, caseStatement);
 
             switchStatement.Add(switchCase);
 
@@ -188,13 +188,13 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void SwitchStatementWithMultipleCases()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)
@@ -208,13 +208,13 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
         [Test]
         public void SwitchStatementEnumeratingCases()
         {
-            var matchExpression = new ValueExpression();
+            var matchExpression = ValueExpression.Empty;
             var switchStatement = new SwitchStatement(matchExpression);
 
             var caseStatements = new List<SwitchCaseStatement>
             {
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement()),
-                new SwitchCaseStatement(new ValueExpression(), new MethodBodyStatement())
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement()),
+                new SwitchCaseStatement(ValueExpression.Empty, new MethodBodyStatement())
             };
 
             foreach (var switchCase in caseStatements)

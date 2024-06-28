@@ -350,7 +350,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // base.<JsonModelWriteCore>()
             return _shouldOverrideMethods ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
-                : EmptyStatement;
+                : MethodBodyStatement.Empty;
         }
 
         private MethodBodyStatement GetPropertyInitializers(IReadOnlyList<ParameterProvider> parameters)
@@ -601,7 +601,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
-                    new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: EmptyStatement,
+                    new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: MethodBodyStatement.Empty,
                     CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndObject()
@@ -618,7 +618,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 new ForeachStatement("item", array, out VariableExpression item)
                 {
                     TypeRequiresNullCheckInSerialization(item.Type) ?
-                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : EmptyStatement,
+                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
                     CreateSerializationStatement(item.Type, item, serializationFormat)
                 },
                 _utf8JsonWriterSnippet.WriteEndArray()
@@ -763,7 +763,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             if (_rawDataField == null)
             {
-                return EmptyStatement;
+                return MethodBodyStatement.Empty;
             }
 
             var rawDataMemberExp = new MemberExpression(null, _rawDataField.Name);

@@ -12,17 +12,6 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        private class PrivateEmptyLineStatement : MethodBodyStatement
-        {
-            internal override void Write(CodeWriter writer)
-            {
-                writer.WriteLine();
-            }
-        }
-
-        public static readonly MethodBodyStatement EmptyStatement = new();
-        public static readonly MethodBodyStatement EmptyLineStatement = new PrivateEmptyLineStatement();
-
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
 

@@ -92,11 +92,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 new SwitchStatement(new MemberExpression(response, "Status"), new SwitchCaseStatement[]
                 {
-                    new SwitchCaseStatement(new BinaryOperatorExpression("<", new UnaryOperatorExpression("and", new UnaryOperatorExpression(">=", Literal(200), false), true), Literal(300)), new MethodBodyStatement[]
+                    new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
                     {
                         Return(ClientResultSnippet.FromValue(typeof(bool), True, response))
                     }),
-                    new SwitchCaseStatement(new BinaryOperatorExpression("<", new UnaryOperatorExpression("and", new UnaryOperatorExpression(">=", Literal(400), false), true), Literal(500)), new MethodBodyStatement[]
+                    new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
                     {
                         Return(ClientResultSnippet.FromValue(typeof(bool), False, response))
                     }),
@@ -132,12 +132,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 _pipeline.Invoke(nameof(ClientPipeline.Send), [_message]).Terminate(),
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response.IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(New.Instance(typeof(ClientResultException), _message.Response))
                 },
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Declare(typeof(PipelineResponse), "response", new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
                 Return(response)
             }, this);
@@ -167,12 +167,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new MethodProvider(signature, new MethodBodyStatement[]
             {
                 _pipeline.Expression.Invoke(nameof(ClientPipeline.SendAsync), [_message], true).Terminate(),
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 new IfStatement(_message.Response.IsError.And(new BinaryOperatorExpression("&", _options.Property("ErrorOptions", true), clientErrorNoThrow).NotEqual(clientErrorNoThrow)))
                 {
                     Throw(new InvokeStaticMethodExpression(typeof(ClientResultException), nameof(ClientResultException.CreateAsync), [_message.Response], CallAsAsync: true))
                 },
-                EmptyLineStatement,
+                MethodBodyStatement.EmptyLine,
                 Declare(typeof(PipelineResponse), "response", new TernaryConditionalExpression(_message.BufferResponse, _message.Response, _message.ExtractResponse()), out var response),
                 Return(response)
             }, this);
