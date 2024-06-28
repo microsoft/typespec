@@ -22,7 +22,7 @@
     ".": "./dist/emitter/index.js"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
+    "clean": "rimraf ./dist ./dist-test ./emitter/temp && dotnet clean ./generator",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "dotnet build ./generator",
     "build": "npm run build:emitter && npm run build:generator && npm run extract-api",
