@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
