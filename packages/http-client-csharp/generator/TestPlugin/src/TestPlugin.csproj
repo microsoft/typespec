@@ -18,12 +18,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\**\*.cs" LinkBase="Shared" />
   </ItemGroup>
 
-  <!-- Copy output to package dist path for local execution and  -->
-  <Target Name="CopyForNpmPackage" AfterTargets="Build">
-    <Message Text="Copying output to dist path" Importance="high" />
-    <ItemGroup>
-      <SourceDir Include="$(OutputPath)**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\..\dist-test\generator\%(RecursiveDir)" />
-  </Target>
 </Project>

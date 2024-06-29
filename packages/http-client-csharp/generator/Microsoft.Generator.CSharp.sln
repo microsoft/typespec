@@ -28,10 +28,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProjects.Local.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.ClientModel", "Microsoft.Generator.CSharp.ClientModel\src\Microsoft.Generator.CSharp.ClientModel.csproj", "{3712A9A0-EDC4-4CB8-81E4-EBF4993EF350}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.ClientModel.Plugin", "Microsoft.Generator.CSharp.ClientModel.Plugin\src\Microsoft.Generator.CSharp.ClientModel.Plugin.csproj", "{54C319F0-B8E1-4DC0-A34D-C0542DA43C04}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.ClientModel.Plugin.Tests", "Microsoft.Generator.CSharp.ClientModel.Plugin\test\Microsoft.Generator.CSharp.ClientModel.Plugin.Tests.csproj", "{0E8F2BA1-9719-4059-806F-B067DEF196CA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.Plugin.Tests", "TestProjects\ProjFiles\TestProjects.Plugin.Tests.csproj", "{0E3D9973-FD30-4130-8652-26EF39B76D69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\src\TestPlugin.csproj", "{FFF876C3-FCA2-43ED-85B1-BC54E54168E1}"
@@ -84,14 +80,6 @@ Global
 		{3712A9A0-EDC4-4CB8-81E4-EBF4993EF350}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3712A9A0-EDC4-4CB8-81E4-EBF4993EF350}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3712A9A0-EDC4-4CB8-81E4-EBF4993EF350}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54C319F0-B8E1-4DC0-A34D-C0542DA43C04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54C319F0-B8E1-4DC0-A34D-C0542DA43C04}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54C319F0-B8E1-4DC0-A34D-C0542DA43C04}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54C319F0-B8E1-4DC0-A34D-C0542DA43C04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E8F2BA1-9719-4059-806F-B067DEF196CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E8F2BA1-9719-4059-806F-B067DEF196CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E8F2BA1-9719-4059-806F-B067DEF196CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E8F2BA1-9719-4059-806F-B067DEF196CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0E3D9973-FD30-4130-8652-26EF39B76D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E3D9973-FD30-4130-8652-26EF39B76D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E3D9973-FD30-4130-8652-26EF39B76D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
