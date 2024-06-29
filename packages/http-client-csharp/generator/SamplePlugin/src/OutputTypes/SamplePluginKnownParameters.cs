@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Generator.CSharp;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SamplePlugin;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
