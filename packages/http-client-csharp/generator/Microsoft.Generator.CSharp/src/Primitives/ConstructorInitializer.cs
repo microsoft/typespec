@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Providers;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     public sealed record ConstructorInitializer(bool IsBase, IReadOnlyList<ValueExpression> Arguments)
     {

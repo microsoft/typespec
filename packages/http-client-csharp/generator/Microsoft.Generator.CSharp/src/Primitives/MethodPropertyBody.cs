@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     internal record MethodPropertyBody(MethodBodyStatement Getter, MethodBodyStatement? Setter = null, MethodSignatureModifiers SetterModifiers = MethodSignatureModifiers.None) : PropertyBody(HasSetter: Setter != null);
 }
