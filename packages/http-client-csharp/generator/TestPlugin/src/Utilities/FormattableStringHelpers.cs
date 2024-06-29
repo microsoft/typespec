@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.Generator.CSharp.Input;
 
-namespace Microsoft.Generator.CSharp.TestPlugin
+namespace Microsoft.Generator.CSharp.SamplePlugin
 {
     internal static class FormattableStringHelpers
     {

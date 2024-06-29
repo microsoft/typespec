@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
     public abstract class CodeModelPlugin
     {
         private static CodeModelPlugin? _instance;
-        public static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
+        internal static CodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("CodeModelPlugin is not initialized");
 
         public Configuration Configuration { get; }
 

@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
+using SamplePlugin.Providers;
 
-namespace Microsoft.Generator.CSharp.TestPlugin
+namespace SamplePlugin
 {
-    public class TestPluginTypeFactory : TypeFactory
+    public class SamplePluginTypeFactory : TypeFactory
     {
         private readonly Dictionary<InputOperation, MethodProviderCollection?> _operations = new Dictionary<InputOperation, MethodProviderCollection?>();
 
@@ -19,31 +19,7 @@ namespace Microsoft.Generator.CSharp.TestPlugin
         /// </summary>
         /// <param name="operation">The input operation to create methods for.</param>
         /// <param name="enclosingType">The enclosing type of the operation.</param>
-        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new TestPluginMethodProviderCollection(operation, enclosingType);
-
-        public virtual CSharpType MatchConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for MatchConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType RequestConditionsType()
-        {
-            // TO-DO: Determine what the correct type is for RequestConditions: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType TokenCredentialType()
-        {
-            // TO-DO: Determine what the correct type is for TokenCredential: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
-
-        public virtual CSharpType PageResponseType()
-        {
-            // TO-DO: Determine what the correct type is for Page: https://github.com/Azure/autorest.csharp/issues/4166
-            throw new NotImplementedException();
-        }
+        public override MethodProviderCollection CreateMethodProviders(InputOperation operation, TypeProvider enclosingType) => new SamplePluginMethodProviderCollection(operation, enclosingType);
 
         public override PropertyProvider CreatePropertyProvider(InputModelProperty inputModel) => new PluginPropertyProvider(inputModel);
     }

@@ -35,8 +35,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Snippets
             }
 
             var changeTrackingType = collection.Type.Arguments.Count == 1
-                ? CodeModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
-                : CodeModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);
+                ? ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
+                : ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);
             return NullCoalescing(collection, New.Instance(changeTrackingType));
         }
     }

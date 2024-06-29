@@ -1,7 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <RootNamespace>TestPlugin.Tests</RootNamespace>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\src\TestPlugin.csproj" />
+    <ProjectReference Include="..\src\SamplePlugin.csproj" />
   </ItemGroup>
 
   <ItemGroup>

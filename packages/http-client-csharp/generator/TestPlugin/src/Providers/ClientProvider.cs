@@ -3,11 +3,12 @@
 
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Generator.CSharp;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.TestPlugin;
+using Microsoft.Generator.CSharp.SamplePlugin;
 
-namespace Microsoft.Generator.CSharp.ClientModel.Providers
+namespace SamplePlugin.Providers
 {
     public sealed class ClientProvider : TypeProvider
     {
@@ -20,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            Name = inputClient.Name.ToCleanName();
+            Name = inputClient.Name;
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -30,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build methods for all the operations
             foreach (var operation in _inputClient.Operations)
             {
-                var methodCollection = TestCodeModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
+                var methodCollection = SampleCodeModelPlugin.Instance.TypeFactory.CreateMethodProviders(operation, this);
                 if (methodCollection != null)
                 {
                     methods.AddRange(methodCollection);

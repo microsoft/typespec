@@ -22,7 +22,6 @@ build/
 develop-eggs/
 dist/
 dist-dev/
-dist-test/
 downloads/
 eggs/
 .eggs/

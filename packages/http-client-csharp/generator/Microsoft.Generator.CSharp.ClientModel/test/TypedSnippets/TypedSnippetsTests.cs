@@ -29,13 +29,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             mockTypeFactory.Setup(t => t.ListInitializationType).Returns(new CSharpType(typeof(IList<>)));
             mockTypeFactory.Setup(t => t.DictionaryInitializationType).Returns(new CSharpType(typeof(IDictionary<,>)));
             // initialize the mock singleton instance of the plugin
-            _mockPlugin = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            _mockPlugin = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object[] parameters = new object[] { configFilePath, null! };
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<CodeModelPlugin>(mockGeneratorContext.Object) { };
+            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 
             _mockPlugin?.SetValue(null, mockPluginInstance.Object);

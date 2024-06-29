@@ -30,9 +30,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Generator.CSharp.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.Plugin.Tests", "TestProjects\ProjFiles\TestProjects.Plugin.Tests.csproj", "{0E3D9973-FD30-4130-8652-26EF39B76D69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\src\TestPlugin.csproj", "{FFF876C3-FCA2-43ED-85B1-BC54E54168E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplePlugin", "TestPlugin\src\SamplePlugin.csproj", "{FFF876C3-FCA2-43ED-85B1-BC54E54168E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin.Tests", "TestPlugin\test\TestPlugin.Tests.csproj", "{70967E6E-764A-4101-A961-5F7EB0852F59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplePlugin.Tests", "TestPlugin\test\SamplePlugin.Tests.csproj", "{70967E6E-764A-4101-A961-5F7EB0852F59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
