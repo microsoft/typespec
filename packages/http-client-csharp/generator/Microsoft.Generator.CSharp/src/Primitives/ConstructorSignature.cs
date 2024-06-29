@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     /// <summary>
     /// Represents the signature of a constructor in C#.

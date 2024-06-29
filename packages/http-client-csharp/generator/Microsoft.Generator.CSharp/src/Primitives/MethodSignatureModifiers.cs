@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     [Flags]
     public enum MethodSignatureModifiers

@@ -4,9 +4,9 @@
 using System;
 using System.IO;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Snippets
