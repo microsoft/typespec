@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     public record ExpressionPropertyBody(ValueExpression Getter) : PropertyBody(false);
 }

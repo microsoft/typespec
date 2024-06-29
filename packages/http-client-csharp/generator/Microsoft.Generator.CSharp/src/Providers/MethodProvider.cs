@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
-using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
 
 namespace Microsoft.Generator.CSharp.Providers
