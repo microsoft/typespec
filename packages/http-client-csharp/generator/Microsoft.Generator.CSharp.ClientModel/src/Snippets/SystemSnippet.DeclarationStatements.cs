@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 
