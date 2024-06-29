@@ -26,9 +26,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public ParameterProvider(InputModelProperty inputProperty)
         {
+            var propertyType = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
             Name = inputProperty.Name.ToVariableName();
             Description = FormattableStringHelpers.FromString(inputProperty.Description);
-            Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputProperty.Type);
+            Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Validation = GetParameterValidation(inputProperty, Type);
         }
 
