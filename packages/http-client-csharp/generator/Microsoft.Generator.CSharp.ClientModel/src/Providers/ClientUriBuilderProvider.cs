@@ -11,6 +11,7 @@ using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using static Microsoft.Generator.CSharp.ClientModel.Snippets.TypeFormattersSnippet;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
