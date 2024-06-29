@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     index++;
                 }
             }
-            statements[index] = EmptyLineStatement;
+            statements[index] = MethodBodyStatement.EmptyLine;
             index++;
 
             statements[index] = bodyStatements;

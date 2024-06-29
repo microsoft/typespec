@@ -34,14 +34,5 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.OutputTypes
             Assert.IsNotNull(result.Type);
             Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
         }
-
-        [TestCase]
-        public void TestRequestConditionsParameter()
-        {
-            var result = ScmKnownParameters.RequestConditionsParameter;
-            Assert.IsNotNull(result);
-            Assert.IsNotNull(result.Type);
-            Assert.IsTrue(result.Type.Equals(new CSharpType(typeof(int))));
-        }
     }
 }

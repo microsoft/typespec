@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         {
             ParameterValidationType.AssertNotNullOrEmpty => AssertNotNullOrEmpty(parameter),
             ParameterValidationType.AssertNotNull => AssertNotNull(parameter),
-            _ => Snippet.EmptyStatement
+            _ => MethodBodyStatement.Empty
         };
     }
 }
