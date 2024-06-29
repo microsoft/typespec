@@ -39,7 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 new ModelSerializationExtensionsProvider(),
                 new TypeFormattersProvider(),
                 new ClientPipelineExtensionsProvider(),
-                new ErrorResultProvider()
+                new ErrorResultProvider(),
+                new ClientUriBuilderProvider(),
             ];
         }
     }
