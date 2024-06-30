@@ -52,6 +52,10 @@ namespace Microsoft.Generator.CSharp.Providers
             _enclosingType = enclosingType;
         }
 
+        /// <summary>
+        /// Converts an expression-based method provider to a method provider with <see cref="BodyStatements"/> populated. If the instance already has body statements, it is returned as is.
+        /// </summary>
+        /// <returns>An instance of a <see cref="MethodProvider"/> with <see cref="BodyStatements"/> populated.</returns>
         public MethodProvider ToBodyStatementMethodProvider()
         {
             if (BodyExpression != null)

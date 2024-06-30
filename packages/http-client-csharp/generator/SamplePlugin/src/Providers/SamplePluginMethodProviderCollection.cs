@@ -46,16 +46,17 @@ namespace SamplePlugin.Providers
                     continue;
                 }
 
-                var transformedMethod = method.ToBodyStatementMethodProvider();
+                // Convert to a method with a body statement so we can add tracing.
+                var convertedMethod = method.ToBodyStatementMethodProvider();
 
                 var ex = new VariableExpression(typeof(Exception), "ex");
                 var decl = new DeclarationExpression(ex);
                 updatedMethods.Add(new MethodProvider(
-                    transformedMethod.Signature,
+                    convertedMethod.Signature,
                     new TryCatchFinallyStatement(
                         new[] {
                             // TODO translate BodyExpression into BodyStatement?
-                        InvokeConsoleWriteLine(Literal($"Entering method {transformedMethod.Signature.Name}.")),  transformedMethod.BodyStatements! },
+                        InvokeConsoleWriteLine(Literal($"Entering method {convertedMethod.Signature.Name}.")),  convertedMethod.BodyStatements! },
                         new CatchExpression(
                             decl,
                             new[]
@@ -63,7 +64,7 @@ namespace SamplePlugin.Providers
                                 InvokeConsoleWriteLine(new FormattableStringExpression("An exception was thrown: {0}", new[] {ex})),
                                 Throw()
                             }),
-                        InvokeConsoleWriteLine(Literal($"Exiting method {transformedMethod.Signature.Name}."))),
+                        InvokeConsoleWriteLine(Literal($"Exiting method {convertedMethod.Signature.Name}."))),
                     _enclosingType));
             }
 
