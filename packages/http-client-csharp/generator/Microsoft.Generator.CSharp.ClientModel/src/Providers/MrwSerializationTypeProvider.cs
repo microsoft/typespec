@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    public sealed class MrwSerializationTypeProvider : TypeProvider
+    internal sealed class MrwSerializationTypeProvider : TypeProvider
     {
         private const string PrivateAdditionalPropertiesPropertyDescription = "Keeps track of any properties unknown to the library.";
         private const string PrivateAdditionalPropertiesPropertyName = "_serializedAdditionalRawData";
