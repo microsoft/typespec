@@ -44,9 +44,10 @@ namespace Microsoft.Generator.CSharp.Statements
             if (Finally != null)
             {
                 writer.WriteRawLine("finally");
-                writer.WriteRawLine("{");
-                Finally.Write(writer);
-                writer.WriteRawLine("}");
+                using (writer.Scope())
+                {
+                    Finally.Write(writer);
+                }
             }
         }
     }

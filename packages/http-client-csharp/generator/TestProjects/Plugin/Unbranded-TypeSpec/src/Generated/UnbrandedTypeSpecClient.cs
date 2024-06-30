@@ -23,55 +23,84 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateSayHiRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateSayHiRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi. </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHi.");
+                Argument.AssertNotNull(headParameter, nameof(headParameter));
+                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+                using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHi.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi. </summary>
         /// <param name="headParameter"></param>
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHiAsync.");
+                Argument.AssertNotNull(headParameter, nameof(headParameter));
+                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
+                using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHiAsync.");
+            }
         }
 
         /// <summary> Return hi. </summary>
@@ -79,7 +108,6 @@ namespace UnbrandedTypeSpec
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
@@ -87,11 +115,20 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method SayHi.");
+                Argument.AssertNotNull(headParameter, nameof(headParameter));
+                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
                 return SayHi(headParameter, queryParameter, optionalQuery, null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHi.");
             }
         }
 
@@ -100,7 +137,6 @@ namespace UnbrandedTypeSpec
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
@@ -108,65 +144,103 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method SayHiAsync.");
+                Argument.AssertNotNull(headParameter, nameof(headParameter));
+                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
+
                 return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHiAsync.");
             }
         }
 
         internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateHelloAgainRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateHelloAgainRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi again
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HelloAgain(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
-            using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgain.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+
+                using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgain.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi again
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
-            using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+
+                using PipelineMessage message = CreateHelloAgainRequest(p1, p2, content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -174,7 +248,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
@@ -183,12 +256,22 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method HelloAgain.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+                Argument.AssertNotNull(action, nameof(action));
+
                 ClientResult result = HelloAgain(p1, p2, action, null);
                 return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgain.");
             }
         }
 
@@ -197,7 +280,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
@@ -206,66 +288,105 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+                Argument.AssertNotNull(action, nameof(action));
+
                 ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
                 return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
             }
         }
 
         internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateNoContentTypeRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateNoContentTypeRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi again
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult NoContentType(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
-            using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method NoContentType.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+
+                using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentType.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Return hi again
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Return hi again. </summary>
         /// <param name="p1"></param>
         /// <param name="p2"></param>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/> or <paramref name="p2"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
 
-            using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method NoContentTypeAsync.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+
+                using PipelineMessage message = CreateNoContentTypeRequest(p1, p2, content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentTypeAsync.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -273,7 +394,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
@@ -282,12 +402,22 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method NoContentType.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+                Argument.AssertNotNull(action, nameof(action));
+
                 ClientResult result = NoContentType(p1, p2, action, null);
                 return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentType.");
             }
         }
 
@@ -296,7 +426,6 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
@@ -305,1125 +434,1670 @@ namespace UnbrandedTypeSpec
 
             try
             {
+                System.Console.WriteLine("Entering method NoContentTypeAsync.");
+                Argument.AssertNotNull(p1, nameof(p1));
+                Argument.AssertNotNull(p2, nameof(p2));
+                Argument.AssertNotNull(action, nameof(action));
+
                 ClientResult result = await NoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
                 return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentTypeAsync.");
             }
         }
 
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] Return hi in demo2
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloDemo2(RequestOptions options)
-        {
-            using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Return hi in demo2
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
-        {
-            using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateHelloDemo2Request.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateHelloDemo2Request.");
+            }
         }
 
         /// <summary> Return hi in demo2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HelloDemo2(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2.");
+                using PipelineMessage message = CreateHelloDemo2Request(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2.");
+            }
+        }
+
+        /// <summary> Return hi in demo2. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
+                using PipelineMessage message = CreateHelloDemo2Request(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
+            }
+        }
+
+        /// <summary> Return hi in demo2. </summary>
         public virtual ClientResult HelloDemo2()
         {
             try
             {
+                System.Console.WriteLine("Entering method HelloDemo2.");
                 return HelloDemo2(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2.");
             }
         }
 
         /// <summary> Return hi in demo2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloDemo2Async()
         {
             try
             {
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
                 return await HelloDemo2Async(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
             }
         }
 
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateCreateLiteralRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateCreateLiteralRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Create with literal value
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Create with literal value. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteral.");
+                using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteral.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Create with literal value
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Create with literal value. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
+                using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
+            }
         }
 
         /// <summary> Create with literal value. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult CreateLiteral(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method CreateLiteral.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = CreateLiteral(body, null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteral.");
             }
         }
 
         /// <summary> Create with literal value. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> CreateLiteralAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
             }
         }
 
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] Send literal parameters
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult HelloLiteral(RequestOptions options)
-        {
-            using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Send literal parameters
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateHelloLiteralRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateHelloLiteralRequest.");
+            }
         }
 
         /// <summary> Send literal parameters. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HelloLiteral(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteral.");
+                using PipelineMessage message = CreateHelloLiteralRequest(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteral.");
+            }
+        }
+
+        /// <summary> Send literal parameters. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
+                using PipelineMessage message = CreateHelloLiteralRequest(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
+            }
+        }
+
+        /// <summary> Send literal parameters. </summary>
         public virtual ClientResult HelloLiteral()
         {
             try
             {
+                System.Console.WriteLine("Entering method HelloLiteral.");
                 return HelloLiteral(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteral.");
             }
         }
 
         /// <summary> Send literal parameters. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloLiteralAsync()
         {
             try
             {
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
                 return await HelloLiteralAsync(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
             }
         }
 
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateTopActionRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateTopActionRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] top level method
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction.");
+                Argument.AssertNotNull(action, nameof(action));
+
+                using PipelineMessage message = CreateTopActionRequest(action, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] top level method
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method TopActionAsync.");
+                Argument.AssertNotNull(action, nameof(action));
+
+                using PipelineMessage message = CreateTopActionRequest(action, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopActionAsync.");
+            }
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult TopAction(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
             try
             {
+                System.Console.WriteLine("Entering method TopAction.");
+                Argument.AssertNotNull(action, nameof(action));
+
                 return TopAction(action, null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction.");
             }
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
             try
             {
+                System.Console.WriteLine("Entering method TopActionAsync.");
+                Argument.AssertNotNull(action, nameof(action));
+
                 return await TopActionAsync(action, null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopActionAsync.");
             }
         }
 
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] top level method2
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult TopAction2(RequestOptions options)
-        {
-            using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] top level method2
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
-        {
-            using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateTopAction2Request.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateTopAction2Request.");
+            }
         }
 
         /// <summary> top level method2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult TopAction2(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction2.");
+                using PipelineMessage message = CreateTopAction2Request(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2.");
+            }
+        }
+
+        /// <summary> top level method2. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TopAction2Async(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction2Async.");
+                using PipelineMessage message = CreateTopAction2Request(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2Async.");
+            }
+        }
+
+        /// <summary> top level method2. </summary>
         public virtual ClientResult TopAction2()
         {
             try
             {
+                System.Console.WriteLine("Entering method TopAction2.");
                 return TopAction2(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2.");
             }
         }
 
         /// <summary> top level method2. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> TopAction2Async()
         {
             try
             {
+                System.Console.WriteLine("Entering method TopAction2Async.");
                 return await TopAction2Async(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2Async.");
             }
         }
 
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreatePatchActionRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreatePatchActionRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] top level patch
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> top level patch. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method PatchAction.");
+                using PipelineMessage message = CreatePatchActionRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchAction.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] top level patch
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> top level patch. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method PatchActionAsync.");
+                using PipelineMessage message = CreatePatchActionRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchActionAsync.");
+            }
         }
 
         /// <summary> top level patch. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult PatchAction(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method PatchAction.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = PatchAction(body, null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchAction.");
             }
         }
 
         /// <summary> top level patch. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> PatchActionAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method PatchActionAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchActionAsync.");
             }
         }
 
         internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateAnonymousBodyRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateAnonymousBodyRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] body parameter without body decorator
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> body parameter without body decorator. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBody.");
+                using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBody.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] body parameter without body decorator
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> body parameter without body decorator. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
+                using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
+            }
         }
 
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AnonymousBody(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
             try
             {
+                System.Console.WriteLine("Entering method AnonymousBody.");
+                Argument.AssertNotNull(Thing, nameof(Thing));
+
                 ClientResult result = AnonymousBody(Thing, null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBody.");
             }
         }
 
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AnonymousBodyAsync(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
             try
             {
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
+                Argument.AssertNotNull(Thing, nameof(Thing));
+
                 ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
             }
         }
 
         internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateFriendlyModelRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateFriendlyModelRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Model can have its friendly name
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Model can have its friendly name. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModel.");
+                using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModel.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Model can have its friendly name
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Model can have its friendly name. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
+                using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
+            }
         }
 
         /// <summary> Model can have its friendly name. </summary>
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult FriendlyModel(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
             try
             {
+                System.Console.WriteLine("Entering method FriendlyModel.");
+                Argument.AssertNotNull(Friend, nameof(Friend));
+
                 ClientResult result = FriendlyModel(Friend, null);
                 return ClientResult.FromValue((Friend)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModel.");
             }
         }
 
         /// <summary> Model can have its friendly name. </summary>
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FriendlyModelAsync(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
             try
             {
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
+                Argument.AssertNotNull(Friend, nameof(Friend));
+
                 ClientResult result = await FriendlyModelAsync(Friend, null).ConfigureAwait(false);
                 return ClientResult.FromValue((Friend)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
             }
         }
 
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] addTimeHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="repeatabilityFirstSent"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
-        {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] addTimeHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="repeatabilityFirstSent"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
-        {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateAddTimeHeaderRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateAddTimeHeaderRequest.");
+            }
         }
 
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeader.");
+                using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
+            }
+        }
+
+        /// <summary> addTimeHeader. </summary>
+        /// <param name="repeatabilityFirstSent"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
+                using PipelineMessage message = CreateAddTimeHeaderRequest(repeatabilityFirstSent, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
+            }
+        }
+
+        /// <summary> addTimeHeader. </summary>
+        /// <param name="repeatabilityFirstSent"></param>
         public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent)
         {
             try
             {
+                System.Console.WriteLine("Entering method AddTimeHeader.");
                 return AddTimeHeader(repeatabilityFirstSent, null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
             }
         }
 
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
             try
             {
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
                 return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
             }
         }
 
         internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateProjectedNameModelRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateProjectedNameModelRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Model can have its projected name
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Model can have its projected name. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
+                using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] Model can have its projected name
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> Model can have its projected name. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
+            }
         }
 
         /// <summary> Model can have its projected name. </summary>
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult ProjectedNameModel(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
             try
             {
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
+                Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
                 ClientResult result = ProjectedNameModel(ProjectedModel, null);
                 return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
             }
         }
 
         /// <summary> Model can have its projected name. </summary>
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> ProjectedNameModelAsync(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
             try
             {
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
+
                 ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
                 return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
             }
         }
 
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] return anonymous model
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
-        {
-            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] return anonymous model
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateReturnsAnonymousModelRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateReturnsAnonymousModelRequest.");
+            }
         }
 
         /// <summary> return anonymous model. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
+                using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
+            }
+        }
+
+        /// <summary> return anonymous model. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
+                using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
+            }
+        }
+
+        /// <summary> return anonymous model. </summary>
         public virtual ClientResult ReturnsAnonymousModel()
         {
             try
             {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
                 return ReturnsAnonymousModel(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
             }
         }
 
         /// <summary> return anonymous model. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> ReturnsAnonymousModelAsync()
         {
             try
             {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
                 return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
             }
         }
 
         internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] get extensible enum
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetUnknownValue(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetUnknownValueRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] get extensible enum
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetUnknownValueRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateGetUnknownValueRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateGetUnknownValueRequest.");
+            }
         }
 
         /// <summary> get extensible enum. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetUnknownValue(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValue.");
+                using PipelineMessage message = CreateGetUnknownValueRequest(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
+            }
+        }
+
+        /// <summary> get extensible enum. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetUnknownValueAsync(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
+                using PipelineMessage message = CreateGetUnknownValueRequest(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
+            }
+        }
+
+        /// <summary> get extensible enum. </summary>
         public virtual ClientResult GetUnknownValue()
         {
             try
             {
+                System.Console.WriteLine("Entering method GetUnknownValue.");
                 return GetUnknownValue(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
             }
         }
 
         /// <summary> get extensible enum. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> GetUnknownValueAsync()
         {
             try
             {
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
                 return await GetUnknownValueAsync(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
             }
         }
 
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateInternalProtocolRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateInternalProtocolRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocol.");
+                using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocol.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="content"> The content to send as the body of the request. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options)
         {
-            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
+                using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult InternalProtocol(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method InternalProtocol.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = InternalProtocol(body, null);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocol.");
             }
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> InternalProtocolAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
             try
             {
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
                 ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
                 return ClientResult.FromValue((Thing)result, result.GetRawResponse());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
             }
         }
 
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
-        }
-
-        /// <summary>
-        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult StillConvenient(RequestOptions options)
-        {
-            using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateStillConvenientRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateStillConvenientRequest.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult StillConvenient(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenient.");
+                using PipelineMessage message = CreateStillConvenientRequest(options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenient.");
+            }
+        }
+
+        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
+                using PipelineMessage message = CreateStillConvenientRequest(options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
+            }
+        }
+
+        /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
         public virtual ClientResult StillConvenient()
         {
             try
             {
+                System.Console.WriteLine("Entering method StillConvenient.");
                 return StillConvenient(null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenient.");
             }
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync()
         {
             try
             {
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
                 return await StillConvenientAsync(null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
             }
         }
 
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
-            throw new NotImplementedException("Method not implemented.");
+            try
+            {
+                System.Console.WriteLine("Entering method CreateHeadAsBooleanRequest.");
+                throw new NotImplementedException("Method not implemented.");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateHeadAsBooleanRequest.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] head as boolean.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
+                Argument.AssertNotNull(id, nameof(id));
+
+                using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+                return ClientResult.FromResponse(_pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
+            }
         }
 
-        /// <summary>
-        /// [Protocol Method] head as boolean.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method&lt;/see&gt; allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
+        /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                Argument.AssertNotNull(id, nameof(id));
+
+                using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+                return ClientResult.FromResponse(await _pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
+            }
         }
 
         /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HeadAsBoolean(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
             try
             {
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
+                Argument.AssertNotNull(id, nameof(id));
+
                 return HeadAsBoolean(id, null);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
             }
         }
 
         /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HeadAsBooleanAsync(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
             try
             {
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                Argument.AssertNotNull(id, nameof(id));
+
                 return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw ;
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
             }
         }
     }

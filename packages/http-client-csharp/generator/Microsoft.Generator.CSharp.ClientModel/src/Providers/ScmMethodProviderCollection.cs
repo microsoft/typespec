@@ -11,7 +11,6 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -43,7 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        protected virtual MethodProvider BuildConvenienceMethod(bool isAsync)
+        private MethodProvider BuildConvenienceMethod(bool isAsync)
         {
             ClientProvider? client = _enclosingType as ClientProvider;
             if (client is null)
@@ -74,8 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
-            var tryCatch = new TryCatchFinallyStatement(methodBody, new CatchExpression(typeof(Exception), Snippet.Throw(ValueExpression.Empty)));
-            var convenienceMethod = new MethodProvider(methodSignature, tryCatch, _enclosingType);
+            var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
             convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             return convenienceMethod;
         }

@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static MethodBodyStatement Break => new KeywordExpression("break", null).Terminate();
         public static MethodBodyStatement Return(ValueExpression expression) => new KeywordExpression("return", expression).Terminate();
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
-        public static MethodBodyStatement Throw(ValueExpression expression) => new KeywordExpression("throw", expression).Terminate();
+        public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
 
         public static EnumerableSnippet ArrayEmpty(CSharpType arrayItemType)
             => new(arrayItemType, new InvokeStaticMethodExpression(typeof(Array), nameof(Array.Empty), Array.Empty<ValueExpression>(), new[] { arrayItemType }));
