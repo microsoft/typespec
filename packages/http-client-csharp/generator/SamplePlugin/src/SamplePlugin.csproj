@@ -3,6 +3,7 @@
   <PropertyGroup>
     <PackageId>SamplePlugin</PackageId>
     <Version>1.0.0-beta.1</Version>
+    <OutputType>Exe</OutputType>
     <RootNamespace>TestPlugin</RootNamespace>
   </PropertyGroup>
 
@@ -12,7 +13,15 @@
 
   <ItemGroup>
     <!--Add this as a project reference for now until the core generator library is packaged and published.-->
+    <ProjectReference Include="..\..\Microsoft.Generator.CSharp.ClientModel\src\Microsoft.Generator.CSharp.ClientModel.csproj" />
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\src\Microsoft.Generator.CSharp.csproj" />
   </ItemGroup>
-
+  <!-- Copy output to package dist path for local execution and  -->
+  <Target Name="CopyForNpmPackage" AfterTargets="Build">
+    <Message Text="Copying output to dist path" Importance="high" />
+    <ItemGroup>
+      <SourceDir Include="$(OutputPath)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SourceDir)" DestinationFolder="$(MSBuildThisFileDirectory)..\..\..\dist-test\generator\%(RecursiveDir)" />
+  </Target>
 </Project>

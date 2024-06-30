@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using Microsoft.Generator.CSharp;
+using Microsoft.Generator.CSharp.ClientModel;
+using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Providers;
 using SamplePlugin.Providers;
 
 namespace SamplePlugin
 {
-    public class SamplePluginOutputLibrary : OutputLibrary
+    public class SamplePluginOutputLibrary
     {
         private static TypeProvider[] BuildClients()
         {
@@ -21,14 +23,14 @@ namespace SamplePlugin
             return clients;
         }
 
-        protected override TypeProvider[] BuildTypeProviders()
-        {
-            var baseTypes = base.BuildTypeProviders();
-
-            return [
-                ..baseTypes,
-                ..BuildClients()
-            ];
-        }
+        // protected override TypeProvider[] BuildTypeProviders()
+        // {
+        //     var baseTypes = base.BuildTypeProviders();
+        //
+        //     return [
+        //         ..baseTypes,
+        //         ..BuildClients()
+        //     ];
+        // }
     }
 }

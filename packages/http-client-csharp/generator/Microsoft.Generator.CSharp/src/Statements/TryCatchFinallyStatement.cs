@@ -31,9 +31,10 @@ namespace Microsoft.Generator.CSharp.Statements
         internal override void Write(CodeWriter writer)
         {
             writer.WriteRawLine("try");
-            writer.WriteRawLine("{");
-            Try.Write(writer);
-            writer.WriteRawLine("}");
+            using (writer.Scope())
+            {
+                Try.Write(writer);
+            }
 
             foreach (var catchStatement in Catches)
             {

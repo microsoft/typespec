@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace UnbrandedTypeSpec
 {
@@ -37,6 +38,11 @@ namespace UnbrandedTypeSpec
         public static bool IsDefined(string value)
         {
             return value != null;
+        }
+
+        public static bool IsDefined(JsonElement value)
+        {
+            return value.ValueKind != JsonValueKind.Undefined;
         }
     }
 }

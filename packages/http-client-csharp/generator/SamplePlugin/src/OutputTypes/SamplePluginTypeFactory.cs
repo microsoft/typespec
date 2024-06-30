@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp;
+using Microsoft.Generator.CSharp.ClientModel;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -10,7 +11,7 @@ using SamplePlugin.Providers;
 
 namespace SamplePlugin
 {
-    public class SamplePluginTypeFactory : TypeFactory
+    public class SamplePluginTypeFactory : ScmTypeFactory
     {
         private readonly Dictionary<InputOperation, MethodProviderCollection?> _operations = new Dictionary<InputOperation, MethodProviderCollection?>();
 
