@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Providers
     /// <summary>
     /// Represents a C# method consisting of a signature, body, and expression.
     /// </summary>
-    public sealed class MethodProvider
+    public class MethodProvider
     {
         public MethodSignatureBase Signature { get; }
         public MethodBodyStatement? BodyStatements { get; }

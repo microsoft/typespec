@@ -108,28 +108,13 @@ namespace UnbrandedTypeSpec
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            try
-            {
-                System.Console.WriteLine("Entering method SayHi.");
-                Argument.AssertNotNull(headParameter, nameof(headParameter));
-                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
-                return SayHi(headParameter, queryParameter, optionalQuery, null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method SayHi.");
-            }
+            return SayHi(headParameter, queryParameter, optionalQuery, null);
         }
 
         /// <summary> Return hi. </summary>
@@ -137,28 +122,13 @@ namespace UnbrandedTypeSpec
         /// <param name="queryParameter"></param>
         /// <param name="optionalQuery"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="headParameter"/> or <paramref name="queryParameter"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery)
         {
             Argument.AssertNotNull(headParameter, nameof(headParameter));
             Argument.AssertNotNull(queryParameter, nameof(queryParameter));
 
-            try
-            {
-                System.Console.WriteLine("Entering method SayHiAsync.");
-                Argument.AssertNotNull(headParameter, nameof(headParameter));
-                Argument.AssertNotNull(queryParameter, nameof(queryParameter));
-
-                return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method SayHiAsync.");
-            }
+            return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
@@ -248,31 +218,15 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HelloAgain(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method HelloAgain.");
-                Argument.AssertNotNull(p1, nameof(p1));
-                Argument.AssertNotNull(p2, nameof(p2));
-                Argument.AssertNotNull(action, nameof(action));
-
-                ClientResult result = HelloAgain(p1, p2, action, null);
-                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloAgain.");
-            }
+            ClientResult result = HelloAgain(p1, p2, action, null);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -280,31 +234,15 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloAgainAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method HelloAgainAsync.");
-                Argument.AssertNotNull(p1, nameof(p1));
-                Argument.AssertNotNull(p2, nameof(p2));
-                Argument.AssertNotNull(action, nameof(action));
-
-                ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
-                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloAgainAsync.");
-            }
+            ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
@@ -394,31 +332,15 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult NoContentType(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method NoContentType.");
-                Argument.AssertNotNull(p1, nameof(p1));
-                Argument.AssertNotNull(p2, nameof(p2));
-                Argument.AssertNotNull(action, nameof(action));
-
-                ClientResult result = NoContentType(p1, p2, action, null);
-                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method NoContentType.");
-            }
+            ClientResult result = NoContentType(p1, p2, action, null);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -426,31 +348,15 @@ namespace UnbrandedTypeSpec
         /// <param name="p2"></param>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="p1"/>, <paramref name="p2"/> or <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> NoContentTypeAsync(string p1, string p2, RoundTripModel action)
         {
             Argument.AssertNotNull(p1, nameof(p1));
             Argument.AssertNotNull(p2, nameof(p2));
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method NoContentTypeAsync.");
-                Argument.AssertNotNull(p1, nameof(p1));
-                Argument.AssertNotNull(p2, nameof(p2));
-                Argument.AssertNotNull(action, nameof(action));
-
-                ClientResult result = await NoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
-                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method NoContentTypeAsync.");
-            }
+            ClientResult result = await NoContentTypeAsync(p1, p2, action, null).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
@@ -516,41 +422,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Return hi in demo2. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HelloDemo2()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method HelloDemo2.");
-                return HelloDemo2(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloDemo2.");
-            }
+            return HelloDemo2(null);
         }
 
         /// <summary> Return hi in demo2. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloDemo2Async()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method HelloDemo2Async.");
-                return await HelloDemo2Async(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloDemo2Async.");
-            }
+            return await HelloDemo2Async(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
@@ -620,53 +502,25 @@ namespace UnbrandedTypeSpec
         /// <summary> Create with literal value. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult CreateLiteral(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method CreateLiteral.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = CreateLiteral(body, null);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateLiteral.");
-            }
+            ClientResult result = CreateLiteral(body, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Create with literal value. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> CreateLiteralAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method CreateLiteralAsync.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
-            }
+            ClientResult result = await CreateLiteralAsync(body, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
@@ -732,41 +586,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> Send literal parameters. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HelloLiteral()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method HelloLiteral.");
-                return HelloLiteral(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloLiteral.");
-            }
+            return HelloLiteral(null);
         }
 
         /// <summary> Send literal parameters. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HelloLiteralAsync()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method HelloLiteralAsync.");
-                return await HelloLiteralAsync(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
-            }
+            return await HelloLiteralAsync(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
@@ -846,51 +676,23 @@ namespace UnbrandedTypeSpec
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult TopAction(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method TopAction.");
-                Argument.AssertNotNull(action, nameof(action));
-
-                return TopAction(action, null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TopAction.");
-            }
+            return TopAction(action, null);
         }
 
         /// <summary> top level method. </summary>
         /// <param name="action"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="action"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action)
         {
             Argument.AssertNotNull(action, nameof(action));
 
-            try
-            {
-                System.Console.WriteLine("Entering method TopActionAsync.");
-                Argument.AssertNotNull(action, nameof(action));
-
-                return await TopActionAsync(action, null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TopActionAsync.");
-            }
+            return await TopActionAsync(action, null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
@@ -956,41 +758,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> top level method2. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult TopAction2()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method TopAction2.");
-                return TopAction2(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TopAction2.");
-            }
+            return TopAction2(null);
         }
 
         /// <summary> top level method2. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> TopAction2Async()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method TopAction2Async.");
-                return await TopAction2Async(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method TopAction2Async.");
-            }
+            return await TopAction2Async(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
@@ -1060,53 +838,25 @@ namespace UnbrandedTypeSpec
         /// <summary> top level patch. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult PatchAction(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method PatchAction.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = PatchAction(body, null);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method PatchAction.");
-            }
+            ClientResult result = PatchAction(body, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level patch. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> PatchActionAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method PatchActionAsync.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method PatchActionAsync.");
-            }
+            ClientResult result = await PatchActionAsync(body, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
@@ -1176,53 +926,25 @@ namespace UnbrandedTypeSpec
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AnonymousBody(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
-            try
-            {
-                System.Console.WriteLine("Entering method AnonymousBody.");
-                Argument.AssertNotNull(Thing, nameof(Thing));
-
-                ClientResult result = AnonymousBody(Thing, null);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method AnonymousBody.");
-            }
+            ClientResult result = AnonymousBody(Thing, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
         /// <param name="Thing"> A model with a few properties of literal types. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Thing"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AnonymousBodyAsync(Thing Thing)
         {
             Argument.AssertNotNull(Thing, nameof(Thing));
 
-            try
-            {
-                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
-                Argument.AssertNotNull(Thing, nameof(Thing));
-
-                ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
-            }
+            ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
@@ -1292,53 +1014,25 @@ namespace UnbrandedTypeSpec
         /// <summary> Model can have its friendly name. </summary>
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult FriendlyModel(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
-            try
-            {
-                System.Console.WriteLine("Entering method FriendlyModel.");
-                Argument.AssertNotNull(Friend, nameof(Friend));
-
-                ClientResult result = FriendlyModel(Friend, null);
-                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method FriendlyModel.");
-            }
+            ClientResult result = FriendlyModel(Friend, null);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
         /// <param name="Friend"> this is not a friendly model but with a friendly name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="Friend"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> FriendlyModelAsync(Friend Friend)
         {
             Argument.AssertNotNull(Friend, nameof(Friend));
 
-            try
-            {
-                System.Console.WriteLine("Entering method FriendlyModelAsync.");
-                Argument.AssertNotNull(Friend, nameof(Friend));
-
-                ClientResult result = await FriendlyModelAsync(Friend, null).ConfigureAwait(false);
-                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
-            }
+            ClientResult result = await FriendlyModelAsync(Friend, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
@@ -1407,42 +1101,18 @@ namespace UnbrandedTypeSpec
 
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AddTimeHeader(DateTimeOffset repeatabilityFirstSent)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method AddTimeHeader.");
-                return AddTimeHeader(repeatabilityFirstSent, null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method AddTimeHeader.");
-            }
+            return AddTimeHeader(repeatabilityFirstSent, null);
         }
 
         /// <summary> addTimeHeader. </summary>
         /// <param name="repeatabilityFirstSent"></param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
-                return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
-            }
+            return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
@@ -1512,53 +1182,25 @@ namespace UnbrandedTypeSpec
         /// <summary> Model can have its projected name. </summary>
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult ProjectedNameModel(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
-            try
-            {
-                System.Console.WriteLine("Entering method ProjectedNameModel.");
-                Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-                ClientResult result = ProjectedNameModel(ProjectedModel, null);
-                return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method ProjectedNameModel.");
-            }
+            ClientResult result = ProjectedNameModel(ProjectedModel, null);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
         /// <param name="ProjectedModel"> this is a model with a projected name. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="ProjectedModel"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> ProjectedNameModelAsync(ProjectedModel ProjectedModel)
         {
             Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
 
-            try
-            {
-                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
-                Argument.AssertNotNull(ProjectedModel, nameof(ProjectedModel));
-
-                ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
-                return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
-            }
+            ClientResult result = await ProjectedNameModelAsync(ProjectedModel, null).ConfigureAwait(false);
+            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
@@ -1624,41 +1266,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> return anonymous model. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult ReturnsAnonymousModel()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
-                return ReturnsAnonymousModel(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
-            }
+            return ReturnsAnonymousModel(null);
         }
 
         /// <summary> return anonymous model. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> ReturnsAnonymousModelAsync()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
-                return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
-            }
+            return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
@@ -1724,41 +1342,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> get extensible enum. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult GetUnknownValue()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetUnknownValue.");
-                return GetUnknownValue(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetUnknownValue.");
-            }
+            return GetUnknownValue(null);
         }
 
         /// <summary> get extensible enum. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> GetUnknownValueAsync()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
-                return await GetUnknownValueAsync(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
-            }
+            return await GetUnknownValueAsync(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
@@ -1828,53 +1422,25 @@ namespace UnbrandedTypeSpec
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult InternalProtocol(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method InternalProtocol.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = InternalProtocol(body, null);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method InternalProtocol.");
-            }
+            ClientResult result = InternalProtocol(body, null);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
         /// <param name="body"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> InternalProtocolAsync(Thing body)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            try
-            {
-                System.Console.WriteLine("Entering method InternalProtocolAsync.");
-                Argument.AssertNotNull(body, nameof(body));
-
-                ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
-                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
-            }
+            ClientResult result = await InternalProtocolAsync(body, null).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
@@ -1940,41 +1506,17 @@ namespace UnbrandedTypeSpec
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult StillConvenient()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method StillConvenient.");
-                return StillConvenient(null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method StillConvenient.");
-            }
+            return StillConvenient(null);
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync()
         {
-            try
-            {
-                System.Console.WriteLine("Entering method StillConvenientAsync.");
-                return await StillConvenientAsync(null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method StillConvenientAsync.");
-            }
+            return await StillConvenientAsync(null).ConfigureAwait(false);
         }
 
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
@@ -2054,51 +1596,23 @@ namespace UnbrandedTypeSpec
         /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HeadAsBoolean(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            try
-            {
-                System.Console.WriteLine("Entering method HeadAsBoolean.");
-                Argument.AssertNotNull(id, nameof(id));
-
-                return HeadAsBoolean(id, null);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HeadAsBoolean.");
-            }
+            return HeadAsBoolean(id, null);
         }
 
         /// <summary> head as boolean. </summary>
         /// <param name="id"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HeadAsBooleanAsync(string id)
         {
             Argument.AssertNotNull(id, nameof(id));
 
-            try
-            {
-                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
-                Argument.AssertNotNull(id, nameof(id));
-
-                return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
-            }
+            return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
         }
     }
 }

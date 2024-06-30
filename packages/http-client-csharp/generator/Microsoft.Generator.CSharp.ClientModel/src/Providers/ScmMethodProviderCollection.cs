@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         [result.CastTo(_bodyParameter.Type), result.Invoke("GetRawResponse")])),
                 ];
 
-            var convenienceMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
+            var convenienceMethod = new ClientMethodProvider(methodSignature, methodBody, _enclosingType);
             convenienceMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             return convenienceMethod;
         }
@@ -135,7 +135,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     client.PipelineField.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
             ];
 
-            var protocolMethod = new MethodProvider(methodSignature, methodBody, _enclosingType);
+            var protocolMethod =
+                new ClientMethodProvider(methodSignature, methodBody, _enclosingType) { IsProtocol = true };
             protocolMethod.XmlDocs!.Exceptions.Add(new(typeof(ClientResultException), "Service returned a non-success status code.", []));
             List<XmlDocStatement> listItems = new List<XmlDocStatement>();
             listItems.Add(new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."])));
