@@ -22,19 +22,16 @@ namespace SamplePlugin.Providers
 {
     internal class SamplePluginMethodProviderCollection : ScmMethodProviderCollection
     {
-        private string _cleanOperationName;
-        private string _createRequestMethodName;
         public SamplePluginMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
-            _cleanOperationName = operation.Name;
-            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
         }
 
         protected override IReadOnlyList<MethodProvider> BuildMethods()
         {
             var methods = base.BuildMethods();
             var tracedMethods = new List<MethodProvider>();
+
             // TODO only trace methods that are making service calls
             foreach (var method in methods)
             {
@@ -44,15 +41,15 @@ namespace SamplePlugin.Providers
                     method.Signature,
                     new TryCatchFinallyStatement(
                         new[] {
-                        new InvokeStaticMethodExpression(typeof(Console), "WriteLine", Literal($"Entering method {method.Signature.Name}.")).Terminate(),  method.BodyStatements! },
+                        InvokeConsoleWriteLine(Literal($"Entering method {method.Signature.Name}.")),  method.BodyStatements! },
                         new CatchExpression(
                             decl,
                             new[]
                             {
-                                new InvokeStaticMethodExpression(typeof(Console), "WriteLine", new FormattableStringExpression("An exception was thrown: {0}", new[] {ex})).Terminate(),
+                                InvokeConsoleWriteLine(new FormattableStringExpression("An exception was thrown: {0}", new[] {ex})),
                                 Throw()
                             }),
-                        new InvokeStaticMethodExpression(typeof(Console), "WriteLine", Literal($"Exiting method {method.Signature.Name}.")).Terminate()),
+                        InvokeConsoleWriteLine(Literal($"Exiting method {method.Signature.Name}."))),
                     _enclosingType));
             }
 
