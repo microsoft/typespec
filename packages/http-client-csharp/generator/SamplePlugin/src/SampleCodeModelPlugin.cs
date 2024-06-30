@@ -15,12 +15,8 @@ namespace SamplePlugin
 {
     public class SampleCodeModelPlugin : ClientModelPlugin
     {
-        // private SamplePluginOutputLibrary? _scmOutputLibrary;
-
         private static SampleCodeModelPlugin? _instance;
-        internal static SampleCodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("ClientModelPlugin is not loaded.");
-
-        // public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
+        internal static SampleCodeModelPlugin Instance => _instance ?? throw new InvalidOperationException("SampleCodeModelPlugin is not loaded.");
 
         public override TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
 
