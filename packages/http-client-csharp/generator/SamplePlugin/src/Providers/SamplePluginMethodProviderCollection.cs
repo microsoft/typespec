@@ -35,6 +35,7 @@ namespace SamplePlugin.Providers
         {
             var methods = base.BuildMethods();
             var tracedMethods = new List<MethodProvider>();
+            // TODO only trace methods that are making service calls
             foreach (var method in methods)
             {
                 var ex = new VariableExpression(typeof(Exception), "ex");
