@@ -131,6 +131,26 @@ namespace UnbrandedTypeSpec
             return await SayHiAsync(headParameter, queryParameter, optionalQuery, null).ConfigureAwait(false);
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionsayHi()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionsayHi.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionsayHi.");
+            }
+        }
+
         internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
             try
@@ -243,6 +263,26 @@ namespace UnbrandedTypeSpec
 
             ClientResult result = await HelloAgainAsync(p1, p2, action, null).ConfigureAwait(false);
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionhelloAgain()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloAgain.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloAgain.");
+            }
         }
 
         internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
@@ -359,6 +399,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionnoContentType()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionnoContentType.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionnoContentType.");
+            }
+        }
+
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
             try
@@ -433,6 +493,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloDemo2Async()
         {
             return await HelloDemo2Async(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionhelloDemo2()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloDemo2.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloDemo2.");
+            }
         }
 
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
@@ -523,6 +603,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversioncreateLiteral()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversioncreateLiteral.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversioncreateLiteral.");
+            }
+        }
+
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
             try
@@ -597,6 +697,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> HelloLiteralAsync()
         {
             return await HelloLiteralAsync(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionhelloLiteral()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionhelloLiteral.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionhelloLiteral.");
+            }
         }
 
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
@@ -695,6 +815,26 @@ namespace UnbrandedTypeSpec
             return await TopActionAsync(action, null).ConfigureAwait(false);
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversiontopAction()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversiontopAction.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversiontopAction.");
+            }
+        }
+
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
             try
@@ -769,6 +909,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> TopAction2Async()
         {
             return await TopAction2Async(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversiontopAction2()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversiontopAction2.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversiontopAction2.");
+            }
         }
 
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
@@ -859,6 +1019,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionpatchAction()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionpatchAction.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionpatchAction.");
+            }
+        }
+
         internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
         {
             try
@@ -945,6 +1125,26 @@ namespace UnbrandedTypeSpec
 
             ClientResult result = await AnonymousBodyAsync(Thing, null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionanonymousBody()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionanonymousBody.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionanonymousBody.");
+            }
         }
 
         internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
@@ -1035,6 +1235,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionfriendlyModel()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionfriendlyModel.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionfriendlyModel.");
+            }
+        }
+
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
             try
@@ -1113,6 +1333,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> AddTimeHeaderAsync(DateTimeOffset repeatabilityFirstSent)
         {
             return await AddTimeHeaderAsync(repeatabilityFirstSent, null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionaddTimeHeader()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionaddTimeHeader.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionaddTimeHeader.");
+            }
         }
 
         internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
@@ -1203,6 +1443,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionprojectedNameModel()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionprojectedNameModel.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionprojectedNameModel.");
+            }
+        }
+
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
             try
@@ -1279,6 +1539,26 @@ namespace UnbrandedTypeSpec
             return await ReturnsAnonymousModelAsync(null).ConfigureAwait(false);
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionreturnsAnonymousModel()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionreturnsAnonymousModel.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionreturnsAnonymousModel.");
+            }
+        }
+
         internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
         {
             try
@@ -1353,6 +1633,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> GetUnknownValueAsync()
         {
             return await GetUnknownValueAsync(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversiongetUnknownValue()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversiongetUnknownValue.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversiongetUnknownValue.");
+            }
         }
 
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
@@ -1443,6 +1743,26 @@ namespace UnbrandedTypeSpec
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversioninternalProtocol()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversioninternalProtocol.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversioninternalProtocol.");
+            }
+        }
+
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
             try
@@ -1517,6 +1837,26 @@ namespace UnbrandedTypeSpec
         public virtual async Task<ClientResult> StillConvenientAsync()
         {
             return await StillConvenientAsync(null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionstillConvenient()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionstillConvenient.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionstillConvenient.");
+            }
         }
 
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
@@ -1613,6 +1953,26 @@ namespace UnbrandedTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             return await HeadAsBooleanAsync(id, null).ConfigureAwait(false);
+        }
+
+        /// <summary> Test expression body conversion. </summary>
+        /// <returns> Returns an int. </returns>
+        public int TestExpressionBodyConversionheadAsBoolean()
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method TestExpressionBodyConversionheadAsBoolean.");
+                return 42;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TestExpressionBodyConversionheadAsBoolean.");
+            }
         }
     }
 }

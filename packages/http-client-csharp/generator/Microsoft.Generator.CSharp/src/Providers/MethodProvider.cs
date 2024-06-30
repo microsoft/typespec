@@ -14,6 +14,7 @@ namespace Microsoft.Generator.CSharp.Providers
     /// </summary>
     public class MethodProvider
     {
+        private readonly TypeProvider _enclosingType;
         public MethodSignatureBase Signature { get; }
         public MethodBodyStatement? BodyStatements { get; }
         public ValueExpression? BodyExpression { get; }
@@ -33,6 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var paramHash = GetParamhash(skipParamValidation);
             BodyStatements = GetBodyStatementWithValidation(bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? (IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers) ? BuildXmlDocs(paramHash) : null);
+            _enclosingType = enclosingType;
         }
 
         /// <summary>
@@ -47,6 +49,26 @@ namespace Microsoft.Generator.CSharp.Providers
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? (IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers) ? BuildXmlDocs(null) : null);
+            _enclosingType = enclosingType;
+        }
+
+        public MethodProvider ToBodyStatementMethodProvider()
+        {
+            if (BodyExpression != null)
+            {
+                MethodBodyStatement methodBody;
+                if (BodyExpression is KeywordExpression { Keyword: "throw" } keywordExpression)
+                {
+                    methodBody = keywordExpression.Terminate();
+                }
+                else
+                {
+                    methodBody = new KeywordExpression("return", BodyExpression).Terminate();
+                }
+                return new MethodProvider(Signature, methodBody, _enclosingType, XmlDocs);
+            }
+
+            return this;
         }
 
         private static bool IsMethodPublic(TypeSignatureModifiers typeModifiers, MethodSignatureModifiers methodModifiers)
