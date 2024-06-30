@@ -40,7 +40,7 @@ namespace SamplePlugin.Providers
             foreach (var method in methods)
             {
                 // Only add tracing to protocol methods. Convenience methods will call into protocol methods.
-                if (method is ClientMethodProvider { IsProtocol: false })
+                if (method is not ClientMethodProvider { IsProtocol: true })
                 {
                     updatedMethods.Add(method);
                     continue;

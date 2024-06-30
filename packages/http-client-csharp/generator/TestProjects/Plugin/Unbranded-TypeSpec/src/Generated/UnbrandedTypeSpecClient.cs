@@ -23,20 +23,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateSayHiRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateSayHiRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Return hi. </summary>
@@ -153,20 +140,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloAgainRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateHelloAgainRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateHelloAgainRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Return hi again. </summary>
@@ -287,20 +261,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateNoContentTypeRequest(string p1, string p2, BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateNoContentTypeRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateNoContentTypeRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Return hi again. </summary>
@@ -421,20 +382,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloDemo2Request(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateHelloDemo2Request.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateHelloDemo2Request.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -517,20 +465,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateCreateLiteralRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateCreateLiteralRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateCreateLiteralRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Create with literal value. </summary>
@@ -625,20 +560,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHelloLiteralRequest(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateHelloLiteralRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateHelloLiteralRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -721,20 +643,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateTopActionRequest(DateTimeOffset action, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateTopActionRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateTopActionRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> top level method. </summary>
@@ -837,20 +746,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateTopAction2Request(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateTopAction2Request.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateTopAction2Request.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> top level method2. </summary>
@@ -933,20 +829,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreatePatchActionRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreatePatchActionRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreatePatchActionRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> top level patch. </summary>
@@ -1041,20 +924,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateAnonymousBodyRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateAnonymousBodyRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateAnonymousBodyRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -1149,20 +1019,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateFriendlyModelRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateFriendlyModelRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateFriendlyModelRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -1257,20 +1114,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateAddTimeHeaderRequest(DateTimeOffset repeatabilityFirstSent, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateAddTimeHeaderRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateAddTimeHeaderRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> addTimeHeader. </summary>
@@ -1357,20 +1201,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateProjectedNameModelRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateProjectedNameModelRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateProjectedNameModelRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -1465,20 +1296,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateReturnsAnonymousModelRequest(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateReturnsAnonymousModelRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateReturnsAnonymousModelRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> return anonymous model. </summary>
@@ -1561,20 +1379,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateGetUnknownValueRequest(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateGetUnknownValueRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateGetUnknownValueRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1657,20 +1462,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateInternalProtocolRequest(BinaryContent content, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateInternalProtocolRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateInternalProtocolRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1765,20 +1557,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateStillConvenientRequest(RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateStillConvenientRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateStillConvenientRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1861,20 +1640,7 @@ namespace UnbrandedTypeSpec
 
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
-            try
-            {
-                System.Console.WriteLine("Entering method CreateHeadAsBooleanRequest.");
-                throw new NotImplementedException("Method not implemented.");
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
-                throw;
-            }
-            finally
-            {
-                System.Console.WriteLine("Exiting method CreateHeadAsBooleanRequest.");
-            }
+            throw new NotImplementedException("Method not implemented.");
         }
 
         /// <summary> head as boolean. </summary>
