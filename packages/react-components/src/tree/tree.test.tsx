@@ -65,7 +65,7 @@ it("expand nodes by clicking on it", async () => {
   expect(nodes[4]).toHaveAttribute("aria-expanded", "false");
 });
 
-it.only("expand nodes by pressing enter on it", async () => {
+it("expand nodes by pressing enter on it", async () => {
   render(<Tree tree={simpleTree} />);
   const treeNode = await screen.findByRole("tree");
   fireEvent.focus(treeNode);
@@ -73,7 +73,7 @@ it.only("expand nodes by pressing enter on it", async () => {
   expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
 });
 
-it.only("expand nodes by pressing space on it", async () => {
+it("expand nodes by pressing space on it", async () => {
   render(<Tree tree={simpleTree} />);
   const treeNode = await screen.findByRole("tree");
   fireEvent.focus(treeNode);
@@ -81,7 +81,7 @@ it.only("expand nodes by pressing space on it", async () => {
   expect(await screen.findAllByRole("treeitem")).toHaveLength(5);
 });
 
-it.only("use left right arrow to expand and collapse", async () => {
+it("use left right arrow to expand and collapse", async () => {
   render(<Tree tree={simpleTree} />);
   const treeNode = await screen.findByRole("tree");
   fireEvent.focus(treeNode);
