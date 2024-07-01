@@ -8,6 +8,7 @@ import {
   type JSONSchemaType,
   type Program,
 } from "@typespec/compiler";
+import { readFile } from "fs/promises";
 import { createElement } from "react";
 import ReactDOMServer from "react-dom/server";
 import { fileURLToPath } from "url";
@@ -57,11 +58,12 @@ export async function $onEmit(context: EmitContext<HtmlProgramViewerOptions>) {
     path: htmlPath,
     content: `<!DOCTYPE html><html lang="en"><link rel="stylesheet" href="style.css"><body>${html}</body></html>`,
   });
-  const css = await context.program.host.readFile(
+
+  const css = await readFile(
     resolvePath(getDirectoryPath(fileURLToPath(import.meta.url)), "style.css")
   );
   await emitFile(context.program, {
     path: resolvePath(outputDir, "style.css"),
-    content: css.text,
+    content: css.toString(),
   });
 }

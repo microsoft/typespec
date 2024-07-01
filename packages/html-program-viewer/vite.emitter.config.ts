@@ -4,11 +4,11 @@ import checker from "vite-plugin-checker";
 
 const externals = [
   "url",
+  "fs/promises",
   "@typespec/compiler",
   "react",
   "react-dom",
   "react-dom/server",
-  // "@fluentui/react-components",
 ];
 
 export default defineConfig({

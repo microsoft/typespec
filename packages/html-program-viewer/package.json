@@ -17,7 +17,7 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/emitter/index.js",
   "exports": {
     ".": {
       "default": "./dist/emitter/index.js"

@@ -19,7 +19,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 3000,
     lib: {
       entry: {
-        index: "src/index.ts",
         "react/index": "src/react/index.ts",
       },
       formats: ["es"],
