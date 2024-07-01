@@ -91,9 +91,9 @@ export function isInputModelType(type: InputType): type is InputModelType {
 export interface InputEnumType extends InputTypeBase {
   Kind: "enum";
   Name: string;
+  CrossLanguageDefinitionId: string;
   ValueType: InputPrimitiveType;
   Values: InputEnumTypeValue[];
-  CrossLanguageDefinitionId: string;
   Accessibility?: string;
   Deprecated?: string;
   IsExtensible: boolean;
