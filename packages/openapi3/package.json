@@ -59,7 +59,6 @@
   "dependencies": {
     "@readme/openapi-parser": "~2.6.0",
     "@typespec/prettier-plugin-typespec": "workspace:~",
-    "prettier": "~3.2.5",
     "yaml": "~2.4.5",
     "yargs": "~17.7.2"
   },
