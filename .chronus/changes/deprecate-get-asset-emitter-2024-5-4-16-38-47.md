@@ -6,4 +6,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Fix issue that could result in invalid document generation when runnning `tsp compile` from another directory
+Fix issue that could result in invalid document generation when running `tsp compile` from another directory
