@@ -55,6 +55,13 @@ namespace Microsoft.Generator.CSharp.Snippets
             return Declare(declaration, value);
         }
 
+        public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out VariableExpression variable)
+        {
+            var declaration = new VariableExpression(value.Type, name);
+            variable = declaration;
+            return Declare(declaration, value);
+        }
+
         public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value)
             => new DeclarationExpression(variable).Assign(value).Terminate();
 

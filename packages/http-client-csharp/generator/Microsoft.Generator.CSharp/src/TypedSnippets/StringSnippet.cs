@@ -28,8 +28,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public ValueExpression ToCharArray()
             => new InvokeInstanceMethodExpression(this, nameof(string.ToCharArray), Array.Empty<ValueExpression>(), null, false);
 
-        public CharSnippet this[ValueExpression index] => new(new IndexerExpression(this, index));
+        public ScopedApi<char> this[ValueExpression index] => new(new IndexerExpression(this, index));
 
-        public CharSnippet this[int index] => this[Snippet.Literal(index)];
+        public ScopedApi<char> this[int index] => this[Snippet.Literal(index)];
     }
 }

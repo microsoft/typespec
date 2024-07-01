@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
-            var value = new CharSnippet(charValueParameter);
+            var value = charValueParameter.AsExpression.As<char>();
             var writeStringChar = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,

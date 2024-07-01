@@ -76,11 +76,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var sdkName = "Generated clients require";
             var toStringDateTime = new MethodProvider(
                 dateTimeSignature,
-                new SwitchExpression(dateTimeValueKind, new SwitchCaseExpression[]
-                {
+                new SwitchExpression(dateTimeValueKind,
+                [
                     new(new MemberExpression(typeof(DateTimeKind), nameof(DateTimeKind.Utc)), TypeFormattersSnippet.ToString(dateTimeValue.CastTo(typeof(DateTimeOffset)), format)),
                     SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(new FormattableStringExpression($"DateTime {{0}} has a Kind of {{1}}. {sdkName} it to be UTC. You can call DateTime.SpecifyKind to change Kind property value to DateTimeKind.Utc.", [dateTimeValue, dateTimeValueKind]))))
-                }),
+                ]),
                 this);
 
             var dateTimeOffsetParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(DateTimeOffset));
@@ -176,7 +176,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 Declare("i", Int(0), out var i),
                 new ForStatement(null, i.LessThan(numBase64Chars), new UnaryOperatorExpression("++", i, true))
                 {
-                    Declare("ch", new CharSnippet(output[i]), out var ch),
+                    Declare("ch", output[i].As<char>(), out var ch),
                     new IfElseStatement(new IfStatement(ch.Equal(Literal('+')))
                     {
                         output[i].Assign(Literal('-')).Terminate()
