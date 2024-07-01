@@ -20,8 +20,7 @@
   "main": "dist/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/emitter/index.js"
     },
     "./react": {
       "types": "./dist/src/react/index.d.ts",

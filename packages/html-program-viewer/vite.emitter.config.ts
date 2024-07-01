@@ -22,6 +22,7 @@ export default defineConfig({
       },
       formats: ["es"],
     },
+    outDir: "dist/emitter",
 
     rollupOptions: {
       external: externals,
