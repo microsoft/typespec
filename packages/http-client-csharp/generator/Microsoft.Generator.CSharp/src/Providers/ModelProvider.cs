@@ -13,7 +13,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelProvider : TypeProvider
+    public class ModelProvider : TypeProvider
     {
         private readonly InputModelType _inputModel;
         public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -62,58 +62,81 @@ namespace Microsoft.Generator.CSharp.Providers
             return _declarationModifiers;
         }
 
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider>? _propertiesCache;
+        private IReadOnlyDictionary<InputModelProperty, PropertyProvider> BuildPropertiesCache()
+        {
+            if (_propertiesCache != null)
+            {
+                return _propertiesCache;
+            }
+
+            var cache = new Dictionary<InputModelProperty, PropertyProvider>(_inputModel.Properties.Count);
+            _propertiesCache = cache;
+            var propertiesCount = _inputModel.Properties.Count;
+
+            for (int i = 0; i < propertiesCount; i++)
+            {
+                var inputProperty = _inputModel.Properties[i];
+                var property = new PropertyProvider(inputProperty);
+                cache.Add(inputProperty, property);
+            }
+
+            return _propertiesCache;
+        }
+
         private readonly Lazy<ModelDiscriminator?> _discriminator;
         public ModelDiscriminator? Discriminator => _discriminator.Value;
 
-        // TODO -- in the future this is potentially to be protected virtual when this type is un-sealed.
-        private ModelDiscriminator? BuildDiscriminator()
+        protected virtual ModelDiscriminator? BuildDiscriminator()
         {
-            string? discriminatorPropertyName = _inputModel.DiscriminatorPropertyName;
-            var implemenations = new Dictionary<string, CSharpType>();
+            var inputDiscriminatorProperty = _inputModel.DiscriminatorProperty;
 
-            PropertyProvider discriminatorProperty;
-
-            if (discriminatorPropertyName == null)
+            if (inputDiscriminatorProperty != null)
             {
-                // if this model does not have the discriminator, we find through the hierarchy to see if my direct parent has a discriminator
-                if (Inherits is not { IsFrameworkType: false, Implementation: ModelProvider parent } || parent.Discriminator == null)
-                {
-                    // if neither myself nor my parent has discriminator, we do not have a discriminator for this model
-                    return null;
-                }
+                // I am a base model in a discriminated set, build the implementated types
+                var discriminatorProperty = BuildPropertiesCache()[inputDiscriminatorProperty];
 
-                discriminatorPropertyName = parent.Discriminator.DiscriminatorSerializedName;
-                discriminatorProperty = parent.Discriminator.DiscriminatorProperty;
+                return new ModelDiscriminator(
+                    discriminatorProperty,
+                    inputDiscriminatorProperty.SerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
             }
             else
             {
-                // build the implementations
-                foreach (var derivedModel in _inputModel.DerivedModels)
+                // I am a derived model in a discriminator or I do not have a discriminator
+                // find the discriminator in my direct parent
+                if (Inherits is not { IsFrameworkType: false, Implementation: ModelProvider parent } || parent.Discriminator == null)
                 {
-                    var model = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(derivedModel);
-                    implemenations.Add(derivedModel.DiscriminatorValue!, model);
+                    // I do not have a discriminator
+                    return null;
                 }
 
-                // find the discriminator property from the property list
-                // TODO -- how do I find the discriminator property from the list???
-                discriminatorProperty = Properties[0];
+                return new ModelDiscriminator(
+                    parent.Discriminator.DiscriminatorProperty,
+                    parent.Discriminator.DiscriminatorSerializedName,
+                    BuildDiscriminatedSubtypes(_inputModel.DiscriminatedSubtypes),
+                    _inputModel.DiscriminatorValue
+                    );
             }
 
-            return new(discriminatorProperty, discriminatorPropertyName, implemenations, _inputModel.DiscriminatorValue);
+            static IReadOnlyDictionary<string, CSharpType> BuildDiscriminatedSubtypes(IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes)
+            {
+                var implementations = new Dictionary<string, CSharpType>(discriminatedSubtypes.Count);
+
+                foreach (var (value, derived) in discriminatedSubtypes)
+                {
+                    implementations.Add(value, CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(derived));
+                }
+
+                return implementations;
+            }
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
-            var propertiesCount = _inputModel.Properties.Count;
-            var propertyDeclarations = new PropertyProvider[propertiesCount];
-
-            for (int i = 0; i < propertiesCount; i++)
-            {
-                var property = _inputModel.Properties[i];
-                propertyDeclarations[i] = new PropertyProvider(property);
-            }
-
-            return propertyDeclarations;
+            return BuildPropertiesCache().Values.ToArray();
         }
 
         protected override MethodProvider[] BuildConstructors()
