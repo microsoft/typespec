@@ -10,7 +10,7 @@ import { transform } from "./transforms/transforms.js";
 export async function convertAction(host: CliHost, args: ConvertCliArgs & { path: string }) {
   // attempt to read the file
   const fullPath = resolve(process.cwd(), args.path);
-  const model = (await parseOpenApiFile(fullPath)) as OpenAPI3Document;
+  const model = await parseOpenApiFile(fullPath);
   const program = transform(model);
   let mainTsp: string;
   try {
@@ -25,6 +25,6 @@ export async function convertAction(host: CliHost, args: ConvertCliArgs & { path
   }
 }
 
-function parseOpenApiFile(path: string) {
-  return oaParser.bundle(path);
+function parseOpenApiFile(path: string): Promise<OpenAPI3Document> {
+  return oaParser.bundle(path) as Promise<OpenAPI3Document>;
 }
