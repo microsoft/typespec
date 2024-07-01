@@ -50,7 +50,6 @@ namespace SamplePlugin.Providers
                     convertedMethod.Signature,
                     new TryCatchFinallyStatement(
                         new[] {
-                            // TODO translate BodyExpression into BodyStatement?
                         InvokeConsoleWriteLine(Literal($"Entering method {convertedMethod.Signature.Name}.")),  convertedMethod.BodyStatements! },
                         new CatchExpression(
                             decl,
