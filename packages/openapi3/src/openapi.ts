@@ -301,12 +301,14 @@ function createOAPIEmitter(
       service.type,
       options.omitUnreachableTypes
     );
-    schemaEmitter = context.getAssetEmitter(
+    schemaEmitter = createAssetEmitter(
+      program,
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
           super(emitter, metadataInfo, visibilityUsage, options);
         }
-      } as any
+      } as any,
+      context
     );
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);

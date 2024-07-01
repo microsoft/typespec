@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -29,9 +30,9 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = $"{_enumType.Name}Extensions";
         }
 
-        protected override string GetFileName() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
-
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial;
+
+        public override string RelativeFilePath => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
         public override string Namespace { get; }
 
@@ -63,7 +64,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
                     ReturnType: _enumType.ValueType,
                     Parameters: [serializationValueParameter],
-                    Summary: null, Description: null, ReturnDescription: null);
+                    Description: null, ReturnDescription: null);
 
                 // the fields of an enum type are the values of the enum type
                 var knownCases = new SwitchCaseExpression[_enumType.Members.Count];
@@ -74,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
                 var defaultCase = SwitchCaseExpression.Default(ThrowExpression(New.ArgumentOutOfRangeException(_enumType, serializationValueParameter)));
                 var serializationBody = new SwitchExpression(serializationValueParameter, [.. knownCases, defaultCase]);
-                methods.Add(new(serializationSignature, serializationBody));
+                methods.Add(new(serializationSignature, serializationBody, this));
             }
 
             // deserialization method (we always need a deserialization)
@@ -84,7 +85,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
                 ReturnType: _enumType.Type,
                 Parameters: [deserializationValueParameter],
-                Summary: null, Description: null, ReturnDescription: null);
+                Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)deserializationValueParameter;
             var stringComparer = new MemberExpression(typeof(StringComparer), nameof(StringComparer.OrdinalIgnoreCase));
@@ -112,7 +113,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 else
                 {
                     // when the values are not strings (it should be numbers), we just compare them using `==` operator, like `value == <the value>`
-                    condition = Equal(value, Literal(enumValue.Value));
+                    condition = value.Equal(Literal(enumValue.Value));
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {
@@ -123,7 +124,7 @@ namespace Microsoft.Generator.CSharp.Providers
             // add a fallback throw statement to ensure every path of this method returns a value
             deserializationBody.Add(Throw(New.ArgumentOutOfRangeException(_enumType, deserializationValueParameter)));
 
-            methods.Add(new(deserializationSignature, deserializationBody));
+            methods.Add(new(deserializationSignature, deserializationBody, this));
 
             return methods.ToArray();
         }

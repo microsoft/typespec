@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Customization;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using NuGet.Configuration;
 
@@ -146,7 +147,6 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         private async Task<Compilation?> LoadBaselineContract()
         {
-
             string fullPath;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.Namespace}.csproj"));
             if (!File.Exists(projectFilePath))
