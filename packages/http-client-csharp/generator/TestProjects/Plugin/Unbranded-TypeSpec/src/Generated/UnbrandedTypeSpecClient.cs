@@ -49,7 +49,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
                 throw;
             }
             finally
@@ -81,7 +81,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
                 throw;
             }
             finally
@@ -129,7 +129,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionSayHi: {ex}");
                 throw;
             }
             finally
@@ -166,7 +166,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
                 throw;
             }
             finally
@@ -198,7 +198,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
                 throw;
             }
             finally
@@ -250,7 +250,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloAgain: {ex}");
                 throw;
             }
             finally
@@ -287,7 +287,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method NoContentType: {ex}");
                 throw;
             }
             finally
@@ -319,7 +319,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method NoContentTypeAsync: {ex}");
                 throw;
             }
             finally
@@ -371,7 +371,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionNoContentType: {ex}");
                 throw;
             }
             finally
@@ -398,7 +398,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
                 throw;
             }
             finally
@@ -420,7 +420,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
                 throw;
             }
             finally
@@ -454,7 +454,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloDemo2: {ex}");
                 throw;
             }
             finally
@@ -482,7 +482,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
                 throw;
             }
             finally
@@ -505,7 +505,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
                 throw;
             }
             finally
@@ -549,7 +549,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionCreateLiteral: {ex}");
                 throw;
             }
             finally
@@ -576,7 +576,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
                 throw;
             }
             finally
@@ -598,7 +598,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
                 throw;
             }
             finally
@@ -632,7 +632,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHelloLiteral: {ex}");
                 throw;
             }
             finally
@@ -665,7 +665,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
                 throw;
             }
             finally
@@ -693,7 +693,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
                 throw;
             }
             finally
@@ -735,7 +735,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionTopAction: {ex}");
                 throw;
             }
             finally
@@ -762,7 +762,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction2: {ex}");
                 throw;
             }
             finally
@@ -784,7 +784,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TopAction2Async: {ex}");
                 throw;
             }
             finally
@@ -818,7 +818,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionTopAction2: {ex}");
                 throw;
             }
             finally
@@ -846,7 +846,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method PatchAction: {ex}");
                 throw;
             }
             finally
@@ -869,7 +869,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method PatchActionAsync: {ex}");
                 throw;
             }
             finally
@@ -913,7 +913,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionPatchAction: {ex}");
                 throw;
             }
             finally
@@ -941,7 +941,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
                 throw;
             }
             finally
@@ -964,7 +964,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
                 throw;
             }
             finally
@@ -1008,7 +1008,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionAnonymousBody: {ex}");
                 throw;
             }
             finally
@@ -1036,7 +1036,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
                 throw;
             }
             finally
@@ -1059,7 +1059,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
                 throw;
             }
             finally
@@ -1103,7 +1103,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionFriendlyModel: {ex}");
                 throw;
             }
             finally
@@ -1131,7 +1131,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
                 throw;
             }
             finally
@@ -1154,7 +1154,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
                 throw;
             }
             finally
@@ -1190,7 +1190,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionAddTimeHeader: {ex}");
                 throw;
             }
             finally
@@ -1218,7 +1218,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
                 throw;
             }
             finally
@@ -1241,7 +1241,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
                 throw;
             }
             finally
@@ -1285,7 +1285,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionProjectedNameModel: {ex}");
                 throw;
             }
             finally
@@ -1312,7 +1312,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
                 throw;
             }
             finally
@@ -1334,7 +1334,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
                 throw;
             }
             finally
@@ -1368,7 +1368,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionReturnsAnonymousModel: {ex}");
                 throw;
             }
             finally
@@ -1395,7 +1395,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
                 throw;
             }
             finally
@@ -1417,7 +1417,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
                 throw;
             }
             finally
@@ -1451,7 +1451,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionGetUnknownValue: {ex}");
                 throw;
             }
             finally
@@ -1479,7 +1479,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
                 throw;
             }
             finally
@@ -1502,7 +1502,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
                 throw;
             }
             finally
@@ -1546,7 +1546,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionInternalProtocol: {ex}");
                 throw;
             }
             finally
@@ -1573,7 +1573,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
                 throw;
             }
             finally
@@ -1595,7 +1595,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
                 throw;
             }
             finally
@@ -1629,7 +1629,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionStillConvenient: {ex}");
                 throw;
             }
             finally
@@ -1662,7 +1662,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
                 throw;
             }
             finally
@@ -1690,7 +1690,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
                 throw;
             }
             finally
@@ -1732,7 +1732,7 @@ namespace UnbrandedTypeSpec
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"An exception was thrown: {ex}");
+                System.Console.WriteLine($"An exception was thrown in method TestExpressionBodyConversionHeadAsBoolean: {ex}");
                 throw;
             }
             finally

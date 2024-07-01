@@ -55,7 +55,7 @@ namespace SamplePlugin.Providers
                             decl,
                             new[]
                             {
-                                InvokeConsoleWriteLine(new FormattableStringExpression("An exception was thrown: {0}", new[] {ex})),
+                                InvokeConsoleWriteLine(new FormattableStringExpression($"An exception was thrown in method {convertedMethod.Signature.Name}: {{0}}", new[] {ex})),
                                 Throw()
                             }),
                         InvokeConsoleWriteLine(Literal($"Exiting method {convertedMethod.Signature.Name}."))),
