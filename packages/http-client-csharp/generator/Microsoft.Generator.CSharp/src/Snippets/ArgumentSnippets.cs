@@ -5,31 +5,29 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Statements;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    internal sealed record ArgumentSnippet(ValueExpression Expression) : TypedSnippet<ArgumentDefinition>(Expression)
+    internal class ArgumentSnippets
     {
         private const string AssertNotNullMethodName = "AssertNotNull";
         private const string AssertNotNullOrEmptyMethodName = "AssertNotNullOrEmpty";
         private const string AssertNotNullOrWhiteSpaceMethodName = "AssertNotNullOrWhiteSpace";
 
-        private static ArgumentDefinition? _provider;
-        private static ArgumentDefinition Provider => _provider ??= new();
-
         public static MethodBodyStatement AssertNotNull(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
+            return Static<ArgumentDefinition>().Invoke(AssertNotNullMethodName, [variable, name ?? Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement AssertNotNullOrEmpty(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullOrEmptyMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
+            return Static<ArgumentDefinition>().Invoke(AssertNotNullOrEmptyMethodName, [variable, name ?? Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement AssertNotNullOrWhiteSpace(ValueExpression variable, ValueExpression? name = null)
         {
-            return new InvokeStaticMethodExpression(Provider.Type, AssertNotNullOrWhiteSpaceMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
+            return Static<ArgumentDefinition>().Invoke(AssertNotNullOrWhiteSpaceMethodName, [variable, name ?? Snippet.Nameof(variable)]).Terminate();
         }
 
         public static MethodBodyStatement ValidateParameter(ParameterProvider parameter) => parameter.Validation switch

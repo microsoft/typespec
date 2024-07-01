@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
             var p = new ParameterProvider("p1", $"p1", new CSharpType(typeof(bool)));
 
 
-            ArgumentSnippet.AssertNotNull(p).Write(writer);
+            ArgumentSnippets.AssertNotNull(p).Write(writer);
             Assert.AreEqual("global::sample.namespace.Argument.AssertNotNull(p1, nameof(p1));\n", writer.ToString(false));
         }
     }

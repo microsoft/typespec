@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippet;
+using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers

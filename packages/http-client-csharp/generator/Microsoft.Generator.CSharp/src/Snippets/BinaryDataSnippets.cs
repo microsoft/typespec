@@ -8,7 +8,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public static class BinaryDataSnippet
+    public static class BinaryDataSnippets
     {
         public static FrameworkTypeSnippet ToObjectFromJson(this ScopedApi<BinaryData> binaryData, Type responseType)
             => new(responseType, new InvokeInstanceMethodExpression(binaryData, nameof(BinaryData.ToObjectFromJson), [], [new CSharpType(responseType)], false));

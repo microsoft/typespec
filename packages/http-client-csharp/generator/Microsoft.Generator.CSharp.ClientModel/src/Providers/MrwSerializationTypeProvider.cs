@@ -719,7 +719,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var t when t == typeof(BinaryData) =>
                     SerializeBinaryData(valueType, serializationFormat, value),
                 var t when t == typeof(Stream) =>
-                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippet.FromStream(value, false)),
+                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
                 _ => throw new NotSupportedException($"Type {nameof(valueType)} serialization is not supported.")
             };
         }
