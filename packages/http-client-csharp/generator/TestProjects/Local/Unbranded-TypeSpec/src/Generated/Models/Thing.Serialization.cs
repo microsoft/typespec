@@ -16,7 +16,7 @@ namespace UnbrandedTypeSpec.Models
     {
         private IDictionary<string, BinaryData> _serializedAdditionalRawData;
 
-        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> serializedAdditionalRawData)
+        internal Thing(string name, BinaryData requiredUnion, ThingRequiredLiteralString requiredLiteralString, ThingRequiredLiteralInt requiredLiteralInt, ThingRequiredLiteralFloat requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString optionalLiteralString, ThingOptionalLiteralInt optionalLiteralInt, ThingOptionalLiteralFloat optionalLiteralFloat, bool optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, BaseModelWithDiscriminator optionalDiscriminatedSet, IDictionary<string, BinaryData> serializedAdditionalRawData)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -31,6 +31,7 @@ namespace UnbrandedTypeSpec.Models
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = optionalNullableList;
             RequiredNullableList = requiredNullableList;
+            OptionalDiscriminatedSet = optionalDiscriminatedSet;
             _serializedAdditionalRawData = serializedAdditionalRawData;
         }
 
@@ -113,6 +114,11 @@ namespace UnbrandedTypeSpec.Models
             else
             {
                 writer.WriteNull("requiredNullableList"u8);
+            }
+            if (Optional.IsDefined(OptionalDiscriminatedSet))
+            {
+                writer.WritePropertyName("optionalDiscriminatedSet"u8);
+                writer.WriteObjectValue(OptionalDiscriminatedSet, options);
             }
             if (options.Format != "W" && _serializedAdditionalRawData != null)
             {

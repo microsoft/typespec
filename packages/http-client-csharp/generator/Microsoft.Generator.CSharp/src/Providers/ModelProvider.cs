@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 _declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            bool isAbstract = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
+            bool isAbstract = inputModel.DiscriminatorProperty is not null;
             if (isAbstract)
             {
                 _declarationModifiers |= TypeSignatureModifiers.Abstract;
@@ -52,15 +52,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.GetSerializationTypeProviders(this, _inputModel).ToArray();
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
-        {
-            if (Discriminator != null)
-            {
-                return _declarationModifiers | TypeSignatureModifiers.Abstract;
-            }
-
-            return _declarationModifiers;
-        }
+        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers;
 
         private IReadOnlyDictionary<InputModelProperty, PropertyProvider>? _propertiesCache;
         private IReadOnlyDictionary<InputModelProperty, PropertyProvider> BuildPropertiesCache()
