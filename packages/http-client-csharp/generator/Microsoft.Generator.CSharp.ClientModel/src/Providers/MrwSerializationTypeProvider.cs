@@ -849,9 +849,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                                 GetObjectInstanceMethodName,
                                 [TypeOf(modelProvider.Type)]
                                 ).CastTo(modelProviderJsonType);
-                            // instance.Create(ref reader, options);
-                            value = instance.Invoke(nameof(IJsonModel<object>.Create), _utf8JsonReaderParameter, _mrwOptionsParameterSnippet);
-                            return Declare(instance, getObjectInstance);
+                            // var data = new BinaryData(prop.Value);
+                            var convertPropertyToBinaryData = BinaryDataSnippet.FromString(jsonElement.GetRawText());
+                            var data = new VariableExpression(typeof(BinaryData), "data");
+                            // var modelReader = new Utf8JsonReader((ReadOnlySpan<byte>)(data));
+                            var modelReader = new VariableExpression(typeof(Utf8JsonReader), "modelReader");
+                            // instance.Create(ref modelReader, options);
+                            var modelReaderParam = new ParameterProvider("modelReader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
+                            value = instance.Invoke(nameof(IJsonModel<object>.Create), modelReaderParam, _mrwOptionsParameterSnippet);
+                            return new MethodBodyStatement[]
+                            {
+                                Declare(instance, getObjectInstance),
+                                Declare(data, convertPropertyToBinaryData),
+                                Declare(modelReader, New.Instance(typeof(Utf8JsonReader), data.CastTo(typeof(ReadOnlySpan<byte>)))),
+                            };
                         }
                         else
                         {

@@ -348,7 +348,9 @@ namespace UnbrandedTypeSpec.Models
                 if (prop.NameEquals("requiredModel"u8))
                 {
                     IJsonModel<Thing> instance = (IJsonModel<Thing>)GetObjectInstance(typeof(Thing));
-                    requiredModel = instance.Create(ref reader, options);
+                    BinaryData data = BinaryData.FromString(prop.Value.GetRawText());
+                    Utf8JsonReader modelReader = new Utf8JsonReader((ReadOnlySpan<byte>)data);
+                    requiredModel = instance.Create(ref modelReader, options);
                     continue;
                 }
                 if (prop.NameEquals("intExtensibleEnum"u8))
@@ -563,7 +565,9 @@ namespace UnbrandedTypeSpec.Models
                 if (prop.NameEquals("modelWithRequiredNullable"u8))
                 {
                     IJsonModel<ModelWithRequiredNullableProperties> instance = (IJsonModel<ModelWithRequiredNullableProperties>)GetObjectInstance(typeof(ModelWithRequiredNullableProperties));
-                    modelWithRequiredNullable = instance.Create(ref reader, options);
+                    BinaryData data = BinaryData.FromString(prop.Value.GetRawText());
+                    Utf8JsonReader modelReader = new Utf8JsonReader((ReadOnlySpan<byte>)data);
+                    modelWithRequiredNullable = instance.Create(ref modelReader, options);
                     continue;
                 }
                 if (prop.NameEquals("requiredBytes"u8))
