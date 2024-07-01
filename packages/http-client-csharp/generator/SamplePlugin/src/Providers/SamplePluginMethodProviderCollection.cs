@@ -23,18 +23,13 @@ namespace SamplePlugin.Providers
         protected override IReadOnlyList<MethodProvider> BuildMethods()
         {
             var methods = new List<MethodProvider>();
+
+            // Add the base methods.
             methods.AddRange(base.BuildMethods());
-            methods.Add(
-                new ClientMethodProvider(
-                    new MethodSignature(
-                        $"TestExpressionBodyConversion{ToTitleCase(Operation.Name)}",
-                        $"Test expression body conversion.",
-                        MethodSignatureModifiers.Public,
-                        typeof(int),
-                        $"Returns an int",
-                        Array.Empty<ParameterProvider>()),
-                    Literal(42),
-                    EnclosingType) { IsProtocol = true });
+
+            // Add an expression bodied method to demonstrate that we can still inject tracing in these.
+            methods.Add(GetExpressionBodiedTestMethod());
+
             var updatedMethods = new List<MethodProvider>();
 
             foreach (var method in methods)
@@ -70,6 +65,18 @@ namespace SamplePlugin.Providers
 
             return updatedMethods;
         }
+
+        private MethodProvider GetExpressionBodiedTestMethod() =>
+            new ClientMethodProvider(
+                new MethodSignature(
+                    $"TestExpressionBodyConversion{ToTitleCase(Operation.Name)}",
+                    $"Test expression body conversion.",
+                    MethodSignatureModifiers.Public,
+                    typeof(int),
+                    $"Returns an int",
+                    Array.Empty<ParameterProvider>()),
+                Literal(42),
+                EnclosingType) { IsProtocol = true };
 
         private string ToTitleCase(string name)
         {
