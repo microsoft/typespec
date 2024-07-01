@@ -1089,6 +1089,55 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@14.11.0)
 
+  packages/service-generator-csharp:
+    dependencies:
+      '@typespec/versioning':
+        specifier: workspace:~
+        version: link:../versioning
+      change-case:
+        specifier: ~5.4.2
+        version: 5.4.4
+    devDependencies:
+      '@types/node':
+        specifier: ~18.11.19
+        version: 18.11.19
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/library-linter':
+        specifier: workspace:~
+        version: link:../library-linter
+      '@typespec/openapi':
+        specifier: workspace:~
+        version: link:../openapi
+      '@typespec/rest':
+        specifier: workspace:~
+        version: link:../rest
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
+      '@vitest/coverage-v8':
+        specifier: ^1.5.0
+        version: 1.5.0(vitest@1.5.0)
+      '@vitest/ui':
+        specifier: ^1.5.0
+        version: 1.5.0(vitest@1.5.0)
+      c8:
+        specifier: ^9.1.0
+        version: 9.1.0
+      rimraf:
+        specifier: ~5.0.5
+        version: 5.0.5
+      typescript:
+        specifier: ~5.4.5
+        version: 5.4.5
+      vitest:
+        specifier: ^1.5.0
+        version: 1.5.0(@types/node@18.11.19)(@vitest/ui@1.5.0)(happy-dom@14.7.1)
+
   packages/spec:
     devDependencies:
       '@types/node':

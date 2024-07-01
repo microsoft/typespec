@@ -25,7 +25,7 @@ model Pet {
   tag?: string;
 
   @minValue(0)
-  @maxValue(20)
+  @maxValue(25)
   age: int32;
 
   ownerId: int64;
