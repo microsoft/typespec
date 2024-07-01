@@ -14,11 +14,12 @@ namespace Microsoft.Generator.CSharp.Expressions
             {
                 writer.AppendRaw(" (");
                 Exception.Write(writer);
-                writer.AppendRaw(")");
+                writer.WriteRawLine(")");
             }
-            writer.WriteRawLine("{");
-            Body.Write(writer);
-            writer.WriteRawLine("}");
+            using (writer.Scope())
+            {
+                Body.Write(writer);
+            }
         }
     }
 }
