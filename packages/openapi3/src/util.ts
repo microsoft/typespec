@@ -69,3 +69,9 @@ export function mapEquals<K, V>(
   }
   return true;
 }
+/**
+ * Check if argument is not undefined.
+ */
+export function isDefined<T>(arg: T | undefined): arg is T {
+  return arg !== undefined;
+}

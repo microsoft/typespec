@@ -572,6 +572,45 @@ export type DiscriminatorDecorator = (
 ) => void;
 
 /**
+ * Provide an example value for a type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{name: "Fluffy", age: 2})
+ * model Pet {
+ *  name: string;
+ *  age: int32;
+ * }
+ * ```
+ */
+export type ExampleDecorator = (
+  context: DecoratorContext,
+  target: Model | Enum | Scalar | Union | ModelProperty,
+  example: unknown,
+  options?: unknown
+) => void;
+
+/**
+ * Provide an example value for a type.
+ *
+ * @param example Example value.
+ * @param options Optional metadata for the example.
+ * @example
+ * ```tsp
+ * @example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * op createPet(pet: Pet): Pet;
+ * ```
+ */
+export type OpExampleDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  example: unknown,
+  options?: unknown
+) => void;
+
+/**
  * Indicates that a property is only considered to be present or applicable ("visible") with
  * the in the given named contexts ("visibilities"). When a property has no visibilities applied
  * to it, it is implicitly visible always.

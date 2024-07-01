@@ -7,6 +7,7 @@ import {
   $encodedName,
   $error,
   $errorsDoc,
+  $example,
   $format,
   $friendlyName,
   $inspectType,
@@ -22,6 +23,7 @@ import {
   $minLength,
   $minValue,
   $minValueExclusive,
+  $opExample,
   $overload,
   $parameterVisibility,
   $pattern,
@@ -49,6 +51,7 @@ import type {
   EncodedNameDecorator,
   ErrorDecorator,
   ErrorsDocDecorator,
+  ExampleDecorator,
   FormatDecorator,
   FriendlyNameDecorator,
   InspectTypeDecorator,
@@ -64,6 +67,7 @@ import type {
   MinLengthDecorator,
   MinValueDecorator,
   MinValueExclusiveDecorator,
+  OpExampleDecorator,
   OverloadDecorator,
   ParameterVisibilityDecorator,
   PatternDecorator,
@@ -119,6 +123,8 @@ type Decorators = {
   $projectedName: ProjectedNameDecorator;
   $encodedName: EncodedNameDecorator;
   $discriminator: DiscriminatorDecorator;
+  $example: ExampleDecorator;
+  $opExample: OpExampleDecorator;
   $visibility: VisibilityDecorator;
   $withVisibility: WithVisibilityDecorator;
   $inspectType: InspectTypeDecorator;
@@ -163,6 +169,8 @@ const _: Decorators = {
   $projectedName,
   $encodedName,
   $discriminator,
+  $example,
+  $opExample,
   $visibility,
   $withVisibility,
   $inspectType,
