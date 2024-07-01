@@ -8,7 +8,7 @@ using System.Text.Json;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Statements;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     internal static class PropertyDescriptionBuilder
     {

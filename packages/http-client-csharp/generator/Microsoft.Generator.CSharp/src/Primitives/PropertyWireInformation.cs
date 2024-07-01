@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Input;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     public class PropertyWireInformation
     {

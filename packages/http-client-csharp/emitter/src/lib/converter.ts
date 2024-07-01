@@ -201,9 +201,9 @@ export function fromSdkEnumType(
     const newInputEnumType: InputEnumType = {
       Kind: "enum",
       Name: enumName,
+      CrossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
       ValueType: fromSdkBuiltInType(enumType.valueType),
       Values: enumType.values.map((v) => fromSdkEnumValueType(v)),
-      CrossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
       Accessibility: getAccessOverride(
         context,
         enumType.__raw as any

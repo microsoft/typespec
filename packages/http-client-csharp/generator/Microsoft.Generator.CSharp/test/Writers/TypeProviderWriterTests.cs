@@ -2,15 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using Microsoft.Generator.CSharp.Input;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Providers;
-using Moq;
-using NUnit.Framework;
-using System.Reflection;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
+using Moq;
 using Moq.Protected;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Writers
 {

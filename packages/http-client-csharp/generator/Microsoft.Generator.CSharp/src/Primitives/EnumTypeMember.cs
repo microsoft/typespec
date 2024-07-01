@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Providers;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     public class EnumTypeMember
     {

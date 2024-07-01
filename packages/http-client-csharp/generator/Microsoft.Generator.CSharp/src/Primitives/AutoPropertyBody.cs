@@ -3,7 +3,7 @@
 
 using Microsoft.Generator.CSharp.Expressions;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Primitives
 {
     internal record AutoPropertyBody(bool HasSetter, MethodSignatureModifiers SetterModifiers = MethodSignatureModifiers.None, ValueExpression? InitializationExpression = null) : PropertyBody(HasSetter);
 }
