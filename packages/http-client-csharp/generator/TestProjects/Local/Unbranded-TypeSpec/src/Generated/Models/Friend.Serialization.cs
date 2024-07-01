@@ -65,6 +65,13 @@ namespace UnbrandedTypeSpec.Models
             throw new NotImplementedException("Not implemented");
         }
 
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Friend JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
+
         BinaryData IPersistableModel<Friend>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -80,9 +87,21 @@ namespace UnbrandedTypeSpec.Models
             }
         }
 
-        Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options)
+        Friend IPersistableModel<Friend>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            throw new NotImplementedException("Not implemented");
+            string format = options.Format == "W" ? ((IPersistableModel<Friend>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    Utf8JsonReader reader = new Utf8JsonReader((ReadOnlySpan<byte>)data);
+                    return JsonModelCreateCore(ref reader, options);
+                default:
+                    throw new FormatException($"The model {nameof(Friend)} does not support reading '{options.Format}' format.");
+            }
         }
 
         string IPersistableModel<Friend>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
