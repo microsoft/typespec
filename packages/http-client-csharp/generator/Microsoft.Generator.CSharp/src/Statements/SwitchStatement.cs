@@ -7,8 +7,15 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    public sealed record SwitchStatement(ValueExpression MatchExpression) : MethodBodyStatement, IEnumerable<SwitchCaseStatement>
+    public sealed class SwitchStatement : MethodBodyStatement, IEnumerable<SwitchCaseStatement>
     {
+        public ValueExpression MatchExpression { get; }
+
+        public SwitchStatement(ValueExpression matchExpression)
+        {
+            MatchExpression = matchExpression;
+        }
+
         public SwitchStatement(ValueExpression matchExpression, IEnumerable<SwitchCaseStatement> cases) : this(matchExpression)
         {
             _cases.AddRange(cases);
@@ -28,12 +35,11 @@ namespace Microsoft.Generator.CSharp.Statements
                 writer.Append($"switch (");
                 MatchExpression.Write(writer);
                 writer.WriteRawLine(")");
-                writer.WriteRawLine("{");
+                using var scope = writer.Scope();
                 foreach (var switchCase in Cases)
                 {
                     switchCase.Write(writer);
                 }
-                writer.WriteRawLine("}");
             }
         }
     }

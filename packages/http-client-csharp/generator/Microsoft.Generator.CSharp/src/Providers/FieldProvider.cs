@@ -3,6 +3,8 @@
 
 using System;
 using Microsoft.Generator.CSharp.Expressions;
+using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -13,6 +15,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public CSharpType Type { get; }
         public string Name { get; }
         public ValueExpression? InitializationValue { get; }
+        public XmlDocProvider? XmlDocs { get; }
 
         private CodeWriterDeclaration? _declaration;
 
@@ -30,6 +33,10 @@ namespace Microsoft.Generator.CSharp.Providers
             Name = name;
             Description = description;
             InitializationValue = initializationValue;
+            XmlDocs = Description is not null ? new XmlDocProvider() { Summary = new XmlDocSummaryStatement([Description]) } : null;
         }
+
+        private MemberExpression? _asMember;
+        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name);
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record IntSnippet(ValueExpression Untyped) : TypedSnippet<int>(Untyped)
+    public sealed record IntSnippet(ValueExpression Expression) : TypedSnippet<int>(Expression)
     {
         public static IntSnippet MaxValue => new(StaticProperty(nameof(int.MaxValue)));
         public IntSnippet Add(IntSnippet value) => Operator("+", value);

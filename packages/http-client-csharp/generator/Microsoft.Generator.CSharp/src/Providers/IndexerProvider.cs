@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Primitives;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
     internal class IndexerProvider : PropertyProvider
     {
         public ParameterProvider IndexerParameter { get; }
-        public IndexerProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, IReadOnlyDictionary<CSharpType, FormattableString>? exceptions = null, CSharpType? explicitInterface = null)
-            : base(description, modifiers, propertyType, "this", propertyBody, exceptions, explicitInterface)
+        public IndexerProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, CSharpType? explicitInterface = null)
+            : base(description, modifiers, propertyType, "this", propertyBody, explicitInterface)
         {
             IndexerParameter = indexerParameter;
         }

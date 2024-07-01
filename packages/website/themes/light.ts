@@ -93,5 +93,11 @@ export const LightTheme: PrismTheme = {
         color: "hsl(230, 8%, 24%)",
       },
     },
+    {
+      types: ["punctuation"],
+      style: {
+        color: "#383A42",
+      },
+    },
   ],
 };

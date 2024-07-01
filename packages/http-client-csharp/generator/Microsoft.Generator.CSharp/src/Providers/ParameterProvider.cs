@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
+using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -18,10 +20,10 @@ namespace Microsoft.Generator.CSharp.Providers
         public FormattableString Description { get; }
         public CSharpType Type { get; init; }
         public ValueExpression? DefaultValue { get; init; }
-        public ParameterValidationType? Validation { get; init; } = ParameterValidationType.None;
+        public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
-        internal AttributeStatement[] Attributes { get; init; } = Array.Empty<AttributeStatement>();
+        internal IReadOnlyList<AttributeStatement> Attributes { get; } = Array.Empty<AttributeStatement>();
 
         public ParameterProvider(InputModelProperty inputProperty)
         {
@@ -37,7 +39,6 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
-            // TO-DO: Add additional implementation to properly build the parameter https://github.com/Azure/autorest.csharp/issues/4607
             Name = inputParameter.Name;
             Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
             Type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
@@ -50,7 +51,8 @@ namespace Microsoft.Generator.CSharp.Providers
             CSharpType type,
             ValueExpression? defaultValue = null,
             bool isRef = false,
-            bool isOut = false)
+            bool isOut = false,
+            IReadOnlyList<AttributeStatement>? attributes = default)
         {
             Name = name;
             Type = type;
@@ -58,6 +60,7 @@ namespace Microsoft.Generator.CSharp.Providers
             IsRef = isRef;
             IsOut = isOut;
             DefaultValue = defaultValue;
+            Attributes = attributes ?? Array.Empty<AttributeStatement>();
         }
 
         private ParameterValidationType GetParameterValidation(InputModelProperty property, CSharpType propertyType)
@@ -125,6 +128,24 @@ namespace Microsoft.Generator.CSharp.Providers
             return $"Name: {Name}, Type: {Type}";
         }
 
-        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
+        public static implicit operator VariableExpression(ParameterProvider parameter) => GetVariableExpression(parameter);
+
+        private static VariableExpression GetVariableExpression(ParameterProvider parameter)
+        {
+            if (parameter._asVariable == null)
+            {
+                var decl = new CodeWriterDeclaration(parameter.Name);
+                decl.SetActualName(parameter.Name);
+                parameter._asVariable = new VariableExpression(parameter.Type, decl);
+            }
+
+            return parameter._asVariable;
+        }
+
+        private VariableExpression? _asVariable;
+        public VariableExpression AsExpression => _asVariable ??= this;
+
+        private MemberExpression? _asProperty;
+        public MemberExpression AsPropertyExpression => _asProperty ??= new MemberExpression(null, Name.FirstCharToUpperCase());
     }
 }

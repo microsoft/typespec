@@ -5,10 +5,10 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record LongSnippet(ValueExpression Untyped) : TypedSnippet<long>(Untyped)
+    public sealed record LongSnippet(ValueExpression Expression) : TypedSnippet<long>(Expression)
     {
         public StringSnippet InvokeToString(ValueExpression formatProvider)
-            => new(Untyped.Invoke(nameof(long.ToString), formatProvider));
+            => new(Expression.Invoke(nameof(long.ToString), formatProvider));
 
         public static LongSnippet Parse(StringSnippet value, ValueExpression formatProvider)
             => new(new InvokeStaticMethodExpression(typeof(long), nameof(long.Parse), new[] { value, formatProvider }));

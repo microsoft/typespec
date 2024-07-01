@@ -757,6 +757,9 @@ importers:
       react-dom:
         specifier: ~18.3.1
         version: 18.3.1(react@18.3.1)
+      react-error-boundary:
+        specifier: ^4.0.13
+        version: 4.0.13(react@18.3.1)
       swagger-ui-dist:
         specifier: ^5.17.10
         version: 5.17.10
@@ -14206,6 +14209,7 @@ packages:
 
   /ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
+    requiresBuild: true
 
   /ignore-walk@6.0.4:
     resolution: {integrity: sha512-t7sv42WkwFkyKbivUCglsQW5YWMskWtbEf4MNKX5u/CCWHKSPzN4FtBQGsQZgCLbxOzpVlcbWVK5KB3auIOjSw==}
@@ -18163,6 +18167,15 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.1.0
     dev: true
+
+  /react-error-boundary@4.0.13(react@18.3.1):
+    resolution: {integrity: sha512-b6PwbdSv8XeOSYvjt8LpgpKrZ0yGdtZokYwkwV2wlcZbxgopHX/hgPl5VgpnoVOWd868n1hktM8Qm4b+02MiLQ==}
+    peerDependencies:
+      react: '>=16.13.1'
+    dependencies:
+      '@babel/runtime': 7.24.1
+      react: 18.3.1
+    dev: false
 
   /react-error-overlay@6.0.11:
     resolution: {integrity: sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==}

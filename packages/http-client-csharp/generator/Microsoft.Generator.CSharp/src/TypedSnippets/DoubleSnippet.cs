@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Snippets
 {
-    public sealed record DoubleSnippet(ValueExpression Untyped) : TypedSnippet<double>(Untyped)
+    public sealed record DoubleSnippet(ValueExpression Expression) : TypedSnippet<double>(Expression)
     {
         public static DoubleSnippet MaxValue => new(StaticProperty(nameof(double.MaxValue)));
 
