@@ -29,22 +29,24 @@ namespace Microsoft.Generator.CSharp.Tests.Snippets
         public void ConvertSnippet_InvokeToDouble()
         {
             var arg = Snippet.Literal("2.0");
-            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToDouble(arg);
+            InvokeInstanceMethodExpression result = ConvertSnippets.InvokeToDouble(arg);
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
             Assert.AreEqual(nameof(Convert.ToDouble), result.MethodName);
+            using CodeWriter writer = new CodeWriter();
+            result.Write(writer);
+            Assert.AreEqual("global::System.Convert.ToDouble(\"2.0\")", writer.ToString(false));
         }
 
         [Test]
         public void ConvertSnippet_InvokeToInt32()
         {
             var arg = Snippet.Literal("2");
-            InvokeStaticMethodExpression result = ConvertSnippet.InvokeToInt32(arg);
+            InvokeInstanceMethodExpression result = ConvertSnippets.InvokeToInt32(arg);
 
-            Assert.IsNotNull(result.MethodType);
-            Assert.AreEqual(new CSharpType(typeof(Convert)), result.MethodType);
             Assert.AreEqual(nameof(Convert.ToInt32), result.MethodName);
+            using CodeWriter writer = new CodeWriter();
+            result.Write(writer);
+            Assert.AreEqual("global::System.Convert.ToInt32(\"2\")", writer.ToString(false));
         }
 
         [Test]

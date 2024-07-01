@@ -16,6 +16,8 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<T> As<T>(this ValueExpression expression) => new(expression);
 
         public static ValueExpression Static<T>() => new TypeReferenceExpression(typeof(T));
+        //overload needed since static types cannot be usd as type arguments
+        public static ValueExpression Static(Type type) => new TypeReferenceExpression(type);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
         public static MethodBodyStatement AsStatement(this IEnumerable<MethodBodyStatement> statements) => statements.ToArray();
