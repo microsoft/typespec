@@ -17,7 +17,7 @@
     "typespec"
   ],
   "bin": {
-    "openapi3-to-tsp": "cmd/openapi3-to-tsp.js"
+    "tsp-openapi3": "cmd/tsp-openapi3.js"
   },
   "type": "module",
   "main": "dist/src/index.js",
