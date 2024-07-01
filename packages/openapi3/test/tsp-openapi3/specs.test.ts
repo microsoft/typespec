@@ -8,7 +8,6 @@ const specsRoot = resolvePath(pkgRoot, "test", "tsp-openapi3", "specs");
 const rootOutputDir = resolvePath(pkgRoot, "test", "tsp-openapi3", "output");
 
 describe("tsp-openapi3 convert", () => {
-  // define tests
   defineSpecSnaphotTests({
     specDir: specsRoot,
     outputDir: rootOutputDir,
