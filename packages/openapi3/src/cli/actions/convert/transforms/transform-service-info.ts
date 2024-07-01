@@ -1,6 +1,7 @@
-import { FullOpenAPI3Info, TypeSpecServiceInfo } from "../interfaces.js";
+import { OpenAPI3Info } from "../../../../types.js";
+import { TypeSpecServiceInfo } from "../interfaces.js";
 
-export function transformServiceInfo(info: FullOpenAPI3Info): TypeSpecServiceInfo {
+export function transformServiceInfo(info: OpenAPI3Info): TypeSpecServiceInfo {
   return {
     name: info.title,
     doc: info.description,

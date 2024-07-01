@@ -1,18 +1,5 @@
 import { Contact, License } from "@typespec/openapi";
-import {
-  OpenAPI3Encoding,
-  OpenAPI3Info,
-  OpenAPI3Responses,
-  OpenAPI3Schema,
-  Refable,
-} from "../../../types.js";
-
-export type FullOpenAPI3Info = OpenAPI3Info & {
-  contact?: Contact;
-  license?: License;
-  summary?: string;
-  termsOfService?: string;
-};
+import { OpenAPI3Encoding, OpenAPI3Responses, OpenAPI3Schema, Refable } from "../../../types.js";
 
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
