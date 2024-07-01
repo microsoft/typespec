@@ -1,0 +1,13 @@
+[package]
+name = "typespec"
+version = "0.1.0"
+authors = ["Microsoft"]
+edition = "2021"
+description = "Project root for all TypeSpec-related crates"
+homepage = "https://aka.ms/typespec"
+repository = "https://github.com/microsoft/typespec"
+license = "MIT"
+categories = [
+    "compilers",
+    "development-tools",
+]
