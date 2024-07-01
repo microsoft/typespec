@@ -5,7 +5,7 @@ import { isNamedUnion } from "../../utils.js";
 import { Literal, Mono, TypeKind } from "../common.js";
 import { JsValue } from "../js-inspector/js-value/js-value.js";
 import { getPropertyRendering, type EntityPropertyConfig } from "../type-config.js";
-import { useTreeNavigator } from "../use-tree-navigation.js";
+import { useTreeNavigatorOptional } from "../use-tree-navigation.js";
 import style from "./inspect-type.module.css";
 
 type NamedType = Type & { name: string };
@@ -35,12 +35,12 @@ const EntityUI: FunctionComponent<EntityUIProps> = ({ entity }) => {
 };
 
 const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
-  const nav = useTreeNavigator();
+  const nav = useTreeNavigatorOptional();
 
-  const navToType = useCallback(() => nav.navToType(type), [nav.navToType, type]);
+  const navToType = useCallback(() => nav?.navToType(type), [nav?.navToType, type]);
   return (
     <div className={style["type-ui"]}>
-      <div className={style["type-ui-header"]} onClick={navToType}>
+      <div className={style["type-ui-header"]} onClick={nav && navToType}>
         <TypeKind type={type} />{" "}
         <span className={style["type-name"]}>{"name" in type ? type.name?.toString() : ""}</span>
       </div>
@@ -50,13 +50,13 @@ const TypeUI: FunctionComponent<{ type: Type }> = ({ type }) => {
 };
 
 const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
-  const nav = useTreeNavigator();
+  const nav = useTreeNavigatorOptional();
 
   const navToType = useCallback(() => {
-    nav.navToType(type);
-  }, [nav.navToType, type]);
+    nav?.navToType(type);
+  }, [nav?.navToType, type]);
   return (
-    <a className={style["named-type-ref"]} onClick={navToType}>
+    <a className={style["named-type-ref"]} onClick={nav && navToType}>
       {getTypeName(type)}
     </a>
   );

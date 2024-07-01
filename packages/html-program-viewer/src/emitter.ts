@@ -1,3 +1,4 @@
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import {
   createTypeSpecLibrary,
   emitFile,
@@ -5,9 +6,12 @@ import {
   resolvePath,
   type EmitContext,
   type JSONSchemaType,
+  type Program,
 } from "@typespec/compiler";
+import { createElement } from "react";
+import ReactDOMServer from "react-dom/server";
 import { fileURLToPath } from "url";
-import { renderProgram } from "./react/type-graph.js";
+import { InspectType } from "./react/inspect-type/inspect-type.js";
 
 export interface HtmlProgramViewerOptions {
   /**
@@ -25,8 +29,18 @@ const EmitterOptionsSchema: JSONSchemaType<HtmlProgramViewerOptions> = {
   required: [],
 };
 
+export function renderProgram(program: Program) {
+  const html = ReactDOMServer.renderToString(
+    createElement(FluentProvider, {
+      theme: webLightTheme,
+      children: createElement(InspectType, { entity: program.getGlobalNamespaceType() }),
+    }) // [1
+  );
+  return html;
+}
+
 export const libDef = {
-  name: "@typespec/openapi3",
+  name: "@typespec/html-program-viewer",
   diagnostics: {},
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<HtmlProgramViewerOptions>,

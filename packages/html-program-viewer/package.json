@@ -34,7 +34,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "vite build",
+    "build": "pnpm build:react && pnpm build:emitter",
+    "build:react": "vite build",
+    "build:emitter": "vite build --config vite.emitter.config.ts",
     "watch": "vite build --watch",
     "test": "vitest run",
     "test:ui": "vitest --ui",

@@ -34,6 +34,10 @@ function expandNamespaces(namespace: Namespace): Namespace[] {
 
 const TreeNavigatorContext = createContext<TreeNavigator | undefined>(undefined);
 
+export function useTreeNavigatorOptional(): TreeNavigator | undefined {
+  return useContext(TreeNavigatorContext);
+}
+
 export function useTreeNavigator(): TreeNavigator {
   const nav = useContext(TreeNavigatorContext);
   if (nav === undefined) {
